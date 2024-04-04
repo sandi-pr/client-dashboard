@@ -1,0 +1,28 @@
+{
+  "name": "client-dashboard",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.0",
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "autoprefixer": "^10.4.18",
+    "flowbite": "^2.3.0",
+    "flowbite-svelte": "^0.44.24",
+    "postcss": "^8.4.36",
+    "svelte": "^5.0.0-next.1",
+    "vite": "^5.0.3"
+  },
+  "type": "module",
+  "dependencies": {
+    "hexacomponents-svelte": "https://gitlab.hexacode.org/public-repo/js/hexacomponents-svelte/#0.0.1",
+    "svelte-add": "latest",
+    "tailwindcss": "^3.4.1",
+    "axios": "^1.6.8"
+  }
+}

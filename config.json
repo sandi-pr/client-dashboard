@@ -1,0 +1,44 @@
+{
+    "namespace": "client-dashboard",
+    "server": {
+        "port": 8080
+    },
+    "templates": [
+        {
+            "name": "home-page",
+            "path": "/",
+            "file_path": "template/index.html"
+        }
+    ],
+    "apis": [
+        {
+            "name": "multiply",
+            "path": "/multiply",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "Multiply"
+            },
+            "params": [
+                { 
+                    "name": "a", 
+                    "label": "Value A",
+                    "placeholder": "Enter Value A",
+                    "type": "number",
+                    "validate": "number",
+                    "required": true
+                },
+                { 
+                    "name": "b", 
+                    "label": "Value B",
+                    "placeholder": "Enter Value B",
+                    "type": "number",
+                    "validate": "number",
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
