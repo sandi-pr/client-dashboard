@@ -10,12 +10,28 @@
 package main
 
 import (
+	"errors"
+	"os"
+
 	"gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
 )
 
-func init() {
+var MODULE_MANAGER_URL = ""
+var STRAPI_URL = ""
 
+func init() {
+	MODULE_MANAGER_URL = os.Getenv("MODULE_MANAGER_URL")
+	if MODULE_MANAGER_URL == "" {
+		panic(errors.New("Environment MODULE_MANAGER_URL is empty"))
+	}
+
+	STRAPI_URL = os.Getenv("STRAPI_URL")
+	if STRAPI_URL == "" {
+		panic(errors.New("Environment STRAPI_URL is empty"))
+	}
+
+	config.Schedule("", MODULE_MANAGER_URL)
 }
 
 func multiply(a int, b int) int {

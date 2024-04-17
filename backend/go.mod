@@ -13,7 +13,7 @@ go 1.19
 
 require (
 	gitlab.hexacode.org/go-libs/hctypes v1.0.2
-	gitlab.hexacode.org/go-libs/microservice v1.1.1
+	gitlab.hexacode.org/go-libs/microservice v1.1.5
 )
 
 require (
@@ -44,6 +44,7 @@ require (
 	github.com/sirupsen/logrus v1.3.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
+	gitlab.hexacode.org/go-libs/requests v1.0.1 // indirect
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
