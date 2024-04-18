@@ -116,8 +116,8 @@ github.com/x-cray/logrus-prefixed-formatter v0.5.2 h1:00txxvfBM9muc0jiLIEAkAcIMJ
 github.com/x-cray/logrus-prefixed-formatter v0.5.2/go.mod h1:2duySbKsL6M18s5GU7VPsoEPHyzalCE06qoARUCeBBE=
 gitlab.hexacode.org/go-libs/hctypes v1.0.2 h1:bAfUDI3hOAzKdED/QI52Jn0VoINNVEQK5C2A8Os0jfg=
 gitlab.hexacode.org/go-libs/hctypes v1.0.2/go.mod h1:v6DNaWyblXG/ZeIjoJ2o844JimY/RknTNRAgALEdQQY=
-gitlab.hexacode.org/go-libs/microservice v1.1.5 h1:Kcbwg1ljZIlADSKO/Krus1mXS7Ue8YjM7HLVGYaGbzM=
-gitlab.hexacode.org/go-libs/microservice v1.1.5/go.mod h1:JUF48bQma+F7ZUWpmqejsFyDJBfqO197sbLdCRo7SVY=
+gitlab.hexacode.org/go-libs/microservice v1.1.6 h1:Chq9d7fnZUNBymYgQDde8qgma4vYDA1fzjke5zQRpAA=
+gitlab.hexacode.org/go-libs/microservice v1.1.6/go.mod h1:JUF48bQma+F7ZUWpmqejsFyDJBfqO197sbLdCRo7SVY=
 gitlab.hexacode.org/go-libs/requests v1.0.1 h1:Pb2AgtCxA7VFxFxtvRUskLTMtFz+Ls0o5GYfha+GEN0=
 gitlab.hexacode.org/go-libs/requests v1.0.1/go.mod h1:XMPZBCqrZ6puGR8l2ZPBkeDOqAXwIYGZHSv0MZ81OeQ=
 golang.org/x/arch v0.0.0-20210923205945-b76863e36670/go.mod h1:5om86z9Hs0C8fWVUuoMHwpExlXzs5Tkyp9hOrfG7pp8=
