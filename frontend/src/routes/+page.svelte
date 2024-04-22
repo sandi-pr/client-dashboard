@@ -30,7 +30,7 @@ All Rights Reserved
     }
 </script>
 
-<div class="w-1/3 mx-auto mt-10 flex flex-col">
+<!-- <div class="w-1/3 mx-auto mt-10 flex flex-col">
     <div class="text-center">
         <Heading tag="h1">CR3 Client Dashboard</Heading>
         <Heading tag="h3">Multiply Page</Heading>
@@ -54,4 +54,4 @@ All Rights Reserved
         <Label for="result" class="mb-2">Result</Label>
         <Input bind:value={result} id="result" type="text" placeholder="Result" readonly/>
     </div>
-</div>
+</div> -->
