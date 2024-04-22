@@ -8,26 +8,29 @@ All Rights Reserved
 -->
 
 <script>
-    import { Input, Label, Heading, Button } from "flowbite-svelte";
-    import axios from "axios";
-    import { createEventDispatcher } from 'svelte';
+  import { Input, Label, Heading, Button } from "flowbite-svelte";
+  import axios from "axios";
+  import { createEventDispatcher } from "svelte";
 
-    let a = 0;
-    let b = 0;
-    let result = 0;
+  let a = 0;
+  let b = 0;
+  let result = 0;
 
-    const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher();
 
-    function multiply() {
-        var url = "/client-dashboard/multiply";
-        axios.post(url, { a: a, b: b }).then((response) => {
-            result = response.data.result.result;
-        }).catch((error) => {
-            dispatch('error', {
-                error: error
-            })
+  function multiply() {
+    var url = "/client-dashboard/multiply";
+    axios
+      .post(url, { a: a, b: b })
+      .then((response) => {
+        result = response.data.result.result;
+      })
+      .catch((error) => {
+        dispatch("error", {
+          error: error,
         });
-    }
+      });
+  }
 </script>
 
 <!-- <div class="w-1/3 mx-auto mt-10 flex flex-col">

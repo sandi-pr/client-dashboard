@@ -9,18 +9,10 @@ All Rights Reserved
 
 <script>
   import "../app.css";
-  import { browser } from "$app/environment";
   import { Sidebar, Navbar } from "hexacomponents-svelte";
-  import { onMount, onDestroy } from "svelte";
-  // import { getModules } from "$lib/utils/getModule";
+  import { onMount } from "svelte";
 
   let innerWidth = $state(0);
-
-  // if (typeof window !== "undefined") {
-  //   innerHeight = window.innerHeight;
-  //   innerWidth = window.innerWidth;
-  //   console.log(window.innerHeight, window.innerWidth);
-  // }
 
   onMount(() => {
     const resizeHandler = () => {
@@ -33,17 +25,8 @@ All Rights Reserved
     };
   });
 
-  let winInnerHeight = $derived(innerHeight);
   let winInnerWidth = $derived(innerWidth);
-  // import "$lib/service/i18n.js";
-  // import { locale, waitLocale, isLoading } from "svelte-i18n";
 
-  // export const load = async () => {
-  //   if (browser) {
-  //     locale.set(window.navigator.language);
-  //   }
-  //   await waitLocale();
-  // };
   const getModules = async () => {
     return [
       {
@@ -64,9 +47,6 @@ All Rights Reserved
   };
 </script>
 
-<!-- {#if $isLoading}
-    <p>Loading...</p>
-  {:else} -->
 {#if winInnerWidth > 0}
   <div class="lg:flex">
     <Sidebar
@@ -82,4 +62,3 @@ All Rights Reserved
     </div>
   </div>
 {/if}
-<!-- {/if} -->
