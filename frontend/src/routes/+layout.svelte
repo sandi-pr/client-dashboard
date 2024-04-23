@@ -11,6 +11,8 @@ All Rights Reserved
   import "../app.css";
   import { Sidebar, Navbar } from "hexacomponents-svelte";
   import { onMount } from "svelte";
+  import { locale, waitLocale, isLoading } from "svelte-i18n";
+  import "./lib/service/i18n";
 
   let innerWidth = $state(0);
 
@@ -45,9 +47,18 @@ All Rights Reserved
       },
     ];
   };
+
+  export const load = async () => {
+    if (browser) {
+      locale.set(window.navigator.language);
+    }
+    await waitLocale();
+  };
 </script>
 
-{#if winInnerWidth > 0}
+{#if $isLoading}
+  <div>Loading...</div>
+{:else if winInnerWidth > 0}
   <div class="lg:flex">
     <Sidebar
       getModule={getModules}
