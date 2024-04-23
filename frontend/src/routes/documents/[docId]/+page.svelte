@@ -2,56 +2,56 @@
   import {
     P,
     Span,
-    Heading,
     Input,
-    Textarea,
-    Button,
-    ButtonGroup,
-    Dropdown,
-    DropdownItem,
-    Avatar,
     Table,
-    TableBody,
-    TableBodyCell,
-    TableBodyRow,
-    TableHead,
-    TableHeadCell,
     Modal,
     Select,
+    Button,
+    Avatar,
+    Heading,
+    Textarea,
+    TableBody,
+    // Dropdown,
+    // DropdownItem,
+    ButtonGroup,
+    TableHead,
+    TableBodyRow,
+    TableBodyCell,
+    TableHeadCell,
   } from "flowbite-svelte";
-  import AutoComplete from "simple-svelte-autocomplete";
-  import { ChevronDownSolid } from "flowbite-svelte-icons";
-  import PDFViewer from "svelte-pdf";
-  import CheckWhiteIcon from "$lib/icon/check-white.svg";
-  import XIcon from "$lib/icon/x.svelte";
-  import ShareIcon from "$lib/icon/share-06.svelte";
-  import CopyIcon from "$lib/icon/copy-03.svelte";
-  import Check from "$lib/icon/check-2.png";
-  import RefreshIcon from "$lib/icon/refresh.svg";
-  import DownloadIcon from "$lib/icon/file-download-03.svg";
-  import Divider from "../../../lib/components/Divider.svelte";
   import { onMount } from "svelte";
-  import { userDataSession } from "$lib/utils/auth";
   import { _ } from "svelte-i18n";
-  import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import {
-    PUBLIC_STRAPI_URL_DEV,
-    PUBLIC_STRAPI_URL_PROD,
-    PUBLIC_API_URL_DEV,
-    PUBLIC_API_URL_PROD,
-  } from "$env/static/public";
-  import { add, format } from "date-fns";
-  import axios from "axios";
-  import TabDetail from "$lib/components/TabDetail.svelte";
+  import AutoComplete from "simple-svelte-autocomplete";
+  import { ChevronDownOutline } from "flowbite-svelte-icons";
+  // import PDFViewer from "svelte-pdf";
+  import CheckWhiteIcon from "../../lib/icon/check-white.svg";
+  import XIcon from "../../lib/icon/x.svelte";
+  import ShareIcon from "../../lib/icon/share-06.svelte";
+  import CopyIcon from "../../lib/icon/copy-03.svelte";
+  import Check from "../../lib/icon/check-2.png";
+  import RefreshIcon from "../../lib/icon/refresh.svg";
+  import DownloadIcon from "../../lib/icon/file-download-03.svg";
+  import Divider from "../../lib/components/Divider.svelte";
+  import { toCamelCase } from "../../lib/utils/toCamelCase.js";
+  import TabBar from "../../lib/components/TabBar.svelte";
+  // import { userDataSession } from "$lib/utils/auth";
+  // import {
+  //   PUBLIC_STRAPI_URL_DEV,
+  //   PUBLIC_STRAPI_URL_PROD,
+  //   PUBLIC_API_URL_DEV,
+  //   PUBLIC_API_URL_PROD,
+  // } from "$env/static/public";
+  // import { add, format } from "date-fns";
+  // import axios from "axios";
   let screenWidth;
 
-  const isDev = process.env.NODE_ENV === "development";
+  // const isDev = process.env.NODE_ENV === "development";
 
-  const API_URL = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
+  // const API_URL = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
 
-  const strapiUrl = isDev ? PUBLIC_STRAPI_URL_DEV : PUBLIC_STRAPI_URL_PROD;
+  // const strapiUrl = isDev ? PUBLIC_STRAPI_URL_DEV : PUBLIC_STRAPI_URL_PROD;
 
-  let dropdownOpen = false;
+  // let dropdownOpen = false;
 
   let popupModal = false;
 
@@ -190,34 +190,34 @@
   //   }
   // };
 
-  const handleSearchInvitees = async (value) => {
-    try {
-      console.log(value, inviteTypeSelected, inviteUnitSelected);
-      const response = await axios.get(
-        `${API_URL}/api/users?type=search&value=${value}&role=${inviteTypeSelected}&unit=${inviteUnitSelected}`,
-        {
-          headers: {
-            Authorization: "Bearer " + userDataSession().jwt,
-          },
-        }
-      );
+  // const handleSearchInvitees = async (value) => {
+  //   try {
+  //     console.log(value, inviteTypeSelected, inviteUnitSelected);
+  //     const response = await axios.get(
+  //       `${API_URL}/api/users?type=search&value=${value}&role=${inviteTypeSelected}&unit=${inviteUnitSelected}`,
+  //       {
+  //         headers: {
+  //           Authorization: "Bearer " + userDataSession().jwt,
+  //         },
+  //       }
+  //     );
 
-      // console.log(response);
+  //     // console.log(response);
 
-      if (response?.data?.status === 401) {
-        alert("Session expired, please login again");
-        goto("/");
-      }
+  //     if (response?.data?.status === 401) {
+  //       alert("Session expired, please login again");
+  //       goto("/");
+  //     }
 
-      if (response?.data) {
-        return response.data;
-      } else {
-        return [];
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     if (response?.data) {
+  //       return response.data;
+  //     } else {
+  //       return [];
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   // const classes = {
   //   overall: null,
@@ -235,7 +235,7 @@
 
   //dami data
   pdfReady = true;
-  import pdf from "$lib/template.pdf";
+  // import pdf from "../../lib/template.pdf";
   document = {
     attributes: {
       name: "Document Name",
@@ -431,7 +431,7 @@
 <svelte:window bind:innerWidth={screenWidth} />
 
 <div class="flex dark:bg-hc-graydark-950">
-  <div class="w-full pb-10 lg:ml-80">
+  <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <div class="flex items-center pb-8">
         <div class="flex flex-col grow">
@@ -511,7 +511,7 @@
       </div>
 
       <!-- Tab Bar -->
-      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+      <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
       <!-- Content -->
       <div class="m-4">
@@ -523,13 +523,13 @@
             <div class="flex items-center gap-2">
               <Button color="light">
                 {filename}
-                <ChevronDownSolid class="w-3 h-3 ms-2 dark:text-white" />
+                <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
               </Button>
-              <Dropdown bind:open={dropdownOpen} class="w-48 overflow-y-auto py-1">
+              <!-- <Dropdown bind:open={dropdownOpen} class="w-48 overflow-y-auto py-1">
                 <DropdownItem on:click={() => (dropdownOpen = false)}>
                   {filename}
                 </DropdownItem>
-              </Dropdown>
+              </Dropdown> -->
               <Button type="submit" class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1">
                 <img alt="refresh" src={DownloadIcon} class="w-5 h-5" />
                 {$_("downdloadDocument")}
@@ -538,7 +538,8 @@
           </div>
           <div class="flex justify-center w-full py-10 bg-gray-50 rounded-lg dark:bg-gray-800">
             {#if pdfReady}
-              <PDFViewer url={pdf} />
+              <!-- <PDFViewer url={pdf} /> -->
+              PDF Viewer Here
             {/if}
           </div>
         {:else if tabDatas.selected === "Initial Documents"}
@@ -549,13 +550,13 @@
             <div class="flex items-center gap-2">
               <Button color="light">
                 {filename}
-                <ChevronDownSolid class="w-3 h-3 ms-2 dark:text-white" />
+                <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
               </Button>
-              <Dropdown bind:open={dropdownOpen} class="w-48 overflow-y-auto py-1">
+              <!-- <Dropdown bind:open={dropdownOpen} class="w-48 overflow-y-auto py-1">
                 <DropdownItem on:click={() => (dropdownOpen = false)}>
                   {filename}
                 </DropdownItem>
-              </Dropdown>
+              </Dropdown> -->
               <Button type="submit" class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1">
                 <img alt="refresh" src={DownloadIcon} class="w-5 h-5" />
                 {$_("documentName")}
@@ -564,7 +565,8 @@
           </div>
           <div class="flex justify-center w-full py-10 bg-gray-50 rounded-lg dark:bg-gray-800">
             {#if pdfReady}
-              <PDFViewer url={pdf} />
+              <!-- <PDFViewer url={pdf} /> -->
+              PDF Viewer Here
             {/if}
           </div>
         {:else if tabDatas.selected === "History"}
@@ -580,9 +582,10 @@
                   <TableBodyRow
                     class=" dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
                   >
-                    <TableBodyCell class="w-72 text-hc-graylight-600 dark:text-hc-graydark-400"
-                      >{format(new Date(row.timestamp), "MM/dd/yyyy HH:mm")}</TableBodyCell
-                    >
+                    <TableBodyCell class="w-72 text-hc-graylight-600 dark:text-hc-graydark-400">
+                      <!-- {format(new Date(row.timestamp), "MM/dd/yyyy HH:mm")} -->
+                      Clock Here
+                    </TableBodyCell>
                     <TableBodyCell class="flex text-hc-graylight-900 dark:text-hc-graydark-50">
                       <Avatar
                         stacked
@@ -742,8 +745,10 @@
                 <div class="flex flex-col grow gap-2 mt-1">
                   <P
                     class="text-sm font-medium leading-tight text-hc-graylight-700 dark:text-hc-graydark-300"
-                    >{format(new Date(document.attributes.createdAt), "MM/dd/yyyy HH:mm")}</P
                   >
+                    <!-- {format(new Date(document.attributes.createdAt), "MM/dd/yyyy HH:mm")} -->
+                    Clock Here
+                  </P>
                   <Input readonly value="2023-07-02 08:51 PM" />
                 </div>
               </div>
