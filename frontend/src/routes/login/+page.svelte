@@ -1,13 +1,11 @@
 <script>
-  import { Label, Footer, Input, Button, Heading, FooterCopyright } from "flowbite-svelte";
-
-  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
+  import { _ } from "svelte-i18n";
+  import { Label, Footer, Input, Button, Heading, FooterCopyright } from "flowbite-svelte";
   import { goto } from "$app/navigation";
   import bglogin from "$lib/image/bg_login.png";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import HeaderRegister from "$lib/components/HeaderRegister.svelte";
-  import Me from "$lib/utils/me";
 
   let email = "";
   let password = "";
@@ -18,50 +16,31 @@
     event.preventDefault();
 
     try {
-      const response = await fetch(`/api/auth?email=${email}&password=${password}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // const response = await fetch(`/api/auth?email=${email}&password=${password}`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
 
-      if (response.ok) {
-        const data = await response.json();
-        $Me = data;
-        setTimeout(() => {
-          isLoading = false;
-          goto("/dashboard");
-        }, 5000);
-        // const result = await response.json();
-        // const response2 = await fetch(`/api/auth?jwt=${result.jwt}`, {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        // });
-        // if (response2.ok) {
-        //   // const result = await response2.json();
-        //   // console.log(result);
-        //   // if (result.organization !== null) {
-        //   //   console.log(data);
-        //   //   data.data.user = result;
-        //   //   document.cookie = `crd_cookies=${data.data}; path=/; max-age=${60 * 60 * 24 * 7}`;
-        //   //   goto("/dashboard");
-        //   // } else {
-        //   //   goto("/onboarding");
-        //   // }
-        // }
+      // if (response.status === 200) {
+      if (isLoading) {
+        sessionStorage.setItem(
+          "user",
+          JSON.stringify({
+            jwt: "123abc",
+            data: { email: email, username: "John Doe", brand: "Crossroads" },
+          })
+        );
+        window.location.replace("/");
       } else {
         console.error("Login request failed:", response.status);
       }
     } catch (error) {
       console.error("An unexpected error occurred:", error);
     }
+    isLoading = false;
   };
-
-  onMount(() => {
-    // console.log(data);
-  });
 </script>
 
 <LoadingSpinner {isLoading} />

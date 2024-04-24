@@ -13,7 +13,6 @@ All Rights Reserved
   import { Sidebar, Navbar } from "hexacomponents-svelte";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading } from "svelte-i18n";
-  import { goto } from "$app/navigation";
   import "$lib/service/i18n";
   import checkIsLoggedIn from "$lib/utils/checkIsLoggedIn";
 
@@ -24,19 +23,6 @@ All Rights Reserved
   const hideLayout = () => {
     return !hideLayoutList.includes(window.location.pathname);
   };
-
-  onMount(() => {
-    const resizeHandler = () => {
-      innerWidth = window.innerWidth;
-    };
-    window.addEventListener("resize", resizeHandler);
-    resizeHandler(); // call once initially to set the correct value
-    return () => {
-      window.removeEventListener("resize", resizeHandler);
-    };
-  });
-
-  let winInnerWidth = $derived(innerWidth);
 
   const getModules = async () => {
     return [
@@ -57,6 +43,11 @@ All Rights Reserved
     ];
   };
 
+  const logout = () => {
+    sessionStorage.removeItem("user");
+    window.location.replace("/login");
+  };
+
   export const load = async () => {
     if (browser) {
       locale.set(window.navigator.language);
@@ -64,11 +55,28 @@ All Rights Reserved
     await waitLocale();
   };
 
-  // $effect(() => {
-  //   if (hideLayout() && checkIsLoggedIn() === null) {
-  //     goto("/login");
-  //   }
-  // });
+  onMount(() => {
+    const resizeHandler = () => {
+      innerWidth = window.innerWidth;
+    };
+    window.addEventListener("resize", resizeHandler);
+    resizeHandler(); // call once initially to set the correct value
+    return () => {
+      window.removeEventListener("resize", resizeHandler);
+    };
+  });
+
+  let winInnerWidth = $derived(innerWidth);
+  let userData = $state({});
+
+  $effect(() => {
+    if (hideLayout() && checkIsLoggedIn() === null) {
+      window.location.replace("/login");
+    } else if (!hideLayout() && checkIsLoggedIn() !== null) {
+      window.location.replace("/");
+    }
+    userData = checkIsLoggedIn();
+  });
 </script>
 
 {#if $isLoading}
@@ -78,12 +86,15 @@ All Rights Reserved
     <div class="lg:flex">
       <Sidebar
         getModule={getModules}
-        name="Hexastaff"
-        email="staff@hexacode.org"
-        brand="Crossroads"
+        name={userData?.data?.username || "Hexastaff"}
+        email={userData?.data?.email || "staff@hexacode.org"}
+        brand={userData?.data?.brand || "Crossroads"}
         innerWidth={winInnerWidth}
+        {logout}
       />
-      <div class="w-full h-screen lg:ml-80 pt-8 border-l border-secondary-light dark:border-secondary-dark">
+      <div
+        class="w-full h-screen lg:ml-80 pt-8 border-l border-secondary-light dark:border-secondary-dark"
+      >
         <Navbar />
         <slot />
       </div>
