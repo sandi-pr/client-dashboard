@@ -17,13 +17,13 @@
   import Papa from "papaparse";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import upload from "../lib/icon/upload-cloud-02.svg";
-  import csv from "../lib/icon/csv.png";
-  import Timeline from "../lib/components/Timeline.svelte";
-  import check from "../lib/icon/check-circle.svg";
-  import { timelineStep } from "../lib/utils/timelineStep.js";
-  import { userDataSession } from "../lib/utils/auth";
-  import { emailBlast, checkOrganization } from "../lib/utils/setupcompany";
+  import upload from "$lib/icon/upload-cloud-02.svg";
+  import csv from "$lib/icon/csv.png";
+  import Timeline from "$lib/components/Timeline.svelte";
+  import check from "$lib/icon/check-circle.svg";
+  import { timelineStep } from "$lib/utils/timelineStep.js";
+  import { userDataSession } from "$lib/utils/auth";
+  import { emailBlast, checkOrganization } from "$lib/utils/setupcompany";
 
   onMount(async () => {
     const isOrganizationExist = await checkOrganization();

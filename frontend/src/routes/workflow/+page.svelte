@@ -23,9 +23,9 @@
     TableHeadCell,
   } from "flowbite-svelte";
   import * as Icon from "flowbite-svelte-icons";
-  import LoadingSpinner from "../lib/components/LoadingSpinner.svelte";
-  // import { pagesBuilder } from "../lib/utils/pagesBuilder";
-  // import { userDataSession } from "../lib/utils/auth";
+  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+  // import { pagesBuilder } from "$lib/utils/pagesBuilder";
+  // import { userDataSession } from "$lib/utils/auth";
 
   // const API_URL =
   //   process.env.NODE_ENV === "development"

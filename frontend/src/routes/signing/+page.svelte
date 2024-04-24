@@ -26,10 +26,10 @@
   } from "flowbite-svelte-icons";
   // import PdfViewer from "svelte-pdf";
   // import PlusIcon from "$lib/icon/plus.svg";
-  import XCloseIcon from "../lib/icon/x-close.svg";
-  import QRCodeIcon from "../lib/image/qr_code.png";
-  import Timeline from "../lib/components/Timeline.svelte";
-  import { timelineStep } from "../lib/utils/timelineStep.js";
+  import XCloseIcon from "$lib/icon/x-close.svg";
+  import QRCodeIcon from "$lib/image/qr_code.png";
+  import Timeline from "$lib/components/Timeline.svelte";
+  import { timelineStep } from "$lib/utils/timelineStep.js";
   // import PDFViewer from "pdf.svelte";
   // import {
   //   PUBLIC_API_URL_DEV,
@@ -474,7 +474,7 @@
         >
           <div class="flex flex-col items-center justify-center pt-5 pb-6">
             <enhanced:img
-              src="../lib/icon/upload-icon.svg"
+              src="$lib/icon/upload-icon.svg"
               class="w-10 h-10 ml-3"
               alt="An alt text"
             />
@@ -503,7 +503,7 @@
               class="flex justify-between items-center bg-white px-3 py-3 rounded-lg border-2 border-hc-graylight-200"
             >
               <div class="flex justify-start items-center gap-3">
-                <enhanced:img src="../lib/icon/pdf-icon.svg" class="w-10 h-10" alt="An alt text" />
+                <enhanced:img src="$lib/icon/pdf-icon.svg" class="w-10 h-10" alt="An alt text" />
                 <div class="flex flex-col justify-start items-start truncate">
                   <p class="text-hc-graylight-600 text-sm font-semibold dark:text-gray-400">
                     {file.name}

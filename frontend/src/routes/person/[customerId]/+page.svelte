@@ -5,8 +5,8 @@
   // import CheckWhiteIcon from "$lib/icon/check-white.svg";
   // import XIcon from "$lib/icon/x.svg";
   // import ShareIcon from "$lib/icon/share-06.svg";
-  import CopyIcon from "../../lib/icon/copy-03.svelte";
-  import Divider from "../../lib/components/Divider.svelte";
+  import CopyIcon from "$lib/icon/copy-03.svelte";
+  import Divider from "$lib/components/Divider.svelte";
   // import { toCamelCase } from "$lib/utils/toCamelCase.js";
 
   let data = {

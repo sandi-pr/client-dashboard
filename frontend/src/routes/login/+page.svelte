@@ -4,10 +4,10 @@
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import bglogin from "../lib/image/bg_login.png";
-  import LoadingSpinner from "../lib/components/LoadingSpinner.svelte";
-  import HeaderRegister from "../lib/components/HeaderRegister.svelte";
-  import Me from "../lib/utils/me";
+  import bglogin from "$lib/image/bg_login.png";
+  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+  import HeaderRegister from "$lib/components/HeaderRegister.svelte";
+  import Me from "$lib/utils/me";
 
   let email = "";
   let password = "";

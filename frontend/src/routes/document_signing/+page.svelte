@@ -2,13 +2,13 @@
   import { onMount } from "svelte";
   import { P, Card, Avatar, Button, Heading, A } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import UploadIcon from "../lib/icon/upload-01.svelte";
-  import LightningIcon from "../lib/icon/lightning-01.svelte";
-  import FileSearchIcon from "../lib/icon/file-search-01.svelte";
-  import Chart from "../lib/components/Chart.svelte";
-  import DataTable from "../lib/components/DataTable.svelte";
-  // import { userDataSession } from "../lib/utils/auth";
-  import { toCamelCase } from "../lib/utils/toCamelCase.js";
+  import UploadIcon from "$lib/icon/upload-01.svelte";
+  import LightningIcon from "$lib/icon/lightning-01.svelte";
+  import FileSearchIcon from "$lib/icon/file-search-01.svelte";
+  import Chart from "$lib/components/Chart.svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
+  // import { userDataSession } from "$lib/utils/auth";
+  import { toCamelCase } from "$lib/utils/toCamelCase.js";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 
   // const isDev = process.env.NODE_ENV === "development";

@@ -2,13 +2,13 @@
   import { onMount } from "svelte";
   import { P, Card, Avatar, Heading, A } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import UserPlusIcon from "../lib/icon/user-plus-02.svelte";
-  // import lightningIcon from "../lib/icon/lightning-01.svg";
-  // import fileSearchIcon from "../lib/icon/file-search-01.svg";
-  import Chart from "../lib/components/Chart.svelte";
-  import DataTable from "../lib/components/DataTable.svelte";
-  // import TablePersons from "../lib/components/TablePersons.svelte";
-  import { toCamelCase } from "../lib/utils/toCamelCase.js";
+  import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
+  // import lightningIcon from "$lib/icon/lightning-01.svg";
+  // import fileSearchIcon from "$lib/icon/file-search-01.svg";
+  import Chart from "$lib/components/Chart.svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
+  // import TablePersons from "$lib/components/TablePersons.svelte";
+  import { toCamelCase } from "$lib/utils/toCamelCase.js";
   // import { userDataSession } from "$lib/utils/auth";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 

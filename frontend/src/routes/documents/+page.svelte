@@ -1,8 +1,8 @@
 <script>
   import { onMount } from "svelte";
   import { Heading, Button } from "flowbite-svelte";
-  // import { userDataSession } from "../lib/utils/auth";
-  import DataTable from "../lib/components/DataTable.svelte";
+  // import { userDataSession } from "$lib/utils/auth";
+  import DataTable from "$lib/components/DataTable.svelte";
   import { _ } from "svelte-i18n";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 

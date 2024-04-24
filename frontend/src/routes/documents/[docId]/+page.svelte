@@ -24,16 +24,16 @@
   import AutoComplete from "simple-svelte-autocomplete";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   // import PDFViewer from "svelte-pdf";
-  import CheckWhiteIcon from "../../lib/icon/check-white.svg";
-  import XIcon from "../../lib/icon/x.svelte";
-  import ShareIcon from "../../lib/icon/share-06.svelte";
-  import CopyIcon from "../../lib/icon/copy-03.svelte";
-  import Check from "../../lib/icon/check-2.png";
-  import RefreshIcon from "../../lib/icon/refresh.svg";
-  import DownloadIcon from "../../lib/icon/file-download-03.svg";
-  import Divider from "../../lib/components/Divider.svelte";
-  import { toCamelCase } from "../../lib/utils/toCamelCase.js";
-  import TabBar from "../../lib/components/TabBar.svelte";
+  import CheckWhiteIcon from "$lib/icon/check-white.svg";
+  import XIcon from "$lib/icon/x.svelte";
+  import ShareIcon from "$lib/icon/share-06.svelte";
+  import CopyIcon from "$lib/icon/copy-03.svelte";
+  import Check from "$lib/icon/check-2.png";
+  import RefreshIcon from "$lib/icon/refresh.svg";
+  import DownloadIcon from "$lib/icon/file-download-03.svg";
+  import Divider from "$lib/components/Divider.svelte";
+  import { toCamelCase } from "$lib/utils/toCamelCase.js";
+  import TabBar from "$lib/components/TabBar.svelte";
   // import { userDataSession } from "$lib/utils/auth";
   // import {
   //   PUBLIC_STRAPI_URL_DEV,
@@ -235,7 +235,7 @@
 
   //dami data
   pdfReady = true;
-  // import pdf from "../../lib/template.pdf";
+  // import pdf from "$lib/template.pdf";
   document = {
     attributes: {
       name: "Document Name",

@@ -22,10 +22,10 @@
     // DropdownItem,
   } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
-  import WebIcon from "../../lib/icon/server-06.svg";
-  // import WhatsappIcon from "../../lib/icon/whatsapp.svg";
-  // import TelegramIcon from "../../lib/icon/telegram.svg";
-  import LoadingSpinner from "../../lib/components/LoadingSpinner.svelte";
+  import WebIcon from "$lib/icon/server-06.svg";
+  // import WhatsappIcon from "$lib/icon/whatsapp.svg";
+  // import TelegramIcon from "$lib/icon/telegram.svg";
+  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import { onMount } from "svelte";
   // import axios from "axios";
   // import { getTemplates } from "$lib/service/strapi";

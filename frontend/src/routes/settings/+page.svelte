@@ -22,9 +22,9 @@
   import { onMount } from "svelte";
   // import axios from "axios";
   import { goto } from "$app/navigation";
-  import DataTable from "../lib/components/DataTable.svelte";
-  // import TabBar from "../lib/components/TabBar.svelte";
-  // import InformationForm from "../lib/components/InformationForm.svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
+  // import TabBar from "$lib/components/TabBar.svelte";
+  // import InformationForm from "$lib/components/InformationForm.svelte";
   import { datas, informationFormDatas, configs } from "./dummy";
 
   // let apiUrl = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;

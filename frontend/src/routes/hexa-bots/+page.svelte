@@ -13,13 +13,13 @@
   } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { DotsVerticalOutline } from "flowbite-svelte-icons";
-  import MessagePlus from "../lib/icon/message-plus-square.svelte";
-  // import MessageChatSquare from "../lib/icon/message-chat-square.svelte";
-  // import FileAttachment_02 from "../lib/icon/file-attachment-02.svelte";
-  // import PencilLine from "../lib/icon/pencil-line.svelte";
-  import CopyIcon from "../lib/icon/copy-03.svelte";
-  import Eye from "../lib/icon/eye.svelte";
-  import { toCamelCase } from "../lib/utils/toCamelCase.js";
+  import MessagePlus from "$lib/icon/message-plus-square.svelte";
+  // import MessageChatSquare from "$lib/icon/message-chat-square.svelte";
+  // import FileAttachment_02 from "$lib/icon/file-attachment-02.svelte";
+  // import PencilLine from "$lib/icon/pencil-line.svelte";
+  import CopyIcon from "$lib/icon/copy-03.svelte";
+  import Eye from "$lib/icon/eye.svelte";
+  import { toCamelCase } from "$lib/utils/toCamelCase.js";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 
   // const isDev = process.env.NODE_ENV === "development";
@@ -81,7 +81,7 @@
   };
 
   onMount(async () => {
-    const module = await import("../lib/components/Header.svelte");
+    const module = await import("$lib/components/Header.svelte");
     Header = module.default;
   });
 </script>

@@ -9,12 +9,13 @@ All Rights Reserved
 
 <script>
   import "../app.css";
+  import "@fontsource/plus-jakarta-sans";
   import { Sidebar, Navbar } from "hexacomponents-svelte";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading } from "svelte-i18n";
   import { goto } from "$app/navigation";
-  import "./lib/service/i18n";
-  import checkIsLoggedIn from "./lib/utils/checkIsLoggedIn";
+  import "$lib/service/i18n";
+  import checkIsLoggedIn from "$lib/utils/checkIsLoggedIn";
 
   let innerWidth = $state(0);
 
@@ -82,7 +83,7 @@ All Rights Reserved
         brand="Crossroads"
         innerWidth={winInnerWidth}
       />
-      <div class="w-full h-screen lg:ml-80">
+      <div class="w-full h-screen lg:ml-80 pt-8 border-l border-secondary-light dark:border-secondary-dark">
         <Navbar />
         <slot />
       </div>

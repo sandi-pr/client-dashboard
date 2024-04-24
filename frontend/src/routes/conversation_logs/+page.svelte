@@ -1,7 +1,7 @@
 <script>
   import { P } from "flowbite-svelte";
-  import UserIcon from "../lib/icon/users-01.svg";
-  // import VerifiedIcon from "../lib/icon/verified.svg";
+  import UserIcon from "$lib/icon/users-01.svg";
+  // import VerifiedIcon from "$lib/icon/verified.svg";
 
   let dataConversatonLogs = [
     {

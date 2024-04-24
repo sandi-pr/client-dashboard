@@ -1,7 +1,7 @@
 <script>
   // import { onMount } from "svelte";
   import { Heading } from "flowbite-svelte";
-  import DataTable from "../../lib/components/DataTable.svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
 
   // export let data;
   let personsLatest = [];

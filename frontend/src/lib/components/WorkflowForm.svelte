@@ -45,7 +45,7 @@
   import drag from "../icon/drag.svg";
   import userCheck from "../icon/user-check.svg";
   import userUp from "../icon/user-up.svg";
-  // import { userDataSession } from "../lib/utils/auth";
+  // import { userDataSession } from "$lib/utils/auth";
 
   // const API_URL = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
   // const STRAPI_URL =

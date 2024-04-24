@@ -24,8 +24,8 @@
   //   PUBLIC_STRAPI_URL_PROD,
   // } from "$env/static/public";
   // import { userDataSession } from "$lib/utils/auth";
-  import LoadingSpinner from "../../lib/components/LoadingSpinner.svelte";
-  import TabBar from "../../lib/components/TabBar.svelte";
+  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+  import TabBar from "$lib/components/TabBar.svelte";
 
   // const API_URL = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
   // const STRAPI_URL =
