@@ -41,13 +41,6 @@ export const datas = [
   },
 ];
 
-export const singularData = {
-  id: 1,
-  username: "User 01",
-  fullname: "admin",
-  email: "user01@gmail.com",
-};
-
 export const informationFormDatas = {
   grid: 4,
   title: "General Information",

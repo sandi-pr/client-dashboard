@@ -17,15 +17,15 @@
   //   PUBLIC_STRAPI_URL_DEV,
   //   PUBLIC_STRAPI_URL_PROD,
   // } from "$env/static/public";
-  import { P, Button, Textarea } from "flowbite-svelte";
-  // import { TabBar, InformationForm } from "hexacomponents-svelte";
+  import { P, Button } from "flowbite-svelte";
+  import { TabBar, InformationForm } from "hexacomponents-svelte";
   import { onMount } from "svelte";
   // import axios from "axios";
   import { goto } from "$app/navigation";
   import DataTable from "../lib/components/DataTable.svelte";
-  import TabBar from "../lib/components/TabBar.svelte";
-  import InformationForm from "../lib/components/InformationForm.svelte";
-  import { datas, singularData, informationFormDatas, configs } from "./dummy";
+  // import TabBar from "../lib/components/TabBar.svelte";
+  // import InformationForm from "../lib/components/InformationForm.svelte";
+  import { datas, informationFormDatas, configs } from "./dummy";
 
   // let apiUrl = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
   // let strapiUrl =
@@ -114,71 +114,7 @@
     {#if isAdmin}
       {#if tabDatas.selected === "My Profile"}
         <div class="mx-4 mt-8">
-          <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mx-4 mt-8">
-            <P size="lg" weight="semibold" class="col-span-1">General Information</P>
-
-            <div class="col-span-3 grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div
-                class="col-span-4 [&>*]:text-hc-graylight-700 [&>*]:bg-white [&>*]:dark:bg-hc-graydark-950 [&>textarea]:text-hc-graylight-500"
-              >
-                <P>User ID</P>
-                <Textarea
-                  class="resize-none"
-                  rows={screenWidth > 1024 ? "1" : "2"}
-                  disabled
-                  value={user.id}
-                />
-              </div>
-              <div
-                class="col-span-4 [&>*]:text-hc-graylight-700 [&>*]:bg-white [&>*]:dark:bg-hc-graydark-950 [&>textarea]:text-hc-graylight-500"
-              >
-                <P>Username</P>
-                <Textarea
-                  class="resize-none"
-                  rows={screenWidth > 1024 ? "1" : "2"}
-                  disabled
-                  value={user.username}
-                />
-              </div>
-              <div
-                class="col-span-4 sm:col-span-2 [&>*]:text-hc-graylight-700 [&>*]:bg-white [&>*]:dark:bg-hc-graydark-950 [&>textarea]:text-hc-graylight-500"
-              >
-                <P>Full name</P>
-                <Textarea
-                  class="resize-none"
-                  rows={screenWidth > 1024 ? "1" : "2"}
-                  disabled
-                  value={user.fullname}
-                />
-              </div>
-
-              <div
-                class="col-span-4 sm:col-span-2 [&>*]:text-hc-graylight-700 [&>*]:bg-white [&>*]:dark:bg-hc-graydark-950 [&>textarea]:text-hc-graylight-500"
-              >
-                <P>Email</P>
-                <Textarea
-                  class="resize-none"
-                  rows={screenWidth > 1024 ? "1" : "2"}
-                  disabled
-                  value={user.email}
-                />
-              </div>
-
-              <div
-                class="col-span-4 sm:col-span-2 [&>*]:text-hc-graylight-700 [&>*]:bg-white [&>*]:dark:bg-hc-graydark-950 [&>textarea]:text-hc-graylight-500"
-              >
-                <P>Role</P>
-                <Textarea
-                  class="resize-none"
-                  rows={screenWidth > 1024 ? "1" : "2"}
-                  disabled
-                  value="Admin"
-                />
-              </div>
-            </div>
-          </div> -->
           <InformationForm datas={user} {screenWidth} />
-          <!-- NOT WORKING -->
         </div>
       {:else if tabDatas.selected === "Roles & Admin"}
         <div class="mt-8">

@@ -24,7 +24,7 @@
   "type": "module",
   "dependencies": {
     "axios": "^1.6.8",
-    "hexacomponents-svelte": "https://gitlab.hexacode.org/public-repo/js/hexacomponents-svelte/#0.0.30",
+    "hexacomponents-svelte": "https://gitlab.hexacode.org/public-repo/js/hexacomponents-svelte/#0.0.31",
     "papaparse": "^5.4.1",
     "svelte-add": "latest",
     "tailwindcss": "^3.4.1"

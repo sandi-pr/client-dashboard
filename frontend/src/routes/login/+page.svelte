@@ -59,23 +59,14 @@
     }
   };
 
-  export let data;
-
   onMount(() => {
-    console.log(data);
+    // console.log(data);
   });
 </script>
 
 <LoadingSpinner {isLoading} />
 <div class="flex">
   <div class="flex flex-col w-full lg:w-1/2 p-8 justify-between h-screen">
-    <!-- <div class="flex justify-between">
-      <div class="flex items-center">
-        <img src={logo} alt="logo" />
-        <Heading tag="h4" class="ml-2">Crossroads</Heading>
-      </div>
-      <DarkMode />
-    </div> -->
     <HeaderRegister />
     <div class="flex flex-col items-center justify-center h-full w-full">
       <form class="w-2/3" on:submit={onSubmit}>
