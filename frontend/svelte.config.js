@@ -31,7 +31,7 @@ const config_production = {
     }),
     prerender: {
       crawl: true,
-      entries: ["*", "/documents/1", "/person/1", "/workflow/1", "/workflow/update/1"],
+      entries: ["*"],
     },
   },
   preprocess: vitePreprocess(),

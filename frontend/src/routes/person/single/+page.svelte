@@ -9,9 +9,13 @@
   import Divider from "$lib/components/Divider.svelte";
   // import { toCamelCase } from "$lib/utils/toCamelCase.js";
 
+  const params = new URLSearchParams(window.location.search);
+  const personId = params.get("personId");
+  console.log(personId);
+
   let data = {
     person: {
-      customerId: "19846829",
+      personId: personId,
       fullName: "Azzisi Bassem",
       dateOfBirth: "01/12/1994",
       email: "azzis144635@gmail.com",
@@ -89,11 +93,11 @@
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("customerId")}
+                  {$_("personId")}
                 </P>
                 <Input
                   readonly
-                  value={data.person.customerId}
+                  value={data.person.personId}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>

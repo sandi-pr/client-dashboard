@@ -380,7 +380,7 @@
   };
 
   const handlesuccess = () => {
-    goto("/dashboard");
+    window.location.replace("/dashboard");
   };
 </script>
 

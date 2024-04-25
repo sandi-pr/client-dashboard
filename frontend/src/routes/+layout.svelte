@@ -11,6 +11,7 @@ All Rights Reserved
   import "../app.css";
   import "@fontsource/plus-jakarta-sans";
   import { Sidebar, Navbar } from "hexacomponents-svelte";
+  import Breadcrumb from "$lib/components/Breadcrumb.svelte";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading } from "svelte-i18n";
   import "$lib/service/i18n";
@@ -18,10 +19,22 @@ All Rights Reserved
 
   let innerWidth = $state(0);
 
-  const hideLayoutList = ["/login", "/register", "/forgot-password", "/auth"];
+  const hideLayoutList = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/workflow/update",
+    "/workflow/create",
+  ];
 
   const hideLayout = () => {
-    return !hideLayoutList.includes(window.location.pathname);
+    return !hideLayoutList.some((path) => {
+      if (path.endsWith("/*")) {
+        return window.location.pathname.startsWith(path.slice(0, -1));
+      } else {
+        return window.location.pathname === path;
+      }
+    });
   };
 
   const getModules = async () => {
@@ -72,7 +85,7 @@ All Rights Reserved
   $effect(() => {
     if (hideLayout() && checkIsLoggedIn() === null) {
       window.location.replace("/login");
-    } else if (!hideLayout() && checkIsLoggedIn() !== null) {
+    } else if (window.location.pathname === "/login" && checkIsLoggedIn() !== null) {
       window.location.replace("/");
     }
     userData = checkIsLoggedIn();
@@ -96,6 +109,7 @@ All Rights Reserved
         class="w-full h-screen lg:ml-80 pt-8 border-l border-secondary-light dark:border-secondary-dark"
       >
         <Navbar />
+        <!-- <Breadcrumb activeUrl={window.location.pathname} /> -->
         <slot />
       </div>
     </div>

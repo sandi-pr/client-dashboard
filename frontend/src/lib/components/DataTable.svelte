@@ -416,7 +416,7 @@
                               </Button>
                             {/if}
                             <Button
-                              href="/documents/{data.id}"
+                              href="/documents/single?documentId={data.id}"
                               color="white"
                               class="!p-2 focus-within:!ring-1"
                               size="lg"

@@ -69,10 +69,10 @@
     } catch (error) {
       if (error?.response?.status === 401) {
         console.log("unauthorized");
-        goto("/");
+        window.location = "/";
       } else {
         console.log("error");
-        goto("/");
+        window.location = "/";
       }
     }
   };

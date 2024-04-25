@@ -113,7 +113,7 @@
   "totalPersons": "Total Persons",
   "activePersons": "Active Persons",
   "inactivePersons": "Inactive Persons",
-  "customerId": "Customer ID",
+  "personId": "Customer ID",
   "fullName": "Full Name",
   "phone": "Phone",
   "delete": "Delete",

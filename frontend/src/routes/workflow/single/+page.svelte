@@ -78,7 +78,7 @@
 
     //   if (response?.data?.status === 401) {
     //     alert("Session expired, please login again");
-    //     goto("/");
+    //     window.location = ("/");
     //   }
 
     //   workflow = response.data.data.attributes;
@@ -120,10 +120,10 @@
     //   // console.log(response);
     //   if (response?.data?.status === 401) {
     //     alert("Session expired, please login again");
-    //     goto("/");
+    //     window.location = ("/");
     //   } else if (response?.data?.id) {
     //     alert("Workflow berhasil dihapus");
-    //     goto("/workflow");
+    //     window.location = ("/workflow");
     //   }
     // } catch (error) {
     //   console.log(error);
@@ -205,7 +205,7 @@
       >
       <Button
         on:click={() => {
-          goto("/workflow/update/" + workflowId);
+          window.location = "/workflow/update?workflowId=" + workflowId;
         }}
         class="mx-2 h-10 bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
         ><Icon.EditOutline size="sm" />&nbsp;Edit</Button

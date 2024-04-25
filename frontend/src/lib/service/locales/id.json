@@ -111,7 +111,7 @@
     "totalPersons": "Total Individu",
     "activePersons": "Individu Aktif",
     "inactivePersons": "Individu Tidak Aktif",
-    "customerId": "ID Pelanggan",
+    "personId": "ID Pelanggan",
     "fullName": "Nama Lengkap",
     "phone": "Telepon",
     "delete": "Hapus",

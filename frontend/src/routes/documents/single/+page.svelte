@@ -92,7 +92,9 @@
   let searchInput = "";
   let inviteTypeSelected = "";
   let inviteUnitSelected = "";
-  // let docId;
+  const params = new URLSearchParams(window.location.search);
+  const documentId = params.get("documentId");
+  console.log(documentId);
   let document;
   // let pdf;
   let filename;
@@ -174,7 +176,7 @@
 
   //       if (response3?.data?.status === 401) {
   //         alert("Session expired, please login again");
-  //         goto("/");
+  //         window.location = ("/");
   //       }
   //       steps = response3.data.data.attributes.steps.map((signerReviewer, index) => {
   //         return {
@@ -206,7 +208,7 @@
 
   //     if (response?.data?.status === 401) {
   //       alert("Session expired, please login again");
-  //       goto("/");
+  //       window.location = ("/");
   //     }
 
   //     if (response?.data) {

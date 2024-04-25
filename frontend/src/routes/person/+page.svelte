@@ -289,7 +289,7 @@
   personsLatest = [
     {
       attributes: {
-        customerId: "19846829",
+        personId: "19846829",
         fullName: "Azzisi Bassem",
         dateOfBirth: "01/12/1994",
         email: "azzis144635@gmail.com",
@@ -305,7 +305,7 @@
     },
     {
       attributes: {
-        customerId: "34678291",
+        personId: "34678291",
         fullName: "John Doe",
         dateOfBirth: "03/15/1985",
         email: "johndoe@example.com",
@@ -321,7 +321,7 @@
     },
     {
       attributes: {
-        customerId: "56473829",
+        personId: "56473829",
         fullName: "Alice Johnson",
         dateOfBirth: "06/22/1978",
         email: "alice@example.com",
@@ -337,7 +337,7 @@
     },
     {
       attributes: {
-        customerId: "97261835",
+        personId: "97261835",
         fullName: "Mohammed Ahmed",
         dateOfBirth: "12/04/1990",
         email: "mohammed@example.com",
@@ -356,7 +356,7 @@
   let datas = personsLatest.map((person, index) => {
     return {
       id: index + 1,
-      customerId: person.attributes.customerId,
+      personId: person.attributes.personId,
       fullName: person.attributes.fullName,
       email: person.attributes.email,
       phone: person.attributes.phone,
@@ -364,7 +364,7 @@
       actions: {
         objects: [
           {
-            href: "/person/" + person.attributes.customerId,
+            href: "/person/single?personId=" + person.attributes.personId,
             name: "Edit",
           },
         ],

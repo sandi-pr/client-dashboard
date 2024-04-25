@@ -52,6 +52,10 @@
   //   process.env.NODE_ENV === "development" ? PUBLIC_STRAPI_URL_DEV : PUBLIC_STRAPI_URL_PROD;
   // const sessionOrganization = JSON.parse(sessionStorage.getItem("organization"));
 
+  const params = new URLSearchParams(window.location.search);
+  const workflowId = params.get("workflowId");
+  console.log(workflowId);
+
   let workflowObject = {
     essentials: {
       name: "",
@@ -164,7 +168,7 @@
 
     //   if (response?.data?.status === 401) {
     //     alert("Session expired, please login again");
-    //     goto("/");
+    //     window.location = ("/");
     //   } else if (response?.data?.data && response.data.data.length > 0) {
     //     let mappedData = response.data.data.map((unit) => {
     //       return {
@@ -245,7 +249,7 @@
 
     //   if (response?.data?.status === 401) {
     //     alert("Session expired, please login again");
-    //     goto("/");
+    //     window.location = ("/");
     //   }
 
     //   if (response?.data) {
@@ -281,11 +285,11 @@
 
     //   if (response?.status === 401) {
     //     alert("Session expired, please login again");
-    //     goto("/");
+    //     window.location = ("/");
     //   } else if (response?.data?.id) {
     //     if (workflowId) alert("Workflow updated successfully");
     //     else alert("Workflow created successfully");
-    //     goto("/workflow");
+    //     window.location = ("/workflow");
     //   }
     // } catch (error) {
     //   console.log(error);
@@ -317,7 +321,6 @@
     }
   };
 
-  $: workflowId = $page.params.strapiId;
   $: stepOneClear = workflowObject.essentials.name !== "" && workflowObject.essentials.unit !== "";
 </script>
 
@@ -335,7 +338,7 @@
           if (currentStep > 1) {
             currentStep = currentStep - 1;
           } else {
-            goto("/workflow");
+            window.location = "/workflow";
           }
         }}
       >

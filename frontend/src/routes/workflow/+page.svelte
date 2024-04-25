@@ -58,7 +58,7 @@
 
     // if (response?.data?.status === 401) {
     //   alert("Session expired, please login again");
-    //   goto("/");
+    //   window.location = ("/");
     // } else if (
     //   response?.data &&
     //   response.data?.data &&
@@ -91,7 +91,7 @@
 
     // if (response?.data?.status === 401) {
     //   alert("Session expired, please login again");
-    //   goto("/");
+    //   window.location = ("/");
     // } else if (response?.data?.id) {
     //   alert("Workflow berhasil dihapus");
     //   handleGetWorkflows(1, 10);
@@ -223,7 +223,7 @@
     <Button
       class="bg-hc-brand-600 hover:bg-hc-brand-700"
       on:click={() => {
-        goto("/workflow/create");
+        window.location = "/workflow/create";
       }}>Add new workflow</Button
     >
   </div>
@@ -270,25 +270,31 @@
                 </div>
               </TableBodyCell>
               <TableBodyCell class="flex">
-                <Icon.EyeOutline
-                  class="w-5 h-5 my-1 mx-2 text-hc-graylight-500 cursor-pointer"
+                <button
                   on:click={() => {
-                    goto("/workflow/" + workflow.id);
+                    window.location = "/workflow/single?workflowId=" + workflow.id;
                   }}
-                />
-                <Icon.TrashBinOutline
-                  class="w-5 h-5 my-1 mx-2 text-hc-graylight-500 cursor-pointer"
+                  ><Icon.EyeOutline
+                    class="w-5 h-5 my-1 mx-2 text-hc-graylight-500 cursor-pointer"
+                  /></button
+                >
+                <button
                   on:click={() => {
                     showModal = true;
                     selectedWorkflowId = workflow.id;
                   }}
-                />
-                <Icon.PenOutline
-                  class="w-5 h-5 my-1 mx-2 text-hc-graylight-500 cursor-pointer"
+                >
+                  <Icon.TrashBinOutline
+                    class="w-5 h-5 my-1 mx-2 text-hc-graylight-500 cursor-pointer"
+                  /></button
+                >
+                <button
                   on:click={() => {
-                    goto("/workflow/update/" + workflow.id);
+                    window.location = "/workflow/update?workflowId=" + workflow.id;
                   }}
-                />
+                >
+                  <Icon.PenOutline class="w-5 h-5 my-1 mx-2 text-hc-graylight-500 cursor-pointer" />
+                </button>
               </TableBodyCell>
             </TableBodyRow>
           {/each}

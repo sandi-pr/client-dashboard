@@ -1,8 +1,5 @@
 <script>
-  import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
-
-  onMount(() => {
-    goto("/workflow");
-  });
+  import WorkflowForm from "$lib/components/WorkflowForm.svelte";
 </script>
+
+<WorkflowForm />

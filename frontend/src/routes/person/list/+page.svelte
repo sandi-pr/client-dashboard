@@ -85,7 +85,7 @@
       actions: {
         objects: [
           {
-            href: "/person/" + person.attributes.customerId,
+            href: "/person/single?personId=" + person.attributes.customerId,
             name: "Edit",
           },
         ],
