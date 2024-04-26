@@ -10,6 +10,7 @@ All Rights Reserved
 <script>
   import "../app.css";
   import "@fontsource/plus-jakarta-sans";
+  import { page } from "$app/stores";
   import { Sidebar, Navbar } from "hexacomponents-svelte";
   import Breadcrumb from "$lib/components/Breadcrumb.svelte";
   import { onMount } from "svelte";
@@ -18,6 +19,7 @@ All Rights Reserved
   import checkIsLoggedIn from "$lib/utils/checkIsLoggedIn";
 
   let innerWidth = $state(0);
+  let activeUrl = $derived($page.url.pathname);
 
   const hideLayoutList = [
     "/login",
@@ -108,8 +110,8 @@ All Rights Reserved
       <div
         class="w-full h-screen lg:ml-80 pt-8 border-l border-secondary-light dark:border-secondary-dark"
       >
-        <Navbar />
-        <!-- <Breadcrumb activeUrl={window.location.pathname} /> -->
+        <Navbar {activeUrl} />
+        <!-- <Breadcrumb {activeUrl} /> -->
         <slot />
       </div>
     </div>

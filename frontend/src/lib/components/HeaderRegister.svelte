@@ -14,8 +14,7 @@
   import { DarkMode } from "flowbite-svelte";
   import logo from "../icon/Logomark.svg";
   import { _, locale } from "svelte-i18n";
-  import { LogoBrand } from "hexacomponents-svelte";
-  import LanguageSelector from "./LanguageSelector.svelte";
+  import { LogoBrand, LanguageSelector } from "hexacomponents-svelte";
 
   const changeLanguage = (lang) => {
     locale.set(lang);
