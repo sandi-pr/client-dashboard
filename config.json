@@ -40,5 +40,346 @@
                 }
             ]
         }
-    ]
+    ],
+    "options": {
+        "strapi_schemas": [
+            {
+                "name": "calendar",
+                "label": "Calendar",
+                "fields": {
+                    "date": {
+                        "type": "date"
+                    },
+                    "start_time": {
+                        "type": "datetime"
+                    },
+                    "end_time": {
+                        "type": "datetime"
+                    },
+                    "availaible_slot": {
+                        "type": "biginteger"
+                    },
+                    "note": {
+                        "type": "text"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                            "No"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "category-product",
+                "label": "Category Product",
+                "fields": {
+                    "category_name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    "products": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::product.product",
+                        "mappedBy": "category_product"
+                    }
+                }
+            },
+            {
+                "name": "person",
+                "label": "Person",
+                "fields": {
+                    "fullname": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "email"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "text"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "zip_code": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "date_of_birth": {
+                        "type": "date"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    "invoices": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::invoice.invoice",
+                        "mappedBy": "person"
+                    },
+                    "order_booking": {
+                        "type": "relation",
+                        "relation": "oneToOne",
+                        "target": "api::order-booking.order-booking",
+                        "mappedBy": "person"
+                    }
+                }
+            },
+            {
+                "name": "invoice",
+                "label": "Invoice",
+                "fields": {
+                    "invoice_date": {
+                        "type": "date"
+                    },
+                    "due_date": {
+                        "type": "date"
+                    },
+                    "total_amount": {
+                        "type": "float"
+                    },
+                    "payment_status": {
+                        "type": "json"
+                    },
+                    "note": {
+                        "type": "text"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                           "No"
+                        ]
+                    },
+                    "person": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "api::person.person",
+                        "inversedBy": "invoices"
+                    },
+                    "order_booking": {
+                        "type": "relation",
+                        "relation": "oneToOne",
+                        "target": "api::order-booking.order-booking",
+                        "mappedBy": "invoice"
+                    }
+                }
+            },
+            {
+                "name": "order-booking",
+                "label": "Order Booking",
+                "fields": {
+                    "order_date": {
+                        "type": "date"
+                    },
+                    "total_amount": {
+                        "type": "biginteger"
+                    },
+                    "order_status": {
+                        "type": "json"
+                    },
+                    "shipping_address": {
+                        "type": "text"
+                    },
+                    "note": {
+                        "type": "text"
+                    },
+                    "booking_date": {
+                        "type": "date"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    "product": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "api::product.product",
+                        "inversedBy": "order_bookings"
+                    },
+                    "resources": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::resource.resource",
+                        "mappedBy": "order_booking"
+                    },
+                    "person": {
+                        "type": "relation",
+                        "relation": "oneToOne",
+                        "target": "api::person.person",
+                        "inversedBy": "order_booking"
+                    },
+                    "start_date": {
+                        "type": "string"
+                    },
+                    "end_date": {
+                        "type": "string"
+                    },
+                    "invoice": {
+                        "type": "relation",
+                        "relation": "oneToOne",
+                        "target": "api::invoice.invoice",
+                        "inversedBy": "order_booking"
+                    }
+                }
+            },
+            {
+                "name": "product",
+                "label": "Product",
+                "fields": {
+                    "product_name": {
+                        "type": "string"
+                    },
+                      "description": {
+                        "type": "text"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    "users": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "plugin::users-permissions.user",
+                        "mappedBy": "product"
+                    },
+                    "resources": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::resource.resource",
+                        "mappedBy": "product"
+                    },
+                    "price": {
+                        "type": "float"
+                    },
+                    "category_product": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "api::category-product.category-product",
+                        "inversedBy": "products"
+                    },
+                    "order_bookings": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::order-booking.order-booking",
+                        "mappedBy": "product"
+                    }
+                }
+            },
+            {
+                "name": "resource",
+                "label": "Resource",
+                "fields": {
+                    "resource_name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "location": {
+                        "type": "text"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    "users": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "plugin::users-permissions.user",
+                        "mappedBy": "resource"
+                    },
+                    "product": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "api::product.product",
+                        "inversedBy": "resources"
+                    },
+                    "expirey_date": {
+                        "type": "date"
+                    },
+                    "image": {
+                        "type": "media",
+                        "multiple": false,
+                        "required": false,
+                        "allowedTypes": [
+                            "images",
+                            "files",
+                            "videos",
+                            "audios"
+                        ]
+                    },
+                    "resource_types": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::resource-type.resource-type",
+                        "mappedBy": "resource"
+                    },
+                    "order_booking": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "api::order-booking.order-booking",
+                        "inversedBy": "resources"
+                    }
+                }
+            },
+            {
+                "name": "resource-type",
+                "label": "Resource Type",
+                "fields": {
+                    "type_name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                          "Yes",
+                          "No"
+                        ]
+                    },
+                    "resource": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "api::resource.resource",
+                        "inversedBy": "resource_types"
+                    }
+                }
+            }
+        ]
+    }
 }
