@@ -84,13 +84,13 @@ All Rights Reserved
   let userData = $state({});
 
   $effect(async () => {
-    // if (hideLayout() && checkIsLoggedIn() === null) {
-    //   try {
-    //     globalThis.location.href = await call.getPage("client-login", "login");
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // }
+    if (hideLayout() && checkIsLoggedIn() === null) {
+      try {
+        globalThis.location.href = await call.getPage("client-login", "login");
+      } catch (error) {
+        console.error(error);
+      }
+    }
     userData = checkIsLoggedIn();
   });
 </script>
