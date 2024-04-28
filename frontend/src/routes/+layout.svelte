@@ -11,7 +11,7 @@ All Rights Reserved
   import "../app.css";
   import "@fontsource/plus-jakarta-sans";
   import { page } from "$app/stores";
-  import { Sidebar, Navbar } from "hexacomponents-svelte";
+  import { Sidebar, Navbar, CR3Call } from "hexacomponents-svelte";
   import Breadcrumb from "$lib/components/Breadcrumb.svelte";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading } from "svelte-i18n";
@@ -20,21 +20,16 @@ All Rights Reserved
 
   let innerWidth = $state(0);
   let activeUrl = $derived($page.url.pathname);
+  const call = new CR3Call(globalThis.location.origin);
 
-  const hideLayoutList = [
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/workflow/update",
-    "/workflow/create",
-  ];
+  const hideLayoutList = ["/forgot-password", "/workflow/update", "/workflow/create"];
 
   const hideLayout = () => {
     return !hideLayoutList.some((path) => {
       if (path.endsWith("/*")) {
-        return window.location.pathname.startsWith(path.slice(0, -1));
+        return globalThis.location.pathname.startsWith(path.slice(0, -1));
       } else {
-        return window.location.pathname === path;
+        return globalThis.location.pathname === path;
       }
     });
   };
@@ -58,38 +53,44 @@ All Rights Reserved
     ];
   };
 
-  const logout = () => {
+  const logout = async () => {
     sessionStorage.removeItem("user");
-    window.location.replace("/login");
+    try {
+      globalThis.location.href = await call.getPage("client-login", "login");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   export const load = async () => {
     if (browser) {
-      locale.set(window.navigator.language);
+      locale.set(globalThis.navigator.language);
     }
     await waitLocale();
   };
 
   onMount(() => {
     const resizeHandler = () => {
-      innerWidth = window.innerWidth;
+      innerWidth = globalThis.innerWidth;
     };
-    window.addEventListener("resize", resizeHandler);
+    globalThis.addEventListener("resize", resizeHandler);
     resizeHandler(); // call once initially to set the correct value
     return () => {
-      window.removeEventListener("resize", resizeHandler);
+      globalThis.removeEventListener("resize", resizeHandler);
     };
   });
 
   let winInnerWidth = $derived(innerWidth);
   let userData = $state({});
 
-  $effect(() => {
-    if (hideLayout() && checkIsLoggedIn() === null) {
-      window.location.replace("/login");
-    } else if (window.location.pathname === "/login" && checkIsLoggedIn() !== null) {
-      window.location.replace("/");
-    }
+  $effect(async () => {
+    // if (hideLayout() && checkIsLoggedIn() === null) {
+    //   try {
+    //     globalThis.location.href = await call.getPage("client-login", "login");
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // }
     userData = checkIsLoggedIn();
   });
 </script>
