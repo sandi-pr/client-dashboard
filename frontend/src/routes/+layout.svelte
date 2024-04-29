@@ -70,48 +70,7 @@ All Rights Reserved
     await waitLocale();
   };
 
-  let winInnerWidth = $derived(innerWidth);
-  let userData = $state({ username: "", email: "", brand: "" });
-
-  onMount(async () => {
-    try {
-      var resp_setup = await call.call("client-login", "is-need-setup", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {},
-        Headers: {},
-      });
-      if (resp_setup.status === 200) {
-        if (resp_setup.result.is_need_setup === true) {
-          sessionStorage.removeItem("token");
-          sessionStorage.removeItem("user");
-          await call.goToPage("hexapod-setup", "home-page");
-        }
-      }
-      var token = sessionStorage.getItem("token");
-      if (token !== null) {
-        var resp = await call.call("client-login", "is-token-valid", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            token: token,
-          },
-          Headers: {},
-        });
-
-        if (resp.status === 200) {
-          if (resp.result.confirmed === true && resp.result.blocked === false) {
-            sessionStorage.setItem("user", resp.result);
-            userData = resp.result;
-          }
-        }
-      } else {
-        await call.goToPage("client-login", "home-page");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-
+  onMount(() => {
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
@@ -120,6 +79,47 @@ All Rights Reserved
     return () => {
       globalThis.removeEventListener("resize", resizeHandler);
     };
+  });
+
+  let winInnerWidth = $derived(innerWidth);
+  let userData = $state({ username: "", email: "", brand: "" });
+
+  $effect(async () => {
+    var resp_setup = await call.call("client-login", "is-need-setup", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {},
+      Headers: {},
+    });
+    if (resp_setup.status === 200) {
+      if (resp_setup.result.is_need_setup === true) {
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        await call.goToPage("hexapod-setup", "home-page");
+        return;
+      }
+    }
+    var token = sessionStorage.getItem("token");
+    if (token !== null) {
+      var resp = await call.call("client-login", "is-token-valid", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          token: token,
+        },
+        Headers: {},
+      });
+
+      if (resp.status === 200) {
+        if (resp.result.confirmed === true && resp.result.blocked === false) {
+          sessionStorage.setItem("user", resp.result);
+          userData = resp.result;
+        }
+      }
+    } else {
+      await call.goToPage("client-login", "home-page");
+      return;
+    }
   });
 </script>
 
