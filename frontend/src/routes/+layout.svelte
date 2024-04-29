@@ -55,8 +55,9 @@ All Rights Reserved
 
   const logout = async () => {
     sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
     try {
-      globalThis.location.href = await call.getPage("client-login", "login");
+      globalThis.location.href = await call.getPage("client-login", "home-page");
     } catch (error) {
       console.error(error);
     }
@@ -86,7 +87,7 @@ All Rights Reserved
   $effect(async () => {
     if (hideLayout() && checkIsLoggedIn() === null) {
       try {
-        globalThis.location.href = await call.getPage("client-login", "login");
+        globalThis.location.href = await call.getPage("client-login", "home-page");
       } catch (error) {
         console.error(error);
       }
