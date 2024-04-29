@@ -57,7 +57,7 @@ All Rights Reserved
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("token");
     try {
-      globalThis.location.href = await call.getPage("client-login", "home-page");
+      await call.goToPage("client-login", "home-page");
     } catch (error) {
       console.error(error);
     }
@@ -82,17 +82,27 @@ All Rights Reserved
   });
 
   let winInnerWidth = $derived(innerWidth);
-  let userData = $state({});
+  let userData = $state({ data: { username: "", email: "", brand: "" } });
 
   $effect(async () => {
-    if (hideLayout() && checkIsLoggedIn() === null) {
-      try {
-        globalThis.location.href = await call.getPage("client-login", "home-page");
-      } catch (error) {
-        console.error(error);
+    var token = sessionStorage.getItem("token");
+    if (token !== null) {
+      var resp = await call.call("client-login", "is-token-valid", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          token: token,
+        },
+        Headers: {},
+      });
+
+      if (resp.status === 200) {
+        if (resp.result.confirmed === true && resp.result.blocked === false) {
+          sessionStorage.setItem("user", resp.result);
+          userData = resp.result;
+        }
       }
     }
-    userData = checkIsLoggedIn();
   });
 </script>
 
@@ -103,9 +113,9 @@ All Rights Reserved
     <div class="lg:flex">
       <Sidebar
         getModule={getModules}
-        name={userData?.data?.username || "Hexastaff"}
-        email={userData?.data?.email || "staff@hexacode.org"}
-        brand={userData?.data?.brand || "Crossroads"}
+        bind:name={userData.data.username}
+        bind:email={userData.data.email}
+        bind:brand={userData.data.brand}
         innerWidth={winInnerWidth}
         {logout}
       />

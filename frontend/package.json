@@ -26,7 +26,7 @@
   "dependencies": {
     "@fontsource/plus-jakarta-sans": "^5.0.20",
     "axios": "^1.6.8",
-    "hexacomponents-svelte": "https://gitlab.hexacode.org/public-repo/js/hexacomponents-svelte/#0.0.41",
+    "hexacomponents-svelte": "https://gitlab.hexacode.org/public-repo/js/hexacomponents-svelte/#0.0.42",
     "papaparse": "^5.4.1",
     "svelte-add": "latest",
     "tailwind-merge": "^2.3.0",
