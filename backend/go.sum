@@ -120,6 +120,8 @@ gitlab.hexacode.org/go-libs/microservice v1.1.8 h1:lNj47X0JisIonxiC564hZ19EZfDZZ
 gitlab.hexacode.org/go-libs/microservice v1.1.8/go.mod h1:JUF48bQma+F7ZUWpmqejsFyDJBfqO197sbLdCRo7SVY=
 gitlab.hexacode.org/go-libs/requests v1.0.1 h1:Pb2AgtCxA7VFxFxtvRUskLTMtFz+Ls0o5GYfha+GEN0=
 gitlab.hexacode.org/go-libs/requests v1.0.1/go.mod h1:XMPZBCqrZ6puGR8l2ZPBkeDOqAXwIYGZHSv0MZ81OeQ=
+gitlab.hexacode.org/go-libs/strapi v1.0.5 h1:mcqOuD0BtcaBsi0edtTVwBp0/8ZHyIiBBmcciDXNDd8=
+gitlab.hexacode.org/go-libs/strapi v1.0.5/go.mod h1:M89RY8Cr4uepvLuAu1cQSSbAiano0Qymq7y79Tlv+UI=
 golang.org/x/arch v0.0.0-20210923205945-b76863e36670/go.mod h1:5om86z9Hs0C8fWVUuoMHwpExlXzs5Tkyp9hOrfG7pp8=
 golang.org/x/arch v0.7.0 h1:pskyeJh/3AmoQ8CPE95vxHLqp1G1GfGNXTmcl9NEKTc=
 golang.org/x/arch v0.7.0/go.mod h1:FEVrYAQjsQXMVJ1nsMoVVXPZg6p2JE2mx8psSWTDQys=

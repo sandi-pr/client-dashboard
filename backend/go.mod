@@ -14,6 +14,7 @@ go 1.19
 require (
 	gitlab.hexacode.org/go-libs/hctypes v1.0.2
 	gitlab.hexacode.org/go-libs/microservice v1.1.8
+	gitlab.hexacode.org/go-libs/strapi v1.0.5
 )
 
 require (

@@ -13,8 +13,9 @@ import (
 	"errors"
 	"os"
 
-	"gitlab.hexacode.org/go-libs/hctypes"
+	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
+	"gitlab.hexacode.org/go-libs/strapi"
 )
 
 var MODULE_MANAGER_URL = ""
@@ -34,19 +35,17 @@ func init() {
 	config.Schedule("", MODULE_MANAGER_URL)
 }
 
-func multiply(a int, b int) int {
-	return a * b
-}
+func GetPersons(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	if token, ok := ctx.Params.GetString("token"); ok {
+		Strapi := strapi.NewStrapiWithToken(STRAPI_URL, string(token))
 
-func Multiply(ctx *config.ConfigContext) (int, hctypes.Dict, *config.ReturnHTTPError) {
-	a, ok_a := ctx.Params.GetFloat64("a")
-	b, ok_b := ctx.Params.GetFloat64("b")
+		status, data, err := Strapi.Find("/api/person-table", U.Dict{})
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
 
-	if !ok_a || !ok_b {
-		return ctx.Error(400, "invalid parameters")
+		return status, data, nil
 	}
 
-	return 200, hctypes.Dict{
-		"result": multiply(int(a), int(b)),
-	}, nil
+	return ctx.Error(500, "Internal Server Error")
 }
