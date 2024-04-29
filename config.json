@@ -453,7 +453,7 @@
                         "configurable": false
                     },
                     "company": {
-                        "type": "number",
+                        "type": "integer",
                         "configurable": false
                     }                  
                 }
