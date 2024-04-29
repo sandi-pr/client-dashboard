@@ -70,21 +70,10 @@ All Rights Reserved
     await waitLocale();
   };
 
-  onMount(() => {
-    const resizeHandler = () => {
-      innerWidth = globalThis.innerWidth;
-    };
-    globalThis.addEventListener("resize", resizeHandler);
-    resizeHandler(); // call once initially to set the correct value
-    return () => {
-      globalThis.removeEventListener("resize", resizeHandler);
-    };
-  });
-
   let winInnerWidth = $derived(innerWidth);
   let userData = $state({ username: "", email: "", brand: "" });
 
-  $effect(async () => {
+  onMount(async () => {
     var resp_setup = await call.call("client-login", "is-need-setup", {
       URLQuery: {},
       URLParams: {},
@@ -117,6 +106,14 @@ All Rights Reserved
       }
     }
   });
+  const resizeHandler = () => {
+    innerWidth = globalThis.innerWidth;
+  };
+  globalThis.addEventListener("resize", resizeHandler);
+  resizeHandler(); // call once initially to set the correct value
+  return () => {
+    globalThis.removeEventListener("resize", resizeHandler);
+  };
 </script>
 
 {#if $isLoading}
