@@ -8,6 +8,16 @@
             "name": "home-page",
             "path": "/",
             "file_path": "template/index.html"
+        },
+        {
+            "name": "person",
+            "path": "/person",
+            "file_path": "template/person.html"
+        },
+        {
+            "name": "hexa-bots",
+            "path": "/hexa-bots",
+            "file_path": "template/hexa-bots.html"
         }
     ],
     "apis": [
@@ -22,16 +32,16 @@
                 "function": "Multiply"
             },
             "params": [
-                { 
-                    "name": "a", 
+                {
+                    "name": "a",
                     "label": "Value A",
                     "placeholder": "Enter Value A",
                     "type": "number",
                     "validate": "number",
                     "required": true
                 },
-                { 
-                    "name": "b", 
+                {
+                    "name": "b",
                     "label": "Value B",
                     "placeholder": "Enter Value B",
                     "type": "number",
@@ -171,7 +181,7 @@
                         "type": "enumeration",
                         "enum": [
                             "Yes",
-                           "No"
+                            "No"
                         ]
                     },
                     "person": {
@@ -256,7 +266,7 @@
                     "product_name": {
                         "type": "string"
                     },
-                      "description": {
+                    "description": {
                         "type": "text"
                     },
                     "is_active": {
@@ -368,8 +378,8 @@
                     "is_active": {
                         "type": "enumeration",
                         "enum": [
-                          "Yes",
-                          "No"
+                            "Yes",
+                            "No"
                         ]
                     },
                     "resource": {

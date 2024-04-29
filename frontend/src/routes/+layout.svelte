@@ -82,7 +82,7 @@ All Rights Reserved
   });
 
   let winInnerWidth = $derived(innerWidth);
-  let userData = $state({ data: { username: "", email: "", brand: "" } });
+  let userData = $state({ username: "", email: "", brand: "" });
 
   $effect(async () => {
     var token = sessionStorage.getItem("token");
@@ -113,9 +113,9 @@ All Rights Reserved
     <div class="lg:flex">
       <Sidebar
         getModule={getModules}
-        bind:name={userData.data.username}
-        bind:email={userData.data.email}
-        bind:brand={userData.data.brand}
+        bind:name={userData.username}
+        bind:email={userData.email}
+        bind:brand={userData.brand}
         innerWidth={winInnerWidth}
         {logout}
       />
