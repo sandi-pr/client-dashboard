@@ -455,7 +455,7 @@
                     "company": {
                         "type": "relation",
                         "relation": "manyToOne",
-                        "target": "api::company.company",
+                        "target": "api::company-profile.company-profile",
                         "inversedBy": "users",
                         "configurable": false
                     }                  
