@@ -20,7 +20,7 @@ All Rights Reserved
 
   let innerWidth = $state(0);
   let activeUrl = $derived($page.url.pathname);
-  // const call = new CR3Call(globalThis.location.origin);
+  const call = new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = ["/forgot-password", "/workflow/update", "/workflow/create"];
 
