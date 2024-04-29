@@ -453,10 +453,7 @@
                         "configurable": false
                     },
                     "company": {
-                        "type": "relation",
-                        "relation": "manyToOne",
-                        "target": "api::company-profile.company-profile",
-                        "inversedBy": "users",
+                        "type": "number",
                         "configurable": false
                     }                  
                 }
