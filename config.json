@@ -10,14 +10,14 @@
             "file_path": "template/index.html"
         },
         {
-            "name": "person",
-            "path": "/person",
-            "file_path": "template/person.html"
+            "name": "crm-overview",
+            "path": "/crm",
+            "file_path": "template/crm.html"
         },
         {
-            "name": "hexa-bots",
-            "path": "/hexa-bots",
-            "file_path": "template/hexa-bots.html"
+            "name": "hexabot-overview",
+            "path": "/hexabot",
+            "file_path": "template/hexabot.html"
         }
     ],
     "apis": [

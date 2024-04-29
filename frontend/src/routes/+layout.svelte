@@ -37,16 +37,16 @@ All Rights Reserved
   const getModules = async () => {
     return [
       {
-        href: "/person",
+        href: call.getPage("client-dashboard", "crm-overview"),
         icon: "users",
         name: "CRM",
         desc: "descCrm",
         status: "coming soon",
       },
       {
-        href: "/hexa-bots",
+        href: call.getPage("client-dashboard", "hexabot-overview"),
         icon: "messageChat",
-        name: "Hexa Bots",
+        name: "Hexa Bot",
         desc: "descHexaBots",
         status: "coming soon",
       },
