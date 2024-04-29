@@ -142,5 +142,7 @@
   "deployedBotsList": "Deployed Bots List",
   "searchBotName": "Search Bot Name",
   "copiedToClipboard": "Copied to clipboard",
-  "search": "Search"
+  "search": "Search",
+  "create": "Create",
+  "cancel": "Cancel"
 }

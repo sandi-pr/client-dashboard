@@ -140,5 +140,7 @@
     "deployedBotsList": "Daftar Bot",
     "searchBotName": "Cari Nama Bot",
     "copiedToClipboard": "Disalin ke papan klip",
-    "search": "Cari"
+    "search": "Cari",
+    "create": "Buat",
+    "cancel": "Batal"
 }

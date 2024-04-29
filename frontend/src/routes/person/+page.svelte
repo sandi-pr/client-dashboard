@@ -36,7 +36,7 @@
 
   let actionItems = [
     {
-      href: "#",
+      href: "/person/create",
       icon: UserPlusIcon,
       actionName: "Create new persons",
       desc: "desc Create New Person",

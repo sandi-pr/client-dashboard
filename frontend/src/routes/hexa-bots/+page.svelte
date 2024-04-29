@@ -87,7 +87,7 @@
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
-  <div class="w-full pb-10 lg:ml-80">
+  <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- <Navbar /> -->
 

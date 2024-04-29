@@ -1,60 +1,42 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: Azzis Arswendo <azzis@hexacode.org>
-
+Maintainer: 
+  - Azzis Arswendo <azzis@hexacode.org>
+  - Dean Ramhan <dean@hexacode.org>
+  - Taqie Fadlillah <taqief@hexacode.org>
+  - Sandi Permana <sandy@hexacode.org>
 Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 
 <script>
-  import { Input, Label, Heading, Button } from "flowbite-svelte";
-  import axios from "axios";
-  import { createEventDispatcher } from "svelte";
+  import { StateCard, SelectedCard, SectionHeader, Card, Typography } from "hexacomponents-svelte";
+  import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
+  import MarketIcon from "$lib/icon/building-02.svelte";
+  import OfficeIcon from "$lib/icon/building-06.svelte";
+  import BankIcon from "$lib/icon/bank.svelte";
+  import UserIcon from "$lib/icon/user-03.svelte";
 
-  let a = 0;
-  let b = 0;
-  let result = 0;
+  let userData = $state({});
 
-  const dispatch = createEventDispatcher();
-
-  function multiply() {
-    var url = "/client-dashboard/multiply";
-    axios
-      .post(url, { a: a, b: b })
-      .then((response) => {
-        result = response.data.result.result;
-      })
-      .catch((error) => {
-        dispatch("error", {
-          error: error,
-        });
-      });
-  }
+  let isFirstTime = true;
 </script>
-
-<!-- <div class="w-1/3 mx-auto mt-10 flex flex-col">
-    <div class="text-center">
-        <Heading tag="h1">CR3 Client Dashboard</Heading>
-        <Heading tag="h3">Multiply Page</Heading>
-    </div>
-
-    <div class="mt-10">
-        <Label for="a" class="mb-2">Value A</Label>
-        <Input bind:value={a} id="a" type="number" placeholder="Enter Value A" />
-    </div>
-
-    <div class="mt-10">
-        <Label for="b" class="mb-2">Value B</Label>
-        <Input bind:value={b} id="b" type="number" placeholder="Enter Value B" />
-    </div>
-
-    <div class="mt-10">
-        <Button on:click={multiply}>Multiply</Button>
-    </div>
-
-    <div class="mt-10">
-        <Label for="result" class="mb-2">Result</Label>
-        <Input bind:value={result} id="result" type="text" placeholder="Result" readonly/>
-    </div>
-</div> -->
+<div class="flex flex-col gap-1 px-4 pt-6">
+  <Typography preset="Display sm/Semibold" text="Welcome to Crossroads!" color="primary" />
+  <Typography text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email || 'staff@hexacode.org'}" color="tertiary" />
+</div>
+<div class="flex flex-col gap-4 pt-8 px-4">
+  <!-- {#if isFirstTime}
+    <StateCard
+      illustration={IllustrationFirst}
+      description="Welcome to Crossroads! We need you to set up your product."
+      actionText="Product Setup"
+      funcButton={() => (isFirstTime = false)}
+    />
+  {:else}
+    <SelectedCard {companyType} />
+  {/if} -->
+  <SectionHeader title="Available Modules" />
+  <Card icon="folder" title="CRM" description="Manage customer contacts, and personalize your customer service" />
+</div>

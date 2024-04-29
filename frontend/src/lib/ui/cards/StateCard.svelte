@@ -1,0 +1,23 @@
+<!--
+  CR3 Client Dashboard
+  Package: gitlab.hexacode.org/public-repo/js/hexacomponents-svelte
+  Maintainer:
+  * Sandi Permana <sandy@hexacode.org>
+
+  Copyright (C) 2024 Hexacode Teknologi Indonesia
+  All Rights Reserved.
+-->
+
+<script lang="ts">
+  import { Typography, Button } from "$lib";
+
+  let { illustration, description, actionText, funcButton }: { illustration: any, description: string, actionText: string, funcButton?: () => void } = $props();
+</script>
+
+<div>
+  <div class="flex flex-col items-center gap-8">
+    <svelte:component this={illustration} svgClass="text-utility-brand-50-light dark:text-utility-brand-50-dark" />
+    <Typography preset="Text md/Semibold" text={description} color="primary" />
+  </div>
+  <Button color="primary" text={actionText} {funcButton} />
+</div>

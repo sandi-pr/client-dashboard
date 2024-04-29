@@ -11,8 +11,8 @@ All Rights Reserved
   import "../app.css";
   import "@fontsource/plus-jakarta-sans";
   import { page } from "$app/stores";
-  import { Sidebar, Navbar, CR3Call } from "hexacomponents-svelte";
-  import Breadcrumb from "$lib/components/Breadcrumb.svelte";
+  import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { Navbar, Sidebar } from "$lib";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading } from "svelte-i18n";
   import "$lib/service/i18n";
@@ -20,7 +20,7 @@ All Rights Reserved
 
   let innerWidth = $state(0);
   let activeUrl = $derived($page.url.pathname);
-  const call = new CR3Call(globalThis.location.origin);
+  // const call = new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = ["/forgot-password", "/workflow/update", "/workflow/create"];
 
@@ -120,10 +120,9 @@ All Rights Reserved
         {logout}
       />
       <div
-        class="w-full h-screen lg:ml-80 pt-8 border-l border-secondary-light dark:border-secondary-dark"
+        class="w-full h-screen lg:ml-80 border-l border-secondary-light dark:border-secondary-dark"
       >
         <Navbar {activeUrl} />
-        <!-- <Breadcrumb {activeUrl} /> -->
         <slot />
       </div>
     </div>
