@@ -54,8 +54,10 @@ All Rights Reserved
   };
 
   const logout = async () => {
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("token");
+    if(sessionStorage.getItem("user") !== null)
+      sessionStorage.removeItem("user");
+    if(sessionStorage.getItem("token") !== null)
+      sessionStorage.removeItem("token");
     try {
       await call.goToPage("client-login", "home-page");
     } catch (error) {
@@ -93,8 +95,10 @@ All Rights Reserved
     });
     if (resp_setup.status === 200) {
       if (resp_setup.result.is_need_setup === true) {
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("user");
+          if(sessionStorage.getItem("token") !== null)
+            sessionStorage.removeItem("token");
+          if(sessionStorage.getItem("user") !== null)
+            sessionStorage.removeItem("user");
         await call.goToPage("hexapod-setup", "home-page");
         return;
       }
@@ -112,7 +116,7 @@ All Rights Reserved
 
       if (resp.status === 200) {
         if (resp.result.confirmed === true && resp.result.blocked === false) {
-          sessionStorage.setItem("user", resp.result);
+          sessionStorage.setItem("user", JSON.stringify(resp.result));
           userData = resp.result;
         }
       }
