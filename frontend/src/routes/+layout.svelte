@@ -37,14 +37,14 @@ All Rights Reserved
   const getModules = async () => {
     return [
       {
-        href: call.getPage("client-dashboard", "crm-overview"),
+        href: await call.getPage("client-dashboard", "crm-overview"),
         icon: "users",
         name: "CRM",
         desc: "descCrm",
         status: "coming soon",
       },
       {
-        href: call.getPage("client-dashboard", "hexabot-overview"),
+        href: await call.getPage("client-dashboard", "hexabot-overview"),
         icon: "messageChat",
         name: "Hexa Bot",
         desc: "descHexaBots",
@@ -85,6 +85,19 @@ All Rights Reserved
   let userData = $state({ username: "", email: "", brand: "" });
 
   $effect(async () => {
+    var resp_setup = await call.call("client-login", "is-need-setup", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {},
+      Headers: {},
+    });
+    if (resp_setup.status === 200) {
+      if (resp_setup.result.is_need_setup === true) {
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        await call.goToPage("hexapod-setup", "home-page");
+      }
+    }
     var token = sessionStorage.getItem("token");
     if (token !== null) {
       var resp = await call.call("client-login", "is-token-valid", {
