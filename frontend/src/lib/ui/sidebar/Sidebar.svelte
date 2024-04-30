@@ -23,7 +23,7 @@
     easing: sineIn
   };
 
-  let { getModule, toCamelCase, name = "", email = "", brand = "", innerWidth = 0, logout }: { getModule: any; toCamelCase: any; name: string; email: string; brand: string; innerWidth: number; logout: () => void } = $props();
+  let { getModule, toCamelCase, name = $bindable(""), email = $bindable(""), brand = $bindable(""), innerWidth = 0, logout }: { getModule: any; toCamelCase: any; name: string; email: string; brand: string; innerWidth: number; logout: () => void } = $props();
 </script>
 
 <!-- Sidebar for small screen -->

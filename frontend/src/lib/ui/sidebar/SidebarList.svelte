@@ -12,7 +12,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { LogoBrand, SidebarNavItem, Typography, getIcons } from "$lib";
-  import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper, Search, Button, Avatar, CloseButton } from "flowbite-svelte";
+  import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper, Search, Button, Avatar, CloseButton, SidebarDropdownItem, SidebarDropdownWrapper } from "flowbite-svelte";
   import { ArrowRightToBracketOutline } from "flowbite-svelte-icons";
   import LogoIcon from "$lib/icon/Logomark.svg";
   import { onMount } from "svelte";
@@ -22,9 +22,9 @@
   let {
     getModule,
     toCamelCase,
-    name = "",
-    email = "",
-    brand = "",
+    name = $bindable(""),
+    email = $bindable(""),
+    brand = $bindable(""),
     isHidden = true,
     funcButton,
     logout
@@ -46,7 +46,7 @@
   };
 
   let sidebarItems = $state([
-    { name: "Home", href: "/client-dashboard", icon: "home" }
+    { name: "Home", href: "/client-dashboard", icon: "home", children: [] },
   ]);
 
   const sidebarBuilder = async () => {
@@ -89,7 +89,16 @@
       <Search placeholder="search" class="bg-white dark:bg-primary-dark mb-6" />
       <!-- TODO Search component belom kelar -->
       {#each sidebarItems as item}
+        {#if item.children}
+          <SidebarDropdownWrapper spanClass="flex-1 ms-3 text-left whitespace-nowrap text-slate-700 text-base font-semibold leading-normal" label="CRM">
+            <svelte:fragment slot="icon">
+              <svelte:component this={getIcons(item.icon) } svgClass="w-5 h-5 text-gray-700 dark:text-gray-400" />
+            </svelte:fragment>
+            <SidebarDropdownItem label="Persons" href="/crm/person" />
+          </SidebarDropdownWrapper>
+        {:else}
         <SidebarNavItem href={item.href} {activeUrl} icon={item.icon} typographyData={{ preset: "Text md/Semibold", text: item.name, color: "secondary" }} />
+        {/if}
       {/each}
     </SidebarGroup>
     <div>
