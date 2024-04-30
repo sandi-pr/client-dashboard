@@ -12,7 +12,19 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { LogoBrand, SidebarNavItem, Typography, getIcons } from "$lib";
-  import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper, Search, Button, Avatar, CloseButton, SidebarDropdownItem, SidebarDropdownWrapper } from "flowbite-svelte";
+  import { goto } from "$app/navigation";
+  import {
+    Sidebar,
+    SidebarGroup,
+    SidebarItem,
+    SidebarWrapper,
+    Search,
+    Button,
+    Avatar,
+    CloseButton,
+    SidebarDropdownItem,
+    SidebarDropdownWrapper,
+  } from "flowbite-svelte";
   import { ArrowRightToBracketOutline } from "flowbite-svelte-icons";
   import LogoIcon from "$lib/icon/Logomark.svg";
   import { onMount } from "svelte";
@@ -27,7 +39,7 @@
     brand = $bindable(""),
     isHidden = true,
     funcButton,
-    logout
+    logout,
   }: {
     getModule: any;
     toCamelCase: any;
@@ -42,7 +54,7 @@
   let site = {
     name: brand,
     href: "/",
-    img: LogoIcon
+    img: LogoIcon,
   };
 
   let sidebarItems = $state([
@@ -51,13 +63,16 @@
 
   const sidebarBuilder = async () => {
     let moduleClient = await getModule();
-    const sidebarHalf = moduleClient.map((item: { name: any; href: any; icon: any }) => {
-      return {
-        name: item.name,
-        href: item.href,
-        icon: item.icon
-      };
-    });
+    const sidebarHalf = moduleClient.map(
+      (item: { name: any; href: any; icon: any; children: any }) => {
+        return {
+          name: item.name,
+          href: item.href,
+          icon: item.icon,
+          children: item.children,
+        };
+      },
+    );
 
     // sidebarHalf.push({ name: "Digital Identity", href: "/blockchain", icon: "blockchain" });
 
@@ -75,13 +90,19 @@
     sidebarItems = [...sidebarItems, ...sidebarAddition];
   });
 </script>
-<Sidebar {activeUrl} class={` ${isHidden ? "hidden h-screen" : "fixed h-full"} border-r border-secondary-light dark:border-secondary-dark lg:fixed lg:inset-y-0 lg:z-10 lg:flex w-80`}>
-  <SidebarWrapper class="h-full w-full lg:pt-6 lg:px-4 flex flex-col justify-between bg-white dark:bg-primary-dark">
+
+<Sidebar
+  {activeUrl}
+  class={` ${isHidden ? "hidden h-screen" : "fixed h-full"} border-r border-secondary-light dark:border-secondary-dark lg:fixed lg:inset-y-0 lg:z-10 lg:flex w-80`}
+>
+  <SidebarWrapper
+    class="h-full w-full lg:pt-6 lg:px-4 flex flex-col justify-between bg-white dark:bg-primary-dark"
+  >
     <SidebarGroup>
       <div class="flex justify-between items-start">
         <LogoBrand brandName={site.name} href="/client-dashboard" brandLogo={site.img} />
         {#if isHidden}
-        <div></div>
+          <div></div>
         {:else}
           <!-- <CloseButton on:click={funcButton} class="dark:text-white" /> -->
         {/if}
@@ -89,22 +110,51 @@
       <Search placeholder="search" class="bg-white dark:bg-primary-dark mb-6" />
       <!-- TODO Search component belom kelar -->
       {#each sidebarItems as item}
-        {#if item.children}
-          <SidebarDropdownWrapper spanClass="flex-1 ms-3 text-left whitespace-nowrap text-slate-700 text-base font-semibold leading-normal" label="CRM">
+        {#if item.children.length > 0}
+          <SidebarDropdownWrapper
+            spanClass="flex-1 text-left whitespace-nowrap text-slate-700 text-base font-semibold leading-normal"
+            btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            label="CRM"
+          >
             <svelte:fragment slot="icon">
-              <svelte:component this={getIcons(item.icon) } svgClass="w-5 h-5 text-gray-700 dark:text-gray-400" />
+              <svelte:component
+                this={getIcons(item.icon)}
+                svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
+              />
             </svelte:fragment>
-            <SidebarDropdownItem label="Persons" href="/crm/person" />
+            {#each item.children as child}
+              <SidebarNavItem
+                href={child.href}
+                {activeUrl}
+                icon={child.icon}
+                classes="flex w-full gap-3 items-center px-5 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                typographyData={{
+                  preset: "Text md/Regular",
+                  text: child.name,
+                  color: "secondary",
+                }}
+              />
+            {/each}
           </SidebarDropdownWrapper>
         {:else}
-        <SidebarNavItem href={item.href} {activeUrl} icon={item.icon} typographyData={{ preset: "Text md/Semibold", text: item.name, color: "secondary" }} />
+          <SidebarNavItem
+            href={item.href}
+            {activeUrl}
+            icon={item.icon}
+            typographyData={{ preset: "Text md/Semibold", text: item.name, color: "secondary" }}
+          />
         {/if}
       {/each}
     </SidebarGroup>
     <div>
       <SidebarGroup>
         <!-- <SidebarNavItem href="/admin_setting" {activeUrl} icon="setting" typographyData={{ preset: "Text md/Semibold", text: "Super Admin Setting", color: "secondary" }} /> -->
-        <SidebarNavItem href="/settings" {activeUrl} icon="setting" typographyData={{ preset: "Text md/Semibold", text: "Settings", color: "secondary" }} />
+        <SidebarNavItem
+          href="/settings"
+          {activeUrl}
+          icon="setting"
+          typographyData={{ preset: "Text md/Semibold", text: "Settings", color: "secondary" }}
+        />
       </SidebarGroup>
       <SidebarGroup border>
         <div class="flex justify-between">
@@ -115,8 +165,14 @@
               <Typography preset="Text sm/Regular" text={email} color="tertiary" />
             </div>
           </div>
-          <Button on:click={handleLogout} color="light" class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent">
-            <ArrowRightToBracketOutline class="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white" />
+          <Button
+            on:click={handleLogout}
+            color="light"
+            class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent"
+          >
+            <ArrowRightToBracketOutline
+              class="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+            />
           </Button>
         </div>
       </SidebarGroup>

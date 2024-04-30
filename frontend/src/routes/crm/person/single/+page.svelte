@@ -13,22 +13,22 @@
   const personId = params.get("personId");
   console.log(personId);
 
-  let data = {
-    person: {
-      personId: personId,
-      fullName: "Azzisi Bassem",
-      dateOfBirth: "01/12/1994",
-      email: "azzis144635@gmail.com",
-      phone: "+44 33771021",
-      country: "UK",
-      address: "John Smith 42, Primrose Avenue, London EC2M 7EB, United Kingdom",
-      city: "London",
-      state: "London",
-      zipCode: "EC2M 7EB",
-      createdAt: "01-12-2024 03:02",
-      active: true,
+  let {
+    data = {
+      personId: "",
+      fullname: "",
+      date_of_birth: "",
+      email: "",
+      phone: "",
+      country: "",
+      address: "",
+      city: "",
+      state: "",
+      zip_code: "",
+      createdAt: "",
+      is_active: "",
     },
-  };
+  } = $props();
 
   // let dropdownOpen = false;
 </script>
@@ -44,7 +44,7 @@
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              {data.person.fullName}
+              {data.fullname}
               <Button
                 outline
                 color="red"
@@ -57,7 +57,7 @@
           <P
             class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
           >
-            {$_("createOn")}{` ${data.person.createdAt}`}
+            {$_("createOn")}{` ${data.createdAt}`}
           </P>
         </div>
         <div class="flex gap-2">
@@ -85,7 +85,7 @@
                 </P>
                 <Input
                   readonly
-                  value={data.person.fullName}
+                  value={data.fullName}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -97,7 +97,7 @@
                 </P>
                 <Input
                   readonly
-                  value={data.person.personId}
+                  value={data.personId}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -110,7 +110,7 @@
                 >
                 <Input
                   readonly
-                  value={data.person.email}
+                  value={data.email}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -121,7 +121,7 @@
                 >
                 <Input
                   readonly
-                  value={data.person.phone}
+                  value={data.phone}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -134,7 +134,7 @@
               </P>
               <Input
                 readonly
-                value={data.person.address}
+                value={data.address}
                 class="bg-primary-light dark:bg-secondary-dark"
               />
             </div>
@@ -144,11 +144,7 @@
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("city")}</P
                 >
-                <Input
-                  readonly
-                  value={data.person.city}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <Input readonly value={data.city} class="bg-primary-light dark:bg-secondary-dark" />
               </div>
               <div class="flex flex-col gap-2">
                 <P
@@ -157,7 +153,7 @@
                 >
                 <Input
                   readonly
-                  value={data.person.state}
+                  value={data.state}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -170,7 +166,7 @@
                 >
                 <Input
                   readonly
-                  value={data.person.zipCode}
+                  value={data.zip_code}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -181,7 +177,7 @@
                 >
                 <Input
                   readonly
-                  value={data.person.country}
+                  value={data.country}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -194,7 +190,7 @@
                 >
                 <Input
                   readonly
-                  value={data.person.dateOfBirth}
+                  value={data.date_of_birth}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -203,13 +199,13 @@
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("active")}</P
                 >
-                <!-- <Input readonly value={data.person.active} /> -->
+                <!-- <Input readonly value={data.active} /> -->
                 <div class="flex grow gap-2">
                   <Button
                     color="light"
                     class="w-full flex justify-between focus-within:!ring-1 bg-primary-light dark:bg-secondary-dark hover:bg-transparent dark:hover:bg-secondary-dark"
                   >
-                    {data.person.active}
+                    {data.is_active}
                     <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
                   </Button>
                   <!-- <Dropdown

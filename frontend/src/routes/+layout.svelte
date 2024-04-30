@@ -45,12 +45,19 @@ All Rights Reserved
           {
             href: await call.getPage("client-dashboard", "crm-overview"),
             icon: "users",
+            name: "Overview",
+            desc: "descCrmOverview",
+            status: "coming soon",
+          },
+          {
+            href: await call.getPage("client-dashboard", "crm-person"),
+            icon: "users",
             name: "person",
             desc: "descCrmPerson",
             status: "coming soon",
           },
           {
-            href: await call.getPage("client-dashboard", "crm-overview"),
+            href: await call.getPage("client-dashboard", "crm-calendar"),
             icon: "users",
             name: "Calendar",
             desc: "descCrmCalendar",
