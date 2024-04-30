@@ -141,22 +141,7 @@ All Rights Reserved
     await waitLocale();
   };
 
-  onMount(() => {
-    const resizeHandler = () => {
-      innerWidth = globalThis.innerWidth;
-    };
-    globalThis.addEventListener("resize", resizeHandler);
-    resizeHandler(); // call once initially to set the correct value
-    return () => {
-      globalThis.removeEventListener("resize", resizeHandler);
-    };
-  });
-
-  let winInnerWidth = $derived(innerWidth);
-  let userData = $state({ username: "", email: "", brand: "" });
-
-  // for frontend comment below
-  $effect(async () => {
+  async function CheckSetup() {
     var resp_setup = await call.call("client-login", "is-need-setup", {
       URLQuery: {},
       URLParams: {},
@@ -192,7 +177,22 @@ All Rights Reserved
       await call.goToPage("client-login", "home-page");
       return;
     }
+  }
+
+  onMount(() => {
+    CheckSetup();
+    const resizeHandler = () => {
+      innerWidth = globalThis.innerWidth;
+    };
+    globalThis.addEventListener("resize", resizeHandler);
+    resizeHandler(); // call once initially to set the correct value
+    return () => {
+      globalThis.removeEventListener("resize", resizeHandler);
+    };
   });
+
+  let winInnerWidth = $derived(innerWidth);
+  let userData = $state({ username: "", email: "", brand: "" });
 </script>
 
 {#if $isLoading}
@@ -221,7 +221,7 @@ All Rights Reserved
           </Pane>
           <!-- Hexabot Sidebar -->
           {#if showAI}
-          <SideDrawer />
+            <SideDrawer />
           {/if}
         </Splitpanes>
       </div>
