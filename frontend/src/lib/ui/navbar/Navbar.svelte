@@ -33,7 +33,6 @@
         spaceY="mt-0"
         funcButton={() => {
           changeShowAI();
-          console.log("triggered");
         }}
       />
     </div>

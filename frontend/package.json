@@ -29,6 +29,7 @@
     "hexacomponents-svelte": "https://gitlab.hexacode.org/public-repo/js/hexacomponents-svelte/#0.0.42",
     "papaparse": "^5.4.1",
     "svelte-add": "latest",
+    "svelte-splitpanes": "^0.8.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.1"
   }
