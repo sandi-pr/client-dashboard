@@ -37,11 +37,26 @@ All Rights Reserved
   const getModules = async () => {
     return [
       {
-        href: await call.getPage("client-dashboard", "crm-overview"),
         icon: "users",
         name: "CRM",
         desc: "descCrm",
         status: "coming soon",
+        children: [
+          {
+            href: await call.getPage("client-dashboard", "crm-overview"),
+            icon: "users",
+            name: "person",
+            desc: "descCrmPerson",
+            status: "coming soon",
+          },
+          {
+            href: await call.getPage("client-dashboard", "crm-overview"),
+            icon: "users",
+            name: "Calendar",
+            desc: "descCrmCalendar",
+            status: "coming soon",
+          },
+        ],
       },
       {
         href: await call.getPage("client-dashboard", "hexabot-overview"),
@@ -49,15 +64,14 @@ All Rights Reserved
         name: "Hexa Bot",
         desc: "descHexaBots",
         status: "coming soon",
+        children: [],
       },
     ];
   };
 
   const logout = async () => {
-    if(sessionStorage.getItem("user") !== null)
-      sessionStorage.removeItem("user");
-    if(sessionStorage.getItem("token") !== null)
-      sessionStorage.removeItem("token");
+    if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
+    if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
     try {
       await call.goToPage("client-login", "home-page");
     } catch (error) {
@@ -70,6 +84,10 @@ All Rights Reserved
       locale.set(globalThis.navigator.language);
     }
     await waitLocale();
+  };
+
+  const changeLanguage = (lang) => {
+    locale.set(lang);
   };
 
   onMount(() => {
@@ -95,10 +113,8 @@ All Rights Reserved
     });
     if (resp_setup.status === 200) {
       if (resp_setup.result.is_need_setup === true) {
-          if(sessionStorage.getItem("token") !== null)
-            sessionStorage.removeItem("token");
-          if(sessionStorage.getItem("user") !== null)
-            sessionStorage.removeItem("user");
+        if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
+        if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
         await call.goToPage("hexapod-setup", "home-page");
         return;
       }
@@ -143,8 +159,8 @@ All Rights Reserved
       <div
         class="w-full h-screen lg:ml-80 border-l border-secondary-light dark:border-secondary-dark"
       >
-        <Navbar {activeUrl} />
-        <slot />
+        <Navbar {activeUrl} {changeLanguage} />
+        <slot {call} />
       </div>
     </div>
   {:else}

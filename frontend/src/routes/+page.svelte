@@ -11,20 +11,21 @@ All Rights Reserved
 -->
 
 <script>
-  import { StateCard, SelectedCard, SectionHeader, Card, Typography } from "hexacomponents-svelte";
-  import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
-  import MarketIcon from "$lib/icon/building-02.svelte";
-  import OfficeIcon from "$lib/icon/building-06.svelte";
-  import BankIcon from "$lib/icon/bank.svelte";
-  import UserIcon from "$lib/icon/user-03.svelte";
+  import { SectionHeader, Card, Typography, CR3Call } from "hexacomponents-svelte";
 
+  const call = new CR3Call(globalThis.location.origin);
   let userData = $state({});
 
   let isFirstTime = true;
 </script>
+
 <div class="flex flex-col gap-1 px-4 pt-6">
   <Typography preset="Display sm/Semibold" text="Welcome to Crossroads!" color="primary" />
-  <Typography text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email || 'staff@hexacode.org'}" color="tertiary" />
+  <Typography
+    text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
+      'staff@hexacode.org'}"
+    color="tertiary"
+  />
 </div>
 <div class="flex flex-col gap-4 pt-8 px-4">
   <!-- {#if isFirstTime}
@@ -38,5 +39,22 @@ All Rights Reserved
     <SelectedCard {companyType} />
   {/if} -->
   <SectionHeader title="Available Modules" />
-  <Card icon="folder" title="CRM" description="Manage customer contacts, and personalize your customer service" />
+  <Card
+    icon="users"
+    title="CRM"
+    description="Manage customer contacts, and personalize your customer service"
+    onclick={async () => {
+      await call.goToPage("client-dashboard", "crm-overview");
+      return;
+    }}
+  />
+  <Card
+    icon="messageChat"
+    title="Hexa Bot"
+    description="Manage bots and automate your workflows"
+    onclick={async () => {
+      await call.goToPage("client-dashboard", "hexabot-overview");
+      return;
+    }}
+  />
 </div>
