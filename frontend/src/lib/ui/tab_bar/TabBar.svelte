@@ -25,10 +25,8 @@
 -->
 
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   export let tabDatas: { selected: string; data: { name: string }[] };
-
-  const dispatch = createEventDispatcher();
+  export let changeTabbar: (tabName: string) => void;
 
   function capitalizeFirstLetter(string: string) {
     return string
@@ -36,16 +34,18 @@
       .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   }
-
-  function handleTabClick(name: string) {
-    tabDatas.selected = name;
-    dispatch("tabChange", name);
-  }
 </script>
 
-<div class="flex whitespace-nowrap mt-2 mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden">
+<div
+  class="flex whitespace-nowrap mt-2 mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden"
+>
   {#each tabDatas.data as submenu (submenu)}
-    <button name={submenu.name} on:click={() => handleTabClick(submenu.name)} class={`p-2 px-4 font-semibold text-quaternary-light dark:text-white hover:bg-tertiary-light hover:dark:bg-brand-solid-dark ${tabDatas.selected === submenu.name && "border-b-2 border-brand-solid-light !text-brand-tertiary-light focus:bg-transparent dark:focus:bg-transparent dark:!text-brand-tertiary-light hover:bg-secondary-light hover:dark:bg-primary-light"}`}>{capitalizeFirstLetter(submenu.name)}</button>
+    <button
+      name={submenu.name}
+      on:click={() => changeTabbar(submenu.name)}
+      class={`p-2 px-4 font-semibold text-quaternary-light dark:text-white hover:bg-tertiary-light hover:dark:bg-brand-solid-dark ${tabDatas.selected === submenu.name && "border-b-2 border-brand-solid-light !text-brand-tertiary-light focus:bg-transparent dark:focus:bg-transparent dark:!text-brand-tertiary-light hover:bg-secondary-light hover:dark:bg-primary-light"}`}
+      >{capitalizeFirstLetter(submenu.name)}</button
+    >
   {/each}
 </div>
 
@@ -55,4 +55,5 @@
 @component
 ## Config
 @prop tabDatas: object; // Configuration for the tab bar.
+@prop changeTabbar: function; // Function to change the tab bar.
 -->

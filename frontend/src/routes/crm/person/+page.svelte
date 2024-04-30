@@ -9,6 +9,7 @@
   import DataTable from "$lib/components/DataTable.svelte";
   // import TablePersons from "$lib/components/TablePersons.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
+  import { CR3Call } from "hexacomponents-svelte";
   // import { userDataSession } from "$lib/utils/auth";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 
@@ -19,6 +20,9 @@
   // export let data;
 
   // let documentsLatest = [];
+
+  const call = new CR3Call(globalThis.location.origin);
+
   let personsLatest = [];
   let documentsReady = false;
   // let documents = [];
@@ -33,15 +37,18 @@
   let dataChartNeed = {};
   let dataChartComplete = {};
   let chartReady = false;
+  let actionItems = $state([]);
 
-  let actionItems = [
-    {
-      href: "/person/create",
-      icon: UserPlusIcon,
-      actionName: "Create new persons",
-      desc: "desc Create New Person",
-    },
-  ];
+  async function getActionItems() {
+    actionItems = [
+      {
+        href: await call.getPage("client-dashboard", "crm-person-create"),
+        icon: UserPlusIcon,
+        actionName: "Create new persons",
+        desc: "desc Create New Person",
+      },
+    ];
+  }
 
   function generateChartData() {
     const currentDate = new Date();
@@ -353,24 +360,7 @@
     },
   ];
 
-  let datas = personsLatest.map((person, index) => {
-    return {
-      id: index + 1,
-      personId: person.attributes.personId,
-      fullName: person.attributes.fullName,
-      email: person.attributes.email,
-      phone: person.attributes.phone,
-      country: person.attributes.country,
-      actions: {
-        objects: [
-          {
-            href: "/person/single?personId=" + person.attributes.personId,
-            name: "Edit",
-          },
-        ],
-      },
-    };
-  });
+  let datas = $state([]);
 
   let configs = {
     headers: "Persons",
@@ -384,9 +374,55 @@
     ],
   };
 
+  async function getPerson() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-persons", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        datas = response.result.data.map((person, index) => {
+          return {
+            id: person.id,
+            fullname: person.attributes.fullname,
+            email: person.attributes.email,
+            phone: person.attributes.phone,
+            address: person.attributes.address,
+            city: person.attributes.city,
+            state: person.attributes.state,
+            zip_code: person.attributes.zip_code,
+            country: person.attributes.country,
+            date_of_birth: person.attributes.date_of_birth,
+            is_active: person.attributes.is_active,
+            actions: {
+              objects: [
+                {
+                  href: "/person/single?personId=" + person.attributes.personId,
+                  name: "Edit",
+                },
+              ],
+            },
+          };
+        });
+        documentsReady = true;
+      }
+    }
+  }
+
   onMount(async () => {
-    // await getAllDocument();
-    generateChartData();
+    getActionItems();
+    getPerson();
   });
 </script>
 
@@ -398,7 +434,7 @@
       <div class="flex flex-col gap-8">
         <!-- User Information -->
         <Heading tag="h2" class="font-jakarta text-primary-light dark:text-primary-dark">
-          CRM
+          Person
         </Heading>
 
         <!-- Action Items -->
@@ -409,9 +445,9 @@
             </Heading>
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
-            {#each actionItems as { href, icon, actionName, desc }}
+            {#each actionItems as item}
               <Card
-                {href}
+                href={item.href}
                 horizontal="true"
                 class="items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
                 size="none"
@@ -421,18 +457,18 @@
                   border
                   class="!ring-0 bg-brand-secondary-light dark:bg-brand-secondary-dark !p-2 !h-10 !w-10"
                   ><svelte:component
-                    this={icon}
+                    this={item.icon}
                     svgClass="w-5 h-5 text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
                   /></Avatar
                 >
                 <div class="ml-4 gap[2px]">
                   <P
                     class="font-jakarta text-base font-semibold leading-normal text-primary-light dark:text-primary-dark"
-                    >{$_(toCamelCase(actionName))}</P
+                    >{$_(toCamelCase(item.actionName))}</P
                   >
                   <P
                     class="font-jakarta text-sm font-normal leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_(toCamelCase(desc))}</P
+                    >{$_(toCamelCase(item.desc))}</P
                   >
                 </div>
               </Card>
@@ -441,7 +477,7 @@
         </div>
 
         <!-- Reports Monitoring -->
-        <div>
+        <!-- <div>
           <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
             <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
               {$_("reports")}
@@ -505,7 +541,7 @@
               </Card>
             {/each}
           </div>
-        </div>
+        </div> -->
 
         <!-- Person Table Data -->
         <div>

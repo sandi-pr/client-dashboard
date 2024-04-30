@@ -11,7 +11,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
+	"strings"
 
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
@@ -36,16 +38,85 @@ func init() {
 }
 
 func GetPersons(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
-	if token, ok := ctx.Params.GetString("token"); ok {
-		Strapi := strapi.NewStrapiWithToken(STRAPI_URL, string(token))
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
-		status, data, err := Strapi.Find("/api/person-table", U.Dict{})
-		if err != nil {
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		return status, data, nil
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
 	}
 
-	return ctx.Error(500, "Internal Server Error")
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	status, persons, err := Strapi.Find("person-table", U.Dict{})
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, persons, nil
+}
+
+func CreatePerson(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	status, persons, err := Strapi.Create("person-table", U.Dict{
+		"fullname":      ctx.Params["fullname"],
+		"email":         ctx.Params["email"],
+		"phone":         ctx.Params["phone"],
+		"address":       ctx.Params["address"],
+		"city":          ctx.Params["city"],
+		"state":         ctx.Params["state"],
+		"zip_code":      ctx.Params["zip_code"],
+		"country":       ctx.Params["country"],
+		"date_of_birth": ctx.Params["date_of_birth"],
+		"is_active":     ctx.Params["is_active"],
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, persons, nil
 }

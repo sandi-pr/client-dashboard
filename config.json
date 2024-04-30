@@ -15,6 +15,21 @@
             "file_path": "template/crm.html"
         },
         {
+            "name": "crm-person",
+            "path": "/crm/person",
+            "file_path": "template/crm/person.html"
+        },
+        {
+            "name": "crm-person-create",
+            "path": "/crm/person/create",
+            "file_path": "template/crm/person/create.html"
+        },
+        {
+            "name": "crm-calendar",
+            "path": "/crm/calendar",
+            "file_path": "template/crm/calendar.html"
+        },
+        {
             "name": "hexabot-overview",
             "path": "/hexabot",
             "file_path": "template/hexabot.html"
@@ -32,6 +47,64 @@
                 "function": "GetPersons"
             },
             "params": []
+        },
+        {
+            "name": "create-person",
+            "path": "/create-person",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreatePerson"
+            },
+            "params": [
+                {
+                    "name": "fullName",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "email",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "phone",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "address",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "city",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "state",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "zip_code",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "country",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "date_of_birth",
+                    "type": "date",
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {
@@ -455,7 +528,7 @@
                     "company": {
                         "type": "integer",
                         "configurable": false
-                    }                  
+                    }
                 }
             }
         ]
