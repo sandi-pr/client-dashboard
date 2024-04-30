@@ -33,7 +33,7 @@
 
   let moduleMonitoringData = [
     {
-      href: "/dashboard/create",
+      href: "/hexabot/create",
       icon: MessagePlus,
       moduleName: "Create New Bots",
       desc: "desc Create New Bots",
@@ -215,7 +215,7 @@
                 >{$_("recentDeployedBots")}</Heading
               >
               <Button
-                href="/deployed_bots"
+                href="/hexabot/deployed"
                 color="light"
                 class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
                 >{$_("viewAll")}</Button
@@ -250,7 +250,7 @@
                           </div>
                           <div class="flex items-center pl-2 gap-2">
                             <A
-                              href="deployed_bots/detail"
+                              href="hexabot/detail"
                               class="text-fg-brand-primary-light dark:text-fg-brand-primary-dark text-sm font-semibold"
                               >{$_("view")}</A
                             >

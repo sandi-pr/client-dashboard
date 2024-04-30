@@ -1,0 +1,134 @@
+<!--
+CR3 Client Dashboard
+Package: gitlab.hexacode.org/cr3/client-dashboard
+Maintainer: Azzis Arswendo <azzis@hexacode.org>
+
+Copyright (C) 2024 Hexacode Teknologi Indonesia
+All Rights Reserved
+-->
+
+<script>
+  import { Typography, TabBar, Card } from "$lib";
+  import { Pane } from "svelte-splitpanes";
+  import DataflowIcon from "$lib/icon/dataflow-solid.svelte";
+  import { CloseButton } from "flowbite-svelte";
+  import HexaAi from "$lib/icon/hexa-ai.svelte";
+  import HexaAIChat from "$lib/components/HexaAI.svelte";
+
+  let showAI = $state(false);
+  let activities = $state([]);
+
+  let tabDatas = $state({
+    selected: "Hexa AI",
+    data: [
+      {
+        name: "Hexa AI",
+      },
+      {
+        name: "Latest Activity",
+      },
+    ],
+  });
+
+  const changeTabbar = (tabName) => {
+    tabDatas.selected = tabName;
+  };
+
+</script>
+
+<Pane size="30">
+  <div
+    class="relative h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
+  >
+    <div class="absolute w-full top-0 z-10">
+      <div class="flex items-center">
+        <div
+          id="drawer-label"
+          class="inline-flex items-center mx-4 mt-4 text-base font-semibold text-gray-500 dark:text-gray-400"
+        >
+          {#if tabDatas.selected === "Latest Activity"}
+            <div
+              class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
+            >
+              <svelte:component
+                this={DataflowIcon}
+                svgClass="text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
+              />
+            </div>
+            &nbsp;
+            <div>
+              <Typography
+                preset="Text xl/Semibold"
+                text="Latest Activity"
+                color="primary"
+              />
+              <Typography
+                preset="Text sm/Regular"
+                text="Your latest activity"
+                color="tertiary"
+              />
+            </div>
+          {:else if tabDatas.selected === "Hexa AI"}
+            <div
+              class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
+            >
+              <svelte:component
+                this={HexaAi}
+                svgClass="text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
+              />
+            </div>
+            &nbsp;
+            <div>
+              <Typography
+                preset="Text xl/Semibold"
+                text="Hexa AI"
+                color="primary"
+              />
+              <Typography
+                preset="Text sm/Regular"
+                text="Assistant"
+                color="tertiary"
+              />
+            </div>
+          {/if}
+        </div>
+      </div>
+      <TabBar {tabDatas} {changeTabbar} />
+    </div>
+    <div class="flex flex-col h-screen pt-[118px]">
+    {#if tabDatas.selected === "Latest Activity"}
+      <div class="p-4">
+        {#if activities.length > 0}
+          {#each activities as activityYear (activityYear)}
+            {#each Object.keys(activityYear) as year (year)}
+              <div class="flex flex-col gap-6">
+                {#each Object.keys(activityYear[year]) as month (month)}
+                  <div class="flex flex-col gap-3">
+                    <Typography
+                      preset="Text sm/Medium"
+                      text="{numberMonthToTextMonth(month)} {year}"
+                      color="tertiary"
+                    />
+                    {#each activityYear[year][month] as activity (activity)}
+                      <Card
+                        type="ledger"
+                        title={activity.activity}
+                        description={activity.address}
+                        subtext={activity.date}
+                      />
+                    {/each}
+                  </div>
+                {/each}
+              </div>
+            {/each}
+          {/each}
+        {:else}
+          <Typography preset="Text sm/Medium" text="No Activity" color="primary" />
+        {/if}
+      </div>
+    {:else if tabDatas.selected === "Hexa AI"}
+      <HexaAIChat />
+    {/if}
+    </div>
+  </div>
+</Pane>

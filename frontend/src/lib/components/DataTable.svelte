@@ -225,7 +225,7 @@
       {#if datas.length > 0}
         {#each Object.keys(datas[0]) as key}
           {#if normalContent(key)}
-            <TableHeadCell>{key}</TableHeadCell>
+            <TableHeadCell>{splitCamelCase(key)}</TableHeadCell>
           {/if}
         {/each}
         {#each Object.keys(datas[0]) as key}

@@ -3,20 +3,27 @@
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import EN from "$lib/icon/GB.svg";
   import ID from "$lib/icon/ID.svg";
-  export let changeLanguage;
-  let dropdownOpen = false;
-  let locale = "en";
-  const handleChangeLanguage = (evt: any, lang: string) => {
-    evt.preventDefault();
-    changeLanguage(lang);
-    locale = lang;
+  import { locale } from "svelte-i18n";
+  // let { changeLanguage }: { changeLanguage: (lang: string) => void } = $props();
+  let dropdownOpen = $state(false);
+  let myLocale = $state("en");
+
+  const changeLanguage = (lang) => {
+    locale.set(lang);
     dropdownOpen = false;
   };
+
+  // const handleChangeLanguage = (evt: any, lang: string) => {
+  //   evt.preventDefault();
+  //   changeLanguage(lang);
+  //   myLocale = lang;
+  //   dropdownOpen = !dropdownOpen;
+  // };
 </script>
 
 <div>
   <Button color="light" on:click={() => (dropdownOpen = !dropdownOpen)} id="dropdownDefaultButton">
-    {#if locale === "id"}
+    {#if $locale === "id"}
       <Avatar src={ID} alt="id" size="xs" class="mr-2" />
     {:else}
       <Avatar src={EN} alt="us" size="xs" class="mr-2" />
@@ -29,16 +36,12 @@
     <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
       <button
         class="flex p-2"
-        onclick={(evt) => {
-          handleChangeLanguage(evt, "id");
-        }}>
+        onclick={() => changeLanguage("id")}>
         <Avatar src={ID} alt="id" size="xs" class="mr-2" /> Indonesia
       </button>
       <button
         class="flex p-2"
-        onclick={(evt) => {
-          handleChangeLanguage(evt, "en");
-        }}>
+        onclick={() => changeLanguage("en")}>
         <Avatar src={EN} alt="us" size="xs" class="mr-2" /> English
       </button>
     </ul>

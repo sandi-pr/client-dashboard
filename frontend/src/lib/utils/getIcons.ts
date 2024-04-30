@@ -6,6 +6,7 @@ import FolderIcon from "$lib/icon/folder.svelte";
 import UsersIcon from "$lib/icon/users-03.svelte";
 import MessageChatIcon from "$lib/icon/message-chat-circle.svelte";
 import BlockchainIcon from '$lib/icon/blockchain.svelte';
+import BellIcon from "$lib/icon/bell-01.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -25,8 +26,10 @@ let getIcons = (presetIcon: String) => {
       return HomeLineIcon;
     case "blockchain":
       return BlockchainIcon;
+    case "bell":
+      return BellIcon;
     default:
-      return HomeLineIcon;
+      return "";
   }
 }
 

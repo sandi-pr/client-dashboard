@@ -37,6 +37,9 @@
   import box from "$lib/icon/box.svg";
   import { ChevronDownOutline, DotsVerticalOutline } from "flowbite-svelte-icons";
   import TabDetail from "$lib/components/TabDetail.svelte";
+  import Highlight from "svelte-highlight";
+  import typescript from "svelte-highlight/languages/typescript";
+  import github from "svelte-highlight/styles/github";
 
   // const API_URL = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
   // const STRAPI_URL =
@@ -201,13 +204,19 @@
   };
 
   let formattedDate = "Created on 2021-08-12 14:00 PM";
+
+  let code = `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="http://webchat.hexacode.org/19ca7b92-4bfd-4c20-b6ab-048207e66258"></iframe>`;
 </script>
 
-<svelte:window bind:innerWidth={screenWidth} />
+<svelte:head>
+  {@html github}
+</svelte:head>
+
+<!-- <svelte:window bind:innerWidth={screenWidth} /> -->
 
 <LoadingSpinner {isLoading} />
 
-<div class="m-4 lg:ml-[21rem]">
+<div class="m-4">
   <div class="flex justify-start items-center mx-4">
     <Avatar class="size-16 border-[1px] border-hc-graylight-200 ml-4" stacked />
     <div class="ml-4">
@@ -245,6 +254,7 @@
               >Bots Name*</P
             >
             <Textarea
+              value={users.botName}
               class="resize-none"
               rows={screenWidth > 1024 ? "1" : "2"}
               unWrappedClass="p-2.5 text-sm border border-primary-light dark:border-primary-dark focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -263,7 +273,7 @@
                 class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
               /></Button
             >
-            <Dropdown containerClass="w-10/12 sm:w-1/4">
+            <!-- <Dropdown containerClass="w-10/12 sm:w-1/4">
               <DropdownItem>Isurance</DropdownItem>
               <DropdownItem>Information Technology (IT)</DropdownItem>
               <DropdownItem>Healthcare</DropdownItem>
@@ -277,7 +287,7 @@
               <DropdownItem>Construction and Real Estate</DropdownItem>
               <DropdownItem>Entertainment and Media</DropdownItem>
               <DropdownItem>Education</DropdownItem>
-            </Dropdown>
+            </Dropdown> -->
             <P size="sm" class="!mt-1" color="text-tertiary-light dark:text-tertiary-dark"
               >This will set bots base configuration</P
             >
@@ -295,7 +305,7 @@
                 class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
               /></Button
             >
-            <Dropdown containerClass="w-10/12 sm:w-1/4">
+            <!-- <Dropdown containerClass="w-10/12 sm:w-1/4">
               <DropdownItem>Personal Agent Assistant</DropdownItem>
               <DropdownItem>Customer Support Chatbot</DropdownItem>
               <DropdownItem>Automated Data Analysis Tool</DropdownItem>
@@ -308,7 +318,7 @@
               <DropdownItem>Financial Portfolio Management Tool</DropdownItem>
               <DropdownItem>Social Media Analytics Platform</DropdownItem>
               <DropdownItem>Remote Collaboration Tool</DropdownItem>
-            </Dropdown>
+            </Dropdown> -->
             <P size="sm" class="!mt-1" color="text-tertiary-light dark:text-tertiary-dark"
               >This will impact how your bots tailored to specific use cases</P
             >
@@ -319,7 +329,7 @@
             <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
               >Description (Opsional)</P
             >
-            <Textarea class="resize-none" />
+            <Textarea value={users.description} class="resize-none" />
           </div>
         </div>
       </div>
@@ -330,7 +340,7 @@
           class="w-full md:w-3/4 flex flex-col justify-center gap-2 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark"
         >
           <P>Additional Prompts*</P>
-          <Textarea class="" rows={10} />
+          <Textarea value={users.additionalPrompts} class="" rows={10} />
         </div>
       </div>
     </div>
@@ -344,7 +354,7 @@
       class="grid grid-cols-1 md:grid-cols-4 gap-4 mx-4 mt-8 [&>*]:text-hc-graylight-700 [&>*]:bg-white [&>*]:dark:bg-hc-graydark-950 [&>textarea]:text-hc-graylight-500"
     >
       <P size="lg" weight="semibold" class="col-span-1">Embed Codes</P>
-      <div class="col-span-3">
+      <div class="col-span-3 space-y-2">
         <Button
           outline
           color="purple"
@@ -355,6 +365,7 @@
           />
           Copy to clipboard
         </Button>
+        <Highlight language={typescript}   {code} />
         <!-- <SvelteMarkdown></SvelteMarkdown> -->
       </div>
     </div>

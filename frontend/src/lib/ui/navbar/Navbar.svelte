@@ -15,14 +15,14 @@
   import BellIcon from "$lib/icon/bell-01.svg";
   import StarsIcon from "$lib/icon/stars-01.svg";
 
-  let { activeUrl = "/", changeLanguage = () => {}, changeShowAI = () => {} } = $props();
+  let { activeUrl = "/", changeShowAI = () => {} } = $props();
 </script>
 
 <div>
   <div class="flex justify-between px-4 lg:pt-8">
     <Breadcrumb {activeUrl} />
     <div class="flex space-x-4">
-      <LanguageSelector {changeLanguage} />
+      <LanguageSelector />
       <DarkMode
         btnClass="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600 focus-within:ring-4 focus-within:outline-none focus-within:ring-gray-200 dark:focus-within:ring-gray-700"
       />

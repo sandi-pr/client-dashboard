@@ -23,7 +23,7 @@
   } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import WebIcon from "$lib/icon/server-06.svg";
-  // import WhatsappIcon from "$lib/icon/whatsapp.svg";
+  import WhatsappIcon from "$lib/icon/whatsapp.svg";
   // import TelegramIcon from "$lib/icon/telegram.svg";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import { onMount } from "svelte";
@@ -31,6 +31,8 @@
   // import { getTemplates } from "$lib/service/strapi";
 
   // export let data;
+
+  let dropdownOpen = false;
 
   let placement = "bottom-start";
 
@@ -42,13 +44,13 @@
       selected: true,
       disabled: true,
     },
-    // {
-    //   name: "Whatsapp",
-    //   icon: WhatsappIcon,
-    //   description: "A mobile messaging app for your bot, widely used for communication.",
-    //   selected: false,
-    //   disabled: true,
-    // },
+    {
+      name: "Whatsapp",
+      icon: WhatsappIcon,
+      description: "A mobile messaging app for your bot, widely used for communication.",
+      selected: false,
+      disabled: true,
+    },
     // {
     //   name: "Telegram",
     //   icon: TelegramIcon,
@@ -202,11 +204,88 @@
     // getTemplate();
   });
 
-  let templates = [];
+  // let templates = [];
   let dropdownIndustryOpen = false;
   let dropdownUseCaseOpen = false;
   let params = [];
   let products_and_services = [];
+
+  let templates = [
+    {
+      id: 1,
+      attributes: {
+        name: "Template 1",
+        parameters: [
+          {
+            children: [
+              {
+                label: "Parameter 1",
+                required: true,
+                type: "text",
+                placeholder: "Enter Parameter 1",
+                enum: ["Option 1", "Option 2", "Option 3"],
+                description: "Description for Parameter 1",
+              },
+            ],
+          },
+          {
+            label: "Label 1",
+            children: [
+              {
+                list_dict_format: [
+                  { label: "Field 1", required: true, type: "text", placeholder: "Enter Field 1", name: "field1" },
+                  { label: "Field 2", required: false, type: "number", placeholder: "Enter Field 2", min: 0, max: 100, name: "field2" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      id: 2,
+      attributes: {
+        name: "Template 2",
+        parameters: [
+          {
+            children: [
+              {
+                label: "Parameter 2",
+                required: false,
+                type: "number",
+                placeholder: "Enter Parameter 2",
+                enum: ["Option A", "Option B", "Option C"],
+                description: "Description for Parameter 2",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      id: 3,
+      attributes: {
+        name: "Template 3",
+        parameters: [
+          {
+            children: [
+              {
+                label: "Parameter 3",
+                required: true,
+                type: "text",
+                placeholder: "Enter Parameter 3",
+                enum: ["Option X", "Option Y", "Option Z"],
+                description: "Description for Parameter 3",
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ];
+
+  let selectedIndustry = "";
+  let selectedUseCase = "";
 
   // const getTemplate = async () => {
   //   const result = await getTemplates(data.data.jwt);
@@ -235,7 +314,7 @@
 
 <LoadingSpinner {isLoading} />
 
-<div class="m-4 lg:ml-80">
+<div class="m-4">
   <div class="flex justify-between">
     <div class="ml-4">
       <P size="3xl" weight="semibold">Create New Bots</P>
@@ -283,21 +362,26 @@
             >Industry*</P
           >
           <Button
+            on:click={() => (dropdownIndustryOpen = !dropdownIndustryOpen)}
             class="w-full flex justify-between border-primary-light dark:border-primary-dark"
             color="light"
-            >{templates.length > 0 ? templates[0].attributes.name : ""}<ChevronDownOutline
+            >{selectedIndustry ? selectedIndustry : "select industry"}<ChevronDownOutline
               class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
             /></Button
           >
-          <!-- <Dropdown containerClass="w-10/12 sm:w-1/4" {placement} bind:open={dropdownIndustryOpen}>
-            {#each templates as template}
-              <DropdownItem
+          <div id="dropdown" class={`z-10 ${dropdownIndustryOpen ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
+            <ul class="py-2 flex border rounded-md flex-col items-center w-full text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+              {#each templates as template}
+              <button
+                class="flex w-full py-2 px-4 mx-8"
                 on:click={() => (
-                  (dropdownIndustryOpen = false), (params = template.attributes.parameters)
-                )}>{template.attributes.name}</DropdownItem
-              >
-            {/each}
-          </Dropdown> -->
+                  (dropdownIndustryOpen = false), (params = template.attributes.parameters), (selectedIndustry = template.attributes.name), console.log(params)
+                )}>
+                {template.attributes.name}
+              </button>
+              {/each}
+            </ul>
+          </div>
           <P size="sm" class="!mt-1" color="text-tertiary-light dark:text-tertiary-dark"
             >This will set bots base configuration</P
           >
@@ -306,17 +390,27 @@
           class="space-y-1 col-span-4 sm:col-span-2 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark [&>textarea]:text-primary-light dark:[&>textarea]:text-primary-dark"
         >
           <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-            >{params[0]?.children[0]?.label}{params[0]?.children[0]?.required ? "*" : ""}</P
+            >{params[0]?.children[0]?.label ?? "Use Case"}{params[0]?.children[0]?.required ? "*" : ""}</P
           >
           <Button
+            on:click={() => (dropdownUseCaseOpen = !dropdownUseCaseOpen)}
             class="w-full flex justify-between border-primary-light dark:border-primary-dark"
             color="light"
-            >{params[0]?.children?.length > 0
-              ? params[0]?.children[0]?.enum[0]
-              : ""}<ChevronDownOutline
+            >{selectedUseCase ? selectedUseCase : params[0]?.children?.length > 0 ? "select use case" : "select industry first"}<ChevronDownOutline
               class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
             /></Button
           >
+          <div id="dropdown" class={`z-10 ${dropdownUseCaseOpen ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
+            <ul class="py-2 flex border rounded-md flex-col items-center w-full text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+              {#each params[0]?.children[0]?.enum as useCase}
+              <button
+                class="flex w-full py-2 px-4 mx-8"
+                on:click={() => ((dropdownUseCaseOpen = !dropdownUseCaseOpen), (selectedUseCase = useCase), console.log(useCase))}>
+                {useCase}
+              </button>
+              {/each}
+            </ul>
+          </div>
           <!-- <Dropdown containerClass="w-10/12 sm:w-1/4" {placement} bind:open={dropdownUseCaseOpen}>
             {#each params[0]?.children[0]?.enum as useCase}
               <DropdownItem on:click={() => (dropdownUseCaseOpen = false)}>{useCase}</DropdownItem>
@@ -326,9 +420,9 @@
             >{params[0]?.children[0]?.description}</P
           >
         </div>
-        {#if params[0]?.children.length > 1}
-          {#each params[0].children as param, index (param)}
-            {#if index !== 0}
+        {#if params[0]?.children}
+          {#each params[0]?.children as param, index (param)}
+            {#if index === 0}
               <div
                 class="flex flex-col gap-1 col-span-4 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark [&>textarea]:text-primary-light dark:[&>textarea]:text-primary-dark"
               >
@@ -423,13 +517,21 @@
         <div class="flex items-center gap-4">
           <P>Select day</P>
           {#each selectedDays as day}
-            <Checkbox custom checked={day.selected}>
+            <!-- <Checkbox custom>
               <div
                 class="flex items-center font-normal w-9 h-9 text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark rounded-full cursor-pointer peer-checked:text-white dark:peer-checked:text-white peer-checked:bg-fg-brand-primary-light dark:peer-checked:bg-fg-brand-primary-dark"
               >
                 <div class="w-full text-base font-semibold text-center">{day.label}</div>
               </div>
-            </Checkbox>
+            </Checkbox> -->
+            <ul class="">
+              <li>
+                <input type="checkbox" id={day.name} value="" class="hidden peer" required="">
+                <label for={day.name} class="inline-flex items-center justify-between w-9 h-9 text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark rounded-full cursor-pointer peer-checked:text-white dark:peer-checked:text-white peer-checked:bg-fg-brand-primary-light dark:peer-checked:bg-fg-brand-primary-dark">                           
+                  <div class="w-full text-base font-semibold text-center">{day.label}</div>
+                </label>
+              </li>
+            </ul>
           {/each}
         </div>
       </div>

@@ -181,7 +181,7 @@
                         </div>
                         <div class="flex items-center pl-2 gap-2">
                           <A
-                            href="/deployed_bots/detail"
+                            href="/hexabot/detail"
                             class="text-fg-brand-primary-light dark:text-fg-brand-primary-dark text-sm font-semibold hover:no-underline"
                             >{$_("view")}</A
                           >
