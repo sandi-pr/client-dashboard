@@ -63,6 +63,10 @@ All Rights Reserved
     showAI = !showAI;
   };
 
+  const changeTabbar = (tabName) => {
+    tabDatas.selected = tabName;
+  };
+
   const changeLanguage = (lang) => {
     locale.set(lang);
   };
@@ -201,7 +205,9 @@ All Rights Reserved
 
         <!-- Hexabot Sidebar -->
         {#if showAI}
-          <div class="w-[20%] h-screen transition-all duration-300 border-l-2 border-gray-200">
+          <div
+            class="w-[20%] h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
+          >
             <div class="flex items-center">
               <div
                 id="drawer-label"
@@ -253,7 +259,7 @@ All Rights Reserved
               />
             </div>
 
-            <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+            <TabBar {tabDatas} {changeTabbar} />
 
             {#if tabDatas.selected === "Latest Activity"}
               <div class="p-4">
@@ -261,7 +267,6 @@ All Rights Reserved
                   {#each activities as activityYear (activityYear)}
                     {#each Object.keys(activityYear) as year (year)}
                       <div class="flex flex-col gap-6">
-                        <!-- <Typography preset="Text md/Medium" text={year} color="primary" /> -->
                         {#each Object.keys(activityYear[year]) as month (month)}
                           <div class="flex flex-col gap-3">
                             <Typography
