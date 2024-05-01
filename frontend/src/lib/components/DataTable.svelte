@@ -63,25 +63,26 @@
       key !== "unit" &&
       key !== "role" &&
       key !== "member" &&
-      key !== "recipients"
+      key !== "recipients" &&
+      key !== "category"
     );
   };
 
   const pillContent = (key) => {
-    return key === "status" || key === "parentUnit" || key === "unit" || key === "role";
+    return key === "status" || key === "parentUnit" || key === "unit" || key === "role" || key === "category";
   };
 
   const classStatusType = (type) => {
     if (type === "success") {
-      return "bg-hc-success-50 border-hc-success-200 text-hc-success-700";
+      return "bg-utility-success-50-light dark:bg-utility-success-50-dark border-utility-success-200-light dark:border-utility-success-200-dark text-utility-success-700-light dark:text-utility-success-700-dark";
     } else if (type === "error") {
-      return "bg-hc-error-50 border-hc-error-200 text-hc-error-700";
+      return "bg-utility-error-50-light dark:bg-utility-error-50-dark border-utility-error-200-light dark:border-utility-error-200-dark text-utility-error-700-light dark:text-utility-error-700-dark";
     } else if (type === "warning") {
-      return "bg-hc-warning-50 border-hc-warning-200 text-hc-warning-700";
+      return "bg-utility-warning-50-light dark:bg-utility-warning-50-dark border-utility-warning-200-light dark:border-utility-warning-200-dark text-utility-warning-700-light dark:text-utility-warning-700-dark";
     } else if (type === "info") {
-      return "bg-hc-graylight-50 border-hc-graylight-200 text-hc-graylight-700";
+      return "bg-utility-gray-50-light dark:bg-utility-gray-50-dark border-utility-gray-200-light dark:border-utility-gray-200-dark text-utility-gray-700-light dark:text-utility-gray-700-dark";
     } else if (type === "brand") {
-      return "bg-hc-brand-50 border-hc-brand-200 text-hc-brand-700";
+      return "bg-utility-brand-50-light dark:bg-utility-brand-50-dark border-utility-brand-200-light dark:border-utility-brand-200-dark text-utility-brand-700-light dark:text-utility-brand-700-dark";
     }
   };
 
@@ -259,6 +260,27 @@
               </TableBodyCell>
             {/if}
           {/each}
+          {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0]?.role || datas[0]?.category}
+            {#each Object.keys(datas[0]) as key}
+              {#if key === "parentUnit" || key === "unit" || key === "role" || key === "category"}
+                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                  {#if data[key]?.type}
+                    <p
+                      class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
+                        data[key].type
+                      )}`}
+                    >
+                      {data[key].name}
+                    </p>
+                  {:else}
+                    <p>
+                      {data[key]}
+                    </p>
+                  {/if}
+                </TableBodyCell>
+              {/if}
+            {/each}
+          {/if}
           {#if datas[0]?.status && Object.keys(datas[0].status).length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key === "status"}
@@ -285,27 +307,6 @@
                 >
               {/if}
             </div>
-          {/if}
-          {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0].role}
-            {#each Object.keys(datas[0]) as key}
-              {#if key === "parentUnit" || key === "unit" || key === "role"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                  {#if data[key]?.type}
-                    <p
-                      class={`p-[2px] border-[1px] rounded-xl text-center ${classStatusType(
-                        data[key].type
-                      )}`}
-                    >
-                      {data[key].name}
-                    </p>
-                  {:else}
-                    <p>
-                      {data[key]}
-                    </p>
-                  {/if}
-                </TableBodyCell>
-              {/if}
-            {/each}
           {/if}
           {#if datas[0]?.member}
             {#each Object.keys(datas[0]) as key}
