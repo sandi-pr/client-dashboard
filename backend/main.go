@@ -45,6 +45,12 @@ func GetPersons(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(401, "Unauthorized")
 	}
 
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
 
 	status, me, err := Strapi.UsersMe()
@@ -60,7 +66,11 @@ func GetPersons(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 
 	fmt.Println(me)
 
-	status, persons, err := Strapi.Find("person-table", U.Dict{})
+	status, persons, err := Strapi.Find("person-table", U.Dict{
+		"pagination": U.Dict{
+			"page": page,
+		},
+	})
 	if err != nil {
 		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")

@@ -37,9 +37,9 @@
   import box from "$lib/icon/box.svg";
   import { ChevronDownOutline, DotsVerticalOutline } from "flowbite-svelte-icons";
   import TabDetail from "$lib/components/TabDetail.svelte";
-  import Highlight from "svelte-highlight";
-  import typescript from "svelte-highlight/languages/typescript";
-  import github from "svelte-highlight/styles/github";
+  // import Highlight from "svelte-highlight";
+  // import typescript from "svelte-highlight/languages/typescript";
+  // import github from "svelte-highlight/styles/github";
 
   // const API_URL = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
   // const STRAPI_URL =
@@ -208,9 +208,9 @@
   let code = `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="http://webchat.hexacode.org/19ca7b92-4bfd-4c20-b6ab-048207e66258"></iframe>`;
 </script>
 
-<svelte:head>
+<!-- <svelte:head>
   {@html github}
-</svelte:head>
+</svelte:head> -->
 
 <!-- <svelte:window bind:innerWidth={screenWidth} /> -->
 
@@ -365,7 +365,7 @@
           />
           Copy to clipboard
         </Button>
-        <Highlight language={typescript}   {code} />
+        <!-- <Highlight language={typescript}   {code} /> -->
         <!-- <SvelteMarkdown></SvelteMarkdown> -->
       </div>
     </div>

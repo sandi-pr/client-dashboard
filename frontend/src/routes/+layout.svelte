@@ -148,6 +148,7 @@ All Rights Reserved
       Params: {},
       Headers: {},
     });
+    console.log(resp_setup);
     if (resp_setup.status === 200) {
       if (resp_setup.result.is_need_setup === true) {
         if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
@@ -209,7 +210,7 @@ All Rights Reserved
         {logout}
       />
       <div
-        class="w-full h-screen flex lg:ml-80 border-l border-secondary-light dark:border-secondary-dark"
+        class="w-full min-h-screen flex lg:ml-80 border-l border-secondary-light dark:border-secondary-dark"
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">

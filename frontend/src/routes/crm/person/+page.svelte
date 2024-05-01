@@ -21,21 +21,10 @@ All Rights Reserved
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let personsLatest = [];
+  let personsLatest = $state([]);
   let documentsReady = $state(false);
-  // let documents = [];
-  // let documentsNeed = [];
-  // let documentsComplete = [];
-  // let allUrls = [];
-  // let chart = true;
-  let monthlyPersonsCounts = [3, 6, 1, 8, 2, 7, 4, 9, 5, 0, 6, 3];
-  let monthlyActivePersonsCounts = [9, 2, 7, 4, 0, 6, 3, 5, 8, 1, 7, 2];
-  let monthlyInactivePersonsCounts = [0, 6, 3, 5, 8, 1, 7, 2, 9, 4, 0, 6];
-  let dataChartAll = {};
-  let dataChartNeed = {};
-  let dataChartComplete = {};
-  let chartReady = false;
   let actionItems = $state([]);
+  let configs = $state({});
 
   async function getActionItems() {
     actionItems = [
@@ -48,329 +37,19 @@ All Rights Reserved
     ];
   }
 
-  // function generateChartData() {
-  //   const currentDate = new Date();
-  //   const twelveMonthsBefore = new Date();
-  //   twelveMonthsBefore.setMonth(currentDate.getMonth() - 12);
-
-  //   const formatDate = (date) => {
-  //     const options = { month: "short", year: "numeric" };
-  //     return new Intl.DateTimeFormat("en-US", options).format(date);
-  //   };
-
-  //   dataChartAll = {
-  //     chart: {
-  //       type: "area",
-  //       fontFamily: "Inter, sans-serif",
-  //       dropShadow: {
-  //         enabled: false,
-  //       },
-  //       toolbar: {
-  //         show: false,
-  //       },
-  //     },
-  //     tooltip: {
-  //       enabled: true,
-  //       x: {
-  //         show: false,
-  //       },
-  //     },
-  //     fill: {
-  //       type: "gradient",
-  //       gradient: {
-  //         opacityFrom: 0.55,
-  //         opacityTo: 0,
-  //         shade: "#17B169",
-  //         gradientToColors: ["#17B169"],
-  //       },
-  //     },
-  //     dataLabels: {
-  //       enabled: false,
-  //     },
-  //     stroke: {
-  //       width: 2,
-  //     },
-  //     grid: {
-  //       show: false,
-  //       strokeDashArray: 4,
-  //       padding: {
-  //         left: 2,
-  //         right: 2,
-  //         top: 0,
-  //       },
-  //     },
-  //     series: [
-  //       {
-  //         name: "New users",
-  //         data: monthlyPersonsCounts,
-  //         color: "#17B169",
-  //       },
-  //     ],
-  //     xaxis: {
-  //       categories: Array.from({ length: 12 }, (_, i) => {
-  //         const date = new Date(twelveMonthsBefore);
-  //         date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
-  //         return formatDate(date);
-  //       }),
-  //       labels: {
-  //         show: false,
-  //       },
-  //       axisBorder: {
-  //         show: false,
-  //       },
-  //       axisTicks: {
-  //         show: false,
-  //       },
-  //     },
-  //     yaxis: {
-  //       show: false,
-  //     },
-  //   };
-
-  //   dataChartNeed = {
-  //     chart: {
-  //       type: "area",
-  //       fontFamily: "Inter, sans-serif",
-  //       dropShadow: {
-  //         enabled: false,
-  //       },
-  //       toolbar: {
-  //         show: false,
-  //       },
-  //     },
-  //     tooltip: {
-  //       enabled: true,
-  //       x: {
-  //         show: false,
-  //       },
-  //     },
-  //     fill: {
-  //       type: "gradient",
-  //       gradient: {
-  //         opacityFrom: 0.55,
-  //         opacityTo: 0,
-  //         shade: "#17B169",
-  //         gradientToColors: ["#17B169"],
-  //       },
-  //     },
-  //     dataLabels: {
-  //       enabled: false,
-  //     },
-  //     stroke: {
-  //       width: 2,
-  //     },
-  //     grid: {
-  //       show: false,
-  //       strokeDashArray: 4,
-  //       padding: {
-  //         left: 2,
-  //         right: 2,
-  //         top: 0,
-  //       },
-  //     },
-  //     series: [
-  //       {
-  //         name: "New users",
-  //         data: monthlyActivePersonsCounts,
-  //         color: "#17B169",
-  //       },
-  //     ],
-  //     xaxis: {
-  //       categories: Array.from({ length: 12 }, (_, i) => {
-  //         const date = new Date(twelveMonthsBefore);
-  //         date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
-  //         return formatDate(date);
-  //       }),
-  //       labels: {
-  //         show: false,
-  //       },
-  //       axisBorder: {
-  //         show: false,
-  //       },
-  //       axisTicks: {
-  //         show: false,
-  //       },
-  //     },
-  //     yaxis: {
-  //       show: false,
-  //     },
-  //   };
-
-  //   dataChartComplete = {
-  //     chart: {
-  //       type: "area",
-  //       fontFamily: "Inter, sans-serif",
-  //       dropShadow: {
-  //         enabled: false,
-  //       },
-  //       toolbar: {
-  //         show: false,
-  //       },
-  //     },
-  //     tooltip: {
-  //       enabled: true,
-  //       x: {
-  //         show: false,
-  //       },
-  //     },
-  //     fill: {
-  //       type: "gradient",
-  //       gradient: {
-  //         opacityFrom: 0.55,
-  //         opacityTo: 0,
-  //         shade: "#17B169",
-  //         gradientToColors: ["#17B169"],
-  //       },
-  //     },
-  //     dataLabels: {
-  //       enabled: false,
-  //     },
-  //     stroke: {
-  //       width: 2,
-  //     },
-  //     grid: {
-  //       show: false,
-  //       strokeDashArray: 4,
-  //       padding: {
-  //         left: 2,
-  //         right: 2,
-  //         top: 0,
-  //       },
-  //     },
-  //     series: [
-  //       {
-  //         name: "New users",
-  //         data: monthlyInactivePersonsCounts,
-  //         color: "#17B169",
-  //       },
-  //     ],
-  //     xaxis: {
-  //       categories: Array.from({ length: 12 }, (_, i) => {
-  //         const date = new Date(twelveMonthsBefore);
-  //         date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
-  //         return formatDate(date);
-  //       }),
-  //       labels: {
-  //         show: false,
-  //       },
-  //       axisBorder: {
-  //         show: false,
-  //       },
-  //       axisTicks: {
-  //         show: false,
-  //       },
-  //     },
-  //     yaxis: {
-  //       show: false,
-  //     },
-  //   };
-  //   chartReady = true;
-  // }
-
-  // let docData = [
-  //   {
-  //     href: "/person",
-  //     dataName: "Total Persons",
-  //     value: "10",
-  //     change: "3",
-  //     changeType: "increase",
-  //   },
-  //   {
-  //     href: "/person",
-  //     dataName: "Active Persons",
-  //     value: "7",
-  //     change: "3",
-  //     changeType: "decrease",
-  //   },
-  //   {
-  //     ihref: "/person",
-  //     dataName: "Inactive Persons",
-  //     value: "3",
-  //     change: "3",
-  //     changeType: "increase",
-  //   },
-  // ];
-
-  // personsLatest = [
-  //   {
-  //     attributes: {
-  //       personId: "19846829",
-  //       fullName: "Azzisi Bassem",
-  //       dateOfBirth: "01/12/1994",
-  //       email: "azzis144635@gmail.com",
-  //       phone: "+44 33771021",
-  //       country: "UK",
-  //       address: "John Smith 42, Primrose Avenue, London EC2M 7EB, United Kingdom",
-  //       city: "London",
-  //       state: "London",
-  //       zipCode: "EC2M 7EB",
-  //       createdAt: "01-12-2024 03:02",
-  //       active: true,
-  //     },
-  //   },
-  //   {
-  //     attributes: {
-  //       personId: "34678291",
-  //       fullName: "John Doe",
-  //       dateOfBirth: "03/15/1985",
-  //       email: "johndoe@example.com",
-  //       phone: "+1 123456789",
-  //       country: "USA",
-  //       address: "123 Main St, Anytown USA",
-  //       city: "Anytown",
-  //       state: "AnyState",
-  //       zipCode: "12345",
-  //       createdAt: "01-12-2024 03:02",
-  //       active: true,
-  //     },
-  //   },
-  //   {
-  //     attributes: {
-  //       personId: "56473829",
-  //       fullName: "Alice Johnson",
-  //       dateOfBirth: "06/22/1978",
-  //       email: "alice@example.com",
-  //       phone: "+61 987654321",
-  //       country: "Australia",
-  //       address: "123 Main St, Anytown AU",
-  //       city: "Anytown",
-  //       state: "AnyState",
-  //       zipCode: "12345",
-  //       createdAt: "01-12-2024 03:02",
-  //       active: false,
-  //     },
-  //   },
-  //   {
-  //     attributes: {
-  //       personId: "97261835",
-  //       fullName: "Mohammed Ahmed",
-  //       dateOfBirth: "12/04/1990",
-  //       email: "mohammed@example.com",
-  //       phone: "+91 9876543210",
-  //       country: "India",
-  //       address: "123 Main St, Anytown IN",
-  //       city: "Anytown",
-  //       state: "AnyState",
-  //       zipCode: "12345",
-  //       createdAt: "01-12-2024 03:02",
-  //       active: true,
-  //     },
-  //   },
-  // ];
-
-  let datas = $state([]);
-
-  let configs = {
-    headers: "Persons",
-    seperator: true,
-    actions: [
-      {
-        name: "View All",
-        href: "/person/list",
-        type: "info",
-      },
-    ],
-  };
+  async function getConfigs() {
+    return {
+      headers: "Persons",
+      seperator: true,
+      actions: [
+        {
+          name: "View All",
+          href: await call.getPage("client-dashboard", "crm-person-list"),
+          type: "info",
+        },
+      ],
+    };
+  }
 
   async function getPerson() {
     let token = sessionStorage.getItem("token");
@@ -378,7 +57,9 @@ All Rights Reserved
       let response = await call.call("client-dashboard", "get-persons", {
         URLQuery: {},
         URLParams: {},
-        Params: {},
+        Params: {
+          page: 1,
+        },
         Headers: {
           Authorization: "Bearer " + token,
         },
@@ -390,18 +71,25 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
-        let promises = response.result.data.map(async (person, index) => {
+        configs = await getConfigs();
+
+        response.result.data.sort(
+          (a, b) => new Date(b.attributes.updatedAt) - new Date(a.attributes.updatedAt),
+        );
+        let latestData = response.result.data.slice(0, 5);
+
+        let promises = latestData.map(async (person) => {
           return {
             id: person.id,
             fullname: person.attributes.fullname,
             email: person.attributes.email,
             phone: person.attributes.phone,
-            address: person.attributes.address,
-            city: person.attributes.city,
-            state: person.attributes.state,
-            zip_code: person.attributes.zip_code,
+            // address: person.attributes.address,
+            // city: person.attributes.city,
+            // state: person.attributes.state,
+            // zip_code: person.attributes.zip_code,
             country: person.attributes.country,
-            date_of_birth: person.attributes.date_of_birth,
+            // date_of_birth: person.attributes.date_of_birth,
             is_active: person.attributes.is_active,
             actions: {
               objects: [
@@ -417,7 +105,7 @@ All Rights Reserved
           };
         });
 
-        datas = await Promise.all(promises);
+        personsLatest = await Promise.all(promises);
         documentsReady = true;
       }
     }
@@ -548,11 +236,7 @@ All Rights Reserved
 
         <!-- Person Table Data -->
         <div>
-          {#if documentsReady}
-            <DataTable {datas} {configs} />
-          {:else}
-            <DataTable {datas} {configs} />
-          {/if}
+          <DataTable bind:datas={personsLatest} bind:configs />
         </div>
       </div>
     </div>

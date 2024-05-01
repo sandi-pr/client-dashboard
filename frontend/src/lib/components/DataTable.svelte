@@ -38,6 +38,8 @@
 
   export let datas;
   export let configs;
+  export let next = () => {};
+  export let previous = () => {};
   // export let divider = false;
 
   let pages;
@@ -69,7 +71,13 @@
   };
 
   const pillContent = (key) => {
-    return key === "status" || key === "parentUnit" || key === "unit" || key === "role" || key === "category";
+    return (
+      key === "status" ||
+      key === "parentUnit" ||
+      key === "unit" ||
+      key === "role" ||
+      key === "category"
+    );
   };
 
   const classStatusType = (type) => {
@@ -267,7 +275,7 @@
                   {#if data[key]?.type}
                     <p
                       class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
-                        data[key].type
+                        data[key].type,
                       )}`}
                     >
                       {data[key].name}
@@ -287,7 +295,7 @@
                 <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400"
                   ><p
                     class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
-                      data.status.type
+                      data.status.type,
                     )}`}
                   >
                     {data[key].name}
@@ -480,7 +488,9 @@
 
     <div class="m-4">
       <Pagination
-        {pages}
+        bind:pages
+        on:next={next}
+        on:previous={previous}
         activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
       >
         <span slot="prev">{"previous"}</span>

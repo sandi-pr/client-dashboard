@@ -30,6 +30,11 @@
             "file_path": "template/crm/person/detail.html"
         },
         {
+            "name": "crm-person-list",
+            "path": "/crm/person/list",
+            "file_path": "template/crm/person/list.html"
+        },
+        {
             "name": "crm-calendar",
             "path": "/crm/calendar",
             "file_path": "template/crm/calendar.html"
@@ -44,14 +49,20 @@
         {
             "name": "get-persons",
             "path": "/get-persons",
-            "method": "GET",
+            "method": "POST",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
                 "plugin": "plugin.so",
                 "function": "GetPersons"
             },
-            "params": []
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number",
+                    "required": false
+                }
+            ]
         },
         {
             "name": "create-person",
