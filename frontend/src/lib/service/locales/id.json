@@ -143,5 +143,18 @@
     "copiedToClipboard": "Disalin ke papan klip",
     "search": "Cari",
     "create": "Buat",
-    "cancel": "Batal"
+    "cancel": "Batal",
+    "createNewProduct&Services": "Buat Produk & Layanan Baru",
+    "descCreateNewProduct&Services": "Tambahkan data produk dan layanan baru",
+    "manageCategories": "Manajemen Kategori",
+    "descManageCategories": "Tambahkan atau hapus kategori",
+    "productName": "Nama Produk",
+    "productId": "ID Produk",
+    "productDetail": "Detail Produk",
+    "category": "Kategori",
+    "pricing": "Harga",
+    "image": "Gambar",
+    "typeName": "Tipe",
+    "resourceTypeId": "ID Tipe",
+    "resources": "Sumber Daya"
 }

@@ -145,5 +145,18 @@
   "copiedToClipboard": "Copied to clipboard",
   "search": "Search",
   "create": "Create",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "createNewProduct&Services": "Create New Product & Services",
+  "descCreateNewProduct&Services": "Add new product & services data",
+  "manageCategories": "Manage Categories",
+  "descManageCategories": "Add or remove categories",
+  "productName": "Product Name",
+  "productId": "Product ID",
+  "productDetail": "Product Detail",
+  "category": "Category",
+  "pricing": "Pricing",
+  "image": "Image",
+  "typeName": "Type Name",
+  "resourceTypeId": "Resource Type ID",
+  "resources": "Resources"
 }

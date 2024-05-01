@@ -19,7 +19,7 @@ All Rights Reserved
   let isFirstTime = true;
 </script>
 
-<div class="flex flex-col gap-1 pt-6">
+<div class="flex flex-col gap-1 px-4 pt-6">
   <Typography preset="Display sm/Semibold" text="Welcome to Crossroads!" color="primary" />
   <Typography
     text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
@@ -27,7 +27,7 @@ All Rights Reserved
     color="tertiary"
   />
 </div>
-<div class="flex flex-col gap-4 pt-8">
+<div class="flex flex-col gap-4 px-4 pt-8">
   <!-- {#if isFirstTime}
     <StateCard
       illustration={IllustrationFirst}
@@ -48,7 +48,7 @@ All Rights Reserved
       return;
     }}
   />
-  <Card
+  <!-- <Card
     icon="messageChat"
     title="Hexa Bot"
     description="Manage bots and automate your workflows"
@@ -56,5 +56,5 @@ All Rights Reserved
       await call.goToPage("client-dashboard", "hexabot-overview");
       return;
     }}
-  />
+  /> -->
 </div>
