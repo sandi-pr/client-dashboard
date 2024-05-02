@@ -412,3 +412,366 @@ func DeletePerson(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 
 	return 200, U.Dict{}, nil
 }
+
+func GetProducts(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	status, product, err := Strapi.Find("product-table", U.Dict{
+		"pagination": U.Dict{
+			"page": page,
+		},
+		"populate": "*",
+	})
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, product, nil
+}
+
+func CreateProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	product_name, ok := ctx.Params.GetString("product_name")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	product_description, ok := ctx.Params.GetString("product_description")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	price, ok := ctx.Params.GetString("price")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters price")
+	}
+
+	is_active, ok := ctx.Params.GetString("is_active")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, _, err = Strapi.Create("product-table", U.Dict{
+		"product_name":        product_name,
+		"product_description": product_description,
+		"price":               price,
+		"is_active":           is_active,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{}, nil
+}
+
+func GetProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	userId, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(userId))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, product, err := Strapi.FindOne("product-table", int64(id))
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, product, nil
+}
+
+func UpdateProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	userId, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(userId))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	pruduct_name, ok := ctx.Params.GetString("product_name")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	description, ok := ctx.Params.GetString("description")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	price, ok := ctx.Params.GetFloat64("price")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	is_active, ok := ctx.Params.GetString("is_active")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, _, err = Strapi.Update("product-table", int64(id), U.Dict{
+		"product_name": pruduct_name,
+		"description":  description,
+		"price":        price,
+		"is_active":    is_active,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{}, nil
+}
+
+func DeleteProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	userId, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(userId))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, _, err = Strapi.Delete("product-table", int64(id))
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{}, nil
+}
+
+func CreateResource(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	resource_name, ok := ctx.Params.GetString("resource_name")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	resource_description, ok := ctx.Params.GetString("resource_description")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	is_active, ok := ctx.Params.GetString("is_active")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	resource_types, ok := ctx.Params.GetString("resource_types")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	image := ctx.Params["image"]
+
+	if image == nil {
+		image = nil
+	}
+
+	status, _, err = Strapi.Create("resource-table", U.Dict{
+		"resource_name":        resource_name,
+		"resource_description": resource_description,
+		"is_active":            is_active,
+		"resource_types":       resource_types,
+		"image":                image,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{}, nil
+}

@@ -1,30 +1,35 @@
 <script lang="ts">
   import { Badge } from 'flowbite-svelte';
 
-  let { color, large, dismissable, onclick, closeIcon }: {
-    color?: "none" | "red" | "yellow" | "green" | "indigo" | "purple" | "pink" | "blue" | "dark" | "primary" | undefined,
-    large?: boolean,
-    dismissable?: boolean,
-    onclick?: () => void,
-    closeIcon?: string
+  let { text, type = "brand" }: {
+    text: string;
+    type?: string;
   } = $props();
+
+  const classStatusType = (type) => {
+    if (type === "success") {
+      return "bg-utility-success-50-light dark:bg-utility-success-50-dark border-utility-success-200-light dark:border-utility-success-200-dark text-utility-success-700-light dark:text-utility-success-700-dark";
+    } else if (type === "error") {
+      return "bg-utility-error-50-light dark:bg-utility-error-50-dark border-utility-error-200-light dark:border-utility-error-200-dark text-utility-error-700-light dark:text-utility-error-700-dark";
+    } else if (type === "warning") {
+      return "bg-utility-warning-50-light dark:bg-utility-warning-50-dark border-utility-warning-200-light dark:border-utility-warning-200-dark text-utility-warning-700-light dark:text-utility-warning-700-dark";
+    } else if (type === "info") {
+      return "bg-utility-gray-50-light dark:bg-utility-gray-50-dark border-utility-gray-200-light dark:border-utility-gray-200-dark text-utility-gray-700-light dark:text-utility-gray-700-dark";
+    } else if (type === "brand") {
+      return "bg-utility-brand-50-light dark:bg-utility-brand-50-dark border-utility-brand-200-light dark:border-utility-brand-200-dark text-utility-brand-700-light dark:text-utility-brand-700-dark";
+    }
+  };
 </script>
 
-<Badge color={color} large={large} dismissable={dismissable}>
-  Default
-  {#if dismissable}
-    <!-- <button slot="close-button" let:close on:click={onclick} type="button" class="inline-flex items-center rounded-full p-0.5 my-0.5 ms-1.5 -me-1.5 text-sm bg-primary-500 dark:bg-primary-400 text-white dark:text-primary-800 hover:bg-primary-900 hover:text-white dark:hover:bg-red-900 dark:hover:text-yellow-300" aria-label="Remove">
-      <img src={closeIcon} class="h-3.5 w-3.5" alt="Close" />
-    </button> -->
-  {/if}
-</Badge>
+<p
+class={`py-[2px] px-2 border-[1px] text-xs font-medium rounded-xl text-center w-max ${classStatusType(type)}`}
+>
+  {text}
+</p>
 
 <!--
   @component
   ## Config
-  @prop color: "none" | "red" | "yellow" | "green" | "indigo" | "purple" | "pink" | "blue" | "dark" | "primary" | undefined; // Color of the badge.
-  @prop large: boolean; // Whether the badge should be large.
-  @prop dismissable: boolean; // Whether the badge should be dismissable.
-  @prop onclick: () => void; // Click event handler for the badge.
-  @prop closeIcon: string; // Path to the close icon for dismissable badge.
+  @prop type: "success" | "error" | "warning" | "info" | "brand"; // Color of the badge.
+  @prop text: string; // Text of the badge.
 -->

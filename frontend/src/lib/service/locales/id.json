@@ -156,5 +156,6 @@
     "image": "Gambar",
     "typeName": "Tipe",
     "resourceTypeId": "ID Tipe",
-    "resources": "Sumber Daya"
+    "resources": "Sumber Daya",
+    "categoryName": "Nama Kategori"
 }

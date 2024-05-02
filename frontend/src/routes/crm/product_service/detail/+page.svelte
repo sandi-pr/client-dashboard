@@ -10,15 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Button,
-    Select,
-    Textarea,
-    Toggle,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -31,7 +23,7 @@ All Rights Reserved
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
-  const personId = params.get("personId");
+  const productId = params.get("productId");
   let onEdit = $state(false);
   let uploadedImage = $state(null);
   let uploadedImageName = $state(null);
@@ -39,27 +31,18 @@ All Rights Reserved
 
   let ischecked = $state(false);
 
-  let data = $state({
-    productId: "19846829",
-    product_name: "Solid Hardwood Flooring",
-    createdAt: "2023-07-02 08:51 PM",
-    description:
-      "Made from a single piece of hardwood, typically 18-20mm thick. It can be sanded and refinished several times.",
-    price: "$5/hr",
-    category: "Service",
-    is_active: true,
-  });
+  let data = $state({});
 
   let resources = $state([
     {
       id: 1,
       resource_name: "Worker #1",
       image: "",
-      description: "Worker number one",
+      product_description: "Worker number one",
       resource_type_name: "Worker",
       resource_type_id: "2444298948",
       resource_type_active: true,
-    }
+    },
   ]);
 
   let tabDatas = $state({
@@ -74,35 +57,24 @@ All Rights Reserved
     ],
   });
 
-  let isActive = $state(togleIsActive(data.is_active));
-  let resourceIsActive = $state(togleIsActive(resources.resource_type_active));
-
-  function togleIsActive(value) {
-    if (value === "Yes") {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   let index = $state(resources.length);
 
   function addResource() {
     const newResource = {
       // dummy id
       id: Date.now(),
-      resource_name: 'Worker #' + (index += 1),
-      image: '',
-      description: '',
-      resource_type_name: '',
-      resource_type_id: '',
+      resource_name: "Worker #" + (index += 1),
+      image: "",
+      product_description: "",
+      resource_type_name: "",
+      resource_type_id: "",
       resource_type_active: false,
     };
     resources = [...resources, newResource];
   }
 
   function deleteResource(id) {
-    resources = resources.filter(resource => resource.id !== id);
+    resources = resources.filter((resource) => resource.id !== id);
   }
 
   const handleImageUploadWrapper = () => {
@@ -124,21 +96,137 @@ All Rights Reserved
 
         reader.readAsDataURL(file);
       } else {
-        alert(
-          "Invalid file. Please select a valid image file (max. 800x400px)."
-        );
+        alert("Invalid file. Please select a valid image file (max. 800x400px).");
       }
     });
     inputElement.click();
   };
 
-  function handleTabClick(name) {
-    tabDatas.selected = name;
-    dispatch("tabChange", name);
+  function formatDate(inputDate) {
+    const date = new Date(inputDate);
+
+    const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
+      .getDate()
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}, ${date
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
+
+    return formattedDate;
+  }
+
+  async function getProduct() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let response = await call.call("client-dashboard", "get-product", {
+        URLQuery: {},
+        URLParams: { id: productId },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.status === 200) {
+        data = {
+          productId: response.result.data.id,
+          product_name: response.result.data.attributes.product_name,
+          createdAt: formatDate(response.result.data.attributes.createdAt),
+          product_description: response.result.data.attributes.product_description,
+          price: response.result.data.attributes.price,
+          // category: response.result.data.attributes.category,
+          is_active: response.result.data.attributes.is_active === "Yes" ? true : false,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function updateProduct() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let response;
+      if (tabDatas.selected === "Information") {
+        response = await call.call("client-dashboard", "update-product", {
+          URLQuery: {},
+          URLParams: { id: productId },
+          Params: {
+            product_name: data.product_name,
+            product_description: data.product_description,
+            price: data.price,
+            is_active: data.is_active ? "Yes" : "No",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+      } else if (tabDatas.selected === "Resource") {
+        response = await call.call("client-dashboard", "update-product", {
+          URLQuery: {},
+          URLParams: { id: productId },
+          Params: {
+            resource_type_id: resources.resource_type_id,
+            resource_type_name: resources.resource_type_name,
+            resource_type_active: resourceIsActive ? "Yes" : "No",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+      }
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.status === 200) {
+        await call.goToPage("client-dashboard", "crm-product-service");
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function deleteProduct() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let response = await call.call("client-dashboard", "delete-product", {
+        URLQuery: {},
+        URLParams: { id: productId },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.status === 200) {
+        await call.goToPage("client-dashboard", "crm-product-service");
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   onMount(async () => {
-    // getPerson();
+    getProduct();
   });
 
   // let dropdownOpen = false;
@@ -162,9 +250,7 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
+                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               </Button>
             </Heading>
           </div>
@@ -183,14 +269,10 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={() => {}} class="px-3 focus-within:!ring-1"
-              >{$_("save")}</Button
-            >
+            <Button onclick={updateProduct} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button
-              onclick={() => {}}
-              color="light"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+            <Button onclick={deleteProduct} color="light" class="px-3 focus-within:!ring-1"
+              >{$_("delete")}</Button
             >
             <Button
               onclick={() => {
@@ -203,19 +285,14 @@ All Rights Reserved
       </div>
 
       <!-- Submenu -->
-      <TabDetail
-        {tabDatas}
-        on:tabChange={(e) => (tabDatas.selected = e.detail)}
-      />
+      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
       {#if tabDatas.selected === "Information"}
         <div class="flex flex-col gap-4 pt-8">
           <!-- general information -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("generalInformation")}
               </P>
             </div>
@@ -240,6 +317,7 @@ All Rights Reserved
                     {$_("productId")}
                   </P>
                   <Input
+                    type="number"
                     readonly={!onEdit}
                     bind:value={data.productId}
                     class="bg-primary-light dark:bg-secondary-dark"
@@ -254,7 +332,7 @@ All Rights Reserved
                   >
                   <Textarea
                     readonly={!onEdit}
-                    bind:value={data.description}
+                    bind:value={data.product_description}
                     rows="4"
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
@@ -266,9 +344,7 @@ All Rights Reserved
           <!-- product detail -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("productDetail")}
               </P>
             </div>
@@ -301,7 +377,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle bind:checked={isActive}></Toggle>
+                  <Toggle bind:checked={data.is_active}></Toggle>
                 </div>
               </div>
             </div>
@@ -310,103 +386,97 @@ All Rights Reserved
       {:else if tabDatas.selected === "Resource"}
         <div class="flex gap-6 pt-8">
           <div class="w-60 space-y-2">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("resources")}
             </P>
             <Button color="light" on:click={addResource}>Add</Button>
           </div>
           <div class="flex flex-col grow gap-6">
             {#each resources as resource (resource.id)}
-            <div class="grid grid-cols-5 gap-5 border rounded-lg p-4">
-              <div class="flex items-center col-span-5 gap-2">
-                <div class="flex items-center w-full justify-between gap-2">
-                  <Typography
-                    preset="Text md/Semibold"
-                    text={resource.resource_name}
-                    color="secondary"
+              <div class="grid grid-cols-5 gap-5 border rounded-lg p-4">
+                <div class="flex items-center col-span-5 gap-2">
+                  <div class="flex items-center w-full justify-between gap-2">
+                    <Typography
+                      preset="Text md/Semibold"
+                      text={resource.resource_name}
+                      color="secondary"
+                    />
+                    <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
+                      >{$_("delete")}</Button
+                    >
+                  </div>
+                </div>
+                <div class="flex flex-col col-span-5 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("image")}</P
+                  >
+                  <Button
+                    on:click={handleImageUploadWrapper}
+                    color="light"
+                    class="w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark flex-col justify-start items-center gap-1 flex py-8"
+                  >
+                    {#if uploadedImage}
+                      <img
+                        src={uploadedImage}
+                        alt="Uploaded Logo"
+                        class="rounded-xl max-h-48 mb-4"
+                      />
+                      <P>{uploadedImageName}</P>
+                    {:else}
+                      <div
+                        class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4"
+                      >
+                        <img src={upload} alt="mail.svg" class="p-4 dark:invert" />
+                      </div>
+                      <div class="flex space-x-1">
+                        <P class="text-hc-brand-700">Click to upload</P><P>or drag and drop</P>
+                      </div>
+                      <P>SVG, PNG, JPG, or GIF (max. 800x400px)</P>
+                    {/if}
+                  </Button>
+                </div>
+                <div class="flex flex-col col-span-5 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("description")}</P
+                  >
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={resource.product_description}
+                    class="bg-primary-light dark:bg-secondary-dark"
                   />
-                  <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max">{$_("delete")}</Button>
+                </div>
+                <div class="flex flex-col col-span-2 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("typeName")}</P
+                  >
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={resource.resource_type_name}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="flex flex-col col-span-2 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("resourceTypeId")}</P
+                  >
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={resource.resource_type_id}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="flex flex-col gap-2 justify-center w-max">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("active")}</P
+                  >
+                  <Toggle bind:checked={resource.resource_type_active}></Toggle>
                 </div>
               </div>
-              <div class="flex flex-col col-span-5 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("image")}</P
-                >
-                <Button
-                  on:click={handleImageUploadWrapper}
-                  color="light"
-                  class="w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark flex-col justify-start items-center gap-1 flex py-8"
-                >
-                  {#if uploadedImage}
-                    <img
-                      src={uploadedImage}
-                      alt="Uploaded Logo"
-                      class="rounded-xl max-h-48 mb-4"
-                    />
-                    <P>{uploadedImageName}</P>
-                  {:else}
-                    <div
-                      class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4"
-                    >
-                      <img
-                        src={upload}
-                        alt="mail.svg"
-                        class="p-4 dark:invert"
-                      />
-                    </div>
-                    <div class="flex space-x-1">
-                      <P class="text-hc-brand-700">Click to upload</P><P
-                        >or drag and drop</P
-                      >
-                    </div>
-                    <P>SVG, PNG, JPG, or GIF (max. 800x400px)</P>
-                  {/if}
-                </Button>
-              </div>
-              <div class="flex flex-col col-span-5 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("description")}</P
-                >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={resource.description}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
-              </div>
-              <div class="flex flex-col col-span-2 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("typeName")}</P
-                >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={resource.resource_type_name}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
-              </div>
-              <div class="flex flex-col col-span-2 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("resourceTypeId")}</P
-                >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={resource.resource_type_id}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
-              </div>
-              <div class="flex flex-col gap-2 justify-center w-max">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("active")}</P
-                >
-                <Toggle bind:checked={resource.resource_type_active}></Toggle>
-              </div>
-            </div>
             {/each}
           </div>
         </div>

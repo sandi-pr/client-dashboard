@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { P, Card, Avatar, Heading, A } from "flowbite-svelte";
+  import { P, Card, Avatar, Heading, A, Button } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
   import PackagePlusIcon from "$lib/icon/package-plus.svelte";
@@ -19,12 +19,13 @@ All Rights Reserved
   import Chart from "$lib/components/Chart.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { CR3Call } from "hexacomponents-svelte";
+  import { CR3Call, Typography } from "hexacomponents-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let personsLatest = [];
+  let latestPersons = $state([]);
+  let configs = $state({});
   let documentsReady = $state(false);
   // let documents = [];
   // let documentsNeed = [];
@@ -72,6 +73,9 @@ All Rights Reserved
       {
         name: "Products & Services",
       },
+      {
+        name: "Users",
+      }
     ],
   });
 
@@ -320,9 +324,7 @@ All Rights Reserved
 
   let datas = $state([]);
 
-  let configs = {};
-
-  let productServicesDatas = $state([
+  let latestProductServices = $state([
     {
       productId: "19846829",
       prroduct_name: "Solid Hardwood Flooring",
@@ -347,13 +349,53 @@ All Rights Reserved
     }
   ]);
 
+  let latestUsers = $state([
+    {
+      userId: "19846829",
+      fullname: "Azzisi Habibi",
+      username: "azzis91128",
+      email: "azzis144635@gmail.com",
+      authority: {
+        type: "brand",
+        name: "Super Admin",
+      },
+      // is_active
+      status: {
+        type: "success",
+        name: "Active",
+      },
+      actions: {
+        objects: [
+          {
+            href: "/crm/users/detail",
+            name: "Detail",
+          },
+        ],
+      },
+    }
+  ]);
+
+  async function viewAll(title) {
+    if (title === "Persons") {
+      let href = await call.getPage("client-dashboard", "crm-person-list");
+      return href;
+    } else if (title === "Products & Services") {
+      let href = await call.getPage("client-dashboard", "crm-product-service");
+      return href;
+    } else if (title === "Users") {
+      let href = await call.getPage("client-dashboard", "crm-users");
+    }
+  }
+
   async function getPerson() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       let response = await call.call("client-dashboard", "get-persons", {
         URLQuery: {},
         URLParams: {},
-        Params: {},
+        Params: {
+          page: 1,
+        },
         Headers: {
           Authorization: "Bearer " + token,
         },
@@ -365,18 +407,25 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
-        let promises = response.result.data.map(async (person, index) => {
+        // configs = await getConfigs();
+
+        response.result.data.sort(
+          (a, b) => new Date(b.attributes.updatedAt) - new Date(a.attributes.updatedAt),
+        );
+        let latestData = response.result.data.slice(0, 5);
+
+        let promises = latestData.map(async (person) => {
           return {
             id: person.id,
             fullname: person.attributes.fullname,
             email: person.attributes.email,
             phone: person.attributes.phone,
-            address: person.attributes.address,
-            city: person.attributes.city,
-            state: person.attributes.state,
-            zip_code: person.attributes.zip_code,
+            // address: person.attributes.address,
+            // city: person.attributes.city,
+            // state: person.attributes.state,
+            // zip_code: person.attributes.zip_code,
             country: person.attributes.country,
-            date_of_birth: person.attributes.date_of_birth,
+            // date_of_birth: person.attributes.date_of_birth,
             is_active: person.attributes.is_active,
             actions: {
               objects: [
@@ -392,7 +441,7 @@ All Rights Reserved
           };
         });
 
-        datas = await Promise.all(promises);
+        latestPersons = await Promise.all(promises);
         documentsReady = true;
       }
     }
@@ -522,29 +571,31 @@ All Rights Reserved
           </div>
         </div>
 
-        <TabDetail
-          {tabDatas}
-          on:tabChange={(e) => (tabDatas.selected = e.detail)}
-        />
-
-        {#if tabDatas.selected === "Persons"}
-        <!-- Person Table Data -->
-        <div>
-          <!-- {#if documentsReady}
-            <DataTable {datas} {configs} />
-          {:else}
-            <DataTable {datas} {configs} />
-          {/if} -->
-        </div>
-        {:else if tabDatas.selected === "Products & Services"}
-          <div>
-            {#if documentsReady}
-              <DataTable datas={productServicesDatas} {configs} />
-            {:else}
-              <DataTable datas={productServicesDatas} {configs} />
-            {/if}
+        <div class="flex flex-col">
+          <div class="flex justify-between">
+            <Typography preset="Text lg/Semibold" color="primary" text={$_(tabDatas.selected)} />
+            <Button href={viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button>
           </div>
-        {/if}
+          <TabDetail
+            {tabDatas}
+            on:tabChange={(e) => (tabDatas.selected = e.detail)}
+          />
+
+          {#if tabDatas.selected === "Persons"}
+            <!-- Person Table Data -->
+            <div>
+              <DataTable bind:datas={latestPersons} bind:configs />
+            </div>
+          {:else if tabDatas.selected === "Products & Services"}
+            <div>
+              <DataTable bind:datas={latestProductServices} bind:configs />
+            </div>
+          {:else if tabDatas.selected === "Users"}
+            <div>
+              <DataTable bind:datas={latestUsers} bind:configs />
+            </div>
+          {/if}
+        </div>
       </div>
     </div>
   </div>
