@@ -10,15 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Button,
-    Select,
-    Textarea,
-    Toggle,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -29,25 +21,114 @@ All Rights Reserved
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
-  const personId = params.get("personId");
+  const userId = params.get("userId");
   let onEdit = $state(false);
   let dropdownOpen = $state(false);
 
   let data = $state({
-    fullname: "Azzisi Habibi",
-    username: "azzis123",
-    email: "zway123@gmail.com",
-    createdAt: "2023-07-02 08:51 PM",
-    authority: "Super Admin",
-    is_active: true,
+    fullname: "",
+    username: "",
+    password: "",
+    email: "",
+    createdAt: "",
+    authority: "",
+    is_active: false,
   });
 
-  function deleteResource(id) {
-    // resources = resources.filter(resource => resource.id !== id);
+  async function getUser() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let response = await call.call("client-dashboard", "get-user", {
+        URLQuery: {},
+        URLParams: { id: userId },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("ayam", response);
+
+      if (response.result.data.length > 0) {
+        data = {
+          userId: response.result.data[0].id,
+          fullname:
+            response.result.data[0].attributes.fullname !== null
+              ? response.result.data[0].attributes.fullname
+              : "",
+          username: response.result.data[0].attributes.username,
+          email: response.result.data[0].attributes.email,
+          createdAt: response.result.data[0].attributes.createdAt,
+          authority: response.result.data[0].attributes.authority === "admin" ? "Admin" : "User",
+          is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function updateUser() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let response = await call.call("client-dashboard", "update-user", {
+        URLQuery: {},
+        URLParams: { id: userId },
+        Params: {
+          // fullname: data.fullname,
+          username: data.username,
+          password: data.password,
+          email: data.email,
+          // authority: data.authority === "Admin" ? "admin" : "user",
+          // is_active: data.is_active ? "Yes" : "No",
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("ayam", response);
+      await call.goToPage("client-dashboard", "crm-users");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function deleteUser() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let response = await call.call("client-dashboard", "delete-user", {
+        URLQuery: {},
+        URLParams: { id: userId },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("ayam", response);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   onMount(async () => {
-    // getPerson();
+    getUser();
   });
 
   // let dropdownOpen = false;
@@ -71,9 +152,7 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
+                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               </Button>
             </Heading>
           </div>
@@ -92,14 +171,10 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={() => {}} class="px-3 focus-within:!ring-1"
-              >{$_("save")}</Button
-            >
+            <Button onclick={updateUser} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button
-              onclick={() => {}}
-              color="light"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+            <Button onclick={deleteUser} color="light" class="px-3 focus-within:!ring-1"
+              >{$_("delete")}</Button
             >
             <Button
               onclick={() => {
@@ -110,102 +185,132 @@ All Rights Reserved
           {/if}
         </div>
       </div>
-        <div class="flex flex-col gap-4 pt-8">
-          <!-- general information -->
-          <div class="flex gap-6">
-            <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
-                {$_("generalInformation")}
-              </P>
-            </div>
-            <div class="flex flex-col grow gap-6">
-              <div class="grid grid-cols-6 gap-5">
-                <div class="flex flex-col col-span-3 gap-2">
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+      <div class="flex flex-col gap-4 pt-8">
+        <!-- general information -->
+        <div class="flex gap-6">
+          <div class="w-60">
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              {$_("generalInformation")}
+            </P>
+          </div>
+          <div class="flex flex-col grow gap-6">
+            <div class="grid grid-cols-6 gap-5">
+              <div class="flex flex-col col-span-3 gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >
+                  {$_("fullname")}
+                </P>
+                <Input
+                  readonly={!onEdit}
+                  bind:value={data.fullname}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col col-span-3 gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >
+                  {$_("username")}
+                </P>
+                <Input
+                  readonly={!onEdit}
+                  bind:value={data.username}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col col-span-4 gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >
+                  {$_("email")}
+                </P>
+                <Input
+                  readonly={!onEdit}
+                  bind:value={data.email}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col col-span-4 gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >
+                  {$_("password")}
+                </P>
+                <Input
+                  type="password"
+                  readonly={!onEdit}
+                  bind:value={data.password}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >
+                  {$_("authority")}
+                </P>
+                <div class="my-auto">
+                  <Button
+                    color="light"
+                    class="py-[9px] px-3"
+                    on:click={() => (dropdownOpen = !dropdownOpen)}
+                    id="dropdownDefaultButton"
                   >
-                    {$_("fullname")}
-                  </P>
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={data.fullname}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
-                </div>
-                <div class="flex flex-col col-span-3 gap-2">
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    <Badge
+                      text={data.authority}
+                      type={data.authority === "Super Admin" || data.authority === "Admin"
+                        ? "brand"
+                        : "info"}
+                    />
+                    <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
+                  </Button>
+                  <div
+                    id="dropdown"
+                    class={`z-10 ${dropdownOpen && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
                   >
-                    {$_("username")}
-                  </P>
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={data.username}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
-                </div>
-                <div class="flex flex-col col-span-4 gap-2">
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >
-                    {$_("email")}
-                  </P>
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={data.email}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
-                </div>
-                <div class="flex flex-col gap-2">
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >
-                    {$_("authority")}
-                  </P>
-                  <div class="my-auto">
-                    <Button color="light" class="py-[9px] px-3" on:click={() => (dropdownOpen = !dropdownOpen)} id="dropdownDefaultButton">
-                      <Badge text={data.authority} type={(data.authority === "Super Admin" || data.authority === "Admin") ? "brand" : "info"} />
-                      <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
-                    </Button>
-                    <div id="dropdown" class={`z-10 ${dropdownOpen && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
-                      <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                        <button
-                          class="flex p-2"
-                          onclick={() => (data.authority = "Super Admin") (dropdownOpen = false)}>
-                          <Badge text="Super Admin" />
-                        </button> 
-                        <button
-                          class="flex p-2"
-                          onclick={() => (data.authority = "Admin") (dropdownOpen = false)}>
-                          <Badge text="Admin" />
-                        </button>
-                        <button
-                          class="flex p-2"
-                          onclick={() => (data.authority = "Employee") (dropdownOpen = false)}>
-                          <Badge text="Employee" type="info" />
-                        </button>
-                      </ul>
-                    </div>
+                    <ul
+                      class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                      aria-labelledby="dropdownDefaultButton"
+                    >
+                      <button
+                        class="flex p-2"
+                        onclick={() => (data.authority = "Super Admin")((dropdownOpen = false))}
+                      >
+                        <Badge text="Super Admin" />
+                      </button>
+                      <button
+                        class="flex p-2"
+                        onclick={() => (data.authority = "Admin")((dropdownOpen = false))}
+                      >
+                        <Badge text="Admin" />
+                      </button>
+                      <button
+                        class="flex p-2"
+                        onclick={() => (data.authority = "Employee")((dropdownOpen = false))}
+                      >
+                        <Badge text="Employee" type="info" />
+                      </button>
+                    </ul>
                   </div>
-                  <!-- <div class="my-auto">
+                </div>
+                <!-- <div class="my-auto">
                     <Badge text={data.authority} />
                   </div> -->
-                </div>
-                <div class="flex flex-col gap-2 w-max">
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("active")}</P
-                  >
-                  <div class="my-auto">
-                    <Toggle bind:checked={data.is_active}></Toggle>
-                  </div>
+              </div>
+              <div class="flex flex-col gap-2 w-max">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("active")}</P
+                >
+                <div class="my-auto">
+                  <Toggle bind:checked={data.is_active}></Toggle>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
     </div>
   </div>
 </div>
