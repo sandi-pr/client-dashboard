@@ -101,7 +101,7 @@ All Rights Reserved
           {
             href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
             icon: "users",
-            name: "person",
+            name: "Person",
             desc: "descCrmPerson",
             status: "coming soon",
           },
@@ -222,7 +222,7 @@ All Rights Reserved
           </Pane>
           <!-- Hexabot Sidebar -->
           {#if showAI}
-            <SideDrawer />
+            <SideDrawer innerWidth={winInnerWidth} {changeShowAI} />
           {/if}
         </Splitpanes>
       </div>
