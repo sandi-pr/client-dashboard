@@ -24,6 +24,7 @@
   const add = (amount) => () => store.add(amount, "day");
 
   const select = (day) => () => {
+    console.log("hello");
     if (!store.isSelectable(day)) return;
     store.setDay(day || $store.selected);
     if (!$store.shouldEnlargeDay) return store.selectDay();

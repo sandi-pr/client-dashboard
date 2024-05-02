@@ -37,6 +37,8 @@
   <Theme {defaultTheme} {theme} let:style>
     <div
       {style}
+      role="button"
+      tabindex="0"
       on:focus={getFocusSetter(true)}
       on:blur={getFocusSetter(false)}
       on:mouseover={getFocusSetter(true)}
