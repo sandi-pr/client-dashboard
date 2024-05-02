@@ -67,7 +67,8 @@
       key !== "role" &&
       key !== "member" &&
       key !== "recipients" &&
-      key !== "category"
+      key !== "category" &&
+      key !== "authority"
     );
   };
 
@@ -77,7 +78,8 @@
       key === "parentUnit" ||
       key === "unit" ||
       key === "role" ||
-      key === "category"
+      key === "category" ||
+      key === "authority"
     );
   };
 
@@ -269,9 +271,9 @@
               </TableBodyCell>
             {/if}
           {/each}
-          {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0]?.role || datas[0]?.category}
+          {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0]?.role || datas[0]?.category || datas[0]?.authority}
             {#each Object.keys(datas[0]) as key}
-              {#if key === "parentUnit" || key === "unit" || key === "role" || key === "category"}
+              {#if key === "parentUnit" || key === "unit" || key === "role" || key === "category" || key === "authority"}
                 <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                   {#if data[key]?.type}
                     <p

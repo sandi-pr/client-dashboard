@@ -127,7 +127,8 @@
                 href={child.href}
                 {activeUrl}
                 icon={child.icon}
-                classes="flex w-full gap-3 items-center px-5 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                classes="flex w-full gap-3 items-center px-11 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                classesActive="flex w-full gap-3 items-center px-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700", 
                 typographyData={{
                   preset: "Text md/Regular",
                   text: child.name,
