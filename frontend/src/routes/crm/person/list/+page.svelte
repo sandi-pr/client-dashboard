@@ -89,7 +89,10 @@
         }
 
         if (response.result.data.length > 0) {
-          pagination = response.result.meta.pagination;
+          configs = {
+            search: true,
+            pagination: response.result.meta.pagination,
+          };
           let promises2 = response.result.data.map(async (person, index) => {
             return {
               id: person.id,
@@ -145,7 +148,10 @@
         }
 
         if (response.result.data.length > 0) {
-          pagination = response.result.meta.pagination;
+          configs = {
+            search: true,
+            pagination: response.result.meta.pagination,
+          };
           let promises2 = response.result.data.map(async (person, index) => {
             return {
               id: person.id,

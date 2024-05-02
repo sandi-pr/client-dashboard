@@ -11,105 +11,108 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { P, Card, Avatar, Heading, A } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
   import PlusIcon from "$lib/icon/plus.svg";
-  import Chart from "$lib/components/Chart.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
-  import SectionHeader from "$lib/ui/header/SectionHeader.svelte";
-  import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { Button, CR3Call, Typography } from "hexacomponents-svelte";
+  import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { Button } from "flowbite-svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
   let personsLatest = [];
   let documentsReady = $state(false);
+  let pagination = { page: 1, pageSize: 25, pageCount: 1, total: 25 };
   let actionItems = $state([]);
 
-  let datas = $state([
-    {
-      productId: "19846829",
-      prroduct_name: "Solid Hardwood Flooring",
-      price: "$5/hr",
-      category: {
-        type: "brand",
-        name: "Service",
-      },
-      // is_active
-      status: {
-        type: "success",
-        name: "Active",
-      },
-      actions: {
-        objects: [
-          {
-            href: "/crm/product_service/detail",
-            name: "View",
-          },
-        ],
-      },
-    }
-  ]);
+  let datas = $state([]);
 
   let configs = {
     search: true,
   };
 
-  // async function getPerson() {
-  //   let token = sessionStorage.getItem("token");
-  //   if (token !== null) {
-  //     let response = await call.call("client-dashboard", "get-persons", {
-  //       URLQuery: {},
-  //       URLParams: {},
-  //       Params: {},
-  //       Headers: {
-  //         Authorization: "Bearer " + token,
-  //       },
-  //     });
-
-  //     if (response.status !== 200) {
-  //       console.log(response);
-  //       return;
-  //     }
-
-  //     if (response.result.data.length > 0) {
-  //       let promises = response.result.data.map(async (person, index) => {
-  //         return {
-  //           id: person.id,
-  //           fullname: person.attributes.fullname,
-  //           email: person.attributes.email,
-  //           phone: person.attributes.phone,
-  //           address: person.attributes.address,
-  //           city: person.attributes.city,
-  //           state: person.attributes.state,
-  //           zip_code: person.attributes.zip_code,
-  //           country: person.attributes.country,
-  //           date_of_birth: person.attributes.date_of_birth,
-  //           is_active: person.attributes.is_active,
-  //           actions: {
-  //             objects: [
-  //               {
-  //                 href:
-  //                   `${await call.getPage("client-dashboard", "crm-person-detail")}` +
-  //                   "?personId=" +
-  //                   person.id,
-  //                 name: "View",
-  //               },
-  //             ],
-  //           },
-  //         };
-  //       });
-
-  //       datas = await Promise.all(promises);
-  //       documentsReady = true;
-  //     }
-  //   }
+  // function getCategory(category) {
+  //   return [
+  //     {
+  //       type: "brand",
+  //       name: category.data.attributes.category_name,
+  //     },
+  //   ];
   // }
+
+  function getStatus(is_active) {
+    if (is_active === "Yes") {
+      return {
+        type: "success",
+        name: "Active",
+      };
+    }
+
+    if (is_active === "No") {
+      return {
+        type: "danger",
+        name: "Inactive",
+      };
+    }
+
+    return;
+  }
+
+  async function getProducts() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-products", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: pagination.page,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        console.log("ayam", response.result.data);
+        let promises = response.result.data.map(async (product, index) => {
+          return {
+            productId: product.id,
+            product_name: product.attributes.product_name,
+            price: "$" + product.attributes.price + "/hr",
+            // category: getCategory(product.category),
+            status: getStatus(product.attributes.is_active),
+            actions: {
+              objects: [
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
+                    "?productId=" +
+                    product.id,
+                  name: "View",
+                },
+              ],
+            },
+          };
+        });
+
+        datas = await Promise.all(promises);
+        documentsReady = true;
+      }
+    }
+  }
+
+  async function addProduct() {
+    await call.goToPage("client-dashboard", "crm-product-service-create");
+    return;
+  }
 
   onMount(async () => {
     // getActionItems();
-    // getPerson();
+    getProducts();
   });
 </script>
 
@@ -122,13 +125,15 @@ All Rights Reserved
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text="Product & Service" />
-          <Button text="Add new" icon={PlusIcon} spaceY="mt-0" />
+          <Button onclick={addProduct} icon={PlusIcon}
+            >Add new <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+          >
         </div>
 
         <!-- Person Table Data -->
         <div>
           {#if documentsReady}
-            <DataTable {datas} {configs} />
+            <DataTable bind:datas bind:configs />
           {:else}
             <DataTable {datas} {configs} />
           {/if}

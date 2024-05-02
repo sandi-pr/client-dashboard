@@ -93,24 +93,19 @@ All Rights Reserved
         children: [
           {
             href: await call.getPage("client-dashboard", "crm-overview"), // for frontend comment this
-            icon: "users",
             name: "Overview",
-            desc: "descCrmOverview",
-            status: "coming soon",
           },
           {
             href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
-            icon: "users",
-            name: "Person",
-            desc: "descCrmPerson",
-            status: "coming soon",
+            name: "person",
+          },
+          {
+            href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
+            name: "Product & Services",
           },
           {
             href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
-            icon: "users",
             name: "Calendar",
-            desc: "descCrmCalendar",
-            status: "coming soon",
           },
         ],
       },
