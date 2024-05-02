@@ -84,6 +84,8 @@
     title: "",
   };
 
+  let dayAvailable = [true, false, true, true, true, false, false];
+
   // onMount(() => {
   //   const intervalId = setInterval(() => {
   //     const isDark = document.documentElement.classList.value.includes("dark");
@@ -173,9 +175,18 @@
     <div class="w-1/3"><P class="font-semibold">Availability</P></div>
     <div class="w-2/3">
       <div class="flex">
-        <P>Select day</P>
-        &nbsp;
-        <div class="flex">Day here</div>
+        <P class="content-center mr-4">Select day</P>
+        <div class="flex gap-3">
+          {#each dayAvailable as available, index}
+            <button
+              type="button"
+              class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
+              on:click={() => (dayAvailable[index] = !dayAvailable[index])}
+            >
+              {format("2024-01-0" + (index + 1), "EEEEE")}
+            </button>
+          {/each}
+        </div>
       </div>
       <div class="flex justify-between">
         <div>
