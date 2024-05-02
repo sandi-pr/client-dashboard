@@ -81,6 +81,11 @@
   //     clearInterval(intervalId);
   //   };
   // });
+
+  const handleClickDate = (date) => {
+    console.log(date);
+  };
+
   onMount(() => {
     observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -112,11 +117,11 @@
     <div class="w-1/3"><P class="font-semibold">Calendar</P></div>
     <div class="w-2/3">
       {#if currentTheme === "light"}
-        <InlineCalendar theme={theme.light} />
-        <InlineCalendar theme={theme.light} />
+        <InlineCalendar theme={theme.light} {handleClickDate} />
+        <InlineCalendar theme={theme.light} {handleClickDate} />
       {:else if currentTheme === "dark"}
-        <InlineCalendar theme={theme.dark} />
-        <InlineCalendar theme={theme.dark} />
+        <InlineCalendar theme={theme.dark} {handleClickDate} />
+        <InlineCalendar theme={theme.dark} {handleClickDate} />
       {/if}
     </div>
   </div>

@@ -11,6 +11,8 @@
 
   const store = getContext(storeContextKey);
 
+  export let handleClickDate = () => {};
+
   const duration = 450;
 
   const legend = Array(7)
@@ -24,7 +26,7 @@
   const add = (amount) => () => store.add(amount, "day");
 
   const select = (day) => () => {
-    console.log("hello");
+    handleClickDate(day);
     if (!store.isSelectable(day)) return;
     store.setDay(day || $store.selected);
     if (!$store.shouldEnlargeDay) return store.selectDay();

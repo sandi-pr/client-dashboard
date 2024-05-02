@@ -18,6 +18,7 @@
   export let defaultTheme = undefined;
   export let startOfWeekIndex = 0;
   export let store = datepickerStore.get({ selected, start, end, startOfWeekIndex });
+  export let handleClickDate = () => {};
 
   const focused = writable(false);
 
@@ -44,7 +45,7 @@
       on:mouseover={getFocusSetter(true)}
       on:mouseout={getFocusSetter(false)}
     >
-      <Calendar />
+      <Calendar {handleClickDate} />
     </div>
   </Theme>
 </CrossfadeBoundary>
