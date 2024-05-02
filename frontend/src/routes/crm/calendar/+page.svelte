@@ -1,17 +1,19 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Heading } from "flowbite-svelte";
+  import { format } from "date-fns";
+  import { Button, Heading, Input } from "flowbite-svelte";
   import InlineCalendar from "$lib/components/InlineCalendar/InlineCalendar.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { P } from "flowbite-svelte";
 
   let currentTheme = "";
+  let selectedDate = new Date();
   let observer;
 
   const theme = {
     dark: {
       calendar: {
-        width: "20rem",
+        width: "25rem",
         maxWidth: "100vw",
         legend: {
           height: "45px",
@@ -41,7 +43,7 @@
     },
     light: {
       calendar: {
-        width: "20rem",
+        width: "25rem",
         maxWidth: "100vw",
         legend: {
           height: "45px",
@@ -76,6 +78,12 @@
     { date: "2024-05-10", time: "10:00 - 12:00", title: "test 2" },
   ];
 
+  let newSchedule = {
+    date: format(new Date(), "yyyy-MM-dd"),
+    time: format(new Date(), "HH:mm") + " - " + format(new Date(), "HH:mm"),
+    title: "",
+  };
+
   // onMount(() => {
   //   const intervalId = setInterval(() => {
   //     const isDark = document.documentElement.classList.value.includes("dark");
@@ -89,6 +97,20 @@
 
   const handleClickDate = (date) => {
     console.log(date);
+    selectedDate = date;
+  };
+
+  const handleCreateNewSchedule = () => {
+    newSchedule.date = format(selectedDate, "yyyy-MM-dd");
+    newSchedule.time = format(selectedDate, "HH:mm") + " - " + format(selectedDate, "HH:mm");
+
+    schedule = [...schedule, newSchedule];
+
+    newSchedule = {
+      date: format(new Date(), "yyyy-MM-dd"),
+      time: format(new Date(), "HH:mm") + " - " + format(new Date(), "HH:mm"),
+      title: "",
+    };
   };
 
   onMount(() => {
@@ -123,11 +145,25 @@
     <div class="w-2/3">
       {#if currentTheme === "light"}
         <InlineCalendar theme={theme.light} {handleClickDate} {schedule} />
-        <InlineCalendar theme={theme.light} {handleClickDate} {schedule} />
+        <!-- <InlineCalendar theme={theme.light} {handleClickDate} {schedule} /> -->
       {:else if currentTheme === "dark"}
         <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} />
-        <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} />
+        <!-- <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} /> -->
       {/if}
+      <div
+        class="mt-4 p-4 w-[25rem] h-20 border flex items-center border-hc-graylight-200 dark:border-hc-graydark-800"
+      >
+        <!-- <Input type="text" placeholder={format(new Date(), "MMM d, Y")} defaultClass="min-w-0" />
+        <div class="w-[10%] text-center">-</div>
+        <Input type="text" placeholder={format(new Date(), "MMM d, Y")} defaultClass="min-w-0" /> -->
+        <Input
+          type="text"
+          placeholder="Title"
+          defaultClass="min-w-0 mr-4 grow"
+          bind:value={newSchedule.title}
+        />
+        <Button on:click={handleCreateNewSchedule} type="button">Create New</Button>
+      </div>
     </div>
   </div>
   <div class="my-8">

@@ -117,7 +117,7 @@
               {#if schedule.length > 0}
                 {#each schedule as scheduleItem (scheduleItem)}
                   {#if dayjs(day.date).isSame(dayjs(scheduleItem.date), "day")}
-                    <Tooltip placement="bottom">{scheduleItem.title}</Tooltip>
+                    <Tooltip placement="bottom" class="z-[10]">{scheduleItem.title}</Tooltip>
                   {/if}
                 {/each}
               {/if}
