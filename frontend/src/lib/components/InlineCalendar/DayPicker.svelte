@@ -1,5 +1,6 @@
 <script>
   import { getContext } from "svelte";
+  import { Tooltip } from "flowbite-svelte";
   import { storeContextKey } from "./context";
   import KeyControls from "./KeyControls.svelte";
   import Grid from "./Grid.svelte";
@@ -12,6 +13,7 @@
   const store = getContext(storeContextKey);
 
   export let handleClickDate = () => {};
+  export let schedule = [];
 
   const duration = 450;
 
@@ -101,7 +103,24 @@
                 in:receive|local={{ key }}
               >
                 {day.date.getDate()}
+                {#if schedule.length > 0}
+                  {#each schedule as scheduleItem (scheduleItem)}
+                    {#if dayjs(day.date).isSame(dayjs(scheduleItem.date), "day")}
+                      <span
+                        class={`mt-2 p-0  text-4xl fixed ${index === monthIndex && dayjs(day.date).isSame($store.selected, "day") ? "text-white" : "text-brand-tertiary-alt-light"}`}
+                        >.</span
+                      >
+                    {/if}
+                  {/each}
+                {/if}
               </a>
+              {#if schedule.length > 0}
+                {#each schedule as scheduleItem (scheduleItem)}
+                  {#if dayjs(day.date).isSame(dayjs(scheduleItem.date), "day")}
+                    <Tooltip placement="bottom">{scheduleItem.title}</Tooltip>
+                  {/if}
+                {/each}
+              {/if}
             {/if}
           {/each}
         </Grid>
@@ -131,6 +150,7 @@
   }
   a {
     font-size: 1em;
+    place-items: center;
   }
   .stage {
     display: grid;

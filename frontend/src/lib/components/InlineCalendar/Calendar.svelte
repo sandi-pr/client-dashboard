@@ -11,6 +11,7 @@
   const store = getContext(storeContextKey);
 
   export let handleClickDate = () => {};
+  export let schedule = [];
 </script>
 
 <CrossfadeProvider let:key let:send let:receive>
@@ -19,7 +20,7 @@
     <div class="contents">
       {#if $store.activeView === "days"}
         <ViewTransitionEffect>
-          <DayPicker {handleClickDate} />
+          <DayPicker {handleClickDate} {schedule} />
         </ViewTransitionEffect>
       {:else if $store.activeView === "months"}
         <ViewTransitionEffect>

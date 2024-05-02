@@ -71,6 +71,11 @@
     },
   };
 
+  let schedule = [
+    { date: "2024-05-01", time: "10:00 - 12:00", title: "test 1" },
+    { date: "2024-05-10", time: "10:00 - 12:00", title: "test 2" },
+  ];
+
   // onMount(() => {
   //   const intervalId = setInterval(() => {
   //     const isDark = document.documentElement.classList.value.includes("dark");
@@ -117,11 +122,11 @@
     <div class="w-1/3"><P class="font-semibold">Calendar</P></div>
     <div class="w-2/3">
       {#if currentTheme === "light"}
-        <InlineCalendar theme={theme.light} {handleClickDate} />
-        <InlineCalendar theme={theme.light} {handleClickDate} />
+        <InlineCalendar theme={theme.light} {handleClickDate} {schedule} />
+        <InlineCalendar theme={theme.light} {handleClickDate} {schedule} />
       {:else if currentTheme === "dark"}
-        <InlineCalendar theme={theme.dark} {handleClickDate} />
-        <InlineCalendar theme={theme.dark} {handleClickDate} />
+        <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} />
+        <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} />
       {/if}
     </div>
   </div>
