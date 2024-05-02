@@ -36,7 +36,7 @@ All Rights Reserved
     ],
   });
 
-  const call = new CR3Call(globalThis.location.origin); // for frontend comment this
+  // const call = new CR3Call(globalThis.location.origin); // for frontend comment this
 
   const hideLayoutList = [
     "/forgot-password",
@@ -48,11 +48,11 @@ All Rights Reserved
   const hideLayout = () => {
     return !hideLayoutList.some((path) => {
       if (path.endsWith("/*")) {
-        return globalThis.location.pathname.startsWith(path.slice(0, -1)); // for frontend comment this
-        // return window.location.pathname.startsWith(path.slice(0, -1)); // for frontend uncomment this
+        // return globalThis.location.pathname.startsWith(path.slice(0, -1)); // for frontend comment this
+        return window.location.pathname.startsWith(path.slice(0, -1)); // for frontend uncomment this
       } else {
-        return globalThis.location.pathname === path; // for frontend comment this
-        // return window.location.pathname === path; // for frontend uncomment this
+        // return globalThis.location.pathname === path; // for frontend comment this
+        return window.location.pathname === path; // for frontend uncomment this
       }
     });
   };
@@ -123,7 +123,7 @@ All Rights Reserved
     if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
     if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
     try {
-      await call.goToPage("client-login", "home-page");
+      // await call.goToPage("client-login", "home-page"); // for frontend comment this
     } catch (error) {
       console.error(error);
     }
@@ -176,7 +176,7 @@ All Rights Reserved
   }
 
   onMount(() => {
-    CheckSetup();
+    // CheckSetup(); // for frontend comment this
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
