@@ -81,7 +81,7 @@
 
   let newSchedule = {
     date: format(new Date(), "yyyy-MM-dd"),
-    time: format(new Date(), "HH:mm") + " - " + format(new Date(), "HH:mm"),
+    time: format(new Date(), "kk:mm") + " - " + format(new Date(), "kk:mm"),
     title: "",
   };
 
@@ -107,8 +107,35 @@
   };
 
   const handleCreateNewSchedule = () => {
+    const isValidTimeString = (timeString) => {
+      const regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+      return regex.test(timeString);
+    };
+
+    if (
+      isValidTimeString(newSchedule.time.split(" - ")[0]) === false ||
+      isValidTimeString(newSchedule.time.split(" - ")[1]) === false
+    ) {
+      alert("Invalid time format");
+    }
+
+    const timeStart = newSchedule.time.split(" - ")[0];
+    const timeEnd = newSchedule.time.split(" - ")[1];
+    if (timeStart >= timeEnd) {
+      alert("Invalid time range");
+      return;
+    }
+
+    let timeStartObject = new Date();
+    timeStartObject.setHours(timeStart.split(":")[0]);
+    timeStartObject.setMinutes(timeStart.split(":")[1]);
+
+    let timeEndObject = new Date();
+    timeEndObject.setHours(timeEnd.split(":")[0]);
+    timeEndObject.setMinutes(timeEnd.split(":")[1]);
+
     newSchedule.date = format(selectedDate, "yyyy-MM-dd");
-    newSchedule.time = format(selectedDate, "HH:mm") + " - " + format(selectedDate, "HH:mm");
+    newSchedule.time = format(timeStartObject, "kk:mm") + " - " + format(timeEndObject, "kk:mm");
 
     schedule = [...schedule, newSchedule];
 
@@ -116,7 +143,7 @@
 
     newSchedule = {
       date: format(new Date(), "yyyy-MM-dd"),
-      time: format(new Date(), "HH:mm") + " - " + format(new Date(), "HH:mm"),
+      time: format(new Date(), "kk:mm") + " - " + format(new Date(), "kk:mm"),
       title: "",
     };
   };
@@ -174,18 +201,36 @@
         <!-- <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} /> -->
       {/if}
       <div
-        class="mt-4 p-4 w-[25rem] h-20 border flex items-center rounded-lg border-hc-graylight-200 dark:border-hc-graydark-800"
+        class="mt-4 p-4 w-[25rem] h-[12rem] border flex flex-col justify-center items-center rounded-lg border-hc-graylight-200 dark:border-hc-graydark-800"
       >
-        <!-- <Input type="text" placeholder={format(new Date(), "MMM d, Y")} defaultClass="min-w-0" />
-        <div class="w-[10%] text-center">-</div>
-        <Input type="text" placeholder={format(new Date(), "MMM d, Y")} defaultClass="min-w-0" /> -->
+        <div class="flex">
+          <Input
+            type="text"
+            placeholder={format(new Date(), "kk:mm")}
+            on:keyup={(evt) => {
+              newSchedule.time = evt.target.value + " - " + format(new Date(), "kk:mm");
+            }}
+          >
+            <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          </Input>
+          <P class="mx-4 text-center content-center">-</P>
+          <Input
+            type="text"
+            placeholder={format(new Date(), "kk:mm")}
+            on:keyup={(evt) => {
+              newSchedule.time = format(new Date(), "kk:mm") + " - " + evt.target.value;
+            }}
+          >
+            <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          </Input>
+        </div>
         <Input
           type="text"
           placeholder="Title"
-          defaultClass="min-w-0 mr-4 grow"
+          defaultClass="my-4 w-full"
           bind:value={newSchedule.title}
         />
-        <Button on:click={handleCreateNewSchedule} type="button">Create New</Button>
+        <Button on:click={handleCreateNewSchedule} type="button" class="w-[40%]">Create New</Button>
       </div>
     </div>
   </div>
@@ -218,7 +263,7 @@
       <div class="flex mt-8 w-[30rem]">
         <Input
           type="text"
-          placeholder={format(new Date(), "MMM d, y")}
+          placeholder={format(new Date(), "kk:mm")}
           bind:value={timeAvailable[0]}
           on:keyup={checkConfigChange}
         >
@@ -227,13 +272,15 @@
         <P class="mx-4 text-center content-center">-</P>
         <Input
           type="text"
-          placeholder={format(new Date(), "MMM d, y")}
+          placeholder={format(new Date(), "kk:mm")}
           bind:value={timeAvailable[1]}
           on:keyup={checkConfigChange}
         >
           <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </Input>
       </div>
+
+      <!-- save config -->
       <div class="flex justify-end">
         <!-- <div>Switch input</div>
         &nbsp;
