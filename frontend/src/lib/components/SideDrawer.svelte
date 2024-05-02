@@ -15,7 +15,8 @@ All Rights Reserved
   import HexaAi from "$lib/icon/hexa-ai.svelte";
   import HexaAIChat from "$lib/components/HexaAI.svelte";
 
-  let showAI = $state(false);
+  let { innerWidth, changeShowAI } = $props();
+
   let activities = $state([]);
 
   let tabDatas = $state({
@@ -33,10 +34,9 @@ All Rights Reserved
   const changeTabbar = (tabName) => {
     tabDatas.selected = tabName;
   };
-
 </script>
 
-<Pane size="30">
+<Pane size={innerWidth > 1024 ? "20" : "100"}>
   <div
     class="relative h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
   >
@@ -44,7 +44,7 @@ All Rights Reserved
       <div class="flex items-center">
         <div
           id="drawer-label"
-          class="inline-flex items-center mx-4 mt-4 text-base font-semibold text-gray-500 dark:text-gray-400"
+          class="w-full inline-flex items-center mx-4 mt-4 text-base font-semibold text-gray-500 dark:text-gray-400"
         >
           {#if tabDatas.selected === "Latest Activity"}
             <div
@@ -57,16 +57,8 @@ All Rights Reserved
             </div>
             &nbsp;
             <div>
-              <Typography
-                preset="Text xl/Semibold"
-                text="Latest Activity"
-                color="primary"
-              />
-              <Typography
-                preset="Text sm/Regular"
-                text="Your latest activity"
-                color="tertiary"
-              />
+              <Typography preset="Text xl/Semibold" text="Latest Activity" color="primary" />
+              <Typography preset="Text sm/Regular" text="Your latest activity" color="tertiary" />
             </div>
           {:else if tabDatas.selected === "Hexa AI"}
             <div
@@ -79,56 +71,51 @@ All Rights Reserved
             </div>
             &nbsp;
             <div>
-              <Typography
-                preset="Text xl/Semibold"
-                text="Hexa AI"
-                color="primary"
-              />
-              <Typography
-                preset="Text sm/Regular"
-                text="Assistant"
-                color="tertiary"
-              />
+              <Typography preset="Text xl/Semibold" text="Hexa AI" color="primary" />
+              <Typography preset="Text sm/Regular" text="Assistant" color="tertiary" />
             </div>
+          {/if}
+          {#if innerWidth < 1024}
+            <CloseButton on:click={changeShowAI} class="mb-4 dark:text-white" />
           {/if}
         </div>
       </div>
       <TabBar {tabDatas} {changeTabbar} />
     </div>
     <div class="flex flex-col h-screen pt-[118px]">
-    {#if tabDatas.selected === "Latest Activity"}
-      <div class="p-4">
-        {#if activities.length > 0}
-          {#each activities as activityYear (activityYear)}
-            {#each Object.keys(activityYear) as year (year)}
-              <div class="flex flex-col gap-6">
-                {#each Object.keys(activityYear[year]) as month (month)}
-                  <div class="flex flex-col gap-3">
-                    <Typography
-                      preset="Text sm/Medium"
-                      text="{numberMonthToTextMonth(month)} {year}"
-                      color="tertiary"
-                    />
-                    {#each activityYear[year][month] as activity (activity)}
-                      <Card
-                        type="ledger"
-                        title={activity.activity}
-                        description={activity.address}
-                        subtext={activity.date}
+      {#if tabDatas.selected === "Latest Activity"}
+        <div class="p-4">
+          {#if activities.length > 0}
+            {#each activities as activityYear (activityYear)}
+              {#each Object.keys(activityYear) as year (year)}
+                <div class="flex flex-col gap-6">
+                  {#each Object.keys(activityYear[year]) as month (month)}
+                    <div class="flex flex-col gap-3">
+                      <Typography
+                        preset="Text sm/Medium"
+                        text="{numberMonthToTextMonth(month)} {year}"
+                        color="tertiary"
                       />
-                    {/each}
-                  </div>
-                {/each}
-              </div>
+                      {#each activityYear[year][month] as activity (activity)}
+                        <Card
+                          type="ledger"
+                          title={activity.activity}
+                          description={activity.address}
+                          subtext={activity.date}
+                        />
+                      {/each}
+                    </div>
+                  {/each}
+                </div>
+              {/each}
             {/each}
-          {/each}
-        {:else}
-          <Typography preset="Text sm/Medium" text="No Activity" color="primary" />
-        {/if}
-      </div>
-    {:else if tabDatas.selected === "Hexa AI"}
-      <HexaAIChat />
-    {/if}
+          {:else}
+            <Typography preset="Text sm/Medium" text="No Activity" color="primary" />
+          {/if}
+        </div>
+      {:else if tabDatas.selected === "Hexa AI"}
+        <HexaAIChat />
+      {/if}
     </div>
   </div>
 </Pane>
