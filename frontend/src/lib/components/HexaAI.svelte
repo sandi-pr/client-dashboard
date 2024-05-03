@@ -169,8 +169,8 @@
   });
 </script>
 
-<div class="relative h-full bg-primary-light dark:bg-primary-dark">
-  <div class="flex flex-col px-4 pt-6">
+<div class="relative h-screen overflow-auto bg-primary-light dark:bg-primary-dark">
+  <div class="flex flex-col px-4 pt-6 pb-24">
     <div class="flex flex-col gap-4">
       <!-- <P
         size="xl"
@@ -206,7 +206,7 @@
       {/each}
     </div>
   </div>
-  <div class="absolute w-full bottom-4">
+  <div class="fixed bottom-4">
     <form on:submit|preventDefault={sendMessage} class="px-4 [&>div>div]:!pe-4">
       <Input
         bind:disable={disableInput}

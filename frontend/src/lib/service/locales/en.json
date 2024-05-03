@@ -159,5 +159,12 @@
   "typeName": "Type Name",
   "resourceTypeId": "Resource Type ID",
   "resources": "Resources",
-  "categoryName": "Category Name"
+  "categoryName": "Category Name",
+  "welcometoHexapod": "Welcome to Hexapod!",
+  "home": "Home",
+  "overview": "Overview",
+  "product&Services": "Product & Services",
+  "users": "Users",
+  "calendar": "Calendar",
+  "categories": "Categories"
 }

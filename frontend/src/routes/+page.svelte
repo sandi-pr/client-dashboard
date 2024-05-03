@@ -12,6 +12,7 @@ All Rights Reserved
 
 <script>
   import { SectionHeader, Card, Typography, CR3Call } from "hexacomponents-svelte";
+  import { _ } from "svelte-i18n";
 
   const call = new CR3Call(globalThis.location.origin);
   let userData = $state({});
@@ -20,7 +21,7 @@ All Rights Reserved
 </script>
 
 <div class="flex flex-col gap-1 px-4 pt-6">
-  <Typography preset="Display sm/Semibold" text="Welcome to Crossroads!" color="primary" />
+  <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
   <Typography
     text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
       'staff@hexacode.org'}"
@@ -38,11 +39,11 @@ All Rights Reserved
   {:else}
     <SelectedCard {companyType} />
   {/if} -->
-  <SectionHeader title="Available Modules" />
+  <SectionHeader title={$_("availableModules")} />
   <Card
     icon="users"
     title="CRM"
-    description="Manage customer contacts, and personalize your customer service"
+    description={$_("descCrm")}
     onclick={async () => {
       await call.goToPage("client-dashboard", "crm-overview");
       return;

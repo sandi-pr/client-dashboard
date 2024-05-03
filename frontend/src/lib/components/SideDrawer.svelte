@@ -38,7 +38,7 @@ All Rights Reserved
 
 <Pane size={innerWidth > 1024 ? "20" : "100"}>
   <div
-    class="relative h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
+    class="h-screen fixed transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
   >
     <div class="absolute w-full top-0 z-10">
       <div class="flex items-center">

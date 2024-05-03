@@ -15,7 +15,7 @@ All Rights Reserved
   import { Pane, Splitpanes } from "svelte-splitpanes";
   import { Navbar, Sidebar, Typography, TabBar, Card } from "$lib";
   import { onMount } from "svelte";
-  import { locale, waitLocale, isLoading } from "svelte-i18n";
+  import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
 
@@ -94,27 +94,27 @@ All Rights Reserved
         children: [
           {
             href: await call.getPage("client-dashboard", "crm-overview"), // for frontend comment this
-            name: "Overview",
+            name: $_("overview"),
           },
           {
             href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
-            name: "Person",
+            name: $_("persons"),
           },
           {
             href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
-            name: "Product & Services",
+            name: $_("product&Services"),
           },
           {
             href: await call.getPage("client-dashboard", "crm-users"), // for frontend comment this
-            name: "Users",
+            name: $_("users"),
           },
           {
             href: await call.getPage("client-dashboard", "crm-categories"), // for frontend comment this
-            name: "Categories",
+            name: $_("categories"),
           },
           {
             href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
-            name: "Calendar",
+            name: $_("calendar"),
           },
         ],
       },
