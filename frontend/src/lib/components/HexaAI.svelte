@@ -5,6 +5,9 @@
   import VerifiedIcon from "$lib/icon/verified.svg";
   import Sidebar from "$lib/components/Sidebar.svelte";
   import { onMount } from "svelte";
+  import { CR3Call } from "hexacomponents-svelte";
+
+  const call = new CR3Call(globalThis.location.origin);
 
   let chat_id = $state("");
   let content = $state("");
@@ -12,7 +15,9 @@
   let chatId = $state("");
   let messageInput = $state("");
 
-  let dataConversatonLogs = [
+  let disableInput = $state(false);
+
+  let dataConversatonLogs = $state([
     {
       role: "user",
       message:
@@ -23,15 +28,13 @@
       message:
         'Of course! London has several reputable wood flooring companies. One notable option is "Zway Flooring Solutions" located in the heart of the city. They are well-regarded for their premium materials and skilled craftsmanship. Would you like more information about them or any other suggestions?',
     },
-  ];
+  ]);
 
   // const ws = new WebSocket(
   //   "ws://localhost:3000/api-hexabot-webchat/c/9756f06b-a6ef-4bc6-8c9b-5fd6cddf64b6",
   // );
 
-  const ws = new WebSocket(
-    "wss://cr3-api.hexacode.org/api-hexabot-webchat/c/123"
-  );
+  const ws = new WebSocket("wss://cr3-api.hexacode.org/api-hexabot-webchat/c/123");
 
   function SendMessage(message) {
     ws.send(JSON.stringify(message));
@@ -80,10 +83,7 @@
     data = JSON.parse(event.data);
     if (data.type == "content") {
       // content.append(CreateMessage(data.content));
-      dataConversatonLogs = [
-        ...dataConversatonLogs,
-        { role: "user", message: data.content },
-      ];
+      dataConversatonLogs = [...dataConversatonLogs, { role: "user", message: data.content }];
     }
 
     if (data.type == "accept") {
@@ -99,14 +99,63 @@
     }
   };
 
-  function sendMessage() {
+  async function sendMessage() {
+    disableInput = true;
+    let token = sessionStorage.getItem("token");
     if (messageInput.trim() !== "") {
-      // Message(chatId, messageInput.trim());
       dataConversatonLogs = [
         ...dataConversatonLogs,
         { role: "user", message: messageInput.trim() },
       ];
-      messageInput = "";
+      try {
+        let conversationId = await call.call("hexa-ai", "create-conversation", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (conversationId.status === 200) {
+          let chat = await call.call("hexa-ai", "chat", {
+            URLQuery: {},
+            URLParams: {
+              conversation_id: conversationId.result.conversation_id,
+            },
+            Params: {
+              message: messageInput.trim(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log("merpati", chat);
+
+          if (chat.status === 0) {
+            dataConversatonLogs = [
+              ...dataConversatonLogs,
+              { role: chat.result.message.role, message: chat.result.message.message },
+            ];
+
+            disableInput = false;
+          } else {
+            disableInput = false;
+          }
+        } else {
+          console.log(conversationId);
+
+          disableInput = false;
+        }
+        // Message(chatId, messageInput.trim());
+        messageInput = "";
+        disableInput = false;
+      } catch (error) {
+        console.log(error);
+
+        disableInput = false;
+      }
     }
   }
 
@@ -139,11 +188,7 @@
             <img src={UserIcon} alt="User" class="" />
             {#if qaPair.role === "assistant"}
               <div class="absolute bottom-0 right-0">
-                <img
-                  src={VerifiedIcon}
-                  alt="User"
-                  class="w-4 h-4"
-                />
+                <img src={VerifiedIcon} alt="User" class="w-4 h-4" />
               </div>
             {/if}
           </div>
@@ -153,9 +198,7 @@
                 >{qaPair.role === "user" ? "You" : "Assistant"}</P
               >
             </div>
-            <P
-              weight="medium"
-              class="text-tertiary-light dark:text-tertiary-dark"
+            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
               >{qaPair.message}</P
             >
           </div>
@@ -166,6 +209,7 @@
   <div class="absolute w-full bottom-4">
     <form on:submit|preventDefault={sendMessage} class="px-4 [&>div>div]:!pe-4">
       <Input
+        bind:disable={disableInput}
         bind:value={messageInput}
         placeholder="Send a message..."
         class=" text-wrap min-h-16 pe-24 rounded-2xl"
