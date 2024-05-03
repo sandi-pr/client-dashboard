@@ -75,13 +75,14 @@
   };
 
   let schedule = [
-    { date: "2024-05-01", time: "10:00 - 12:00", title: "test 1" },
-    { date: "2024-05-10", time: "10:00 - 12:00", title: "test 2" },
+    { date: "2024-05-01", timeStart: "10:00", timeEnd: "12:00", title: "test 1" },
+    { date: "2024-05-10", timeStart: "10:00", timeEnd: "12:00", title: "test 2" },
   ];
 
   let newSchedule = {
     date: format(new Date(), "yyyy-MM-dd"),
-    time: format(new Date(), "kk:mm") + " - " + format(new Date(), "kk:mm"),
+    timeStart: format(new Date(), "kk:mm"),
+    timeEnd: format(new Date(), "kk:mm"),
     title: "",
   };
 
@@ -90,52 +91,18 @@
   let timeAvailable = ["08:00", "16:00"];
   let timeAvailableCopy = [...timeAvailable];
 
-  // onMount(() => {
-  //   const intervalId = setInterval(() => {
-  //     const isDark = document.documentElement.classList.value.includes("dark");
-  //     currentTheme = isDark ? "dark" : "light";
-  //   }, 100);
-
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // });
-
   const handleClickDate = (date) => {
     console.log("date clicked backend logic here");
     selectedDate = date;
   };
 
   const handleCreateNewSchedule = () => {
-    const isValidTimeString = (timeString) => {
-      const regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-      return regex.test(timeString);
-    };
-
-    if (
-      isValidTimeString(newSchedule.time.split(" - ")[0]) === false ||
-      isValidTimeString(newSchedule.time.split(" - ")[1]) === false
-    ) {
-      alert("Invalid time format");
-    }
-
-    const timeStart = newSchedule.time.split(" - ")[0];
-    const timeEnd = newSchedule.time.split(" - ")[1];
-    if (timeStart >= timeEnd) {
+    if (newSchedule.timeStart >= newSchedule.timeEnd) {
       alert("Invalid time range");
       return;
     }
 
-    let timeStartObject = new Date();
-    timeStartObject.setHours(timeStart.split(":")[0]);
-    timeStartObject.setMinutes(timeStart.split(":")[1]);
-
-    let timeEndObject = new Date();
-    timeEndObject.setHours(timeEnd.split(":")[0]);
-    timeEndObject.setMinutes(timeEnd.split(":")[1]);
-
     newSchedule.date = format(selectedDate, "yyyy-MM-dd");
-    newSchedule.time = format(timeStartObject, "kk:mm") + " - " + format(timeEndObject, "kk:mm");
 
     schedule = [...schedule, newSchedule];
 
@@ -143,9 +110,125 @@
 
     newSchedule = {
       date: format(new Date(), "yyyy-MM-dd"),
-      time: format(new Date(), "kk:mm") + " - " + format(new Date(), "kk:mm"),
+      timeStart: format(new Date(), "kk:mm"),
+      timeEnd: format(new Date(), "kk:mm"),
       title: "",
     };
+  };
+
+  const checkTimeFormat = (evt, time) => {
+    if (/[^0-9:]/.test(evt.target.value)) {
+      // Remove any invalid characters
+      evt.target.value = evt.target.value.replace(/[^0-9:]/g, "");
+    }
+    // check if target value contains a colon
+    if (evt.target.value.includes(":")) {
+      const targetValueSplit = evt.target.value.split(":");
+
+      // Check the hour part
+      if (
+        !targetValueSplit[0] ||
+        targetValueSplit[0].length > 2 ||
+        parseInt(targetValueSplit[0]) > 23
+      ) {
+        targetValueSplit[0] = targetValueSplit[0] ? targetValueSplit[0].slice(-2) : "01";
+      }
+      if (parseInt(targetValueSplit[0]) > 23) {
+        targetValueSplit[0] = "01";
+      }
+
+      // Check the minute part
+      if (
+        !targetValueSplit[1] ||
+        targetValueSplit[1].length > 2 ||
+        parseInt(targetValueSplit[1]) > 59
+      ) {
+        targetValueSplit[1] = targetValueSplit[1] ? targetValueSplit[1].slice(0, 2) : "01";
+      }
+      if (parseInt(targetValueSplit[1]) > 59) {
+        targetValueSplit[1] = "01";
+      }
+
+      evt.target.value = targetValueSplit.join(":");
+
+      const isValidTimeFormat =
+        targetValueSplit[0].length === 2 && targetValueSplit[1].length === 2;
+
+      const timeVariables = {
+        newTimeStart: newSchedule.timeStart,
+        newTimeEnd: newSchedule.timeEnd,
+        availTimeStart: timeAvailable[0],
+        availTimeEnd: timeAvailable[1],
+      };
+
+      if (isValidTimeFormat) {
+        switch (time) {
+          case "newTimeStart":
+            newSchedule.timeStart = evt.target.value;
+            break;
+          case "newTimeEnd":
+            newSchedule.timeEnd = evt.target.value;
+            break;
+          case "availTimeStart":
+            timeAvailable[0] = evt.target.value;
+            break;
+          case "availTimeEnd":
+            timeAvailable[1] = evt.target.value;
+            break;
+        }
+      } else {
+        timeVariables[time] = timeVariables[time];
+      }
+    } else {
+      const timeVariables = {
+        newTimeStart: newSchedule.timeStart,
+        newTimeEnd: newSchedule.timeEnd,
+        availTimeStart: timeAvailable[0],
+        availTimeEnd: timeAvailable[1],
+      };
+
+      timeVariables[time] = timeVariables[time];
+    }
+  };
+
+  const checkTimeFinal = (evt, time) => {
+    // Split the input into hours and minutes
+    let [hours, minutes] = evt.target.value.split(":");
+
+    // Add leading zeros if necessary
+    hours = hours.padStart(2, "0");
+    minutes = minutes.padStart(2, "0");
+
+    // Combine the hours and minutes back into a time string
+    evt.target.value = `${hours}:${minutes}`;
+
+    const isValidTimeFormat = hours.length === 2 && minutes.length === 2;
+
+    const timeVariables = {
+      newTimeStart: newSchedule.timeStart,
+      newTimeEnd: newSchedule.timeEnd,
+      availTimeStart: timeAvailable[0],
+      availTimeEnd: timeAvailable[1],
+    };
+
+    if (isValidTimeFormat) {
+      switch (time) {
+        case "newTimeStart":
+          newSchedule.timeStart = evt.target.value;
+          break;
+        case "newTimeEnd":
+          newSchedule.timeEnd = evt.target.value;
+          break;
+        case "availTimeStart":
+          timeAvailable[0] = evt.target.value;
+          break;
+        case "availTimeEnd":
+          timeAvailable[1] = evt.target.value;
+          break;
+      }
+    } else {
+      timeVariables[time] = timeVariables[time];
+    }
   };
 
   const checkConfigChange = () => {
@@ -162,6 +245,17 @@
   const handleSaveConfig = () => {
     console.log("save config backend logic here");
   };
+
+  // onMount(() => {
+  //   const intervalId = setInterval(() => {
+  //     const isDark = document.documentElement.classList.value.includes("dark");
+  //     currentTheme = isDark ? "dark" : "light";
+  //   }, 100);
+
+  //   return () => {
+  //     clearInterval(intervalId);
+  //   };
+  // });
 
   onMount(() => {
     observer = new MutationObserver((mutations) => {
@@ -207,8 +301,12 @@
           <Input
             type="text"
             placeholder={format(new Date(), "kk:mm")}
+            value={newSchedule.timeStart}
             on:keyup={(evt) => {
-              newSchedule.time = evt.target.value + " - " + format(new Date(), "kk:mm");
+              checkTimeFormat(evt, "newTimeStart");
+            }}
+            on:change={(evt) => {
+              checkTimeFinal(evt, "availTimeEnd");
             }}
           >
             <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -217,8 +315,12 @@
           <Input
             type="text"
             placeholder={format(new Date(), "kk:mm")}
+            value={newSchedule.timeEnd}
             on:keyup={(evt) => {
-              newSchedule.time = format(new Date(), "kk:mm") + " - " + evt.target.value;
+              checkTimeFormat(evt, "newTimeEnd");
+            }}
+            on:change={(evt) => {
+              checkTimeFinal(evt, "availTimeEnd");
             }}
           >
             <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -264,8 +366,14 @@
         <Input
           type="text"
           placeholder={format(new Date(), "kk:mm")}
-          bind:value={timeAvailable[0]}
-          on:keyup={checkConfigChange}
+          value={timeAvailable[0]}
+          on:keyup={(evt) => {
+            checkTimeFormat(evt, "availTimeStart");
+            checkConfigChange();
+          }}
+          on:change={(evt) => {
+            checkTimeFinal(evt, "availTimeEnd");
+          }}
         >
           <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </Input>
@@ -273,8 +381,14 @@
         <Input
           type="text"
           placeholder={format(new Date(), "kk:mm")}
-          bind:value={timeAvailable[1]}
-          on:keyup={checkConfigChange}
+          value={timeAvailable[1]}
+          on:keyup={(evt) => {
+            checkTimeFormat(evt, "availTimeEnd");
+            checkConfigChange();
+          }}
+          on:change={(evt) => {
+            checkTimeFinal(evt, "availTimeEnd");
+          }}
         >
           <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </Input>

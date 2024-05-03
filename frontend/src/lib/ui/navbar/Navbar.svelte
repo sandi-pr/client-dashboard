@@ -15,12 +15,12 @@
   import BellIcon from "$lib/icon/bell-01.svg";
   import StarsIcon from "$lib/icon/stars-01.svg";
 
-  let { activeUrl = "/", changeShowAI = () => {} } = $props();
+  let { activeUrl = "/", changeShowAI = () => {}, appUrl = "/" } = $props();
 </script>
 
 <div>
   <div class="flex justify-between px-4 lg:pt-8">
-    <Breadcrumb {activeUrl} />
+    <Breadcrumb {activeUrl} {appUrl} />
     <div class="flex space-x-4">
       <LanguageSelector />
       <DarkMode
