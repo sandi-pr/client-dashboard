@@ -2,8 +2,9 @@
   import { Breadcrumb, BreadcrumbItem } from "flowbite-svelte";
   import { onMount } from "svelte";
 
-  const {
+  let {
     activeUrl = "/",
+    appUrl = "/",
     linkClass = "ms-1 text-sm font-medium text-gray-700 hover:text-gray-900 md:ms-2 dark:text-gray-400 dark:hover:text-white",
     spanClass = "ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400",
   } = $props();
@@ -11,11 +12,30 @@
   let params = $state("");
   let queryString = $state("");
   let activeUrlArray: any[] = $state([]);
-  let ready = $state(false);
+
+  const postProcessName = (name) => {
+    let newName = name.replace(/-/g, " ");
+    newName = newName.replace(/_/g, " ");
+
+    if (name === "crm") {
+      return name.toUpperCase();
+    } else if (name.split(" ").length > 1) {
+      return newName
+        .split(" ")
+        .map((word) => {
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(" ");
+    } else {
+      return newName.charAt(0).toUpperCase() + newName.slice(1);
+    }
+  };
 
   onMount(() => {
     params = new URLSearchParams(window.location.search).toString();
     queryString = params.toString() ? "?" + params.toString() : "";
+    const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
+    activeUrl = activeUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
     activeUrlArray = activeUrl
       .split("/")
       .filter((url) => url !== "")
@@ -27,15 +47,11 @@
         }
         return { name: url, href: href };
       });
-    if (activeUrlArray.some((item) => item.name === "client-dashboard")) {
-      activeUrlArray = activeUrlArray.filter((item) => item.name !== "client-dashboard");
-    }
-    ready = true;
   });
 </script>
 
 <Breadcrumb aria-label="Default breadcrumb">
-  <BreadcrumbItem href="/" home>Home</BreadcrumbItem>
+  <BreadcrumbItem href="/" home></BreadcrumbItem>
   {#if activeUrl !== "/"}
     {#each activeUrlArray as item}
       <li class={"inline-flex items-center"}>
@@ -56,14 +72,14 @@
             type="button"
             class={linkClass}
             onclick={() => {
-              window.location = item.href;
+              window.location = `${appUrl}${item.href}`;
             }}
           >
-            {item.name}
+            {postProcessName(item.name)}
           </button>
         {:else}
           <span class={spanClass}>
-            {item.name}
+            {postProcessName(item.name)}
           </span>
         {/if}
       </li>

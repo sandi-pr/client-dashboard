@@ -23,6 +23,7 @@ All Rights Reserved
   let showAI = $state(false);
   let activities = $state([]);
   let activeUrl = $derived($page.url.pathname);
+  let appUrl = ""; // change to application url to make the breadcrumb not display the application name
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -211,7 +212,7 @@ All Rights Reserved
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
           <Pane>
             <div class="transition-all duration-300">
-              <Navbar {activeUrl} {showAI} {changeShowAI} />
+              <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} />
               <slot />
             </div>
           </Pane>
