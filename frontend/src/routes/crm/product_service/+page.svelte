@@ -28,6 +28,12 @@ All Rights Reserved
 
   let configs = {
     search: true,
+    pagination: {
+      page: 1,
+      pageSize: 25,
+      pageCount: 1,
+      total: 25,
+    },
   };
 
   // function getCategory(category) {
@@ -77,6 +83,10 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
+        configs = {
+          search: true,
+          pagination: response.result.meta.pagination,
+        };
         console.log("ayam", response.result.data);
         let promises = response.result.data.map(async (product, index) => {
           return {

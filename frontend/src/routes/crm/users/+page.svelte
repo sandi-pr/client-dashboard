@@ -19,7 +19,8 @@ All Rights Reserved
   import DataTable from "$lib/components/DataTable.svelte";
   import SectionHeader from "$lib/ui/header/SectionHeader.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { Button, CR3Call, Typography } from "hexacomponents-svelte";
+  import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { Button } from "flowbite-svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -27,91 +28,105 @@ All Rights Reserved
   let documentsReady = $state(false);
   let actionItems = $state([]);
 
-  let datas = $state([
-    {
-      userId: "19846829",
-      fullname: "Azzisi Habibi",
-      username: "azzis91128",
-      email: "azzis144635@gmail.com",
-      authority: {
-        type: "brand",
-        name: "Super Admin",
-      },
-      // is_active
-      status: {
-        type: "success",
-        name: "Active",
-      },
-      actions: {
-        objects: [
-          {
-            href: "/crm/users/detail",
-            name: "Detail",
-          },
-        ],
-      },
-    }
-  ]);
+  let pagination = { page: 1, pageSize: 25, pageCount: 1, total: 25 };
+
+  let datas = $state([]);
 
   let configs = {
     search: true,
+    pagination: {
+      page: 1,
+      pageSize: 25,
+      pageCount: 1,
+      total: 25,
+    },
   };
 
-  // async function getPerson() {
-  //   let token = sessionStorage.getItem("token");
-  //   if (token !== null) {
-  //     let response = await call.call("client-dashboard", "get-persons", {
-  //       URLQuery: {},
-  //       URLParams: {},
-  //       Params: {},
-  //       Headers: {
-  //         Authorization: "Bearer " + token,
-  //       },
-  //     });
+  function getAuthority(authority) {
+    if (authority === "Admin") {
+      return {
+        type: "brand",
+        name: "Admin",
+      };
+    }
 
-  //     if (response.status !== 200) {
-  //       console.log(response);
-  //       return;
-  //     }
+    if (authority === "User") {
+      return {
+        type: "brand",
+        name: "User",
+      };
+    }
 
-  //     if (response.result.data.length > 0) {
-  //       let promises = response.result.data.map(async (person, index) => {
-  //         return {
-  //           id: person.id,
-  //           fullname: person.attributes.fullname,
-  //           email: person.attributes.email,
-  //           phone: person.attributes.phone,
-  //           address: person.attributes.address,
-  //           city: person.attributes.city,
-  //           state: person.attributes.state,
-  //           zip_code: person.attributes.zip_code,
-  //           country: person.attributes.country,
-  //           date_of_birth: person.attributes.date_of_birth,
-  //           is_active: person.attributes.is_active,
-  //           actions: {
-  //             objects: [
-  //               {
-  //                 href:
-  //                   `${await call.getPage("client-dashboard", "crm-person-detail")}` +
-  //                   "?personId=" +
-  //                   person.id,
-  //                 name: "View",
-  //               },
-  //             ],
-  //           },
-  //         };
-  //       });
+    if (authority === "Super Admin") {
+      return {
+        type: "brand",
+        name: "Brand",
+      };
+    }
+  }
 
-  //       datas = await Promise.all(promises);
-  //       documentsReady = true;
-  //     }
-  //   }
-  // }
+  async function getUsers() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-users", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: pagination.page,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+      console.log("ayam", response);
+
+      if (response.result.data.length > 0) {
+        configs = {
+          search: true,
+          pagination: response.result.meta.pagination,
+        };
+        let promises = response.result.data.map(async (user, index) => {
+          return {
+            id: user.id,
+            fullname: user.attributes.fullname || "No Name",
+            username: user.attributes.username,
+            email: user.attributes.email,
+            authority: getAuthority(user.attributes.authority) || "No Authority",
+            status: user.attributes.is_active === "Yes" ? "Admin" : "User",
+            actions: {
+              objects: [
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-user-detail")}` +
+                    "?userId=" +
+                    user.id,
+                  name: "View",
+                },
+              ],
+            },
+          };
+        });
+
+        datas = await Promise.all(promises);
+        documentsReady = true;
+      }
+    }
+  }
 
   onMount(async () => {
     // getActionItems();
-    // getPerson();
+    getUsers();
   });
+
+  async function addUser() {
+    await call.goToPage("client-dashboard", "crm-user-create");
+    return;
+  }
 </script>
 
 <div class="flex dark:bg-primary-dark">
@@ -123,15 +138,17 @@ All Rights Reserved
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text="Users List" />
-          <Button text="Add new" icon={PlusIcon} spaceY="mt-0" />
+          <Button onclick={addUser} icon={PlusIcon}
+            >Add new <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+          >
         </div>
 
         <!-- Person Table Data -->
         <div>
           {#if documentsReady}
-            <DataTable {datas} {configs} />
+            <DataTable bind:datas bind:configs />
           {:else}
-            <DataTable {datas} {configs} />
+            <DataTable bind:datas bind:configs />
           {/if}
         </div>
       </div>

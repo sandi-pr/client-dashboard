@@ -37,7 +37,7 @@ All Rights Reserved
     ],
   });
 
-  // const call = new CR3Call(globalThis.location.origin); // for frontend comment this
+  const call = new CR3Call(globalThis.location.origin); // for frontend comment this
 
   const hideLayoutList = [
     "/forgot-password",
@@ -103,6 +103,10 @@ All Rights Reserved
           {
             href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
             name: "Product & Services",
+          },
+          {
+            href: await call.getPage("client-dashboard", "crm-users"), // for frontend comment this
+            name: "Users",
           },
           {
             href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
@@ -177,7 +181,7 @@ All Rights Reserved
   }
 
   onMount(() => {
-    // CheckSetup(); // for frontend comment this
+    CheckSetup(); // for frontend comment this
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };

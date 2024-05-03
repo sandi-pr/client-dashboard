@@ -50,6 +50,21 @@
             "file_path": "template/crm/product_service/detail.html"
         },
         {
+            "name": "crm-users",
+            "path": "/crm/users",
+            "file_path": "template/crm/users.html"
+        },
+        {
+            "name": "crm-user-detail",
+            "path": "/crm/users/detail",
+            "file_path": "template/crm/users/detail.html"
+        },
+        {
+            "name": "crm-user-create",
+            "path": "/crm/users/create",
+            "file_path": "template/crm/users/create.html"
+        },
+        {
             "name": "crm-calendar",
             "path": "/crm/calendar",
             "file_path": "template/crm/calendar.html"
@@ -414,6 +429,95 @@
                 {
                     "name": "resource_types",
                     "type": "text"
+                }
+            ]
+        },
+        {
+            "name": "get-users",
+            "path": "/get-users",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetUsers"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "get-user",
+            "path": "/get-user/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetUser"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-user",
+            "path": "/update-user/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateUser"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "username",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "email",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "password",
+                    "type": "text",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-user",
+            "path": "/delete-user/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteUser"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
                 }
             ]
         }
