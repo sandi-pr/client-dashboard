@@ -75,8 +75,20 @@
   };
 
   let schedule = [
-    { date: "2024-05-01", timeStart: "10:00", timeEnd: "12:00", title: "test 1" },
-    { date: "2024-05-10", timeStart: "10:00", timeEnd: "12:00", title: "test 2" },
+    {
+      title: "test 1",
+      dateEvent: [
+        { date: "2024-05-01", timeStart: "10:00", timeEnd: "12:00" },
+        { date: "2024-05-02", timeStart: "10:00", timeEnd: "12:00" },
+      ],
+    },
+    {
+      title: "test 2",
+      dateEvent: [
+        { date: "2024-05-01", timeStart: "10:00", timeEnd: "12:00" },
+        { date: "2024-05-10", timeStart: "10:00", timeEnd: "12:00" },
+      ],
+    },
   ];
 
   let newSchedule = {
@@ -289,50 +301,81 @@
     <div class="w-2/3">
       {#if currentTheme === "light"}
         <InlineCalendar theme={theme.light} {handleClickDate} {schedule} />
-        <!-- <InlineCalendar theme={theme.light} {handleClickDate} {schedule} /> -->
+        <InlineCalendar theme={theme.light} {handleClickDate} {schedule} />
       {:else if currentTheme === "dark"}
         <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} />
-        <!-- <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} /> -->
+        <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} />
       {/if}
       <div
-        class="mt-4 p-4 w-[25rem] h-[12rem] border flex flex-col justify-center items-center rounded-lg border-hc-graylight-200 dark:border-hc-graydark-800"
+        class="mt-4 p-4 w-[50rem] h-[12rem] border flex flex-col justify-center items-center rounded-lg border-hc-graylight-200 dark:border-hc-graydark-800"
       >
-        <div class="flex">
-          <Input
-            type="text"
-            placeholder={format(new Date(), "kk:mm")}
-            value={newSchedule.timeStart}
-            on:keyup={(evt) => {
-              checkTimeFormat(evt, "newTimeStart");
-            }}
-            on:change={(evt) => {
-              checkTimeFinal(evt, "availTimeEnd");
-            }}
-          >
-            <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          </Input>
-          <P class="mx-4 text-center content-center">-</P>
-          <Input
-            type="text"
-            placeholder={format(new Date(), "kk:mm")}
-            value={newSchedule.timeEnd}
-            on:keyup={(evt) => {
-              checkTimeFormat(evt, "newTimeEnd");
-            }}
-            on:change={(evt) => {
-              checkTimeFinal(evt, "availTimeEnd");
-            }}
-          >
-            <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          </Input>
+        <div class="flex gap-4">
+          <div class="flex">
+            <Input
+              type="text"
+              placeholder={format(new Date(), "kk:mm")}
+              value={newSchedule.timeStart}
+              on:keyup={(evt) => {
+                checkTimeFormat(evt, "newTimeStart");
+              }}
+              on:change={(evt) => {
+                checkTimeFinal(evt, "availTimeEnd");
+              }}
+            >
+              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </Input>
+            <P class="mx-4 text-center content-center">-</P>
+            <Input
+              type="text"
+              placeholder={format(new Date(), "kk:mm")}
+              value={newSchedule.timeEnd}
+              on:keyup={(evt) => {
+                checkTimeFormat(evt, "newTimeEnd");
+              }}
+              on:change={(evt) => {
+                checkTimeFinal(evt, "availTimeEnd");
+              }}
+            >
+              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </Input>
+          </div>
+          <!-- <div class="flex">
+            <Input
+              type="text"
+              placeholder={format(new Date(), "kk:mm")}
+              value={newSchedule.timeStart}
+              on:keyup={(evt) => {
+                checkTimeFormat(evt, "newTimeStart");
+              }}
+              on:change={(evt) => {
+                checkTimeFinal(evt, "availTimeEnd");
+              }}
+            >
+              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </Input>
+            <P class="mx-4 text-center content-center">-</P>
+            <Input
+              type="text"
+              placeholder={format(new Date(), "kk:mm")}
+              value={newSchedule.timeEnd}
+              on:keyup={(evt) => {
+                checkTimeFormat(evt, "newTimeEnd");
+              }}
+              on:change={(evt) => {
+                checkTimeFinal(evt, "availTimeEnd");
+              }}
+            >
+              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </Input>
+          </div> -->
         </div>
         <Input
           type="text"
           placeholder="Title"
-          defaultClass="my-4 w-full"
+          defaultClass="my-4 w-1/2"
           bind:value={newSchedule.title}
         />
-        <Button on:click={handleCreateNewSchedule} type="button" class="w-[40%]">Create New</Button>
+        <Button on:click={handleCreateNewSchedule} type="button" class="w-[25%]">Create New</Button>
       </div>
     </div>
   </div>
