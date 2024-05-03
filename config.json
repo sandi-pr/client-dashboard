@@ -65,6 +65,11 @@
             "file_path": "template/crm/users/create.html"
         },
         {
+            "name": "crm-categories",
+            "path": "/crm/categories",
+            "file_path": "template/crm/categories.html"
+        },
+        {
             "name": "crm-calendar",
             "path": "/crm/calendar",
             "file_path": "template/crm/calendar.html"
@@ -288,13 +293,13 @@
                     "required": true
                 },
                 {
-                    "name": "product_description",
+                    "name": "description",
                     "type": "text",
                     "required": true
                 },
                 {
                     "name": "price",
-                    "type": "text",
+                    "type": "number",
                     "required": true
                 },
                 {
@@ -401,7 +406,7 @@
                     "required": true
                 },
                 {
-                    "name": "resource_description",
+                    "name": "description",
                     "type": "text",
                     "required": true
                 },
@@ -428,7 +433,11 @@
                 },
                 {
                     "name": "resource_types",
-                    "type": "text"
+                    "type": "number"
+                },
+                {
+                    "name": "product",
+                    "type": "number"
                 }
             ]
         },

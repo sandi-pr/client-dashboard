@@ -98,7 +98,7 @@ All Rights Reserved
           },
           {
             href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
-            name: "person",
+            name: "Person",
           },
           {
             href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
@@ -107,6 +107,10 @@ All Rights Reserved
           {
             href: await call.getPage("client-dashboard", "crm-users"), // for frontend comment this
             name: "Users",
+          },
+          {
+            href: await call.getPage("client-dashboard", "crm-categories"), // for frontend comment this
+            name: "Categories",
           },
           {
             href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this

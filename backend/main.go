@@ -490,13 +490,13 @@ func CreateProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	product_description, ok := ctx.Params.GetString("product_description")
+	description, ok := ctx.Params.GetString("description")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	price, ok := ctx.Params.GetString("price")
+	price, ok := ctx.Params.GetFloat64("price")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters price")
@@ -508,11 +508,12 @@ func CreateProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, _, err = Strapi.Create("product-table", U.Dict{
-		"product_name":        product_name,
-		"product_description": product_description,
-		"price":               price,
-		"is_active":           is_active,
+	resp := U.Dict{}
+	status, resp, err = Strapi.Create("product-table", U.Dict{
+		"product_name": product_name,
+		"description":  description,
+		"price":        price,
+		"is_active":    is_active,
 	})
 
 	if err != nil {
@@ -525,7 +526,7 @@ func CreateProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, U.Dict{}, nil
+	return 200, resp, nil
 }
 
 func GetProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
@@ -563,7 +564,14 @@ func GetProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, product, err := Strapi.FindOne("product-table", int64(id))
+	status, product, err := Strapi.Find("product-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": id,
+			},
+		},
+		"populate": "*",
+	})
 	if err != nil {
 		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")
@@ -730,26 +738,26 @@ func CreateResource(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	resource_name, ok := ctx.Params.GetString("resource_name")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters resource_name")
 	}
 
-	resource_description, ok := ctx.Params.GetString("resource_description")
+	description, ok := ctx.Params.GetString("description")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters description")
 	}
 
 	is_active, ok := ctx.Params.GetString("is_active")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters is_active")
 	}
 
-	resource_types, ok := ctx.Params.GetString("resource_types")
+	// resource_types, ok := ctx.Params.GetFloat64("resource_types")
 
-	if !ok {
-		return ctx.Error(400, "invalid parameters")
-	}
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters resource_types")
+	// }
 
 	image := ctx.Params["image"]
 
@@ -757,12 +765,19 @@ func CreateResource(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		image = nil
 	}
 
+	product, ok := ctx.Params.GetFloat64("product")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters product")
+	}
+
 	status, _, err = Strapi.Create("resource-table", U.Dict{
-		"resource_name":        resource_name,
-		"resource_description": resource_description,
-		"is_active":            is_active,
-		"resource_types":       resource_types,
-		"image":                image,
+		"resource_name": resource_name,
+		"description":   description,
+		"is_active":     is_active,
+		// "resource_types": resource_types,
+		"image":   image,
+		"product": product,
 	})
 
 	if err != nil {
