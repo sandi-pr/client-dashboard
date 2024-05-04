@@ -70,6 +70,16 @@
             "file_path": "template/crm/categories.html"
         },
         {
+            "name": "crm-category-create",
+            "path": "/crm/categories/create",
+            "file_path": "template/crm/categories/create.html"
+        },
+        {
+            "name": "crm-category-detail",
+            "path": "/crm/categories/detail",
+            "file_path": "template/crm/categories/detail.html"
+        },
+        {
             "name": "crm-calendar",
             "path": "/crm/calendar",
             "file_path": "template/crm/calendar.html"
@@ -427,6 +437,45 @@
             ]
         },
         {
+            "name": "update-resource",
+            "path": "/update-resource/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateResource"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "resource_name",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "is_active",
+                    "type": "enumeration",
+                    "enum": [
+                        "Yes",
+                        "No"
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-users",
             "path": "/get-users",
             "method": "POST",
@@ -548,6 +597,131 @@
             "callback": {
                 "plugin": "plugin.so",
                 "function": "DeleteUser"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-categories",
+            "path": "/get-categories",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCategories"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "get-category",
+            "path": "/get-category/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCategory"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "create-category",
+            "path": "/create-category",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateCategory"
+            },
+            "params": [
+                {
+                    "name": "category_name",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "is_active",
+                    "type": "enumeration",
+                    "enum": [
+                        "Yes",
+                        "No"
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-category",
+            "path": "/update-category/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateCategory"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "category_name",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "is_active",
+                    "type": "enumeration",
+                    "enum": [
+                        "Yes",
+                        "No"
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-category",
+            "path": "/delete-category/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteCategory"
             },
             "url_params": [
                 {

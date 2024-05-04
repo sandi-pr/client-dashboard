@@ -179,29 +179,41 @@ All Rights Reserved
             Authorization: "Bearer " + token,
           },
         });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.status === 200) {
+          await call.goToPage("client-dashboard", "crm-product-service");
+          return;
+        }
       } else if (tabDatas.selected === "Resource") {
-        response = await call.call("client-dashboard", "update-resource", {
-          URLQuery: {},
-          URLParams: { id: productId },
-          Params: {
-            resource_type_id: resources.resource_type_id,
-            resource_type_name: resources.resource_type_name,
-            resource_type_active: resourceIsActive ? "Yes" : "No",
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-      }
+        for (let i = 0; i < resources.length; i++) {
+          response = await call.call("client-dashboard", "update-resource", {
+            URLQuery: {},
+            URLParams: { id: resources[i].id.toString() },
+            Params: {
+              resource_name: resources[i].resource_name,
+              description: resources[i].description,
+              is_active: resources[i].is_active ? "Yes" : "No",
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+        }
 
-      if (response.status !== 200) {
-        console.log(response);
-        return;
-      }
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
 
-      if (response.status === 200) {
-        await call.goToPage("client-dashboard", "crm-product-service");
-        return;
+        if (response.status === 200) {
+          await call.goToPage("client-dashboard", "crm-product-service");
+          return;
+        }
       }
     } catch (error) {
       console.log(error);
