@@ -1,14 +1,17 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { format } from "date-fns";
-  import { Button, Heading, Input } from "flowbite-svelte";
+  import { Button, Heading, Input, Checkbox } from "flowbite-svelte";
   import { ClockOutline } from "flowbite-svelte-icons";
   import InlineCalendar from "$lib/components/InlineCalendar/InlineCalendar.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { P } from "flowbite-svelte";
 
   let currentTheme = "";
-  let selectedDate = new Date();
+  let selectedDateFrom = new Date();
+  let selectedDateTo = new Date();
+  let workHourChecked = false;
+  let weekendChecked = false;
   let observer;
 
   const theme = {
@@ -92,10 +95,19 @@
   ];
 
   let newSchedule = {
-    date: format(new Date(), "yyyy-MM-dd"),
-    timeStart: format(new Date(), "kk:mm"),
-    timeEnd: format(new Date(), "kk:mm"),
     title: "",
+    dateEvent: [
+      {
+        date: format(new Date(), "yyyy-MM-dd"),
+        timeStart: format(new Date(), "kk:mm"),
+        timeEnd: format(new Date(), "kk:mm"),
+      },
+      {
+        date: format(new Date(), "yyyy-MM-dd"),
+        timeStart: format(new Date(), "kk:mm"),
+        timeEnd: format(new Date(), "kk:mm"),
+      },
+    ],
   };
 
   let dayAvailable = [true, false, true, true, true, false, false];
@@ -103,28 +115,83 @@
   let timeAvailable = ["08:00", "16:00"];
   let timeAvailableCopy = [...timeAvailable];
 
-  const handleClickDate = (date) => {
+  const handleClickDate = (fromToDate, date) => {
     console.log("date clicked backend logic here");
-    selectedDate = date;
+    if (fromToDate === "from") selectedDateFrom = date;
+    else if (fromToDate === "to") selectedDateTo = date;
   };
 
   const handleCreateNewSchedule = () => {
-    if (newSchedule.timeStart >= newSchedule.timeEnd) {
-      alert("Invalid time range");
+    // check if the time range is valid
+    newSchedule.dateEvent.forEach((date) => {
+      if (date.timeStart > date.timeEnd) {
+        alert("Invalid time range");
+        return;
+      }
+    });
+
+    // console.log(selectedDateFrom, selectedDateTo);
+
+    // check if the selectedDateFrom is before or equal to selectedDateTo
+    if (selectedDateFrom > selectedDateTo) {
+      alert("From date must be before or equal to To date");
       return;
     }
 
-    newSchedule.date = format(selectedDate, "yyyy-MM-dd");
+    // apply workdate and workhour
+    newSchedule.dateEvent.forEach((date, index) => {
+      index === 0
+        ? (date.date = format(selectedDateFrom, "yyyy-MM-dd"))
+        : (date.date = format(selectedDateTo, "yyyy-MM-dd"));
+      date.timeStart = newSchedule.dateEvent[0].timeStart;
+      date.timeEnd = newSchedule.dateEvent[0].timeEnd;
+    });
+
+    // generate date from selectedDateFrom to selectedDateTo
+    const dateFrom = new Date(selectedDateFrom);
+    const dateTo = new Date(selectedDateTo);
+    const dateDiff = Math.abs(dateTo - dateFrom);
+    const dateDiffDays = Math.ceil(dateDiff / (1000 * 60 * 60 * 24));
+
+    for (let i = 1; i < dateDiffDays; i++) {
+      const newDate = new Date(dateFrom);
+      newDate.setDate(dateFrom.getDate() + i);
+      newSchedule.dateEvent.push({
+        date: format(newDate, "yyyy-MM-dd"),
+        timeStart: newSchedule.dateEvent[0].timeStart,
+        timeEnd: newSchedule.dateEvent[0].timeEnd,
+      });
+    }
+
+    // sort the dateEvent array
+    newSchedule.dateEvent.sort((a, b) => new Date(a.date) - new Date(b.date));
+    console.log(newSchedule);
+
+    // remove weekend from dateEvent if weekendChecked is false
+    newSchedule.dateEvent = newSchedule.dateEvent.filter((date) => {
+      const day = new Date(date.date).getDay();
+      return weekendChecked || (day !== 0 && day !== 6);
+    });
+    console.log(newSchedule);
 
     schedule = [...schedule, newSchedule];
 
     console.log("new schedule backend logic here");
 
     newSchedule = {
-      date: format(new Date(), "yyyy-MM-dd"),
-      timeStart: format(new Date(), "kk:mm"),
-      timeEnd: format(new Date(), "kk:mm"),
       title: "",
+      dateEvent: [
+        {
+          date: format(new Date(), "yyyy-MM-dd"),
+          timeStart: format(new Date(), "kk:mm"),
+          timeEnd: format(new Date(), "kk:mm"),
+        },
+        {
+          date: format(new Date(), "yyyy-MM-dd"),
+          timeStart: format(new Date(), "kk:mm"),
+          timeEnd: format(new Date(), "kk:mm"),
+        },
+      ],
     };
   };
 
@@ -167,8 +234,8 @@
         targetValueSplit[0].length === 2 && targetValueSplit[1].length === 2;
 
       const timeVariables = {
-        newTimeStart: newSchedule.timeStart,
-        newTimeEnd: newSchedule.timeEnd,
+        newTimeStart: newSchedule.dateEvent[0].timeStart,
+        newTimeEnd: newSchedule.dateEvent[0].timeEnd,
         availTimeStart: timeAvailable[0],
         availTimeEnd: timeAvailable[1],
       };
@@ -176,10 +243,10 @@
       if (isValidTimeFormat) {
         switch (time) {
           case "newTimeStart":
-            newSchedule.timeStart = evt.target.value;
+            newSchedule.dateEvent[0].timeStart = evt.target.value;
             break;
           case "newTimeEnd":
-            newSchedule.timeEnd = evt.target.value;
+            newSchedule.dateEvent[0].timeEnd = evt.target.value;
             break;
           case "availTimeStart":
             timeAvailable[0] = evt.target.value;
@@ -188,13 +255,14 @@
             timeAvailable[1] = evt.target.value;
             break;
         }
+        console.log(newSchedule, timeAvailable);
       } else {
         timeVariables[time] = timeVariables[time];
       }
     } else {
       const timeVariables = {
-        newTimeStart: newSchedule.timeStart,
-        newTimeEnd: newSchedule.timeEnd,
+        newTimeStart: newSchedule.dateEvent[0].timeStart,
+        newTimeEnd: newSchedule.dateEvent[0].timeEnd,
         availTimeStart: timeAvailable[0],
         availTimeEnd: timeAvailable[1],
       };
@@ -217,8 +285,8 @@
     const isValidTimeFormat = hours.length === 2 && minutes.length === 2;
 
     const timeVariables = {
-      newTimeStart: newSchedule.timeStart,
-      newTimeEnd: newSchedule.timeEnd,
+      newTimeStart: newSchedule.dateEvent[0].timeStart,
+      newTimeEnd: newSchedule.dateEvent[0].timeEnd,
       availTimeStart: timeAvailable[0],
       availTimeEnd: timeAvailable[1],
     };
@@ -226,10 +294,10 @@
     if (isValidTimeFormat) {
       switch (time) {
         case "newTimeStart":
-          newSchedule.timeStart = evt.target.value;
+          newSchedule.dateEvent[0].timeStart = evt.target.value;
           break;
         case "newTimeEnd":
-          newSchedule.timeEnd = evt.target.value;
+          newSchedule.dateEvent[0].timeEnd = evt.target.value;
           break;
         case "availTimeStart":
           timeAvailable[0] = evt.target.value;
@@ -298,23 +366,37 @@
   </div>
   <div class="flex">
     <div class="w-1/3"><P class="font-semibold">Calendar</P></div>
-    <div class="w-2/3">
-      {#if currentTheme === "light"}
-        <InlineCalendar theme={theme.light} {handleClickDate} {schedule} />
-        <InlineCalendar theme={theme.light} {handleClickDate} {schedule} />
-      {:else if currentTheme === "dark"}
-        <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} />
-        <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} />
-      {/if}
+    <div class="w-2/3 flex flex-col">
+      <div class="flex gap-4">
+        {#if currentTheme === "light"}
+          <div class="flex flex-col">
+            <P class="w-[25rem] mb-4 text-center text-xl font-semibold">From Date</P>
+            <InlineCalendar theme={theme.light} {handleClickDate} {schedule} fromToDate="from" />
+          </div>
+          <div class="flex flex-col">
+            <P class="w-[25rem] mb-4 text-center text-xl font-semibold">To Date</P>
+            <InlineCalendar theme={theme.light} {handleClickDate} {schedule} fromToDate="to" />
+          </div>
+        {:else if currentTheme === "dark"}
+          <div class="flex flex-col">
+            <P class="w-[25rem] mb-4 text-center text-xl font-semibold">From Date</P>
+            <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} fromToDate="from" />
+          </div>
+          <div class="flex flex-col">
+            <P class="w-[25rem] mb-4 text-center text-xl font-semibold">To Date</P>
+            <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} fromToDate="to" />
+          </div>
+        {/if}
+      </div>
       <div
-        class="mt-4 p-4 w-[50rem] h-[12rem] border flex flex-col justify-center items-center rounded-lg border-hc-graylight-200 dark:border-hc-graydark-800"
+        class="mt-4 p-4 w-[51rem] h-[14rem] border flex flex-col justify-center items-center rounded-lg border-hc-graylight-200 dark:border-hc-graydark-800"
       >
         <div class="flex gap-4">
           <div class="flex">
             <Input
               type="text"
               placeholder={format(new Date(), "kk:mm")}
-              value={newSchedule.timeStart}
+              value={newSchedule.dateEvent[0].timeStart}
               on:keyup={(evt) => {
                 checkTimeFormat(evt, "newTimeStart");
               }}
@@ -328,7 +410,7 @@
             <Input
               type="text"
               placeholder={format(new Date(), "kk:mm")}
-              value={newSchedule.timeEnd}
+              value={newSchedule.dateEvent[0].timeEnd}
               on:keyup={(evt) => {
                 checkTimeFormat(evt, "newTimeEnd");
               }}
@@ -368,6 +450,16 @@
               <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </Input>
           </div> -->
+        </div>
+        <div class="flex gap-4">
+          <Checkbox
+            bind:checked={workHourChecked}
+            on:click={() => {
+              newSchedule.dateEvent[0].timeStart = timeAvailable[0];
+              newSchedule.dateEvent[0].timeEnd = timeAvailable[1];
+            }}
+            class="mt-2">Use Workhour?</Checkbox
+          ><Checkbox bind:checked={weekendChecked} class="mt-2">Include Weekend?</Checkbox>
         </div>
         <Input
           type="text"

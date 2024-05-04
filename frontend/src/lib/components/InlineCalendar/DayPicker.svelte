@@ -14,6 +14,7 @@
 
   export let handleClickDate = () => {};
   export let schedule = [];
+  export let fromToDate = "from";
 
   const duration = 450;
 
@@ -28,7 +29,7 @@
   const add = (amount) => () => store.add(amount, "day");
 
   const select = (day) => () => {
-    handleClickDate(day);
+    handleClickDate(fromToDate, day);
     if (!store.isSelectable(day)) return;
     store.setDay(day || $store.selected);
     if (!$store.shouldEnlargeDay) return store.selectDay();
@@ -117,15 +118,17 @@
                 {/if}
               </a>
               {#if schedule.length > 0}
-                <Tooltip placement="bottom" class="z-[10]">
-                  {#each schedule as scheduleItem (scheduleItem)}
-                    {#each scheduleItem.dateEvent as dateEvent}
-                      {#if dayjs(day.date).isSame(dayjs(dateEvent.date), "day")}
-                        <div>{scheduleItem.title}</div>
-                      {/if}
+                {#if schedule.some( (scheduleItem) => scheduleItem.dateEvent.some( (dateEvent) => dayjs(day.date).isSame(dayjs(dateEvent.date), "day") ) )}
+                  <Tooltip placement="bottom" class="z-[10]">
+                    {#each schedule as scheduleItem (scheduleItem)}
+                      {#each scheduleItem.dateEvent as dateEvent}
+                        {#if dayjs(day.date).isSame(dayjs(dateEvent.date), "day")}
+                          <div>{scheduleItem.title}</div>
+                        {/if}
+                      {/each}
                     {/each}
-                  {/each}
-                </Tooltip>
+                  </Tooltip>
+                {/if}
               {/if}
             {/if}
           {/each}
