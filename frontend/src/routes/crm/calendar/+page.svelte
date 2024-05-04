@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { format } from "date-fns";
+  import { format, startOfWeek, endOfWeek } from "date-fns";
   import { P, Button, Heading, Input, Checkbox } from "flowbite-svelte";
   import { ClockOutline, ChevronLeftOutline, ChevronRightOutline } from "flowbite-svelte-icons";
   import { TabBar } from "$lib";
@@ -9,75 +9,12 @@
 
   let currentTheme = "";
   let currentDate = new Date(); // Current date
-  let currentCalendarMode = "month"; // Current calendar mode
+  let currentCalendarMode = "week"; // Current calendar mode
   let selectedDateFrom = new Date();
   let selectedDateTo = new Date();
   let workHourChecked = false;
   let weekendChecked = false;
   let observer;
-
-  // const theme = {
-  //   dark: {
-  //     calendar: {
-  //       width: "60rem",
-  //       maxWidth: "100vw",
-  //       legend: {
-  //         height: "45px",
-  //       },
-  //       shadow: "0px 10px 26px rgba(0, 0, 0, 0.25)",
-  //       colors: {
-  //         text: {
-  //           primary: "#eee",
-  //           highlight: "#fff",
-  //         },
-  //         background: {
-  //           primary: "#333",
-  //           highlight: "#7F56D9",
-  //           hover: "#222",
-  //         },
-  //         border: "#222",
-  //       },
-  //       font: {
-  //         regular: "1.5em",
-  //         large: "37em",
-  //       },
-  //       grid: {
-  //         disabledOpacity: ".35",
-  //         outsiderOpacity: ".6",
-  //       },
-  //     },
-  //   },
-  //   light: {
-  //     calendar: {
-  //       width: "25rem",
-  //       maxWidth: "100vw",
-  //       legend: {
-  //         height: "45px",
-  //       },
-  //       shadow: "0px 10px 26px rgba(0, 0, 0, 0.25)",
-  //       colors: {
-  //         text: {
-  //           primary: "#333",
-  //           highlight: "#fff",
-  //         },
-  //         background: {
-  //           primary: "#fff",
-  //           highlight: "#7F56D9",
-  //           hover: "#eee",
-  //         },
-  //         border: "#eee",
-  //       },
-  //       font: {
-  //         regular: "1.5em",
-  //         large: "37em",
-  //       },
-  //       grid: {
-  //         disabledOpacity: ".35",
-  //         outsiderOpacity: ".6",
-  //       },
-  //     },
-  //   },
-  // };
 
   let tabDatas = {
     selected: "calendar",
@@ -95,8 +32,8 @@
     {
       title: "test 1",
       dateEvent: [
-        { date: "2024-05-01", timeStart: "10:00", timeEnd: "12:00" },
         { date: "2024-05-02", timeStart: "10:00", timeEnd: "12:00" },
+        { date: "2024-05-10", timeStart: "10:00", timeEnd: "13:00" },
       ],
     },
     {
@@ -129,6 +66,7 @@
   let timeAvailable = ["08:00", "16:00"];
   let timeAvailableCopy = [...timeAvailable];
   let daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
+  let daysInWeek = getDaysOfWeek(new Date(currentDate));
 
   const changeTabbar = (name) => {
     tabDatas.selected = name;
@@ -179,6 +117,57 @@
     return days;
   }
 
+  function getDaysOfWeek(startDay) {
+    let daysOfWeek = [];
+    let day = new Date(startDay);
+
+    // Set the day to the nearest Sunday before the specified startDay
+    day.setDate(day.getDate() - day.getDay());
+
+    for (let i = 0; i < 7; i++) {
+      let dayOfWeek = day.toLocaleDateString("en-US", { weekday: "short" });
+      let dateOfWeek = day.getDate();
+      let isCurrentDate = day.toDateString() === currentDate.toDateString(); // Check if it's the current date
+
+      let eventsForDay = schedule.flatMap((event) =>
+        event.dateEvent
+          .filter((dateEvent) => new Date(dateEvent.date).getDate() === dateOfWeek)
+          .map((dateEvent) => ({
+            title: event.title,
+            timeStart: dateEvent.timeStart,
+            timeEnd: dateEvent.timeEnd,
+          }))
+      );
+
+      daysOfWeek.push({
+        dayName: dayOfWeek,
+        dateNumber: dateOfWeek,
+        isCurrentDate: isCurrentDate,
+        events: eventsForDay,
+      });
+
+      day.setDate(day.getDate() + 1);
+    }
+
+    return daysOfWeek;
+  }
+
+  function getHoursOfDay() {
+    let hoursOfDay = [];
+
+    for (let i = 1; i <= 24; i++) {
+      hoursOfDay.push(i);
+    }
+
+    return hoursOfDay;
+  }
+
+  function handleClickHour(date, hour) {
+    console.log("Clicked date:", date);
+    console.log("Clicked hour:", hour);
+    // Add your logic here to handle the click event
+  }
+
   function getEventsForDate(date) {
     let formattedDate = date.toISOString().split("T")[0]; // Get YYYY-MM-DD format
     let events = [];
@@ -198,12 +187,6 @@
     return events;
   }
 
-  // const handleClickDate = (fromToDate, date) => {
-  //   console.log("date clicked backend logic here");
-  //   if (fromToDate === "from") selectedDateFrom = date;
-  //   else if (fromToDate === "to") selectedDateTo = date;
-  // }; // old
-
   const handleClickDate = (date) => {
     console.log(date);
     console.log("date clicked backend logic here");
@@ -212,14 +195,33 @@
   const handleChangeDate = (direction) => {
     console.log(currentCalendarMode);
     console.log(direction);
-    if (direction === "previous") {
-      currentDate.setMonth(currentDate.getMonth() - 1);
-    } else if (direction === "next") {
-      currentDate.setMonth(currentDate.getMonth() + 1);
-    }
+    if (currentCalendarMode === "month") {
+      if (direction === "previous") {
+        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1);
+      } else if (direction === "next") {
+        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1);
+      }
 
-    // Update the daysInMonth array based on the new currentDate
-    daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
+      // Update the daysInMonth array based on the new currentDate
+      daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
+    } else if (currentCalendarMode === "week") {
+      if (direction === "previous") {
+        currentDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate() - 7
+        );
+      } else if (direction === "next") {
+        currentDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate() + 7
+        );
+      }
+
+      // Update the daysInWeek array based on the new currentDate
+      daysInWeek = getDaysOfWeek(new Date(currentDate));
+    }
   };
 
   const handleCreateNewSchedule = () => {
@@ -472,19 +474,7 @@
   {#if tabDatas.selected === "calendar"}
     <div class="flex flex-col">
       <div class="flex gap-4">
-        <!-- {#if currentTheme === "light"} -->
-        <!-- <div class="flex flex-col"> -->
-        <!-- <P class="w-[25rem] mb-4 text-center text-xl font-semibold">From Date</P> -->
-        <!-- <InlineCalendar theme={theme.light} {handleClickDate} {schedule} fromToDate="from" /> -->
-        <!-- </div> -->
-        <!-- <div class="flex flex-col">
-              <P class="w-[25rem] mb-4 text-center text-xl font-semibold">To Date</P>
-              <InlineCalendar theme={theme.light} {handleClickDate} {schedule} fromToDate="to" />
-            </div> -->
-        <!-- {:else if currentTheme === "dark"} -->
         <div class="flex flex-col w-full">
-          <!-- <P class="w-[25rem] mb-4 text-center text-xl font-semibold">From Date</P> -->
-          <!-- <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} fromToDate="from" /> -->
           <!-- calendar mode selector -->
           <div class="flex mb-4 justify-end gap-2">
             <Button
@@ -519,7 +509,23 @@
                   class="size-8 text-fg-secondary-light dark:text-fg-secondary-dark"
                 /></Button
               >
-              <P class="font-semibold">January 2024</P>
+              {#if currentCalendarMode === "month"}
+                <P class="font-semibold"
+                  >{daysInMonth[15].dateObject.toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}</P
+                >
+              {:else if currentCalendarMode === "week"}
+                <P class="font-semibold">
+                  {format(startOfWeek(new Date(currentDate)), "dd MMMM")} - {format(
+                    endOfWeek(new Date(currentDate)),
+                    "dd MMMM yyyy"
+                  )}
+                </P>
+              {:else if currentCalendarMode === "day"}
+                <!-- else content here -->
+              {/if}
               <Button class="m-0 p-0" color="light" on:click={() => handleChangeDate("next")}
                 ><ChevronRightOutline
                   class="size-8 text-fg-secondary-light dark:text-fg-secondary-dark"
@@ -534,7 +540,7 @@
                   <button
                     type="button"
                     on:click={() => handleClickDate(day)}
-                    class={`flex flex-col p-2 min-h-40 justify-start items-center border border-secondary-light dark:border-secondary-dark ${day.isCurrentMonth ? "bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark" : "bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark"}`}
+                    class={`flex flex-col p-2 min-h-40 justify-start items-center border border-secondary-light dark:border-secondary-dark ${day.isCurrentMonth ? "bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark" : "bg-secondary-light dark:bg-secondary-dark hover:bg-primary-light hover:dark:bg-primary-dark"}`}
                   >
                     <P>{day.dayName}</P>
                     <P class="mb-4">{day.date}</P>
@@ -547,71 +553,56 @@
                 {/each}
               </div>
             {:else if currentCalendarMode === "week"}
-              <P>not yet</P>
+              <div class="container mx-auto">
+                <!-- Scrollable Grid Container -->
+                <div class="overflow-y-auto max-h-[60vh]">
+                  <!-- Sticky Header -->
+                  <div class="grid sticky top-0 z-10 grid-cols-8 grid-rows-1">
+                    <div class="border border-secondary-light dark:border-secondary-dark"></div>
+                    <!-- Placeholder for the top-left corner -->
+                    {#each daysInWeek as day}
+                      <P
+                        class="grid-item day-header text-center p-2 min-h-24 text-sm border border-secondary-light dark:border-secondary-dark"
+                      >
+                        {day.dayName}<br />
+                        <span class="text-3xl font-normal">{day.dateNumber}</span>
+                      </P>
+                    {/each}
+                  </div>
+
+                  <!-- Calendar Grid -->
+                  <div class="grid grid-cols-8 grid-rows-25">
+                    {#each getHoursOfDay() as hour}
+                      <P
+                        class="grid-item hour-header text-center pt-4 border border-secondary-light dark:border-secondary-dark"
+                        >{hour}:00</P
+                      >
+                      {#each daysInWeek as _day}
+                        <button
+                          on:click={() => handleClickHour(_day, hour)}
+                          class="grid-item min-h-40 flex flex-col items-center border border-secondary-light dark:border-secondary-dark"
+                        >
+                          {#if _day.events.length > 0}
+                            {#each _day.events as event}
+                              {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
+                                <div class="rounded-md bg-brand-solid-hover-light mt-2 mx-auto">
+                                  <P class="my-2 mx-3 text-primary-dark">{event.title}</P>
+                                </div>
+                              {/if}
+                            {/each}
+                          {/if}
+                        </button>
+                      {/each}
+                    {/each}
+                  </div>
+                </div>
+              </div>
             {:else if currentCalendarMode === "day"}
               <P>not yet</P>
-              <!-- else content here -->
             {/if}
           </div>
         </div>
-        <!-- <div class="flex flex-col">
-              <P class="w-[25rem] mb-4 text-center text-xl font-semibold">To Date</P>
-              <InlineCalendar theme={theme.dark} {handleClickDate} {schedule} fromToDate="to" />
-            </div> -->
-        <!-- {/if} -->
       </div>
-      <!-- <div
-        class="mt-4 p-4 w-[51rem] h-[14rem] border flex flex-col justify-center items-center rounded-lg border-hc-graylight-200 dark:border-hc-graydark-800"
-      >
-        <div class="flex gap-4">
-          <div class="flex">
-            <Input
-              type="text"
-              placeholder={format(new Date(), "kk:mm")}
-              value={newSchedule.dateEvent[0].timeStart}
-              on:keyup={(evt) => {
-                checkTimeFormat(evt, "newTimeStart");
-              }}
-              on:change={(evt) => {
-                checkTimeFinal(evt, "availTimeEnd");
-              }}
-            >
-              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            </Input>
-            <P class="mx-4 text-center content-center">-</P>
-            <Input
-              type="text"
-              placeholder={format(new Date(), "kk:mm")}
-              value={newSchedule.dateEvent[0].timeEnd}
-              on:keyup={(evt) => {
-                checkTimeFormat(evt, "newTimeEnd");
-              }}
-              on:change={(evt) => {
-                checkTimeFinal(evt, "availTimeEnd");
-              }}
-            >
-              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            </Input>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <Checkbox
-            bind:checked={workHourChecked}
-            on:click={() => {
-              newSchedule.dateEvent[0].timeStart = timeAvailable[0];
-              newSchedule.dateEvent[0].timeEnd = timeAvailable[1];
-            }}
-            class="mt-2">Use Workhour?</Checkbox
-          ><Checkbox bind:checked={weekendChecked} class="mt-2">Include Weekend?</Checkbox>
-        </div>
-        <Input
-          type="text"
-          placeholder="Title"
-          defaultClass="my-4 w-1/2"
-          bind:value={newSchedule.title}
-        />
-        <Button on:click={handleCreateNewSchedule} type="button" class="w-[25%]">Create New</Button>
-      </div> -->
     </div>
   {:else if tabDatas.selected === "availability"}
     <div class="flex">
