@@ -738,19 +738,19 @@ func CreateResource(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	resource_name, ok := ctx.Params.GetString("resource_name")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters resource_name")
+		return ctx.Error(400, "invalid parameters")
 	}
 
 	description, ok := ctx.Params.GetString("description")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters description")
+		return ctx.Error(400, "invalid parameters")
 	}
 
 	is_active, ok := ctx.Params.GetString("is_active")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters is_active")
+		return ctx.Error(400, "invalid parameters")
 	}
 
 	// resource_types, ok := ctx.Params.GetFloat64("resource_types")
@@ -759,11 +759,11 @@ func CreateResource(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	// 	return ctx.Error(400, "invalid parameters resource_types")
 	// }
 
-	image := ctx.Params["image"]
+	// image := ctx.Params["image"]
 
-	if image == nil {
-		image = nil
-	}
+	// if image == nil {
+	// 	image = nil
+	// }
 
 	product, ok := ctx.Params.GetFloat64("product")
 
@@ -776,7 +776,7 @@ func CreateResource(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		"description":   description,
 		"is_active":     is_active,
 		// "resource_types": resource_types,
-		"image":   image,
+		// "image":   image,
 		"product": product,
 	})
 
@@ -815,19 +815,14 @@ func GetUsers(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) 
 
 	fmt.Println(me)
 
-	page, ok := ctx.Params.GetFloat64("page")
+	// page, ok := ctx.Params.GetFloat64("page")
 
-	if !ok {
-		fmt.Println("invalid parameters")
-		page = 1
-	}
+	// if !ok {
+	// 	fmt.Println("invalid parameters")
+	// 	page = 1
+	// }
 
-	status, users, err := Strapi.Find("user-table", U.Dict{
-		"pagination": U.Dict{
-			"page": page,
-		},
-		"sort": "id:desc",
-	})
+	status, users, err := Strapi.UsersFind()
 
 	if err != nil {
 		fmt.Println(err)
@@ -839,7 +834,74 @@ func GetUsers(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) 
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, users, nil
+	users_list := U.Dict{
+		"data": users,
+	}
+
+	return 200, users_list, nil
+}
+
+func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	username, ok := ctx.Params.GetString("username")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	// fullname, ok := ctx.Params.GetString("fullname")
+
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters")
+	// }
+
+	email, ok := ctx.Params.GetString("email")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	password, ok := ctx.Params.GetString("password")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	users := U.Dict{}
+	status, users, err = Strapi.UsersCreate(string(username), string(email), string(password), true, false, int64(1))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		fmt.Println(users)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{}, nil
 }
 
 func GetUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
@@ -870,11 +932,13 @@ func GetUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, user, err := Strapi.Find("user-table", U.Dict{
-		"filter": U.Dict{
-			"id": userId,
-		},
-	})
+	id, err := strconv.Atoi(string(userId))
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, user, err := Strapi.UsersFindOne(int64(id))
 
 	if err != nil {
 		fmt.Println(err)
@@ -930,23 +994,40 @@ func UpdateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	fullname, ok := ctx.Params.GetString("fullname")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
 	email, ok := ctx.Params.GetString("email")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	password, ok := ctx.Params.GetString("password")
+	company, ok := ctx.Params.GetFloat64("company")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, user, err := Strapi.Update("user-table", int64(id), U.Dict{
-		"username": username,
-		"email":    email,
-		"password": password,
-	})
+	updateData := U.Dict{
+		"username":  username,
+		"email":     email,
+		"fullname":  fullname,
+		"confirmed": true,
+		"roles":     1,
+		"company":   company,
+	}
+
+	password, ok := ctx.Params.GetString("password")
+
+	if ok {
+		updateData["password"] = password
+	}
+
+	status, user, err := Strapi.UsersUpdate(int64(id), updateData)
 
 	if err != nil {
 		fmt.Println(err)
@@ -996,7 +1077,7 @@ func DeleteUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, user, err := Strapi.Delete("user-table", int64(id))
+	status, user, err := Strapi.UsersDelete(int64(id))
 
 	if err != nil {
 		fmt.Println(err)

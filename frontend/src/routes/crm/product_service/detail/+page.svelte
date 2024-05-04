@@ -139,7 +139,22 @@ All Rights Reserved
           is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
         };
 
-        resources = response.result.data[0].attributes.resources.data;
+        if (response.result.data[0].attributes.resources.data.length > 0) {
+          let promise = response.result.data[0].attributes.resources.data.map(
+            async (resource, index) => {
+              return {
+                id: resource.id,
+                resource_name: resource.attributes.resource_name,
+                image: "",
+                description: resource.attributes.description,
+                resource_type_name: "",
+                resource_type_id: "",
+                is_active: resource.attributes.is_active === "Yes" ? true : false,
+              };
+            },
+          );
+          resources = await Promise.all(promise);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -390,18 +405,14 @@ All Rights Reserved
               <div class="grid grid-cols-5 gap-5 border rounded-lg p-4">
                 <div class="flex items-center col-span-5 gap-2">
                   <div class="flex items-center w-full justify-between gap-2">
-                    <Typography
-                      preset="Text md/Semibold"
-                      text={resource.resource_name}
-                      color="secondary"
-                    />
+                    <div></div>
                     <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
                       >{$_("delete")}</Button
                     >
                   </div>
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
-                  <P
+                  <!-- <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("image")}</P
                   >
@@ -428,7 +439,18 @@ All Rights Reserved
                       </div>
                       <P>SVG, PNG, JPG, or GIF (max. 800x400px)</P>
                     {/if}
-                  </Button>
+                  </Button> -->
+                </div>
+                <div class="flex flex-col col-span-5 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("name")}</P
+                  >
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={resource.resource_name}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
                   <P
@@ -468,7 +490,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle bind:checked={resource.resource_type_active}></Toggle>
+                  <Toggle bind:checked={resource.is_active}></Toggle>
                 </div>
               </div>
             {/each}

@@ -373,18 +373,21 @@ All Rights Reserved
     },
   ]);
 
-  async function viewAll(title) {
-    if (title === "Persons") {
-      let href = await call.getPage("client-dashboard", "crm-person");
-      return href;
-    } else if (title === "Products & Services") {
-      let href = await call.getPage("client-dashboard", "crm-product-service");
-      return href;
-    } else if (title === "Users") {
-      let href = await call.getPage("client-dashboard", "crm-users");
-      return href;
-    }
-  }
+  // async function viewAll(title) {
+  //   if (title === "Persons") {
+  //     let href = await call.getPage("client-dashboard", "crm-person");
+  //     globalThis.location.href = href;
+  //     return;
+  //   } else if (title === "Products & Services") {
+  //     let href = await call.getPage("client-dashboard", "crm-product-service");
+  //     globalThis.location.href = href;
+  //     return;
+  //   } else if (title === "Users") {
+  //     let href = await call.getPage("client-dashboard", "crm-users");
+  //     globalThis.location.href = href;
+  //     return;
+  //   }
+  // }
 
   async function getPerson() {
     let token = sessionStorage.getItem("token");
@@ -573,7 +576,8 @@ All Rights Reserved
         <div class="flex flex-col">
           <div class="flex justify-between">
             <Typography preset="Text lg/Semibold" color="primary" text={$_(tabDatas.selected)} />
-            <Button href={viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button>
+            <div></div>
+            <!-- <Button on:click={viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button> -->
           </div>
           <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 

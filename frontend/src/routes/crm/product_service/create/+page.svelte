@@ -119,7 +119,6 @@ All Rights Reserved
         if (response.status === 200) {
           if (resources.length > 0) {
             for (let i = 0; i < resources.length; i++) {
-              console.log(resources[i]);
               let response2 = await call.call("client-dashboard", "create-resource", {
                 URLQuery: {},
                 URLParams: {},
@@ -127,7 +126,7 @@ All Rights Reserved
                   resource_name: resources[i].resource_name,
                   // image: resources[i].image !== null ? resources[i].image : null,
                   description: resources[i].description,
-                  resource_type: resources[i].resource_type,
+                  // resource_type: resources[i].resource_type,
                   is_active: resources[i].is_active === true ? "Yes" : "No",
                   product: response.result.data.id,
                 },
@@ -140,14 +139,9 @@ All Rights Reserved
                 console.log(response2);
                 return;
               }
-
-              if (response2.status === 200) {
-                await call.goToPage("client-dashboard", "crm-product-service");
-                return;
-              }
             }
           }
-          await call.goToPage("client-dashboard", "crm-product-service");
+          // await call.goToPage("client-dashboard", "crm-product-service");
           return;
         } else {
           console.log(response);
@@ -315,20 +309,20 @@ All Rights Reserved
                 <div class="flex flex-col col-span-5 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("product_name")}</P
+                    >{$_("name")}</P
                   >
                   <Input
                     readonly={!onEdit}
-                    bind:value={resource.product_name}
+                    bind:value={resource.resource_name}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
-                  <P
+                  <!-- <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("image")}</P
-                  >
-                  <Button
+                  > -->
+                  <!-- <Button
                     onclick={handleImageUploadWrapper(index)}
                     color="light"
                     class="w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark flex-col justify-start items-center gap-1 flex py-8"
@@ -351,7 +345,7 @@ All Rights Reserved
                       </div>
                       <P>SVG, PNG, JPG, or GIF (max. 800x400px)</P>
                     {/if}
-                  </Button>
+                  </Button> -->
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
                   <P
