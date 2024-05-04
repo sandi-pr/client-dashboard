@@ -1,8 +1,14 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { format, startOfWeek, endOfWeek } from "date-fns";
-  import { P, Button, Heading, Input, Checkbox } from "flowbite-svelte";
-  import { ClockOutline, ChevronLeftOutline, ChevronRightOutline } from "flowbite-svelte-icons";
+  import { P, Button, Heading, Input, Modal, Label, Checkbox } from "flowbite-svelte";
+  import {
+    ClockOutline,
+    ChevronLeftOutline,
+    ChevronRightOutline,
+    PlusOutline,
+  } from "flowbite-svelte-icons";
+  import DatePicker from "$lib/components/DatePicker.svelte";
   import { TabBar } from "$lib";
   // import InlineCalendar from "$lib/components/InlineCalendar/InlineCalendar.svelte";
   import Divider from "$lib/components/Divider.svelte";
@@ -15,6 +21,7 @@
   let selectedDay = new Date();
   // let workHourChecked = false;
   let weekendChecked = false;
+  let modal = false;
   let observer;
 
   let tabDatas = {
@@ -60,6 +67,12 @@
         timeEnd: format(new Date(), "kk:mm"),
       },
     ],
+  };
+
+  let scheduleInput = {
+    title: "",
+    dateStart: new Date(),
+    dateEnd: new Date(),
   };
 
   let dayAvailable = [true, false, true, true, true, false, false];
@@ -243,78 +256,83 @@
     }
   };
 
+  // old logic
+  // const handleCreateNewSchedule = () => {
+  //   // check if the time range is valid
+  //   newSchedule.dateEvent.forEach((date) => {
+  //     if (date.timeStart > date.timeEnd) {
+  //       alert("Invalid time range");
+  //       return;
+  //     }
+  //   });
+
+  //   // console.log(selectedDateFrom, selectedDateTo);
+
+  //   // check if the selectedDateFrom is before or equal to selectedDateTo
+  //   if (selectedDateFrom > selectedDateTo) {
+  //     alert("From date must be before or equal to To date");
+  //     return;
+  //   }
+
+  //   // apply workdate and workhour
+  //   newSchedule.dateEvent.forEach((date, index) => {
+  //     index === 0
+  //       ? (date.date = format(selectedDateFrom, "yyyy-MM-dd"))
+  //       : (date.date = format(selectedDateTo, "yyyy-MM-dd"));
+  //     date.timeStart = newSchedule.dateEvent[0].timeStart;
+  //     date.timeEnd = newSchedule.dateEvent[0].timeEnd;
+  //   });
+
+  //   // generate date from selectedDateFrom to selectedDateTo
+  //   const dateFrom = new Date(selectedDateFrom);
+  //   const dateTo = new Date(selectedDateTo);
+  //   const dateDiff = Math.abs(dateTo - dateFrom);
+  //   const dateDiffDays = Math.ceil(dateDiff / (1000 * 60 * 60 * 24));
+
+  //   for (let i = 1; i < dateDiffDays; i++) {
+  //     const newDate = new Date(dateFrom);
+  //     newDate.setDate(dateFrom.getDate() + i);
+  //     newSchedule.dateEvent.push({
+  //       date: format(newDate, "yyyy-MM-dd"),
+  //       timeStart: newSchedule.dateEvent[0].timeStart,
+  //       timeEnd: newSchedule.dateEvent[0].timeEnd,
+  //     });
+  //   }
+
+  //   // sort the dateEvent array
+  //   newSchedule.dateEvent.sort((a, b) => new Date(a.date) - new Date(b.date));
+  //   console.log(newSchedule);
+
+  //   // remove weekend from dateEvent if weekendChecked is false
+  //   newSchedule.dateEvent = newSchedule.dateEvent.filter((date) => {
+  //     const day = new Date(date.date).getDay();
+  //     return weekendChecked || (day !== 0 && day !== 6);
+  //   });
+  //   console.log(newSchedule);
+
+  //   schedule = [...schedule, newSchedule];
+
+  //   console.log("new schedule backend logic here");
+
+  //   newSchedule = {
+  //     title: "",
+  //     dateEvent: [
+  //       {
+  //         date: format(new Date(), "yyyy-MM-dd"),
+  //         timeStart: format(new Date(), "kk:mm"),
+  //         timeEnd: format(new Date(), "kk:mm"),
+  //       },
+  //       {
+  //         date: format(new Date(), "yyyy-MM-dd"),
+  //         timeStart: format(new Date(), "kk:mm"),
+  //         timeEnd: format(new Date(), "kk:mm"),
+  //       },
+  //     ],
+  //   };
+  // };
+
   const handleCreateNewSchedule = () => {
-    // check if the time range is valid
-    newSchedule.dateEvent.forEach((date) => {
-      if (date.timeStart > date.timeEnd) {
-        alert("Invalid time range");
-        return;
-      }
-    });
-
-    // console.log(selectedDateFrom, selectedDateTo);
-
-    // check if the selectedDateFrom is before or equal to selectedDateTo
-    if (selectedDateFrom > selectedDateTo) {
-      alert("From date must be before or equal to To date");
-      return;
-    }
-
-    // apply workdate and workhour
-    newSchedule.dateEvent.forEach((date, index) => {
-      index === 0
-        ? (date.date = format(selectedDateFrom, "yyyy-MM-dd"))
-        : (date.date = format(selectedDateTo, "yyyy-MM-dd"));
-      date.timeStart = newSchedule.dateEvent[0].timeStart;
-      date.timeEnd = newSchedule.dateEvent[0].timeEnd;
-    });
-
-    // generate date from selectedDateFrom to selectedDateTo
-    const dateFrom = new Date(selectedDateFrom);
-    const dateTo = new Date(selectedDateTo);
-    const dateDiff = Math.abs(dateTo - dateFrom);
-    const dateDiffDays = Math.ceil(dateDiff / (1000 * 60 * 60 * 24));
-
-    for (let i = 1; i < dateDiffDays; i++) {
-      const newDate = new Date(dateFrom);
-      newDate.setDate(dateFrom.getDate() + i);
-      newSchedule.dateEvent.push({
-        date: format(newDate, "yyyy-MM-dd"),
-        timeStart: newSchedule.dateEvent[0].timeStart,
-        timeEnd: newSchedule.dateEvent[0].timeEnd,
-      });
-    }
-
-    // sort the dateEvent array
-    newSchedule.dateEvent.sort((a, b) => new Date(a.date) - new Date(b.date));
-    console.log(newSchedule);
-
-    // remove weekend from dateEvent if weekendChecked is false
-    newSchedule.dateEvent = newSchedule.dateEvent.filter((date) => {
-      const day = new Date(date.date).getDay();
-      return weekendChecked || (day !== 0 && day !== 6);
-    });
-    console.log(newSchedule);
-
-    schedule = [...schedule, newSchedule];
-
-    console.log("new schedule backend logic here");
-
-    newSchedule = {
-      title: "",
-      dateEvent: [
-        {
-          date: format(new Date(), "yyyy-MM-dd"),
-          timeStart: format(new Date(), "kk:mm"),
-          timeEnd: format(new Date(), "kk:mm"),
-        },
-        {
-          date: format(new Date(), "yyyy-MM-dd"),
-          timeStart: format(new Date(), "kk:mm"),
-          timeEnd: format(new Date(), "kk:mm"),
-        },
-      ],
-    };
+    console.log(scheduleInput);
   };
 
   const checkTimeFormat = (evt, time) => {
@@ -480,9 +498,17 @@
 </script>
 
 <div class="m-4">
-  <Heading tag="h3" class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50">
-    Calendar
-  </Heading>
+  <div class="flex justify-between items-center">
+    <Heading
+      tag="h3"
+      class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
+    >
+      Calendar
+    </Heading>
+    <Button class="text-nowrap" on:click={() => (modal = true)}
+      ><PlusOutline class="size-6" /> Add new booking</Button
+    >
+  </div>
   <div class="my-8">
     <Divider />
   </div>
@@ -744,3 +770,49 @@
     <P>Loading...</P>
   {/if}
 </div>
+
+<Modal title="Terms of Service" bind:open={modal} outsideclose>
+  <div>
+    <Label class="ml-2">Title</Label>
+    <Input bind:value={scheduleInput.title} />
+  </div>
+  <div>
+    <Label class="ml-2">Date start</Label>
+    <DatePicker
+      bind:value={scheduleInput.dateStart}
+      customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
+    />
+  </div>
+  <div>
+    <Label class="ml-2">Date end</Label>
+    <DatePicker
+      bind:value={scheduleInput.dateEnd}
+      customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
+    />
+  </div>
+
+  <svelte:fragment slot="footer">
+    <Button
+      on:click={() => {
+        handleCreateNewSchedule();
+        modal = false;
+        scheduleInput = {
+          title: "",
+          dateStart: new Date(),
+          dateEnd: new Date(),
+        };
+      }}>Create</Button
+    >
+    <Button
+      color="alternative"
+      on:click={() => {
+        modal = false;
+        scheduleInput = {
+          title: "",
+          dateStart: new Date(),
+          dateEnd: new Date(),
+        };
+      }}>Cancel</Button
+    >
+  </svelte:fragment>
+</Modal>
