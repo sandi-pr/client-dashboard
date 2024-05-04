@@ -1,3 +1,13 @@
+<!--
+  Copyright (C) 2024 - Hexacode TI
+  All Rights Reserved.
+
+  Author(s):
+  * Taqie Fadlillah <taqief@hexacode.org>
+
+  This file is part of the "Crossroads" project.
+-->
+
 <script>
   import { onMount, onDestroy } from "svelte";
   import { format, startOfWeek, endOfWeek } from "date-fns";
@@ -15,12 +25,12 @@
 
   let currentTheme = "";
   let currentDate = new Date(); // Current date
-  let currentCalendarMode = "day"; // Current calendar mode
-  let selectedDateFrom = new Date();
-  let selectedDateTo = new Date();
+  let currentCalendarMode = "month"; // Current calendar mode
+  // let selectedDateFrom = new Date();
+  // let selectedDateTo = new Date();
   let selectedDay = new Date();
   // let workHourChecked = false;
-  let weekendChecked = false;
+  // let weekendChecked = false;
   let modal = false;
   let observer;
 
@@ -256,81 +266,6 @@
     }
   };
 
-  // old logic
-  // const handleCreateNewSchedule = () => {
-  //   // check if the time range is valid
-  //   newSchedule.dateEvent.forEach((date) => {
-  //     if (date.timeStart > date.timeEnd) {
-  //       alert("Invalid time range");
-  //       return;
-  //     }
-  //   });
-
-  //   // console.log(selectedDateFrom, selectedDateTo);
-
-  //   // check if the selectedDateFrom is before or equal to selectedDateTo
-  //   if (selectedDateFrom > selectedDateTo) {
-  //     alert("From date must be before or equal to To date");
-  //     return;
-  //   }
-
-  //   // apply workdate and workhour
-  //   newSchedule.dateEvent.forEach((date, index) => {
-  //     index === 0
-  //       ? (date.date = format(selectedDateFrom, "yyyy-MM-dd"))
-  //       : (date.date = format(selectedDateTo, "yyyy-MM-dd"));
-  //     date.timeStart = newSchedule.dateEvent[0].timeStart;
-  //     date.timeEnd = newSchedule.dateEvent[0].timeEnd;
-  //   });
-
-  //   // generate date from selectedDateFrom to selectedDateTo
-  //   const dateFrom = new Date(selectedDateFrom);
-  //   const dateTo = new Date(selectedDateTo);
-  //   const dateDiff = Math.abs(dateTo - dateFrom);
-  //   const dateDiffDays = Math.ceil(dateDiff / (1000 * 60 * 60 * 24));
-
-  //   for (let i = 1; i < dateDiffDays; i++) {
-  //     const newDate = new Date(dateFrom);
-  //     newDate.setDate(dateFrom.getDate() + i);
-  //     newSchedule.dateEvent.push({
-  //       date: format(newDate, "yyyy-MM-dd"),
-  //       timeStart: newSchedule.dateEvent[0].timeStart,
-  //       timeEnd: newSchedule.dateEvent[0].timeEnd,
-  //     });
-  //   }
-
-  //   // sort the dateEvent array
-  //   newSchedule.dateEvent.sort((a, b) => new Date(a.date) - new Date(b.date));
-  //   console.log(newSchedule);
-
-  //   // remove weekend from dateEvent if weekendChecked is false
-  //   newSchedule.dateEvent = newSchedule.dateEvent.filter((date) => {
-  //     const day = new Date(date.date).getDay();
-  //     return weekendChecked || (day !== 0 && day !== 6);
-  //   });
-  //   console.log(newSchedule);
-
-  //   schedule = [...schedule, newSchedule];
-
-  //   console.log("new schedule backend logic here");
-
-  //   newSchedule = {
-  //     title: "",
-  //     dateEvent: [
-  //       {
-  //         date: format(new Date(), "yyyy-MM-dd"),
-  //         timeStart: format(new Date(), "kk:mm"),
-  //         timeEnd: format(new Date(), "kk:mm"),
-  //       },
-  //       {
-  //         date: format(new Date(), "yyyy-MM-dd"),
-  //         timeStart: format(new Date(), "kk:mm"),
-  //         timeEnd: format(new Date(), "kk:mm"),
-  //       },
-  //     ],
-  //   };
-  // };
-
   const handleCreateNewSchedule = () => {
     console.log(scheduleInput);
   };
@@ -465,17 +400,6 @@
   const handleSaveConfig = () => {
     console.log("save config backend logic here");
   };
-
-  // onMount(() => {
-  //   const intervalId = setInterval(() => {
-  //     const isDark = document.documentElement.classList.value.includes("dark");
-  //     currentTheme = isDark ? "dark" : "light";
-  //   }, 100);
-
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // });
 
   onMount(() => {
     observer = new MutationObserver((mutations) => {
