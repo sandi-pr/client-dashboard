@@ -4,15 +4,16 @@
   import { P, Button, Heading, Input, Checkbox } from "flowbite-svelte";
   import { ClockOutline, ChevronLeftOutline, ChevronRightOutline } from "flowbite-svelte-icons";
   import { TabBar } from "$lib";
-  import InlineCalendar from "$lib/components/InlineCalendar/InlineCalendar.svelte";
+  // import InlineCalendar from "$lib/components/InlineCalendar/InlineCalendar.svelte";
   import Divider from "$lib/components/Divider.svelte";
 
   let currentTheme = "";
   let currentDate = new Date(); // Current date
-  let currentCalendarMode = "week"; // Current calendar mode
+  let currentCalendarMode = "day"; // Current calendar mode
   let selectedDateFrom = new Date();
   let selectedDateTo = new Date();
-  let workHourChecked = false;
+  let selectedDay = new Date();
+  // let workHourChecked = false;
   let weekendChecked = false;
   let observer;
 
@@ -39,7 +40,7 @@
     {
       title: "test 2",
       dateEvent: [
-        { date: "2024-05-01", timeStart: "10:00", timeEnd: "12:00" },
+        { date: "2024-05-05", timeStart: "10:00", timeEnd: "12:00" },
         { date: "2024-05-10", timeStart: "10:00", timeEnd: "12:00" },
       ],
     },
@@ -134,6 +135,7 @@
           .filter((dateEvent) => new Date(dateEvent.date).getDate() === dateOfWeek)
           .map((dateEvent) => ({
             title: event.title,
+            date: dateEvent.date,
             timeStart: dateEvent.timeStart,
             timeEnd: dateEvent.timeEnd,
           }))
@@ -162,12 +164,6 @@
     return hoursOfDay;
   }
 
-  function handleClickHour(date, hour) {
-    console.log("Clicked date:", date);
-    console.log("Clicked hour:", hour);
-    // Add your logic here to handle the click event
-  }
-
   function getEventsForDate(date) {
     let formattedDate = date.toISOString().split("T")[0]; // Get YYYY-MM-DD format
     let events = [];
@@ -187,14 +183,23 @@
     return events;
   }
 
+  function handleClickHourInDate(date, hour) {
+    console.log("Clicked date:", date);
+    console.log("Clicked hour:", hour);
+    // Add your logic here to handle the click event
+  }
+
+  function handleClickHourInDay(curretDay, hour) {
+    console.log(curretDay, hour);
+    console.log("date clicked backend logic here");
+  }
+
   const handleClickDate = (date) => {
     console.log(date);
     console.log("date clicked backend logic here");
   };
 
   const handleChangeDate = (direction) => {
-    console.log(currentCalendarMode);
-    console.log(direction);
     if (currentCalendarMode === "month") {
       if (direction === "previous") {
         currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1);
@@ -221,6 +226,20 @@
 
       // Update the daysInWeek array based on the new currentDate
       daysInWeek = getDaysOfWeek(new Date(currentDate));
+    } else if (currentCalendarMode === "day") {
+      if (direction === "previous") {
+        currentDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate() - 1
+        );
+      } else if (direction === "next") {
+        currentDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate() + 1
+        );
+      }
     }
   };
 
@@ -557,7 +576,9 @@
                 <!-- Scrollable Grid Container -->
                 <div class="overflow-y-auto max-h-[60vh]">
                   <!-- Sticky Header -->
-                  <div class="grid sticky top-0 z-10 grid-cols-8 grid-rows-1">
+                  <div
+                    class="grid sticky top-0 z-10 grid-cols-8 grid-rows-1 bg-primary-light dark:bg-primary-dark"
+                  >
                     <div class="border border-secondary-light dark:border-secondary-dark"></div>
                     <!-- Placeholder for the top-left corner -->
                     {#each daysInWeek as day}
@@ -579,7 +600,7 @@
                       >
                       {#each daysInWeek as _day}
                         <button
-                          on:click={() => handleClickHour(_day, hour)}
+                          on:click={() => handleClickHourInDate(_day, hour)}
                           class="grid-item min-h-40 flex flex-col items-center border border-secondary-light dark:border-secondary-dark"
                         >
                           {#if _day.events.length > 0}
@@ -598,7 +619,53 @@
                 </div>
               </div>
             {:else if currentCalendarMode === "day"}
-              <P>not yet</P>
+              <div class="container mx-auto">
+                <!-- Scrollable Grid Container -->
+                <div class="overflow-y-auto max-h-[60vh]">
+                  <!-- Sticky Header -->
+                  <div
+                    class="grid sticky top-0 z-10 grid-cols-2 grid-rows-1 bg-primary-light dark:bg-primary-dark"
+                  >
+                    <!-- Placeholder for the top-left corner -->
+                    <div class="border border-secondary-light dark:border-secondary-dark"></div>
+                    <P
+                      class="grid-item day-header text-center p-2 min-h-24 text-sm border border-secondary-light dark:border-secondary-dark"
+                    >
+                      {currentDate.toLocaleDateString("en-US", { weekday: "long" })}<br />
+                      <span class="text-3xl font-normal">{currentDate.getDate()}</span>
+                    </P>
+                  </div>
+
+                  <!-- Calendar Grid -->
+                  <div class="grid grid-cols-2 grid-rows-25">
+                    {#each getHoursOfDay() as hour}
+                      <P
+                        class="grid-item hour-header text-center min-h-40 border border-secondary-light dark:border-secondary-dark pt-4"
+                      >
+                        {hour}:00
+                      </P>
+                      <button
+                        on:click={() => handleClickHourInDay(currentDate, hour)}
+                        class="grid-item hour-header border border-secondary-light dark:border-secondary-dark p-2 px-4 flex"
+                      >
+                        {#each daysInWeek as _day}
+                          {#if _day.events.length > 0}
+                            {#each _day.events as event}
+                              {#if selectedDay.getDate() === new Date(event.date).getDate()}
+                                {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
+                                  <div class="rounded-md w-full bg-brand-solid-hover-light mx-auto">
+                                    <P class="my-1 mx-2 text-primary-dark">{event.title}</P>
+                                  </div>
+                                {/if}
+                              {/if}
+                            {/each}
+                          {/if}
+                        {/each}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
+              </div>
             {/if}
           </div>
         </div>
