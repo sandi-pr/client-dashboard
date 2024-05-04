@@ -69,6 +69,11 @@ All Rights Reserved
     }
   }
 
+  async function backPage() {
+    await call.goToPage("client-dashboard", "crm-person");
+    return;
+  }
+
   $effect(() => {
     buttonDisable =
       data.fullname.length < 1 ||
@@ -100,12 +105,8 @@ All Rights Reserved
           </div>
         </div>
         <div class="flex gap-2">
-          <Button
-            color="light"
-            class="px-3 focus-within:!ring-1"
-            onclick={() => {
-              console.log(data);
-            }}>{$_("cancel")}</Button
+          <Button color="light" class="px-3 focus-within:!ring-1" onclick={backPage}
+            >{$_("cancel")}</Button
           >
           <Button
             disabled={buttonDisable}

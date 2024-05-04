@@ -33,6 +33,7 @@ All Rights Reserved
     createdAt: "",
     authority: "",
     is_active: false,
+    company: 0,
   });
 
   async function getUser() {
@@ -54,20 +55,16 @@ All Rights Reserved
 
       console.log("ayam", response);
 
-      if (response.result.data.length > 0) {
-        data = {
-          userId: response.result.data[0].id,
-          fullname:
-            response.result.data[0].attributes.fullname !== null
-              ? response.result.data[0].attributes.fullname
-              : "",
-          username: response.result.data[0].attributes.username,
-          email: response.result.data[0].attributes.email,
-          createdAt: response.result.data[0].attributes.createdAt,
-          authority: response.result.data[0].attributes.authority === "admin" ? "Admin" : "User",
-          is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
-        };
-      }
+      data = {
+        userId: response.result.id,
+        fullname: response.result.fullname !== null ? response.result.fullname : "",
+        username: response.result.username,
+        email: response.result.email,
+        createdAt: response.result.createdAt,
+        authority: response.result.authority === "Admin" ? "Admin" : "User",
+        is_active: !response.result.Blocked,
+        company: response.result.company,
+      };
     } catch (error) {
       console.log(error);
     }
@@ -75,29 +72,51 @@ All Rights Reserved
 
   async function updateUser() {
     let token = sessionStorage.getItem("token");
+    console.log("send", data);
     try {
-      let response = await call.call("client-dashboard", "update-user", {
-        URLQuery: {},
-        URLParams: { id: userId },
-        Params: {
-          // fullname: data.fullname,
-          username: data.username,
-          password: data.password,
-          email: data.email,
-          // authority: data.authority === "Admin" ? "admin" : "user",
-          // is_active: data.is_active ? "Yes" : "No",
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      let response;
+      if (data.password === "") {
+        response = await call.call("client-dashboard", "update-user", {
+          URLQuery: {},
+          URLParams: { id: userId },
+          Params: {
+            fullname: data.fullname,
+            username: data.username,
+            email: data.email,
+            company: data.company,
+            blocked: !data.is_active,
+            // authority: data.authority === "Admin" ? "admin" : "user",
+            // is_active: data.is_active ? "Yes" : "No",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+      } else {
+        response = await call.call("client-dashboard", "update-user", {
+          URLQuery: {},
+          URLParams: { id: userId },
+          Params: {
+            fullname: data.fullname,
+            username: data.username,
+            password: data.password,
+            email: data.email,
+            company: data.company,
+            blocked: !data.is_active,
+            // authority: data.authority === "Admin" ? "admin" : "user",
+            // is_active: data.is_active ? "Yes" : "No",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+      }
 
       if (response.status !== 200) {
         console.log(response);
         return;
       }
 
-      console.log("ayam", response);
       await call.goToPage("client-dashboard", "crm-users");
     } catch (error) {
       console.log(error);

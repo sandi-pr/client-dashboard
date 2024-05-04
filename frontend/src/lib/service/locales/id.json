@@ -157,5 +157,12 @@
     "typeName": "Tipe",
     "resourceTypeId": "ID Tipe",
     "resources": "Sumber Daya",
-    "categoryName": "Nama Kategori"
+    "categoryName": "Nama Kategori",
+    "welcometoHexapod": "Selamat Datang di Hexapod!",
+    "home": "Beranda",
+    "overview": "Ringkasan",
+    "product&Services": "Produk & Layanan",
+    "users": "Pengguna",
+    "calendar": "Kalender",
+    "categories": "Kategori"
 }

@@ -33,17 +33,7 @@ All Rights Reserved
 
   let data = $state({});
 
-  let resources = $state([
-    {
-      id: 1,
-      resource_name: "Worker #1",
-      image: "",
-      product_description: "Worker number one",
-      resource_type_name: "Worker",
-      resource_type_id: "2444298948",
-      resource_type_active: true,
-    },
-  ]);
+  let resources = $state([]);
 
   let tabDatas = $state({
     selected: "Information",
@@ -65,7 +55,7 @@ All Rights Reserved
       id: Date.now(),
       resource_name: "Worker #" + (index += 1),
       image: "",
-      product_description: "",
+      description: "",
       resource_type_name: "",
       resource_type_id: "",
       resource_type_active: false,
@@ -136,16 +126,35 @@ All Rights Reserved
         return;
       }
 
-      if (response.status === 200) {
+      console.log("ayam", response);
+
+      if (response.status === 200 && response.result.data.length > 0) {
         data = {
-          productId: response.result.data.id,
-          product_name: response.result.data.attributes.product_name,
-          createdAt: formatDate(response.result.data.attributes.createdAt),
-          product_description: response.result.data.attributes.product_description,
-          price: response.result.data.attributes.price,
-          // category: response.result.data.attributes.category,
-          is_active: response.result.data.attributes.is_active === "Yes" ? true : false,
+          productId: response.result.data[0].id,
+          product_name: response.result.data[0].attributes.product_name,
+          createdAt: formatDate(response.result.data[0].attributes.createdAt),
+          description: response.result.data[0].attributes.description,
+          price: response.result.data[0].attributes.price,
+          // category: response.result.data[0].attributes.category,
+          is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
         };
+
+        if (response.result.data[0].attributes.resources.data.length > 0) {
+          let promise = response.result.data[0].attributes.resources.data.map(
+            async (resource, index) => {
+              return {
+                id: resource.id,
+                resource_name: resource.attributes.resource_name,
+                image: "",
+                description: resource.attributes.description,
+                resource_type_name: "",
+                resource_type_id: "",
+                is_active: resource.attributes.is_active === "Yes" ? true : false,
+              };
+            },
+          );
+          resources = await Promise.all(promise);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -162,7 +171,7 @@ All Rights Reserved
           URLParams: { id: productId },
           Params: {
             product_name: data.product_name,
-            product_description: data.product_description,
+            description: data.description,
             price: data.price,
             is_active: data.is_active ? "Yes" : "No",
           },
@@ -171,7 +180,7 @@ All Rights Reserved
           },
         });
       } else if (tabDatas.selected === "Resource") {
-        response = await call.call("client-dashboard", "update-product", {
+        response = await call.call("client-dashboard", "update-resource", {
           URLQuery: {},
           URLParams: { id: productId },
           Params: {
@@ -332,7 +341,7 @@ All Rights Reserved
                   >
                   <Textarea
                     readonly={!onEdit}
-                    bind:value={data.product_description}
+                    bind:value={data.description}
                     rows="4"
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
@@ -396,18 +405,14 @@ All Rights Reserved
               <div class="grid grid-cols-5 gap-5 border rounded-lg p-4">
                 <div class="flex items-center col-span-5 gap-2">
                   <div class="flex items-center w-full justify-between gap-2">
-                    <Typography
-                      preset="Text md/Semibold"
-                      text={resource.resource_name}
-                      color="secondary"
-                    />
+                    <div></div>
                     <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
                       >{$_("delete")}</Button
                     >
                   </div>
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
-                  <P
+                  <!-- <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("image")}</P
                   >
@@ -434,7 +439,18 @@ All Rights Reserved
                       </div>
                       <P>SVG, PNG, JPG, or GIF (max. 800x400px)</P>
                     {/if}
-                  </Button>
+                  </Button> -->
+                </div>
+                <div class="flex flex-col col-span-5 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("name")}</P
+                  >
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={resource.resource_name}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
                   <P
@@ -443,7 +459,7 @@ All Rights Reserved
                   >
                   <Input
                     readonly={!onEdit}
-                    bind:value={resource.product_description}
+                    bind:value={resource.description}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                 </div>
@@ -474,7 +490,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle bind:checked={resource.resource_type_active}></Toggle>
+                  <Toggle bind:checked={resource.is_active}></Toggle>
                 </div>
               </div>
             {/each}

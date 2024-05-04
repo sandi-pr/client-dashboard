@@ -107,55 +107,62 @@
         ...dataConversatonLogs,
         { role: "user", message: messageInput.trim() },
       ];
-      try {
-        let conversationId = await call.call("hexa-ai", "create-conversation", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
 
-        if (conversationId.status === 200) {
-          let chat = await call.call("hexa-ai", "chat", {
+      let newMessage = messageInput.trim();
+
+      messageInput = "";
+
+      let conversationId = localStorage.getItem("conversationId");
+
+      if (!conversationId) {
+        try {
+          let createConversationResponse = await call.call("hexa-ai", "create-conversation", {
             URLQuery: {},
-            URLParams: {
-              conversation_id: conversationId.result.conversation_id,
-            },
-            Params: {
-              message: messageInput.trim(),
-            },
+            URLParams: {},
+            Params: {},
             Headers: {
               Authorization: "Bearer " + token,
             },
           });
 
-          console.log("merpati", chat);
-
-          if (chat.status === 0) {
-            dataConversatonLogs = [
-              ...dataConversatonLogs,
-              { role: chat.result.message.role, message: chat.result.message.message },
-            ];
-
-            disableInput = false;
+          if (createConversationResponse.status === 200) {
+            conversationId = createConversationResponse.result.conversation_id;
+            localStorage.setItem("conversationId", conversationId);
           } else {
-            disableInput = false;
+            console.log(createConversationResponse);
           }
-        } else {
-          console.log(conversationId);
-
-          disableInput = false;
+        } catch (error) {
+          console.log(error);
         }
-        // Message(chatId, messageInput.trim());
-        messageInput = "";
-        disableInput = false;
+      }
+
+      try {
+        let chat = await call.call("hexa-ai", "chat", {
+          URLQuery: {},
+          URLParams: {
+            conversation_id: conversationId,
+          },
+          Params: {
+            message: newMessage,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("merpati", chat);
+
+        if (chat.status === 200) {
+          dataConversatonLogs = [
+            ...dataConversatonLogs,
+            { role: chat.result.message.role, message: chat.result.message.message },
+          ];
+        }
       } catch (error) {
         console.log(error);
-
-        disableInput = false;
       }
+
+      disableInput = false;
     }
   }
 
@@ -169,8 +176,8 @@
   });
 </script>
 
-<div class="relative h-full bg-primary-light dark:bg-primary-dark">
-  <div class="flex flex-col px-4 pt-6">
+<div class="relative h-screen overflow-auto bg-primary-light dark:bg-primary-dark">
+  <div class="flex flex-col px-4 pt-6 pb-24">
     <div class="flex flex-col gap-4">
       <!-- <P
         size="xl"
@@ -206,7 +213,7 @@
       {/each}
     </div>
   </div>
-  <div class="absolute w-full bottom-4">
+  <div class="fixed bottom-4">
     <form on:submit|preventDefault={sendMessage} class="px-4 [&>div>div]:!pe-4">
       <Input
         bind:disable={disableInput}

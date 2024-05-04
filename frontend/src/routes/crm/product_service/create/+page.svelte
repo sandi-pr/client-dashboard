@@ -31,22 +31,12 @@ All Rights Reserved
 
   let data = $state({
     product_name: "",
-    product_description: "",
+    description: "",
     price: "",
     is_active: "Yes",
   });
 
-  let resources = $state([
-    {
-      resource_name: "Worker/Product #1",
-      image: null,
-      product_description: "",
-      resource_type: "",
-      resource_type_id: "",
-      is_active: false,
-      id: Date.now(),
-    },
-  ]);
+  let resources = $state([]);
 
   let tabDatas = $state({
     selected: "Information",
@@ -66,12 +56,12 @@ All Rights Reserved
     const newResource = {
       // dummy id
       id: Date.now(),
-      resource_name: "Worker/Product #" + (index += 1),
+      resource_name: "",
       image: "",
-      product_description: "",
+      description: "",
       resource_type: "",
       resource_type_id: "",
-      is_active: false,
+      is_active: true,
     };
     resources = [...resources, newResource];
   }
@@ -115,7 +105,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             product_name: data.product_name,
-            product_description: data.product_description,
+            description: data.description,
             price: data.price,
             is_active: data.is_active,
           },
@@ -129,29 +119,16 @@ All Rights Reserved
         if (response.status === 200) {
           if (resources.length > 0) {
             for (let i = 0; i < resources.length; i++) {
-              if (
-                resources[i].resource_name !== "" &&
-                resources[i].resource_type !== "" &&
-                resources[i].product_description !== "" &&
-                resources[i].is_active !== ""
-              ) {
-                continue;
-              } else {
-                await call.goToPage("client-dashboard", "crm-product-service");
-                return;
-              }
-            }
-            for (let i = 0; i < resources.length; i++) {
-              let response2 = await call.call("client-dashboard", "create-product-resource", {
+              let response2 = await call.call("client-dashboard", "create-resource", {
                 URLQuery: {},
                 URLParams: {},
                 Params: {
                   resource_name: resources[i].resource_name,
-                  image: resources[i].image !== null ? resources[i].image : null,
-                  product_description: resources[i].product_description,
+                  // image: resources[i].image !== null ? resources[i].image : null,
+                  description: resources[i].description,
                   // resource_type: resources[i].resource_type,
                   is_active: resources[i].is_active === true ? "Yes" : "No",
-                  product: response.data.id,
+                  product: response.result.data.id,
                 },
                 Headers: {
                   Authorization: "Bearer " + token,
@@ -162,13 +139,10 @@ All Rights Reserved
                 console.log(response2);
                 return;
               }
-
-              if (response2.status === 200) {
-                await call.goToPage("client-dashboard", "crm-product-service");
-                return;
-              }
             }
           }
+          // await call.goToPage("client-dashboard", "crm-product-service");
+          return;
         } else {
           console.log(response);
           return;
@@ -184,7 +158,7 @@ All Rights Reserved
   $effect(() => {
     if (
       data.product_name !== "" &&
-      data.product_description !== "" &&
+      data.description !== "" &&
       data.price !== "" &&
       data.is_active !== ""
     ) {
@@ -257,11 +231,11 @@ All Rights Reserved
                 <div class="flex flex-col gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("description")}</P
+                    >{$_("product_description")}</P
                   >
                   <Textarea
                     readonly={!onEdit}
-                    bind:value={data.product_description}
+                    bind:value={data.description}
                     rows="4"
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
@@ -285,6 +259,7 @@ All Rights Reserved
                     >{$_("pricing")}</P
                   >
                   <Input
+                    type="number"
                     readonly={!onEdit}
                     bind:value={data.price}
                     class="bg-primary-light dark:bg-secondary-dark"
@@ -325,11 +300,7 @@ All Rights Reserved
               <div class="grid grid-cols-5 gap-5 border rounded-lg p-4">
                 <div class="flex items-center col-span-5 gap-2">
                   <div class="flex items-center w-full justify-between gap-2">
-                    <Typography
-                      preset="Text md/Semibold"
-                      text={resource.resource_name}
-                      color="secondary"
-                    />
+                    <div></div>
                     <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
                       >{$_("delete")}</Button
                     >
@@ -338,10 +309,21 @@ All Rights Reserved
                 <div class="flex flex-col col-span-5 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("image")}</P
+                    >{$_("name")}</P
                   >
-                  <Button
-                    on:click={handleImageUploadWrapper(index)}
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={resource.resource_name}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="flex flex-col col-span-5 gap-2">
+                  <!-- <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("image")}</P
+                  > -->
+                  <!-- <Button
+                    onclick={handleImageUploadWrapper(index)}
                     color="light"
                     class="w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark flex-col justify-start items-center gap-1 flex py-8"
                   >
@@ -363,16 +345,16 @@ All Rights Reserved
                       </div>
                       <P>SVG, PNG, JPG, or GIF (max. 800x400px)</P>
                     {/if}
-                  </Button>
+                  </Button> -->
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("product_description")}</P
+                    >{$_("description")}</P
                   >
                   <Input
                     readonly={!onEdit}
-                    bind:value={resource.product_description}
+                    bind:value={resource.description}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                 </div>
@@ -382,6 +364,7 @@ All Rights Reserved
                     >{$_("typeName")}</P
                   >
                   <Input
+                    type="number"
                     readonly={!onEdit}
                     bind:value={resource.resource_type}
                     class="bg-primary-light dark:bg-secondary-dark"

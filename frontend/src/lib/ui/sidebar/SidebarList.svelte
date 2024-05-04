@@ -29,14 +29,14 @@
   import LogoIcon from "$lib/icon/Logomark.svg";
   import { onMount } from "svelte";
   import Me from "$lib/utils/me";
-  // import { _ } from "svelte-i18n";
+  import { _ } from "svelte-i18n";
 
   let {
     getModule,
     toCamelCase,
     name = $bindable(""),
     email = $bindable(""),
-    brand = $bindable(""),
+    brand = $bindable("Hexapod"),
     isHidden = true,
     funcButton,
     logout,
@@ -58,7 +58,7 @@
   };
 
   let sidebarItems = $state([
-    { name: "Home", href: "/client-dashboard", icon: "home", children: [] },
+    { name: $_("home"), href: "/client-dashboard", icon: "home", children: [] },
   ]);
 
   const sidebarBuilder = async () => {
@@ -100,14 +100,14 @@
   >
     <SidebarGroup>
       <div class="flex justify-between items-start">
-        <LogoBrand brandName={site.name} href="/client-dashboard" brandLogo={site.img} />
+        <LogoBrand brandName="Hexapod" href="/client-dashboard" brandLogo={site.img} />
         {#if isHidden}
           <div></div>
         {:else}
           <!-- <CloseButton on:click={funcButton} class="dark:text-white" /> -->
         {/if}
       </div>
-      <Search placeholder="search" class="bg-white dark:bg-primary-dark mb-6" />
+      <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark mb-6" />
       <!-- TODO Search component belom kelar -->
       {#each sidebarItems as item}
         {#if item.children.length > 0}
@@ -150,12 +150,12 @@
     <div>
       <SidebarGroup>
         <!-- <SidebarNavItem href="/admin_setting" {activeUrl} icon="setting" typographyData={{ preset: "Text md/Semibold", text: "Super Admin Setting", color: "secondary" }} /> -->
-        <SidebarNavItem
+        <!-- <SidebarNavItem
           href="/settings"
           {activeUrl}
           icon="setting"
           typographyData={{ preset: "Text md/Semibold", text: "Settings", color: "secondary" }}
-        />
+        /> -->
       </SidebarGroup>
       <SidebarGroup border>
         <div class="flex justify-between">

@@ -26,15 +26,7 @@ All Rights Reserved
 
   let datas = $state([]);
 
-  let configs = {
-    search: true,
-    pagination: {
-      page: 1,
-      pageSize: 25,
-      pageCount: 1,
-      total: 25,
-    },
-  };
+  let configs = $state({});
 
   // function getCategory(category) {
   //   return [
@@ -90,7 +82,7 @@ All Rights Reserved
         console.log("ayam", response.result.data);
         let promises = response.result.data.map(async (product, index) => {
           return {
-            productId: product.id,
+            id: product.id,
             product_name: product.attributes.product_name,
             price: "$" + product.attributes.price + "/hr",
             // category: getCategory(product.category),

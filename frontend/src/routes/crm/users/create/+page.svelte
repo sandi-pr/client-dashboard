@@ -29,6 +29,7 @@ All Rights Reserved
     fullname: "",
     username: "",
     email: "",
+    password: "",
     createdAt: "",
     authority: "",
     is_active: true,
@@ -41,6 +42,35 @@ All Rights Reserved
   async function backPage() {
     await call.goToPage("client-dashboard", "crm-users");
     return;
+  }
+
+  async function createPerson() {
+    console.log(data);
+    let token = sessionStorage.getItem("token");
+    try {
+      let response = await call.call("client-dashboard", "create-user", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          fullname: data.fullname,
+          email: data.email,
+          username: data.username,
+          password: data.password,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      console.log(response);
+      // if (response.status === 200) {
+      await call.goToPage("client-dashboard", "crm-users");
+      return;
+      // } else {
+      //   console.log(response);
+      // }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   onMount(async () => {
@@ -62,14 +92,7 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              {data.fullname}
-              <Button
-                outline
-                color="red"
-                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
-              >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-              </Button>
+              Create New Users
             </Heading>
           </div>
           <P
@@ -83,7 +106,7 @@ All Rights Reserved
             <Button onclick={backPage} color="light" class="px-3 focus-within:!ring-1"
               >{$_("cancel")}</Button
             >
-            <Button onclick={() => {}} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
+            <Button onclick={createPerson} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
           {/if}
         </div>
       </div>
@@ -130,6 +153,19 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.email}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col col-span-4 gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >
+                  {$_("password")}
+                </P>
+                <Input
+                  type="password"
+                  readonly={!onEdit}
+                  bind:value={data.password}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>

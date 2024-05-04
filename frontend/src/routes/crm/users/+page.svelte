@@ -88,16 +88,16 @@ All Rights Reserved
       if (response.result.data.length > 0) {
         configs = {
           search: true,
-          pagination: response.result.meta.pagination,
+          // pagination: response.result.meta.pagination,
         };
         let promises = response.result.data.map(async (user, index) => {
           return {
             id: user.id,
-            fullname: user.attributes.fullname || "No Name",
-            username: user.attributes.username,
-            email: user.attributes.email,
-            authority: getAuthority(user.attributes.authority) || "No Authority",
-            status: user.attributes.is_active === "Yes" ? "Admin" : "User",
+            fullname: user.fullname || "No Name",
+            username: user.username,
+            email: user.email,
+            authority: getAuthority(user.authority) || "No Authority",
+            status: user.is_active === "Yes" ? "Admin" : "User",
             actions: {
               objects: [
                 {

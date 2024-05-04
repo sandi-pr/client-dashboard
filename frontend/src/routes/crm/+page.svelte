@@ -44,13 +44,13 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        // href: await call.getPage("client-dashboard", "crm-person-create"),
+        href: await call.getPage("client-dashboard", "crm-person-create"),
         icon: UserPlusIcon,
         actionName: "Create new persons",
         desc: "desc Create New Person",
       },
       {
-        // href: await call.getPage("client-dashboard", ""),
+        href: await call.getPage("client-dashboard", "crm-product-service-create"),
         icon: PackagePlusIcon,
         actionName: "Create new Product & Services",
         desc: "desc Create New Product & Services",
@@ -60,7 +60,7 @@ All Rights Reserved
         icon: PackageSearchIcon,
         actionName: "Manage Categories",
         desc: "desc Manage Categories",
-      }
+      },
     ];
   }
 
@@ -75,7 +75,7 @@ All Rights Reserved
       },
       {
         name: "Users",
-      }
+      },
     ],
   });
 
@@ -322,8 +322,6 @@ All Rights Reserved
     },
   ];
 
-  let datas = $state([]);
-
   let latestProductServices = $state([
     {
       productId: "19846829",
@@ -346,7 +344,7 @@ All Rights Reserved
           },
         ],
       },
-    }
+    },
   ]);
 
   let latestUsers = $state([
@@ -372,20 +370,24 @@ All Rights Reserved
           },
         ],
       },
-    }
+    },
   ]);
 
-  async function viewAll(title) {
-    if (title === "Persons") {
-      let href = await call.getPage("client-dashboard", "crm-person-list");
-      return href;
-    } else if (title === "Products & Services") {
-      let href = await call.getPage("client-dashboard", "crm-product-service");
-      return href;
-    } else if (title === "Users") {
-      let href = await call.getPage("client-dashboard", "crm-users");
-    }
-  }
+  // async function viewAll(title) {
+  //   if (title === "Persons") {
+  //     let href = await call.getPage("client-dashboard", "crm-person");
+  //     globalThis.location.href = href;
+  //     return;
+  //   } else if (title === "Products & Services") {
+  //     let href = await call.getPage("client-dashboard", "crm-product-service");
+  //     globalThis.location.href = href;
+  //     return;
+  //   } else if (title === "Users") {
+  //     let href = await call.getPage("client-dashboard", "crm-users");
+  //     globalThis.location.href = href;
+  //     return;
+  //   }
+  // }
 
   async function getPerson() {
     let token = sessionStorage.getItem("token");
@@ -450,7 +452,7 @@ All Rights Reserved
   onMount(async () => {
     generateChartData();
     getActionItems();
-    // getPerson();
+    getPerson();
   });
 </script>
 
@@ -477,7 +479,7 @@ All Rights Reserved
               <Card
                 href={item.href}
                 horizontal="true"
-                class="items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
+                class="cursor-pointer items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
                 size="none"
               >
                 <Avatar
@@ -574,12 +576,10 @@ All Rights Reserved
         <div class="flex flex-col">
           <div class="flex justify-between">
             <Typography preset="Text lg/Semibold" color="primary" text={$_(tabDatas.selected)} />
-            <Button href={viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button>
+            <div></div>
+            <!-- <Button on:click={viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button> -->
           </div>
-          <TabDetail
-            {tabDatas}
-            on:tabChange={(e) => (tabDatas.selected = e.detail)}
-          />
+          <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
           {#if tabDatas.selected === "Persons"}
             <!-- Person Table Data -->

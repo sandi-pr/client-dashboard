@@ -15,7 +15,7 @@ All Rights Reserved
   import { Pane, Splitpanes } from "svelte-splitpanes";
   import { Navbar, Sidebar, Typography, TabBar, Card } from "$lib";
   import { onMount } from "svelte";
-  import { locale, waitLocale, isLoading } from "svelte-i18n";
+  import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
 
@@ -37,7 +37,7 @@ All Rights Reserved
     ],
   });
 
-  // const call = new CR3Call(globalThis.location.origin); // for frontend comment this
+  const call = new CR3Call(globalThis.location.origin); // for frontend comment this
 
   const hideLayoutList = [
     "/forgot-password",
@@ -49,11 +49,11 @@ All Rights Reserved
   const hideLayout = () => {
     return !hideLayoutList.some((path) => {
       if (path.endsWith("/*")) {
-        // return globalThis.location.pathname.startsWith(path.slice(0, -1)); // for frontend comment this
-        return window.location.pathname.startsWith(path.slice(0, -1)); // for frontend uncomment this
+        return globalThis.location.pathname.startsWith(path.slice(0, -1)); // for frontend comment this
+        // return window.location.pathname.startsWith(path.slice(0, -1)); // for frontend uncomment this
       } else {
-        // return globalThis.location.pathname === path; // for frontend comment this
-        return window.location.pathname === path; // for frontend uncomment this
+        return globalThis.location.pathname === path; // for frontend comment this
+        // return window.location.pathname === path; // for frontend uncomment this
       }
     });
   };
@@ -93,24 +93,28 @@ All Rights Reserved
         status: "coming soon",
         children: [
           {
-            // href: await call.getPage("client-dashboard", "crm-overview"), // for frontend comment this
-            name: "Overview",
+            href: await call.getPage("client-dashboard", "crm-overview"), // for frontend comment this
+            name: $_("overview"),
           },
           {
-            // href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
-            name: "person",
+            href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
+            name: $_("persons"),
           },
           {
-            // href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
-            name: "Product & Services",
+            href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
+            name: $_("product&Services"),
           },
           {
-            // href: await call.getPage("client-dashboard", "crm-users"), // for frontend comment this
-            name: "Users",
+            href: await call.getPage("client-dashboard", "crm-users"), // for frontend comment this
+            name: $_("users"),
           },
           {
-            // href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
-            name: "Calendar",
+            href: await call.getPage("client-dashboard", "crm-categories"), // for frontend comment this
+            name: $_("categories"),
+          },
+          {
+            href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
+            name: $_("calendar"),
           },
         ],
       },
@@ -128,7 +132,7 @@ All Rights Reserved
     if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
     if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
     try {
-      // await call.goToPage("client-login", "home-page"); // for frontend comment this
+      await call.goToPage("client-login", "home-page"); // for frontend comment this
     } catch (error) {
       console.error(error);
     }
@@ -181,7 +185,7 @@ All Rights Reserved
   }
 
   onMount(() => {
-    // CheckSetup(); // for frontend comment this
+    CheckSetup(); // for frontend comment this
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
