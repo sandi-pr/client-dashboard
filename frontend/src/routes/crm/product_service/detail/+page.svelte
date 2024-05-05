@@ -68,31 +68,35 @@ All Rights Reserved
   }
 
   async function deleteResource(id) {
+    if (!onEdit) return;
     if (onEdit) {
-      if (resourceReady.includes(id)) {
-        try {
-          let token = sessionStorage.getItem("token");
+      console.log(id);
+      try {
+        let token = sessionStorage.getItem("token");
+        let response = await call.call("client-dashboard", "delete-resource", {
+          URLQuery: {},
+          URLParams: { id: id.toString() },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-          if (token !== null) {
-            let response = await call.call("client-dashboard", "delete-resource", {
-              URLQuery: {},
-              URLParams: {
-                id: id,
-              },
-              Params: {},
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-            if (response.status === 200) {
-              resources = resources.filter((resource) => resource.id !== id);
-            }
-          }
-        } catch (error) {
-          console.log(error);
+        if (response.status !== 200) {
+          console.log(response);
+          return;
         }
-      } else {
-        resources = resources.filter((resource) => resource.id !== id);
+
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        resources = resources.filter((resource) => {
+          if (resource.id === id) {
+            return false;
+          }
+          return true;
+        });
       }
     }
   }
@@ -496,7 +500,7 @@ All Rights Reserved
                 <div class="flex items-center col-span-5 gap-2">
                   <div class="flex items-center w-full justify-between gap-2">
                     <div></div>
-                    <Button onclick={deleteResource(resource.id)} color="light" class="w-max"
+                    <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
                       >{$_("delete")}</Button
                     >
                   </div>
