@@ -193,7 +193,7 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("zip_code")}</P
+                  >{$_("zipCode")}</P
                 >
                 <Input bind:value={data.zip_code} class="bg-primary-light dark:bg-secondary-dark" />
               </div>
