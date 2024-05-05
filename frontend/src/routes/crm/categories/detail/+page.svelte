@@ -24,6 +24,23 @@ All Rights Reserved
 
   let data = $state({});
 
+  function formatDate(inputDate) {
+    const date = new Date(inputDate);
+
+    const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
+      .getDate()
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}, ${date
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
+
+    return formattedDate;
+  }
+
   async function getCategory() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
@@ -40,7 +57,7 @@ All Rights Reserved
       console.log("kelinci", response);
       if (response.status === 200) {
         data = {
-          createdAt: response.result.data[0].attributes.createdAt,
+          createdAt: formatDate(response.result.data[0].attributes.createdAt),
           category_name: response.result.data[0].attributes.category_name,
           description: response.result.data[0].attributes.description,
           is_active: response.result.data[0].attributes.is_active,

@@ -508,12 +508,19 @@ func CreateProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	category, ok := ctx.Params.GetFloat64("category")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
 	resp := U.Dict{}
 	status, resp, err = Strapi.Create("product-table", U.Dict{
-		"product_name": product_name,
-		"description":  description,
-		"price":        price,
-		"is_active":    is_active,
+		"product_name":     product_name,
+		"description":      description,
+		"price":            price,
+		"is_active":        is_active,
+		"category_product": category,
 	})
 
 	if err != nil {
@@ -846,7 +853,8 @@ func UpdateResource(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, _, err = Strapi.Update("resource-table", int64(id), U.Dict{
+	data := U.Dict{}
+	status, data, err = Strapi.Update("resource-table", int64(id), U.Dict{
 		"resource_name": resource_name,
 		"description":   description,
 		"is_active":     is_active,
@@ -858,6 +866,7 @@ func UpdateResource(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	}
 
 	if status != 200 {
+		fmt.Println(data)
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}

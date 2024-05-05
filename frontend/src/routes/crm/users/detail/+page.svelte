@@ -36,6 +36,23 @@ All Rights Reserved
     company: 0,
   });
 
+  function formatDate(inputDate) {
+    const date = new Date(inputDate);
+
+    const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
+      .getDate()
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}, ${date
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
+
+    return formattedDate;
+  }
+
   async function getUser() {
     let token = sessionStorage.getItem("token");
     try {
@@ -60,7 +77,7 @@ All Rights Reserved
         fullname: response.result.fullname !== null ? response.result.fullname : "",
         username: response.result.username,
         email: response.result.email,
-        createdAt: response.result.createdAt,
+        createdAt: formatDate(response.result.createdAt),
         authority: response.result.authority === "Admin" ? "Admin" : "User",
         is_active: !response.result.Blocked,
         company: response.result.company,
@@ -263,13 +280,13 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col gap-2">
+              <!-- <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
                   {$_("authority")}
-                </P>
-                <div class="my-auto">
+                </P> -->
+              <!-- <div class="my-auto">
                   <Button
                     color="light"
                     class="py-[9px] px-3"
@@ -312,11 +329,11 @@ All Rights Reserved
                       </button>
                     </ul>
                   </div>
-                </div>
-                <!-- <div class="my-auto">
+                </div> -->
+              <!-- <div class="my-auto">
                     <Badge text={data.authority} />
                   </div> -->
-              </div>
+              <!-- </div> -->
               <div class="flex flex-col gap-2 w-max">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"

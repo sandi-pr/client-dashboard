@@ -95,11 +95,6 @@ All Rights Reserved
               Create New Users
             </Heading>
           </div>
-          <P
-            class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-          >
-            {$_("createOn")}{` ${data.createdAt}`}
-          </P>
         </div>
         <div class="flex gap-2">
           {#if onEdit}
@@ -144,7 +139,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-4 gap-2">
+              <div class="flex flex-col col-span-3 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -156,7 +151,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-4 gap-2">
+              <div class="flex flex-col col-span-3 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -169,7 +164,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col gap-2">
+              <!-- <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -219,10 +214,10 @@ All Rights Reserved
                     </ul>
                   </div>
                 </div>
-                <!-- <div class="my-auto">
+                 <div class="my-auto">
                     <Badge text={data.authority} />
-                  </div> -->
-              </div>
+                  </div> 
+              </div> -->
               <div class="flex flex-col gap-2 w-max">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"

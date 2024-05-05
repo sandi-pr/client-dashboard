@@ -28,8 +28,10 @@ All Rights Reserved
   let uploadedImage = $state(null);
   let uploadedImageName = $state(null);
   let fileImage = $state(null);
+  let resourceReady = $state([]);
 
   let ischecked = $state(false);
+  let categories = $state([]);
 
   let data = $state({});
 
@@ -50,21 +52,49 @@ All Rights Reserved
   let index = $state(resources.length);
 
   function addResource() {
-    const newResource = {
-      // dummy id
-      id: Date.now(),
-      resource_name: "Worker #" + (index += 1),
-      image: "",
-      description: "",
-      resource_type_name: "",
-      resource_type_id: "",
-      resource_type_active: false,
-    };
-    resources = [...resources, newResource];
+    if (onEdit) {
+      const newResource = {
+        // dummy id
+        id: Date.now(),
+        resource_name: "",
+        image: "",
+        description: "",
+        resource_type_name: "",
+        resource_type_id: "",
+        resource_type_active: false,
+      };
+      resources = [...resources, newResource];
+    }
   }
 
-  function deleteResource(id) {
-    resources = resources.filter((resource) => resource.id !== id);
+  async function deleteResource(id) {
+    if (onEdit) {
+      if (resourceReady.includes(id)) {
+        try {
+          let token = sessionStorage.getItem("token");
+
+          if (token !== null) {
+            let response = await call.call("client-dashboard", "delete-resource", {
+              URLQuery: {},
+              URLParams: {
+                id: id,
+              },
+              Params: {},
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
+            if (response.status === 200) {
+              resources = resources.filter((resource) => resource.id !== id);
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        resources = resources.filter((resource) => resource.id !== id);
+      }
+    }
   }
 
   const handleImageUploadWrapper = () => {
@@ -135,7 +165,7 @@ All Rights Reserved
           createdAt: formatDate(response.result.data[0].attributes.createdAt),
           description: response.result.data[0].attributes.description,
           price: response.result.data[0].attributes.price,
-          // category: response.result.data[0].attributes.category,
+          category: response.result.data[0].attributes.category_product.data.id || null,
           is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
         };
 
@@ -154,6 +184,10 @@ All Rights Reserved
             },
           );
           resources = await Promise.all(promise);
+          for (let i = 0; i < resources.length; i++) {
+            resourceReady = [...resourceReady, resources[i].id];
+          }
+          console.log("ayam", resourceReady);
         }
       }
     } catch (error) {
@@ -174,6 +208,7 @@ All Rights Reserved
             description: data.description,
             price: data.price,
             is_active: data.is_active ? "Yes" : "No",
+            category: data.category,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -191,18 +226,34 @@ All Rights Reserved
         }
       } else if (tabDatas.selected === "Resource") {
         for (let i = 0; i < resources.length; i++) {
-          response = await call.call("client-dashboard", "update-resource", {
-            URLQuery: {},
-            URLParams: { id: resources[i].id.toString() },
-            Params: {
-              resource_name: resources[i].resource_name,
-              description: resources[i].description,
-              is_active: resources[i].is_active ? "Yes" : "No",
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          if (resourceReady.includes(resources[i].id)) {
+            response = await call.call("client-dashboard", "update-resource", {
+              URLQuery: {},
+              URLParams: { id: resources[i].id.toString() },
+              Params: {
+                resource_name: resources[i].resource_name,
+                description: resources[i].description,
+                is_active: resources[i].is_active ? "Yes" : "No",
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
+          } else {
+            response = await call.call("client-dashboard", "create-resource", {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                resource_name: resources[i].resource_name,
+                description: resources[i].description,
+                is_active: resources[i].is_active ? "Yes" : "No",
+                product: parseInt(productId),
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
+          }
         }
 
         if (response.status !== 200) {
@@ -246,8 +297,39 @@ All Rights Reserved
     }
   }
 
+  async function getCategories() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-categories", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: 1,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status === 200) {
+        let promise = response.result.data.map((category) => {
+          return {
+            value: category.id,
+            name: category.attributes.category_name,
+          };
+        });
+
+        categories = await Promise.all(promise);
+      } else {
+        console.log(response);
+        return;
+      }
+    }
+  }
+
   onMount(async () => {
     getProduct();
+    getCategories();
   });
 
   // let dropdownOpen = false;
@@ -387,11 +469,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("category")}</P
                   >
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={data.category}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <Select items={categories} bind:value={data.category} />
                 </div>
                 <div class="flex flex-col gap-2 justify-center w-max">
                   <P
@@ -418,7 +496,7 @@ All Rights Reserved
                 <div class="flex items-center col-span-5 gap-2">
                   <div class="flex items-center w-full justify-between gap-2">
                     <div></div>
-                    <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
+                    <Button onclick={deleteResource(resource.id)} color="light" class="w-max"
                       >{$_("delete")}</Button
                     >
                   </div>
@@ -475,7 +553,7 @@ All Rights Reserved
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                 </div>
-                <div class="flex flex-col col-span-2 gap-2">
+                <!-- <div class="flex flex-col col-span-2 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("typeName")}</P
@@ -496,7 +574,7 @@ All Rights Reserved
                     bind:value={resource.resource_type_id}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
-                </div>
+                </div> -->
                 <div class="flex flex-col gap-2 justify-center w-max">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"

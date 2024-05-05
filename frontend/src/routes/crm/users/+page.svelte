@@ -96,8 +96,8 @@ All Rights Reserved
             fullname: user.fullname || "No Name",
             username: user.username,
             email: user.email,
-            authority: getAuthority(user.authority) || "No Authority",
-            status: user.is_active === "Yes" ? "Admin" : "User",
+            // authority: getAuthority(user.authority) || "No Authority",
+            // status: user.is_active === "Yes" ? "Admin" : "User",
             actions: {
               objects: [
                 {

@@ -316,6 +316,11 @@
                     "name": "is_active",
                     "type": "text",
                     "required": true
+                },
+                {
+                    "name": "category",
+                    "type": "number",
+                    "required": true
                 }
             ]
         },
@@ -377,6 +382,11 @@
                         "Yes",
                         "No"
                     ],
+                    "required": true
+                },
+                {
+                    "name": "category",
+                    "type": "number",
                     "required": true
                 }
             ]
@@ -471,6 +481,24 @@
                         "Yes",
                         "No"
                     ],
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-resource",
+            "path": "/delete-resource/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteResource"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
                     "required": true
                 }
             ]

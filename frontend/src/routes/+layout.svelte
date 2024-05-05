@@ -60,9 +60,10 @@ All Rights Reserved
   };
 
   const changeShowAI = () => {
+    localStorage.removeItem("conversationId");
     showAI = !showAI;
     isShowAI = !isShowAI;
-    localStorage.setItem('showAI', showAI);
+    localStorage.setItem("showAI", showAI);
   };
 
   const changeTabbar = (tabName) => {
@@ -200,12 +201,12 @@ All Rights Reserved
   });
 
   let winInnerWidth = $derived(innerWidth);
-  if (typeof localStorage !== 'undefined') {
-    showAI = localStorage.getItem('showAI') === 'true' ? true : false;
+  if (typeof localStorage !== "undefined") {
+    showAI = localStorage.getItem("showAI") === "true" ? true : false;
   } else {
     console.log("localstorage is undefined");
   }
-  
+
   let userData = $state({ username: "", email: "", brand: "" });
 </script>
 

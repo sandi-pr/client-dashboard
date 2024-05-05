@@ -58,7 +58,7 @@ All Rights Reserved
         desc: "desc Create New Product & Services",
       },
       {
-        // href: await call.getPage("client-dashboard", ""),
+        href: await call.getPage("client-dashboard", "crm-categories"),
         icon: PackageSearchIcon,
         actionName: "Manage Categories",
         desc: "desc Manage Categories",
@@ -324,56 +324,9 @@ All Rights Reserved
     },
   ];
 
-  let latestProductServices = $state([
-    {
-      productId: "19846829",
-      prroduct_name: "Solid Hardwood Flooring",
-      price: "$5/hr",
-      category: {
-        type: "brand",
-        name: "Service",
-      },
-      // is_active
-      status: {
-        type: "success",
-        name: "Active",
-      },
-      actions: {
-        objects: [
-          {
-            href: "/crm/product_service/detail",
-            name: "View",
-          },
-        ],
-      },
-    },
-  ]);
+  let latestProductServices = $state([]);
 
-  let latestUsers = $state([
-    {
-      userId: "19846829",
-      fullname: "Azzisi Habibi",
-      username: "azzis91128",
-      email: "azzis144635@gmail.com",
-      authority: {
-        type: "brand",
-        name: "Super Admin",
-      },
-      // is_active
-      status: {
-        type: "success",
-        name: "Active",
-      },
-      actions: {
-        objects: [
-          {
-            href: "/crm/users/detail",
-            name: "Detail",
-          },
-        ],
-      },
-    },
-  ]);
+  let latestUsers = $state([]);
 
   // async function viewAll(title) {
   //   if (title === "Persons") {
@@ -390,6 +343,24 @@ All Rights Reserved
   //     return;
   //   }
   // }
+
+  function getStatus(is_active) {
+    if (is_active === "Yes") {
+      return {
+        type: "success",
+        name: "Active",
+      };
+    }
+
+    if (is_active === "No") {
+      return {
+        type: "danger",
+        name: "Inactive",
+      };
+    }
+
+    return;
+  }
 
   async function getPerson() {
     let token = sessionStorage.getItem("token");
@@ -430,7 +401,7 @@ All Rights Reserved
             // zip_code: person.attributes.zip_code,
             country: person.attributes.country,
             // date_of_birth: person.attributes.date_of_birth,
-            is_active: person.attributes.is_active,
+            status: getStatus(person.attributes.is_active),
             actions: {
               objects: [
                 {
@@ -451,10 +422,118 @@ All Rights Reserved
     }
   }
 
+  async function getProducts() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-products", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: 1,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        configs = {
+          search: true,
+          pagination: response.result.meta.pagination,
+        };
+        let latestData = response.result.data.slice(0, 5);
+        let promises = latestData.map(async (product, index) => {
+          return {
+            id: product.id,
+            product_name: product.attributes.product_name,
+            price: "$" + product.attributes.price + "/hr",
+            // category: getCategory(product.category),
+            status: getStatus(product.attributes.is_active),
+            actions: {
+              objects: [
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
+                    "?productId=" +
+                    product.id,
+                  name: "View",
+                },
+              ],
+            },
+          };
+        });
+
+        latestProductServices = await Promise.all(promises);
+        documentsReady = true;
+      }
+    }
+  }
+
+  async function getUsers() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-users", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: 1,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+      console.log("ayam", response);
+
+      if (response.result.data.length > 0) {
+        configs = {
+          search: true,
+          // pagination: response.result.meta.pagination,
+        };
+        let latestData = response.result.data.slice(0, 5);
+        let promises = latestData.map(async (user, index) => {
+          return {
+            id: user.id,
+            fullname: user.fullname || "No Name",
+            username: user.username,
+            email: user.email,
+            // authority: getAuthority(user.authority) || "No Authority",
+            // status: user.is_active === "Yes" ? "Admin" : "User",
+            actions: {
+              objects: [
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-user-detail")}` +
+                    "?userId=" +
+                    user.id,
+                  name: "View",
+                },
+              ],
+            },
+          };
+        });
+
+        latestUsers = await Promise.all(promises);
+        documentsReady = true;
+      }
+    }
+  }
+
   onMount(async () => {
     generateChartData();
     getActionItems();
     getPerson();
+    getProducts();
+    getUsers();
   });
 </script>
 

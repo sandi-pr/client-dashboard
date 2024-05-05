@@ -26,6 +26,7 @@ All Rights Reserved
   let uploadedImage = $state(null);
   let uploadedImageName = $state(null);
   let fileImage = $state(null);
+  let categories = $state([]);
 
   let ischecked = $state(false);
 
@@ -34,6 +35,7 @@ All Rights Reserved
     description: "",
     price: "",
     is_active: "Yes",
+    categoriy: null,
   });
 
   let resources = $state([]);
@@ -96,6 +98,14 @@ All Rights Reserved
   };
 
   async function createProduct() {
+    if (
+      data.product_name === "" ||
+      data.description === "" ||
+      data.price === "" ||
+      data.category === null
+    ) {
+      return;
+    }
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
@@ -108,6 +118,7 @@ All Rights Reserved
             description: data.description,
             price: data.price,
             is_active: data.is_active,
+            category: data.category,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -141,7 +152,7 @@ All Rights Reserved
               }
             }
           }
-          // await call.goToPage("client-dashboard", "crm-product-service");
+          await call.goToPage("client-dashboard", "crm-product-service");
           return;
         } else {
           console.log(response);
@@ -149,6 +160,36 @@ All Rights Reserved
         }
       } catch (error) {
         console.log(error);
+      }
+    }
+  }
+
+  async function getCategories() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-categories", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: 1,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status === 200) {
+        let promise = response.result.data.map((category) => {
+          return {
+            value: category.id,
+            name: category.attributes.category_name,
+          };
+        });
+
+        categories = await Promise.all(promise);
+      } else {
+        console.log(response);
+        return;
       }
     }
   }
@@ -166,6 +207,10 @@ All Rights Reserved
     } else {
       buttonDisable = true;
     }
+  });
+
+  onMount(async () => {
+    getCategories();
   });
 
   // let dropdownOpen = false;
@@ -270,11 +315,16 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("category")}</P
                   >
-                  <Input
+                  <Select
+                    items={categories}
+                    bind:value={data.category}
+                    placeholder="Select category"
+                  />
+                  <!-- <Input
                     readonly={!onEdit}
                     bind:value={data.category}
                     class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  />   -->
                 </div>
                 <div class="flex flex-col gap-2 justify-center w-max">
                   <P
@@ -358,7 +408,7 @@ All Rights Reserved
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                 </div>
-                <div class="flex flex-col col-span-2 gap-2">
+                <!-- <div class="flex flex-col col-span-2 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("typeName")}</P
@@ -376,7 +426,7 @@ All Rights Reserved
                     >{$_("active")}</P
                   >
                   <Toggle bind:checked={resource.is_active}></Toggle>
-                </div>
+                </div> -->
               </div>
             {/each}
           </div>

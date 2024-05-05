@@ -97,6 +97,7 @@
   async function sendMessage() {
     disableInput = true;
     let token = sessionStorage.getItem("token");
+
     if (messageInput.trim() !== "") {
       dataConversatonLogs = [
         ...dataConversatonLogs,
@@ -148,6 +149,7 @@
         console.log("merpati", chat);
 
         if (chat.status === 200) {
+          disableInput = false;
           dataConversatonLogs = [
             ...dataConversatonLogs,
             { role: chat.result.message.role, message: chat.result.message.message },
@@ -206,6 +208,28 @@
           </div>
         </div>
       {/each}
+      {#if disableInput}
+        <div
+          class=" bg-secondary-light flex dark:bg-secondary-dark rounded-2xl p-4 items-start gap-4"
+        >
+          <div
+            class="w-12 h-11 relative flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+          >
+            <img src={UserIcon} alt="User" class="" />
+            <div class="absolute bottom-0 right-0">
+              <img src={VerifiedIcon} alt="User" class="w-4 h-4" />
+            </div>
+          </div>
+          <div class="flex flex-col w-full gap-1">
+            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+              <P weight="bold" class="text-primary-light dark:text-primary-dark">{"HexaAI"}</P>
+            </div>
+            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
+              >{"Assistant is typing..."}</P
+            >
+          </div>
+        </div>
+      {/if}
     </div>
   </div>
   <div class="absolute w-full bottom-4">

@@ -39,6 +39,23 @@ All Rights Reserved
     is_active: "",
   });
 
+  function formatDate(inputDate) {
+    const date = new Date(inputDate);
+
+    const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
+      .getDate()
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}, ${date
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
+
+    return formattedDate;
+  }
+
   async function getPerson() {
     let token = sessionStorage.getItem("token");
     try {
@@ -63,7 +80,7 @@ All Rights Reserved
           city: response.result.data.attributes.city,
           state: response.result.data.attributes.state,
           zip_code: response.result.data.attributes.zip_code,
-          createdAt: response.result.data.attributes.createdAt,
+          createdAt: formatDate(response.result.data.attributes.createdAt),
           is_active: response.result.data.attributes.is_active,
         };
       }
