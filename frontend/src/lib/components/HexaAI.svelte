@@ -7,8 +7,11 @@
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane } from "svelte-splitpanes";
+  import { tick } from 'svelte';
 
   const call = new CR3Call(globalThis.location.origin);
+
+  let div;
 
   let chat_id = $state("");
   let content = $state("");
@@ -24,6 +27,18 @@
       message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
     },
   ]);
+
+  $effect.pre(() => {
+		dataConversatonLogs;
+		const autoscroll = div && div.offsetHeight + div.scrollTop > div.scrollHeight - 50;
+
+		if (autoscroll) {
+			tick().then(() => {
+				div.scrollTo(0, div.scrollHeight);
+			});
+		}
+
+	});
 
   // const ws = new WebSocket(
   //   "ws://localhost:3000/api-hexabot-webchat/c/9756f06b-a6ef-4bc6-8c9b-5fd6cddf64b6",
@@ -173,7 +188,7 @@
   });
 </script>
 
-<div class="static h-screen w-full overflow-y-auto bg-primary-light dark:bg-primary-dark">
+<div bind:this={div} class="static h-screen w-full overflow-y-auto bg-primary-light dark:bg-primary-dark">
   <div class="flex flex-col px-4 pt-6 pb-24">
     <div class="flex flex-col gap-4">
       <!-- <P
