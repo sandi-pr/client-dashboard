@@ -61,13 +61,13 @@ All Rights Reserved
           Authorization: "Bearer " + token,
         },
       });
-      console.log(response);
-      // if (response.status === 200) {
-      await call.goToPage("client-dashboard", "crm-users");
-      return;
-      // } else {
-      //   console.log(response);
-      // }
+      console.log("ayam", response);
+      if (response.status === 200) {
+        await call.goToPage("client-dashboard", "crm-users");
+        return;
+      } else {
+        console.log(response);
+      }
     } catch (error) {
       console.log(error);
     }

@@ -1018,6 +1018,12 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	fullname, ok := ctx.Params.GetString("fullname")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
 	users := U.Dict{}
 	status, users, err = Strapi.UsersCreate(string(username), string(email), string(password), true, false, int64(1))
 
@@ -1026,13 +1032,24 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	if status != 200 {
+	if status != 201 {
 		fmt.Println(status)
-		fmt.Println(users)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, U.Dict{}, nil
+	status, user, err := Strapi.UsersUpdate(int64(users["id"].(U.Float64)), U.Dict{"fullname": fullname})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, user, nil
 }
 
 func GetUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
