@@ -6,6 +6,7 @@
   import Sidebar from "$lib/components/Sidebar.svelte";
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
+  import { Pane } from "svelte-splitpanes";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -19,14 +20,8 @@
 
   let dataConversatonLogs = $state([
     {
-      role: "user",
-      message:
-        "Hi there, I'm currently in [Location] and I'm in need of some services. Specifically, I'm looking for a reliable wood flooring company. Do you have any recommendations?",
-    },
-    {
       role: "assistant",
-      message:
-        'Of course! London has several reputable wood flooring companies. One notable option is "Zway Flooring Solutions" located in the heart of the city. They are well-regarded for their premium materials and skilled craftsmanship. Would you like more information about them or any other suggestions?',
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
     },
   ]);
 
@@ -176,7 +171,7 @@
   });
 </script>
 
-<div class="relative h-screen overflow-auto bg-primary-light dark:bg-primary-dark">
+<div class="static h-screen w-full overflow-y-auto bg-primary-light dark:bg-primary-dark">
   <div class="flex flex-col px-4 pt-6 pb-24">
     <div class="flex flex-col gap-4">
       <!-- <P
@@ -202,7 +197,7 @@
           <div class="flex flex-col w-full gap-1">
             <div class="flex items-center space-x-2 rtl:space-x-reverse">
               <P weight="bold" class="text-primary-light dark:text-primary-dark"
-                >{qaPair.role === "user" ? "You" : "Assistant"}</P
+                >{qaPair.role === "user" ? "You" : "HexaAI"}</P
               >
             </div>
             <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
@@ -213,7 +208,7 @@
       {/each}
     </div>
   </div>
-  <div class="fixed bottom-4">
+  <div class="absolute w-full bottom-4">
     <form on:submit|preventDefault={sendMessage} class="px-4 [&>div>div]:!pe-4">
       <Input
         bind:disable={disableInput}

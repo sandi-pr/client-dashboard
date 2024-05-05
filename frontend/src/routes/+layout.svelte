@@ -20,7 +20,8 @@ All Rights Reserved
   import SideDrawer from "$lib/components/SideDrawer.svelte";
 
   let innerWidth = $state(0);
-  let showAI = $state(false);
+  let { showAI = false } = $props();
+  let isShowAI = $state(false);
   let activities = $state([]);
   let activeUrl = $derived($page.url.pathname);
   let appUrl = ""; // change to application url to make the breadcrumb not display the application name
@@ -60,6 +61,8 @@ All Rights Reserved
 
   const changeShowAI = () => {
     showAI = !showAI;
+    isShowAI = !isShowAI;
+    localStorage.setItem('showAI', showAI);
   };
 
   const changeTabbar = (tabName) => {
@@ -197,6 +200,12 @@ All Rights Reserved
   });
 
   let winInnerWidth = $derived(innerWidth);
+  if (typeof localStorage !== 'undefined') {
+    showAI = localStorage.getItem('showAI') === 'true' ? true : false;
+  } else {
+    console.log("localstorage is undefined");
+  }
+  
   let userData = $state({ username: "", email: "", brand: "" });
 </script>
 
@@ -218,7 +227,7 @@ All Rights Reserved
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
-          <Pane>
+          <Pane minSize={innerWidth > 1024 ? "60" : "0"}>
             <div class="transition-all duration-300">
               <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} />
               <slot />

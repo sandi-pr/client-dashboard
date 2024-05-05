@@ -36,11 +36,11 @@ All Rights Reserved
   };
 </script>
 
-<Pane size={innerWidth > 1024 ? "20" : "100"}>
+<Pane size={innerWidth > 1024 ? "40" : "100"} minSize={innerWidth > 1024 ? "40" : "100"} maxSize={innerWidth > 1024 ? "50" : "100"}>
   <div
     class="h-screen fixed transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
   >
-    <div class="absolute w-full top-0 z-10">
+    <div class="absolute w-screen top-0 z-10">
       <div class="flex items-center">
         <div
           id="drawer-label"

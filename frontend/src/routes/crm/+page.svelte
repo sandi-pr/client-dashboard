@@ -24,6 +24,8 @@ All Rights Reserved
 
   const call = new CR3Call(globalThis.location.origin);
 
+  let { showAI = false } = $props();
+
   let latestPersons = $state([]);
   let configs = $state({});
   let documentsReady = $state(false);
@@ -514,7 +516,7 @@ All Rights Reserved
             </Heading>
           </div>
           <div
-            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-center justify-center"
+            class={`grid ${showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
           >
             {#each docData as { href, dataName, value, change, changeType }, index ({ href, dataName, value, change, changeType })}
               <Card
