@@ -19,7 +19,8 @@ All Rights Reserved
   import DataTable from "$lib/components/DataTable.svelte";
   import SectionHeader from "$lib/ui/header/SectionHeader.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { Button, CR3Call, Typography } from "hexacomponents-svelte";
+  import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { Button } from "flowbite-svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -27,84 +28,79 @@ All Rights Reserved
   let documentsReady = $state(false);
   let actionItems = $state([]);
 
-  let datas = $state([
-    {
-      categoryId: "19846829",
-      category_name: "Products",
-      // is_active
-      status: {
+  let pagination = { page: 1 };
+
+  let datas = $state([]);
+
+  let configs = $state({});
+
+  function getStatus(is_active) {
+    if (is_active === "Yes") {
+      return {
         type: "success",
         name: "Active",
-      },
-      actions: {
-        objects: [
-          {
-            href: "/crm/categories/detail",
-            name: "Edit",
-          },
-        ],
-      },
+      };
+    } else {
+      return {
+        type: "danger",
+        name: "Inactive",
+      };
     }
-  ]);
+  }
 
-  let configs = {
-    search: true,
-  };
+  async function getCategories() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-categories", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: pagination.page,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-  // async function getPerson() {
-  //   let token = sessionStorage.getItem("token");
-  //   if (token !== null) {
-  //     let response = await call.call("client-dashboard", "get-persons", {
-  //       URLQuery: {},
-  //       URLParams: {},
-  //       Params: {},
-  //       Headers: {
-  //         Authorization: "Bearer " + token,
-  //       },
-  //     });
+      if (response.status === 200) {
+        configs = {
+          search: true,
+          pagination: response.result.meta.pagination,
+        };
+        let promises = response.result.data.map(async (category) => {
+          return {
+            id: category.id,
+            category_name: category.attributes.category_name,
+            description: category.attributes.description,
+            status: getStatus(category.attributes.is_active),
+            actions: {
+              objects: [
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-category-detail")}` +
+                    "?catergoryId=" +
+                    category.id,
+                  name: "Edit",
+                },
+              ],
+            },
+          };
+        });
 
-  //     if (response.status !== 200) {
-  //       console.log(response);
-  //       return;
-  //     }
+        datas = await Promise.all(promises);
+        documentsReady = true;
+      }
+    }
+  }
 
-  //     if (response.result.data.length > 0) {
-  //       let promises = response.result.data.map(async (person, index) => {
-  //         return {
-  //           id: person.id,
-  //           fullname: person.attributes.fullname,
-  //           email: person.attributes.email,
-  //           phone: person.attributes.phone,
-  //           address: person.attributes.address,
-  //           city: person.attributes.city,
-  //           state: person.attributes.state,
-  //           zip_code: person.attributes.zip_code,
-  //           country: person.attributes.country,
-  //           date_of_birth: person.attributes.date_of_birth,
-  //           is_active: person.attributes.is_active,
-  //           actions: {
-  //             objects: [
-  //               {
-  //                 href:
-  //                   `${await call.getPage("client-dashboard", "crm-person-detail")}` +
-  //                   "?personId=" +
-  //                   person.id,
-  //                 name: "View",
-  //               },
-  //             ],
-  //           },
-  //         };
-  //       });
-
-  //       datas = await Promise.all(promises);
-  //       documentsReady = true;
-  //     }
-  //   }
-  // }
+  async function addCategory() {
+    await call.goToPage("client-dashboard", "crm-category-create");
+    return;
+  }
 
   onMount(async () => {
     // getActionItems();
-    // getPerson();
+    getCategories();
   });
 </script>
 
@@ -117,13 +113,15 @@ All Rights Reserved
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text="Manage Categories" />
-          <Button text="Add new" icon={PlusIcon} spaceY="mt-0" />
+          <Button onclick={addCategory} icon={PlusIcon}
+            >Add new <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+          >
         </div>
 
         <!-- Person Table Data -->
         <div>
           {#if documentsReady}
-            <DataTable {datas} {configs} />
+            <DataTable bind:datas bind:configs />
           {:else}
             <DataTable {datas} {configs} />
           {/if}

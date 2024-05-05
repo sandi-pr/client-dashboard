@@ -14,6 +14,7 @@
 
   export let handleClickDate = () => {};
   export let schedule = [];
+  export let fromToDate = "from";
 
   const duration = 450;
 
@@ -28,7 +29,7 @@
   const add = (amount) => () => store.add(amount, "day");
 
   const select = (day) => () => {
-    handleClickDate(day);
+    handleClickDate(fromToDate, day);
     if (!store.isSelectable(day)) return;
     store.setDay(day || $store.selected);
     if (!$store.shouldEnlargeDay) return store.selectDay();
@@ -105,21 +106,29 @@
                 {day.date.getDate()}
                 {#if schedule.length > 0}
                   {#each schedule as scheduleItem (scheduleItem)}
-                    {#if dayjs(day.date).isSame(dayjs(scheduleItem.date), "day")}
-                      <span
-                        class={`mt-2 p-0  text-4xl fixed ${index === monthIndex && dayjs(day.date).isSame($store.selected, "day") ? "text-white" : "text-brand-tertiary-alt-light"}`}
-                        >.</span
-                      >
-                    {/if}
+                    {#each scheduleItem.dateEvent as dateEvent}
+                      {#if dayjs(day.date).isSame(dayjs(dateEvent.date), "day")}
+                        <span
+                          class={`mt-2 p-0  text-4xl fixed ${index === monthIndex && dayjs(day.date).isSame($store.selected, "day") ? "text-white" : "text-brand-tertiary-alt-light"}`}
+                          >.</span
+                        >
+                      {/if}
+                    {/each}
                   {/each}
                 {/if}
               </a>
               {#if schedule.length > 0}
-                {#each schedule as scheduleItem (scheduleItem)}
-                  {#if dayjs(day.date).isSame(dayjs(scheduleItem.date), "day")}
-                    <Tooltip placement="bottom" class="z-[10]">{scheduleItem.title}</Tooltip>
-                  {/if}
-                {/each}
+                {#if schedule.some( (scheduleItem) => scheduleItem.dateEvent.some( (dateEvent) => dayjs(day.date).isSame(dayjs(dateEvent.date), "day") ) )}
+                  <Tooltip placement="bottom" class="z-[10]">
+                    {#each schedule as scheduleItem (scheduleItem)}
+                      {#each scheduleItem.dateEvent as dateEvent}
+                        {#if dayjs(day.date).isSame(dayjs(dateEvent.date), "day")}
+                          <div>{scheduleItem.title}</div>
+                        {/if}
+                      {/each}
+                    {/each}
+                  </Tooltip>
+                {/if}
               {/if}
             {/if}
           {/each}
