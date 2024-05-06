@@ -228,17 +228,24 @@
     console.log("date clicked backend logic here");
   };
 
-  function handleClickHourInDate(date, hour) {
-    // console.log("Clicked date:", date);
-    // console.log("Clicked hour:", hour);
-    if (date.events.length > 0) {
-      for (let i = 0; i < date.events.length; i++) {
-        const event = date.events[i];
+  function handleClickHour(date, hour, mode) {
+    let currentDayOrDate;
+    if (mode === "day") {
+      currentDayOrDate = getDaysOfWeek(date).find((days) => {
+        return days.dateNumber === date.getDate();
+      });
+    } else {
+      currentDayOrDate = date;
+    }
+
+    if (currentDayOrDate.events.length > 0) {
+      for (let i = 0; i < currentDayOrDate.events.length; i++) {
+        const event = currentDayOrDate.events[i];
         if (
           hour >= parseInt(event.timeStart.split(":")[0]) &&
           hour < parseInt(event.timeEnd.split(":")[0])
         ) {
-          const events = getEventsForDate(date.dateObject, hour);
+          const events = getEventsForDate(currentDayOrDate.dateObject, hour);
           currentDateEvents = events;
           break; // Exit the loop if the event is found
         } else {
@@ -248,49 +255,36 @@
       modalMode = "event";
       modal = true;
     }
-  }
 
-  function handleClickHourInDay(date, hour) {
-    // console.log(
-    //   getDaysOfWeek(date).find((days) => {
-    //     return days.dateNumber === date.getDate();
-    //   }),
-    //   hour
-    // );
-
-    const currentDay = getDaysOfWeek(date).find((days) => {
-      return days.dateNumber === date.getDate();
-    });
-
-    currentDay.dateObject.setHours(hour);
-
-    if (currentDay.events.length > 0) {
-      for (let i = 0; i < currentDay.events.length; i++) {
-        const event = currentDay.events[i];
-        if (
-          hour >= parseInt(event.timeStart.split(":")[0]) &&
-          hour < parseInt(event.timeEnd.split(":")[0])
-        ) {
-          const events = getEventsForDate(currentDay.dateObject, hour);
-          currentDateEvents = events;
-          break; // Exit the loop if the event is found
-        } else {
-          console.log("trigger false");
-          currentDateEvents = [];
-        }
-      }
-      modalMode = "event";
-      modal = true;
+    if (mode === "day") {
+      console.log("date clicked backend logic here");
     }
-    console.log("date clicked backend logic here");
   }
 
   const handleChangeDate = (direction) => {
+    let currentHour = new Date().getHours();
+    let currentMinute = new Date().getMinutes();
+    let currentSecond = new Date().getSeconds();
+
     if (currentCalendarMode === "month") {
       if (direction === "previous") {
-        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1);
+        currentDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() - 1,
+          currentDate.getDate(),
+          currentHour,
+          currentMinute,
+          currentSecond
+        );
       } else if (direction === "next") {
-        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1);
+        currentDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 1,
+          currentDate.getDate(),
+          currentHour,
+          currentMinute,
+          currentSecond
+        );
       }
 
       // Update the daysInMonth array based on the new currentDate
@@ -300,13 +294,19 @@
         currentDate = new Date(
           currentDate.getFullYear(),
           currentDate.getMonth(),
-          currentDate.getDate() - 7
+          currentDate.getDate() - 7,
+          currentHour,
+          currentMinute,
+          currentSecond
         );
       } else if (direction === "next") {
         currentDate = new Date(
           currentDate.getFullYear(),
           currentDate.getMonth(),
-          currentDate.getDate() + 7
+          currentDate.getDate() + 7,
+          currentHour,
+          currentMinute,
+          currentSecond
         );
       }
 
@@ -317,13 +317,19 @@
         currentDate = new Date(
           currentDate.getFullYear(),
           currentDate.getMonth(),
-          currentDate.getDate() - 1
+          currentDate.getDate() - 1,
+          currentHour,
+          currentMinute,
+          currentSecond
         );
       } else if (direction === "next") {
         currentDate = new Date(
           currentDate.getFullYear(),
           currentDate.getMonth(),
-          currentDate.getDate() + 1
+          currentDate.getDate() + 1,
+          currentHour,
+          currentMinute,
+          currentSecond
         );
       }
     }
@@ -616,7 +622,7 @@
                     >
                     {#each daysInWeek as _day}
                       <button
-                        on:click={() => handleClickHourInDate(_day, hour)}
+                        on:click={() => handleClickHour(_day, hour, "week")}
                         class="grid-item min-h-40 flex flex-col items-center border border-secondary-light dark:border-secondary-dark"
                       >
                         {#if _day.events.length > 0}
@@ -660,7 +666,7 @@
                       {hour}:00
                     </P>
                     <button
-                      on:click={() => handleClickHourInDay(currentDate, hour)}
+                      on:click={() => handleClickHour(currentDate, hour, "day")}
                       class="grid-item hour-header border border-secondary-light dark:border-secondary-dark p-2 px-4 flex flex-col"
                     >
                       {#each daysInWeek as _day}
