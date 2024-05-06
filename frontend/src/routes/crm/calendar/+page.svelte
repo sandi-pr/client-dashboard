@@ -11,7 +11,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { format, startOfWeek, endOfWeek } from "date-fns";
-  import { P, Button, Heading, Input, Modal, Label, Checkbox } from "flowbite-svelte";
+  import { P, Button, Heading, Input, Modal, Label } from "flowbite-svelte";
   import {
     ClockOutline,
     ChevronLeftOutline,
@@ -20,18 +20,14 @@
   } from "flowbite-svelte-icons";
   import DatePicker from "$lib/components/DatePicker.svelte";
   import { TabBar } from "$lib";
-  // import InlineCalendar from "$lib/components/InlineCalendar/InlineCalendar.svelte";
   import Divider from "$lib/components/Divider.svelte";
 
   let currentTheme = "";
   let currentDate = new Date(); // Current date
-  let currentCalendarMode = "month"; // Current calendar mode
-  // let selectedDateFrom = new Date();
-  // let selectedDateTo = new Date();
+  let currentCalendarMode = "day"; // Current calendar mode
   let selectedDay = new Date();
-  // let workHourChecked = false;
-  // let weekendChecked = false;
   let modal = false;
+  let modalMode = "form";
   let observer;
 
   let tabDatas = {
@@ -51,6 +47,7 @@
       title: "test 1",
       dateEvent: [
         { date: "2024-05-02", timeStart: "10:00", timeEnd: "12:00" },
+        { date: "2024-05-06", timeStart: "06:00", timeEnd: "08:00" },
         { date: "2024-05-10", timeStart: "10:00", timeEnd: "13:00" },
       ],
     },
@@ -91,6 +88,7 @@
   let timeAvailableCopy = [...timeAvailable];
   let daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
   let daysInWeek = getDaysOfWeek(new Date(currentDate));
+  let hoursOfDay = getHoursOfDay();
 
   const changeTabbar = (name) => {
     tabDatas.selected = name;
@@ -263,6 +261,9 @@
           currentDate.getDate() + 1
         );
       }
+
+      // Update the hoursOfDay array based on the new currentDate
+      selectedDay = new Date(currentDate);
     }
   };
 
@@ -429,8 +430,12 @@
     >
       Calendar
     </Heading>
-    <Button class="text-nowrap" on:click={() => (modal = true)}
-      ><PlusOutline class="size-6" /> Add new booking</Button
+    <Button
+      class="text-nowrap"
+      on:click={() => {
+        modalMode = "form";
+        modal = true;
+      }}><PlusOutline class="size-6" /> Add new booking</Button
     >
   </div>
   <div class="my-8">
@@ -522,98 +527,95 @@
                 {/each}
               </div>
             {:else if currentCalendarMode === "week"}
-              <div class="container mx-auto">
-                <!-- Scrollable Grid Container -->
-                <div class="overflow-y-auto max-h-[60vh]">
-                  <!-- Sticky Header -->
-                  <div
-                    class="grid sticky top-0 z-10 grid-cols-8 grid-rows-1 bg-primary-light dark:bg-primary-dark"
-                  >
-                    <div class="border border-secondary-light dark:border-secondary-dark"></div>
-                    <!-- Placeholder for the top-left corner -->
-                    {#each daysInWeek as day}
-                      <P
-                        class="grid-item day-header text-center p-2 min-h-24 text-sm border border-secondary-light dark:border-secondary-dark"
-                      >
-                        {day.dayName}<br />
-                        <span class="text-3xl font-normal">{day.dateNumber}</span>
-                      </P>
-                    {/each}
-                  </div>
-
-                  <!-- Calendar Grid -->
-                  <div class="grid grid-cols-8 grid-rows-25">
-                    {#each getHoursOfDay() as hour}
-                      <P
-                        class="grid-item hour-header text-center pt-4 border border-secondary-light dark:border-secondary-dark"
-                        >{hour}:00</P
-                      >
-                      {#each daysInWeek as _day}
-                        <button
-                          on:click={() => handleClickHourInDate(_day, hour)}
-                          class="grid-item min-h-40 flex flex-col items-center border border-secondary-light dark:border-secondary-dark"
-                        >
-                          {#if _day.events.length > 0}
-                            {#each _day.events as event}
-                              {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
-                                <div class="rounded-md bg-brand-solid-hover-light mt-2 mx-auto">
-                                  <P class="my-2 mx-3 text-primary-dark">{event.title}</P>
-                                </div>
-                              {/if}
-                            {/each}
-                          {/if}
-                        </button>
-                      {/each}
-                    {/each}
-                  </div>
-                </div>
-              </div>
-            {:else if currentCalendarMode === "day"}
-              <div class="container mx-auto">
-                <!-- Scrollable Grid Container -->
-                <div class="overflow-y-auto max-h-[60vh]">
-                  <!-- Sticky Header -->
-                  <div
-                    class="grid sticky top-0 z-10 grid-cols-2 grid-rows-1 bg-primary-light dark:bg-primary-dark"
-                  >
-                    <!-- Placeholder for the top-left corner -->
-                    <div class="border border-secondary-light dark:border-secondary-dark"></div>
+              <!-- Scrollable Grid Container -->
+              <div class="overflow-y-auto max-h-[60vh]">
+                <!-- Sticky Header -->
+                <div
+                  class="grid sticky top-0 z-10 grid-cols-8 grid-rows-1 bg-primary-light dark:bg-primary-dark"
+                >
+                  <div class="border border-secondary-light dark:border-secondary-dark"></div>
+                  <!-- Placeholder for the top-left corner -->
+                  {#each daysInWeek as day}
                     <P
                       class="grid-item day-header text-center p-2 min-h-24 text-sm border border-secondary-light dark:border-secondary-dark"
                     >
-                      {currentDate.toLocaleDateString("en-US", { weekday: "long" })}<br />
-                      <span class="text-3xl font-normal">{currentDate.getDate()}</span>
+                      {day.dayName}<br />
+                      <span class="text-3xl font-normal">{day.dateNumber}</span>
                     </P>
-                  </div>
+                  {/each}
+                </div>
 
-                  <!-- Calendar Grid -->
-                  <div class="grid grid-cols-2 grid-rows-25">
-                    {#each getHoursOfDay() as hour}
-                      <P
-                        class="grid-item hour-header text-center min-h-40 border border-secondary-light dark:border-secondary-dark pt-4"
-                      >
-                        {hour}:00
-                      </P>
+                <!-- Calendar Grid -->
+                <div class="grid grid-cols-8 grid-rows-25">
+                  {#each getHoursOfDay() as hour}
+                    <P
+                      class="grid-item hour-header text-center pt-4 border border-secondary-light dark:border-secondary-dark"
+                      >{hour}:00</P
+                    >
+                    {#each daysInWeek as _day}
                       <button
-                        on:click={() => handleClickHourInDay(currentDate, hour)}
-                        class="grid-item hour-header border border-secondary-light dark:border-secondary-dark p-2 px-4 flex"
+                        on:click={() => handleClickHourInDate(_day, hour)}
+                        class="grid-item min-h-40 flex flex-col items-center border border-secondary-light dark:border-secondary-dark"
                       >
-                        {#each daysInWeek as _day}
-                          {#if _day.events.length > 0}
-                            {#each _day.events as event}
-                              {#if selectedDay.getDate() === new Date(event.date).getDate()}
-                                {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
-                                  <div class="rounded-md w-full bg-brand-solid-hover-light mx-auto">
-                                    <P class="my-1 mx-2 text-primary-dark">{event.title}</P>
-                                  </div>
-                                {/if}
-                              {/if}
-                            {/each}
-                          {/if}
-                        {/each}
+                        {#if _day.events.length > 0}
+                          {#each _day.events as event}
+                            {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
+                              <div class="rounded-md bg-brand-solid-hover-light mt-2 mx-auto">
+                                <P class="my-2 mx-3 text-primary-dark">{event.title}</P>
+                              </div>
+                            {/if}
+                          {/each}
+                        {/if}
                       </button>
                     {/each}
-                  </div>
+                  {/each}
+                </div>
+              </div>
+            {:else if currentCalendarMode === "day"}
+              <!-- Scrollable Grid Container -->
+              <div class="overflow-y-auto max-h-[60vh]">
+                <!-- Sticky Header -->
+                <div
+                  class="grid sticky top-0 z-10 grid-cols-2 grid-rows-1 bg-primary-light dark:bg-primary-dark"
+                  style="grid-template-columns: 1fr 4fr;"
+                >
+                  <!-- Placeholder for the top-left corner -->
+                  <div class="border border-secondary-light dark:border-secondary-dark"></div>
+                  <P
+                    class="grid-item day-header text-center p-2 min-h-24 text-sm border border-secondary-light dark:border-secondary-dark"
+                  >
+                    {currentDate.toLocaleDateString("en-US", { weekday: "long" })}<br />
+                    <span class="text-3xl font-normal">{currentDate.getDate()}</span>
+                  </P>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="grid grid-cols-2 grid-rows-25" style="grid-template-columns: 1fr 4fr;">
+                  {#each hoursOfDay as hour}
+                    <P
+                      class="grid-item hour-header text-center min-h-40 border border-secondary-light dark:border-secondary-dark pt-4"
+                    >
+                      {hour}:00
+                    </P>
+                    <button
+                      on:click={() => handleClickHourInDay(currentDate, hour)}
+                      class="grid-item hour-header border border-secondary-light dark:border-secondary-dark p-2 px-4 flex"
+                    >
+                      {#each daysInWeek as _day}
+                        {#if _day.events.length > 0}
+                          {#each _day.events as event}
+                            {#if selectedDay.getDate() === new Date(event.date).getDate()}
+                              {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
+                                <div class="rounded-md w-full bg-brand-solid-hover-light mx-auto">
+                                  <P class="my-1 mx-2 text-primary-dark">{event.title}</P>
+                                </div>
+                              {/if}
+                            {/if}
+                          {/each}
+                        {/if}
+                      {/each}
+                    </button>
+                  {/each}
                 </div>
               </div>
             {/if}
@@ -695,38 +697,53 @@
   {/if}
 </div>
 
-<Modal title="Terms of Service" bind:open={modal} outsideclose>
-  <div>
-    <Label class="ml-2">Title</Label>
-    <Input bind:value={scheduleInput.title} />
-  </div>
-  <div>
-    <Label class="ml-2">Date start</Label>
-    <DatePicker
-      bind:value={scheduleInput.dateStart}
-      customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
-    />
-  </div>
-  <div>
-    <Label class="ml-2">Date end</Label>
-    <DatePicker
-      bind:value={scheduleInput.dateEnd}
-      customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
-    />
-  </div>
+<Modal title="default modal" bind:open={modal} outsideclose>
+  {#if modalMode === "form"}
+    <!-- create new schedule modal -->
+    <div>
+      <Label class="ml-2">Title</Label>
+      <Input bind:value={scheduleInput.title} />
+    </div>
+    <div>
+      <Label class="ml-2">Date start</Label>
+      <DatePicker
+        bind:value={scheduleInput.dateStart}
+        customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
+      />
+    </div>
+    <div>
+      <Label class="ml-2">Date end</Label>
+      <DatePicker
+        bind:value={scheduleInput.dateEnd}
+        customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
+      />
+    </div>
+  {:else if modalMode === "view"}
+    <!-- view detail event modal -->
+  {:else}
+    ""
+  {/if}
 
   <svelte:fragment slot="footer">
-    <Button
-      on:click={() => {
-        handleCreateNewSchedule();
-        modal = false;
-        scheduleInput = {
-          title: "",
-          dateStart: new Date(),
-          dateEnd: new Date(),
-        };
-      }}>Create</Button
-    >
+    {#if modalMode === "form"}
+      <!-- create new schedule modal -->
+      <Button
+        on:click={() => {
+          handleCreateNewSchedule();
+          modal = false;
+          scheduleInput = {
+            title: "",
+            dateStart: new Date(),
+            dateEnd: new Date(),
+          };
+        }}>Create</Button
+      >
+    {:else if otherCondition}
+      <!-- view detail event modal -->
+      ""
+    {:else}
+      ""
+    {/if}
     <Button
       color="alternative"
       on:click={() => {
