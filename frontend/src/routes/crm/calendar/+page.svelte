@@ -77,12 +77,6 @@
     ],
   };
 
-  let scheduleInput = {
-    title: "",
-    dateStart: new Date(),
-    dateEnd: new Date(),
-  };
-
   let dayAvailable = [true, false, true, true, true, false, false];
   let dayAvailableCopy = [...dayAvailable];
   let timeAvailable = ["08:00", "16:00"];
@@ -347,7 +341,23 @@
   };
 
   const handleCreateNewSchedule = () => {
-    console.log(scheduleInput);
+    newSchedule.dateEvent[1].timeStart = newSchedule.dateEvent[0].timeStart;
+    newSchedule.dateEvent[1].timeEnd = newSchedule.dateEvent[0].timeEnd;
+    // console.log(newSchedule);
+
+    const postProcessedDate = newSchedule.dateEvent.map((date, index) => {
+      return {
+        title: newSchedule.title,
+        datetime: new Date(
+          index === 0
+            ? newSchedule.dateEvent[0].date + "T" + date.timeStart + ":00"
+            : newSchedule.dateEvent[1].date + "T" + date.timeEnd + ":00"
+        ),
+      };
+    });
+
+    // disini mas dean
+    console.log(postProcessedDate);
   };
 
   const checkTimeFormat = (evt, time, index = -1) => {
@@ -406,7 +416,8 @@
 
       if (isValidTimeFormat) {
         handleTimeChange(time, evt.target.value);
-        console.log(newSchedule, timeAvailable);
+        console.log(newSchedule);
+        console.log(timeAvailable);
       }
     }
   };
@@ -830,23 +841,74 @@
     <div>
       <Label class="ml-2">Title</Label>
       <Input
-        bind:value={scheduleInput.title}
+        bind:value={newSchedule.title}
         class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
       />
     </div>
-    <div>
-      <Label class="ml-2">Date start</Label>
-      <DatePicker
-        bind:value={scheduleInput.dateStart}
-        customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
-      />
+
+    <div class="flex gap-4">
+      <div class="flex-grow">
+        <Label class="ml-2">Date start</Label>
+        <DatePicker
+          on:datepicked={(evt) => {
+            // console.log(evt.detail.datepicked);
+            newSchedule.dateEvent[0].date = evt.detail.datepicked;
+          }}
+          customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-primary-light dark:bg-primary-dark text-gray-900 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
+        />
+      </div>
+
+      <div class="flex-grow">
+        <Label class="ml-2">Date end</Label>
+        <DatePicker
+          bind:value={newSchedule.dateEvent[1].date}
+          on:datepicked={(evt) => {
+            // console.log(evt.detail.datepicked);
+            newSchedule.dateEvent[1].date = evt.detail.datepicked;
+          }}
+          customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-primary-light dark:bg-primary-dark text-gray-900 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
+        />
+      </div>
     </div>
-    <div>
-      <Label class="ml-2">Date end</Label>
-      <DatePicker
-        bind:value={scheduleInput.dateEnd}
-        customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
-      />
+
+    <div class="flex gap-4">
+      <div class="flex-grow">
+        <Label class="ml-2">Time start</Label>
+        <Input
+          type="text"
+          placeholder={format(new Date(), "kk:mm")}
+          value={newSchedule.dateEvent[0].timeStart}
+          class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
+          on:keyup={(evt) => {
+            checkTimeFormat(evt, "newTimeStart");
+            checkConfigChange();
+          }}
+          on:change={(evt) => {
+            checkTimeFinal(evt, "newTimeStart");
+          }}
+        >
+          <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+        </Input>
+      </div>
+
+      <div class="flex-grow">
+        <Label class="ml-2">Time end</Label>
+        <Input
+          type="text"
+          placeholder={format(new Date(), "kk:mm")}
+          value={newSchedule.dateEvent[0].timeEnd}
+          class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
+          on:keyup={(evt) => {
+            checkTimeFormat(evt, "newTimeEnd");
+            checkConfigChange();
+          }}
+          on:change={(evt) => {
+            checkTimeFinal(evt, "newTimeEnd");
+          }}
+        >
+          <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+        </Input>
+      </div>
     </div>
   {:else if modalMode === "event"}
     <!-- event detail event modal -->
@@ -894,10 +956,20 @@
         on:click={() => {
           handleCreateNewSchedule();
           modal = false;
-          scheduleInput = {
+          newSchedule = {
             title: "",
-            dateStart: new Date(),
-            dateEnd: new Date(),
+            dateEvent: [
+              {
+                date: new Date(),
+                timeStart: format(new Date(), "kk:mm"),
+                timeEnd: format(new Date(), "kk:mm"),
+              },
+              {
+                date: new Date(),
+                timeStart: format(new Date(), "kk:mm"),
+                timeEnd: format(new Date(), "kk:mm"),
+              },
+            ],
           };
         }}>Create</Button
       >
@@ -917,10 +989,20 @@
       color={modalMode === "form" ? "alternative" : "red"}
       on:click={() => {
         modal = false;
-        scheduleInput = {
+        newSchedule = {
           title: "",
-          dateStart: new Date(),
-          dateEnd: new Date(),
+          dateEvent: [
+            {
+              date: new Date(),
+              timeStart: format(new Date(), "kk:mm"),
+              timeEnd: format(new Date(), "kk:mm"),
+            },
+            {
+              date: new Date(),
+              timeStart: format(new Date(), "kk:mm"),
+              timeEnd: format(new Date(), "kk:mm"),
+            },
+          ],
         };
       }}
     >
