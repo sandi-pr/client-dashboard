@@ -25,7 +25,7 @@
   let currentTheme = "";
   let currentDate = new Date(); // Current date
   let currentDateEvents = []; // Events for the current date
-  let currentCalendarMode = "month"; // Current calendar mode
+  let currentCalendarMode = "day"; // Current calendar mode
   let modal = false;
   let modalMode = "form";
   let observer;
@@ -165,6 +165,7 @@
       daysOfWeek.push({
         dayName: dayOfWeek,
         dateNumber: dateOfWeek,
+        dateObject: new Date(day),
         isCurrentDate: isCurrentDate,
         events: eventsForDay,
       });
@@ -185,18 +186,32 @@
     return hoursOfDay;
   }
 
-  function getEventsForDate(date) {
+  function getEventsForDate(date, hour = -1) {
     let formattedDate = date.toISOString().split("T")[0]; // Get YYYY-MM-DD format
     let events = [];
 
     schedule.forEach((item) => {
       item.dateEvent.forEach((event) => {
         if (event.date === formattedDate) {
-          events.push({
-            title: item.title,
-            timeStart: event.timeStart,
-            timeEnd: event.timeEnd,
-          });
+          // If hour is specified and is within the event time range, add the event to the list
+          if (hour !== -1) {
+            let eventStartHour = parseInt(event.timeStart.split(":")[0]);
+            let eventEndHour = parseInt(event.timeEnd.split(":")[0]);
+            if (hour >= eventStartHour && hour < eventEndHour) {
+              events.push({
+                title: item.title,
+                timeStart: event.timeStart,
+                timeEnd: event.timeEnd,
+              });
+            }
+          } else {
+            // If hour is not specified, add all events for the date
+            events.push({
+              title: item.title,
+              timeStart: event.timeStart,
+              timeEnd: event.timeEnd,
+            });
+          }
         }
       });
     });
@@ -205,7 +220,7 @@
   }
 
   const handleClickDate = (date) => {
-    console.log(getEventsForDate(date.dateObject));
+    // console.log(getEventsForDate(date.dateObject));
     const events = getEventsForDate(date.dateObject);
     modalMode = "event";
     modal = true;
@@ -214,13 +229,59 @@
   };
 
   function handleClickHourInDate(date, hour) {
-    console.log("Clicked date:", date);
-    console.log("Clicked hour:", hour);
-    // Add your logic here to handle the click event
+    // console.log("Clicked date:", date);
+    // console.log("Clicked hour:", hour);
+    if (date.events.length > 0) {
+      for (let i = 0; i < date.events.length; i++) {
+        const event = date.events[i];
+        if (
+          hour >= parseInt(event.timeStart.split(":")[0]) &&
+          hour < parseInt(event.timeEnd.split(":")[0])
+        ) {
+          const events = getEventsForDate(date.dateObject, hour);
+          currentDateEvents = events;
+          break; // Exit the loop if the event is found
+        } else {
+          currentDateEvents = [];
+        }
+      }
+      modalMode = "event";
+      modal = true;
+    }
   }
 
-  function handleClickHourInDay(currentDate, hour) {
-    console.log(currentDate, hour);
+  function handleClickHourInDay(date, hour) {
+    // console.log(
+    //   getDaysOfWeek(date).find((days) => {
+    //     return days.dateNumber === date.getDate();
+    //   }),
+    //   hour
+    // );
+
+    const currentDay = getDaysOfWeek(date).find((days) => {
+      return days.dateNumber === date.getDate();
+    });
+
+    currentDay.dateObject.setHours(hour);
+
+    if (currentDay.events.length > 0) {
+      for (let i = 0; i < currentDay.events.length; i++) {
+        const event = currentDay.events[i];
+        if (
+          hour >= parseInt(event.timeStart.split(":")[0]) &&
+          hour < parseInt(event.timeEnd.split(":")[0])
+        ) {
+          const events = getEventsForDate(currentDay.dateObject, hour);
+          currentDateEvents = events;
+          break; // Exit the loop if the event is found
+        } else {
+          console.log("trigger false");
+          currentDateEvents = [];
+        }
+      }
+      modalMode = "event";
+      modal = true;
+    }
     console.log("date clicked backend logic here");
   }
 
@@ -265,9 +326,6 @@
           currentDate.getDate() + 1
         );
       }
-
-      // Update the hoursOfDay array based on the new currentDate
-      // currentDate = new Date(currentDate);
     }
   };
 
@@ -603,7 +661,7 @@
                     </P>
                     <button
                       on:click={() => handleClickHourInDay(currentDate, hour)}
-                      class="grid-item hour-header border border-secondary-light dark:border-secondary-dark p-2 px-4 flex"
+                      class="grid-item hour-header border border-secondary-light dark:border-secondary-dark p-2 px-4 flex flex-col"
                     >
                       {#each daysInWeek as _day}
                         {#if _day.events.length > 0}
