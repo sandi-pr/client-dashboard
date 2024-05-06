@@ -25,7 +25,7 @@
   let currentTheme = "";
   let currentDate = new Date(); // Current date
   let currentDateEvents = []; // Events for the current date
-  let currentCalendarMode = "day"; // Current calendar mode
+  let currentCalendarMode = "week"; // Current calendar mode
   let modal = false;
   let modalMode = "form";
   let observer;
@@ -238,6 +238,8 @@
       currentDayOrDate = date;
     }
 
+    currentDateEvents = []; // Initialize as empty array
+
     if (currentDayOrDate.events.length > 0) {
       for (let i = 0; i < currentDayOrDate.events.length; i++) {
         const event = currentDayOrDate.events[i];
@@ -248,13 +250,12 @@
           const events = getEventsForDate(currentDayOrDate.dateObject, hour);
           currentDateEvents = events;
           break; // Exit the loop if the event is found
-        } else {
-          currentDateEvents = [];
         }
       }
-      modalMode = "event";
-      modal = true;
     }
+
+    modalMode = "event";
+    modal = true;
 
     if (mode === "day") {
       console.log("date clicked backend logic here");
