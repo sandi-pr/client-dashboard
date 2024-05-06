@@ -19,13 +19,14 @@
     PlusOutline,
   } from "flowbite-svelte-icons";
   import DatePicker from "$lib/components/DatePicker.svelte";
-  import { TabBar } from "$lib";
   import Divider from "$lib/components/Divider.svelte";
+  import Switch from "$lib/components/Switch.svelte";
+  import { TabBar } from "$lib";
 
   let currentTheme = "";
   let currentDate = new Date(); // Current date
   let currentDateEvents = []; // Events for the current date
-  let currentCalendarMode = "week"; // Current calendar mode
+  let currentCalendarMode = "month"; // Current calendar mode
   let modal = false;
   let modalMode = "form";
   let observer;
@@ -86,6 +87,17 @@
   let dayAvailableCopy = [...dayAvailable];
   let timeAvailable = ["08:00", "16:00"];
   let timeAvailableCopy = [...timeAvailable];
+  let timeAvailableIndividualMode = "off";
+  let timeAvailableIndividual = [
+    { start: "08:00", end: "12:00" },
+    { start: "13:00", end: "16:00" },
+    { start: "08:00", end: "12:00" },
+    { start: "08:00", end: "12:00" },
+    { start: "08:00", end: "12:00" },
+    { start: "13:00", end: "16:00" },
+    { start: "13:00", end: "16:00" },
+  ];
+  let timeAvailableIndividualCopy = [...timeAvailableIndividual];
   let daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
   let daysInWeek = getDaysOfWeek(new Date(currentDate));
   let hoursOfDay = getHoursOfDay();
@@ -228,7 +240,7 @@
     console.log("date clicked backend logic here");
   };
 
-  function handleClickHour(date, hour, mode) {
+  const handleClickHour = (date, hour, mode) => {
     let currentDayOrDate;
     if (mode === "day") {
       currentDayOrDate = getDaysOfWeek(date).find((days) => {
@@ -257,10 +269,8 @@
     modalMode = "event";
     modal = true;
 
-    if (mode === "day") {
-      console.log("date clicked backend logic here");
-    }
-  }
+    console.log("date clicked backend logic here");
+  };
 
   const handleChangeDate = (direction) => {
     let currentHour = new Date().getHours();
@@ -340,79 +350,64 @@
     console.log(scheduleInput);
   };
 
-  const checkTimeFormat = (evt, time) => {
+  const checkTimeFormat = (evt, time, index = -1) => {
+    const checkAndCorrectTime = (time) => {
+      if (!time || time.length > 2 || parseInt(time) > 23) {
+        return time ? time.slice(-2) : "01";
+      }
+      return time;
+    };
+
+    const handleTimeChange = (time, value) => {
+      switch (time) {
+        case "newTimeStart":
+          if (index === -1) {
+            newSchedule.dateEvent[0].timeStart = value;
+          } else {
+            newSchedule.dateEvent[index].timeStart = value;
+          }
+          break;
+        case "newTimeEnd":
+          if (index === -1) {
+            newSchedule.dateEvent[0].timeEnd = value;
+          } else {
+            newSchedule.dateEvent[index].timeEnd = value;
+          }
+          break;
+        case "availTimeStart":
+          if (index === -1) {
+            timeAvailable[0] = value;
+          } else {
+            timeAvailableIndividual[index].start = value;
+          }
+          break;
+        case "availTimeEnd":
+          if (index === -1) {
+            timeAvailable[1] = value;
+          } else {
+            timeAvailableIndividual[index].end = value;
+          }
+          break;
+      }
+    };
+
     if (/[^0-9:]/.test(evt.target.value)) {
-      // Remove any invalid characters
       evt.target.value = evt.target.value.replace(/[^0-9:]/g, "");
     }
-    // check if target value contains a colon
+
     if (evt.target.value.includes(":")) {
       const targetValueSplit = evt.target.value.split(":");
-
-      // Check the hour part
-      if (
-        !targetValueSplit[0] ||
-        targetValueSplit[0].length > 2 ||
-        parseInt(targetValueSplit[0]) > 23
-      ) {
-        targetValueSplit[0] = targetValueSplit[0] ? targetValueSplit[0].slice(-2) : "01";
-      }
-      if (parseInt(targetValueSplit[0]) > 23) {
-        targetValueSplit[0] = "01";
-      }
-
-      // Check the minute part
-      if (
-        !targetValueSplit[1] ||
-        targetValueSplit[1].length > 2 ||
-        parseInt(targetValueSplit[1]) > 59
-      ) {
-        targetValueSplit[1] = targetValueSplit[1] ? targetValueSplit[1].slice(0, 2) : "01";
-      }
-      if (parseInt(targetValueSplit[1]) > 59) {
-        targetValueSplit[1] = "01";
-      }
-
+      targetValueSplit[0] = checkAndCorrectTime(targetValueSplit[0]);
+      targetValueSplit[1] = checkAndCorrectTime(targetValueSplit[1]);
       evt.target.value = targetValueSplit.join(":");
 
       const isValidTimeFormat =
         targetValueSplit[0].length === 2 && targetValueSplit[1].length === 2;
 
-      const timeVariables = {
-        newTimeStart: newSchedule.dateEvent[0].timeStart,
-        newTimeEnd: newSchedule.dateEvent[0].timeEnd,
-        availTimeStart: timeAvailable[0],
-        availTimeEnd: timeAvailable[1],
-      };
-
       if (isValidTimeFormat) {
-        switch (time) {
-          case "newTimeStart":
-            newSchedule.dateEvent[0].timeStart = evt.target.value;
-            break;
-          case "newTimeEnd":
-            newSchedule.dateEvent[0].timeEnd = evt.target.value;
-            break;
-          case "availTimeStart":
-            timeAvailable[0] = evt.target.value;
-            break;
-          case "availTimeEnd":
-            timeAvailable[1] = evt.target.value;
-            break;
-        }
+        handleTimeChange(time, evt.target.value);
         console.log(newSchedule, timeAvailable);
-      } else {
-        timeVariables[time] = timeVariables[time];
       }
-    } else {
-      const timeVariables = {
-        newTimeStart: newSchedule.dateEvent[0].timeStart,
-        newTimeEnd: newSchedule.dateEvent[0].timeEnd,
-        availTimeStart: timeAvailable[0],
-        availTimeEnd: timeAvailable[1],
-      };
-
-      timeVariables[time] = timeVariables[time];
     }
   };
 
@@ -460,7 +455,8 @@
     // for some reason this is not working
     if (
       JSON.stringify(dayAvailable) !== JSON.stringify(dayAvailableCopy) ||
-      JSON.stringify(timeAvailable) !== JSON.stringify(timeAvailableCopy)
+      JSON.stringify(timeAvailable) !== JSON.stringify(timeAvailableCopy) ||
+      JSON.stringify(timeAvailableIndividual) !== JSON.stringify(timeAvailableIndividualCopy)
     ) {
       return true;
     }
@@ -696,63 +692,121 @@
     <div class="flex">
       <div class="w-1/3"><P class="font-semibold">Availability</P></div>
       <div class="w-2/3">
-        <!-- day availability selector -->
-        <div class="flex">
-          <P class="content-center mr-4">Select day</P>
-          <div class="flex gap-3">
+        {#if timeAvailableIndividualMode === "off"}
+          <!-- day availability selector -->
+          <div class="flex">
+            <P class="content-center mr-4">Select day</P>
+            <div class="flex gap-3">
+              {#each dayAvailable as available, index}
+                <button
+                  type="button"
+                  class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
+                  on:click={() => {
+                    dayAvailable[index] = !dayAvailable[index];
+                    checkConfigChange();
+                  }}
+                >
+                  {format("2024-01-0" + (index + 1), "EEEEE")}
+                </button>
+              {/each}
+            </div>
+          </div>
+
+          <!-- time availability selector -->
+          <div class="flex mt-8 w-[30rem]">
+            <Input
+              type="text"
+              placeholder={format(new Date(), "kk:mm")}
+              value={timeAvailable[0]}
+              on:keyup={(evt) => {
+                checkTimeFormat(evt, "availTimeStart");
+                checkConfigChange();
+              }}
+              on:change={(evt) => {
+                checkTimeFinal(evt, "availTimeStart");
+              }}
+            >
+              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </Input>
+            <P class="mx-4 text-center content-center">-</P>
+            <Input
+              type="text"
+              placeholder={format(new Date(), "kk:mm")}
+              value={timeAvailable[1]}
+              on:keyup={(evt) => {
+                checkTimeFormat(evt, "availTimeEnd");
+                checkConfigChange();
+              }}
+              on:change={(evt) => {
+                checkTimeFinal(evt, "availTimeEnd");
+              }}
+            >
+              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </Input>
+          </div>
+        {:else}
+          <!-- day availability selector -->
+          <div class="flex flex-col gap-3">
             {#each dayAvailable as available, index}
-              <button
-                type="button"
-                class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
-                on:click={() => {
-                  dayAvailable[index] = !dayAvailable[index];
-                  checkConfigChange();
-                }}
-              >
-                {format("2024-01-0" + (index + 1), "EEEEE")}
-              </button>
+              <div class="flex">
+                <button
+                  type="button"
+                  class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
+                  on:click={() => {
+                    dayAvailable[index] = !dayAvailable[index];
+                    checkConfigChange();
+                  }}
+                >
+                  {format("2024-01-0" + (index + 1), "EEEEE")}
+                </button>
+                <div class="flex mx-4 w-full">
+                  <Input
+                    type="text"
+                    placeholder={format(new Date(), "kk:mm")}
+                    value={timeAvailableIndividual[index].start}
+                    class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
+                    on:keyup={(evt) => {
+                      checkTimeFormat(evt, "availTimeStart", index);
+                      checkConfigChange();
+                    }}
+                    on:change={(evt) => {
+                      checkTimeFinal(evt, "availTimeStart", index);
+                    }}
+                  >
+                    <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  </Input>
+                  <P class="mx-4 text-center content-center">-</P>
+                  <Input
+                    type="text"
+                    placeholder={format(new Date(), "kk:mm")}
+                    value={timeAvailableIndividual[index].end}
+                    class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
+                    on:keyup={(evt) => {
+                      checkTimeFormat(evt, "availTimeEnd", index);
+                      checkConfigChange();
+                    }}
+                    on:change={(evt) => {
+                      checkTimeFinal(evt, "availTimeEnd", index);
+                    }}
+                  >
+                    <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  </Input>
+                </div>
+              </div>
             {/each}
           </div>
-        </div>
+        {/if}
 
-        <!-- time availability selector -->
-        <div class="flex mt-8 w-[30rem]">
-          <Input
-            type="text"
-            placeholder={format(new Date(), "kk:mm")}
-            value={timeAvailable[0]}
-            on:keyup={(evt) => {
-              checkTimeFormat(evt, "availTimeStart");
-              checkConfigChange();
-            }}
-            on:change={(evt) => {
-              checkTimeFinal(evt, "availTimeEnd");
-            }}
-          >
-            <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          </Input>
-          <P class="mx-4 text-center content-center">-</P>
-          <Input
-            type="text"
-            placeholder={format(new Date(), "kk:mm")}
-            value={timeAvailable[1]}
-            on:keyup={(evt) => {
-              checkTimeFormat(evt, "availTimeEnd");
-              checkConfigChange();
-            }}
-            on:change={(evt) => {
-              checkTimeFinal(evt, "availTimeEnd");
-            }}
-          >
-            <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          </Input>
-        </div>
+        <!-- individual time toggle -->
+        <Switch
+          bind:value={timeAvailableIndividualMode}
+          label="Set individual hour"
+          fontSize={16}
+          design="slider"
+        />
 
         <!-- save config -->
         <div class="flex justify-end">
-          <!-- <div>Switch input</div>
-         &nbsp;
-         <P>Set individual hours</P> -->
           {#if checkConfigChange() === true}
             <Button on:click={handleSaveConfig}>Save</Button>
           {:else}
@@ -827,7 +881,7 @@
         </div>
       {/each}
     {:else}
-      <P>No event found for the selected date.</P>
+      <P>No event found for the selected {currentCalendarMode === "month" ? "date" : "hour"}.</P>
     {/if}
   {:else}
     <!-- placeholder -->
