@@ -24,8 +24,8 @@
 
   let currentTheme = "";
   let currentDate = new Date(); // Current date
-  let currentCalendarMode = "day"; // Current calendar mode
-  let selectedDay = new Date();
+  let currentDateEvents = []; // Events for the current date
+  let currentCalendarMode = "month"; // Current calendar mode
   let modal = false;
   let modalMode = "form";
   let observer;
@@ -204,21 +204,25 @@
     return events;
   }
 
+  const handleClickDate = (date) => {
+    console.log(getEventsForDate(date.dateObject));
+    const events = getEventsForDate(date.dateObject);
+    modalMode = "event";
+    modal = true;
+    currentDateEvents = events;
+    console.log("date clicked backend logic here");
+  };
+
   function handleClickHourInDate(date, hour) {
     console.log("Clicked date:", date);
     console.log("Clicked hour:", hour);
     // Add your logic here to handle the click event
   }
 
-  function handleClickHourInDay(curretDay, hour) {
-    console.log(curretDay, hour);
+  function handleClickHourInDay(currentDate, hour) {
+    console.log(currentDate, hour);
     console.log("date clicked backend logic here");
   }
-
-  const handleClickDate = (date) => {
-    console.log(date);
-    console.log("date clicked backend logic here");
-  };
 
   const handleChangeDate = (direction) => {
     if (currentCalendarMode === "month") {
@@ -263,7 +267,7 @@
       }
 
       // Update the hoursOfDay array based on the new currentDate
-      selectedDay = new Date(currentDate);
+      // currentDate = new Date(currentDate);
     }
   };
 
@@ -604,7 +608,7 @@
                       {#each daysInWeek as _day}
                         {#if _day.events.length > 0}
                           {#each _day.events as event}
-                            {#if selectedDay.getDate() === new Date(event.date).getDate()}
+                            {#if currentDate.getDate() === new Date(event.date).getDate()}
                               {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
                                 <div class="rounded-md w-full bg-brand-solid-hover-light mx-auto">
                                   <P class="my-1 mx-2 text-primary-dark">{event.title}</P>
@@ -697,12 +701,19 @@
   {/if}
 </div>
 
-<Modal title="default modal" bind:open={modal} outsideclose>
+<Modal
+  title={modalMode === "form" ? "Create new schedule" : "Event detail"}
+  bind:open={modal}
+  outsideclose
+>
   {#if modalMode === "form"}
     <!-- create new schedule modal -->
     <div>
       <Label class="ml-2">Title</Label>
-      <Input bind:value={scheduleInput.title} />
+      <Input
+        bind:value={scheduleInput.title}
+        class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
+      />
     </div>
     <div>
       <Label class="ml-2">Date start</Label>
@@ -718,10 +729,43 @@
         customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-gray-50 text-gray-900 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
       />
     </div>
-  {:else if modalMode === "view"}
-    <!-- view detail event modal -->
+  {:else if modalMode === "event"}
+    <!-- event detail event modal -->
+    {#if currentDateEvents.length > 0}
+      <!-- content here -->
+      {#each currentDateEvents as event}
+        <div class="p-4 border border-secondary-light dark:border-secondary-dark rounded-lg">
+          <Label class="ml-2 text-lg">Title</Label>
+          <Input
+            bind:value={event.title}
+            readonly
+            class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
+          />
+          <div class="mt-4 flex items-center w-full gap-4">
+            <div class="flex-grow">
+              <Label class="ml-2 text-lg">Time Start</Label>
+              <Input
+                bind:value={event.timeStart}
+                readonly
+                class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
+              />
+            </div>
+            <div class="flex-grow">
+              <Label class="ml-2 text-lg">Time End</Label>
+              <Input
+                bind:value={event.timeEnd}
+                readonly
+                class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
+              />
+            </div>
+          </div>
+        </div>
+      {/each}
+    {:else}
+      <P>No event found for the selected date.</P>
+    {/if}
   {:else}
-    ""
+    <!-- placeholder -->
   {/if}
 
   <svelte:fragment slot="footer">
@@ -738,14 +782,20 @@
           };
         }}>Create</Button
       >
-    {:else if otherCondition}
+    {:else if modalMode === "event"}
       <!-- view detail event modal -->
-      ""
+      <Button
+        class="text-nowrap"
+        on:click={() => {
+          modalMode = "form";
+          modal = true;
+        }}><PlusOutline class="size-6" /> Add new booking</Button
+      >
     {:else}
-      ""
+      <!-- place holder -->
     {/if}
     <Button
-      color="alternative"
+      color={modalMode === "form" ? "alternative" : "red"}
       on:click={() => {
         modal = false;
         scheduleInput = {
@@ -753,7 +803,9 @@
           dateStart: new Date(),
           dateEnd: new Date(),
         };
-      }}>Cancel</Button
+      }}
     >
+      {modalMode === "form" ? "Cancel" : "Close"}
+    </Button>
   </svelte:fragment>
 </Modal>
