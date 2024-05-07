@@ -21,6 +21,8 @@ All Rights Reserved
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { Button } from "flowbite-svelte";
+  import { StateCard } from "$lib";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -118,6 +120,14 @@ All Rights Reserved
     }
   }
 
+  async function next() {
+    getUsers(pagination.page + 1);
+  }
+
+  async function previous() {
+    getUsers(pagination.page - 1);
+  }
+
   onMount(async () => {
     // getActionItems();
     getUsers();
@@ -144,13 +154,16 @@ All Rights Reserved
         </div>
 
         <!-- Person Table Data -->
-        <div>
-          {#if documentsReady}
-            <DataTable bind:datas bind:configs />
-          {:else}
-            <DataTable bind:datas bind:configs />
-          {/if}
-        </div>
+        {#if datas.length > 0}
+          <DataTable bind:datas={datas} bind:configs bind:next bind:previous />
+        {:else}
+          <div class="pt-8">
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+            />
+          </div>
+        {/if}
       </div>
     </div>
   </div>

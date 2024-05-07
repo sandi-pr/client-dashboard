@@ -5,6 +5,9 @@
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { Button } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
+  import { _ } from "svelte-i18n";
+  import { StateCard } from "$lib";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -92,7 +95,7 @@
 
 <div class="flex dark:bg-hc-graydark-950">
   <div class="w-full pb-10">
-    <div class="flex flex-col m-4">
+    <div class="flex flex-col m-4 pt-2">
       <!-- <Navbar /> -->
 
       <div class="flex flex-col">
@@ -105,7 +108,16 @@
         </div>
 
         <!-- Document Table Data -->
-        <DataTable bind:datas bind:configs bind:next bind:previous />
+        {#if datas.length > 0}
+          <DataTable bind:datas={datas} bind:configs bind:next bind:previous />
+        {:else}
+          <div class="pt-8">
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+            />
+          </div>
+        {/if}
       </div>
     </div>
   </div>
