@@ -21,7 +21,7 @@ All Rights Reserved
 
   let personsLatest = [];
   let documentsReady = $state(false);
-  let pagination = { page: 1, pageSize: 25, pageCount: 1, total: 25 };
+  let pagination = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
   let actionItems = $state([]);
 
   let datas = $state([]);
@@ -55,14 +55,17 @@ All Rights Reserved
     return;
   }
 
-  async function getProducts() {
+  async function getProducts(page) {
+    console.log("page", page);
+    console.log("pagination", pagination.page);
+    if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       let response = await call.call("client-dashboard", "get-products", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          page: pagination.page,
+          page: page,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -75,6 +78,7 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
+        pagination = response.result.meta.pagination;
         configs = {
           search: true,
           pagination: response.result.meta.pagination,
@@ -112,9 +116,16 @@ All Rights Reserved
     return;
   }
 
+  async function next() {
+    getProducts(pagination.page + 1);
+  }
+
+  async function previous() {
+    getProducts(pagination.page - 1);
+  }
+
   onMount(async () => {
-    // getActionItems();
-    getProducts();
+    getProducts(pagination.page);
   });
 </script>
 
@@ -135,7 +146,7 @@ All Rights Reserved
         <!-- Person Table Data -->
         <div>
           {#if documentsReady}
-            <DataTable bind:datas bind:configs />
+            <DataTable bind:datas bind:configs bind:next bind:previous />
           {:else}
             <DataTable {datas} {configs} />
           {/if}

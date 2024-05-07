@@ -28,7 +28,7 @@ All Rights Reserved
   let documentsReady = $state(false);
   let actionItems = $state([]);
 
-  let pagination = { page: 1 };
+  let pagination = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
 
   let datas = $state([]);
 
@@ -48,14 +48,15 @@ All Rights Reserved
     }
   }
 
-  async function getCategories() {
+  async function getCategories(page) {
+    if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       let response = await call.call("client-dashboard", "get-categories", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          page: pagination.page,
+          page: page,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -63,6 +64,7 @@ All Rights Reserved
       });
 
       if (response.status === 200) {
+        pagination = response.result.meta.pagination;
         configs = {
           search: true,
           pagination: response.result.meta.pagination,
@@ -98,9 +100,17 @@ All Rights Reserved
     return;
   }
 
+  async function next() {
+    getCategories(pagination.page + 1);
+  }
+
+  async function previous() {
+    getCategories(pagination.page - 1);
+  }
+
   onMount(async () => {
     // getActionItems();
-    getCategories();
+    getCategories(pagination.page);
   });
 </script>
 
@@ -121,7 +131,7 @@ All Rights Reserved
         <!-- Person Table Data -->
         <div>
           {#if documentsReady}
-            <DataTable bind:datas bind:configs />
+            <DataTable bind:datas bind:configs bind:next bind:previous />
           {:else}
             <DataTable {datas} {configs} />
           {/if}

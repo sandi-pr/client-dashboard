@@ -65,14 +65,14 @@ All Rights Reserved
     }
   }
 
-  async function getUsers() {
+  async function getUsers(page) {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       let response = await call.call("client-dashboard", "get-users", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          page: pagination.page,
+          page: page,
         },
         Headers: {
           Authorization: "Bearer " + token,
