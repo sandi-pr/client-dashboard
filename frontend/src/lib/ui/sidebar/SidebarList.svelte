@@ -58,7 +58,7 @@
   };
 
   let sidebarItems = $state([
-    { name: $_("home"), href: "/client-dashboard", icon: "home", children: [] },
+    { name: $_("home"), href: "/", icon: "home", children: [] },
   ]);
 
   const sidebarBuilder = async () => {
@@ -100,7 +100,7 @@
   >
     <SidebarGroup>
       <div class="flex justify-between items-start">
-        <LogoBrand brandName="Hexapod" href="/client-dashboard" brandLogo={site.img} />
+        <LogoBrand brandName="Hexapod" href="/" brandLogo={site.img} />
         {#if isHidden}
           <div></div>
         {:else}
@@ -114,7 +114,7 @@
           <SidebarDropdownWrapper
             spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
             btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-            label="CRM"
+            label={item.name}
           >
             <svelte:fragment slot="icon">
               <svelte:component
@@ -150,12 +150,12 @@
     <div>
       <SidebarGroup>
         <!-- <SidebarNavItem href="/admin_setting" {activeUrl} icon="setting" typographyData={{ preset: "Text md/Semibold", text: "Super Admin Setting", color: "secondary" }} /> -->
-        <!-- <SidebarNavItem
+        <SidebarNavItem
           href="/settings"
           {activeUrl}
           icon="setting"
           typographyData={{ preset: "Text md/Semibold", text: "Settings", color: "secondary" }}
-        /> -->
+        />
       </SidebarGroup>
       <SidebarGroup border>
         <div class="flex justify-between">

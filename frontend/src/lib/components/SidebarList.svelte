@@ -39,13 +39,13 @@
 
   let site = {
     name: "Crossroads",
-    href: "/dashboard",
+    href: "/",
     img: LogoIcon,
     class: "pl-0",
   };
 
   let sidebarItems = [
-    { name: "Home", href: "/dashboard", icon: HomeLineIcon },
+    { name: "Home", href: "/", icon: HomeLineIcon },
     { name: "Apps", href: "#", icon: HexagonIcon },
   ];
 

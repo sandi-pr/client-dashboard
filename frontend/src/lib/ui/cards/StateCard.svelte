@@ -16,8 +16,12 @@
 
 <div>
   <div class="flex flex-col items-center gap-8">
-    <svelte:component this={illustration} svgClass="text-utility-brand-50-light dark:text-utility-brand-50-dark" />
+    <svelte:component this={illustration} svgClass="text-utility-brand-50-light dark:text-gray-800" />
+    {#if description}
     <Typography preset="Text md/Semibold" text={description} color="primary" />
+    {/if}
   </div>
+  {#if funcButton || actionText}
   <Button color="primary" text={actionText} {funcButton} />
+  {/if}
 </div>

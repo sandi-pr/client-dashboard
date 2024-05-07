@@ -12,6 +12,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { P, Card, Avatar, Heading, A, Button } from "flowbite-svelte";
+  import { StateCard } from "$lib";
   import { _ } from "svelte-i18n";
   import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
   import PackagePlusIcon from "$lib/icon/package-plus.svelte";
@@ -21,6 +22,7 @@ All Rights Reserved
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -29,6 +31,7 @@ All Rights Reserved
   let latestPersons = $state([]);
   let configs = $state({});
   let documentsReady = $state(false);
+  let personsIsEmpty = $state(true);
   // let documents = [];
   // let documentsNeed = [];
   // let documentsComplete = [];
@@ -328,21 +331,21 @@ All Rights Reserved
 
   let latestUsers = $state([]);
 
-  // async function viewAll(title) {
-  //   if (title === "Persons") {
-  //     let href = await call.getPage("client-dashboard", "crm-person");
-  //     globalThis.location.href = href;
-  //     return;
-  //   } else if (title === "Products & Services") {
-  //     let href = await call.getPage("client-dashboard", "crm-product-service");
-  //     globalThis.location.href = href;
-  //     return;
-  //   } else if (title === "Users") {
-  //     let href = await call.getPage("client-dashboard", "crm-users");
-  //     globalThis.location.href = href;
-  //     return;
-  //   }
-  // }
+  async function viewAll(title) {
+    if (title === "Persons") {
+      let href = await call.getPage("client-dashboard", "crm-person");
+      globalThis.location.href = href;
+      return;
+    } else if (title === "Products & Services") {
+      let href = await call.getPage("client-dashboard", "crm-product-service");
+      globalThis.location.href = href;
+      return;
+    } else if (title === "Users") {
+      let href = await call.getPage("client-dashboard", "crm-users");
+      globalThis.location.href = href;
+      return;
+    }
+  }
 
   function getStatus(is_active) {
     if (is_active === "Yes") {
@@ -545,7 +548,7 @@ All Rights Reserved
       <div class="flex flex-col gap-8">
         <!-- User Information -->
         <Heading tag="h2" class="font-jakarta text-primary-light dark:text-primary-dark">
-          CRM Overview
+          {$_("crmOverview")}
         </Heading>
 
         <!-- Action Items -->
@@ -656,26 +659,49 @@ All Rights Reserved
 
         <div class="flex flex-col">
           <div class="flex justify-between">
-            <Typography preset="Text lg/Semibold" color="primary" text={$_(tabDatas.selected)} />
+            <Typography preset="Text lg/Semibold" color="primary" text={$_(toCamelCase(tabDatas.selected))}/>
             <div></div>
-            <!-- <Button on:click={viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button> -->
+            <!-- <Button on:click={() => viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button> -->
           </div>
           <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
-          {#if tabDatas.selected === "Persons"}
-            <!-- Person Table Data -->
-            <div>
-              <DataTable bind:datas={latestPersons} bind:configs />
-            </div>
-          {:else if tabDatas.selected === "Products & Services"}
-            <div>
-              <DataTable bind:datas={latestProductServices} bind:configs />
-            </div>
-          {:else if tabDatas.selected === "Users"}
-            <div>
+          <div>
+            {#if tabDatas.selected === "Persons"}
+              <!-- Person Table Data -->
+              {#if latestPersons.length > 0}
+                <DataTable bind:datas={latestPersons} bind:configs />
+              {:else}
+                <div class="pt-6">
+                  <StateCard
+                    illustration={IllustrationEmpty}
+                    description={$_("youDontHaveAnyDataYet")}
+                  />
+                </div>
+              {/if}
+            {:else if tabDatas.selected === "Products & Services"}
+              {#if latestProductServices.length > 0}
+                <DataTable bind:datas={latestProductServices} bind:configs />
+              {:else}
+                <div class="pt-6">
+                  <StateCard
+                    illustration={IllustrationEmpty}
+                    description={$_("youDontHaveAnyDataYet")}
+                  />
+                </div>
+              {/if}
+            {:else if tabDatas.selected === "Users"}
+              {#if latestUsers.length > 0}
               <DataTable bind:datas={latestUsers} bind:configs />
-            </div>
-          {/if}
+              {:else}
+                <div class="pt-6">
+                  <StateCard
+                    illustration={IllustrationEmpty}
+                    description={$_("youDontHaveAnyDataYet")}
+                  />
+                </div>
+              {/if}
+            {/if}
+          </div>
         </div>
       </div>
     </div>

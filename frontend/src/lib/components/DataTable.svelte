@@ -33,7 +33,8 @@
   import XIcon from "../icon/x.svg";
   import CheckWhiteIcon from "../icon/check-white.svg";
   import ID from "../icon/ID.svg";
-  // import { _ } from "svelte-i18n";
+  import { _ } from "svelte-i18n";
+  import { toCamelCase } from "$lib/utils/toCamelCase.js";
   // import { toCamelCase } from "../utils/toCamelCase.js";
 
   export let datas;
@@ -187,7 +188,7 @@
           id="search"
           type="search"
           class="bg-white dark:bg-hc-graydark-950"
-          placeholder="Search"
+          placeholder={$_("search")}
           on:change={handleSearch}
         >
           <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -237,7 +238,7 @@
       {#if datas.length > 0}
         {#each Object.keys(datas[0]) as key}
           {#if normalContent(key)}
-            <TableHeadCell>{splitCamelCase(key)}</TableHeadCell>
+            <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
           {/if}
         {/each}
         {#each Object.keys(datas[0]) as key}

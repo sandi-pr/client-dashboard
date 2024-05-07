@@ -40,75 +40,6 @@
 
 	});
 
-  // const ws = new WebSocket(
-  //   "ws://localhost:3000/api-hexabot-webchat/c/9756f06b-a6ef-4bc6-8c9b-5fd6cddf64b6",
-  // );
-
-  const ws = new WebSocket("wss://cr3-api.hexacode.org/api-hexabot-webchat/c/123");
-
-  function SendMessage(message) {
-    ws.send(JSON.stringify(message));
-  }
-
-  function Joining(session_id) {
-    SendMessage({
-      type: "joining",
-      session_id: session_id,
-      joining: {
-        session_id: session_id,
-      },
-    });
-  }
-
-  function Leaving(session_id) {
-    SendMessage({
-      type: "leaving",
-      session_id: session_id,
-    });
-  }
-
-  function Message(session_id, message) {
-    SendMessage({
-      type: "content",
-      session_id: session_id,
-      content: {
-        role: "user",
-        message: message,
-        timestamp: new Date().valueOf(),
-        time_zone: timezonse(),
-      },
-    });
-  }
-
-  ws.onopen = function (event) {
-    console.log("WebSocket connected");
-  };
-
-  ws.onerror = function (error) {
-    console.error("WebSocket error:", error);
-  };
-
-  ws.onmessage = function (event) {
-    console.log(JSON.parse(event.data));
-    data = JSON.parse(event.data);
-    if (data.type == "content") {
-      // content.append(CreateMessage(data.content));
-      dataConversatonLogs = [...dataConversatonLogs, { role: "user", message: data.content }];
-    }
-
-    if (data.type == "accept") {
-      // chat_id.val(data.accept.session_id);
-      chatId = data.accept.session_id;
-      for (var i = 0; i < data.accept.contents.length; i++) {
-        // content.append(CreateMessage(data.accept.contents[i]));
-        dataConversatonLogs = [
-          ...dataConversatonLogs,
-          { role: "assistant", message: data.accept.contents[i] },
-        ];
-      }
-    }
-  };
-
   async function sendMessage() {
     disableInput = true;
     let token = sessionStorage.getItem("token");
@@ -176,11 +107,6 @@
 
       disableInput = false;
     }
-  }
-
-  function newChat() {
-    dataConversatonLogs = [];
-    Joining("");
   }
 
   onMount(() => {
