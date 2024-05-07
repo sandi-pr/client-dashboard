@@ -26,6 +26,8 @@
 
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { _ } from "svelte-i18n";
+  import { toCamelCase } from "../utils/toCamelCase.js";
   export let tabDatas: any;
 
   const dispatch = createEventDispatcher();
@@ -53,7 +55,7 @@
       class={`p-2 px-4 font-semibold text-hc-graylight-500 dark:text-white hover:bg-hc-graylight-100 hover:dark:bg-hc-brand-600 ${
         tabDatas.selected === submenu.name &&
         "border-b-2 border-hc-brand-600 !text-hc-brand-600 focus:bg-transparent dark:focus:bg-transparent dark:!text-hc-brand-600 hover:bg-hc-brand-100 hover:dark:bg-white"
-      }`}>{capitalizeFirstLetter(submenu.name)}</button
+      }`}>{capitalizeFirstLetter($_(toCamelCase(submenu.name)))}</button
     >
   {/each}
 </div>

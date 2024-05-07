@@ -23,7 +23,8 @@ All Rights Reserved
   let { showAI = false } = $props();
   let isShowAI = $state(false);
   let activities = $state([]);
-  let activeUrl = $derived($page.url.pathname);
+  let isActiveUrl = $state($page.url.pathname);
+  let activeUrl = $derived(isActiveUrl);
   let appUrl = ""; // change to application url to make the breadcrumb not display the application name
 
   let tabDatas = $state({
@@ -60,7 +61,6 @@ All Rights Reserved
   };
 
   const changeShowAI = () => {
-    localStorage.removeItem("conversationId");
     showAI = !showAI;
     isShowAI = !isShowAI;
     localStorage.setItem("showAI", showAI);
@@ -119,6 +119,17 @@ All Rights Reserved
           {
             href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
             name: $_("calendar"),
+          },
+        ],
+      },
+      {
+        icon: "users",
+        name: $_("documentManagement"),
+        children: [
+          {
+            href: await call.getPage("client-dashboard", "doc-overview"), // for frontend comment this
+            // href: "/document_management",
+            name: $_("overview"),
           },
         ],
       },
@@ -241,11 +252,11 @@ All Rights Reserved
         {logout}
       />
       <div
-        class="w-full min-h-screen flex lg:ml-80 border-l border-secondary-light dark:border-secondary-dark"
+        class="w-full min-h-screen flex lg:pl-80 border-l border-secondary-light dark:border-secondary-dark"
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
-          <Pane minSize={innerWidth > 1024 ? "60" : "0"}>
+          <Pane minSize={innerWidth > 1024 ? "70" : "0"}>
             <div class="transition-all duration-300">
               <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} reset_database={reset_database} />
               <slot />
