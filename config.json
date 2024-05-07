@@ -758,6 +758,17 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "reset",
+            "path": "/reset",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "Reset"
+            }
         }
     ],
     "options": {
