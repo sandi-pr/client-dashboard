@@ -60,7 +60,6 @@ All Rights Reserved
   };
 
   const changeShowAI = () => {
-    localStorage.removeItem("conversationId");
     showAI = !showAI;
     isShowAI = !isShowAI;
     localStorage.setItem("showAI", showAI);
@@ -228,7 +227,7 @@ All Rights Reserved
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
-          <Pane minSize={innerWidth > 1024 ? "60" : "0"}>
+          <Pane minSize={innerWidth > 1024 ? "70" : "0"}>
             <div class="transition-all duration-300">
               <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} />
               <slot />

@@ -7,7 +7,7 @@
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane } from "svelte-splitpanes";
-  import { tick } from 'svelte';
+  import { tick } from "svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -29,16 +29,15 @@
   ]);
 
   $effect.pre(() => {
-		dataConversatonLogs;
-		const autoscroll = div && div.offsetHeight + div.scrollTop > div.scrollHeight - 50;
+    dataConversatonLogs;
+    const autoscroll = div && div.offsetHeight + div.scrollTop > div.scrollHeight - 50;
 
-		if (autoscroll) {
-			tick().then(() => {
-				div.scrollTo(0, div.scrollHeight);
-			});
-		}
-
-	});
+    if (autoscroll) {
+      tick().then(() => {
+        div.scrollTo(0, div.scrollHeight);
+      });
+    }
+  });
 
   async function sendMessage() {
     disableInput = true;
@@ -109,12 +108,44 @@
     }
   }
 
+  async function getMessage() {
+    let token = sessionStorage.getItem("token");
+
+    let conversationId = localStorage.getItem("conversationId");
+
+    if (conversationId) {
+      try {
+        let chat = await call.call("hexa-ai", "get-messages", {
+          URLQuery: {},
+          URLParams: {
+            conversation_id: conversationId,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log(chat);
+
+        if (chat.status === 200) {
+          dataConversatonLogs = [...dataConversatonLogs, ...chat.result.messages];
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
-    // Joining("");
+    getMessage();
   });
 </script>
 
-<div bind:this={div} class="static h-screen w-full overflow-y-auto bg-primary-light dark:bg-primary-dark">
+<div
+  bind:this={div}
+  class="static h-screen w-full overflow-y-auto bg-primary-light dark:bg-primary-dark"
+>
   <div class="flex flex-col px-4 pt-6 pb-24">
     <div class="flex flex-col gap-4">
       <!-- <P
@@ -176,12 +207,14 @@
   <div class="absolute w-full bottom-4">
     <form on:submit|preventDefault={sendMessage} class="px-4 [&>div>div]:!pe-4">
       <Input
-        bind:disable={disableInput}
+        bind:disabled={disableInput}
         bind:value={messageInput}
         placeholder="Send a message..."
         class=" text-wrap min-h-16 pe-24 rounded-2xl"
       >
-        <Button slot="right" size="sm" type="submit" class="my-3">Send</Button>
+        <Button slot="right" size="sm" type="submit" class="my-3" disabled={disableInput}
+          >Send</Button
+        >
       </Input>
     </form>
   </div>
