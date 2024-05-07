@@ -181,5 +181,10 @@
     "invoiceDate": "Tgl. Faktur",
     "dueDate": "Tgl. Jatuh Tempo",
     "paymentStatus": "Status Bayar",
-    "youDontHaveAnyDataYet": "Anda belum memiliki data sekarang"
+    "youDontHaveAnyDataYet": "Anda belum memiliki data sekarang",
+    "addNewDocument": "Tambahkan Dokumen Baru",
+    "descAddNewDocument": "Masukkan data dokumen baru ke dalam sistem",
+    "generalDocuments": "Dokumen Umum",
+    "contractDocuments": "Dokumen Kontrak",
+    "documentLatest": "Dokumen Terbaru"
 }

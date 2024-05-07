@@ -183,5 +183,10 @@
   "invoiceDate": "Invoice Date",
   "dueDate": "Due Date",
   "paymentStatus": "Payment Status",
-  "youDontHaveAnyDataYet": "You don't have any data yet"
+  "youDontHaveAnyDataYet": "You don't have any data yet",
+  "addNewDocument": "Add new document",
+  "descAddNewDocument": "Register new document to the database",
+  "generalDocuments": "General Documents",
+  "contractDocuments": "Contract Documents",
+  "documentLatest": "Document Latest"
 }

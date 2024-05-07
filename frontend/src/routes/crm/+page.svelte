@@ -45,6 +45,7 @@ All Rights Reserved
   let dataChartComplete = $state({});
   let chartReady = $state(false);
   let actionItems = $state([]);
+  let chartAction = $state([]);
 
   async function getActionItems() {
     actionItems = [
@@ -303,29 +304,31 @@ All Rights Reserved
     chartReady = true;
   }
 
-  let docData = [
-    {
-      href: "/person",
-      dataName: "Total Persons",
-      value: "10",
-      change: "3",
-      changeType: "increase",
-    },
-    {
-      href: "/person",
-      dataName: "Active Persons",
-      value: "7",
-      change: "3",
-      changeType: "decrease",
-    },
-    {
-      ihref: "/person",
-      dataName: "Inactive Persons",
-      value: "3",
-      change: "3",
-      changeType: "increase",
-    },
-  ];
+  async function getChartAction() {
+    chartAction = [
+      {
+        href: await call.getPage("client-dashboard", "crm-person"),
+        dataName: "Total Persons",
+        value: "10",
+        change: "3",
+        changeType: "increase",
+      },
+      {
+        href: await call.getPage("client-dashboard", "crm-person"),
+        dataName: "Active Persons",
+        value: "7",
+        change: "3",
+        changeType: "decrease",
+      },
+      {
+        href: await call.getPage("client-dashboard", "crm-person"),
+        dataName: "Inactive Persons",
+        value: "3",
+        change: "3",
+        changeType: "increase",
+      },
+    ];
+  }
 
   let latestProductServices = $state([]);
 
@@ -446,7 +449,7 @@ All Rights Reserved
 
       if (response.result.data.length > 0) {
         configs = {
-          search: true,
+          // search: true,
           pagination: response.result.meta.pagination,
         };
         let latestData = response.result.data.slice(0, 5);
@@ -499,7 +502,7 @@ All Rights Reserved
 
       if (response.result.data.length > 0) {
         configs = {
-          search: true,
+          // search: true,
           // pagination: response.result.meta.pagination,
         };
         let latestData = response.result.data.slice(0, 5);
@@ -532,6 +535,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    getChartAction();
     generateChartData();
     getActionItems();
     getPerson();
@@ -600,7 +604,7 @@ All Rights Reserved
           <div
             class={`grid ${showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
           >
-            {#each docData as { href, dataName, value, change, changeType }, index ({ href, dataName, value, change, changeType })}
+            {#each chartAction as { href, dataName, value, change, changeType }, index ({ href, dataName, value, change, changeType })}
               <Card
                 horizontal="true"
                 class="grid grid-cols-12 items-center !px-4 !py-0 min-h-28 justify-between bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark shadow-sm"
