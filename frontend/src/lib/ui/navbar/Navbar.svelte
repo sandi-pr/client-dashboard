@@ -15,7 +15,7 @@
   import BellIcon from "$lib/icon/bell-01.svg";
   import StarsIcon from "$lib/icon/stars-01.svg";
 
-  let { activeUrl = "/", changeShowAI = () => {}, appUrl = "/" } = $props();
+  let { activeUrl = "/", changeShowAI = () => {}, appUrl = "/", reset_database = () => {} } = $props();
 </script>
 
 <div>
@@ -23,6 +23,9 @@
     <Breadcrumb {activeUrl} {appUrl} />
     <div class="flex space-x-4">
       <LanguageSelector />
+      <Button color="light" text="Reset Database [Development Mode]" spaceY="mt-0" funcButton={() => {
+        reset_database();
+      }} />
       <DarkMode
         btnClass="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600 focus-within:ring-4 focus-within:outline-none focus-within:ring-gray-200 dark:focus-within:ring-gray-700"
       />

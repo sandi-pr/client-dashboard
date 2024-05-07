@@ -142,6 +142,23 @@ All Rights Reserved
     }
   };
 
+  const reset_database = async () => {
+    try {
+      await call.call("client-dashboard", "reset", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + sessionStorage.getItem("token"),
+        },
+      })
+
+      await logout();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   export const load = async () => {
     if (browser) {
       locale.set(globalThis.navigator.language);
@@ -230,7 +247,7 @@ All Rights Reserved
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
           <Pane minSize={innerWidth > 1024 ? "60" : "0"}>
             <div class="transition-all duration-300">
-              <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} />
+              <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} reset_database={reset_database} />
               <slot />
             </div>
           </Pane>
