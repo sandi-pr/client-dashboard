@@ -58,7 +58,7 @@
   };
 
   let sidebarItems = $state([
-    { name: $_("home"), href: "/", icon: "home", children: [] },
+    { name: "home", href: "/", icon: "home", children: [] },
   ]);
 
   const sidebarBuilder = async () => {
@@ -114,7 +114,7 @@
           <SidebarDropdownWrapper
             spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
             btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-            label={item.name}
+            label={$_(item.name)}
           >
             <svelte:fragment slot="icon">
               <svelte:component
@@ -131,7 +131,7 @@
                 classesActive="flex w-full gap-3 items-center px-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700", 
                 typographyData={{
                   preset: "Text md/Regular",
-                  text: child.name,
+                  text: $_(child.name),
                   color: "secondary",
                 }}
               />
@@ -142,7 +142,7 @@
             href={item.href}
             {activeUrl}
             icon={item.icon}
-            typographyData={{ preset: "Text md/Semibold", text: item.name, color: "secondary" }}
+            typographyData={{ preset: "Text md/Semibold", text: $_(item.name), color: "secondary" }}
           />
         {/if}
       {/each}
@@ -154,7 +154,7 @@
           href="/settings"
           {activeUrl}
           icon="setting"
-          typographyData={{ preset: "Text md/Semibold", text: "Settings", color: "secondary" }}
+          typographyData={{ preset: "Text md/Semibold", text: $_("settings"), color: "secondary" }}
         />
       </SidebarGroup>
       <SidebarGroup border>

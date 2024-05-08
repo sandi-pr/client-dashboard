@@ -188,5 +188,14 @@
   "descAddNewDocument": "Register new document to the database",
   "generalDocuments": "General Documents",
   "contractDocuments": "Contract Documents",
-  "documentLatest": "Document Latest"
+  "documentLatest": "Document Latest",
+  "settings": "Settings",
+  "uploadDate": "Upload Date",
+  "type": "Type",
+  "documentsList": "Documents List",
+  "documentType": "Document Type",
+  "contractInformation": "Contract Information",
+  "contractStartPeriod": "Contract Start Period",
+  "contractEndPeriod": "Contract End Period",
+  "personsOrClient": "Persons or Client"
 }

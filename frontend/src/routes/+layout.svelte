@@ -98,38 +98,44 @@ All Rights Reserved
         children: [
           {
             href: await call.getPage("client-dashboard", "crm-overview"), // for frontend comment this
-            name: $_("overview"),
+            // href: "/crm", // for frontend uncomment this
+            name: "overview",
           },
           {
             href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
-            name: $_("persons"),
+            // href: "/crm/person", // for frontend uncomment this
+            name: "persons",
           },
           {
             href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
-            name: $_("product&Services"),
+            // href: "/crm/product_service", // for frontend uncomment this
+            name: "product&Services",
           },
           {
             href: await call.getPage("client-dashboard", "crm-users"), // for frontend comment this
-            name: $_("users"),
+            // href: "/crm/users", // for frontend uncomment this
+            name: "users",
           },
           {
             href: await call.getPage("client-dashboard", "crm-categories"), // for frontend comment this
-            name: $_("categories"),
+            // href: "/crm/categories", // for frontend uncomment this
+            name: "categories",
           },
           {
             href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
-            name: $_("calendar"),
+            // href: "/crm/calendar", // for frontend uncomment this
+            name: "calendar",
           },
         ],
       },
       {
         icon: "users",
-        name: $_("documentManagement"),
+        name: "documentManagement",
         children: [
           {
             href: await call.getPage("client-dashboard", "doc-overview"), // for frontend comment this
-            // href: "/document_management",
-            name: $_("overview"),
+            // href: "/document_management", // for frontend uncomment this
+            name: "overview",
           },
         ],
       },

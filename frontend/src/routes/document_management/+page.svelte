@@ -327,8 +327,8 @@ All Rights Reserved
       actions: {
         objects: [
           {
-            href: "document_management/list",
-            name: "View",
+            href: "document_management/detail",
+            name: $_("view"),
           },
         ],
       },
@@ -338,20 +338,10 @@ All Rights Reserved
   let latestProductServices = $state([]);
   let latestUsers = $state([]);
 
-  async function viewAll(title) {
-    if (title === "Persons") {
-      let href = await call.getPage("client-dashboard", "crm-person");
-      globalThis.location.href = href;
-      return;
-    } else if (title === "Products & Services") {
-      let href = await call.getPage("client-dashboard", "crm-product-service");
-      globalThis.location.href = href;
-      return;
-    } else if (title === "Users") {
-      let href = await call.getPage("client-dashboard", "crm-users");
-      globalThis.location.href = href;
-      return;
-    }
+  async function viewAll() {
+    // let href = await call.getPage("client-dashboard", "doc-list");
+    let href = "document_management/list";
+    globalThis.location.href = href;
   }
 
   onMount(async () => {
@@ -482,7 +472,7 @@ All Rights Reserved
           <div class="flex justify-between">
             <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")}/>
             <div></div>
-            <!-- <Button on:click={() => viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button> -->
+            <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
           </div>
 
           <div>
