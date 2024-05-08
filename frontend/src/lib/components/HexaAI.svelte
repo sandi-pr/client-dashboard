@@ -8,6 +8,7 @@
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane } from "svelte-splitpanes";
   import { tick } from "svelte";
+  import SvelteMarkdown from 'svelte-markdown';
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -175,7 +176,7 @@
               >
             </div>
             <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
-              >{qaPair.message}</P
+              ><SvelteMarkdown source={qaPair.message} /></P
             >
           </div>
         </div>
