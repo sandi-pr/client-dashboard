@@ -1,97 +1,97 @@
 <script lang="ts">
   import { Breadcrumb, BreadcrumbItem } from "flowbite-svelte";
-  import { CR3Call } from "hexacomponents-svelte";
+  // import { CR3Call } from "hexacomponents-svelte";
   import { onMount } from "svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  // const call = new CR3Call(globalThis.location.origin);
 
-  const templates = [
-    {
-      name: "home-page",
-      path: "/",
-      file_path: "template/index.html",
-    },
-    {
-      name: "crm-overview",
-      path: "/crm",
-      file_path: "template/crm.html",
-    },
-    {
-      name: "crm-person",
-      path: "/crm/person",
-      file_path: "template/crm/person.html",
-    },
-    {
-      name: "crm-person-create",
-      path: "/crm/person/create",
-      file_path: "template/crm/person/create.html",
-    },
-    {
-      name: "crm-person-detail",
-      path: "/crm/person/single",
-      file_path: "template/crm/person/detail.html",
-    },
-    {
-      name: "crm-person-list",
-      path: "/crm/person/list",
-      file_path: "template/crm/person/list.html",
-    },
-    {
-      name: "crm-product-service",
-      path: "/crm/product_service",
-      file_path: "template/crm/product_service.html",
-    },
-    {
-      name: "crm-product-service-create",
-      path: "/crm/product_service/create",
-      file_path: "template/crm/product_service/create.html",
-    },
-    {
-      name: "crm-product-service-detail",
-      path: "/crm/product_service/detail",
-      file_path: "template/crm/product_service/detail.html",
-    },
-    {
-      name: "crm-users",
-      path: "/crm/users",
-      file_path: "template/crm/users.html",
-    },
-    {
-      name: "crm-user-detail",
-      path: "/crm/users/detail",
-      file_path: "template/crm/users/detail.html",
-    },
-    {
-      name: "crm-user-create",
-      path: "/crm/users/create",
-      file_path: "template/crm/users/create.html",
-    },
-    {
-      name: "crm-categories",
-      path: "/crm/categories",
-      file_path: "template/crm/categories.html",
-    },
-    {
-      name: "crm-category-create",
-      path: "/crm/categories/create",
-      file_path: "template/crm/categories/create.html",
-    },
-    {
-      name: "crm-category-detail",
-      path: "/crm/categories/detail",
-      file_path: "template/crm/categories/detail.html",
-    },
-    {
-      name: "crm-calendar",
-      path: "/crm/calendar",
-      file_path: "template/crm/calendar.html",
-    },
-    {
-      name: "hexabot-overview",
-      path: "/hexabot",
-      file_path: "template/hexabot.html",
-    },
-  ];
+  // const templates = [
+  //   {
+  //     name: "home-page",
+  //     path: "/",
+  //     file_path: "template/index.html",
+  //   },
+  //   {
+  //     name: "crm-overview",
+  //     path: "/crm",
+  //     file_path: "template/crm.html",
+  //   },
+  //   {
+  //     name: "crm-person",
+  //     path: "/crm/person",
+  //     file_path: "template/crm/person.html",
+  //   },
+  //   {
+  //     name: "crm-person-create",
+  //     path: "/crm/person/create",
+  //     file_path: "template/crm/person/create.html",
+  //   },
+  //   {
+  //     name: "crm-person-detail",
+  //     path: "/crm/person/single",
+  //     file_path: "template/crm/person/detail.html",
+  //   },
+  //   {
+  //     name: "crm-person-list",
+  //     path: "/crm/person/list",
+  //     file_path: "template/crm/person/list.html",
+  //   },
+  //   {
+  //     name: "crm-product-service",
+  //     path: "/crm/product_service",
+  //     file_path: "template/crm/product_service.html",
+  //   },
+  //   {
+  //     name: "crm-product-service-create",
+  //     path: "/crm/product_service/create",
+  //     file_path: "template/crm/product_service/create.html",
+  //   },
+  //   {
+  //     name: "crm-product-service-detail",
+  //     path: "/crm/product_service/detail",
+  //     file_path: "template/crm/product_service/detail.html",
+  //   },
+  //   {
+  //     name: "crm-users",
+  //     path: "/crm/users",
+  //     file_path: "template/crm/users.html",
+  //   },
+  //   {
+  //     name: "crm-user-detail",
+  //     path: "/crm/users/detail",
+  //     file_path: "template/crm/users/detail.html",
+  //   },
+  //   {
+  //     name: "crm-user-create",
+  //     path: "/crm/users/create",
+  //     file_path: "template/crm/users/create.html",
+  //   },
+  //   {
+  //     name: "crm-categories",
+  //     path: "/crm/categories",
+  //     file_path: "template/crm/categories.html",
+  //   },
+  //   {
+  //     name: "crm-category-create",
+  //     path: "/crm/categories/create",
+  //     file_path: "template/crm/categories/create.html",
+  //   },
+  //   {
+  //     name: "crm-category-detail",
+  //     path: "/crm/categories/detail",
+  //     file_path: "template/crm/categories/detail.html",
+  //   },
+  //   {
+  //     name: "crm-calendar",
+  //     path: "/crm/calendar",
+  //     file_path: "template/crm/calendar.html",
+  //   },
+  //   {
+  //     name: "hexabot-overview",
+  //     path: "/hexabot",
+  //     file_path: "template/hexabot.html",
+  //   },
+  // ];
 
   let {
     activeUrl = "/",
@@ -163,12 +163,12 @@
             type="button"
             class={linkClass}
             onclick={async () => {
-              // window.location = `${appUrl}${item.href}`;
-              const template = templates.find((t) => t.path === item.href);
+              window.location = `${appUrl}${item.href}`;
+              // const template = templates.find((t) => t.path === item.href);
               // console.log(template, item.href);
-              if (template) {
-                await call.goToPage("client-login", template.name);
-              }
+              // if (template) {
+              //   await call.goToPage("client-login", template.name);
+              // }
             }}
           >
             {postProcessName(item.name)}

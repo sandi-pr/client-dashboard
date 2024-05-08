@@ -10,25 +10,30 @@
 -->
 
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { Typography, getIcons } from '$lib';
+  import { goto } from "$app/navigation";
+  import { Typography, getIcons } from "$lib";
 
   const {
-    href="/", 
-    activeUrl="/", 
-    classes="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700", 
-    classesActive="flex w-full gap-3 items-center px-3 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700", 
-    icon="", 
-    classesSvg="w-5 h-5 text-gray-700 dark:text-gray-400",
-    typographyData={},
-  } = $props()
+    href = "/",
+    activeUrl = "/",
+    classes = "flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700",
+    classesActive = "flex w-full gap-3 items-center px-3 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700",
+    icon = "",
+    classesSvg = "w-5 h-5 text-gray-700 dark:text-gray-400",
+    typographyData = {},
+  } = $props();
 </script>
 
-<button class={href === activeUrl ? classesActive : classes} onclick={() => {goto(href)}} >
+<button
+  class={href === activeUrl ? classesActive : classes}
+  onclick={() => {
+    window.location = href;
+  }}
+>
   {#if icon}
-    <svelte:component this={getIcons(icon) } svgClass={classesSvg} />
+    <svelte:component this={getIcons(icon)} svgClass={classesSvg} />
   {/if}
-  <Typography {...(typographyData)} />
+  <Typography {...typographyData} />
   <!-- <Typography preset={typographyData.preset} text={typographyData.text} color={typographyData.color} /> -->
 </button>
 
