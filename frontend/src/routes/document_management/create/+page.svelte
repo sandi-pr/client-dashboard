@@ -1,7 +1,7 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
   - Taqie Fadlillah <taqief@hexacode.org>
@@ -22,10 +22,14 @@ All Rights Reserved
 
   const call = new CR3Call(globalThis.location.origin);
 
+  let dropzoneActive = false;
   let onEdit = $state(true);
   let uploadedImage = $state(null);
   let uploadedImageName = $state(null);
   let fileImage = $state(null);
+  let fileText = $state(null);
+  let fileTextName = $state(null);
+  let fileTextResult = $state(null);
   let categories = $state([
     {
       value: "1",
@@ -34,7 +38,7 @@ All Rights Reserved
     {
       value: "2",
       name: "Contract",
-    }
+    },
   ]);
 
   let personClient = $state([
@@ -45,7 +49,7 @@ All Rights Reserved
     {
       value: "2",
       name: "Habibi",
-    }
+    },
   ]);
 
   let ischecked = $state(false);
@@ -92,28 +96,72 @@ All Rights Reserved
     resources = resources.filter((resource) => resource.id !== id);
   }
 
-  const handleImageUploadWrapper = (index) => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.accept = "image/*";
+  function handleDragOver(event) {
+    event.preventDefault();
+    dropzoneActive = true;
+  }
 
-    inputElement.addEventListener("change", (event) => {
-      const file = event.target.files[0];
+  function handleDragLeave() {
+    dropzoneActive = false;
+  }
 
-      if (file && isValidImage(file)) {
+  async function handleDrop(event) {
+    event.preventDefault();
+    dropzoneActive = false;
+
+    const files = event.dataTransfer.files;
+    // for (let i = 0; i < files.length; i++) {
+    //   console.log(files[i].name);
+    if (files[0] && isValidTextFile(files[0])) {
+      fileTextResult = await new Promise((resolve, reject) => {
         const reader = new FileReader();
 
-        reader.onload = () => {
-          fileImage = file;
-          uploadedImageName = file.name;
-          resources[index].image = reader.result;
-        };
+        reader.onload = () => resolve(reader.result.replace(/\r\n/g, "\n"));
+        reader.onerror = reject;
 
-        reader.readAsDataURL(file);
+        reader.readAsText(files[0]);
+      });
+
+      fileText = files[0];
+      fileTextName = files[0].name;
+      // console.log(fileTextResult);
+    } else {
+      alert("Invalid file. Please select a valid .txt file.");
+    }
+    // }
+  }
+
+  function isValidTextFile(file) {
+    const fileType = file.type;
+    return fileType === "text/plain";
+  }
+
+  const handleTextUploadWrapper = (index) => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = "text/plain";
+
+    inputElement.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+
+      if (file && isValidTextFile(file)) {
+        fileTextResult = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onload = () => resolve(reader.result.replace(/\r\n/g, "\n"));
+          reader.onerror = reject;
+
+          reader.readAsText(file);
+        });
+
+        fileText = file;
+        fileTextName = file.name;
+        // console.log(fileTextResult);
       } else {
-        alert("Invalid file. Please select a valid image file (max. 800x400px).");
+        alert("Invalid file. Please select a valid .txt file.");
       }
     });
+
     inputElement.click();
   };
 
@@ -126,6 +174,16 @@ All Rights Reserved
     ) {
       return;
     }
+
+    const fileTextResultBlob = new Blob([fileTextResult], { type: "text/plain" });
+
+    console.log(data);
+    console.log(fileText);
+    console.log(fileTextName);
+    console.log(fileTextResult);
+    console.log(fileTextResultBlob);
+    return;
+
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
@@ -232,8 +290,6 @@ All Rights Reserved
   onMount(async () => {
     getCategories();
   });
-
-  // let dropdownOpen = false;
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -296,27 +352,34 @@ All Rights Reserved
                 >{$_("Document Upload")}*</P
               >
               <Button
-                onclick={handleImageUploadWrapper(index)}
+                ondragover={handleDragOver}
+                ondragleave={handleDragLeave}
+                ondrop={handleDrop}
+                onclick={() => {
+                  if (!fileTextName) {
+                    handleTextUploadWrapper(index);
+                  }
+                }}
                 color="light"
-                class="w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark flex-col justify-start items-center gap-1 flex py-8"
+                class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-8 flex flex-col justify-start ${fileTextName ? "items-start cursor-default" : "items-center"}`}
               >
-                {#if uploadedImage}
-                  <img
-                    src={uploadedImage}
-                    alt="Uploaded Logo"
-                    class="rounded-xl max-h-48 mb-4"
-                  />
-                  <P>{uploadedImageName}</P>
+                {#if fileTextName}
+                  {#each fileTextResult.split("\n") as paragraphs, i}
+                    <P>{paragraphs}</P>
+                  {/each}
                 {:else}
                   <div
-                    class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4"
+                    class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
                   >
-                    <img src={upload} alt="mail.svg" class="p-4 dark:invert" />
+                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
                   </div>
                   <div class="flex space-x-1">
-                    <P class="text-hc-brand-700">Click to upload</P><P>or drag and drop</P>
+                    <P class="text-hc-brand-700 pointer-events-none">Click to upload</P><P
+                      class="pointer-events-none">or drag and drop</P
+                    >
                   </div>
-                  <P>SVG, PNG, JPG, or GIF (max. 800x400px)</P>
+                  <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
+                  <P class="pointer-events-none">Txt file</P>
                 {/if}
               </Button>
             </div>
