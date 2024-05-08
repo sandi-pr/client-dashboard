@@ -186,5 +186,14 @@
     "descAddNewDocument": "Masukkan data dokumen baru ke dalam sistem",
     "generalDocuments": "Dokumen Umum",
     "contractDocuments": "Dokumen Kontrak",
-    "documentLatest": "Dokumen Terbaru"
+    "documentLatest": "Dokumen Terbaru",
+    "settings": "Pengaturan",
+    "uploadDate": "Tgl. Unggah",
+    "type": "Tipe",
+    "documentsList": "Daftar Dokumen",
+    "documentType": "Tipe Dokumen",
+    "contractInformation": "Informasi Kontrak",
+    "contractStartPeriod": "Periode Mulai Kontrak",
+    "contractEndPeriod": "Periode Akhir Kontrak",
+    "personsOrClient": "Individu atau Pelanggan"
 }
