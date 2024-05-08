@@ -36,7 +36,7 @@ All Rights Reserved
   };
 </script>
 
-<Pane size={innerWidth > 1024 ? "40" : "100"} minSize={innerWidth > 1024 ? "40" : "100"} maxSize={innerWidth > 1024 ? "50" : "100"}>
+<Pane size={innerWidth > 1024 ? "30" : "100"} minSize={innerWidth > 1024 ? "30" : "100"} maxSize={innerWidth > 1024 ? "50" : "100"}>
   <div
     class="h-screen fixed transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
   >

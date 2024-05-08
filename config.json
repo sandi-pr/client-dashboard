@@ -758,6 +758,82 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "get-schedule",
+            "path": "/get-schedule",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetSchedule"
+            },
+            "params": [
+                {
+                    "name": "start_date",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "end_date",
+                    "type": "date",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "create-schedule",
+            "path": "/create-schedule",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateSchedule"
+            },
+            "params": [
+                {
+                    "name": "title",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "date",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "start_time",
+                    "type": "time",
+                    "required": true
+                },
+                {
+                    "name": "end_time",
+                    "type": "time",
+                    "required": true
+                },
+                {
+                    "name": "is_active",
+                    "type": "enumeration",
+                    "enum": [
+                        "Yes",
+                        "No"
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "reset",
+            "path": "/reset",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "Reset"
+            }
         }
     ],
     "options": {
@@ -766,14 +842,17 @@
                 "name": "calendar",
                 "label": "Calendar",
                 "fields": {
+                    "title": {
+                        "type": "string"
+                    },
                     "date": {
                         "type": "date"
                     },
                     "start_time": {
-                        "type": "datetime"
+                        "type": "time"
                     },
                     "end_time": {
-                        "type": "datetime"
+                        "type": "time"
                     },
                     "availaible_slot": {
                         "type": "biginteger"
