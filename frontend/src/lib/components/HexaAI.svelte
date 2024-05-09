@@ -8,10 +8,10 @@
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane } from "svelte-splitpanes";
   import { tick } from "svelte";
-  import Markdown from 'svelte-exmarkdown';
-	import { gfmPlugin } from 'svelte-exmarkdown/gfm';
+  import Markdown from "svelte-exmarkdown";
+  import { gfmPlugin } from "svelte-exmarkdown/gfm";
 
-	const plugins = [gfmPlugin()];
+  const plugins = [gfmPlugin()];
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -178,8 +178,8 @@
                 >{qaPair.role === "user" ? "You" : "HexaAI"}</P
               >
             </div>
-            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
-              ><Markdown md={qaPair.message} {plugins} /></P
+            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark">
+              <div class="prose"><Markdown md={qaPair.message} {plugins} /></div></P
             >
           </div>
         </div>

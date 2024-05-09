@@ -26,7 +26,6 @@
     Button,
     DropdownItem,
   } from "flowbite-svelte";
-  // import SvelteMarkdown from "svelte-markdown";
   import ID from "$lib/icon/ID.svg";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -365,8 +364,6 @@
           />
           Copy to clipboard
         </Button>
-        <!-- <Highlight language={typescript}   {code} /> -->
-        <!-- <SvelteMarkdown></SvelteMarkdown> -->
       </div>
     </div>
   {:else if tabDatas.selected === "Usage"}
