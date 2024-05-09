@@ -19,9 +19,8 @@ All Rights Reserved
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let documentsReady = $state(false);
-  let pagination = { page: 1, pageSize: 25, pageCount: 1, total: 25 };
-  let actionItems = $state([]);
+  let paginationOrders = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
+  let paginationInvoices = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
 
   let tabDatas = $state({
     selected: "Orders",
@@ -35,48 +34,111 @@ All Rights Reserved
     ],
   });
 
-  let dataOrders = $state([
-    {
-      id: 1,
-      booking_date: "05/05/2024 20:49",
-      customer_name: "Christy Weber",
-      order: "Solid Hardwood Flooring",
-      total_amount: "$2766",
-      order_status: "Calendars Booked",
-      actions: {
-        objects: [
-          {
-            href: "/crm/order_invoice/order",
-            name: "Detail",
+  let dataOrders = $state([]);
+
+  let dataInvoices = $state([]);
+
+  let configsOrders = $state({ search: true });
+
+  let configsInvoices = $state({ search: true });
+
+  let orderReady = $state(false);
+
+  let invoiceReady = $state(false);
+
+  async function getOrder() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await call.call("client-dashboard", "get-orders", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: paginationOrders.page,
           },
-        ],
-      },
-    }
-  ]);
-
-  let dataInvoices = $state([
-    {
-      id: 1,
-      customer_name: "Christy Weber",
-      invoice_date: "05/05/2024 20:49",
-      due_date: "05/05/2024 20:49",
-      total_amount: "$2766",
-      payment_status: "Unpaid",
-      actions: {
-        objects: [
-          {
-            href: "/crm/order_invoice/invoice",
-            name: "Detail",
+          Headers: {
+            Authorization: "Bearer " + token,
           },
-        ],
-      },
+        });
+
+        console.log("orders", response);
+
+        if (response.status === 200) {
+          if (response.result.data.length > 0) {
+            configsOrders = {
+              search: true,
+              pagination: response.result.meta.pagination,
+            };
+            let promise = response.result.data.map((data) => {
+              return {
+                id: data.id,
+                booking_date: data.attributes.booking_date,
+                customer_name: data.attributes.person.data.attributes.fullname,
+                order: data.attributes.product.data.attributes.product_name,
+                total_amount: data.attributes.total_amount,
+                order_status:
+                  data.attributes.order_status[data.attributes.order_status.length - 1].status,
+              };
+            });
+
+            dataOrders = await Promise.all(promise);
+
+            orderReady = true;
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
-  ]);
+  }
 
-  let configs = $state({ search: true });
+  async function getInvoice() {
+    let token = sessionStorage.getItem("token");
 
-  onMount(async () => {
+    if (token != null) {
+      let response = await call.call("client-dashboard", "get-invoices", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: paginationInvoices.page,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
+      console.log("invoices", response);
+
+      if (response.status === 200) {
+        if (response.result.data.length > 0) {
+          configsInvoices = {
+            search: true,
+            pagination: response.result.meta.pagination,
+          };
+          let promise = response.result.data.map((data) => {
+            return {
+              id: data.id,
+              customer_name: data.attributes.person.data.attributes.fullname,
+              invoice_date: data.attributes.invoice_date,
+              due_date: data.attributes.due_date,
+              total_amount: data.attributes.total_amount,
+              payment_status:
+                data.attributes.payment_status[data.attributes.payment_status.length - 1].status,
+            };
+          });
+
+          dataInvoices = await Promise.all(promise);
+
+          invoiceReady = true;
+        }
+      }
+    }
+  }
+
+  onMount(() => {
+    getOrder();
+    getInvoice();
   });
 </script>
 
@@ -87,19 +149,35 @@ All Rights Reserved
 
       <div class="flex flex-col">
         <!-- User Information -->
-        <Typography preset="Display sm/Semibold" color="primary" text={$_(toCamelCase(tabDatas.selected))} />
+        <Typography
+          preset="Display sm/Semibold"
+          color="primary"
+          text={$_(toCamelCase(tabDatas.selected))}
+        />
 
         <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
         <!-- Table Data -->
         {#if tabDatas.selected === "Orders"}
-          <div>
-            <DataTable bind:datas={dataOrders} bind:configs />
-          </div>
+          {#if orderReady}
+            <div>
+              <DataTable bind:datas={dataOrders} bind:configs={configsOrders} />
+            </div>
+          {:else}
+            <div>
+              <DataTable bind:datas={dataOrders} bind:configs={configsOrders} />
+            </div>
+          {/if}
         {:else if tabDatas.selected === "Invoices"}
-          <div>
-            <DataTable bind:datas={dataInvoices} bind:configs />
-          </div>
+          {#if invoiceReady}
+            <div>
+              <DataTable bind:datas={dataInvoices} bind:configs={configsInvoices} />
+            </div>
+          {:else}
+            <div>
+              <DataTable bind:datas={dataInvoices} bind:configs={configsInvoices} />
+            </div>
+          {/if}
         {/if}
       </div>
     </div>

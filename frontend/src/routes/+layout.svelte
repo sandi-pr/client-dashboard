@@ -122,6 +122,11 @@ All Rights Reserved
             name: "categories",
           },
           {
+            href: await call.getPage("client-dashboard", "crm-order-invoice"), // for frontend comment this
+            // href: "/crm/order_invoice", // for frontend uncomment this
+            name: "order&Invoice",
+          },
+          {
             href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
             // href: "/crm/calendar", // for frontend uncomment this
             name: "calendar",

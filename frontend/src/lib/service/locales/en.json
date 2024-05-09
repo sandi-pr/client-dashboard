@@ -197,5 +197,6 @@
   "contractInformation": "Contract Information",
   "contractStartPeriod": "Contract Start Period",
   "contractEndPeriod": "Contract End Period",
-  "personsOrClient": "Persons or Client"
+  "personsOrClient": "Persons or Client",
+  "order&Invoice": "Order & Invoice"
 }

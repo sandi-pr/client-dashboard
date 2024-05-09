@@ -195,5 +195,6 @@
     "contractInformation": "Informasi Kontrak",
     "contractStartPeriod": "Periode Mulai Kontrak",
     "contractEndPeriod": "Periode Akhir Kontrak",
-    "personsOrClient": "Individu atau Pelanggan"
+    "personsOrClient": "Individu atau Pelanggan",
+    "order&Invoice": "Pesanan & Faktur"
 }
