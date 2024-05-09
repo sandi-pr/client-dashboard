@@ -56,7 +56,7 @@ All Rights Reserved
 
   let data = $state({
     document_title: "",
-    document_upload: "",
+    document_upload: null,
     description: "",
     document_type: "",
     person_client: "",
@@ -167,10 +167,11 @@ All Rights Reserved
 
   async function createProduct() {
     if (
-      data.product_name === "" ||
+      data.document_title === "" ||
+      data.document_upload === null ||
       data.description === "" ||
-      data.price === "" ||
-      data.category === null
+      data.document_type === "" ||
+      data.person_client === ""
     ) {
       return;
     }
@@ -183,102 +184,15 @@ All Rights Reserved
     console.log(fileTextResult);
     console.log(fileTextResultBlob);
     return;
-
-    let token = sessionStorage.getItem("token");
-
-    if (token !== null) {
-      try {
-        let response = await call.call("client-dashboard", "create-product", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            product_name: data.product_name,
-            description: data.description,
-            price: data.price,
-            is_active: data.is_active,
-            category: data.category,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        console.log("kelinci", response);
-
-        if (response.status === 200) {
-          if (resources.length > 0) {
-            for (let i = 0; i < resources.length; i++) {
-              let response2 = await call.call("client-dashboard", "create-resource", {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  resource_name: resources[i].resource_name,
-                  // image: resources[i].image !== null ? resources[i].image : null,
-                  description: resources[i].description,
-                  // resource_type: resources[i].resource_type,
-                  is_active: resources[i].is_active === true ? "Yes" : "No",
-                  product: response.result.data.id,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
-
-              if (response2.status !== 200) {
-                console.log(response2);
-                return;
-              }
-            }
-          }
-          await call.goToPage("client-dashboard", "crm-product-service");
-          return;
-        } else {
-          console.log(response);
-          return;
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
-
-  async function getCategories() {
-    let token = sessionStorage.getItem("token");
-    if (token !== null) {
-      let response = await call.call("client-dashboard", "get-categories", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: 1,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status === 200) {
-        let promise = response.result.data.map((category) => {
-          return {
-            value: category.id,
-            name: category.attributes.category_name,
-          };
-        });
-
-        categories = await Promise.all(promise);
-      } else {
-        console.log(response);
-        return;
-      }
-    }
   }
 
   let buttonDisable = $state(true);
 
   $effect(() => {
     if (
-      data.product_name !== "" &&
+      data.document_title !== "" &&
       data.description !== "" &&
-      data.price !== "" &&
+      data.description !== "" &&
       data.is_active !== ""
     ) {
       buttonDisable = false;
@@ -420,7 +334,7 @@ All Rights Reserved
               />
               <!-- <Input
                 readonly={!onEdit}
-                bind:value={data.category}
+                bind:value={data.document_type}
                 class="bg-primary-light dark:bg-secondary-dark"
               />   -->
             </div>
@@ -447,7 +361,7 @@ All Rights Reserved
               />
               <!-- <Input
                 readonly={!onEdit}
-                bind:value={data.category}
+                bind:value={data.document_type}
                 class="bg-primary-light dark:bg-secondary-dark"
               />   -->
             </div>

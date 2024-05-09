@@ -133,7 +133,7 @@ All Rights Reserved
         name: "documentManagement",
         children: [
           {
-            href: await call.getPage("client-dashboard", "doc-overview"), // for frontend comment this
+            href: await call.getPage("client-dashboard", "document-management-overview"), // for frontend comment this
             // href: "/document_management", // for frontend uncomment this
             name: "overview",
           },
@@ -168,13 +168,13 @@ All Rights Reserved
         Headers: {
           Authorization: "Bearer " + sessionStorage.getItem("token"),
         },
-      })
+      });
 
       await logout();
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   export const load = async () => {
     if (browser) {
@@ -264,7 +264,7 @@ All Rights Reserved
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
           <Pane minSize={innerWidth > 1024 ? "70" : "0"}>
             <div class="transition-all duration-300">
-              <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} reset_database={reset_database} />
+              <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} {reset_database} />
               <slot />
             </div>
           </Pane>

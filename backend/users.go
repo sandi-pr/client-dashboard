@@ -96,12 +96,6 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	// fullname, ok := ctx.Params.GetString("fullname")
-
-	// if !ok {
-	// 	return ctx.Error(400, "invalid parameters")
-	// }
-
 	email, ok := ctx.Params.GetString("email")
 
 	if !ok {

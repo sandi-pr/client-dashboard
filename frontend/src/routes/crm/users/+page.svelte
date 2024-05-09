@@ -36,12 +36,6 @@ All Rights Reserved
 
   let configs = {
     search: true,
-    pagination: {
-      page: 1,
-      pageSize: 25,
-      pageCount: 1,
-      total: 25,
-    },
   };
 
   function getAuthority(authority) {
@@ -67,15 +61,13 @@ All Rights Reserved
     }
   }
 
-  async function getUsers(page) {
+  async function getUsers() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       let response = await call.call("client-dashboard", "get-users", {
         URLQuery: {},
         URLParams: {},
-        Params: {
-          page: page,
-        },
+        Params: {},
         Headers: {
           Authorization: "Bearer " + token,
         },
@@ -120,14 +112,6 @@ All Rights Reserved
     }
   }
 
-  async function next() {
-    getUsers(pagination.page + 1);
-  }
-
-  async function previous() {
-    getUsers(pagination.page - 1);
-  }
-
   onMount(async () => {
     // getActionItems();
     getUsers();
@@ -155,13 +139,10 @@ All Rights Reserved
 
         <!-- Person Table Data -->
         {#if datas.length > 0}
-          <DataTable bind:datas={datas} bind:configs bind:next bind:previous />
+          <DataTable bind:datas bind:configs />
         {:else}
           <div class="pt-8">
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-            />
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           </div>
         {/if}
       </div>
