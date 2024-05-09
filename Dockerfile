@@ -11,7 +11,7 @@ FROM oven/bun:latest AS frontend
 
 WORKDIR /app
 
-RUN apt update && apt install -y git
+RUN apt update && apt install -y git python3
 
 COPY frontend /app
 COPY config.json /config.json
