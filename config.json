@@ -928,6 +928,92 @@
             ]
         },
         {
+            "name": "get-order",
+            "path": "/get-order/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetOrder"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-order",
+            "path": "/update-order/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateOrder"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "order_date",
+                    "type": "datetime",
+                    "required": true
+                },
+                {
+                    "name": "booking_date",
+                    "type": "datetime",
+                    "required": true
+                },
+                {
+                    "name": "total_amount",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "note",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "order_status",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "shipping_address",
+                    "type": "text",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-order",
+            "path": "/delete-order/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteOrder"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-invoices",
             "path": "/get-invoices",
             "method": "POST",
@@ -942,6 +1028,42 @@
                     "name": "page",
                     "type": "number",
                     "required": false
+                }
+            ]
+        },
+        {
+            "name": "get-invoice",
+            "path": "/get-invoice/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetInvoice"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-invoice",
+            "path": "/delete-invoice/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteInvoice"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
                 }
             ]
         },
@@ -1125,7 +1247,7 @@
                 "label": "Order Booking",
                 "fields": {
                     "order_date": {
-                        "type": "date"
+                        "type": "datetime"
                     },
                     "total_amount": {
                         "type": "biginteger"
@@ -1140,7 +1262,7 @@
                         "type": "text"
                     },
                     "booking_date": {
-                        "type": "date"
+                        "type": "datetime"
                     },
                     "is_active": {
                         "type": "enumeration",

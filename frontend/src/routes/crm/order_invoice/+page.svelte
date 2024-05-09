@@ -70,7 +70,7 @@ All Rights Reserved
               search: true,
               pagination: response.result.meta.pagination,
             };
-            let promise = response.result.data.map((data) => {
+            let promise = response.result.data.map(async (data) => {
               return {
                 id: data.id,
                 booking_date: data.attributes.booking_date,
@@ -79,6 +79,17 @@ All Rights Reserved
                 total_amount: data.attributes.total_amount,
                 order_status:
                   data.attributes.order_status[data.attributes.order_status.length - 1].status,
+                actions: {
+                  objects: [
+                    {
+                      href:
+                        `${await call.getPage("client-dashboard", "crm-order-invoice-order")}` +
+                        "?orderId=" +
+                        data.id,
+                      name: "View",
+                    },
+                  ],
+                },
               };
             });
 
@@ -116,7 +127,7 @@ All Rights Reserved
             search: true,
             pagination: response.result.meta.pagination,
           };
-          let promise = response.result.data.map((data) => {
+          let promise = response.result.data.map(async (data) => {
             return {
               id: data.id,
               customer_name: data.attributes.person.data.attributes.fullname,
@@ -125,6 +136,17 @@ All Rights Reserved
               total_amount: data.attributes.total_amount,
               payment_status:
                 data.attributes.payment_status[data.attributes.payment_status.length - 1].status,
+              actions: {
+                objects: [
+                  {
+                    href:
+                      `${await call.getPage("client-dashboard", "crm-order-invoice-invoice")}` +
+                      "?invoiceId=" +
+                      data.id,
+                    name: "View",
+                  },
+                ],
+              },
             };
           });
 

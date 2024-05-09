@@ -16,35 +16,156 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import Divider from "$lib/components/Divider.svelte";
+  import { format } from "date-fns";
 
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
-  const catergoryId = params.get("");
+  const orderId = params.get("orderId");
   let onEdit = $state(false);
 
   let data = $state({
-    orderId: "19846829",
-    customerId: "19846829",
-    createdAt: "2023-07-02 08:51 PM",
-    order_date: "10/29/2023 11:08",
-    booking_date: "10/29/2023 11:08",
-    total_amount: "$9836",
-    payment_status: "Unpaid",
-    order_status: "Calendar Booked",
+    orderId: "",
+    customerId: "",
+    createdAt: "",
+    order_date: "",
+    booking_date: "",
+    total_amount: "",
+    payment_status: "",
+    order_status: "",
     booking: {
-      time: "24 Jan 2023, 08:00 PM",
-      booking_date: "24 Jan 2023, 09:00 PM",
-      notes: "-",
+      time: "",
+      booking_date: "",
+      notes: "",
     },
     product: {
-      id: "19846829",
-      name: "Solid Hardwood Flooring",
-      resourceId: "19846829",
+      id: "",
+      name: "",
+      resourceId: "",
     },
-    shipping_address: "John Smith, 42 Primrose Avenue, London, EC2M 7EB, United Kingdom",
+    shipping_address: "",
   });
 
+  let orderStatusCopy = $state([]);
+  let paymentStatusCopy = $state([]);
+
+  async function getOrder() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await call.call("client-dashboard", "get-order", {
+          URLQuery: {},
+          URLParams: {
+            id: orderId,
+          },
+          Params: {},
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          if (response.result.data.length > 0) {
+            console.log("order", response.result.data[0]);
+            let order = response.result.data[0];
+            data = {
+              orderId: order.id,
+              customerId: order.attributes.person.data.id,
+              createdAt: order.attributes.created_at,
+              order_date: format(new Date(order.attributes.order_date), "yyyy-MM-dd"),
+              booking_date: format(new Date(order.attributes.booking_date), "yyyy-MM-dd"),
+              total_amount: order.attributes.total_amount,
+              payment_status:
+                order.attributes.invoice.data.attributes.payment_status[
+                  order.attributes.invoice.data.attributes.payment_status.length - 1
+                ].status,
+              order_status:
+                order.attributes.order_status[order.attributes.order_status.length - 1].status,
+              booking: {
+                time: format(new Date(order.attributes.booking_date), "kk:mm"),
+                booking_date: format(new Date(order.attributes.booking_date), "yyyy-MM-dd"),
+                notes: order.attributes.note,
+              },
+              product: {
+                id: order.attributes.product.data.id,
+                name: order.attributes.product.data.attributes.product_name,
+                resourceId: order.attributes.resources.data[0].id,
+              },
+              shipping_address: order.attributes.shipping_address,
+            };
+
+            orderStatusCopy = order.attributes.order_status;
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function updateOrder() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let response = await call.call("client-dashboard", "update-order", {
+        URLQuery: {},
+        URLParams: {
+          id: orderId,
+        },
+        Params: {
+          order_date: new Date(data.order_date).toISOString().split("T")[0],
+          booking_date: data.booking_date + "T" + data.booking.time + ":00.000Z",
+          total_amount: data.total_amount,
+          note: data.notes,
+          order_status:
+            data.order_status === orderStatusCopy[orderStatusCopy.length - 1].status
+              ? JSON.stringify(orderStatusCopy)
+              : JSON.stringify([
+                  ...orderStatusCopy,
+                  { status: data.order_status, time: new Date().toISOString() },
+                ]),
+          shipping_address: data.shipping_address,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("response", response);
+
+      if (response.status === 200) {
+        await call.goToPage("client-dashboard", "crm-order-invoice");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function deleteOrder() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let response = await call.call("client-dashboard", "delete-order", {
+        URLQuery: {},
+        URLParams: {
+          id: orderId,
+        },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status === 200) {
+        await call.goToPage("client-dashboard", "crm-order-invoice");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  onMount(() => {
+    getOrder();
+  });
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -84,9 +205,9 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={() => {}} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+            <Button onclick={updateOrder} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button onclick={() => {}} color="light" class="px-3 focus-within:!ring-1"
+            <Button onclick={deleteOrder} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
             <Button
@@ -116,7 +237,7 @@ All Rights Reserved
                   Order ID
                 </P>
                 <Input
-                  readonly={!onEdit}
+                  readonly
                   bind:value={data.orderId}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
@@ -128,7 +249,7 @@ All Rights Reserved
                   Customer ID
                 </P>
                 <Input
-                  readonly={!onEdit}
+                  readonly
                   bind:value={data.customerId}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
@@ -142,6 +263,7 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.order_date}
+                  type="date"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -154,6 +276,7 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.booking_date}
+                  type="date"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -168,6 +291,7 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.total_amount}
+                  type="number"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -178,7 +302,7 @@ All Rights Reserved
                   Payment Status
                 </P>
                 <Input
-                  readonly={!onEdit}
+                  readonly
                   bind:value={data.payment_status}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
@@ -192,6 +316,7 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.order_status}
+                  type="text"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -217,6 +342,7 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.booking.time}
+                  type="time"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -232,6 +358,7 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.booking.booking_date}
+                  type="date"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -269,7 +396,7 @@ All Rights Reserved
                 </P>
                 <Input
                   readonly={!onEdit}
-                  bind:value={data.booking.time}
+                  bind:value={data.product.name}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -280,7 +407,7 @@ All Rights Reserved
                   Product ID
                 </P>
                 <Input
-                  readonly={!onEdit}
+                  readonly
                   bind:value={data.product.id}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
@@ -292,7 +419,7 @@ All Rights Reserved
                   Resource ID
                 </P>
                 <Input
-                  readonly={!onEdit}
+                  readonly
                   bind:value={data.product.resourceId}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />

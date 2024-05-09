@@ -20,7 +20,7 @@ All Rights Reserved
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
-  const catergoryId = params.get("");
+  const invoiceId = params.get("invoiceId");
   let onEdit = $state(false);
 
   let data = $state({
@@ -32,8 +32,81 @@ All Rights Reserved
     total_amount: "$9836",
     payment_status: "Unpaid",
     notes: "-",
+    orderId: "19846829",
   });
 
+  async function getInvoice() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await call.call("client-dashboard", "get-invoice", {
+          URLQuery: {},
+          URLParams: {
+            id: invoiceId,
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log(response);
+
+        if (response.status !== 200) {
+          console.log(response);
+        }
+
+        if (response.status === 200) {
+          if (response.result.data.length > 0) {
+            let invoice = response.result.data[0];
+            data = {
+              invoiceId: invoice.id,
+              customerId: invoice.attributes.person.data.id,
+              createdAt: invoice.attributes.created_at,
+              invoice_date: invoice.attributes.invoice_date,
+              due_date: invoice.attributes.due_date,
+              total_amount: invoice.attributes.total_amount,
+              payment_status:
+                invoice.attributes.payment_status[invoice.attributes.payment_status.length - 1]
+                  .status,
+              notes: invoice.attributes.note,
+              orderId: invoice.attributes.order_booking.data.id,
+            };
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function deleteInvoice() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await call.call("client-dashboard", "delete-invoice", {
+          URLQuery: {},
+          URLParams: {
+            id: invoiceId,
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          console.log(response);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  onMount(() => {
+    getInvoice();
+  });
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -75,7 +148,7 @@ All Rights Reserved
             >
             <Button onclick={() => {}} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button onclick={() => {}} color="light" class="px-3 focus-within:!ring-1"
+            <Button onclick={deleteInvoice} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
             <Button
