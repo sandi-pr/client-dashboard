@@ -8,7 +8,10 @@
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane } from "svelte-splitpanes";
   import { tick } from "svelte";
-  import SvelteMarkdown from 'svelte-markdown';
+  import Markdown from 'svelte-exmarkdown';
+	import { gfmPlugin } from 'svelte-exmarkdown/gfm';
+
+	const plugins = [gfmPlugin()];
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -159,24 +162,24 @@
         <div
           class=" bg-secondary-light flex dark:bg-secondary-dark rounded-2xl p-4 items-start gap-4"
         >
-          <div
-            class="w-12 h-11 relative flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
-          >
-            <img src={UserIcon} alt="User" class="" />
-            {#if qaPair.role === "assistant"}
-              <div class="absolute bottom-0 right-0">
-                <img src={VerifiedIcon} alt="User" class="w-4 h-4" />
-              </div>
-            {/if}
-          </div>
-          <div class="flex flex-col w-full gap-1">
+          <div class="flex flex-col w-full gap-2">
             <div class="flex items-center space-x-2 rtl:space-x-reverse">
+              <div
+                class="w-8 h-8 relative flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+              >
+                <img src={UserIcon} alt="User" class="w-6 h-6" />
+                {#if qaPair.role === "assistant"}
+                  <div class="absolute bottom-0 right-0">
+                    <img src={VerifiedIcon} alt="User" class="w-3 h-3" />
+                  </div>
+                {/if}
+              </div>
               <P weight="bold" class="text-primary-light dark:text-primary-dark"
                 >{qaPair.role === "user" ? "You" : "HexaAI"}</P
               >
             </div>
             <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
-              ><SvelteMarkdown source={qaPair.message} /></P
+              ><Markdown md={qaPair.message} {plugins} /></P
             >
           </div>
         </div>
@@ -185,16 +188,16 @@
         <div
           class=" bg-secondary-light flex dark:bg-secondary-dark rounded-2xl p-4 items-start gap-4"
         >
-          <div
-            class="w-12 h-11 relative flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
-          >
-            <img src={UserIcon} alt="User" class="" />
-            <div class="absolute bottom-0 right-0">
-              <img src={VerifiedIcon} alt="User" class="w-4 h-4" />
-            </div>
-          </div>
-          <div class="flex flex-col w-full gap-1">
+          <div class="flex flex-col w-full gap-2">
             <div class="flex items-center space-x-2 rtl:space-x-reverse">
+              <div
+                class="w-8 h-8 relative flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+              >
+                <img src={UserIcon} alt="User" class="w-6 h-6" />
+                <div class="absolute bottom-0 right-0">
+                  <img src={VerifiedIcon} alt="User" class="w-3 h-3" />
+                </div>
+              </div>
               <P weight="bold" class="text-primary-light dark:text-primary-dark">{"HexaAI"}</P>
             </div>
             <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
