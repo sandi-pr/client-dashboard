@@ -12,7 +12,7 @@
   export let fontSize = 16;
   export let value = "on";
 
-  let checked = true;
+  let checked = false;
 
   const uniqueID = Math.floor(Math.random() * 100);
 

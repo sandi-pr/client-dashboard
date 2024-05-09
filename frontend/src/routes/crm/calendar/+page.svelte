@@ -66,21 +66,15 @@
     ],
   };
 
-  let dayAvailable = [true, false, true, true, true, false, false];
-  let dayAvailableCopy = [...dayAvailable];
-  let timeAvailable = ["08:00", "16:00"];
-  let timeAvailableCopy = [...timeAvailable];
+  let idCalendar;
+  let dayAvailable = [];
+  let dayAvailableCopy = [];
+  let timeAvailable = [];
+  let timeAvailableCopy = [];
   let timeAvailableIndividualMode = "off";
-  let timeAvailableIndividual = [
-    { start: "08:00", end: "12:00" },
-    { start: "13:00", end: "16:00" },
-    { start: "08:00", end: "12:00" },
-    { start: "08:00", end: "12:00" },
-    { start: "08:00", end: "12:00" },
-    { start: "13:00", end: "16:00" },
-    { start: "13:00", end: "16:00" },
-  ];
-  let timeAvailableIndividualCopy = [...timeAvailableIndividual];
+  let timeAvailableIndividual = [];
+  let timeAvailableIndividualCopy = [];
+  let days = [];
   let daysInMonth = [];
   let daysInWeek = [];
   let hoursOfDay = [];
@@ -345,6 +339,8 @@
       };
     });
 
+    console.log("itu", postProcessedDate);
+
     // disini mas dean
     let date_1;
     let date_2;
@@ -360,6 +356,11 @@
           dateSame = true;
         }
       }
+    }
+
+    let isAvailable = checkAvailability(postProcessedDate);
+    if (!isAvailable) {
+      return;
     }
 
     if (dateSame) {
@@ -389,6 +390,7 @@
         });
         if (response.status === 200) {
           console.log(response);
+          await getSchedule();
           modal = false;
         }
       } catch (error) {
@@ -431,6 +433,54 @@
 
       modal = false;
     }
+  };
+
+  const checkAvailability = (postProcessedDate) => {
+    for (let i = 0; i < postProcessedDate.length; i++) {
+      const dateObj = postProcessedDate[i];
+      const date = new Date(dateObj.datetime);
+      const dayIndex = date.getDay();
+
+      if (!dayAvailableCopy[dayIndex]) {
+        console.log(`Hari yang Anda pilih tidak tersedia untuk booking.`);
+        return false;
+      }
+
+      if (
+        !isTimeAvailable(
+          `${postProcessedDate[0].datetime.getHours()}:${postProcessedDate[0].datetime.getMinutes()}`,
+          `${postProcessedDate[1].datetime.getHours()}:${postProcessedDate[1].datetime.getMinutes()}`,
+          dayIndex,
+        )
+      ) {
+        console.log(`Waktu yang Anda pilih tidak tersedia untuk booking.`);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const isTimeAvailable = (timeStart, timeEnd, dayIndex) => {
+    console.log(timeStart, timeEnd);
+    const availableTime = timeAvailableIndividualCopy[dayIndex];
+    const start = availableTime.start;
+    const end = availableTime.end;
+
+    const [availableStartHour, availableStartMinute] = start.split(":").map(Number);
+    const [availableEndHour, availableEndMinute] = end.split(":").map(Number);
+
+    const [bookStartHour, bookStartMinute] = timeStart.split(":").map(Number);
+    const [bookEndHour, bookEndMinute] = timeEnd.split(":").map(Number);
+
+    const availableStartTime = availableStartHour * 60 + availableStartMinute;
+    const availableEndTime = availableEndHour * 60 + availableEndMinute;
+    const bookStartTime = bookStartHour * 60 + bookStartMinute;
+    const bookEndTime = bookEndHour * 60 + bookEndMinute;
+
+    console.log(bookStartTime, ">=", availableStartTime, "&&", bookEndTime, "<=", availableEndTime);
+
+    return bookStartTime >= availableStartTime && bookEndTime <= availableEndTime;
   };
 
   const checkTimeFormat = (evt, time, index = -1) => {
@@ -547,8 +597,87 @@
     return false;
   };
 
-  const handleSaveConfig = () => {
-    console.log("save config backend logic here");
+  const handleSaveConfig = async () => {
+    // console.log(dayAvailable);
+    // console.log(timeAvailable);
+    // console.log(timeAvailableIndividual);
+    // console.log(timeAvailableIndividualMode);
+    // console.log("save config backend logic here");
+
+    let timeAvailability = [];
+
+    if (timeAvailableIndividualMode === "on") {
+      for (let i = 0; i < days.length; i++) {
+        timeAvailability.push({
+          name: days[i],
+          start: timeAvailableIndividual[i].start,
+          end: timeAvailableIndividual[i].end,
+          is_active: dayAvailable[i],
+        });
+      }
+
+      console.log(timeAvailability);
+    } else {
+      for (let i = 0; i < days.length; i++) {
+        timeAvailability.push({
+          name: days[i],
+          start: timeAvailable[0],
+          end: timeAvailable[1],
+          is_active: dayAvailable[i],
+        });
+      }
+
+      console.log(timeAvailability);
+    }
+
+    if (timeAvailability.length === 0) {
+      alert("Please choose at least one day and time");
+      return;
+    }
+
+    try {
+      if (idCalendar === undefined) {
+        let token = sessionStorage.getItem("token");
+        let response = await call.call("client-dashboard", "create-availability", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            availability: JSON.stringify(timeAvailability),
+            individualMode: timeAvailableIndividualMode === "on" ? "Yes" : "No",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          console.log(response);
+        }
+      } else {
+        let token = sessionStorage.getItem("token");
+        let response = await call.call("client-dashboard", "update-availability", {
+          URLQuery: {},
+          URLParams: {
+            id: idCalendar.toString(),
+          },
+          Params: {
+            availability: JSON.stringify(timeAvailability),
+            individualMode: timeAvailableIndividualMode === "on" ? "Yes" : "No",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("ayam", response);
+
+        if (response.status === 200) {
+          console.log(response);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   async function getSchedule() {
@@ -574,7 +703,7 @@
     let token = sessionStorage.getItem("token");
 
     try {
-      let response = await call.call("client-dashboard", "get-schedule", {
+      var response = await call.call("client-dashboard", "get-schedule", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -585,28 +714,92 @@
           Authorization: "Bearer " + token,
         },
       });
-      console.log("ayam", response);
       if (response.status === 200) {
-        let promise = response.result.data.map((item) => {
-          let date = new Date(item.attributes.date);
-          date.setDate(date.getDate() - 1);
-          return {
-            title: item.attributes.title,
-            dateEvent: [
-              {
-                date: date.toISOString().split("T")[0],
-                timeStart: item.attributes.start_time.substring(0, 5),
-                timeEnd: item.attributes.end_time.substring(0, 5),
-              },
-            ],
-          };
-        });
-        schedule = await Promise.all(promise);
+        if (response.result.booking.length > 0) {
+          let promise = response.result.booking.data.map((item) => {
+            let date = new Date(item.attributes.date);
+            date.setDate(date.getDate() - 1);
+            return {
+              title: item.attributes.title,
+              dateEvent: [
+                {
+                  date: date.toISOString().split("T")[0],
+                  timeStart: item.attributes.start_time.substring(0, 5),
+                  timeEnd: item.attributes.end_time.substring(0, 5),
+                },
+              ],
+            };
+          });
+          schedule = await Promise.all(promise);
+        }
+
         daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
         daysInWeek = getDaysOfWeek(new Date(currentDate));
         hoursOfDay = getHoursOfDay();
+
+        console.log("cek", response.result.calendar);
+
+        if (response.result.calendar === null) {
+          days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+          dayAvailable = [false, false, false, false, false, false, false];
+          dayAvailableCopy = [...dayAvailable];
+          timeAvailable = ["08:00", "17:00"];
+          timeAvailableCopy = [...timeAvailable];
+          timeAvailableIndividual = [
+            {
+              start: "08:00",
+              end: "17:00",
+            },
+            {
+              start: "08:00",
+              end: "17:00",
+            },
+            {
+              start: "08:00",
+              end: "17:00",
+            },
+            {
+              start: "08:00",
+              end: "17:00",
+            },
+            {
+              start: "08:00",
+              end: "17:00",
+            },
+            {
+              start: "08:00",
+              end: "17:00",
+            },
+            {
+              start: "08:00",
+              end: "17:00",
+            },
+          ];
+        } else {
+          idCalendar = response.result.calendar.id;
+          console.log(idCalendar);
+          let availability = response.result.calendar.attributes.availability;
+          days = availability.map((day) => {
+            return day.name;
+          });
+          dayAvailable = availability.map((days) => {
+            return days.is_active;
+          });
+          dayAvailableCopy = [...dayAvailable];
+          timeAvailable = [availability[0].start, availability[0].end];
+          console.log("ini", timeAvailable);
+          timeAvailableCopy = [...timeAvailable];
+          timeAvailableIndividual = availability.map((time) => {
+            return {
+              start: time.start,
+              end: time.end,
+            };
+          });
+          timeAvailableIndividualCopy = [...timeAvailableIndividual];
+          timeAvailableIndividualMode =
+            response.result.calendar.attributes.individualMode === "Yes" ? "on" : "off";
+        }
         dataReady = true;
-        console.log(schedule);
       }
     } catch (error) {
       console.log(error);
@@ -844,109 +1037,111 @@
     <div class="flex">
       <div class="w-1/3"><P class="font-semibold">Availability</P></div>
       <div class="w-2/3">
-        {#if timeAvailableIndividualMode === "off"}
-          <!-- day availability selector -->
-          <div class="flex">
-            <P class="content-center mr-4">Select day</P>
-            <div class="flex gap-3">
+        {#if dataReady}
+          {#if timeAvailableIndividualMode === "off"}
+            <!-- day availability selector -->
+            <div class="flex">
+              <P class="content-center mr-4">Select day</P>
+              <div class="flex gap-3">
+                {#each dayAvailable as available, index}
+                  <button
+                    type="button"
+                    class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
+                    on:click={() => {
+                      dayAvailable[index] = !dayAvailable[index];
+                      checkConfigChange();
+                    }}
+                  >
+                    {format("2024-01-0" + (index + 1), "EEEEE")}
+                  </button>
+                {/each}
+              </div>
+            </div>
+
+            <!-- time availability selector -->
+            <div class="flex mt-8 w-[30rem]">
+              <Input
+                type="text"
+                placeholder={format(new Date(), "kk:mm")}
+                value={timeAvailable[0]}
+                on:keyup={(evt) => {
+                  checkTimeFormat(evt, "availTimeStart");
+                  checkConfigChange();
+                }}
+                on:change={(evt) => {
+                  checkTimeFinal(evt, "availTimeStart");
+                }}
+              >
+                <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              </Input>
+              <P class="mx-4 text-center content-center">-</P>
+              <Input
+                type="text"
+                placeholder={format(new Date(), "kk:mm")}
+                value={timeAvailable[1]}
+                on:keyup={(evt) => {
+                  checkTimeFormat(evt, "availTimeEnd");
+                  checkConfigChange();
+                }}
+                on:change={(evt) => {
+                  checkTimeFinal(evt, "availTimeEnd");
+                }}
+              >
+                <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              </Input>
+            </div>
+          {:else}
+            <!-- day availability selector -->
+            <div class="flex flex-col gap-3">
               {#each dayAvailable as available, index}
-                <button
-                  type="button"
-                  class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
-                  on:click={() => {
-                    dayAvailable[index] = !dayAvailable[index];
-                    checkConfigChange();
-                  }}
-                >
-                  {format("2024-01-0" + (index + 1), "EEEEE")}
-                </button>
+                <div class="flex">
+                  <button
+                    type="button"
+                    class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
+                    on:click={() => {
+                      dayAvailable[index] = !dayAvailable[index];
+                      checkConfigChange();
+                    }}
+                  >
+                    {format("2024-01-0" + (index + 1), "EEEEE")}
+                  </button>
+                  <div class="flex mx-4 w-full">
+                    <Input
+                      type="text"
+                      placeholder={format(new Date(), "kk:mm")}
+                      value={timeAvailableIndividual[index].start}
+                      class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
+                      on:keyup={(evt) => {
+                        checkTimeFormat(evt, "availTimeStart", index);
+                        checkConfigChange();
+                      }}
+                      on:change={(evt) => {
+                        checkTimeFinal(evt, "availTimeStart", index);
+                      }}
+                    >
+                      <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    </Input>
+                    <P class="mx-4 text-center content-center">-</P>
+                    <Input
+                      type="text"
+                      placeholder={format(new Date(), "kk:mm")}
+                      value={timeAvailableIndividual[index].end}
+                      class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
+                      on:keyup={(evt) => {
+                        checkTimeFormat(evt, "availTimeEnd", index);
+                        checkConfigChange();
+                      }}
+                      on:change={(evt) => {
+                        checkTimeFinal(evt, "availTimeEnd", index);
+                      }}
+                    >
+                      <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    </Input>
+                  </div>
+                </div>
               {/each}
             </div>
-          </div>
-
-          <!-- time availability selector -->
-          <div class="flex mt-8 w-[30rem]">
-            <Input
-              type="text"
-              placeholder={format(new Date(), "kk:mm")}
-              value={timeAvailable[0]}
-              on:keyup={(evt) => {
-                checkTimeFormat(evt, "availTimeStart");
-                checkConfigChange();
-              }}
-              on:change={(evt) => {
-                checkTimeFinal(evt, "availTimeStart");
-              }}
-            >
-              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            </Input>
-            <P class="mx-4 text-center content-center">-</P>
-            <Input
-              type="text"
-              placeholder={format(new Date(), "kk:mm")}
-              value={timeAvailable[1]}
-              on:keyup={(evt) => {
-                checkTimeFormat(evt, "availTimeEnd");
-                checkConfigChange();
-              }}
-              on:change={(evt) => {
-                checkTimeFinal(evt, "availTimeEnd");
-              }}
-            >
-              <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            </Input>
-          </div>
-        {:else}
-          <!-- day availability selector -->
-          <div class="flex flex-col gap-3">
-            {#each dayAvailable as available, index}
-              <div class="flex">
-                <button
-                  type="button"
-                  class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
-                  on:click={() => {
-                    dayAvailable[index] = !dayAvailable[index];
-                    checkConfigChange();
-                  }}
-                >
-                  {format("2024-01-0" + (index + 1), "EEEEE")}
-                </button>
-                <div class="flex mx-4 w-full">
-                  <Input
-                    type="text"
-                    placeholder={format(new Date(), "kk:mm")}
-                    value={timeAvailableIndividual[index].start}
-                    class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
-                    on:keyup={(evt) => {
-                      checkTimeFormat(evt, "availTimeStart", index);
-                      checkConfigChange();
-                    }}
-                    on:change={(evt) => {
-                      checkTimeFinal(evt, "availTimeStart", index);
-                    }}
-                  >
-                    <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                  </Input>
-                  <P class="mx-4 text-center content-center">-</P>
-                  <Input
-                    type="text"
-                    placeholder={format(new Date(), "kk:mm")}
-                    value={timeAvailableIndividual[index].end}
-                    class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
-                    on:keyup={(evt) => {
-                      checkTimeFormat(evt, "availTimeEnd", index);
-                      checkConfigChange();
-                    }}
-                    on:change={(evt) => {
-                      checkTimeFinal(evt, "availTimeEnd", index);
-                    }}
-                  >
-                    <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                  </Input>
-                </div>
-              </div>
-            {/each}
-          </div>
+          {/if}
         {/if}
 
         <!-- individual time toggle -->

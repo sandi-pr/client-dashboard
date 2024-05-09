@@ -85,6 +85,21 @@
             "file_path": "template/crm/calendar.html"
         },
         {
+            "name": "document-management-overview",
+            "path": "/document-management",
+            "file_path": "template/document_management.html"
+        },
+        {
+            "name": "document-management-create",
+            "path": "/document-management/create",
+            "file_path": "template/document_management/create.html"
+        },
+        {
+            "name": "document-management-detail",
+            "path": "/document-management/detail",
+            "file_path": "template/document_management/detail.html"
+        },
+        {
             "name": "hexabot-overview",
             "path": "/hexabot",
             "file_path": "template/hexabot.html"
@@ -513,13 +528,7 @@
                 "plugin": "plugin.so",
                 "function": "GetUsers"
             },
-            "params": [
-                {
-                    "name": "page",
-                    "type": "number",
-                    "required": false
-                }
-            ]
+            "params": []
         },
         {
             "name": "create-user",
@@ -825,6 +834,67 @@
             ]
         },
         {
+            "name": "create-availability",
+            "path": "/create-availability",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateAvailability"
+            },
+            "params": [
+                {
+                    "name": "availability",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "individualMode",
+                    "type": "enumeration",
+                    "enum": [
+                        "Yes",
+                        "No"
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-availability",
+            "path": "/update-availability/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateAvailability"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "availability",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "individualMode",
+                    "type": "enumeration",
+                    "enum": [
+                        "Yes",
+                        "No"
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "reset",
             "path": "/reset",
             "method": "POST",
@@ -842,6 +912,22 @@
                 "name": "calendar",
                 "label": "Calendar",
                 "fields": {
+                    "availability": {
+                        "type": "json"
+                    },
+                    "individualMode": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                            "No"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "booking",
+                "label": "Booking",
+                "fields": {
                     "title": {
                         "type": "string"
                     },
@@ -853,9 +939,6 @@
                     },
                     "end_time": {
                         "type": "time"
-                    },
-                    "availaible_slot": {
-                        "type": "biginteger"
                     },
                     "note": {
                         "type": "text"

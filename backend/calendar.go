@@ -11,7 +11,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	U "gitlab.hexacode.org/go-libs/hctypes"
@@ -53,8 +55,8 @@ func GetSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, calendar, err := Strapi.Find("calendar-table", U.Dict{
-		"filtees": U.Dict{
+	status, booking, err := Strapi.Find("booking-table", U.Dict{
+		"filters": U.Dict{
 			"date": U.Dict{
 				"gte": start_date,
 				"lte": end_date,
@@ -72,7 +74,27 @@ func GetSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, calendar, nil
+	status, availability, err := Strapi.Find("calendar-table", U.Dict{})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	availabilityArray, _ := availability.GetList("data")
+
+	calendar, _ := availabilityArray.GetDict(0)
+
+	if calendar == nil {
+		calendar = nil
+	}
+
+	return 200, U.Dict{"booking": booking, "calendar": calendar}, nil
 }
 
 func CreateSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
@@ -121,35 +143,21 @@ func CreateSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	// availaible_slot, ok := ctx.Params.GetString("availaible_slot")
-
-	// if !ok {
-	// 	return ctx.Error(400, "invalid parameters")
-	// }
-
-	// note, ok := ctx.Params.GetString("note")
-
-	// if !ok {
-	// 	return ctx.Error(400, "invalid parameters")
-	// }
-
 	is_active, ok := ctx.Params.GetString("is_active")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, calendar, err := Strapi.Create("calendar-table", U.Dict{
+	status, booking, err := Strapi.Create("booking-table", U.Dict{
 		"title":      title,
 		"date":       date,
 		"start_time": start_time,
 		"end_time":   end_time,
-		// "availaible_slot": availaible_slot,
-		// "note":      note,
-		"is_active": is_active,
+		"is_active":  is_active,
 	})
 
-	fmt.Println("calendar", calendar)
+	fmt.Println("booking", booking)
 
 	if err != nil {
 		fmt.Println(err)
@@ -158,6 +166,139 @@ func CreateSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 	if status != 200 {
 		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, booking, nil
+}
+
+func CreateAvailability(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	availabilityString, ok := ctx.Params.GetString("availability")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var availability interface{}
+	err = json.Unmarshal([]byte(availabilityString), &availability)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	individualMode, ok := ctx.Params.GetString("individualMode")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, calendar, err := Strapi.Create("calendar-table", U.Dict{
+		"availability":   availability,
+		"individualMode": individualMode,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, calendar, nil
+}
+
+func UpdateAvailability(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	availabilityId, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(availabilityId))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	availabilityString, ok := ctx.Params.GetString("availability")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var availability interface{}
+	err = json.Unmarshal([]byte(availabilityString), &availability)
+
+	if err != nil {
+		return ctx.Error(400, "invalid availability format")
+	}
+
+	individualMode, ok := ctx.Params.GetString("individualMode")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, calendar, err := Strapi.Update("calendar-table", int64(id), U.Dict{
+		"individualMode": individualMode,
+		"availability":   availability,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		fmt.Println(calendar)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
