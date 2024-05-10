@@ -16,6 +16,8 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
+  import { Button } from "flowbite-svelte";
+  import PlusIcon from "$lib/icon/plus.svg";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -73,9 +75,8 @@ All Rights Reserved
             let promise = response.result.data.map(async (data) => {
               return {
                 id: data.id,
-                booking_date: data.attributes.booking_date,
-                customer_name: data.attributes.person.data.attributes.fullname,
-                order: data.attributes.product.data.attributes.product_name,
+                customer_name: data.attributes.person.data?.attributes.fullname,
+                order: data.attributes.product.data?.attributes.product_name,
                 total_amount: data.attributes.total_amount,
                 order_status:
                   data.attributes.order_status[data.attributes.order_status.length - 1].status,
@@ -133,7 +134,7 @@ All Rights Reserved
               customer_name: data.attributes.person.data.attributes.fullname,
               invoice_date: data.attributes.invoice_date,
               due_date: data.attributes.due_date,
-              total_amount: data.attributes.total_amount,
+              total_amount: data.attributes.order_booking.data?.attributes.total_amount,
               payment_status:
                 data.attributes.payment_status[data.attributes.payment_status.length - 1].status,
               actions: {
@@ -158,6 +159,10 @@ All Rights Reserved
     }
   }
 
+  async function addNew() {
+    await call.goToPage("client-dashboard", "crm-order-invoice-create");
+  }
+
   onMount(() => {
     getOrder();
     getInvoice();
@@ -171,11 +176,17 @@ All Rights Reserved
 
       <div class="flex flex-col">
         <!-- User Information -->
-        <Typography
-          preset="Display sm/Semibold"
-          color="primary"
-          text={$_(toCamelCase(tabDatas.selected))}
-        />
+        <div class="flex items-center justify-between">
+          <Typography
+            preset="Display sm/Semibold"
+            color="primary"
+            text={$_(toCamelCase(tabDatas.selected))}
+          />
+
+          <Button onclick={addNew} icon={PlusIcon}
+            >Add new Order<img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+          >
+        </div>
 
         <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 

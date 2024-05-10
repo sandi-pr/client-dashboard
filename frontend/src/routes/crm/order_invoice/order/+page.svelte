@@ -22,6 +22,7 @@ All Rights Reserved
 
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("orderId");
+  let invoiceId = $state("");
   let onEdit = $state(false);
 
   let data = $state({
@@ -47,7 +48,6 @@ All Rights Reserved
   });
 
   let orderStatusCopy = $state([]);
-  let paymentStatusCopy = $state([]);
 
   async function getOrder() {
     let token = sessionStorage.getItem("token");
@@ -65,32 +65,36 @@ All Rights Reserved
           },
         });
 
+        if (response.status !== 200) {
+          console.log(response);
+        }
+
         if (response.status === 200) {
           if (response.result.data.length > 0) {
             console.log("order", response.result.data[0]);
             let order = response.result.data[0];
+            invoiceId = order.attributes.invoice.data?.id;
             data = {
               orderId: order.id,
-              customerId: order.attributes.person.data.id,
+              customerId: order.attributes.person.data?.id,
               createdAt: order.attributes.created_at,
-              order_date: format(new Date(order.attributes.order_date), "yyyy-MM-dd"),
-              booking_date: format(new Date(order.attributes.booking_date), "yyyy-MM-dd"),
+              order_date: format(new Date(order.attributes.order_date), "MM/dd/yyyy kk:mm"),
               total_amount: order.attributes.total_amount,
               payment_status:
-                order.attributes.invoice.data.attributes.payment_status[
-                  order.attributes.invoice.data.attributes.payment_status.length - 1
-                ].status,
+                order.attributes.invoice.data?.attributes.payment_status[
+                  order.attributes.invoice.data?.attributes.payment_status.length - 1
+                ]?.status,
               order_status:
                 order.attributes.order_status[order.attributes.order_status.length - 1].status,
-              booking: {
-                time: format(new Date(order.attributes.booking_date), "kk:mm"),
-                booking_date: format(new Date(order.attributes.booking_date), "yyyy-MM-dd"),
-                notes: order.attributes.note,
-              },
+              // booking: {
+              //   time: format(new Date(order.attributes.booking_date), "yyyy-MM-dd, kk:mm"),
+              //   booking_date: format(new Date(order.attributes.booking_date), "yyyy-MM-dd, kk:mm"),
+              //   notes: order.attributes.note,
+              // },
               product: {
-                id: order.attributes.product.data.id,
-                name: order.attributes.product.data.attributes.product_name,
-                resourceId: order.attributes.resources.data[0].id,
+                id: order.attributes.product.data?.id,
+                name: order.attributes.product.data?.attributes.product_name,
+                resourceId: order.attributes.resources.data[0]?.id,
               },
               shipping_address: order.attributes.shipping_address,
             };
@@ -104,46 +108,82 @@ All Rights Reserved
     }
   }
 
-  async function updateOrder() {
-    let token = sessionStorage.getItem("token");
-    try {
-      let response = await call.call("client-dashboard", "update-order", {
-        URLQuery: {},
-        URLParams: {
-          id: orderId,
-        },
-        Params: {
-          order_date: new Date(data.order_date).toISOString().split("T")[0],
-          booking_date: data.booking_date + "T" + data.booking.time + ":00.000Z",
-          total_amount: data.total_amount,
-          note: data.notes,
-          order_status:
-            data.order_status === orderStatusCopy[orderStatusCopy.length - 1].status
-              ? JSON.stringify(orderStatusCopy)
-              : JSON.stringify([
-                  ...orderStatusCopy,
-                  { status: data.order_status, time: new Date().toISOString() },
-                ]),
-          shipping_address: data.shipping_address,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+  // async function updateOrder() {
+  //   let token = sessionStorage.getItem("token");
+  //   try {
+  //     let response = await call.call("client-dashboard", "update-order", {
+  //       URLQuery: {},
+  //       URLParams: {
+  //         id: orderId,
+  //       },
+  //       Params: {
+  //         order_date: new Date(data.order_date).toISOString().split("T")[0],
+  //         booking_date: data.booking_date + "T" + data.booking.time + ":00.000Z",
+  //         total_amount: data.total_amount,
+  //         note: data.notes,
+  //         order_status:
+  //           data.order_status === orderStatusCopy[orderStatusCopy.length - 1].status
+  //             ? JSON.stringify(orderStatusCopy)
+  //             : JSON.stringify([
+  //                 ...orderStatusCopy,
+  //                 { status: data.order_status, time: new Date().toISOString() },
+  //               ]),
+  //         shipping_address: data.shipping_address,
+  //       },
+  //       Headers: {
+  //         Authorization: "Bearer " + token,
+  //       },
+  //     });
 
-      console.log("response", response);
+  //     console.log("response", response);
 
-      if (response.status === 200) {
-        await call.goToPage("client-dashboard", "crm-order-invoice");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  //     if (response.status === 200) {
+  //       await call.goToPage("client-dashboard", "crm-order-invoice");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   async function deleteOrder() {
     let token = sessionStorage.getItem("token");
-    try {
+    if (invoiceId !== "" && invoiceId !== null && invoiceId !== undefined) {
+      try {
+        let response = await call.call("client-dashboard", "delete-invoice", {
+          URLQuery: {},
+          URLParams: {
+            id: invoiceId.toString(),
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.status === 200) {
+          let response = await call.call("client-dashboard", "delete-order", {
+            URLQuery: {},
+            URLParams: {
+              id: orderId,
+            },
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status === 200) {
+            await call.goToPage("client-dashboard", "crm-order-invoice");
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
       let response = await call.call("client-dashboard", "delete-order", {
         URLQuery: {},
         URLParams: {
@@ -158,8 +198,6 @@ All Rights Reserved
       if (response.status === 200) {
         await call.goToPage("client-dashboard", "crm-order-invoice");
       }
-    } catch (error) {
-      console.log(error);
     }
   }
 
@@ -210,12 +248,12 @@ All Rights Reserved
             <Button onclick={deleteOrder} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
-            <Button
+            <!-- <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            > -->
           {/if}
         </div>
       </div>
@@ -263,11 +301,10 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.order_date}
-                  type="date"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col w-max gap-2">
+              <!-- <div class="flex flex-col w-max gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -276,10 +313,9 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.booking_date}
-                  type="date"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
-              </div>
+              </div> -->
             </div>
             <div class="flex gap-5">
               <div class="flex flex-col w-max gap-2">
@@ -291,7 +327,6 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.total_amount}
-                  type="number"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -316,7 +351,6 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.order_status}
-                  type="text"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -325,7 +359,7 @@ All Rights Reserved
         </div>
         <Divider />
         <!-- general information -->
-        <div class="flex gap-6">
+        <!-- <div class="flex gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("bookingInformation")}
@@ -342,7 +376,6 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.booking.time}
-                  type="time"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -358,7 +391,6 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.booking.booking_date}
-                  type="date"
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -378,7 +410,7 @@ All Rights Reserved
             </div>
           </div>
         </div>
-        <Divider />
+        <Divider /> -->
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">

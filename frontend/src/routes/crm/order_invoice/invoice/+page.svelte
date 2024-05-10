@@ -16,6 +16,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import Divider from "$lib/components/Divider.svelte";
+  import { format } from "date-fns";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -24,15 +25,15 @@ All Rights Reserved
   let onEdit = $state(false);
 
   let data = $state({
-    invoiceId: "19846829",
-    customerId: "19846829",
-    createdAt: "2023-07-02 08:51 PM",
-    invoice_date: "10/29/2023 11:08",
-    due_date: "10/29/2023 11:08",
-    total_amount: "$9836",
-    payment_status: "Unpaid",
-    notes: "-",
-    orderId: "19846829",
+    invoiceId: "",
+    customerId: "",
+    createdAt: "",
+    invoice_date: "",
+    due_date: "",
+    total_amount: "",
+    payment_status: "",
+    notes: "",
+    orderId: "",
   });
 
   async function getInvoice() {
@@ -61,16 +62,16 @@ All Rights Reserved
             let invoice = response.result.data[0];
             data = {
               invoiceId: invoice.id,
-              customerId: invoice.attributes.person.data.id,
+              customerId: invoice.attributes.person?.data.id,
               createdAt: invoice.attributes.created_at,
-              invoice_date: invoice.attributes.invoice_date,
-              due_date: invoice.attributes.due_date,
-              total_amount: invoice.attributes.total_amount,
+              invoice_date: format(new Date(invoice.attributes.invoice_date), "yyyy-MM-dd HH:mm"),
+              due_date: format(new Date(invoice.attributes.due_date), "yyyy-MM-dd HH:mm"),
+              total_amount: invoice.attributes.order_booking?.data.attributes.total_amount,
               payment_status:
                 invoice.attributes.payment_status[invoice.attributes.payment_status.length - 1]
                   .status,
               notes: invoice.attributes.note,
-              orderId: invoice.attributes.order_booking.data.id,
+              orderId: invoice.attributes.order_booking?.data.id,
             };
           }
         }
@@ -88,15 +89,20 @@ All Rights Reserved
         let response = await call.call("client-dashboard", "delete-invoice", {
           URLQuery: {},
           URLParams: {
-            id: invoiceId,
+            id: invoiceId.toString(),
           },
           Headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (response.status === 200) {
+        if (response.status !== 200) {
           console.log(response);
+          return;
+        }
+
+        if (response.status === 200) {
+          await call.goToPage("client-dashboard", "crm-order-invoice");
         }
       } catch (error) {
         console.log(error);
@@ -151,12 +157,12 @@ All Rights Reserved
             <Button onclick={deleteInvoice} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
-            <Button
+            <!-- <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            > -->
           {/if}
         </div>
       </div>

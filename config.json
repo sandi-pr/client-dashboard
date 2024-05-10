@@ -95,6 +95,11 @@
             "file_path": "template/crm/order_invoice/invoice.html"
         },
         {
+            "name": "crm-order-invoice-create",
+            "path": "/crm/order-invoice/create",
+            "file_path": "template/crm/order_invoice/create.html"
+        },
+        {
             "name": "crm-calendar",
             "path": "/crm/calendar",
             "file_path": "template/crm/calendar.html"
@@ -928,6 +933,54 @@
             ]
         },
         {
+            "name": "create-order",
+            "path": "/create-order",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateOrder"
+            },
+            "params": [
+                {
+                    "name": "order_date",
+                    "type": "datetime",
+                    "required": true
+                },
+                {
+                    "name": "order_status",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "person",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "product",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "resource",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "shipping_address",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "total_amount",
+                    "type": "number",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-order",
             "path": "/get-order/:id",
             "method": "GET",
@@ -1028,6 +1081,49 @@
                     "name": "page",
                     "type": "number",
                     "required": false
+                }
+            ]
+        },
+        {
+            "name": "create-invoice",
+            "path": "/create-invoice",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateInvoice"
+            },
+            "params": [
+                {
+                    "name": "order_booking",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "total_amount",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "person",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "invoice_date",
+                    "type": "datetime",
+                    "required": true
+                },
+                {
+                    "name": "due_date",
+                    "type": "datetime",
+                    "required": true
+                },
+                {
+                    "name": "payment_status",
+                    "type": "text",
+                    "required": true
                 }
             ]
         },
@@ -1196,7 +1292,7 @@
                     },
                     "order_booking": {
                         "type": "relation",
-                        "relation": "oneToOne",
+                        "relation": "oneToMany",
                         "target": "api::order-booking.order-booking",
                         "mappedBy": "person"
                     }
@@ -1207,13 +1303,13 @@
                 "label": "Invoice",
                 "fields": {
                     "invoice_date": {
-                        "type": "date"
+                        "type": "datetime"
                     },
                     "due_date": {
-                        "type": "date"
+                        "type": "datetime"
                     },
                     "total_amount": {
-                        "type": "float"
+                        "type": "number"
                     },
                     "payment_status": {
                         "type": "json"
@@ -1279,21 +1375,15 @@
                     },
                     "resources": {
                         "type": "relation",
-                        "relation": "oneToMany",
+                        "relation": "manyToMany",
                         "target": "api::resource.resource",
                         "mappedBy": "order_booking"
                     },
                     "person": {
                         "type": "relation",
-                        "relation": "oneToOne",
+                        "relation": "manyToOne",
                         "target": "api::person.person",
                         "inversedBy": "order_booking"
-                    },
-                    "start_date": {
-                        "type": "string"
-                    },
-                    "end_date": {
-                        "type": "string"
                     },
                     "invoice": {
                         "type": "relation",
