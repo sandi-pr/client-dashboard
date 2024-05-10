@@ -27,7 +27,7 @@ All Rights Reserved
   let activeUrl = $derived(isActiveUrl);
   let appUrl = ""; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
-  let isFrontend = false; // for frontend change to true
+  let isFrontend = true; // for frontend change to true
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -41,7 +41,7 @@ All Rights Reserved
     ],
   });
 
-  const call = new CR3Call(globalThis.location.origin); // for frontend comment this
+  const call = isFrontend ? "" : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = [
     "/forgot-password",
@@ -106,35 +106,27 @@ All Rights Reserved
         status: "coming soon",
         children: [
           {
-            href: !isFrontend ? await call.getPage("client-dashboard", "crm-overview") : "/crm",
+            href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
             name: "overview",
           },
           {
-            href: !isFrontend
-              ? await call.getPage("client-dashboard", "crm-person")
-              : "/crm/person",
+            href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
             name: "persons",
           },
           {
-            href: !isFrontend
-              ? await call.getPage("client-dashboard", "crm-product-service")
-              : "/crm/product_service",
+            href: isFrontend ? "/crm/product" : await call.getPage("client-dashboard", "crm-product-service"),
             name: "product&Services",
           },
-          // {
-          //   href: !isFrontend ? await call.getPage("client-dashboard", "crm-users") : "/crm/users",
-          //   name: "users",
-          // },
           {
-            href: !isFrontend
-              ? await call.getPage("client-dashboard", "crm-categories")
-              : "/crm/categories",
+            href: isFrontend ? "/crm/users" : await call.getPage("client-dashboard", "crm-users"),
+            name: "users",
+          },
+          {
+            href: isFrontend ? "/crm/categories" : await call.getPage("client-dashboard", "crm-categories"),
             name: "categories",
           },
           {
-            href: !isFrontend
-              ? await call.getPage("client-dashboard", "crm-calendar")
-              : "/crm/calendar",
+            href: isFrontend ? "/crm/calendar" : await call.getPage("client-dashboard", "crm-calendar"),
             name: "calendar",
           },
         ],
@@ -144,9 +136,7 @@ All Rights Reserved
         name: "documentManagement",
         children: [
           {
-            href: !isFrontend
-              ? await call.getPage("client-dashboard", "document-management-overview")
-              : "/document_management",
+            href: isFrontend ? "/document_management" : await call.getPage("client-dashboard", "document-management-overview"),
             name: "overview",
           },
         ],
@@ -233,7 +223,9 @@ All Rights Reserved
   }
 
   onMount(() => {
-    CheckSetup();
+    if (isFrontend === false) {
+      CheckSetup();
+    }
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
