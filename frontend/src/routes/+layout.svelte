@@ -27,6 +27,7 @@ All Rights Reserved
   let activeUrl = $derived(isActiveUrl);
   let appUrl = ""; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
+  let isFrontend = false; // for frontend change to true
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -40,7 +41,7 @@ All Rights Reserved
     ],
   });
 
-  const call = new CR3Call(globalThis.location.origin); // for frontend comment this
+  const call = !isFrontend ?? new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = [
     "/forgot-password",
@@ -97,127 +98,66 @@ All Rights Reserved
   };
 
   const getModules = async () => {
-    try {
-      return [
-        {
-          icon: "users",
-          name: "CRM",
-          desc: "descCrm",
-          status: "coming soon",
-          children: [
-            {
-              href: await call.getPage("client-dashboard", "crm-overview"),
-              name: "overview",
-            },
-            {
-              href: await call.getPage("client-dashboard", "crm-person"),
-              name: "persons",
-            },
-            {
-              href: await call.getPage("client-dashboard", "crm-product-service"),
-              name: "product&Services",
-            },
-            {
-              href: await call.getPage("client-dashboard", "crm-users"),
-              name: "users",
-            },
-            {
-              href: await call.getPage("client-dashboard", "crm-categories"),
-              name: "categories",
-            },
-            {
-              href: await call.getPage("client-dashboard", "crm-order-invoice"),
-              name: "order&Invoice",
-            },
-            {
-              href: await call.getPage("client-dashboard", "crm-calendar"),
-              name: "calendar",
-            },
-          ],
-        },
-        {
-          icon: "users",
-          name: "documentManagement",
-          children: [
-            {
-              href: await call.getPage("client-dashboard", "document-management-overview"),
-              name: "overview",
-            },
-          ],
-        },
-        // {
-        // href: await call.getPage("client-dashboard", "hexabot-overview"),
-        //   name: "Hexa Bot",
-        //   desc: "descHexaBots",
-        //   status: "coming soon",
-        //   children: [],
-        // },
-      ];
-    } catch (error) {
-      // console.log(error);
-      return [
-        {
-          icon: "users",
-          name: "CRM",
-          desc: "descCrm",
-          status: "coming soon",
-          children: [
-            {
-              href: "/crm",
-              name: "overview",
-            },
-            {
-              href: "/crm/person",
-              name: "persons",
-            },
-            {
-              href: "/crm/product_service",
-              name: "product&Services",
-            },
-            {
-              href: "/crm/users",
-              name: "users",
-            },
-            {
-              href: "/crm/categories",
-              name: "categories",
-            },
-            {
-              href: "/crm/order_invoice",
-              name: "order&Invoice",
-            },
-            {
-              href: "/crm/calendar",
-              name: "calendar",
-            },
-          ],
-        },
-        {
-          icon: "users",
-          name: "documentManagement",
-          children: [
-            {
-              href: "/document_management",
-              name: "overview",
-            },
-          ],
-        },
-        // {
-        // href: await call.getPage("client-dashboard", "hexabot-overview"),
-        //   name: "Hexa Bot",
-        //   desc: "descHexaBots",
-        //   status: "coming soon",
-        //   children: [],
-        // },
-      ];
-    }
+    return [
+      {
+        icon: "users",
+        name: "CRM",
+        desc: "descCrm",
+        status: "coming soon",
+        children: [
+          {
+            href: !isFrontend ? await call.getPage("client-dashboard", "crm-overview") : "/crm",
+            name: "overview",
+          },
+          {
+            href: !isFrontend
+              ? await call.getPage("client-dashboard", "crm-person")
+              : "/crm/person",
+            name: "persons",
+          },
+          {
+            href: !isFrontend
+              ? await call.getPage("client-dashboard", "crm-product-service")
+              : "/crm/product_service",
+            name: "product&Services",
+          },
+          {
+            href: !isFrontend ? await call.getPage("client-dashboard", "crm-users") : "/crm/users",
+            name: "users",
+          },
+          {
+            href: !isFrontend
+              ? await call.getPage("client-dashboard", "crm-categories")
+              : "/crm/categories",
+          },
+          {
+            href: !isFrontend
+              ? await call.getPage("client-dashboard", "crm-calendar")
+              : "/crm/calendar",
+            name: "calendar",
+          },
+        ],
+      },
+      {
+        icon: "users",
+        name: "documentManagement",
+        children: [
+          {
+            href: !isFrontend
+              ? await call.getPage("client-dashboard", "document-management-overview")
+              : "/document_management",
+            name: "overview",
+          },
+        ],
+      },
+    ];
   };
 
   const logout = async () => {
     if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
     if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
     try {
-      await call.goToPage("client-login", "home-page");
+      !isFrontend ?? (await call.goToPage("client-login", "home-page"));
     } catch (error) {
       console.log(error);
     }
@@ -292,7 +232,7 @@ All Rights Reserved
   }
 
   onMount(() => {
-    CheckSetup();
+    !isFrontend ?? CheckSetup();
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
