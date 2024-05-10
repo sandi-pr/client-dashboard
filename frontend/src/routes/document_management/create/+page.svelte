@@ -166,15 +166,15 @@ All Rights Reserved
   };
 
   async function createProduct() {
-    if (
-      data.document_title === "" ||
-      data.document_upload === null ||
-      data.description === "" ||
-      data.document_type === "" ||
-      data.person_client === ""
-    ) {
-      return;
-    }
+    // if (
+    //   data.document_title === "" ||
+    //   data.document_upload === null ||
+    //   data.description === "" ||
+    //   data.document_type === "" ||
+    //   data.person_client === ""
+    // ) {
+    //   return;
+    // }
 
     const fileTextResultBlob = new Blob([fileTextResult], { type: "text/plain" });
 
@@ -341,33 +341,64 @@ All Rights Reserved
           </div>
         </div>
         {#if data.document_type === "contract"}
-        <Divider />
-        <!-- product detail -->
-        <div class="flex gap-6">
-          <div class="w-60">
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-              {$_("Contract Information")}
-            </P>
-          </div>
-          <div class="flex flex-col grow gap-6">
-            <div class="flex flex-col grow gap-2">
-              <P
-                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >{$_("Persons or Client")}*</P
-              >
-              <Select
-                items={personClient}
-                bind:value={data.person_client}
-                placeholder="Search in persons or client database"
-              />
-              <!-- <Input
+          <Divider />
+          <!-- product detail -->
+          <div class="flex gap-6">
+            <div class="w-60">
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                {$_("Contract Information")}
+              </P>
+            </div>
+            <div class="flex flex-col grow gap-6">
+              <div class="flex flex-col grow gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("Persons or Client")}*</P
+                >
+                <Select
+                  items={personClient}
+                  bind:value={data.person_client}
+                  placeholder="Search in persons or client database"
+                />
+                <!-- <Input
                 readonly={!onEdit}
                 bind:value={data.document_type}
                 class="bg-primary-light dark:bg-secondary-dark"
               />   -->
+              </div>
             </div>
           </div>
-        </div>
+          <div class="flex justify-center items-center gap-5">
+            <div class="flex flex-col grow gap-2">
+              <P
+                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+              >
+                {$_("contractStartPeriod")}
+              </P>
+              <Input
+                type="date"
+                readonly={!onEdit}
+                bind:value={data.contract_start}
+                class="bg-primary-light dark:bg-secondary-dark"
+              />
+            </div>
+            <div class="mt-6">
+              <P>-</P>
+            </div>
+            <div class="flex flex-col grow gap-2">
+              <P
+                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+              >
+                {$_("contractEndPeriod")}
+              </P>
+              <Input
+                type="date"
+                readonly={!onEdit}
+                bind:value={data.contract_end}
+                class="bg-primary-light dark:bg-secondary-dark"
+              />
+            </div>
+          </div>
         {/if}
       </div>
     </div>

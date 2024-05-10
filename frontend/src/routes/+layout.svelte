@@ -115,7 +115,9 @@ All Rights Reserved
             name: "persons",
           },
           {
-            href: isFrontend ? "/crm/product" : await call.getPage("client-dashboard", "crm-product-service"),
+            href: isFrontend
+              ? "/crm/product"
+              : await call.getPage("client-dashboard", "crm-product-service"),
             name: "product&Services",
           },
           {
@@ -123,11 +125,15 @@ All Rights Reserved
             name: "users",
           },
           {
-            href: isFrontend ? "/crm/categories" : await call.getPage("client-dashboard", "crm-categories"),
+            href: isFrontend
+              ? "/crm/categories"
+              : await call.getPage("client-dashboard", "crm-categories"),
             name: "categories",
           },
           {
-            href: isFrontend ? "/crm/calendar" : await call.getPage("client-dashboard", "crm-calendar"),
+            href: isFrontend
+              ? "/crm/calendar"
+              : await call.getPage("client-dashboard", "crm-calendar"),
             name: "calendar",
           },
         ],
@@ -137,7 +143,9 @@ All Rights Reserved
         name: "documentManagement",
         children: [
           {
-            href: isFrontend ? "/document_management" : await call.getPage("client-dashboard", "document-management-overview"),
+            href: isFrontend
+              ? "/document_management"
+              : await call.getPage("client-dashboard", "document-management-overview"),
             name: "overview",
           },
         ],
@@ -146,10 +154,13 @@ All Rights Reserved
   };
 
   const logout = async () => {
-    if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
-    if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
+    sessionStorage.clear();
+    localStorage.clear();
+
     try {
-      !isFrontend ?? (await call.goToPage("client-login", "home-page"));
+      if (!isFrontend) {
+        await call.goToPage("client-login", "home-page");
+      }
     } catch (error) {
       console.log(error);
     }

@@ -373,15 +373,21 @@
             title: postProcessedDate[0].title,
             date: postProcessedDate[0].datetime.toISOString().split("T")[0],
             start_time:
-              postProcessedDate[0].datetime.getHours() +
+              ("0" + postProcessedDate[0].datetime.getHours()).slice(-2) +
               ":" +
-              postProcessedDate[0].datetime.getMinutes() +
-              ":00",
+              ("0" + postProcessedDate[0].datetime.getMinutes()).slice(-2) +
+              ":" +
+              ("0" + postProcessedDate[0].datetime.getSeconds()).slice(-2) +
+              "." +
+              ("00" + postProcessedDate[0].datetime.getMilliseconds()).slice(-3),
             end_time:
-              postProcessedDate[1].datetime.getHours() +
+              ("0" + postProcessedDate[1].datetime.getHours()).slice(-2) +
               ":" +
-              postProcessedDate[1].datetime.getMinutes() +
-              ":00",
+              ("0" + postProcessedDate[1].datetime.getMinutes()).slice(-2) +
+              ":" +
+              ("0" + postProcessedDate[1].datetime.getSeconds()).slice(-2) +
+              "." +
+              ("00" + postProcessedDate[1].datetime.getMilliseconds()).slice(-3),
             is_active: "Yes",
           },
           Headers: {
@@ -407,15 +413,21 @@
               title: postProcessedDate[i].title,
               date: postProcessedDate[i].datetime.toISOString().split("T")[0],
               start_time:
-                postProcessedDate[0].datetime.getHours() +
+                ("0" + postProcessedDate[0].datetime.getHours()).slice(-2) +
                 ":" +
-                postProcessedDate[0].datetime.getMinutes() +
-                ":00",
+                ("0" + postProcessedDate[0].datetime.getMinutes()).slice(-2) +
+                ":" +
+                ("0" + postProcessedDate[0].datetime.getSeconds()).slice(-2) +
+                "." +
+                ("00" + postProcessedDate[0].datetime.getMilliseconds()).slice(-3),
               end_time:
-                postProcessedDate[1].datetime.getHours() +
+                ("0" + postProcessedDate[1].datetime.getHours()).slice(-2) +
                 ":" +
-                postProcessedDate[1].datetime.getMinutes() +
-                ":00",
+                ("0" + postProcessedDate[1].datetime.getMinutes()).slice(-2) +
+                ":" +
+                ("0" + postProcessedDate[1].datetime.getSeconds()).slice(-2) +
+                "." +
+                ("00" + postProcessedDate[1].datetime.getMilliseconds()).slice(-3),
               is_active: true,
             },
             Headers: {
@@ -424,6 +436,7 @@
           });
           if (response.status === 200) {
             console.log(response);
+            await getSchedule();
             modal = false;
           }
         } catch (error) {
@@ -439,7 +452,13 @@
     for (let i = 0; i < postProcessedDate.length; i++) {
       const dateObj = postProcessedDate[i];
       const date = new Date(dateObj.datetime);
-      const dayIndex = date.getDay();
+      let dayIndex = date.getDay() - 1;
+
+      console.log("day index", dayIndex);
+
+      if (dayIndex === -1) {
+        dayIndex = 6;
+      }
 
       if (!dayAvailableCopy[dayIndex]) {
         console.log(`Hari yang Anda pilih tidak tersedia untuk booking.`);
@@ -675,6 +694,8 @@
           console.log(response);
         }
       }
+
+      await getSchedule();
     } catch (error) {
       console.log(error);
     }
@@ -715,23 +736,23 @@
         },
       });
       if (response.status === 200) {
-        if (response.result.booking.length > 0) {
-          let promise = response.result.booking.data.map((item) => {
-            let date = new Date(item.attributes.date);
-            date.setDate(date.getDate() - 1);
-            return {
-              title: item.attributes.title,
-              dateEvent: [
-                {
-                  date: date.toISOString().split("T")[0],
-                  timeStart: item.attributes.start_time.substring(0, 5),
-                  timeEnd: item.attributes.end_time.substring(0, 5),
-                },
-              ],
-            };
-          });
-          schedule = await Promise.all(promise);
-        }
+        let promise = response.result.booking.data.map((item) => {
+          let date = new Date(item.attributes.date);
+          date.setDate(date.getDate() - 1);
+          return {
+            title: item.attributes.title,
+            dateEvent: [
+              {
+                date: date.toISOString().split("T")[0],
+                timeStart: item.attributes.start_time.substring(0, 5),
+                timeEnd: item.attributes.end_time.substring(0, 5),
+              },
+            ],
+          };
+        });
+        schedule = await Promise.all(promise);
+
+        console.log("itu", schedule);
 
         daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
         daysInWeek = getDaysOfWeek(new Date(currentDate));
