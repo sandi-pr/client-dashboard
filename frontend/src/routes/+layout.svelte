@@ -26,6 +26,7 @@ All Rights Reserved
   let isActiveUrl = $state($page.url.pathname);
   let activeUrl = $derived(isActiveUrl);
   let appUrl = ""; // change to application url to make the breadcrumb not display the application name
+  let userData = $state({ username: "", email: "", brand: "" });
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -50,12 +51,19 @@ All Rights Reserved
 
   const hideLayout = () => {
     return !hideLayoutList.some((path) => {
-      if (path.endsWith("/*")) {
-        return globalThis.location.pathname.startsWith(path.slice(0, -1)); // for frontend comment this
-        // return window.location.pathname.startsWith(path.slice(0, -1)); // for frontend uncomment this
-      } else {
-        return globalThis.location.pathname === path; // for frontend comment this
-        // return window.location.pathname === path; // for frontend uncomment this
+      try {
+        if (path.endsWith("/*")) {
+          return globalThis.location.pathname.startsWith(path.slice(0, -1));
+        } else {
+          return globalThis.location.pathname === path;
+        }
+      } catch (error) {
+        console.log(error);
+        if (path.endsWith("/*")) {
+          return window.location.pathname.startsWith(path.slice(0, -1));
+        } else {
+          return window.location.pathname === path;
+        }
       }
     });
   };
@@ -89,78 +97,129 @@ All Rights Reserved
   };
 
   const getModules = async () => {
-    return [
-      {
-        icon: "users",
-        name: "CRM",
-        desc: "descCrm",
-        status: "coming soon",
-        children: [
-          {
-            href: await call.getPage("client-dashboard", "crm-overview"), // for frontend comment this
-            // href: "/crm", // for frontend uncomment this
-            name: "overview",
-          },
-          {
-            href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
-            // href: "/crm/person", // for frontend uncomment this
-            name: "persons",
-          },
-          {
-            href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
-            // href: "/crm/product_service", // for frontend uncomment this
-            name: "product&Services",
-          },
-          {
-            href: await call.getPage("client-dashboard", "crm-users"), // for frontend comment this
-            // href: "/crm/users", // for frontend uncomment this
-            name: "users",
-          },
-          {
-            href: await call.getPage("client-dashboard", "crm-categories"), // for frontend comment this
-            // href: "/crm/categories", // for frontend uncomment this
-            name: "categories",
-          },
-          {
-            href: await call.getPage("client-dashboard", "crm-order-invoice"), // for frontend comment this
-            // href: "/crm/order_invoice", // for frontend uncomment this
-            name: "order&Invoice",
-          },
-          {
-            href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
-            // href: "/crm/calendar", // for frontend uncomment this
-            name: "calendar",
-          },
-        ],
-      },
-      {
-        icon: "users",
-        name: "documentManagement",
-        children: [
-          {
-            href: await call.getPage("client-dashboard", "document-management-overview"), // for frontend comment this
-            // href: "/document_management", // for frontend uncomment this
-            name: "overview",
-          },
-        ],
-      },
-      // {
-      //   href: await call.getPage("client-dashboard", "hexabot-overview"), // for frontend comment this
-      //   name: "Hexa Bot",
-      //   desc: "descHexaBots",
-      //   status: "coming soon",
-      //   children: [],
-      // },
-    ];
+    try {
+      return [
+        {
+          icon: "users",
+          name: "CRM",
+          desc: "descCrm",
+          status: "coming soon",
+          children: [
+            {
+              href: await call.getPage("client-dashboard", "crm-overview"),
+              name: "overview",
+            },
+            {
+              href: await call.getPage("client-dashboard", "crm-person"),
+              name: "persons",
+            },
+            {
+              href: await call.getPage("client-dashboard", "crm-product-service"),
+              name: "product&Services",
+            },
+            {
+              href: await call.getPage("client-dashboard", "crm-users"),
+              name: "users",
+            },
+            {
+              href: await call.getPage("client-dashboard", "crm-categories"),
+              name: "categories",
+            },
+            {
+              href: await call.getPage("client-dashboard", "crm-order-invoice"),
+              name: "order&Invoice",
+            },
+            {
+              href: await call.getPage("client-dashboard", "crm-calendar"),
+              name: "calendar",
+            },
+          ],
+        },
+        {
+          icon: "users",
+          name: "documentManagement",
+          children: [
+            {
+              href: await call.getPage("client-dashboard", "document-management-overview"),
+              name: "overview",
+            },
+          ],
+        },
+        // {
+        // href: await call.getPage("client-dashboard", "hexabot-overview"),
+        //   name: "Hexa Bot",
+        //   desc: "descHexaBots",
+        //   status: "coming soon",
+        //   children: [],
+        // },
+      ];
+    } catch (error) {
+      // console.log(error);
+      return [
+        {
+          icon: "users",
+          name: "CRM",
+          desc: "descCrm",
+          status: "coming soon",
+          children: [
+            {
+              href: "/crm",
+              name: "overview",
+            },
+            {
+              href: "/crm/person",
+              name: "persons",
+            },
+            {
+              href: "/crm/product_service",
+              name: "product&Services",
+            },
+            {
+              href: "/crm/users",
+              name: "users",
+            },
+            {
+              href: "/crm/categories",
+              name: "categories",
+            },
+            {
+              href: "/crm/order_invoice",
+              name: "order&Invoice",
+            },
+            {
+              href: "/crm/calendar",
+              name: "calendar",
+            },
+          ],
+        },
+        {
+          icon: "users",
+          name: "documentManagement",
+          children: [
+            {
+              href: "/document_management",
+              name: "overview",
+            },
+          ],
+        },
+        // {
+        // href: await call.getPage("client-dashboard", "hexabot-overview"),
+        //   name: "Hexa Bot",
+        //   desc: "descHexaBots",
+        //   status: "coming soon",
+        //   children: [],
+        // },
+      ];
+    }
   };
 
   const logout = async () => {
     if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
     if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
     try {
-      await call.goToPage("client-login", "home-page"); // for frontend comment this
+      await call.goToPage("client-login", "home-page");
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
@@ -189,46 +248,51 @@ All Rights Reserved
   };
 
   async function CheckSetup() {
-    var resp_setup = await call.call("client-login", "is-need-setup", {
-      URLQuery: {},
-      URLParams: {},
-      Params: {},
-      Headers: {},
-    });
-    console.log(resp_setup);
-    if (resp_setup.status === 200) {
-      if (resp_setup.result.is_need_setup === true) {
-        if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
-        if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
-        await call.goToPage("hexapod-setup", "home-page");
-        return;
-      }
-    }
-    var token = sessionStorage.getItem("token");
-    if (token !== null) {
-      var resp = await call.call("client-login", "is-token-valid", {
+    try {
+      var resp_setup = await call.call("client-login", "is-need-setup", {
         URLQuery: {},
         URLParams: {},
-        Params: {
-          token: token,
-        },
+        Params: {},
         Headers: {},
       });
-
-      if (resp.status === 200) {
-        if (resp.result.confirmed === true && resp.result.blocked === false) {
-          sessionStorage.setItem("user", JSON.stringify(resp.result));
-          userData = resp.result;
+      console.log(resp_setup);
+      if (resp_setup.status === 200) {
+        if (resp_setup.result.is_need_setup === true) {
+          if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
+          if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
+          await call.goToPage("hexapod-setup", "home-page");
+          return;
         }
       }
-    } else {
-      await call.goToPage("client-login", "home-page");
-      return;
+      var token = sessionStorage.getItem("token");
+      if (token !== null) {
+        var resp = await call.call("client-login", "is-token-valid", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            token: token,
+          },
+          Headers: {},
+        });
+
+        if (resp.status === 200) {
+          if (resp.result.confirmed === true && resp.result.blocked === false) {
+            sessionStorage.setItem("user", JSON.stringify(resp.result));
+            userData = resp.result;
+          }
+        }
+      } else {
+        await call.goToPage("client-login", "home-page");
+        return;
+      }
+    } catch (error) {
+      // console.log(error);
+      userData = { username: "Hexa Staff", email: "hexacode@hexacode.org", brand: "hexacode" };
     }
   }
 
   onMount(() => {
-    CheckSetup(); // for frontend comment this
+    CheckSetup();
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
@@ -245,8 +309,6 @@ All Rights Reserved
   } else {
     console.log("localstorage is undefined");
   }
-
-  let userData = $state({ username: "", email: "", brand: "" });
 </script>
 
 {#if $isLoading}

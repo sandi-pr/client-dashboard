@@ -9,23 +9,26 @@
   All Rights Reserved.
 -->
 
-<script lang="ts">
+<script>
   import { page } from "$app/stores";
   import { LogoBrand, SidebarNavItem, Typography, getIcons } from "$lib";
   import { goto } from "$app/navigation";
   import {
-    Sidebar,
-    SidebarGroup,
-    SidebarItem,
-    SidebarWrapper,
     Search,
     Button,
     Avatar,
-    CloseButton,
-    SidebarDropdownItem,
+    Sidebar,
+    SidebarGroup,
+    SidebarWrapper,
     SidebarDropdownWrapper,
   } from "flowbite-svelte";
-  import { ArrowRightToBracketOutline } from "flowbite-svelte-icons";
+  import {
+    CogOutline,
+    UsersOutline,
+    ChevronUpOutline,
+    ChevronDownOutline,
+    ArrowRightToBracketOutline,
+  } from "flowbite-svelte-icons";
   import LogoIcon from "$lib/icon/Logomark.svg";
   import { onMount } from "svelte";
   import Me from "$lib/utils/me";
@@ -40,15 +43,6 @@
     isHidden = true,
     funcButton,
     logout,
-  }: {
-    getModule: any;
-    toCamelCase: any;
-    name: string;
-    email: string;
-    brand: string;
-    isHidden: boolean;
-    funcButton?: any;
-    logout: () => void;
   } = $props();
 
   let site = {
@@ -57,22 +51,19 @@
     img: LogoIcon,
   };
 
-  let sidebarItems = $state([
-    { name: "home", href: "/", icon: "home", children: [] },
-  ]);
+  let sidebarItems = $state([{ name: "home", href: "/", icon: "home", children: [] }]);
+  let dropdownUser = $state(false);
 
   const sidebarBuilder = async () => {
     let moduleClient = await getModule();
-    const sidebarHalf = moduleClient.map(
-      (item: { name: any; href: any; icon: any; children: any }) => {
-        return {
-          name: item.name,
-          href: item.href,
-          icon: item.icon,
-          children: item.children,
-        };
-      },
-    );
+    const sidebarHalf = moduleClient.map((item) => {
+      return {
+        name: item.name,
+        href: item.href,
+        icon: item.icon,
+        children: item.children,
+      };
+    });
 
     // sidebarHalf.push({ name: "Digital Identity", href: "/blockchain", icon: "blockchain" });
 
@@ -128,7 +119,8 @@
                 {activeUrl}
                 icon={child.icon}
                 classes="flex w-full gap-3 items-center px-11 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                classesActive="flex w-full gap-3 items-center px-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700", 
+                classesActive="flex w-full gap-3 items-center px-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                ,
                 typographyData={{
                   preset: "Text md/Regular",
                   text: $_(child.name),
@@ -148,35 +140,87 @@
       {/each}
     </SidebarGroup>
     <div>
-      <SidebarGroup>
-        <!-- <SidebarNavItem href="/admin_setting" {activeUrl} icon="setting" typographyData={{ preset: "Text md/Semibold", text: "Super Admin Setting", color: "secondary" }} /> -->
+      <!-- <SidebarGroup>
         <SidebarNavItem
           href="/settings"
           {activeUrl}
           icon="setting"
           typographyData={{ preset: "Text md/Semibold", text: $_("settings"), color: "secondary" }}
         />
-      </SidebarGroup>
-      <SidebarGroup border>
-        <div class="flex justify-between">
-          <div class="flex w-full h-full space-x-4 items-center pl-2 cursor-pointer">
-            <Avatar />
-            <div class="grow">
-              <Typography preset="Text md/Semibold" text={name} color="secondary" />
-              <Typography preset="Text sm/Regular" text={email} color="tertiary" />
-            </div>
-          </div>
-          <Button
-            on:click={handleLogout}
-            color="light"
-            class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent"
+      </SidebarGroup> -->
+      <div class="relative">
+        <!-- Dropdown menu user -->
+        <div
+          class={`z-10 ${dropdownUser ? "absolute" : "hidden"} bottom-full w-full p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
+        >
+          <ul
+            class="text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="dropdownDefaultButton"
           >
-            <ArrowRightToBracketOutline
-              class="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
-            />
-          </Button>
+            <div class="flex pb-3 justify-between rounded-lg border-b">
+              <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
+                <Avatar />
+                <div class="grow">
+                  <Typography preset="Text md/Semibold" text={name} color="secondary" />
+                  <Typography preset="Text sm/Regular" text={email} color="tertiary" />
+                </div>
+              </div>
+              <Button
+                on:click={handleLogout}
+                color="light"
+                class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-secondary-light dark:hover:bg-secondary-dark"
+              >
+                <ArrowRightToBracketOutline
+                  class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                />
+              </Button>
+            </div>
+            <button
+              class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
+            >
+              <UsersOutline class="size-8 mr-4 text-secondary-light dark:text-secondary-dark" />
+              <Typography preset="Text lg/Semibold" text="Manage User" color="secondary" />
+            </button>
+            <button
+              class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
+            >
+              <CogOutline class="size-8 mr-4 text-secondary-light dark:text-secondary-dark" />
+              <Typography preset="Text lg/Semibold" text="Settings" color="secondary" />
+            </button>
+          </ul>
         </div>
-      </SidebarGroup>
+        <SidebarGroup>
+          <button
+            type="button"
+            class="flex p-2 justify-between rounded-lg hover:bg-secondary-light dark:hover:bg-secondary-dark"
+            onclick={() => {
+              dropdownUser = !dropdownUser;
+            }}
+          >
+            <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
+              <Avatar />
+              <div class="grow">
+                <Typography preset="Text md/Semibold" text={name} color="secondary" />
+                <Typography preset="Text sm/Regular" text={email} color="tertiary" />
+              </div>
+            </div>
+            <Button
+              color="light"
+              class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-primary-light dark:hover:bg-primary-dark"
+            >
+              {#if dropdownUser}
+                <ChevronUpOutline
+                  class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                />
+              {:else}
+                <ChevronDownOutline
+                  class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                />
+              {/if}
+            </Button>
+          </button>
+        </SidebarGroup>
+      </div>
     </div>
   </SidebarWrapper>
 </Sidebar>
