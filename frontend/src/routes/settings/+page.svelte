@@ -16,12 +16,17 @@
   import { TabBar, InformationForm, Typography } from "$lib";
   import { SearchOutline } from "flowbite-svelte-icons";
   import DataTable from "$lib/components/DataTable.svelte";
+  import upload from "$lib/icon/upload-cloud-02.svg";
   import { datas, informationFormDatas, configs } from "./dummy";
 
   let screenWidth;
   let user = informationFormDatas;
   let userCopy = {};
   let isAdmin = true;
+  let fileImage = null;
+  let fileImageName = null;
+  let fileImageResult = null;
+  let dropzoneActive = false;
   let currentPasswordMatch = false;
   let tabDatas = {
     selected: "My Profile",
@@ -38,6 +43,68 @@
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
+  };
+
+  function handleDragOver(event) {
+    event.preventDefault();
+    dropzoneActive = true;
+  }
+
+  function handleDragLeave() {
+    dropzoneActive = false;
+  }
+
+  async function handleDrop(event) {
+    event.preventDefault();
+    dropzoneActive = false;
+
+    const files = event.dataTransfer.files;
+
+    if (files[0] && (files[0].type === "image/jpeg" || files[0].type === "image/png")) {
+      fileImageResult = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+
+        reader.readAsDataURL(files[0]);
+      });
+
+      fileImage = files[0];
+      fileImageName = files[0].name;
+      // console.log(fileImageResult);
+    } else {
+      alert("Invalid file. Please select a valid .jpg or .png file.");
+    }
+  }
+
+  const handleInputFile = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = "image/jpeg, image/png";
+
+    inputElement.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+
+      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+        fileImageResult = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+
+          reader.readAsDataURL(file);
+        });
+
+        fileImage = file;
+        fileImageName = file.name;
+        // console.log(fileImageResult);
+      } else {
+        alert("Invalid file. Please select a valid .jpg or .png file.");
+      }
+    });
+
+    inputElement.click();
   };
 
   const getUser = async () => {
@@ -170,11 +237,33 @@
               <div class="col-span-1">
                 <Typography preset="Text lg/Semibold" text="Your photo" />
               </div>
-              <div class="col-span-3">
-                <Avatar class="size-16" />
-                <!-- tambah "src" avatarnya -->
-                <div>
-                  <!-- disini drag and drop nya uploadnya -->
+              <div class="col-span-3 flex w-full">
+                <Avatar class="size-16" src={fileImageName ? fileImageResult : ""} />
+                <div class="w-full ml-8">
+                  <Button
+                    ondragover={handleDragOver}
+                    ondragleave={handleDragLeave}
+                    ondrop={handleDrop}
+                    onclick={handleInputFile}
+                    color="light"
+                    class={`w-[50%] rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-8 flex flex-col justify-start items-center`}
+                  >
+                    <div
+                      class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
+                    >
+                      <img
+                        src={upload}
+                        alt="mail.svg"
+                        class="p-4 dark:invert pointer-events-none"
+                      />
+                    </div>
+                    <div class="flex space-x-1">
+                      <P class="text-hc-brand-700 pointer-events-none">Click to upload</P><P
+                        class="pointer-events-none">or drag and drop</P
+                      >
+                    </div>
+                    <P class="pointer-events-none">PNG, JPG file (max. 800x400px)</P>
+                  </Button>
                 </div>
               </div>
             </div>
