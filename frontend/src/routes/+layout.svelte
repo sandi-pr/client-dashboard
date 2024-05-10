@@ -121,10 +121,6 @@ All Rights Reserved
             name: "product&Services",
           },
           {
-            href: isFrontend ? "/crm/users" : await call.getPage("client-dashboard", "crm-users"),
-            name: "users",
-          },
-          {
             href: isFrontend
               ? "/crm/categories"
               : await call.getPage("client-dashboard", "crm-categories"),
