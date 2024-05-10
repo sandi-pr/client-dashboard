@@ -43,14 +43,14 @@ export const datas = [
 
 export const informationFormDatas = {
   grid: 4,
-  title: "General Information",
+  title: "My Details",
   titleGrid: 1,
-  innerGrid: 4,
+  innerGrid: 5,
   data: [
     {
-      name: "User ID",
-      value: 1,
-      grid: 4,
+      name: "Full Name",
+      value: "Admin",
+      grid: 2,
     },
     {
       name: "Username",
@@ -58,20 +58,20 @@ export const informationFormDatas = {
       grid: 2,
     },
     {
-      name: "Full Name",
-      value: "Admin",
-      grid: 2,
+      name: "User ID",
+      value: 1,
+      grid: 1,
     },
     {
       name: "Email",
       value: "user01@gmail.com",
-      grid: 2,
+      grid: 5,
     },
-    {
-      name: "Role",
-      value: "Admin",
-      grid: 2,
-    },
+    // {
+    //   name: "Role",
+    //   value: "Admin",
+    //   grid: 2,
+    // },
   ],
 };
 
