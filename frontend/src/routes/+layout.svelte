@@ -26,6 +26,7 @@ All Rights Reserved
   let isActiveUrl = $state($page.url.pathname);
   let activeUrl = $derived(isActiveUrl);
   let appUrl = ""; // change to application url to make the breadcrumb not display the application name
+  let isFrontend = false; // for frontend change to true
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -39,7 +40,7 @@ All Rights Reserved
     ],
   });
 
-  const call = new CR3Call(globalThis.location.origin); // for frontend comment this
+  const call = !isFrontend ?? new CR3Call(globalThis.location.origin); // for frontend comment this
 
   const hideLayoutList = [
     "/forgot-password",
@@ -51,11 +52,17 @@ All Rights Reserved
   const hideLayout = () => {
     return !hideLayoutList.some((path) => {
       if (path.endsWith("/*")) {
-        return globalThis.location.pathname.startsWith(path.slice(0, -1)); // for frontend comment this
-        // return window.location.pathname.startsWith(path.slice(0, -1)); // for frontend uncomment this
+        if (isFrontend) {
+          return window.location.pathname.startsWith(path.slice(0, -1));
+        } else {
+          return globalThis.location.pathname.startsWith(path.slice(0, -1));
+        }
       } else {
-        return globalThis.location.pathname === path; // for frontend comment this
-        // return window.location.pathname === path; // for frontend uncomment this
+        if (isFrontend) {
+          return window.location.pathname === path;
+        } else {
+          return globalThis.location.pathname === path;
+        }
       }
     });
   };
@@ -97,38 +104,26 @@ All Rights Reserved
         status: "coming soon",
         children: [
           {
-            href: await call.getPage("client-dashboard", "crm-overview"), // for frontend comment this
-            // href: "/crm", // for frontend uncomment this
+            href: !isFrontend ? await call.getPage("client-dashboard", "crm-overview") : "/crm",
             name: "overview",
           },
           {
-            href: await call.getPage("client-dashboard", "crm-person"), // for frontend comment this
-            // href: "/crm/person", // for frontend uncomment this
+            href: !isFrontend ? await call.getPage("client-dashboard", "crm-person") : "/crm/person",
             name: "persons",
           },
           {
-            href: await call.getPage("client-dashboard", "crm-product-service"), // for frontend comment this
-            // href: "/crm/product_service", // for frontend uncomment this
+            href: !isFrontend ? await call.getPage("client-dashboard", "crm-product-service") : "/crm/product_service",
             name: "product&Services",
           },
           {
-            href: await call.getPage("client-dashboard", "crm-users"), // for frontend comment this
-            // href: "/crm/users", // for frontend uncomment this
+            href: !isFrontend ? await call.getPage("client-dashboard", "crm-users") : "/crm/users",
             name: "users",
           },
           {
-            href: await call.getPage("client-dashboard", "crm-categories"), // for frontend comment this
-            // href: "/crm/categories", // for frontend uncomment this
-            name: "categories",
+            href: !isFrontend ? await call.getPage("client-dashboard", "crm-categories") : "/crm/categories",
           },
           {
-            href: await call.getPage("client-dashboard", "crm-order-invoice"), // for frontend comment this
-            // href: "/crm/order_invoice", // for frontend uncomment this
-            name: "order&Invoice",
-          },
-          {
-            href: await call.getPage("client-dashboard", "crm-calendar"), // for frontend comment this
-            // href: "/crm/calendar", // for frontend uncomment this
+            href: !isFrontend ? await call.getPage("client-dashboard", "crm-calendar") : "/crm/calendar",
             name: "calendar",
           },
         ],
@@ -138,19 +133,11 @@ All Rights Reserved
         name: "documentManagement",
         children: [
           {
-            href: await call.getPage("client-dashboard", "document-management-overview"), // for frontend comment this
-            // href: "/document_management", // for frontend uncomment this
+            href: !isFrontend ? await call.getPage("client-dashboard", "document-management-overview") : "/document_management",
             name: "overview",
           },
         ],
       },
-      // {
-      //   href: await call.getPage("client-dashboard", "hexabot-overview"), // for frontend comment this
-      //   name: "Hexa Bot",
-      //   desc: "descHexaBots",
-      //   status: "coming soon",
-      //   children: [],
-      // },
     ];
   };
 
@@ -158,7 +145,7 @@ All Rights Reserved
     if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
     if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
     try {
-      await call.goToPage("client-login", "home-page"); // for frontend comment this
+      !isFrontend ?? await call.goToPage("client-login", "home-page");
     } catch (error) {
       console.error(error);
     }
@@ -228,7 +215,7 @@ All Rights Reserved
   }
 
   onMount(() => {
-    CheckSetup(); // for frontend comment this
+    !isFrontend ?? CheckSetup();
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };

@@ -32,11 +32,11 @@ All Rights Reserved
   let fileTextResult = $state(null);
   let categories = $state([
     {
-      value: "1",
+      value: "general",
       name: "General",
     },
     {
-      value: "2",
+      value: "contract",
       name: "Contract",
     },
   ]);
@@ -202,7 +202,7 @@ All Rights Reserved
   });
 
   onMount(async () => {
-    getCategories();
+    //
   });
 </script>
 
@@ -340,6 +340,7 @@ All Rights Reserved
             </div>
           </div>
         </div>
+        {#if data.document_type === "contract"}
         <Divider />
         <!-- product detail -->
         <div class="flex gap-6">
@@ -367,6 +368,7 @@ All Rights Reserved
             </div>
           </div>
         </div>
+        {/if}
       </div>
     </div>
   </div>
