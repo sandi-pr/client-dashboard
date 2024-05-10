@@ -18,6 +18,7 @@ All Rights Reserved
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
+  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
 
   let innerWidth = $state(0);
   let { showAI = false } = $props();
@@ -27,7 +28,7 @@ All Rights Reserved
   let activeUrl = $derived(isActiveUrl);
   let appUrl = ""; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
-  let isFrontend = true; // for frontend change to true
+  let isFrontend = $state(false); // for frontend change to true
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -245,7 +246,7 @@ All Rights Reserved
 </script>
 
 {#if $isLoading}
-  <div>Loading...</div>
+  <LoadingSpinner />
 {:else if winInnerWidth > 0}
   {#if hideLayout()}
     <div class="lg:flex">
