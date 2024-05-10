@@ -50,7 +50,7 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "crm-person-create"),
+        href: await call.getPage("client-dashboard", "document-management-create"),
         icon: UserPlusIcon,
         actionName: "Add new document",
         desc: "desc Add new document",
@@ -332,7 +332,7 @@ All Rights Reserved
           },
         ],
       },
-    }
+    },
   ]);
 
   let latestProductServices = $state([]);
@@ -470,7 +470,7 @@ All Rights Reserved
 
         <div class="flex flex-col">
           <div class="flex justify-between">
-            <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")}/>
+            <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")} />
             <div></div>
             <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
           </div>
@@ -486,7 +486,7 @@ All Rights Reserved
                 />
               </div>
             {/if}
-        </div>
+          </div>
         </div>
       </div>
     </div>
