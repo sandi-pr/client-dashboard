@@ -13,6 +13,7 @@
   import { page } from "$app/stores";
   import { LogoBrand, SidebarNavItem, Typography, getIcons } from "$lib";
   import { goto } from "$app/navigation";
+  import { CR3Call } from "hexacomponents-svelte";
   import {
     Search,
     Button,
@@ -41,6 +42,7 @@
     email = $bindable(""),
     brand = $bindable("Hexapod"),
     isHidden = true,
+    isFrontend = $bindable(true),
     funcButton,
     logout,
   } = $props();
@@ -53,6 +55,8 @@
 
   let sidebarItems = $state([{ name: "home", href: "/", icon: "home", children: [] }]);
   let dropdownUser = $state(false);
+
+  const call = !isFrontend ?? new CR3Call(globalThis.location.origin);
 
   const sidebarBuilder = async () => {
     let moduleClient = await getModule();
@@ -176,6 +180,9 @@
               </Button>
             </div>
             <button
+              onclick={async () => {
+                window.location = !isFrontend ? await call.getPage("client-dashboard", "crm-users") : "/crm/users"
+              }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
               <UsersOutline class="size-8 mr-4 text-secondary-light dark:text-secondary-dark" />
