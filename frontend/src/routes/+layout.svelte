@@ -150,10 +150,13 @@ All Rights Reserved
   };
 
   const logout = async () => {
-    if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
-    if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
+    sessionStorage.clear();
+    localStorage.clear();
+
     try {
-      !isFrontend ?? (await call.goToPage("client-login", "home-page"));
+      if (!isFrontend) {
+        await call.goToPage("client-login", "home-page");
+      }
     } catch (error) {
       console.log(error);
     }

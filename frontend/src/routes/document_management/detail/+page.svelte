@@ -20,7 +20,7 @@
     Select,
   } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
-  import PDFViewer from "svelte-pdf";
+  // import PDFViewer from "svelte-pdf";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "../../../lib/components/Divider.svelte";
@@ -82,7 +82,6 @@
   onMount(() => {
     //
   });
-
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -130,7 +129,7 @@
           </div>
           <div class="flex justify-center w-full py-10 bg-gray-50 rounded-lg dark:bg-gray-800">
             {#if pdfReady}
-              <PDFViewer showBorder={false} showButtons={false} scale={1.2} url={pdf} />
+              <!-- <PDFViewer showBorder={false} showButtons={false} scale={1.2} url={pdf} /> -->
             {/if}
           </div>
         {:else if tabDatas.selected === "Information"}
@@ -186,7 +185,11 @@
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("documentType")}*</P
                   >
-                  <Select class="bg-primary-light dark:bg-secondary-dark" items={categories} bind:value={data.document_type} />
+                  <Select
+                    class="bg-primary-light dark:bg-secondary-dark"
+                    items={categories}
+                    bind:value={data.document_type}
+                  />
                 </div>
               </div>
             </div>
@@ -205,7 +208,11 @@
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                       >{$_("personsOrClient")}*</P
                     >
-                    <Select class="bg-primary-light dark:bg-secondary-dark" items={personClient} bind:value={data.person_client} />
+                    <Select
+                      class="bg-primary-light dark:bg-secondary-dark"
+                      items={personClient}
+                      bind:value={data.person_client}
+                    />
                   </div>
                 </div>
                 <div class="flex justify-center items-center gap-5">
