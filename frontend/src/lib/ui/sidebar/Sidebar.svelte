@@ -20,10 +20,28 @@
   let transitionParams = {
     x: -320,
     duration: 200,
-    easing: sineIn
+    easing: sineIn,
   };
 
-  let { getModule, toCamelCase, name = $bindable("Hexapod"), email = $bindable(""), brand = $bindable(""), innerWidth = 0, logout }: { getModule: any; toCamelCase: any; name: string; email: string; brand: string; innerWidth: number; logout: () => void } = $props();
+  let {
+    getModule,
+    toCamelCase,
+    name = $bindable("Hexapod"),
+    email = $bindable(""),
+    brand = $bindable(""),
+    isFrontend = $bindable(true),
+    innerWidth = 0,
+    logout,
+  }: {
+    getModule: any;
+    toCamelCase: any;
+    name: string;
+    email: string;
+    brand: string;
+    isFrontend: boolean;
+    innerWidth: number;
+    logout: () => void;
+  } = $props();
 </script>
 
 <!-- Sidebar for small screen -->
@@ -32,11 +50,30 @@
   <!-- <div class="absolute z-50 top-3 start-[280px]">
     <CloseButton on:click={() => (hidden2 = true)} class=" dark:text-white" />
   </div> -->
-  <SidebarList {getModule} {toCamelCase} {name} {email} {brand} isHidden={false} funcButton={() => (hidden2 = true)} {logout} />
+  <SidebarList
+    {getModule}
+    {toCamelCase}
+    {name}
+    {email}
+    {brand}
+    {isFrontend}
+    isHidden={false}
+    funcButton={() => (hidden2 = true)}
+    {logout}
+  />
 </Drawer>
 
 <!-- Sidebar for large screen -->
-<SidebarList {getModule} {toCamelCase} {name} {email} {brand} isHidden={innerWidth < 1024} funcButton={() => (hidden2 = true)} {logout} />
+<SidebarList
+  {getModule}
+  {toCamelCase}
+  {name}
+  {email}
+  {brand}
+  isHidden={innerWidth < 1024}
+  funcButton={() => (hidden2 = true)}
+  {logout}
+/>
 
 <!-- Appbar for Drawer -->
 {#if innerWidth < 1024}

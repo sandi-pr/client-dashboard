@@ -121,14 +121,15 @@ All Rights Reserved
               : "/crm/product_service",
             name: "product&Services",
           },
-          {
-            href: !isFrontend ? await call.getPage("client-dashboard", "crm-users") : "/crm/users",
-            name: "users",
-          },
+          // {
+          //   href: !isFrontend ? await call.getPage("client-dashboard", "crm-users") : "/crm/users",
+          //   name: "users",
+          // },
           {
             href: !isFrontend
               ? await call.getPage("client-dashboard", "crm-categories")
               : "/crm/categories",
+            name: "categories",
           },
           {
             href: !isFrontend
@@ -232,7 +233,7 @@ All Rights Reserved
   }
 
   onMount(() => {
-    !isFrontend ?? CheckSetup();
+    CheckSetup();
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
@@ -261,6 +262,7 @@ All Rights Reserved
         bind:name={userData.username}
         bind:email={userData.email}
         bind:brand={userData.brand}
+        bind:isFrontend
         innerWidth={winInnerWidth}
         {logout}
       />
