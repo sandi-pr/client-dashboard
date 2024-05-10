@@ -41,7 +41,7 @@ All Rights Reserved
     ],
   });
 
-  const call = !isFrontend ?? new CR3Call(globalThis.location.origin);
+  const call = new CR3Call(globalThis.location.origin); // for frontend comment this
 
   const hideLayoutList = [
     "/forgot-password",
