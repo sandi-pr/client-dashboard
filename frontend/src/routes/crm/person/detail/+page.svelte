@@ -246,12 +246,12 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
-            <Button
+            <!-- <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            > -->
           {/if}
         </div>
       </div>

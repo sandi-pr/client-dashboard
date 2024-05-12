@@ -398,8 +398,9 @@ All Rights Reserved
         <div class="flex gap-2">
           {#if onEdit}
             <Button
-              onclick={() => {
-                onEdit = false;
+              onclick={async () => {
+                await call.goToPage("client-dashboard", "crm-product-service");
+                return;
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -409,12 +410,12 @@ All Rights Reserved
             <Button onclick={deleteProduct} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
-            <Button
+            <!-- <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            > -->
           {/if}
         </div>
       </div>
@@ -453,7 +454,7 @@ All Rights Reserved
                   </P>
                   <Input
                     type="number"
-                    readonly={!onEdit}
+                    readonly
                     bind:value={data.productId}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
@@ -503,6 +504,7 @@ All Rights Reserved
                     >{$_("category")}</P
                   >
                   <Select
+                    disabled={!onEdit}
                     items={categories}
                     bind:value={data.category}
                     placeholder={$_("selectCategory")}
@@ -618,7 +620,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle bind:checked={resource.is_active}></Toggle>
+                  <Toggle disabled={!onEdit} bind:checked={resource.is_active}></Toggle>
                 </div>
               </div>
             {/each}

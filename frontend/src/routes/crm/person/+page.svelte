@@ -61,7 +61,7 @@
                 {
                   href:
                     `${await call.getPage("client-dashboard", "crm-person-detail")}` +
-                    `?personId=${person.id}&edit=true`,
+                    `?personId=${person.id}&edit=false`,
                   name: "View",
                 },
                 {
@@ -69,7 +69,7 @@
                     `${await call.getPage("client-dashboard", "crm-person-detail")}` +
                     "?personId=" +
                     person.id +
-                    "&edit=false",
+                    "&edit=true",
                   name: "Edit",
                 },
               ],
