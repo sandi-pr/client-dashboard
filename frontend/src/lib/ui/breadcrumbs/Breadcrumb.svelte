@@ -144,7 +144,7 @@
 <Breadcrumb aria-label="Default breadcrumb">
   <BreadcrumbItem href="/" home></BreadcrumbItem>
   {#if activeUrl !== "/"}
-    {#each activeUrlArray as item}
+    {#each activeUrlArray as item, index (item.href)}
       <li class={"inline-flex items-center"}>
         <svg
           class="w-6 h-6 text-gray-400 rtl:-scale-x-100"
@@ -161,7 +161,7 @@
         {#if item.href}
           <button
             type="button"
-            class={linkClass}
+            class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
             onclick={async () => {
               window.location = `${appUrl}${item.href}`;
               // const template = templates.find((t) => t.path === item.href);

@@ -231,9 +231,8 @@ All Rights Reserved
   }
 
   onMount(() => {
-    if (isFrontend === false) {
-      CheckSetup();
-    }
+    CheckSetup();
+
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
