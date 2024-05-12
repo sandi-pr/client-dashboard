@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { P, Heading, Input, Button, Select, Textarea, Toggle, Toast } from "flowbite-svelte";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { fly } from 'svelte/transition';
+  import { fly } from "svelte/transition";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -26,11 +26,8 @@ All Rights Reserved
 
   const params = new URLSearchParams(window.location.search);
   const productId = params.get("productId");
-  const isEdit = params.get("isEdit") === "true";
+  const edit = params.get("edit");
   let onEdit = $state(false);
-  $effect(() => {
-    onEdit = isEdit;
-  });
   let uploadedImage = $state(null);
   let uploadedImageName = $state(null);
   let fileImage = $state(null);
@@ -362,6 +359,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (edit === "true") onEdit = true;
     getProduct();
     getCategories();
   });
@@ -636,7 +634,13 @@ All Rights Reserved
       </svelte:fragment>
       {$_("successfullyCreated")}
     </Toast>
-    <Toast class="!max-w-sm" color="red" transition={fly} params={{ x: 200 }} bind:open={toastError}>
+    <Toast
+      class="!max-w-sm"
+      color="red"
+      transition={fly}
+      params={{ x: 200 }}
+      bind:open={toastError}
+    >
       <svelte:fragment slot="icon">
         <ExclamationCircleSolid class="w-5 h-5" />
       </svelte:fragment>

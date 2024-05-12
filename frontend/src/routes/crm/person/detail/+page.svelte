@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { P, Heading, Input, Button, Select, Helper, Toast, Modal, Toggle } from "flowbite-svelte";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { fly } from 'svelte/transition';
+  import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Divider from "$lib/components/Divider.svelte";
@@ -23,12 +23,8 @@ All Rights Reserved
 
   const params = new URLSearchParams(window.location.search);
   const personId = params.get("personId");
-  const isEdit = params.get("isEdit") === "true";
+  const edit = params.get("edit");
   let onEdit = $state(false);
-
-  $effect(() => {
-    onEdit = isEdit;
-  });
 
   let data = $state({
     personId: "",
@@ -80,7 +76,7 @@ All Rights Reserved
     const newEmail = event.target.value;
     emailValid = validateEmail(newEmail);
     email = newEmail;
-    dispatch('emailChange', { email, emailValid });
+    dispatch("emailChange", { email, emailValid });
   }
 
   async function getPerson() {
@@ -179,7 +175,7 @@ All Rights Reserved
       counter = 6;
       timeout();
     } else if (target === "deleted") {
-      toastDeleted = true; 
+      toastDeleted = true;
       counter = 6;
       timeout();
     } else if (target === "error") {
@@ -199,6 +195,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (edit === "true") onEdit = true;
     getPerson();
   });
 
@@ -235,16 +232,19 @@ All Rights Reserved
         <div class="flex gap-2">
           {#if onEdit}
             <Button
-              onclick={() => {
-                onEdit = false;
+              onclick={async function () {
+                await call.goToPage("client-dashboard", "crm-person");
+                return;
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
             <Button onclick={updatePerson} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button onclick={() => (popupModal = true)} color="light" class="px-3 focus-within:!ring-1"
-              >{$_("delete")}</Button
+            <Button
+              onclick={() => (popupModal = true)}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
             <Button
               onclick={() => {
@@ -298,7 +298,12 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("email")}</P
                 >
-                <Input readonly={!onEdit} bind:value={data.email} on:input={handleEmailChange} class="bg-primary-light dark:bg-secondary-dark" />
+                <Input
+                  readonly={!onEdit}
+                  bind:value={data.email}
+                  on:input={handleEmailChange}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
                 {#if !emailValid && data.email.length > 0}
                   <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
                 {/if}
@@ -434,7 +439,13 @@ All Rights Reserved
       </svelte:fragment>
       {$_("successfullyDeleted")}
     </Toast>
-    <Toast class="!max-w-sm" color="red" transition={fly} params={{ x: 200 }} bind:open={toastError}>
+    <Toast
+      class="!max-w-sm"
+      color="red"
+      transition={fly}
+      params={{ x: 200 }}
+      bind:open={toastError}
+    >
       <svelte:fragment slot="icon">
         <ExclamationCircleSolid class="w-5 h-5" />
       </svelte:fragment>
@@ -446,7 +457,9 @@ All Rights Reserved
 <Modal bind:open={popupModal} size="xs" autoclose>
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-400 w-12 h-12 dark:text-red-200" />
-    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">{$_("areYouSureYouWantToDelete")}</h3>
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
     <Button onclick={deletePerson} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>

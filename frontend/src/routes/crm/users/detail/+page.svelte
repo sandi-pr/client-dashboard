@@ -22,6 +22,7 @@ All Rights Reserved
 
   const params = new URLSearchParams(window.location.search);
   const userId = params.get("userId");
+  const edit = params.get("edit");
   let onEdit = $state(false);
   let dropdownOpen = $state(false);
 
@@ -164,6 +165,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (edit === "true") onEdit = true;
     getUser();
   });
 

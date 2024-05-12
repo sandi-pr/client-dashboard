@@ -26,27 +26,7 @@ All Rights Reserved
   let pagination = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
   let actionItems = $state([]);
 
-  let datas = $state([
-    {
-      id: 1,
-      product_name: "product_name",
-      price: "$" + "/hr",
-      // category: getCategory(product.category),
-      status: getStatus("Yes"),
-      actions: {
-        objects: [
-          {
-            href: `product_service/detail?productId=123&isEdit=true`,
-            name: "edit",
-          },
-          {
-            href: "product_service/detail?productId=123",
-            name: "view",
-          },
-        ],
-      },
-    }
-  ]);
+  let datas = $state([]);
 
   let configs = $state({});
 
@@ -119,8 +99,19 @@ All Rights Reserved
                   href:
                     `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
-                    product.id,
+                    product.id +
+                    "&edit=" +
+                    false,
                   name: "View",
+                },
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
+                    "?productId=" +
+                    product.id +
+                    "&edit=" +
+                    true,
+                  name: "Edit",
                 },
               ],
             },
@@ -167,13 +158,10 @@ All Rights Reserved
 
         <!-- Person Table Data -->
         {#if datas.length > 0}
-          <DataTable bind:datas={datas} bind:configs bind:next bind:previous />
+          <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else}
           <div class="pt-8">
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-            />
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           </div>
         {/if}
       </div>

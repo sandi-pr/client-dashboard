@@ -20,6 +20,7 @@ All Rights Reserved
 
   const params = new URLSearchParams(window.location.search);
   const catergoryId = params.get("catergoryId");
+  const edit = params.get("edit");
   let onEdit = $state(false);
 
   let data = $state({});
@@ -116,6 +117,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (edit === "true") onEdit = true;
     getCategory();
   });
 
@@ -153,8 +155,9 @@ All Rights Reserved
         <div class="flex gap-2">
           {#if onEdit}
             <Button
-              onclick={() => {
-                onEdit = false;
+              onclick={async function () {
+                await call.goToPage("client-dashboard", "crm-categories");
+                return;
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -164,12 +167,12 @@ All Rights Reserved
             <Button onclick={deleteCategory} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
-            <Button
+            <!-- <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            > -->
           {/if}
         </div>
       </div>
@@ -200,7 +203,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("active")}</P
                 >
-                <Toggle bind:checked={data.is_active}></Toggle>
+                <Toggle disabled={!onEdit} bind:checked={data.is_active}></Toggle>
               </div>
             </div>
             <div class="grid grid-cols-1">

@@ -83,7 +83,18 @@ All Rights Reserved
                   href:
                     `${await call.getPage("client-dashboard", "crm-category-detail")}` +
                     "?catergoryId=" +
-                    category.id,
+                    category.id +
+                    "&edit=" +
+                    false,
+                  name: "View",
+                },
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-category-detail")}` +
+                    "?catergoryId=" +
+                    category.id +
+                    "&edit=" +
+                    true,
                   name: "Edit",
                 },
               ],
@@ -132,13 +143,10 @@ All Rights Reserved
 
         <!-- Person Table Data -->
         {#if datas.length > 0}
-          <DataTable bind:datas={datas} bind:configs bind:next bind:previous />
+          <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else}
           <div class="pt-8">
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-            />
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           </div>
         {/if}
       </div>

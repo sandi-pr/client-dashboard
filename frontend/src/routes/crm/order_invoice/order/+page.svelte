@@ -237,8 +237,8 @@ All Rights Reserved
         <div class="flex gap-2">
           {#if onEdit}
             <Button
-              onclick={() => {
-                onEdit = false;
+              onclick={async function () {
+                await call.goToPage("client-dashboard", "crm-order-invoice");
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button

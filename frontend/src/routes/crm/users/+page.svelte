@@ -98,8 +98,19 @@ All Rights Reserved
                   href:
                     `${await call.getPage("client-dashboard", "crm-user-detail")}` +
                     "?userId=" +
-                    user.id,
+                    user.id +
+                    "&edit=" +
+                    false,
                   name: "View",
+                },
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-user-detail")}` +
+                    "?userId=" +
+                    user.id +
+                    "&edit=" +
+                    true,
+                  name: "Edit",
                 },
               ],
             },
