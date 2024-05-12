@@ -178,9 +178,9 @@
                 >{qaPair.role === "user" ? "You" : "HexaAI"}</P
               >
             </div>
-            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark">
-              <div class="prose"><Markdown md={qaPair.message} {plugins} /></div></P
-            >
+            <div class="prose font-medium text-tertiary-light dark:text-primary-dark">
+              <Markdown md={qaPair.message} {plugins} />
+            </div>
           </div>
         </div>
       {/each}

@@ -10,7 +10,9 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle, Toast } from "flowbite-svelte";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { fly } from 'svelte/transition';
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -24,7 +26,11 @@ All Rights Reserved
 
   const params = new URLSearchParams(window.location.search);
   const productId = params.get("productId");
+  const isEdit = params.get("isEdit") === "true";
   let onEdit = $state(false);
+  $effect(() => {
+    onEdit = isEdit;
+  });
   let uploadedImage = $state(null);
   let uploadedImageName = $state(null);
   let fileImage = $state(null);
@@ -48,6 +54,10 @@ All Rights Reserved
       },
     ],
   });
+
+  let toastCreated = $state(false);
+  let toastError = $state(false);
+  let counter = $state(6);
 
   let index = $state(resources.length);
 
@@ -141,6 +151,26 @@ All Rights Reserved
       .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
 
     return formattedDate;
+  }
+
+  function triggerToast(target) {
+    if (target === "created") {
+      toastCreated = true;
+      counter = 6;
+      timeout();
+    } else if (target === "error") {
+      toastError = true;
+      counter = 6;
+      timeout();
+    } else {
+      console.log("target not found");
+    }
+  }
+
+  function timeout() {
+    if (--counter > 0) return setTimeout(timeout, 1000);
+    open = false;
+    toastError = false;
   }
 
   async function getProduct() {
@@ -343,7 +373,7 @@ All Rights Reserved
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- Header -->
-      <div class="flex items-center pb-8">
+      <div class="flex items-center pb-6">
         <div class="flex flex-col gap-2 grow">
           <!-- Header -->
           <div class="gap-2">
@@ -463,24 +493,30 @@ All Rights Reserved
                     >{$_("pricing")}</P
                   >
                   <Input
+                    type="number"
                     readonly={!onEdit}
                     bind:value={data.price}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                 </div>
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col col-span-2 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("category")}</P
                   >
-                  <Select items={categories} bind:value={data.category} />
+                  <Select
+                    items={categories}
+                    bind:value={data.category}
+                    placeholder={$_("selectCategory")}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
                 </div>
                 <div class="flex flex-col gap-2 justify-center w-max">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle bind:checked={data.is_active}></Toggle>
+                  <Toggle disabled={!onEdit} bind:checked={data.is_active}></Toggle>
                 </div>
               </div>
             </div>
@@ -592,5 +628,19 @@ All Rights Reserved
         </div>
       {/if}
     </div>
+  </div>
+  <div class="fixed bottom-5 end-5">
+    <Toast color="green" transition={fly} params={{ x: 200 }} bind:open={toastCreated}>
+      <svelte:fragment slot="icon">
+        <CheckCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("successfullyCreated")}
+    </Toast>
+    <Toast class="!max-w-sm" color="red" transition={fly} params={{ x: 200 }} bind:open={toastError}>
+      <svelte:fragment slot="icon">
+        <ExclamationCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("sometingWentWrongPleaseTryAgain")}
+    </Toast>
   </div>
 </div>

@@ -12,7 +12,9 @@ All Rights Reserved
 <script>
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
-  import { P, Heading, Input, Button } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Helper, Toast } from "flowbite-svelte";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { fly } from 'svelte/transition';
 
   import { CR3Call } from "hexacomponents-svelte";
 
@@ -31,7 +33,25 @@ All Rights Reserved
     is_active: "Yes",
   });
 
+  let emailValid = $state(false);
+
   let buttonDisable = $state(true);
+
+  let toastCreated = $state(false);
+  let toastError = $state(false);
+  let counter = $state(6);
+
+  function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  function handleEmailChange(event) {
+    const newEmail = event.target.value;
+    emailValid = validateEmail(newEmail);
+    email = newEmail;
+    dispatch('emailChange', { email, emailValid });
+  }
 
   async function createPerson() {
     console.log(data);
@@ -59,14 +79,37 @@ All Rights Reserved
       });
       console.log(response);
       if (response.status === 200) {
+        triggerToast("created");
         await call.goToPage("client-dashboard", "crm-person");
         return;
       } else {
+        triggerToast("error");
         console.log(response);
       }
     } catch (error) {
+      triggerToast("error");
       console.log(error);
     }
+  }
+
+  function triggerToast(target) {
+    if (target === "created") {
+      toastCreated = true;
+      counter = 6;
+      timeout();
+    } else if (target === "error") {
+      toastError = true;
+      counter = 6;
+      timeout();
+    } else {
+      console.log("target not found");
+    }
+  }
+
+  function timeout() {
+    if (--counter > 0) return setTimeout(timeout, 1000);
+    open = false;
+    toastError = false;
   }
 
   async function backPage() {
@@ -84,7 +127,8 @@ All Rights Reserved
       data.address.length < 1 ||
       data.city.length < 1 ||
       data.state.length < 1 ||
-      data.zip_code.length < 1;
+      data.zip_code.length < 1 ||
+      emailValid === false;
   });
 
   // let dropdownOpen = false;
@@ -155,14 +199,17 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("email")}</P
                 >
-                <Input bind:value={data.email} class="bg-primary-light dark:bg-secondary-dark" />
+                <Input bind:value={data.email} on:input={handleEmailChange} class="bg-primary-light dark:bg-secondary-dark" />
+                {#if !emailValid && data.email.length > 0}
+                  <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
+                {/if}
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("phone")}</P
                 >
-                <Input bind:value={data.phone} class="bg-primary-light dark:bg-secondary-dark" />
+                <Input bind:value={data.phone} type="number" class="bg-primary-light dark:bg-secondary-dark" />
               </div>
             </div>
             <div class="flex flex-col grow gap-2">
@@ -195,7 +242,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("zipCode")}</P
                 >
-                <Input bind:value={data.zip_code} class="bg-primary-light dark:bg-secondary-dark" />
+                <Input bind:value={data.zip_code} type="number" class="bg-primary-light dark:bg-secondary-dark" />
               </div>
               <div class="flex flex-col gap-2">
                 <P
@@ -222,5 +269,19 @@ All Rights Reserved
         </div>
       </div>
     </div>
+  </div>
+  <div class="fixed bottom-5 end-5">
+    <Toast color="green" transition={fly} params={{ x: 200 }} bind:open={toastCreated}>
+      <svelte:fragment slot="icon">
+        <CheckCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("successfullyCreated")}
+    </Toast>
+    <Toast class="!max-w-sm" color="red" transition={fly} params={{ x: 200 }} bind:open={toastError}>
+      <svelte:fragment slot="icon">
+        <ExclamationCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("sometingWentWrongPleaseTryAgain")}
+    </Toast>
   </div>
 </div>

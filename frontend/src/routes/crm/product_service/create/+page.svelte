@@ -10,7 +10,9 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle, Toast, Helper } from "flowbite-svelte";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { fly } from 'svelte/transition';
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -34,9 +36,14 @@ All Rights Reserved
     product_name: "",
     description: "",
     price: "",
-    is_active: "Yes",
-    categoriy: null,
+    is_active: false,
+    category: "",
   });
+
+  let toastCreated = $state(false);
+  let toastResourceEmpty = $state(false);
+  let toastError = $state(false);
+  let counter = $state(6);
 
   let resources = $state([]);
 
@@ -72,6 +79,18 @@ All Rights Reserved
     resources = resources.filter((resource) => resource.id !== id);
   }
 
+  function validateResources(resources) {
+    let isValid = true;
+
+    resources.forEach((resource) => {
+      if (!resource.resource_name.trim()) {
+        isValid = false;
+      }
+    });
+
+    return isValid;
+  }
+
   const handleImageUploadWrapper = (index) => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
@@ -102,7 +121,7 @@ All Rights Reserved
       data.product_name === "" ||
       data.description === "" ||
       data.price === "" ||
-      data.category === null
+      data.category === ""
     ) {
       return;
     }
@@ -129,6 +148,10 @@ All Rights Reserved
 
         if (response.status === 200) {
           if (resources.length > 0) {
+            if (!validateResources(resources)) {
+              triggerToast("error");
+              return;
+            }
             for (let i = 0; i < resources.length; i++) {
               let response2 = await call.call("client-dashboard", "create-resource", {
                 URLQuery: {},
@@ -147,18 +170,22 @@ All Rights Reserved
               });
 
               if (response2.status !== 200) {
+                triggerToast("error");
                 console.log(response2);
                 return;
               }
             }
           }
+          triggerToast("created");
           await call.goToPage("client-dashboard", "crm-product-service");
           return;
         } else {
+          triggerToast("error");
           console.log(response);
           return;
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
@@ -188,25 +215,46 @@ All Rights Reserved
 
         categories = await Promise.all(promise);
       } else {
+        triggerToast("error");
         console.log(response);
         return;
       }
     }
   }
 
+  function triggerToast(target) {
+    if (target === "created") {
+      toastCreated = true;
+      counter = 6;
+      timeout();
+    } else if (target === "resource_empty") {
+      toastResourceEmpty = true;
+      counter = 6;
+      timeout();
+    }
+     else if (target === "error") {
+      toastError = true;
+      counter = 6;
+      timeout();
+    } else {
+      console.log("target not found");
+    }
+  }
+
+  function timeout() {
+    if (--counter > 0) return setTimeout(timeout, 1000);
+    toastCreated = false;
+    toastError = false;
+  }
+
   let buttonDisable = $state(true);
 
   $effect(() => {
-    if (
-      data.product_name !== "" &&
-      data.description !== "" &&
-      data.price !== "" &&
-      data.is_active !== ""
-    ) {
-      buttonDisable = false;
-    } else {
-      buttonDisable = true;
-    }
+    buttonDisable =
+      data.product_name < 1 ||
+      data.description < 1 ||
+      data.price < 1 ||
+      data.category < 1;
   });
 
   onMount(async () => {
@@ -228,7 +276,7 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              Create New Product & Services
+              {$_("createNewProduct&Services")}
             </Heading>
           </div>
         </div>
@@ -241,7 +289,7 @@ All Rights Reserved
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
           >
-          <Button onclick={createProduct} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
+          <Button disabled={buttonDisable} onclick={createProduct} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
         </div>
       </div>
 
@@ -276,7 +324,7 @@ All Rights Reserved
                 <div class="flex flex-col gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("product_description")}</P
+                    >{$_("productDescription")}</P
                   >
                   <Textarea
                     readonly={!onEdit}
@@ -310,7 +358,7 @@ All Rights Reserved
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                 </div>
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col col-span-2 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("category")}</P
@@ -318,17 +366,21 @@ All Rights Reserved
                   <Select
                     items={categories}
                     bind:value={data.category}
-                    placeholder="Select category"
+                    placeholder={$_("selectCategory")}
+                    class="bg-primary-light dark:bg-secondary-dark"
                   />
+                  {#if categories.length === 0}
+                  <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper>
+                  {/if}
                   <!-- <Input
                     readonly={!onEdit}
                     bind:value={data.category}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />   -->
                 </div>
-                <div class="flex flex-col gap-2 justify-center w-max">
+                <div class="flex flex-col gap-2 justify-start w-max">
                   <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    class="pb-2 text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
                   <Toggle bind:checked={data.is_active}></Toggle>
@@ -343,7 +395,7 @@ All Rights Reserved
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("resources")}
             </P>
-            <Button color="light" on:click={addResource}>Add</Button>
+            <Button color="light" on:click={addResource}>{$_("add")}</Button>
           </div>
           <div class="flex flex-col grow gap-6">
             {#each resources as resource, index}
@@ -351,9 +403,11 @@ All Rights Reserved
                 <div class="flex items-center col-span-5 gap-2">
                   <div class="flex items-center w-full justify-between gap-2">
                     <div></div>
+                    {#if resource.resource_name.length > 0}
                     <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
                       >{$_("delete")}</Button
                     >
+                    {/if}
                   </div>
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
@@ -433,5 +487,25 @@ All Rights Reserved
         </div>
       {/if}
     </div>
+  </div>
+  <div class="fixed bottom-5 end-5">
+    <Toast color="green" transition={fly} params={{ x: 200 }} bind:open={toastCreated}>
+      <svelte:fragment slot="icon">
+        <CheckCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("successfullyCreated")}
+    </Toast>
+    <Toast color="red" transition={fly} params={{ x: 200 }} bind:open={toastResourceEmpty}>
+      <svelte:fragment slot="icon">
+        <ExclamationCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("resourceNameEmpty")}
+    </Toast>
+    <Toast class="!max-w-sm" color="red" transition={fly} params={{ x: 200 }} bind:open={toastError}>
+      <svelte:fragment slot="icon">
+        <ExclamationCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("sometingWentWrongPleaseTryAgain")}
+    </Toast>
   </div>
 </div>

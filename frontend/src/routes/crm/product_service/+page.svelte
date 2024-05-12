@@ -26,7 +26,27 @@ All Rights Reserved
   let pagination = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
   let actionItems = $state([]);
 
-  let datas = $state([]);
+  let datas = $state([
+    {
+      id: 1,
+      product_name: "product_name",
+      price: "$" + "/hr",
+      // category: getCategory(product.category),
+      status: getStatus("Yes"),
+      actions: {
+        objects: [
+          {
+            href: `product_service/detail?productId=123&isEdit=true`,
+            name: "edit",
+          },
+          {
+            href: "product_service/detail?productId=123",
+            name: "view",
+          },
+        ],
+      },
+    }
+  ]);
 
   let configs = $state({});
 
@@ -43,14 +63,14 @@ All Rights Reserved
     if (is_active === "Yes") {
       return {
         type: "success",
-        name: "Active",
+        name: $_("active"),
       };
     }
 
     if (is_active === "No") {
       return {
         type: "danger",
-        name: "Inactive",
+        name: $_("inActive"),
       };
     }
 
@@ -139,9 +159,9 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text="Product & Service" />
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("product&Service")} />
           <Button onclick={addProduct} icon={PlusIcon}
-            >Add new <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
           >
         </div>
 

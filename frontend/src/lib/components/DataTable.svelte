@@ -253,7 +253,7 @@
           <TableHeadCell>{"recipients"}</TableHeadCell>
         {/if}
         {#if datas[0]?.country}
-          <TableHeadCell>{"country"}</TableHeadCell>
+          <TableHeadCell>{$_("country")}</TableHeadCell>
         {/if}
         {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
           <TableHeadCell></TableHeadCell>
@@ -389,7 +389,7 @@
                       <img src={ID} alt="ID" class="w-6 h-6" />
                     {/if}
                   </p>
-                  <p class="ml-4 text-lg">{data.country}</p>
+                  <p class="ml-2 text-md">{data.country}</p>
                 </TableBodyCell>
               {/if}
             {/each}
@@ -454,8 +454,8 @@
                         {/if}
                       {:else}
                         <a
-                          class="p-4 hover:no-underline text-hc-brand-600 font-semibold"
-                          href={action.href}>{action.name}</a
+                          class="hover:no-underline text-hc-brand-600 font-semibold"
+                          href={action.href}>{$_(action.name)}</a
                         >
                       {/if}
                     {/each}

@@ -116,7 +116,7 @@ All Rights Reserved
           },
           {
             href: isFrontend
-              ? "/crm/product"
+              ? "/crm/product_service"
               : await call.getPage("client-dashboard", "crm-product-service"),
             name: "product&Services",
           },

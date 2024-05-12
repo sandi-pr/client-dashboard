@@ -61,9 +61,15 @@
                 {
                   href:
                     `${await call.getPage("client-dashboard", "crm-person-detail")}` +
+                    `?personId=${person.id}&isEdit=true`,
+                  name: "edit",
+                },
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-person-detail")}` +
                     "?personId=" +
                     person.id,
-                  name: "View",
+                  name: "view",
                 },
               ],
             },
@@ -101,9 +107,9 @@
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text="Persons List" />
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("personsList")} />
           <Button onclick={addPerson} icon={PlusIcon}
-            >Add new <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
           >
         </div>
 
