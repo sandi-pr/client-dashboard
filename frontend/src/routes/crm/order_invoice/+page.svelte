@@ -21,8 +21,8 @@ All Rights Reserved
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let paginationOrders = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
-  let paginationInvoices = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
+  let paginationOrders = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
+  let paginationInvoices = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
   let tabDatas = $state({
     selected: "Orders",
@@ -58,6 +58,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             page: paginationOrders.page,
+            page_size: paginationOrders.pageSize,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -114,6 +115,7 @@ All Rights Reserved
         URLParams: {},
         Params: {
           page: paginationInvoices.page,
+          page_size: paginationInvoices.pageSize,
         },
         Headers: {
           Authorization: "Bearer " + token,

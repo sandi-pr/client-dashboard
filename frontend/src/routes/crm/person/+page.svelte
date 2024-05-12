@@ -11,7 +11,7 @@
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let pagination = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
   let datas = $state([]);
 
@@ -26,6 +26,7 @@
         URLParams: {},
         Params: {
           page: page,
+          page_size: pagination.pageSize,
         },
         Headers: {
           Authorization: "Bearer " + token,

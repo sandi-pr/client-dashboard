@@ -376,6 +376,7 @@ All Rights Reserved
         URLParams: {},
         Params: {
           page: 1,
+          page_size: 5,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -414,8 +415,17 @@ All Rights Reserved
                   href:
                     `${await call.getPage("client-dashboard", "crm-person-detail")}` +
                     "?personId=" +
-                    person.id,
+                    person.id +
+                    "&edit=false",
                   name: "View",
+                },
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-person-detail")}` +
+                    "?personId=" +
+                    person.id +
+                    "&edit=true",
+                  name: "Edit",
                 },
               ],
             },
@@ -436,6 +446,7 @@ All Rights Reserved
         URLParams: {},
         Params: {
           page: 1,
+          page_size: 5,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -466,8 +477,17 @@ All Rights Reserved
                   href:
                     `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
-                    product.id,
+                    product.id +
+                    "&edit=false",
                   name: "View",
+                },
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
+                    "?productId=" +
+                    product.id +
+                    "&edit=true",
+                  name: "Edit",
                 },
               ],
             },
@@ -663,7 +683,11 @@ All Rights Reserved
 
         <div class="flex flex-col">
           <div class="flex justify-between">
-            <Typography preset="Text lg/Semibold" color="primary" text={$_(toCamelCase(tabDatas.selected))}/>
+            <Typography
+              preset="Text lg/Semibold"
+              color="primary"
+              text={$_(toCamelCase(tabDatas.selected))}
+            />
             <div></div>
             <!-- <Button on:click={() => viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button> -->
           </div>
@@ -695,7 +719,7 @@ All Rights Reserved
               {/if}
             {:else if tabDatas.selected === "Users"}
               {#if latestUsers.length > 0}
-              <DataTable bind:datas={latestUsers} bind:configs />
+                <DataTable bind:datas={latestUsers} bind:configs />
               {:else}
                 <div class="pt-6">
                   <StateCard

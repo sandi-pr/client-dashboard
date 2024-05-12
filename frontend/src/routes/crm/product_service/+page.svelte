@@ -23,7 +23,7 @@ All Rights Reserved
 
   let personsLatest = [];
   let documentsReady = $state(false);
-  let pagination = $state({ page: 1, pageSize: 25, pageCount: 1, total: 25 });
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
   let actionItems = $state([]);
 
   let datas = $state([]);
@@ -68,6 +68,7 @@ All Rights Reserved
         URLParams: {},
         Params: {
           page: page,
+          page_size: pagination.pageSize,
         },
         Headers: {
           Authorization: "Bearer " + token,
