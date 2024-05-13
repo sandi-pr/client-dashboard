@@ -212,6 +212,7 @@ func Reset(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		"resource",
 		"resource-type",
 		"company-profile",
+		"booking",
 
 		"conversation",
 		"conversation-message",
