@@ -129,7 +129,7 @@ All Rights Reserved
   });
 
   async function addUser() {
-    await call.goToPage("client-dashboard", "crm-user-create");
+    await call.goToPage("client-dashboard", "user-create");
     return;
   }
 </script>

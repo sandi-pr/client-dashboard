@@ -42,7 +42,7 @@
     email = $bindable(""),
     brand = $bindable("Hexapod"),
     isHidden = true,
-    isFrontend = $bindable(true),
+    isFrontend = $bindable(false),
     funcButton,
     logout,
   } = $props();
@@ -56,7 +56,7 @@
   let sidebarItems = $state([{ name: "home", href: "/", icon: "home", children: [] }]);
   let dropdownUser = $state(false);
 
-  const call = !isFrontend ?? new CR3Call(globalThis.location.origin);
+  const call = new CR3Call(globalThis.location.origin);
 
   const sidebarBuilder = async () => {
     let moduleClient = await getModule();

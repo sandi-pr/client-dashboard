@@ -190,6 +190,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             page: page,
+            page_size: 25,
           },
           Headers: {
             Authorization: "Bearer " + token,

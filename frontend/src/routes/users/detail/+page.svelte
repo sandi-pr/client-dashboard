@@ -203,8 +203,9 @@ All Rights Reserved
         <div class="flex gap-2">
           {#if onEdit}
             <Button
-              onclick={() => {
-                onEdit = false;
+              onclick={async function () {
+                await call.goToPage("client-dashboard", "users");
+                return;
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -214,12 +215,12 @@ All Rights Reserved
             <Button onclick={deleteUser} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
-            <Button
+            <!-- <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            > -->
           {/if}
         </div>
       </div>
@@ -342,7 +343,7 @@ All Rights Reserved
                   >{$_("active")}</P
                 >
                 <div class="my-auto">
-                  <Toggle bind:checked={data.is_active}></Toggle>
+                  <Toggle disabled={!onEdit} bind:checked={data.is_active}></Toggle>
                 </div>
               </div>
             </div>
