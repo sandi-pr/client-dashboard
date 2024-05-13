@@ -30,29 +30,19 @@ All Rights Reserved
   let fileText = $state(null);
   let fileTextName = $state(null);
   let fileTextResult = $state(null);
+  let base64Data = $state(null);
   let categories = $state([
     {
-      value: "general",
+      value: "GENERAL",
       name: "General",
     },
     {
-      value: "contract",
+      value: "CONTRACT",
       name: "Contract",
     },
   ]);
 
-  let personClient = $state([
-    {
-      value: "1",
-      name: "Azizi",
-    },
-    {
-      value: "2",
-      name: "Habibi",
-    },
-  ]);
-
-  let ischecked = $state(false);
+  let personClient = $state([]);
 
   let data = $state({
     document_title: "",
@@ -60,41 +50,13 @@ All Rights Reserved
     description: "",
     document_type: "",
     person_client: "",
+    contract_start: "",
+    contract_end: "",
   });
 
   let resources = $state([]);
 
-  let tabDatas = $state({
-    selected: "Information",
-    data: [
-      {
-        name: "Information",
-      },
-      {
-        name: "Resource",
-      },
-    ],
-  });
-
   let index = $state(resources.length);
-
-  function addResource() {
-    const newResource = {
-      // dummy id
-      id: Date.now(),
-      resource_name: "",
-      image: "",
-      description: "",
-      resource_type: "",
-      resource_type_id: "",
-      is_active: true,
-    };
-    resources = [...resources, newResource];
-  }
-
-  function deleteResource(id) {
-    resources = resources.filter((resource) => resource.id !== id);
-  }
 
   function handleDragOver(event) {
     event.preventDefault();
@@ -148,7 +110,13 @@ All Rights Reserved
         fileTextResult = await new Promise((resolve, reject) => {
           const reader = new FileReader();
 
-          reader.onload = () => resolve(reader.result.replace(/\r\n/g, "\n"));
+          reader.onload = () => {
+            const text = reader.result.replace(/\r\n/g, "\n");
+            resolve(text);
+
+            // Encode text as Base64
+            base64Data = btoa(text);
+          };
           reader.onerror = reject;
 
           reader.readAsText(file);
@@ -166,16 +134,6 @@ All Rights Reserved
   };
 
   async function createProduct() {
-    // if (
-    //   data.document_title === "" ||
-    //   data.document_upload === null ||
-    //   data.description === "" ||
-    //   data.document_type === "" ||
-    //   data.person_client === ""
-    // ) {
-    //   return;
-    // }
-
     const fileTextResultBlob = new Blob([fileTextResult], { type: "text/plain" });
 
     console.log(data);
@@ -183,7 +141,85 @@ All Rights Reserved
     console.log(fileTextName);
     console.log(fileTextResult);
     console.log(fileTextResultBlob);
-    return;
+
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      if (data.document_type === "GENERAL") {
+        try {
+          let response = await call.call("client-dashboard", "create-document", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              document_title: data.document_title,
+              document: base64Data,
+              document_name: fileTextName,
+              description: data.description,
+              document_type: data.document_type,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log(response);
+
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          if (response.status === 200) {
+            await call.goToPage("client-dashboard", "document-management-overview");
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      return;
+    }
+  }
+
+  async function getPersons() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let page = 1;
+      while (true) {
+        let response = await call.call("client-dashboard", "get-persons", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          let promise = response.result.data.map((person) => {
+            return {
+              value: person.id,
+              name:
+                person.attributes.fullname !== null
+                  ? person.attributes.fullname
+                  : `<${person.attributes.email}>`,
+            };
+          });
+
+          let data = await Promise.all(promise);
+          personClient = personClient.concat(data);
+          page++;
+        } else {
+          break;
+        }
+      }
+    }
   }
 
   let buttonDisable = $state(true);
@@ -202,7 +238,7 @@ All Rights Reserved
   });
 
   onMount(async () => {
-    //
+    getPersons();
   });
 </script>
 
@@ -346,57 +382,54 @@ All Rights Reserved
           <div class="flex gap-6">
             <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                {$_("Contract Information")}
+                {$_("contractInformation")}
               </P>
             </div>
-            <div class="flex flex-col grow gap-6">
-              <div class="flex flex-col grow gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("Persons or Client")}*</P
-                >
-                <Select
-                  items={personClient}
-                  bind:value={data.person_client}
-                  placeholder="Search in persons or client database"
-                />
-                <!-- <Input
-                readonly={!onEdit}
-                bind:value={data.document_type}
-                class="bg-primary-light dark:bg-secondary-dark"
-              />   -->
+            <div class="flex grow flex-col gap-6">
+              <div class="flex flex-col grow gap-6">
+                <div class="flex flex-col gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("personsOrClient")}*</P
+                  >
+                  <Select
+                    class="bg-primary-light dark:bg-secondary-dark"
+                    items={personClient}
+                    bind:value={data.person_client}
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-          <div class="flex justify-center items-center gap-5">
-            <div class="flex flex-col grow gap-2">
-              <P
-                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-              >
-                {$_("contractStartPeriod")}
-              </P>
-              <Input
-                type="date"
-                readonly={!onEdit}
-                bind:value={data.contract_start}
-                class="bg-primary-light dark:bg-secondary-dark"
-              />
-            </div>
-            <div class="mt-6">
-              <P>-</P>
-            </div>
-            <div class="flex flex-col grow gap-2">
-              <P
-                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-              >
-                {$_("contractEndPeriod")}
-              </P>
-              <Input
-                type="date"
-                readonly={!onEdit}
-                bind:value={data.contract_end}
-                class="bg-primary-light dark:bg-secondary-dark"
-              />
+              <div class="flex justify-center items-center gap-5">
+                <div class="flex flex-col grow gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("contractStartPeriod")}
+                  </P>
+                  <Input
+                    readonly={!onEdit}
+                    type="date"
+                    bind:value={data.contract_start}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="mt-6">
+                  <P>-</P>
+                </div>
+                <div class="flex flex-col grow gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("contractEndPeriod")}
+                  </P>
+                  <Input
+                    readonly={!onEdit}
+                    type="date"
+                    bind:value={data.contract_end}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         {/if}

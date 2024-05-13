@@ -27,12 +27,6 @@ func GetPersons(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(401, "Unauthorized")
 	}
 
-	page, ok := ctx.Params.GetFloat64("page")
-	if !ok {
-		fmt.Println("invalid parameters")
-		page = 1
-	}
-
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
 
 	status, me, err := Strapi.UsersMe()
@@ -48,9 +42,21 @@ func GetPersons(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 
 	fmt.Println(me)
 
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		page_size = 10
+	}
+
 	status, persons, err := Strapi.Find("person-table", U.Dict{
 		"pagination": U.Dict{
-			"page": page,
+			"page":     page,
+			"pageSize": page_size,
 		},
 		"sort": "id:desc",
 	})
@@ -92,61 +98,61 @@ func CreatePerson(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 	fullname, ok := ctx.Params.GetString("fullname")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters fullname")
 	}
 
 	email, ok := ctx.Params.GetString("email")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters email")
 	}
 
 	phone, ok := ctx.Params.GetString("phone")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters phone")
 	}
 
 	address, ok := ctx.Params.GetString("address")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters address")
 	}
 
 	city, ok := ctx.Params.GetString("city")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters city")
 	}
 
 	state, ok := ctx.Params.GetString("state")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters state")
 	}
 
 	zip_code, ok := ctx.Params.GetString("zip_code")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters zip_code")
 	}
 
 	country, ok := ctx.Params.GetString("country")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters	country")
 	}
 
 	date_of_birth, ok := ctx.Params.GetString("date_of_birth")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters date_of_birth")
 	}
 
 	is_active, ok := ctx.Params.GetString("is_active")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters	is_active")
 	}
 
 	status, persons, err := Strapi.Create("person-table", U.Dict{

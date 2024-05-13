@@ -79,9 +79,6 @@ All Rights Reserved
       {
         name: "Products & Services",
       },
-      {
-        name: "Users",
-      },
     ],
   });
 
@@ -343,10 +340,6 @@ All Rights Reserved
       let href = await call.getPage("client-dashboard", "crm-product-service");
       globalThis.location.href = href;
       return;
-    } else if (title === "Users") {
-      let href = await call.getPage("client-dashboard", "crm-users");
-      globalThis.location.href = href;
-      return;
     }
   }
 
@@ -500,59 +493,59 @@ All Rights Reserved
     }
   }
 
-  async function getUsers() {
-    let token = sessionStorage.getItem("token");
-    if (token !== null) {
-      let response = await call.call("client-dashboard", "get-users", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: 1,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+  // async function getUsers() {
+  //   let token = sessionStorage.getItem("token");
+  //   if (token !== null) {
+  //     let response = await call.call("client-dashboard", "get-users", {
+  //       URLQuery: {},
+  //       URLParams: {},
+  //       Params: {
+  //         page: 1,
+  //       },
+  //       Headers: {
+  //         Authorization: "Bearer " + token,
+  //       },
+  //     });
 
-      if (response.status !== 200) {
-        console.log(response);
-        return;
-      }
-      console.log("ayam", response);
+  //     if (response.status !== 200) {
+  //       console.log(response);
+  //       return;
+  //     }
+  //     console.log("ayam", response);
 
-      if (response.result.data.length > 0) {
-        configs = {
-          // search: true,
-          // pagination: response.result.meta.pagination,
-        };
-        let latestData = response.result.data.slice(0, 5);
-        let promises = latestData.map(async (user, index) => {
-          return {
-            id: user.id,
-            fullname: user.fullname || "No Name",
-            username: user.username,
-            email: user.email,
-            // authority: getAuthority(user.authority) || "No Authority",
-            // status: user.is_active === "Yes" ? "Admin" : "User",
-            actions: {
-              objects: [
-                {
-                  href:
-                    `${await call.getPage("client-dashboard", "crm-user-detail")}` +
-                    "?userId=" +
-                    user.id,
-                  name: "View",
-                },
-              ],
-            },
-          };
-        });
+  //     if (response.result.data.length > 0) {
+  //       configs = {
+  //         // search: true,
+  //         // pagination: response.result.meta.pagination,
+  //       };
+  //       let latestData = response.result.data.slice(0, 5);
+  //       let promises = latestData.map(async (user, index) => {
+  //         return {
+  //           id: user.id,
+  //           fullname: user.fullname || "No Name",
+  //           username: user.username,
+  //           email: user.email,
+  //           // authority: getAuthority(user.authority) || "No Authority",
+  //           // status: user.is_active === "Yes" ? "Admin" : "User",
+  //           actions: {
+  //             objects: [
+  //               {
+  //                 href:
+  //                   `${await call.getPage("client-dashboard", "crm-user-detail")}` +
+  //                   "?userId=" +
+  //                   user.id,
+  //                 name: "View",
+  //               },
+  //             ],
+  //           },
+  //         };
+  //       });
 
-        latestUsers = await Promise.all(promises);
-        documentsReady = true;
-      }
-    }
-  }
+  //       latestUsers = await Promise.all(promises);
+  //       documentsReady = true;
+  //     }
+  //   }
+  // }
 
   onMount(async () => {
     getChartAction();
@@ -560,7 +553,7 @@ All Rights Reserved
     getActionItems();
     getPerson();
     getProducts();
-    getUsers();
+    // getUsers();
   });
 </script>
 
@@ -717,7 +710,7 @@ All Rights Reserved
                   />
                 </div>
               {/if}
-            {:else if tabDatas.selected === "Users"}
+              <!-- {:else if tabDatas.selected === "Users"}
               {#if latestUsers.length > 0}
                 <DataTable bind:datas={latestUsers} bind:configs />
               {:else}
@@ -727,7 +720,7 @@ All Rights Reserved
                     description={$_("youDontHaveAnyDataYet")}
                   />
                 </div>
-              {/if}
+              {/if} -->
             {/if}
           </div>
         </div>

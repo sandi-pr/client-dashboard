@@ -26,7 +26,7 @@
         },
         {
             "name": "crm-person-detail",
-            "path": "/crm/person/single",
+            "path": "/crm/person/detail",
             "file_path": "template/crm/person/detail.html"
         },
         {
@@ -50,19 +50,19 @@
             "file_path": "template/crm/product_service/detail.html"
         },
         {
-            "name": "crm-users",
-            "path": "/crm/users",
-            "file_path": "template/crm/users.html"
+            "name": "users",
+            "path": "/users",
+            "file_path": "template/users.html"
         },
         {
-            "name": "crm-user-detail",
-            "path": "/crm/users/detail",
-            "file_path": "template/crm/users/detail.html"
+            "name": "user-detail",
+            "path": "/users/detail",
+            "file_path": "template/users/detail.html"
         },
         {
-            "name": "crm-user-create",
-            "path": "/crm/users/create",
-            "file_path": "template/crm/users/create.html"
+            "name": "user-create",
+            "path": "/users/create",
+            "file_path": "template/users/create.html"
         },
         {
             "name": "crm-categories",
@@ -141,6 +141,11 @@
                     "name": "page",
                     "type": "number",
                     "required": false
+                },
+                {
+                    "name": "page_size",
+                    "type": "number",
+                    "required": false
                 }
             ]
         },
@@ -156,7 +161,7 @@
             },
             "params": [
                 {
-                    "name": "fullName",
+                    "name": "fullname",
                     "type": "text",
                     "required": true
                 },
@@ -251,7 +256,7 @@
                 {
                     "name": "phone",
                     "type": "text",
-                    "requir,ed": true
+                    "required": true
                 },
                 {
                     "name": "address",
@@ -316,6 +321,11 @@
             "params": [
                 {
                     "name": "page",
+                    "type": "number",
+                    "required": false
+                },
+                {
+                    "name": "page_size",
                     "type": "number",
                     "required": false
                 }
@@ -678,6 +688,11 @@
                     "name": "page",
                     "type": "number",
                     "required": false
+                },
+                {
+                    "name": "page_size",
+                    "type": "number",
+                    "required": false
                 }
             ]
         },
@@ -929,6 +944,11 @@
                     "name": "page",
                     "type": "number",
                     "required": false
+                },
+                {
+                    "name": "page_size",
+                    "type": "number",
+                    "required": false
                 }
             ]
         },
@@ -1081,6 +1101,11 @@
                     "name": "page",
                     "type": "number",
                     "required": false
+                },
+                {
+                    "name": "page_size",
+                    "type": "number",
+                    "required": false
                 }
             ]
         },
@@ -1173,6 +1198,44 @@
                 "plugin": "plugin.so",
                 "function": "Reset"
             }
+        },
+        {
+            "name": "create-document",
+            "path": "/create-document",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateDocument"
+            },
+            "params": [
+                {
+                    "name": "document_title",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "document_type",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "document",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "document_name",
+                    "type": "text",
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {
@@ -1619,6 +1682,32 @@
                             "Employee"
                         ],
                         "configurable": false
+                    }
+                }
+            },
+            {
+                "name": "document-management",
+                "label": "Document Management",
+                "fields": {
+                    "document_title": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "document_type": {
+                        "type": "string",
+                        "required": true,
+                        "enum": [
+                            "GENERAL",
+                            "CONTRACT"
+                        ]
+                    },
+                    "document": {
+                        "type": "media",
+                        "multiple": false,
+                        "required": true
                     }
                 }
             }

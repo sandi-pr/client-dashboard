@@ -14,7 +14,9 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { P, Heading, Input, Button, Helper, Toast } from "flowbite-svelte";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { fly } from 'svelte/transition';
+  import { fly } from "svelte/transition";
+  import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
 
   import { CR3Call } from "hexacomponents-svelte";
 
@@ -49,8 +51,8 @@ All Rights Reserved
   function handleEmailChange(event) {
     const newEmail = event.target.value;
     emailValid = validateEmail(newEmail);
-    email = newEmail;
-    dispatch('emailChange', { email, emailValid });
+    let email = newEmail;
+    dispatch("emailChange", { email, emailValid });
   }
 
   async function createPerson() {
@@ -64,13 +66,12 @@ All Rights Reserved
           fullname: data.fullname,
           date_of_birth: data.date_of_birth,
           email: data.email,
-          phone: data.phone,
+          phone: data.phone.toString(),
           country: data.country,
           address: data.address,
           city: data.city,
           state: data.state,
-          zip_code: data.zip_code,
-          createdAt: data.createdAt,
+          zip_code: data.zip_code.toString(),
           is_active: data.is_active,
         },
         Headers: {
@@ -177,7 +178,7 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("fullname")}
+                  {$_("fullname")}*
                 </P>
                 <Input bind:value={data.fullname} class="bg-primary-light dark:bg-secondary-dark" />
               </div>
@@ -197,9 +198,13 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("email")}</P
+                  >{$_("email")}*</P
                 >
-                <Input bind:value={data.email} on:input={handleEmailChange} class="bg-primary-light dark:bg-secondary-dark" />
+                <Input
+                  bind:value={data.email}
+                  on:input={handleEmailChange}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
                 {#if !emailValid && data.email.length > 0}
                   <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
                 {/if}
@@ -207,16 +212,20 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("phone")}</P
+                  >{$_("phone")}*</P
                 >
-                <Input bind:value={data.phone} type="number" class="bg-primary-light dark:bg-secondary-dark" />
+                <Input
+                  bind:value={data.phone}
+                  type="number"
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
               </div>
             </div>
             <div class="flex flex-col grow gap-2">
               <P
                 class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
               >
-                {$_("address")}
+                {$_("address")}*
               </P>
               <Input bind:value={data.address} class="bg-primary-light dark:bg-secondary-dark" />
             </div>
@@ -224,14 +233,14 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("city")}</P
+                  >{$_("city")}*</P
                 >
                 <Input bind:value={data.city} class="bg-primary-light dark:bg-secondary-dark" />
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("state")}</P
+                  >{$_("state")}*</P
                 >
                 <Input bind:value={data.state} class="bg-primary-light dark:bg-secondary-dark" />
               </div>
@@ -240,14 +249,18 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("zipCode")}</P
+                  >{$_("zipCode")}*</P
                 >
-                <Input bind:value={data.zip_code} type="number" class="bg-primary-light dark:bg-secondary-dark" />
+                <Input
+                  bind:value={data.zip_code}
+                  type="number"
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("country")}</P
+                  >{$_("country")}*</P
                 >
                 <Input bind:value={data.country} class="bg-primary-light dark:bg-secondary-dark" />
               </div>
@@ -256,7 +269,7 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("dateOfBirth")}</P
+                  >{$_("dateOfBirth")}*</P
                 >
                 <Input
                   type="date"
@@ -277,7 +290,13 @@ All Rights Reserved
       </svelte:fragment>
       {$_("successfullyCreated")}
     </Toast>
-    <Toast class="!max-w-sm" color="red" transition={fly} params={{ x: 200 }} bind:open={toastError}>
+    <Toast
+      class="!max-w-sm"
+      color="red"
+      transition={fly}
+      params={{ x: 200 }}
+      bind:open={toastError}
+    >
       <svelte:fragment slot="icon">
         <ExclamationCircleSolid class="w-5 h-5" />
       </svelte:fragment>

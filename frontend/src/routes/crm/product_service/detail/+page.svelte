@@ -336,6 +336,7 @@ All Rights Reserved
         URLParams: {},
         Params: {
           page: 1,
+          page_size: 25,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -528,7 +529,9 @@ All Rights Reserved
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("resources")}
             </P>
-            <Button color="light" on:click={addResource}>Add</Button>
+            {#if onEdit}
+              <Button color="light" on:click={addResource}>Add</Button>
+            {/if}
           </div>
           <div class="flex flex-col grow gap-6">
             {#each resources as resource (resource.id)}

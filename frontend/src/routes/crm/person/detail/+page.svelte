@@ -16,8 +16,10 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Divider from "$lib/components/Divider.svelte";
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
+
+  const dispatch = createEventDispatcher();
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -41,7 +43,7 @@ All Rights Reserved
     is_active: "",
   });
 
-  let emailValid = $state(false);
+  let emailValid = $state(true);
 
   let toastCreated = $state(false);
   let toastError = $state(false);
@@ -75,7 +77,7 @@ All Rights Reserved
   function handleEmailChange(event) {
     const newEmail = event.target.value;
     emailValid = validateEmail(newEmail);
-    email = newEmail;
+    let email = newEmail;
     dispatch("emailChange", { email, emailValid });
   }
 
@@ -123,12 +125,12 @@ All Rights Reserved
           fullname: data.fullname,
           date_of_birth: data.date_of_birth,
           email: data.email,
-          phone: data.phone,
+          phone: data.phone.toString(),
           country: data.country,
           address: data.address,
           city: data.city,
           state: data.state,
-          zip_code: data.zip_code,
+          zip_code: data.zip_code.toString(),
           is_active: data.is_active,
         },
         Headers: {
@@ -304,8 +306,10 @@ All Rights Reserved
                   on:input={handleEmailChange}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
-                {#if !emailValid && data.email.length > 0}
-                  <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
+                {#if onEdit}
+                  {#if !emailValid && data.email.length > 0}
+                    <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
+                  {/if}
                 {/if}
               </div>
               <div class="flex flex-col gap-2">

@@ -49,9 +49,15 @@ func GetOrders(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		page = 1
 	}
 
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		page_size = 10
+	}
+
 	status, orders, err := Strapi.Find("order-booking-table", U.Dict{
 		"pagination": U.Dict{
-			"page": page,
+			"page":     page,
+			"pageSize": page_size,
 		},
 		"populate": "*",
 		"sort":     "id:desc",

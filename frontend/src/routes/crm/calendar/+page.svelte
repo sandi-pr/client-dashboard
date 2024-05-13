@@ -410,7 +410,7 @@
             URLQuery: {},
             URLParams: {},
             Params: {
-              title: postProcessedDate[i].title,
+              title: postProcessedDate[0].title,
               date: postProcessedDate[i].datetime.toISOString().split("T")[0],
               start_time:
                 ("0" + postProcessedDate[0].datetime.getHours()).slice(-2) +
@@ -428,7 +428,7 @@
                 ("0" + postProcessedDate[1].datetime.getSeconds()).slice(-2) +
                 "." +
                 ("00" + postProcessedDate[1].datetime.getMilliseconds()).slice(-3),
-              is_active: true,
+              is_active: "Yes",
             },
             Headers: {
               Authorization: "Bearer " + token,

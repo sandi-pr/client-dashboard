@@ -10,9 +10,19 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle, Toast, Helper } from "flowbite-svelte";
+  import {
+    P,
+    Heading,
+    Input,
+    Button,
+    Select,
+    Textarea,
+    Toggle,
+    Toast,
+    Helper,
+  } from "flowbite-svelte";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { fly } from 'svelte/transition';
+  import { fly } from "svelte/transition";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -136,7 +146,7 @@ All Rights Reserved
             product_name: data.product_name,
             description: data.description,
             price: data.price,
-            is_active: data.is_active,
+            is_active: data.is_active === true ? "Yes" : "No",
             category: data.category,
           },
           Headers: {
@@ -199,6 +209,7 @@ All Rights Reserved
         URLParams: {},
         Params: {
           page: 1,
+          page_size: 25,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -231,8 +242,7 @@ All Rights Reserved
       toastResourceEmpty = true;
       counter = 6;
       timeout();
-    }
-     else if (target === "error") {
+    } else if (target === "error") {
       toastError = true;
       counter = 6;
       timeout();
@@ -251,10 +261,7 @@ All Rights Reserved
 
   $effect(() => {
     buttonDisable =
-      data.product_name < 1 ||
-      data.description < 1 ||
-      data.price < 1 ||
-      data.category < 1;
+      data.product_name < 1 || data.description < 1 || data.price < 1 || data.category < 1;
   });
 
   onMount(async () => {
@@ -289,7 +296,9 @@ All Rights Reserved
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
           >
-          <Button disabled={buttonDisable} onclick={createProduct} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
+          <Button disabled={buttonDisable} onclick={createProduct} class="px-3 focus-within:!ring-1"
+            >{$_("create")}</Button
+          >
         </div>
       </div>
 
@@ -311,7 +320,7 @@ All Rights Reserved
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
-                    {$_("productName")}
+                    {$_("productName")}*
                   </P>
                   <Input
                     readonly={!onEdit}
@@ -324,7 +333,7 @@ All Rights Reserved
                 <div class="flex flex-col gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("productDescription")}</P
+                    >{$_("productDescription")}*</P
                   >
                   <Textarea
                     readonly={!onEdit}
@@ -349,7 +358,7 @@ All Rights Reserved
                 <div class="flex flex-col col-span-2 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("pricing")}</P
+                    >{$_("pricing")}*</P
                   >
                   <Input
                     type="number"
@@ -361,7 +370,7 @@ All Rights Reserved
                 <div class="flex flex-col col-span-2 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("category")}</P
+                    >{$_("category")}*</P
                   >
                   <Select
                     items={categories}
@@ -370,7 +379,7 @@ All Rights Reserved
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                   {#if categories.length === 0}
-                  <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper>
+                    <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper>
                   {/if}
                   <!-- <Input
                     readonly={!onEdit}
@@ -404,9 +413,11 @@ All Rights Reserved
                   <div class="flex items-center w-full justify-between gap-2">
                     <div></div>
                     {#if resource.resource_name.length > 0}
-                    <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
-                      >{$_("delete")}</Button
-                    >
+                      <Button
+                        on:click={() => deleteResource(resource.id)}
+                        color="light"
+                        class="w-max">{$_("delete")}</Button
+                      >
                     {/if}
                   </div>
                 </div>
@@ -473,14 +484,14 @@ All Rights Reserved
                     bind:value={resource.resource_type}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
-                </div>
+                </div> -->
                 <div class="flex flex-col gap-2 justify-center w-max">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
                   <Toggle bind:checked={resource.is_active}></Toggle>
-                </div> -->
+                </div>
               </div>
             {/each}
           </div>
@@ -501,7 +512,13 @@ All Rights Reserved
       </svelte:fragment>
       {$_("resourceNameEmpty")}
     </Toast>
-    <Toast class="!max-w-sm" color="red" transition={fly} params={{ x: 200 }} bind:open={toastError}>
+    <Toast
+      class="!max-w-sm"
+      color="red"
+      transition={fly}
+      params={{ x: 200 }}
+      bind:open={toastError}
+    >
       <svelte:fragment slot="icon">
         <ExclamationCircleSolid class="w-5 h-5" />
       </svelte:fragment>

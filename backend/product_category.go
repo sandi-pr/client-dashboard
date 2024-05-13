@@ -49,9 +49,16 @@ func GetCategories(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		page = 1
 	}
 
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+
+	if !ok {
+		page_size = 10
+	}
+
 	status, categories, err := Strapi.Find("category-product-table", U.Dict{
 		"pagination": U.Dict{
-			"page": page,
+			"page":     page,
+			"pageSize": page_size,
 		},
 		"populate": "*",
 		"sort":     "id:desc",

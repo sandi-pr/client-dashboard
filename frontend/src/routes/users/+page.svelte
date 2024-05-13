@@ -96,7 +96,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-user-detail")}` +
+                    `${await call.getPage("client-dashboard", "user-detail")}` +
                     "?userId=" +
                     user.id +
                     "&edit=" +
@@ -105,7 +105,7 @@ All Rights Reserved
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-user-detail")}` +
+                    `${await call.getPage("client-dashboard", "user-detail")}` +
                     "?userId=" +
                     user.id +
                     "&edit=" +

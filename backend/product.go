@@ -27,12 +27,6 @@ func GetProducts(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		return ctx.Error(401, "Unauthorized")
 	}
 
-	page, ok := ctx.Params.GetFloat64("page")
-	if !ok {
-		fmt.Println("invalid parameters")
-		page = 1
-	}
-
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
 
 	status, me, err := Strapi.UsersMe()
@@ -48,9 +42,21 @@ func GetProducts(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 
 	fmt.Println(me)
 
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		page_size = 10
+	}
+
 	status, product, err := Strapi.Find("product-table", U.Dict{
 		"pagination": U.Dict{
-			"page": page,
+			"page":     page,
+			"pageSize": page_size,
 		},
 		"sort":     "id:desc",
 		"populate": "*",
@@ -93,13 +99,13 @@ func CreateProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	product_name, ok := ctx.Params.GetString("product_name")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters product_name")
 	}
 
 	description, ok := ctx.Params.GetString("description")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters description")
 	}
 
 	price, ok := ctx.Params.GetFloat64("price")
@@ -111,13 +117,13 @@ func CreateProduct(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	is_active, ok := ctx.Params.GetString("is_active")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters is_active")
 	}
 
 	category, ok := ctx.Params.GetFloat64("category")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "invalid parameters category")
 	}
 
 	resp := U.Dict{}
