@@ -12,9 +12,9 @@ All Rights Reserved
 
 <script>
   import { SectionHeader, Card, Typography, CR3Call } from "hexacomponents-svelte";
-  import { StateCard } from "$lib"
+  import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
-  import { Alert, CloseButton } from 'flowbite-svelte';
+  import { Alert, CloseButton } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
 
   const call = new CR3Call(globalThis.location.origin);
@@ -24,14 +24,14 @@ All Rights Reserved
 </script>
 
 {#if !isFirstTime}
-<div class="flex flex-col gap-1 px-4 pt-6">
-  <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
-  <Typography
-    text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
-      'staff@hexacode.org'}"
-    color="tertiary"
-  />
-</div>
+  <div class="flex flex-col gap-1 px-4 pt-6">
+    <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
+    <Typography
+      text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
+        'staff@hexacode.org'}"
+      color="tertiary"
+    />
+  </div>
 {/if}
 <div class="flex flex-col gap-4 px-4 pt-8">
   <!-- {#if isFirstTime}
@@ -45,17 +45,21 @@ All Rights Reserved
     <SelectedCard {companyType} />
   {/if} -->
   <Alert dismissable on:close={() => (isFirstTime = false)} class="relative flex justify-center">
-    <CloseButton slot="close-button" let:close class="absolute top-2 right-2 ms-1.5 dark:hover:bg-gray-700" color="primary" on:click={close} />
-    <StateCard
-      illustration={IllustrationFirst}
+    <CloseButton
+      slot="close-button"
+      let:close
+      class="absolute top-2 right-2 ms-1.5 dark:hover:bg-gray-700"
+      color="primary"
+      on:click={close}
     />
+    <StateCard illustration={IllustrationFirst} />
     <div class="flex flex-col justify-center items-center gap-1 pt-2">
       <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
-      <Typography
+      <!-- <Typography
         text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
           'staff@hexacode.org'}"
         color="tertiary"
-      />
+      /> -->
     </div>
   </Alert>
   <SectionHeader title={$_("availableModules")} />

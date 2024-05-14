@@ -163,26 +163,30 @@ All Rights Reserved
               return;
             }
             for (let i = 0; i < resources.length; i++) {
-              let response2 = await call.call("client-dashboard", "create-resource", {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  resource_name: resources[i].resource_name,
-                  // image: resources[i].image !== null ? resources[i].image : null,
-                  description: resources[i].description,
-                  // resource_type: resources[i].resource_type,
-                  is_active: resources[i].is_active === true ? "Yes" : "No",
-                  product: response.result.data.id,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
+              if (resources[i].resource_name === "" || resources[i].description === "") {
+                continue;
+              } else {
+                let response2 = await call.call("client-dashboard", "create-resource", {
+                  URLQuery: {},
+                  URLParams: {},
+                  Params: {
+                    resource_name: resources[i].resource_name,
+                    // image: resources[i].image !== null ? resources[i].image : null,
+                    description: resources[i].description,
+                    // resource_type: resources[i].resource_type,
+                    is_active: resources[i].is_active === true ? "Yes" : "No",
+                    product: response.result.data.id,
+                  },
+                  Headers: {
+                    Authorization: "Bearer " + token,
+                  },
+                });
 
-              if (response2.status !== 200) {
-                triggerToast("error");
-                console.log(response2);
-                return;
+                if (response2.status !== 200) {
+                  triggerToast("error");
+                  console.log(response2);
+                  return;
+                }
               }
             }
           }

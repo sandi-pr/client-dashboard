@@ -15,14 +15,12 @@ All Rights Reserved
   import { StateCard } from "$lib";
   import { _ } from "svelte-i18n";
   import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
-  import PackagePlusIcon from "$lib/icon/package-plus.svelte";
-  import PackageSearchIcon from "$lib/icon/package-search.svelte";
   import Chart from "$lib/components/Chart.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { CR3Call, Typography } from "hexacomponents-svelte";
-  import TabDetail from "$lib/components/TabDetail.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import { format } from "date-fns";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -57,21 +55,6 @@ All Rights Reserved
       },
     ];
   }
-
-  let tabDatas = $state({
-    selected: "Persons",
-    data: [
-      {
-        name: "Persons",
-      },
-      {
-        name: "Products & Services",
-      },
-      {
-        name: "Users",
-      },
-    ],
-  });
 
   function generateChartData() {
     const currentDate = new Date();
@@ -318,33 +301,71 @@ All Rights Reserved
     ];
   }
 
-  let latestDocuments = $state([
-    {
-      id: 1,
-      upload_date: "01/12/2024 04:07",
-      document_name: "Work Contract - Hexacode 1",
-      type: "Contract",
-      actions: {
-        objects: [
-          {
-            href: "document_management/detail",
-            name: $_("view"),
-          },
-        ],
-      },
-    },
-  ]);
-
-  let latestProductServices = $state([]);
-  let latestUsers = $state([]);
+  let latestDocuments = $state([]);
 
   async function viewAll() {
-    // let href = await call.getPage("client-dashboard", "doc-list");
-    let href = "document_management/list";
-    globalThis.location.href = href;
+    await call.goToPage("client-dashboard", "document-management-list");
+  }
+
+  async function getDocumentLatest() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-documents", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: 1,
+          page_size: 5,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        let latestData = response.result.data.slice(0, 5);
+        let promises = latestData.map(async (document) => {
+          return {
+            id: document.id,
+            upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
+            document_name: document.attributes.document_title,
+            type: document.attributes.document_type === "GENERAL" ? "General" : "Contract",
+            actions: {
+              objects: [
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                    "?documentId=" +
+                    document.id +
+                    "&edit=false",
+                  name: "View",
+                },
+                // {
+                //   href:
+                //     `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                //     "?documentId=" +
+                //     document.id +
+                //     "&edit=true",
+                //   name: "Edit",
+                // },
+              ],
+            },
+          };
+        });
+
+        latestDocuments = await Promise.all(promises);
+        documentsReady = true;
+      }
+    }
   }
 
   onMount(async () => {
+    getDocumentLatest();
     getChartAction();
     generateChartData();
     getActionItems();

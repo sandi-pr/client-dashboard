@@ -401,3 +401,107 @@ func DeletePerson(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 
 	return 200, U.Dict{}, nil
 }
+
+func GetCountPersonsPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	earlyDate, ok := ctx.Params.GetString("earlyDate")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	lastDate, ok := ctx.Params.GetString("lastDate")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, persons, err := Strapi.Find("person-table", U.Dict{
+		"filters": U.Dict{
+			"updatedAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+		},
+	})
+
+	fmt.Println(persons)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, activePersons, err := Strapi.Find("person-table", U.Dict{
+		"filters": U.Dict{
+			"updatedAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+			"is_active": U.Dict{
+				"$eq": "Yes",
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("activePersons :", activePersons)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, inactivePersons, err := Strapi.Find("person-table", U.Dict{
+		"filters": U.Dict{
+			"updatedAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+			"is_active": U.Dict{
+				"$eq": "No",
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("inactivePersons :", inactivePersons)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{"persons": persons, "activePersons": activePersons, "inactivePersons": inactivePersons}, nil
+}

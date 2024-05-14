@@ -115,6 +115,11 @@
             "file_path": "template/document_management/create.html"
         },
         {
+            "name": "document-management-list",
+            "path": "/document-management/list",
+            "file_path": "template/document_management/list.html"
+        },
+        {
             "name": "document-management-detail",
             "path": "/document-management/detail",
             "file_path": "template/document_management/detail.html"
@@ -304,6 +309,29 @@
                 {
                     "name": "id",
                     "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-count-persons-per-month",
+            "path": "/get-count-persons-per-month",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountPersonsPerMonth"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
+                    "type": "date",
                     "required": true
                 }
             ]
@@ -1234,6 +1262,77 @@
                     "name": "document_name",
                     "type": "text",
                     "required": true
+                },
+                {
+                    "name": "person",
+                    "type": "number"
+                },
+                {
+                    "name": "contract_start",
+                    "type": "date"
+                },
+                {
+                    "name": "contract_end",
+                    "type": "date"
+                }
+            ]
+        },
+        {
+            "name": "get-documents",
+            "path": "/get-documents",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDocuments"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number",
+                    "required": false
+                },
+                {
+                    "name": "page_size",
+                    "type": "number",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "get-document",
+            "path": "/get-document/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDocument"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-document",
+            "path": "/delete-document/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteDocument"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
                 }
             ]
         }
@@ -1357,6 +1456,12 @@
                         "type": "relation",
                         "relation": "oneToMany",
                         "target": "api::order-booking.order-booking",
+                        "mappedBy": "person"
+                    },
+                    "document-management": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::document-management.document-management",
                         "mappedBy": "person"
                     }
                 }
@@ -1708,6 +1813,18 @@
                         "type": "media",
                         "multiple": false,
                         "required": true
+                    },
+                    "person": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "api::person.person",
+                        "inversedBy": "document-management"
+                    },
+                    "contract_start": {
+                        "type": "date"
+                    },
+                    "contract_end": {
+                        "type": "date"
                     }
                 }
             }

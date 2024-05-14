@@ -19,6 +19,7 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { onMount } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { format } from "date-fns";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -30,7 +31,7 @@ All Rights Reserved
   let fileText = $state(null);
   let fileTextName = $state(null);
   let fileTextResult = $state(null);
-  let base64Data = $state(null);
+  let base64Data = $state("");
   let categories = $state([
     {
       value: "GENERAL",
@@ -72,75 +73,89 @@ All Rights Reserved
     dropzoneActive = false;
 
     const files = event.dataTransfer.files;
-    // for (let i = 0; i < files.length; i++) {
-    //   console.log(files[i].name);
-    if (files[0] && isValidTextFile(files[0])) {
-      fileTextResult = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
 
-        reader.onload = () => resolve(reader.result.replace(/\r\n/g, "\n"));
-        reader.onerror = reject;
+    if (files[0]) {
+      if (file.type === "text/plain") {
+        const { text, base64 } = await readFileAsText(file);
+        fileTextResult = text;
+        base64Data = base64;
+      } else {
+        base64Data = await readFileAsBase64(file);
+        console.log(base64Data); // For checking base64 data of other file types
+        // Perform operations specific to other file types here
+      }
 
-        reader.readAsText(files[0]);
-      });
-
-      fileText = files[0];
       fileTextName = files[0].name;
-      // console.log(fileTextResult);
     } else {
-      alert("Invalid file. Please select a valid .txt file.");
+      alert("Invalid file. Please select a valid file.");
     }
-    // }
   }
 
-  function isValidTextFile(file) {
-    const fileType = file.type;
-    return fileType === "text/plain";
-  }
-
-  const handleTextUploadWrapper = (index) => {
+  const handleTextUploadWrapper = () => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    inputElement.accept = "text/plain";
+    inputElement.accept = ".txt";
+    // inputElement.accept = ".txt, .pdf, .doc, .docx";
 
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
 
-      if (file && isValidTextFile(file)) {
-        fileTextResult = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
+      if (file) {
+        if (file.type === "text/plain") {
+          const { text, base64 } = await readFileAsText(file);
+          fileTextResult = text;
+          base64Data = base64;
+        } else {
+          base64Data = await readFileAsBase64(file);
+        }
 
-          reader.onload = () => {
-            const text = reader.result.replace(/\r\n/g, "\n");
-            resolve(text);
-
-            // Encode text as Base64
-            base64Data = btoa(text);
-          };
-          reader.onerror = reject;
-
-          reader.readAsText(file);
-        });
-
-        fileText = file;
         fileTextName = file.name;
-        // console.log(fileTextResult);
       } else {
-        alert("Invalid file. Please select a valid .txt file.");
+        alert("Invalid file. Please select a valid file.");
       }
     });
 
     inputElement.click();
   };
 
+  async function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const text = reader.result.replace(/\r\n/g, "\n");
+        const base64 = btoa(text);
+        resolve({ text, base64 });
+      };
+      reader.onerror = reject;
+
+      reader.readAsText(file);
+    });
+  }
+
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function createProduct() {
     const fileTextResultBlob = new Blob([fileTextResult], { type: "text/plain" });
 
-    console.log(data);
-    console.log(fileText);
-    console.log(fileTextName);
-    console.log(fileTextResult);
-    console.log(fileTextResultBlob);
+    // console.log(data);
+    // console.log(fileText);
+    // console.log(fileTextName);
+    // console.log(fileTextResult);
+    // console.log(fileTextResultBlob);
+    console.log(typeof base64Data);
 
     let token = sessionStorage.getItem("token");
 
@@ -156,6 +171,42 @@ All Rights Reserved
               document_name: fileTextName,
               description: data.description,
               document_type: data.document_type,
+              person: 0,
+              contract_start: format(new Date(), "yyyy-MM-dd"),
+              contract_end: format(new Date(), "yyyy-MM-dd"),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log(response);
+
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          if (response.status === 200) {
+            await call.goToPage("client-dashboard", "document-management-overview");
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        try {
+          let response = await call.call("client-dashboard", "create-document", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              document_title: data.document_title,
+              document: base64Data,
+              document_name: fileTextName,
+              description: data.description,
+              document_type: data.document_type,
+              person: data.person_client,
+              contract_start: format(new Date(data.contract_start), "yyyy-MM-dd"),
+              contract_end: format(new Date(data.contract_end), "yyyy-MM-dd"),
             },
             Headers: {
               Authorization: "Bearer " + token,
@@ -262,7 +313,7 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              await call.goToPage("client-dashboard", "crm-product-service");
+              await call.goToPage("client-dashboard", "document-management-list");
               return;
             }}
             color="light"
@@ -307,17 +358,23 @@ All Rights Reserved
                 ondragleave={handleDragLeave}
                 ondrop={handleDrop}
                 onclick={() => {
-                  if (!fileTextName) {
-                    handleTextUploadWrapper(index);
-                  }
+                  handleTextUploadWrapper();
                 }}
                 color="light"
                 class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-8 flex flex-col justify-start ${fileTextName ? "items-start cursor-default" : "items-center"}`}
               >
                 {#if fileTextName}
-                  {#each fileTextResult.split("\n") as paragraphs, i}
-                    <P>{paragraphs}</P>
-                  {/each}
+                  {#if fileTextName.endsWith(".txt")}
+                    {#each fileTextResult.split("\n") as paragraphs, i}
+                      <P>{paragraphs}</P>
+                    {/each}
+                  {:else if fileTextName.endsWith(".pdf")}
+                    <P>{fileTextName}</P>
+                  {:else if fileTextName.endsWith(".doc") || fileTextName.endsWith(".docx")}
+                    <P>{fileTextName}</P>
+                  {:else}
+                    <P>{fileTextName}</P>
+                  {/if}
                 {:else}
                   <div
                     class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
@@ -377,7 +434,7 @@ All Rights Reserved
             </div>
           </div>
         </div>
-        {#if data.document_type === "contract"}
+        {#if data.document_type === "CONTRACT"}
           <Divider />
           <!-- product detail -->
           <div class="flex gap-6">

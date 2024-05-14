@@ -23,6 +23,7 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import { format } from "date-fns";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -37,9 +38,9 @@ All Rights Reserved
   // let documentsComplete = [];
   // let allUrls = [];
   // let chart = true;
-  let monthlyPersonsCounts = [3, 6, 1, 8, 2, 7, 4, 9, 5, 0, 6, 3];
-  let monthlyActivePersonsCounts = [9, 2, 7, 4, 0, 6, 3, 5, 8, 1, 7, 2];
-  let monthlyInactivePersonsCounts = [0, 6, 3, 5, 8, 1, 7, 2, 9, 4, 0, 6];
+  let monthlyPersonsCounts = $state([]);
+  let monthlyActivePersonsCounts = $state([]);
+  let monthlyInactivePersonsCounts = $state([]);
   let dataChartAll = $state({});
   let dataChartNeed = $state({});
   let dataChartComplete = $state({});
@@ -301,28 +302,28 @@ All Rights Reserved
     chartReady = true;
   }
 
-  async function getChartAction() {
+  async function getChartAction(totalPersons, activePersons, inactivePersons) {
     chartAction = [
       {
         href: await call.getPage("client-dashboard", "crm-person"),
         dataName: "Total Persons",
-        value: "10",
-        change: "3",
-        changeType: "increase",
+        value: totalPersons.total,
+        change: totalPersons.change,
+        changeType: totalPersons.changeType,
       },
       {
         href: await call.getPage("client-dashboard", "crm-person"),
         dataName: "Active Persons",
-        value: "7",
-        change: "3",
-        changeType: "decrease",
+        value: activePersons.total,
+        change: activePersons.change,
+        changeType: activePersons.changeType,
       },
       {
         href: await call.getPage("client-dashboard", "crm-person"),
         dataName: "Inactive Persons",
-        value: "3",
-        change: "3",
-        changeType: "increase",
+        value: inactivePersons.total,
+        change: inactivePersons.change,
+        changeType: inactivePersons.changeType,
       },
     ];
   }
@@ -369,7 +370,7 @@ All Rights Reserved
         URLParams: {},
         Params: {
           page: 1,
-          page_size: 5,
+          page_size: 25,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -382,8 +383,6 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
-        // configs = await getConfigs();
-
         response.result.data.sort(
           (a, b) => new Date(b.attributes.updatedAt) - new Date(a.attributes.updatedAt),
         );
@@ -452,10 +451,6 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
-        configs = {
-          // search: true,
-          pagination: response.result.meta.pagination,
-        };
         let latestData = response.result.data.slice(0, 5);
         let promises = latestData.map(async (product, index) => {
           return {
@@ -493,62 +488,84 @@ All Rights Reserved
     }
   }
 
-  // async function getUsers() {
-  //   let token = sessionStorage.getItem("token");
-  //   if (token !== null) {
-  //     let response = await call.call("client-dashboard", "get-users", {
-  //       URLQuery: {},
-  //       URLParams: {},
-  //       Params: {
-  //         page: 1,
-  //       },
-  //       Headers: {
-  //         Authorization: "Bearer " + token,
-  //       },
-  //     });
+  async function getCountPersonsPerMonth() {
+    const today = new Date();
+    let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      for (let i = 0; i < 12; i++) {
+        let response = await call.call("client-dashboard", "get-count-persons-per-month", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response.status);
+          console.log(response);
+          return;
+        }
+        // console.log(
+        //   "telor",
+        //   format(earlyDateCurrentMonth, "yyyy-MM-dd"),
+        //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
+        // );
 
-  //     if (response.status !== 200) {
-  //       console.log(response);
-  //       return;
-  //     }
-  //     console.log("ayam", response);
+        monthlyPersonsCounts.push(response.result.persons.meta.pagination.total);
+        monthlyActivePersonsCounts.push(response.result.activePersons.meta.pagination.total);
+        monthlyInactivePersonsCounts.push(response.result.inactivePersons.meta.pagination.total);
 
-  //     if (response.result.data.length > 0) {
-  //       configs = {
-  //         // search: true,
-  //         // pagination: response.result.meta.pagination,
-  //       };
-  //       let latestData = response.result.data.slice(0, 5);
-  //       let promises = latestData.map(async (user, index) => {
-  //         return {
-  //           id: user.id,
-  //           fullname: user.fullname || "No Name",
-  //           username: user.username,
-  //           email: user.email,
-  //           // authority: getAuthority(user.authority) || "No Authority",
-  //           // status: user.is_active === "Yes" ? "Admin" : "User",
-  //           actions: {
-  //             objects: [
-  //               {
-  //                 href:
-  //                   `${await call.getPage("client-dashboard", "crm-user-detail")}` +
-  //                   "?userId=" +
-  //                   user.id,
-  //                 name: "View",
-  //               },
-  //             ],
-  //           },
-  //         };
-  //       });
+        earlyDateCurrentMonth = new Date(
+          earlyDateCurrentMonth.getFullYear(),
+          earlyDateCurrentMonth.getMonth() - 1,
+          1,
+        );
+        lastDateCurrentMonth = new Date(
+          lastDateCurrentMonth.getFullYear(),
+          lastDateCurrentMonth.getMonth(),
+          0,
+        );
+      }
 
-  //       latestUsers = await Promise.all(promises);
-  //       documentsReady = true;
-  //     }
-  //   }
-  // }
+      monthlyPersonsCounts.reverse();
+      monthlyActivePersonsCounts.reverse();
+      monthlyInactivePersonsCounts.reverse();
+
+      let totalPersons = groupingDataChart(monthlyPersonsCounts);
+      let activePersons = groupingDataChart(monthlyActivePersonsCounts);
+      let inactivePersons = groupingDataChart(monthlyInactivePersonsCounts);
+
+      getChartAction(totalPersons, activePersons, inactivePersons);
+    } else {
+      console.log("no token");
+    }
+  }
+
+  function groupingDataChart(data) {
+    let total = 0;
+    for (let i = 0; i < data.length; i++) {
+      total += data[i];
+    }
+
+    let change = data[data.length - 1] - data[data.length - 2];
+
+    let changeType = change > 0 ? "increase" : change < 0 ? "decrease" : "-";
+
+    return {
+      total: total,
+      change: change,
+      changeType: changeType,
+    };
+  }
 
   onMount(async () => {
-    getChartAction();
+    getCountPersonsPerMonth();
     generateChartData();
     getActionItems();
     getPerson();
@@ -637,10 +654,12 @@ All Rights Reserved
                       color={`${
                         changeType === "decrease"
                           ? "text-error-primary-light dark:text-error-primary-dark"
-                          : "text-success-primary-light dark:text-success-primary-dark"
+                          : changeType === "increase"
+                            ? "text-success-primary-light dark:text-success-primary-dark"
+                            : ""
                       }`}
                       class="font-jakarta leading-tight"
-                      >{`${changeType === "decrease" ? "-" : "+"}${change}`}</P
+                      >{`${changeType === "decrease" ? "-" : changeType === "increase" ? "+" : ""}${change}`}</P
                     >
                   </div>
                   <P

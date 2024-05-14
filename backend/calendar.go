@@ -58,8 +58,8 @@ func GetSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 	status, booking, err := Strapi.Find("booking-table", U.Dict{
 		"filters": U.Dict{
 			"date": U.Dict{
-				"gte": start_date,
-				"lte": end_date,
+				"$gte": start_date,
+				"$lte": end_date,
 			},
 		},
 	})
