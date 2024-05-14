@@ -13,6 +13,8 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -263,30 +265,48 @@ func GetDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// list, ok := document.GetList("data")
-	// if len(list) == 0 {
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
+	list, ok := document.GetList("data")
+	if len(list) == 0 {
+		return ctx.Error(500, "Internal Server Error")
+	}
 
-	// if !ok {
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
 
-	// dict, ok := list.GetDict(0)
+	dict, ok := list.GetDict(0)
 
-	// if !ok {
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
 
-	// document_url, ok := dict.GetString("url")
+	document_url := dict["attributes"].(U.Dict)["document"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+	document_url = U.String(strings.TrimPrefix(string(document_url), "/"))
 
-	// if !ok {
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
+	resp, err := http.Get(STRAPI_URL + string(document_url))
+	if err != nil {
+		fmt.Println("Error saat mengunduh file:", err)
+	}
+	defer resp.Body.Close()
 
-	// fmt.Println(document_url)
+	fmt.Println(STRAPI_URL + string(document_url))
+	fmt.Println("resp", resp)
 
-	return 200, document, nil
+	// Baca isi file
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error saat membaca isi file:", err)
+	}
+
+	fmt.Println(data)
+
+	// Konversi isi file ke base64
+	base64Data := base64.StdEncoding.EncodeToString(data)
+
+	// Output hasil base64
+	fmt.Println(base64Data)
+
+	return 200, U.Dict{"document": document, "base64": base64Data}, nil
 }
 
 func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

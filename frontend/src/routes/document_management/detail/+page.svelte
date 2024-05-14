@@ -29,6 +29,8 @@ All Rights Reserved
 
   let onEdit = $state(false);
 
+  let contentFile = $state("");
+
   let tabDatas = $state({
     selected: "Documents",
     data: [
@@ -77,8 +79,8 @@ All Rights Reserved
         return;
       }
 
-      if (response.result.data.length > 0) {
-        let document = response.result.data[0];
+      if (response.result.document.data.length > 0) {
+        let document = response.result.document.data[0];
         data = {
           id: document.id,
           createdAt: format(document.attributes.createdAt, "yyyy-MM-dd HH:mm"),
@@ -96,6 +98,9 @@ All Rights Reserved
               ? format(new Date(document.attributes.contract_end), "yyyy-MM-dd")
               : "",
         };
+
+        let base64 = response.result.base64;
+        contentFile = atob(base64);
       }
     }
   }
@@ -219,14 +224,17 @@ All Rights Reserved
               >{$_("documentName")}</P
             >
             <div class="flex items-center gap-2">
-              <Button type="submit" class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1">
+              <!-- <Button type="submit" class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1">
                 <img alt="refresh" src={DownloadIcon} class="w-5 h-5" />
                 {$_("downdloadDocument")}
-              </Button>
+              </Button> -->
             </div>
           </div>
           <div class="flex justify-center w-full py-10 bg-gray-50 rounded-lg dark:bg-gray-800">
             {#if pdfReady}
+              {#each contentFile.split("\n") as paragraphs, i}
+                <P class="dark:text-white">{paragraphs}</P>
+              {/each}
               <!-- <iframe src={"http://localhost" + data.document_url} /> -->
               <!-- <PDFViewer showBorder={false} showButtons={false} scale={1.2} url={pdf} /> -->
             {/if}

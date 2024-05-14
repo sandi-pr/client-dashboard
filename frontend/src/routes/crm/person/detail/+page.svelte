@@ -106,7 +106,7 @@ All Rights Reserved
           state: response.result.data.attributes.state,
           zip_code: response.result.data.attributes.zip_code,
           createdAt: formatDate(response.result.data.attributes.createdAt),
-          is_active: response.result.data.attributes.is_active,
+          is_active: response.result.data.attributes.is_active === "Yes" ? true : false,
         };
       }
     } catch (error) {
@@ -131,7 +131,7 @@ All Rights Reserved
           city: data.city,
           state: data.state,
           zip_code: data.zip_code.toString(),
-          is_active: data.is_active,
+          is_active: data.is_active === true ? "Yes" : "No",
         },
         Headers: {
           Authorization: "Bearer " + token,
