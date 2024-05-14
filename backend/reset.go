@@ -226,7 +226,7 @@ func Reset(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		}
 	}
 
-	err := resetUser(token)
+	err := resetUser(STRAPI_TOKEN)
 	if err != nil {
 		return ctx.Error(500, "Internal Server Error")
 	}

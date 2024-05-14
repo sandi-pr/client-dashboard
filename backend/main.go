@@ -19,6 +19,7 @@ import (
 
 var MODULE_MANAGER_URL = ""
 var STRAPI_URL = ""
+var STRAPI_TOKEN = ""
 
 func init() {
 	MODULE_MANAGER_URL = os.Getenv("MODULE_MANAGER_URL")
@@ -29,6 +30,11 @@ func init() {
 	STRAPI_URL = os.Getenv("STRAPI_URL")
 	if STRAPI_URL == "" {
 		panic(errors.New("Environment STRAPI_URL is empty"))
+	}
+
+	STRAPI_TOKEN = os.Getenv("STRAPI_TOKEN")
+	if STRAPI_TOKEN == "" {
+		panic(errors.New("Environment STRAPI_TOKEN is empty"))
 	}
 
 	config.Schedule("", MODULE_MANAGER_URL)
