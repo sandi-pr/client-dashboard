@@ -659,7 +659,7 @@ All Rights Reserved
                             : ""
                       }`}
                       class="font-jakarta leading-tight"
-                      >{`${changeType === "decrease" ? "-" : changeType === "increase" ? "+" : ""}${change}`}</P
+                      >{`${changeType === "decrease" ? "" : changeType === "increase" ? "+" : ""}${change}`}</P
                     >
                   </div>
                   <P

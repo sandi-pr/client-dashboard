@@ -35,9 +35,9 @@ All Rights Reserved
   // let documentsComplete = [];
   // let allUrls = [];
   // let chart = true;
-  let monthlyPersonsCounts = [3, 6, 1, 8, 2, 7, 4, 9, 5, 0, 6, 3];
-  let monthlyActivePersonsCounts = [9, 2, 7, 4, 0, 6, 3, 5, 8, 1, 7, 2];
-  let monthlyInactivePersonsCounts = [0, 6, 3, 5, 8, 1, 7, 2, 9, 4, 0, 6];
+  let monthlyPersonsCounts = $state([]);
+  let monthlyActivePersonsCounts = $state([]);
+  let monthlyInactivePersonsCounts = $state([]);
   let dataChartAll = $state({});
   let dataChartNeed = $state({});
   let dataChartComplete = $state({});
@@ -275,28 +275,28 @@ All Rights Reserved
     chartReady = true;
   }
 
-  async function getChartAction() {
+  async function getChartAction(totalPersons, activePersons, inactivePersons) {
     chartAction = [
       {
-        href: await call.getPage("client-dashboard", "doc-list"),
+        href: await call.getPage("client-dashboard", "document-management-list"),
         dataName: "Total Documents",
-        value: "10",
-        change: "3",
-        changeType: "increase",
+        value: totalPersons.total,
+        change: totalPersons.change,
+        changeType: totalPersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "doc-list"),
+        href: await call.getPage("client-dashboard", "document-management-list"),
         dataName: "General Documents",
-        value: "7",
-        change: "3",
-        changeType: "decrease",
+        value: activePersons.total,
+        change: activePersons.change,
+        changeType: activePersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "doc-list"),
+        href: await call.getPage("client-dashboard", "document-management-list"),
         dataName: "Contract Documents",
-        value: "3",
-        change: "3",
-        changeType: "increase",
+        value: inactivePersons.total,
+        change: inactivePersons.change,
+        changeType: inactivePersons.changeType,
       },
     ];
   }
@@ -364,8 +364,85 @@ All Rights Reserved
     }
   }
 
+  async function getCountDocumentsPerMonth() {
+    const today = new Date();
+    let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      for (let i = 0; i < 12; i++) {
+        let response = await call.call("client-dashboard", "get-count-documents-per-month", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response.status);
+          console.log(response);
+          return;
+        }
+        // console.log(
+        //   "telor",
+        //   format(earlyDateCurrentMonth, "yyyy-MM-dd"),
+        //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
+        // );
+
+        monthlyPersonsCounts.push(response.result.document.meta.pagination.total);
+        monthlyActivePersonsCounts.push(response.result.general.meta.pagination.total);
+        monthlyInactivePersonsCounts.push(response.result.contract.meta.pagination.total);
+
+        earlyDateCurrentMonth = new Date(
+          earlyDateCurrentMonth.getFullYear(),
+          earlyDateCurrentMonth.getMonth() - 1,
+          1,
+        );
+        lastDateCurrentMonth = new Date(
+          lastDateCurrentMonth.getFullYear(),
+          lastDateCurrentMonth.getMonth(),
+          0,
+        );
+      }
+
+      monthlyPersonsCounts.reverse();
+      monthlyActivePersonsCounts.reverse();
+      monthlyInactivePersonsCounts.reverse();
+
+      let totalPersons = groupingDataChart(monthlyPersonsCounts);
+      let activePersons = groupingDataChart(monthlyActivePersonsCounts);
+      let inactivePersons = groupingDataChart(monthlyInactivePersonsCounts);
+
+      getChartAction(totalPersons, activePersons, inactivePersons);
+    } else {
+      console.log("no token");
+    }
+  }
+
+  function groupingDataChart(data) {
+    let total = 0;
+    for (let i = 0; i < data.length; i++) {
+      total += data[i];
+    }
+
+    let change = data[data.length - 1] - data[data.length - 2];
+
+    let changeType = change > 0 ? "increase" : change < 0 ? "decrease" : "-";
+
+    return {
+      total: total,
+      change: change,
+      changeType: changeType,
+    };
+  }
+
   onMount(async () => {
     getDocumentLatest();
+    getCountDocumentsPerMonth();
     getChartAction();
     generateChartData();
     getActionItems();
@@ -452,10 +529,12 @@ All Rights Reserved
                       color={`${
                         changeType === "decrease"
                           ? "text-error-primary-light dark:text-error-primary-dark"
-                          : "text-success-primary-light dark:text-success-primary-dark"
+                          : changeType === "increase"
+                            ? "text-success-primary-light dark:text-success-primary-dark"
+                            : ""
                       }`}
                       class="font-jakarta leading-tight"
-                      >{`${changeType === "decrease" ? "-" : "+"}${change}`}</P
+                      >{`${changeType === "decrease" ? "" : changeType === "increase" ? "+" : ""}${change}`}</P
                     >
                   </div>
                   <P
