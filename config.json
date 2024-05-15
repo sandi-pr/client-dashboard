@@ -1335,6 +1335,29 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "get-count-documents-per-month",
+            "path": "/get-count-documents-per-month",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountDocumentsPerMonth"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
+                    "type": "date",
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {
