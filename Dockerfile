@@ -7,7 +7,7 @@
 
 
 # Build frontend #
-FROM oven/bun:latest AS frontend
+FROM localhost:32000/bun:latest AS frontend
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN mv template/public public
 
 
 # Build backend #
-FROM golang:1.19-alpine AS backend
+FROM localhost:32000/golang:1.19-alpine AS backend
 
 WORKDIR /app
 
@@ -42,7 +42,7 @@ RUN go build -buildmode=plugin -o plugin.so
 
 
 # Build final image #
-FROM alpine:latest
+FROM localhost:32000/alpine:latest
 
 WORKDIR /app
 
