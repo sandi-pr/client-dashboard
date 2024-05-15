@@ -16,6 +16,7 @@ All Rights Reserved
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
   import { Alert, CloseButton } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
   let userData = $state({});
@@ -68,7 +69,8 @@ All Rights Reserved
     title="CRM"
     description={$_("descCrm")}
     onclick={async () => {
-      await call.goToPage("client-dashboard", "crm-overview");
+      // await call.goToPage("client-dashboard", "crm-overview");
+      goto(await call.getPage("client-dashboard", "crm-overview"));
       return;
     }}
   />
