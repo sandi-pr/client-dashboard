@@ -87,8 +87,8 @@ All Rights Reserved
           document_title: document.attributes.document_title,
           description: document.attributes.description,
           document_type: document.attributes.document_type,
+          ext: document.attributes.document.data.attributes.ext,
           person_client: document.attributes.person.data?.id,
-          document_url: document.attributes.document.data.attributes.url,
           contract_start:
             document.attributes.contract_start !== null
               ? format(new Date(document.attributes.contract_start), "yyyy-MM-dd")
@@ -174,6 +174,28 @@ All Rights Reserved
     }
   }
 
+  function downloadFile(content, fileName, ext) {
+    let fileType = "";
+    if (ext === ".pdf") {
+      fileType = "application/pdf";
+    } else if (ext === ".docx") {
+      fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    } else if (ext === ".doc") {
+      fileType = "application/msword";
+    } else {
+      fileType = "text/plain";
+    }
+    const blob = new Blob([content], { type: fileType });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
   onMount(() => {
     if (edit === "true") onEdit = true;
     getPersons();
@@ -224,19 +246,22 @@ All Rights Reserved
               >{$_("documentName")}</P
             >
             <div class="flex items-center gap-2">
-              <!-- <Button type="submit" class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1">
+              <Button
+                onclick={() => downloadFile(contentFile, data.document_title, data.ext)}
+                class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1"
+              >
                 <img alt="refresh" src={DownloadIcon} class="w-5 h-5" />
                 {$_("downdloadDocument")}
-              </Button> -->
+              </Button>
             </div>
           </div>
-          <div class="flex justify-center w-full py-10 bg-gray-50 rounded-lg dark:bg-gray-800">
+          <div
+            class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800"
+          >
             {#if pdfReady}
               {#each contentFile.split("\n") as paragraphs, i}
                 <P class="dark:text-white">{paragraphs}</P>
               {/each}
-              <!-- <iframe src={"http://localhost" + data.document_url} /> -->
-              <!-- <PDFViewer showBorder={false} showButtons={false} scale={1.2} url={pdf} /> -->
             {/if}
           </div>
         {:else if tabDatas.selected === "Information"}
