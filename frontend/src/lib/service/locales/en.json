@@ -220,5 +220,7 @@
   "isActive": "Is Active",
   "price": "Price",
   "inActive": "Inactive",
-  "resourceNameEmpty": "Resource name cannot be empty"
+  "resourceNameEmpty": "Resource name cannot be empty",
+  "createNewCategoriesProduct": "Create New Categories Product",
+  "back": "Back"
 }

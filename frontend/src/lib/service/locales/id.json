@@ -218,5 +218,7 @@
     "isActive": "Keaktifan",
     "price": "Harga",
     "inActive": "Tidak aktif",
-    "resourceNameEmpty": "Nama sumber daya tidak boleh kosong"
+    "resourceNameEmpty": "Nama sumber daya tidak boleh kosong",
+    "createNewCategoriesProduct": "Tambahkan Kategori Produk",
+    "back": "Kembali"
 }

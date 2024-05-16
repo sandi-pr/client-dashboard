@@ -10,7 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle, Toast } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle, Toast, Modal } from "flowbite-svelte";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { fly } from "svelte/transition";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -55,6 +55,8 @@ All Rights Reserved
   let toastCreated = $state(false);
   let toastError = $state(false);
   let counter = $state(6);
+
+  let popupModal = $state(false);
 
   let index = $state(resources.length);
 
@@ -359,6 +361,11 @@ All Rights Reserved
     }
   }
 
+  async function backPage() {
+    await call.goToPage("client-dashboard", "crm-product-service");
+    return;
+  }
+
   onMount(async () => {
     if (edit === "true") onEdit = true;
     getProduct();
@@ -399,24 +406,28 @@ All Rights Reserved
         <div class="flex gap-2">
           {#if onEdit}
             <Button
-              onclick={async () => {
-                await call.goToPage("client-dashboard", "crm-product-service");
-                return;
+              onclick={() => {
+                onEdit = false;
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
             <Button onclick={updateProduct} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button onclick={deleteProduct} color="light" class="px-3 focus-within:!ring-1"
-              >{$_("delete")}</Button
+            <Button color="light" class="px-3 focus-within:!ring-1" onclick={backPage}
+              >{$_("back")}</Button
             >
-            <!-- <Button
+            <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            > -->
+            >
+            <Button
+              onclick={() => (popupModal = true)}
+              outline color="red"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+            >
           {/if}
         </div>
       </div>
@@ -653,3 +664,14 @@ All Rights Reserved
     </Toast>
   </div>
 </div>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-400 w-12 h-12 dark:text-red-200" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteProduct} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>

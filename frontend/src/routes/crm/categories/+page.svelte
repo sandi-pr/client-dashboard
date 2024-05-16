@@ -136,9 +136,9 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text="Manage Categories" />
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("manageCategories")} />
           <Button onclick={addCategory} icon={PlusIcon}
-            >Add new <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
           >
         </div>
 

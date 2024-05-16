@@ -102,7 +102,7 @@ All Rights Reserved
     return [
       {
         icon: "users",
-        name: "Business Management",
+        name: "crmOverview",
         desc: "descCrm",
         status: "coming soon",
         children: [

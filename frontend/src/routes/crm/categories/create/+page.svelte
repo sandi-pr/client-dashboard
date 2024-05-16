@@ -10,7 +10,9 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle, Toast } from "flowbite-svelte";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
 
@@ -18,6 +20,12 @@ All Rights Reserved
 
   const params = new URLSearchParams(window.location.search);
   let onEdit = $state(true);
+
+  let buttonDisable = $state(true);
+
+  let toastCreated = $state(false);
+  let toastError = $state(false);
+  let counter = $state(6);
 
   let data = $state({
     category_name: "",
@@ -45,13 +53,42 @@ All Rights Reserved
         });
         console.log("kelinci", response);
         if (response.status === 200) {
+          triggerToast("created");
           await call.goToPage("client-dashboard", "crm-categories");
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
   }
+
+  function triggerToast(target) {
+    if (target === "created") {
+      toastCreated = true;
+      counter = 6;
+      timeout();
+    } else if (target === "error") {
+      toastError = true;
+      counter = 6;
+      timeout();
+    } else {
+      console.log("target not found");
+    }
+  }
+
+  function timeout() {
+    if (--counter > 0) return setTimeout(timeout, 1000);
+    open = false;
+    toastError = false;
+  }
+
+  $effect(() => {
+    buttonDisable =
+      data.category_name.length < 1 ||
+      data.description.length < 1;
+  });
+
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -66,7 +103,7 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              Create New Categories Product
+              {$_("createNewCategoriesProduct")}
             </Heading>
           </div>
         </div>
@@ -80,7 +117,7 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={createCategory} class="px-3 focus-within:!ring-1"
+            <Button disabled={buttonDisable} onclick={createCategory} class="px-3 focus-within:!ring-1"
               >{$_("create")}</Button
             >
           {/if}
@@ -100,7 +137,7 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("categoryName")}
+                  {$_("categoryName")}*
                 </P>
                 <Input
                   readonly={!onEdit}
@@ -120,7 +157,7 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("description")}</P
+                  >{$_("description")}*</P
                 >
                 <Textarea
                   readonly={!onEdit}
@@ -134,5 +171,25 @@ All Rights Reserved
         </div>
       </div>
     </div>
+  </div>
+  <div class="fixed bottom-5 end-5">
+    <Toast color="green" transition={fly} params={{ x: 200 }} bind:open={toastCreated}>
+      <svelte:fragment slot="icon">
+        <CheckCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("successfullyCreated")}
+    </Toast>
+    <Toast
+      class="!max-w-sm"
+      color="red"
+      transition={fly}
+      params={{ x: 200 }}
+      bind:open={toastError}
+    >
+      <svelte:fragment slot="icon">
+        <ExclamationCircleSolid class="w-5 h-5" />
+      </svelte:fragment>
+      {$_("sometingWentWrongPleaseTryAgain")}
+    </Toast>
   </div>
 </div>

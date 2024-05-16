@@ -17,19 +17,82 @@ All Rights Reserved
   import { Alert, CloseButton } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
 
   const call = new CR3Call(globalThis.location.origin);
-  let userData = $state({});
+  let userData = $state({ username: "", email: "", brand: "" });
 
   let isFirstTime = $state(true);
+
+  function setFristTime() {
+    isFirstTime = false;
+    localStorage.setItem("isFirstTime", isFirstTime);
+  }
+
+  function getFristTime() {
+    if (typeof localStorage !== "undefined") {
+      isFirstTime = localStorage.getItem("isFirstTime") === "true" ? true : false;
+    } else {
+      console.log("localstorage is undefined");
+    }
+  }
+
+  async function CheckSetup() {
+    try {
+      var resp_setup = await call.call("client-login", "is-need-setup", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {},
+      });
+      console.log(resp_setup);
+      if (resp_setup.status === 200) {
+        if (resp_setup.result.is_need_setup === true) {
+          if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
+          if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
+          await call.goToPage("hexapod-setup", "home-page");
+          return;
+        }
+      }
+      var token = sessionStorage.getItem("token");
+      if (token !== null) {
+        var resp = await call.call("client-login", "is-token-valid", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            token: token,
+          },
+          Headers: {},
+        });
+
+        if (resp.status === 200) {
+          if (resp.result.confirmed === true && resp.result.blocked === false) {
+            sessionStorage.setItem("user", JSON.stringify(resp.result));
+            userData = resp.result;
+          }
+        }
+      } else {
+        await call.goToPage("client-login", "home-page");
+        return;
+      }
+    } catch (error) {
+      // console.log(error);
+      userData = { username: "Hexa Staff", email: "hexacode@hexacode.org", brand: "hexacode" };
+    }
+  }
+
+  onMount(() => {
+    getFristTime();
+    CheckSetup();
+  })
+
 </script>
 
 {#if !isFirstTime}
   <div class="flex flex-col gap-1 px-4 pt-6">
     <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
     <Typography
-      text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
-        'staff@hexacode.org'}"
+      text="{userData.username} - {userData.email}"
       color="tertiary"
     />
   </div>
@@ -45,7 +108,8 @@ All Rights Reserved
   {:else}
     <SelectedCard {companyType} />
   {/if} -->
-  <Alert dismissable on:close={() => (isFirstTime = false)} class="relative flex justify-center">
+  {#if isFirstTime}
+  <Alert dismissable on:close={setFristTime} class="relative flex justify-center">
     <CloseButton
       slot="close-button"
       let:close
@@ -63,6 +127,7 @@ All Rights Reserved
       /> -->
     </div>
   </Alert>
+  {/if}
   <SectionHeader title={$_("availableModules")} />
   <Card
     icon="users"
