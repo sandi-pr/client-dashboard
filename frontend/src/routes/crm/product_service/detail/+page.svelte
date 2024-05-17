@@ -21,6 +21,7 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { onMount } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -254,7 +255,7 @@ All Rights Reserved
         }
 
         if (response.status === 200) {
-          await call.goToPage("client-dashboard", "crm-product-service");
+          goto(await call.getPage("client-dashboard", "crm-product-service"));
           return;
         }
       } else if (tabDatas.selected === "Resource") {
@@ -295,7 +296,7 @@ All Rights Reserved
         }
 
         if (response.status === 200) {
-          await call.goToPage("client-dashboard", "crm-product-service");
+          goto(await call.getPage("client-dashboard", "crm-product-service"));
           return;
         }
       }
@@ -322,7 +323,7 @@ All Rights Reserved
       }
 
       if (response.status === 200) {
-        await call.goToPage("client-dashboard", "crm-product-service");
+        goto(await call.getPage("client-dashboard", "crm-product-service"));
         return;
       }
     } catch (error) {
@@ -362,7 +363,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    await call.goToPage("client-dashboard", "crm-product-service");
+    goto(await call.getPage("client-dashboard", "crm-product-service"));
     return;
   }
 

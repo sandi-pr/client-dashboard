@@ -17,6 +17,7 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -40,7 +41,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    await call.goToPage("client-dashboard", "users");
+    goto(await call.getPage("client-dashboard", "users"));
     return;
   }
 
@@ -63,7 +64,7 @@ All Rights Reserved
       });
       console.log("ayam", response);
       if (response.status === 200) {
-        await call.goToPage("client-dashboard", "users");
+        goto(await call.getPage("client-dashboard", "users"));
         return;
       } else {
         console.log(response);

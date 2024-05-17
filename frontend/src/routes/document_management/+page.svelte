@@ -21,6 +21,7 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -304,7 +305,7 @@ All Rights Reserved
   let latestDocuments = $state([]);
 
   async function viewAll() {
-    await call.goToPage("client-dashboard", "document-management-list");
+    goto(await call.getPage("client-dashboard", "document-management-list"));
   }
 
   async function getDocumentLatest() {

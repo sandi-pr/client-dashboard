@@ -18,6 +18,7 @@ All Rights Reserved
   import { Button } from "flowbite-svelte";
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -126,7 +127,7 @@ All Rights Reserved
   }
 
   async function addProduct() {
-    await call.goToPage("client-dashboard", "crm-product-service-create");
+    goto(await call.getPage("client-dashboard", "crm-product-service-create"));
     return;
   }
 

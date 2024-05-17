@@ -10,6 +10,7 @@
 
   const changeLanguage = (lang) => {
     locale.set(lang);
+    localStorage.setItem("lang", lang);
     dropdownOpen = false;
   };
 

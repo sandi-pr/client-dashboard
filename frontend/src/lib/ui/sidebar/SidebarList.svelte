@@ -181,9 +181,8 @@
             </div>
             <button
               onclick={async () => {
-                window.location = !isFrontend
-                  ? await call.getPage("client-dashboard", "users")
-                  : "/crm/users";
+               if (!isFrontend) goto(await call.getPage("client-dashboard", "users")); 
+               else goto("/crm/users");
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >

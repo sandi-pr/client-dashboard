@@ -15,6 +15,7 @@ All Rights Reserved
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
+  import {goto} from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -87,7 +88,7 @@ All Rights Reserved
           },
         });
         if (response.status === 200) {
-          await call.goToPage("client-dashboard", "crm-categories");
+          goto(await call.getPage("client-dashboard", "crm-categories"));
         }
       } catch (error) {
         console.log(error);
@@ -109,7 +110,7 @@ All Rights Reserved
         },
       });
       if (response.status === 200) {
-        await call.goToPage("client-dashboard", "crm-categories");
+        got(await call.getPage("client-dashboard", "crm-categories"));
       }
     } catch (error) {
       console.log(error);
@@ -156,7 +157,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                await call.goToPage("client-dashboard", "crm-categories");
+                goto(await call.getPage("client-dashboard", "crm-categories"));
                 return;
               }}
               color="light"

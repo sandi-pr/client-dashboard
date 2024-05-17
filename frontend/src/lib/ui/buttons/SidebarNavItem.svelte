@@ -27,7 +27,8 @@
 <button
   class={href === activeUrl ? classesActive : classes}
   onclick={() => {
-    window.location = href;
+    // console.log(href);
+    goto(href);
   }}
 >
   {#if icon}

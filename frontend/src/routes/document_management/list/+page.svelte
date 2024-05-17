@@ -20,6 +20,8 @@ All Rights Reserved
   import { Button } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
 
+  import { goto } from "$app/navigation";
+
   const call = new CR3Call(globalThis.location.origin);
 
   let documentsReady = $state(false);
@@ -103,7 +105,7 @@ All Rights Reserved
   });
 
   async function addDocument() {
-    await call.goToPage("client-dashboard", "document-management-create");
+    goto(await call.getPage("client-dashboard", "document-management-create"));
     return;
   }
 </script>

@@ -14,6 +14,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
   import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -94,7 +95,7 @@ All Rights Reserved
             }
 
             if (response2.status === 200) {
-              await call.goToPage("client-dashboard", "crm-order-invoice");
+              goto(await call.getPage("client-dashboard", "crm-order-invoice"));
             }
           }
         } else {
@@ -243,7 +244,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                await call.goToPage("client-dashboard", "crm-categories");
+                goto(await call.getPage("client-dashboard", "crm-categories"));
                 return;
               }}
               color="light"

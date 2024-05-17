@@ -8,6 +8,7 @@
   import { _ } from "svelte-i18n";
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -92,7 +93,7 @@
   }
 
   async function addPerson() {
-    await call.goToPage("client-dashboard", "crm-person-create");
+    goto(await call.getPage("client-dashboard", "crm-person-create"));
     return;
   }
 

@@ -106,22 +106,22 @@
         },
         {
             "name": "document-management-overview",
-            "path": "/document-management",
+            "path": "/document_management",
             "file_path": "template/document_management.html"
         },
         {
             "name": "document-management-create",
-            "path": "/document-management/create",
+            "path": "/document_management/create",
             "file_path": "template/document_management/create.html"
         },
         {
             "name": "document-management-list",
-            "path": "/document-management/list",
+            "path": "/document_management/list",
             "file_path": "template/document_management/list.html"
         },
         {
             "name": "document-management-detail",
-            "path": "/document-management/detail",
+            "path": "/document_management/detail",
             "file_path": "template/document_management/detail.html"
         },
         {

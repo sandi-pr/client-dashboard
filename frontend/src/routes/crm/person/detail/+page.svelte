@@ -18,6 +18,7 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { onMount, createEventDispatcher } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
+  import { goto } from "$app/navigation";
 
   const dispatch = createEventDispatcher();
 
@@ -140,7 +141,7 @@ All Rights Reserved
 
       if (response.status === 200) {
         triggerToast("created");
-        await call.goToPage("client-dashboard", "crm-person");
+        goto(await call.getPage("client-dashboard", "crm-person"));
         return;
       }
     } catch (error) {
@@ -162,7 +163,7 @@ All Rights Reserved
       });
       if (response.status === 200) {
         triggerToast("deleted");
-        await call.goToPage("client-dashboard", "crm-person");
+        goto(await call.getPage("client-dashboard", "crm-person"));
         return;
       }
     } catch (error) {
@@ -235,7 +236,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                await call.goToPage("client-dashboard", "crm-person");
+                goto(await call.getPage("client-dashboard", "crm-person"));
                 return;
               }}
               color="light"

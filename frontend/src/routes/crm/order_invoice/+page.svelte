@@ -18,6 +18,7 @@ All Rights Reserved
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { Button } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -162,7 +163,7 @@ All Rights Reserved
   }
 
   async function addNew() {
-    await call.goToPage("client-dashboard", "crm-order-invoice-create");
+    goto(await call.getPage("client-dashboard", "crm-order-invoice-create"));
   }
 
   onMount(() => {

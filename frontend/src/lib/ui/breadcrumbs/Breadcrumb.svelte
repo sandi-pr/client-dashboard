@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Breadcrumb, BreadcrumbItem } from "flowbite-svelte";
   // import { CR3Call } from "hexacomponents-svelte";
-  import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
 
   // const call = new CR3Call(globalThis.location.origin);
 
@@ -100,9 +100,11 @@
     spanClass = "ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400",
   } = $props();
   let accumulatedPath = $state("");
-  let params = $state("");
-  let queryString = $state("");
+  let params = $state(new URLSearchParams(window.location.search).toString());
+  let queryString = $state(params.toString() ? "?" + params.toString() : "");
   let activeUrlArray: any[] = $state([]);
+  let copyActiveUrl = $state("");
+  let activeUrlModified = $state("");
 
   const postProcessName = (name) => {
     let newName = name.replace(/-/g, " ");
@@ -122,23 +124,47 @@
     }
   };
 
-  onMount(() => {
-    params = new URLSearchParams(window.location.search).toString();
-    queryString = params.toString() ? "?" + params.toString() : "";
-    const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
-    activeUrl = activeUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
-    activeUrlArray = activeUrl
-      .split("/")
-      .filter((url) => url !== "")
-      .map((url, index, array) => {
-        accumulatedPath += `/${url}`;
-        let href = accumulatedPath;
-        if (index === array.length - 1) {
-          href += queryString;
-        }
-        return { name: url, href: href };
-      });
-  });
+  // onMount(() => {
+  //   if (activeUrl) {
+  //     const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
+  //     console.log(cleanAppUrl);
+  //     activeUrl = activeUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
+  //     console.log(activeUrl);
+  //     activeUrlArray = activeUrl
+  //       .split("/")
+  //       .filter((url) => url !== "client-dashboard")
+  //       .filter(Boolean)
+  //       .map((url, index, array) => {
+  //         accumulatedPath += `/${url}`;
+  //         let href = accumulatedPath;
+  //         if (index === array.length - 1) {
+  //           href += queryString;
+  //         }
+  //         return { name: url, href: href };
+  //       });
+  //   }
+  // });
+
+  $effect(() => {
+    if (activeUrl !== copyActiveUrl) {
+      const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
+      copyActiveUrl = activeUrl;
+      let cleanActiveUrl = activeUrl;
+      activeUrlModified = cleanActiveUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
+      activeUrlArray = activeUrlModified
+        .split("/")
+        .filter((url) => url !== "client-dashboard")
+        .filter(Boolean)
+        .map((url, index, array) => {
+          accumulatedPath += `/${url}`;
+          let href = accumulatedPath;
+          if (index === array.length - 1) {
+            href += queryString;
+          }
+          return { name: url, href: href };
+        });
+    }
+  })
 </script>
 
 <Breadcrumb aria-label="Default breadcrumb">
@@ -163,12 +189,9 @@
             type="button"
             class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
             onclick={async () => {
-              window.location = `${appUrl}${item.href}`;
-              // const template = templates.find((t) => t.path === item.href);
-              // console.log(template, item.href);
-              // if (template) {
-              //   await call.goToPage("client-login", template.name);
-              // }
+                console.log(item.href);
+                console.log(appUrl);
+                goto(`${appUrl}${item.href}`);
             }}
           >
             {postProcessName(item.name)}

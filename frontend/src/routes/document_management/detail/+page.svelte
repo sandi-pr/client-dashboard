@@ -20,6 +20,7 @@ All Rights Reserved
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -119,7 +120,7 @@ All Rights Reserved
           },
         });
         if (response.status === 200) {
-          await call.goToPage("client-dashboard", "document-management-list");
+          goto(await call.getPage("client-dashboard", "document-management-list"));
           return;
         } else {
           console.log(response);

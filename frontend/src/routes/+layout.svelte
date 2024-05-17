@@ -24,9 +24,9 @@ All Rights Reserved
   let { showAI = false } = $props();
   let isShowAI = $state(false);
   let activities = $state([]);
-  let isActiveUrl = $state($page.url.pathname);
-  let activeUrl = $derived(isActiveUrl);
-  let appUrl = ""; // change to application url to make the breadcrumb not display the application name
+  // let isActiveUrl = $state($page.url.pathname);
+  let activeUrl = $state($page.url.pathname);
+  let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
   let isFrontend = $state(false); // for frontend change to true
 
@@ -76,28 +76,6 @@ All Rights Reserved
     localStorage.setItem("showAI", showAI);
   };
 
-  const changeTabbar = (tabName) => {
-    tabDatas.selected = tabName;
-  };
-
-  const numberMonthToTextMonth = (month) => {
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return monthNames[month - 1];
-  };
-
   const getModules = async () => {
     return [
       {
@@ -138,6 +116,18 @@ All Rights Reserved
         icon: "users",
         name: "documentManagement",
         children: [
+          {
+            href: isFrontend
+              ? "/document_management"
+              : await call.getPage("client-dashboard", "document-management-overview"),
+            name: "overview",
+          },
+          {
+            href: isFrontend
+              ? "/crm/calendar"
+              : await call.getPage("client-dashboard", "crm-calendar"),
+            name: "calendar",
+          },
           {
             href: isFrontend
               ? "/document_management"
@@ -232,6 +222,9 @@ All Rights Reserved
 
   onMount(() => {
     CheckSetup();
+    if (localStorage.getItem("lang") !== null) {
+      locale.set(localStorage.getItem("lang"));
+    }
 
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
@@ -249,10 +242,16 @@ All Rights Reserved
   } else {
     console.log("localstorage is undefined");
   }
+
+  $effect(() => {
+    if (activeUrl !== $page.url.pathname) {
+      activeUrl = $page.url.pathname;
+    }
+  });
 </script>
 
 {#if $isLoading}
-  <LoadingSpinner />
+  <!-- <LoadingSpinner /> -->
 {:else if winInnerWidth > 0}
   {#if hideLayout()}
     <div class="lg:flex">

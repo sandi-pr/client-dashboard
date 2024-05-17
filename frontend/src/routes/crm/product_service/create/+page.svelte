@@ -31,6 +31,7 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { onMount } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -191,7 +192,7 @@ All Rights Reserved
             }
           }
           triggerToast("created");
-          await call.goToPage("client-dashboard", "crm-product-service");
+          goto(await call.getPage("client-dashboard", "crm-product-service"));
           return;
         } else {
           triggerToast("error");
@@ -294,7 +295,7 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              await call.goToPage("client-dashboard", "crm-product-service");
+              goto(await call.getPage("client-dashboard", "crm-product-service"));
               return;
             }}
             color="light"

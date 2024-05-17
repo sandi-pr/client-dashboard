@@ -17,6 +17,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { format } from "date-fns";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -102,7 +103,7 @@ All Rights Reserved
         }
 
         if (response.status === 200) {
-          await call.goToPage("client-dashboard", "crm-order-invoice");
+          goto(await call.getPage("client-dashboard", "crm-order-invoice"));
         }
       } catch (error) {
         console.log(error);
@@ -147,7 +148,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                await call.goToPage("client-dashboard", "crm-order-invoice");
+                goto(await call.getPage("client-dashboard", "crm-order-invoice"));
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button

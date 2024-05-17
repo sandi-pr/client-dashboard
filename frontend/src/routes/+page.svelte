@@ -134,7 +134,6 @@ All Rights Reserved
     title="CRM"
     description={$_("descCrm")}
     onclick={async () => {
-      // await call.goToPage("client-dashboard", "crm-overview");
       goto(await call.getPage("client-dashboard", "crm-overview"));
       return;
     }}

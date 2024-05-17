@@ -17,6 +17,7 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -135,7 +136,7 @@ All Rights Reserved
         return;
       }
 
-      await call.goToPage("client-dashboard", "users");
+      goto(await call.getPage("client-dashboard", "users"));
     } catch (error) {
       console.log(error);
     }
@@ -204,7 +205,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                await call.goToPage("client-dashboard", "users");
+                goto(await call.getPage("client-dashboard", "users"));
                 return;
               }}
               color="light"

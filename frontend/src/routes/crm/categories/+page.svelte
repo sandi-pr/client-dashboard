@@ -24,6 +24,8 @@ All Rights Reserved
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
 
+  import { goto } from "$app/navigation";
+
   const call = new CR3Call(globalThis.location.origin);
 
   let personsLatest = [];
@@ -109,8 +111,9 @@ All Rights Reserved
     }
   }
 
+
   async function addCategory() {
-    await call.goToPage("client-dashboard", "crm-category-create");
+    goto(await call.getPage("client-dashboard", "crm-category-create"));
     return;
   }
 
