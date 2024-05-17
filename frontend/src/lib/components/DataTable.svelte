@@ -455,7 +455,7 @@
                       {:else}
                         <a
                           class="hover:no-underline text-hc-brand-600 font-semibold"
-                          href={action.href}>{$_(action.name)}</a
+                          href={action.href}>{$_(toCamelCase(action.name))}</a
                         >
                       {/if}
                     {/each}

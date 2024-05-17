@@ -1,12 +1,14 @@
-import HomeLineIcon from '$lib/icon/home-line.svelte';
-import BrandIcon from '$lib/icon/Logomark.svg';
-import SettingIcon from '$lib/icon/settings-01.svelte';
-import HexagonIcon from '$lib/icon/hexagon-02.svelte';
-import FolderIcon from "$lib/icon/folder.svelte";
-import UsersIcon from "$lib/icon/users-03.svelte";
-import MessageChatIcon from "$lib/icon/message-chat-circle.svelte";
-import BlockchainIcon from '$lib/icon/blockchain.svelte';
-import BellIcon from "$lib/icon/bell-01.svelte";
+import HomeLineIcon from '../icon/home-line.svelte';
+import BrandIcon from "../icon/logomark.svelte";
+import SettingIcon from '../icon/settings-01.svelte';
+import HexagonIcon from '../icon/hexagon-02.svelte';
+import FolderIcon from "../icon/folder.svelte";
+import UsersIcon from "../icon/users-03.svelte";
+import MessageChatIcon from "../icon/message-chat-circle.svelte";
+import BlockchainIcon from '../icon/blockchain.svelte';
+import BellIcon from "../icon/bell-01.svelte";
+import FileShieldIcon from "../icon/file-shield-02.svelte";
+import UserSquareIcon from "../icon/user-square.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -28,6 +30,10 @@ let getIcons = (presetIcon: String) => {
       return BlockchainIcon;
     case "bell":
       return BellIcon;
+    case "fileShield":
+      return FileShieldIcon;
+    case "userSquare":
+      return UserSquareIcon;
     default:
       return "";
   }

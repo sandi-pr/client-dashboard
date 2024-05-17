@@ -113,7 +113,7 @@ All Rights Reserved
         ],
       },
       {
-        icon: "users",
+        icon: "fileShield",
         name: "documentManagement",
         children: [
           {
@@ -122,16 +122,16 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "document-management-overview"),
             name: "overview",
           },
+        ],
+      },
+      {
+        icon: "userSquare",
+        name: "HR",
+        children: [
           {
             href: isFrontend
-              ? "/crm/calendar"
-              : await call.getPage("client-dashboard", "crm-calendar"),
-            name: "calendar",
-          },
-          {
-            href: isFrontend
-              ? "/document_management"
-              : await call.getPage("client-dashboard", "document-management-overview"),
+              ? "/hr"
+              : await call.getPage("client-dashboard", "hr-overview"),
             name: "overview",
           },
         ],
