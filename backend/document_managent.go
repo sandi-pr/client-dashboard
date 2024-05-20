@@ -285,25 +285,17 @@ func GetDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 
 	resp, err := http.Get(STRAPI_URL + string(document_url))
 	if err != nil {
-		fmt.Println("Error saat mengunduh file:", err)
+		fmt.Printf("error saat mengunduh file: %v", err)
 	}
 	defer resp.Body.Close()
 
-	fmt.Println(STRAPI_URL + string(document_url))
-	fmt.Println("resp", resp)
-
-	// Baca isi file
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error saat membaca isi file:", err)
+		fmt.Printf("error saat membaca isi file: %v", err)
 	}
 
-	fmt.Println(data)
-
-	// Konversi isi file ke base64
 	base64Data := base64.StdEncoding.EncodeToString(data)
 
-	// Output hasil base64
 	fmt.Println(base64Data)
 
 	return 200, U.Dict{"document": document, "base64": base64Data}, nil

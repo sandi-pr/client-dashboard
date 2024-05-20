@@ -366,9 +366,10 @@ All Rights Reserved
               >
                 {#if fileTextName}
                   {#if fileTextName.endsWith(".txt")}
-                    {#each fileTextResult.split("\n") as paragraphs, i}
+                    <!-- {#each fileTextResult.split("\n") as paragraphs, i}
                       <P>{paragraphs}</P>
-                    {/each}
+                    {/each} -->
+                    <P>{fileTextName}</P>
                   {:else if fileTextName.endsWith(".pdf")}
                     <P>{fileTextName}</P>
                   {:else if fileTextName.endsWith(".doc") || fileTextName.endsWith(".docx")}

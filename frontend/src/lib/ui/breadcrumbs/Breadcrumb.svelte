@@ -147,6 +147,7 @@
 
   $effect(() => {
     if (activeUrl !== copyActiveUrl) {
+      console.log(activeUrl);
       const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
       copyActiveUrl = activeUrl;
       let cleanActiveUrl = activeUrl;
@@ -189,9 +190,9 @@
             type="button"
             class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
             onclick={async () => {
-                console.log(item.href);
-                console.log(appUrl);
-                goto(`${appUrl}${item.href}`);
+              // window.location = `${appUrl}${item.href}`;
+                // goto(`${appUrl}${item.href}`);
+                goto(`${activeUrl}`);
             }}
           >
             {postProcessName(item.name)}

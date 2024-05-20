@@ -20,17 +20,21 @@ All Rights Reserved
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
-  import { goto } from "$app/navigation";
+  import { goto } from "$app/navigation"; 
+  import { createEventDispatcher } from 'svelte';
 
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
   const documentId = params.get("documentId");
   const edit = params.get("edit");
+  const dispatch = createEventDispatcher();
 
   let onEdit = $state(false);
 
-  let contentFile = $state("");
+  let contentFile = $state(null);
+  let base64 = $state(null);
+  let fileUrl = $state("null");
 
   let tabDatas = $state({
     selected: "Documents",
@@ -44,7 +48,7 @@ All Rights Reserved
     ],
   });
 
-  let pdfReady = $state(true);
+  let pdfReady = $state(false);
 
   let data = $state({});
 
@@ -81,27 +85,33 @@ All Rights Reserved
       }
 
       if (response.result.document.data.length > 0) {
-        let document = response.result.document.data[0];
+        let documentData = response.result.document.data[0];
         data = {
-          id: document.id,
-          createdAt: format(document.attributes.createdAt, "yyyy-MM-dd HH:mm"),
-          document_title: document.attributes.document_title,
-          description: document.attributes.description,
-          document_type: document.attributes.document_type,
-          ext: document.attributes.document.data.attributes.ext,
-          person_client: document.attributes.person.data?.id,
+          id: documentData.id,
+          createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
+          document_title: documentData.attributes.document_title,
+          description: documentData.attributes.description,
+          document_type: documentData.attributes.document_type,
+          ext: documentData.attributes.document.data.attributes.ext,
+          person_client: documentData.attributes.person.data?.id,
           contract_start:
-            document.attributes.contract_start !== null
-              ? format(new Date(document.attributes.contract_start), "yyyy-MM-dd")
+          documentData.attributes.contract_start !== null
+              ? format(new Date(documentData.attributes.contract_start), "yyyy-MM-dd")
               : "",
           contract_end:
-            document.attributes.contract_end !== null
-              ? format(new Date(document.attributes.contract_end), "yyyy-MM-dd")
+          documentData.attributes.contract_end !== null
+              ? format(new Date(documentData.attributes.contract_end), "yyyy-MM-dd")
               : "",
         };
 
-        let base64 = response.result.base64;
+        base64 = response.result.base64;
         contentFile = atob(base64);
+
+        const blob = base64toBlob(base64);
+        fileUrl = URL.createObjectURL(blob);
+        console.log(fileUrl);
+        
+        pdfReady = true;
       }
     }
   }
@@ -186,15 +196,31 @@ All Rights Reserved
     } else {
       fileType = "text/plain";
     }
-    const blob = new Blob([content], { type: fileType });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(base64toBlob(base64, fileType));
     a.download = fileName;
-    document.body.appendChild(a);
     a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+  }
+
+
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
   }
 
   onMount(() => {
@@ -248,7 +274,7 @@ All Rights Reserved
             >
             <div class="flex items-center gap-2">
               <Button
-                onclick={() => downloadFile(contentFile, data.document_title, data.ext)}
+                onclick={() => downloadFile(base64, data.document_title, data.ext)}
                 class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1"
               >
                 <img alt="refresh" src={DownloadIcon} class="w-5 h-5" />
@@ -256,15 +282,17 @@ All Rights Reserved
               </Button>
             </div>
           </div>
-          <div
-            class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800"
-          >
+          <div class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800">
             {#if pdfReady}
-              {#each contentFile.split("\n") as paragraphs, i}
-                <P class="dark:text-white">{paragraphs}</P>
-              {/each}
+              {#if data.ext === ".pdf"}
+                <iframe class="w-full h-screen" src={`${fileUrl}`} ></iframe>
+              {:else}
+                {#each contentFile.split("\n") as paragraphs, i}
+                  <p class="dark:text-white">{paragraphs}</p>
+                {/each}
+              {/if}
             {/if}
-          </div>
+          </div>          
         {:else if tabDatas.selected === "Information"}
           <div class="flex flex-col gap-4 pt-6">
             <!-- general information -->

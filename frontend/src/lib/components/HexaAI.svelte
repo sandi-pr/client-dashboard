@@ -34,7 +34,8 @@
 
   $effect.pre(() => {
     dataConversatonLogs;
-    const autoscroll = div && div.offsetHeight + div.scrollTop > div.scrollHeight - 50;
+    const autoscroll =
+      div && div.offsetHeight + div.scrollTop > div.scrollHeight - 50;
 
     if (autoscroll) {
       tick().then(() => {
@@ -61,14 +62,18 @@
 
       if (!conversationId) {
         try {
-          let createConversationResponse = await call.call("hexa-ai", "create-conversation", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {},
-            Headers: {
-              Authorization: "Bearer " + token,
+          let createConversationResponse = await call.call(
+            "hexa-ai",
+            "create-conversation",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {},
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
             },
-          });
+          );
 
           if (createConversationResponse.status === 200) {
             conversationId = createConversationResponse.result.conversation_id;
@@ -101,7 +106,10 @@
           disableInput = false;
           dataConversatonLogs = [
             ...dataConversatonLogs,
-            { role: chat.result.message.role, message: chat.result.message.message },
+            {
+              role: chat.result.message.role,
+              message: chat.result.message.message,
+            },
           ];
         }
       } catch (error) {
@@ -133,7 +141,10 @@
         console.log(chat);
 
         if (chat.status === 200) {
-          dataConversatonLogs = [...dataConversatonLogs, ...chat.result.messages];
+          dataConversatonLogs = [
+            ...dataConversatonLogs,
+            ...chat.result.messages,
+          ];
         }
       } catch (error) {
         console.log(error);
@@ -178,7 +189,9 @@
                 >{qaPair.role === "user" ? "You" : "HexaAI"}</P
               >
             </div>
-            <div class="prose font-medium text-tertiary-light dark:text-primary-dark">
+            <div
+              class="prose font-medium text-tertiary-light dark:text-primary-dark"
+            >
               <Markdown md={qaPair.message} {plugins} />
             </div>
           </div>
@@ -198,9 +211,13 @@
                   <img src={VerifiedIcon} alt="User" class="w-3 h-3" />
                 </div>
               </div>
-              <P weight="bold" class="text-primary-light dark:text-primary-dark">{"HexaAI"}</P>
+              <P weight="bold" class="text-primary-light dark:text-primary-dark"
+                >{"HexaAI"}</P
+              >
             </div>
-            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
+            <P
+              weight="medium"
+              class="text-tertiary-light dark:text-tertiary-dark"
               >{"Assistant is typing..."}</P
             >
           </div>
@@ -216,8 +233,12 @@
         placeholder="Send a message..."
         class=" text-wrap min-h-16 pe-24 rounded-2xl"
       >
-        <Button slot="right" size="sm" type="submit" class="my-3" disabled={disableInput}
-          >Send</Button
+        <Button
+          slot="right"
+          size="sm"
+          type="submit"
+          class="my-3"
+          disabled={disableInput}>Send</Button
         >
       </Input>
     </form>

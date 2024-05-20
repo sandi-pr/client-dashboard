@@ -14,10 +14,12 @@ All Rights Reserved
   import { CloseButton } from "flowbite-svelte";
   import HexaAi from "$lib/icon/hexa-ai.svelte";
   import HexaAIChat from "$lib/components/HexaAI.svelte";
+  import { onMount } from "svelte";
 
   let { innerWidth, changeShowAI } = $props();
 
   let activities = $state([]);
+  let statusRAG = $state("progress");
 
   let tabDatas = $state({
     selected: "Hexa AI",
@@ -34,9 +36,40 @@ All Rights Reserved
   const changeTabbar = (tabName) => {
     tabDatas.selected = tabName;
   };
+
+  async function getStatusRag() {
+    let token = sessionStorage.getItem("token");
+    const callStatusRag = async () => {
+      try {
+        let rag = await call.call("hexa-ai", "get-status-rag", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        statusRAG = rag.result;
+        console.log(rag); // Mengganti statusRAG dengan rag
+      } catch (error) {
+        console.error("Error:", error);
+      }
+      setTimeout(callStatusRag, 2000);
+    };
+    callStatusRag();
+  }
+
+  onMount(() => {
+    getStatusRag();
+  });
 </script>
 
-<Pane size={innerWidth > 1024 ? "30" : "100"} minSize={innerWidth > 1024 ? "30" : "100"} maxSize={innerWidth > 1024 ? "50" : "100"}>
+<Pane
+  size={innerWidth > 1024 ? "30" : "100"}
+  minSize={innerWidth > 1024 ? "30" : "100"}
+  maxSize={innerWidth > 1024 ? "50" : "100"}
+>
   <div
     class="h-screen fixed transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
   >
@@ -57,22 +90,47 @@ All Rights Reserved
             </div>
             &nbsp;
             <div>
-              <Typography preset="Text xl/Semibold" text="Latest Activity" color="primary" />
-              <Typography preset="Text sm/Regular" text="Your latest activity" color="tertiary" />
-            </div>
-          {:else if tabDatas.selected === "Hexa AI"}
-            <div
-              class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
-            >
-              <svelte:component
-                this={HexaAi}
-                svgClass="text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
+              <Typography
+                preset="Text xl/Semibold"
+                text="Latest Activity"
+                color="primary"
+              />
+              <Typography
+                preset="Text sm/Regular"
+                text="Your latest activity"
+                color="tertiary"
               />
             </div>
-            &nbsp;
-            <div>
-              <Typography preset="Text xl/Semibold" text="Hexa AI" color="primary" />
-              <Typography preset="Text sm/Regular" text="Assistant" color="tertiary" />
+          {:else if tabDatas.selected === "Hexa AI"}
+            <div class="flex w-100  justify-between">
+              <div class="flex">
+                <div
+                  class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
+                >
+                  <svelte:component
+                    this={HexaAi}
+                    svgClass="text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
+                  />
+                </div>
+                &nbsp;
+                <div>
+                  <Typography
+                    preset="Text xl/Semibold"
+                    text="Hexa AI"
+                    color="primary"
+                  />
+                  <Typography
+                    preset="Text sm/Regular"
+                    text="Assistant"
+                    color="tertiary"
+                  />
+                </div>
+              </div>
+              <Typography
+                preset="Text sm/Regular"
+                text={`Status RAG: ${statusRAG}`}
+                color="tertiary"
+              />
             </div>
           {/if}
           {#if innerWidth < 1024}
@@ -110,7 +168,11 @@ All Rights Reserved
               {/each}
             {/each}
           {:else}
-            <Typography preset="Text sm/Medium" text="No Activity" color="primary" />
+            <Typography
+              preset="Text sm/Medium"
+              text="No Activity"
+              color="primary"
+            />
           {/if}
         </div>
       {:else if tabDatas.selected === "Hexa AI"}
