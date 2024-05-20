@@ -14,10 +14,11 @@
   import { format, startOfWeek, endOfWeek } from "date-fns";
   import { P, Button, Heading, Input, Modal, Label, Textarea } from "flowbite-svelte";
   import {
+    PlusOutline,
     ClockOutline,
+    TrashBinOutline,
     ChevronLeftOutline,
     ChevronRightOutline,
-    PlusOutline,
   } from "flowbite-svelte-icons";
   import AutoComplete from "simple-svelte-autocomplete";
   import DatePicker from "$lib/components/DatePicker.svelte";
@@ -839,6 +840,11 @@
     }
   }
 
+  const handleDeleteSchedule = (event) => {
+    console.log("Not yet implemented");
+    console.log(event);
+  };
+
   const handleSearchInvitees = async (value) => {
     console.log("not yet implemented");
     console.log(value);
@@ -1383,6 +1389,15 @@
                 class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
               />
             </div>
+          </div>
+          <div class="flex justify-end mt-2">
+            <Button
+              class="text-nowrap"
+              color="red"
+              on:click={() => {
+                handleDeleteSchedule(event);
+              }}><TrashBinOutline class="size-6" /> Delete Schedule</Button
+            >
           </div>
         </div>
       {/each}
