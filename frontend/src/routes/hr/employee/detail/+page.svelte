@@ -24,13 +24,13 @@ All Rights Reserved
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
-  const personId = params.get("personId");
+  const employeeId = params.get("employeeId");
   const edit = params.get("edit");
   let onEdit = $state(false);
 
   let data = $state({
-    personId: "",
-    fullname: "",
+    employeeId: "",
+    employee_name: "",
     date_of_birth: "",
     email: "",
     phone: "",
@@ -39,8 +39,12 @@ All Rights Reserved
     city: "",
     state: "",
     zip_code: "",
-    createdAt: "",
-    is_active: "",
+    is_active: "Yes",
+    job_position: "",
+    branch: "",
+    employment_status: "",
+    join_date: "",
+    end_date: "",
   });
 
   let emailValid = $state(true);
@@ -81,12 +85,12 @@ All Rights Reserved
     dispatch("emailChange", { email, emailValid });
   }
 
-  async function getPerson() {
+  async function getEmployee() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "get-person", {
+      let response = await call.call("client-dashboard", "get-employee", {
         URLQuery: {},
-        URLParams: { id: personId },
+        URLParams: { id: employeeId },
         Params: {},
         Headers: {
           Authorization: "Bearer " + token,
@@ -95,8 +99,8 @@ All Rights Reserved
 
       if (response.status === 200) {
         data = {
-          personId: response.result.data.id,
-          fullname: response.result.data.attributes.fullname,
+          employeeId: response.result.data.id,
+          employee_name: response.result.data.attributes.employee_name,
           date_of_birth: response.result.data.attributes.date_of_birth,
           email: response.result.data.attributes.email,
           phone: response.result.data.attributes.phone,
@@ -107,6 +111,11 @@ All Rights Reserved
           zip_code: response.result.data.attributes.zip_code,
           createdAt: formatDate(response.result.data.attributes.createdAt),
           is_active: response.result.data.attributes.is_active === "Yes" ? true : false,
+          job_position: response.result.data.attributes.job_position,
+          branch: response.result.data.attributes.branch,
+          employment_status: response.result.data.attributes.employment_status,
+          join_date: response.result.data.attributes.join_date,
+          end_date: response.result.data.attributes.end_date,
         };
       }
     } catch (error) {
@@ -115,23 +124,29 @@ All Rights Reserved
     }
   }
 
-  async function updatePerson() {
+  async function updateEmployee() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "update-person", {
+      let response = await call.call("client-dashboard", "update-employee", {
         URLQuery: {},
-        URLParams: { id: personId },
+        URLParams: { id: employeeId },
         Params: {
-          fullname: data.fullname,
-          date_of_birth: data.date_of_birth,
-          email: data.email,
-          phone: data.phone.toString(),
-          country: data.country,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          zip_code: data.zip_code.toString(),
-          is_active: data.is_active === true ? "Yes" : "No",
+          employee_name: response.result.data.attributes.employee_name,
+          date_of_birth: response.result.data.attributes.date_of_birth,
+          email: response.result.data.attributes.email,
+          phone: response.result.data.attributes.phone,
+          country: response.result.data.attributes.country,
+          address: response.result.data.attributes.address,
+          city: response.result.data.attributes.city,
+          state: response.result.data.attributes.state,
+          zip_code: response.result.data.attributes.zip_code,
+          createdAt: formatDate(response.result.data.attributes.createdAt),
+          is_active: response.result.data.attributes.is_active === "Yes" ? true : false,
+          job_position: response.result.data.attributes.job_position,
+          branch: response.result.data.attributes.branch,
+          employment_status: response.result.data.attributes.employment_status,
+          join_date: response.result.data.attributes.join_date,
+          end_date: response.result.data.attributes.end_date,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -140,7 +155,7 @@ All Rights Reserved
 
       if (response.status === 200) {
         triggerToast("created");
-        await call.goToPage("client-dashboard", "crm-person");
+        await call.goToPage("client-dashboard", "crm-employee");
         return;
       }
     } catch (error) {
@@ -149,12 +164,12 @@ All Rights Reserved
     }
   }
 
-  async function deletePerson() {
+  async function deleteEmployee() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "delete-person", {
+      let response = await call.call("client-dashboard", "delete-employee", {
         URLQuery: {},
-        URLParams: { id: personId },
+        URLParams: { id: employeeId },
         Params: {},
         Headers: {
           Authorization: "Bearer " + token,
@@ -162,7 +177,7 @@ All Rights Reserved
       });
       if (response.status === 200) {
         triggerToast("deleted");
-        await call.goToPage("client-dashboard", "crm-person");
+        await call.goToPage("client-dashboard", "crm-employee");
         return;
       }
     } catch (error) {
@@ -203,7 +218,7 @@ All Rights Reserved
 
   onMount(async () => {
     if (edit === "true") onEdit = true;
-    getPerson();
+    getEmployee();
   });
 
   // let dropdownOpen = false;
@@ -220,7 +235,7 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              {data.fullname}
+              {data.employee_name}
               <Button
                 outline
                 color="red"
@@ -246,7 +261,7 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={updatePerson} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+            <Button onclick={updateEmployee} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
             <Button
               onclick={() => (popupModal = true)}
@@ -264,7 +279,7 @@ All Rights Reserved
       </div>
 
       <Divider />
-      <div class="flex flex-col gap-4 pt-8">
+      <div class="flex flex-col gap-6 pt-8">
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">
@@ -278,11 +293,11 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("fullname")}
+                  {$_("employeeName")}
                 </P>
                 <Input
                   readonly={!onEdit}
-                  bind:value={data.fullname}
+                  bind:value={data.employee_name}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -290,11 +305,11 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("personId")}
+                  {$_("employeeId")}
                 </P>
                 <Input
                   readonly
-                  bind:value={data.personId}
+                  bind:value={data.employeeId}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
@@ -432,6 +447,65 @@ All Rights Reserved
             </div>
           </div>
         </div>
+        <Divider />
+        <div class="flex gap-6 pt-2">
+          <div class="w-60">
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              {$_("employeeInformation")}
+            </P>
+          </div>
+          <div class="flex flex-col grow gap-6">
+            <div class="grid grid-cols-3 gap-5">
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("jobPosition")}*</P
+                >
+                <Input readonly={!onEdit} bind:value={data.job_position} class="bg-primary-light dark:bg-secondary-dark" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("branch")}*</P
+                >
+                <Input readonly={!onEdit} bind:value={data.branch} class="bg-primary-light dark:bg-secondary-dark" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("employmentStatus")}*</P
+                >
+                <Input readonly={!onEdit} bind:value={data.employment_status} class="bg-primary-light dark:bg-secondary-dark" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("joinDate")}*</P
+                >
+                <Input
+                  readonly={!onEdit}
+                  type="date"
+                  bind:value={data.join_date}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("endDate")}*</P
+                >
+                <Input
+                  readonly={!onEdit}
+                  type="date"
+                  bind:value={data.end_date}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -469,7 +543,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deletePerson} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={deleteEmployee} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

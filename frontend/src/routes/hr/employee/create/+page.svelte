@@ -23,7 +23,7 @@ All Rights Reserved
   const call = new CR3Call(globalThis.location.origin);
 
   let data = $state({
-    fullname: "",
+    employee_name: "",
     date_of_birth: "",
     email: "",
     phone: "",
@@ -33,6 +33,11 @@ All Rights Reserved
     state: "",
     zip_code: "",
     is_active: "Yes",
+    job_position: "",
+    branch: "",
+    employment_status: "",
+    join_date: "",
+    end_date: "",
   });
 
   let emailValid = $state(false);
@@ -63,7 +68,7 @@ All Rights Reserved
         URLQuery: {},
         URLParams: {},
         Params: {
-          fullname: data.fullname,
+          employee_name: data.employee_name,
           date_of_birth: data.date_of_birth,
           email: data.email,
           phone: data.phone.toString(),
@@ -73,6 +78,11 @@ All Rights Reserved
           state: data.state,
           zip_code: data.zip_code.toString(),
           is_active: data.is_active,
+          job_position: data.job_position,
+          branch: data.branch,
+          employment_status: data.employment_status,
+          join_date: data.join_date,
+          end_date: data.end_date,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -120,7 +130,7 @@ All Rights Reserved
 
   $effect(() => {
     buttonDisable =
-      data.fullname.length < 1 ||
+      data.employee_name.length < 1 ||
       data.date_of_birth.length < 1 ||
       data.email.length < 1 ||
       data.phone.length < 1 ||
@@ -129,6 +139,11 @@ All Rights Reserved
       data.city.length < 1 ||
       data.state.length < 1 ||
       data.zip_code.length < 1 ||
+      data.job_position.length < 1 ||
+      data.branch.length < 1 ||
+      data.employment_status.length < 1 ||
+      data.join_date.length < 1 ||
+      data.end_date.length < 1 ||
       emailValid === false;
   });
 
@@ -145,7 +160,7 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              {$_("createNewPersons")}
+              {$_("createNewEmployee")}
             </Heading>
           </div>
         </div>
@@ -164,7 +179,7 @@ All Rights Reserved
       </div>
 
       <Divider />
-      <div class="flex flex-col gap-4 pt-8">
+      <div class="flex flex-col gap-6 pt-8">
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">
@@ -178,9 +193,9 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("fullname")}*
+                  {$_("employeeName")}*
                 </P>
-                <Input bind:value={data.fullname} class="bg-primary-light dark:bg-secondary-dark" />
+                <Input bind:value={data.employee_name} class="bg-primary-light dark:bg-secondary-dark" />
               </div>
               <!-- <div class="flex flex-col gap-2">
                 <P
@@ -274,6 +289,63 @@ All Rights Reserved
                 <Input
                   type="date"
                   bind:value={data.date_of_birth}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <Divider />
+        <div class="flex gap-6 pt-2">
+          <div class="w-60">
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              {$_("employeeInformation")}
+            </P>
+          </div>
+          <div class="flex flex-col grow gap-6">
+            <div class="grid grid-cols-3 gap-5">
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("jobPosition")}*</P
+                >
+                <Input bind:value={data.job_position} class="bg-primary-light dark:bg-secondary-dark" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("branch")}*</P
+                >
+                <Input bind:value={data.branch} class="bg-primary-light dark:bg-secondary-dark" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("employmentStatus")}*</P
+                >
+                <Input bind:value={data.employment_status} class="bg-primary-light dark:bg-secondary-dark" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("joinDate")}*</P
+                >
+                <Input
+                  type="date"
+                  bind:value={data.join_date}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("endDate")}*</P
+                >
+                <Input
+                  type="date"
+                  bind:value={data.end_date}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>

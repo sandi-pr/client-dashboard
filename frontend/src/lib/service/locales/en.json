@@ -238,5 +238,11 @@
   "checkinTime": "Check-in Time",
   "checkoutTime": "Check-out Time",
   "joinDate": "Join Date",
-  "employeeStatus": "Employee Status"
+  "employeeStatus": "Employee Status",
+  "employeeList": "Employee List",
+  "createNewEmployee": "Create new Employee",
+  "branch": "Branch",
+  "employmentStatus": "Employment Status",
+  "endDate": "End Date",
+  "employeeInformation": "Employee Information"
 }

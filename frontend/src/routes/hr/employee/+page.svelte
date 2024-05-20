@@ -17,11 +17,11 @@
 
   let configs = $state({});
 
-  async function getPerson(page) {
+  async function getEmployee(page) {
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-persons", {
+      let response = await call.call("client-dashboard", "get-employees", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -44,32 +44,37 @@
           search: true,
           pagination: response.result.meta.pagination,
         };
-        let promises2 = response.result.data.map(async (person, index) => {
+        let promises2 = response.result.data.map(async (employee, index) => {
           return {
-            id: person.id,
-            fullname: person.attributes.fullname,
-            email: person.attributes.email,
-            phone: person.attributes.phone,
-            // address: person.attributes.address,
-            // city: person.attributes.city,
-            // state: person.attributes.state,
-            // zip_code: person.attributes.zip_code,
-            country: person.attributes.country,
-            // date_of_birth: person.attributes.date_of_birth,
-            is_active: person.attributes.is_active,
+            id: employee.id,
+            employee_name: employee.attributes.employee_name,
+            email: employee.attributes.email,
+            // phone: employee.attributes.phone,
+            // address: employee.attributes.address,
+            // city: employee.attributes.city,
+            // state: employee.attributes.state,
+            // zip_code: employee.attributes.zip_code,
+            // country: employee.attributes.country,
+            // date_of_birth: employee.attributes.date_of_birth,
+            // is_active: employee.attributes.is_active,
+            job_position: employee.attributes.job_position,
+            // branch: employee.attributes.branch,
+            employment_status: employee.attributes.employment_status,
+            join_date: employee.attributes.join_date,
+            // end_date: employee.attributes.end_date,
             actions: {
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-person-detail")}` +
-                    `?personId=${person.id}&edit=false`,
+                    `${await call.getPage("client-dashboard", "crm-employee-detail")}` +
+                    `?employeeId=${employee.id}&edit=false`,
                   name: "View",
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-person-detail")}` +
-                    "?personId=" +
-                    person.id +
+                    `${await call.getPage("client-dashboard", "crm-employee-detail")}` +
+                    "?employeeId=" +
+                    employee.id +
                     "&edit=true",
                   name: "Edit",
                 },
@@ -84,20 +89,20 @@
   }
 
   async function next() {
-    getPerson(pagination.page + 1);
+    getEmployee(pagination.page + 1);
   }
 
   async function previous() {
-    getPerson(pagination.page - 1);
+    getEmployee(pagination.page - 1);
   }
 
-  async function addPerson() {
-    await call.goToPage("client-dashboard", "crm-person-create");
+  async function addEmployee() {
+    await call.goToPage("client-dashboard", "hr-employee-create");
     return;
   }
 
   onMount(async () => {
-    getPerson(pagination.page);
+    getEmployee(pagination.page);
   });
 </script>
 
@@ -109,8 +114,8 @@
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={$_("personsList")} />
-          <Button onclick={addPerson} icon={PlusIcon}
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("employeeList")} />
+          <Button onclick={addEmployee} icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
           >
         </div>

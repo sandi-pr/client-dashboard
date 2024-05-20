@@ -236,5 +236,11 @@
     "checkinTime": "Waktu Check-in",
     "checkoutTime": "Waktu Check-out",
     "joinDate": "Tgl. Bergabung",
-    "employeeStatus": "Status Karyawan"
+    "employeeStatus": "Status Karyawan",
+    "employeeList": "Daftar Karyawan",
+    "createNewEmployee": "Tambahkan Karyawan baru",
+    "branch": "Cabang",
+    "employmentStatus": "Status Karyawan",
+    "endDate": "Tgl. Berakhir",
+    "employeeInformation": "Informasi Karyawan"
 }
