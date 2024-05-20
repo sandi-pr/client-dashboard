@@ -69,7 +69,8 @@
       key !== "member" &&
       key !== "recipients" &&
       key !== "category" &&
-      key !== "authority"
+      key !== "authority" &&
+      key !== "attendance_status"
     );
   };
 
@@ -80,7 +81,8 @@
       key === "unit" ||
       key === "role" ||
       key === "category" ||
-      key === "authority"
+      key === "authority" ||
+      key === "attendance_status"
     );
   };
 
@@ -393,6 +395,36 @@
                 </TableBodyCell>
               {/if}
             {/each}
+          {/if}
+          {#if datas[0]?.attendance_status && Object.keys(datas[0].attendance_status).length > 0}
+            {#each Object.keys(datas[0]) as key}
+              {#if key === "attendance_status"}
+                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                  ><p
+                    class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
+                      data.attendance_status.type,
+                    )}`}
+                  >
+                    {data[key].name}
+                  </p>
+                </TableBodyCell>
+              {/if}
+            {/each}
+          {/if}
+          {#if datas[0]?.attendance_status}
+            {#each Object.keys(datas[0]) as key}
+                {#if key === "attendance_status"}
+                  <TableBodyCell
+                    class="flex items-center text-hc-graylight-600 dark:text-hc-graydark-400"
+                    ><p>
+                      {#if data.country === "ID"}
+                        <img src={ID} alt="ID" class="w-6 h-6" />
+                      {/if}
+                    </p>
+                    <p class="ml-2 text-md">{data.country}</p>
+                  </TableBodyCell>
+                {/if}
+              {/each}
           {/if}
           {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
             {#each Object.keys(datas[0]) as key}
