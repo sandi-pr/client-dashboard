@@ -12,13 +12,14 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { format, startOfWeek, endOfWeek } from "date-fns";
-  import { P, Button, Heading, Input, Modal, Label } from "flowbite-svelte";
+  import { P, Button, Heading, Input, Modal, Label, Textarea } from "flowbite-svelte";
   import {
     ClockOutline,
     ChevronLeftOutline,
     ChevronRightOutline,
     PlusOutline,
   } from "flowbite-svelte-icons";
+  import AutoComplete from "simple-svelte-autocomplete";
   import DatePicker from "$lib/components/DatePicker.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import Switch from "$lib/components/Switch.svelte";
@@ -35,6 +36,7 @@
   let modalMode = "form";
   let observer;
   let dataReady = false;
+  let frontEndOnly = false;
 
   let tabDatas = {
     selected: "calendar",
@@ -52,6 +54,7 @@
 
   let newSchedule = {
     title: "",
+    description: "",
     dateEvent: [
       {
         date: format(new Date(), "yyyy-MM-dd"),
@@ -64,6 +67,7 @@
         timeEnd: format(new Date(), "kk:mm"),
       },
     ],
+    person: [],
   };
 
   let idCalendar;
@@ -148,7 +152,7 @@
             date: dateEvent.date,
             timeStart: dateEvent.timeStart,
             timeEnd: dateEvent.timeEnd,
-          })),
+          }))
       );
 
       daysOfWeek.push({
@@ -262,7 +266,7 @@
           currentDate.getDate(),
           currentHour,
           currentMinute,
-          currentSecond,
+          currentSecond
         );
       } else if (direction === "next") {
         currentDate = new Date(
@@ -271,7 +275,7 @@
           currentDate.getDate(),
           currentHour,
           currentMinute,
-          currentSecond,
+          currentSecond
         );
       }
 
@@ -285,7 +289,7 @@
           currentDate.getDate() - 7,
           currentHour,
           currentMinute,
-          currentSecond,
+          currentSecond
         );
       } else if (direction === "next") {
         currentDate = new Date(
@@ -294,7 +298,7 @@
           currentDate.getDate() + 7,
           currentHour,
           currentMinute,
-          currentSecond,
+          currentSecond
         );
       }
 
@@ -308,7 +312,7 @@
           currentDate.getDate() - 1,
           currentHour,
           currentMinute,
-          currentSecond,
+          currentSecond
         );
       } else if (direction === "next") {
         currentDate = new Date(
@@ -317,7 +321,7 @@
           currentDate.getDate() + 1,
           currentHour,
           currentMinute,
-          currentSecond,
+          currentSecond
         );
       }
     }
@@ -334,7 +338,7 @@
         datetime: new Date(
           index === 0
             ? newSchedule.dateEvent[0].date + "T" + date.timeStart + ":00"
-            : newSchedule.dateEvent[1].date + "T" + date.timeEnd + ":00",
+            : newSchedule.dateEvent[1].date + "T" + date.timeEnd + ":00"
         ),
       };
     });
@@ -469,7 +473,7 @@
         !isTimeAvailable(
           `${postProcessedDate[0].datetime.getHours()}:${postProcessedDate[0].datetime.getMinutes()}`,
           `${postProcessedDate[1].datetime.getHours()}:${postProcessedDate[1].datetime.getMinutes()}`,
-          dayIndex,
+          dayIndex
         )
       ) {
         console.log(`Waktu yang Anda pilih tidak tersedia untuk booking.`);
@@ -724,108 +728,150 @@
     let token = sessionStorage.getItem("token");
 
     try {
-      var response = await call.call("client-dashboard", "get-schedule", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          start_date: firstDayOfMonth.toISOString().split("T")[0],
-          end_date: lastDayOfMonth.toISOString().split("T")[0],
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (response.status === 200) {
-        let promise = response.result.booking.data.map((item) => {
-          let date = new Date(item.attributes.date);
-          date.setDate(date.getDate() - 1);
-          return {
-            title: item.attributes.title,
-            dateEvent: [
-              {
-                date: date.toISOString().split("T")[0],
-                timeStart: item.attributes.start_time.substring(0, 5),
-                timeEnd: item.attributes.end_time.substring(0, 5),
-              },
-            ],
-          };
+      if (!frontEndOnly) {
+        var response = await call.call("client-dashboard", "get-schedule", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            start_date: firstDayOfMonth.toISOString().split("T")[0],
+            end_date: lastDayOfMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
         });
-        schedule = await Promise.all(promise);
+        if (response.status === 200) {
+          let promise = response.result.booking.data.map((item) => {
+            let date = new Date(item.attributes.date);
+            date.setDate(date.getDate() - 1);
+            return {
+              title: item.attributes.title,
+              dateEvent: [
+                {
+                  date: date.toISOString().split("T")[0],
+                  timeStart: item.attributes.start_time.substring(0, 5),
+                  timeEnd: item.attributes.end_time.substring(0, 5),
+                },
+              ],
+            };
+          });
+          schedule = await Promise.all(promise);
 
-        console.log("itu", schedule);
+          console.log("itu", schedule);
 
+          daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
+          daysInWeek = getDaysOfWeek(new Date(currentDate));
+          hoursOfDay = getHoursOfDay();
+
+          console.log("cek", response.result.calendar);
+
+          if (response.result.calendar === null) {
+            days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            dayAvailable = [false, false, false, false, false, false, false];
+            dayAvailableCopy = [...dayAvailable];
+            timeAvailable = ["08:00", "17:00"];
+            timeAvailableCopy = [...timeAvailable];
+            timeAvailableIndividual = [
+              {
+                start: "08:00",
+                end: "17:00",
+              },
+              {
+                start: "08:00",
+                end: "17:00",
+              },
+              {
+                start: "08:00",
+                end: "17:00",
+              },
+              {
+                start: "08:00",
+                end: "17:00",
+              },
+              {
+                start: "08:00",
+                end: "17:00",
+              },
+              {
+                start: "08:00",
+                end: "17:00",
+              },
+              {
+                start: "08:00",
+                end: "17:00",
+              },
+            ];
+          } else {
+            idCalendar = response.result.calendar.id;
+            console.log(idCalendar);
+            let availability = response.result.calendar.attributes.availability;
+            days = availability.map((day) => {
+              return day.name;
+            });
+            dayAvailable = availability.map((days) => {
+              return days.is_active;
+            });
+            dayAvailableCopy = [...dayAvailable];
+            timeAvailable = [availability[0].start, availability[0].end];
+            console.log("ini", timeAvailable);
+            timeAvailableCopy = [...timeAvailable];
+            timeAvailableIndividual = availability.map((time) => {
+              return {
+                start: time.start,
+                end: time.end,
+              };
+            });
+            timeAvailableIndividualCopy = [...timeAvailableIndividual];
+            timeAvailableIndividualMode =
+              response.result.calendar.attributes.individualMode === "Yes" ? "on" : "off";
+          }
+
+          dataReady = true;
+        }
+      } else {
         daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
         daysInWeek = getDaysOfWeek(new Date(currentDate));
         hoursOfDay = getHoursOfDay();
-
-        console.log("cek", response.result.calendar);
-
-        if (response.result.calendar === null) {
-          days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-          dayAvailable = [false, false, false, false, false, false, false];
-          dayAvailableCopy = [...dayAvailable];
-          timeAvailable = ["08:00", "17:00"];
-          timeAvailableCopy = [...timeAvailable];
-          timeAvailableIndividual = [
-            {
-              start: "08:00",
-              end: "17:00",
-            },
-            {
-              start: "08:00",
-              end: "17:00",
-            },
-            {
-              start: "08:00",
-              end: "17:00",
-            },
-            {
-              start: "08:00",
-              end: "17:00",
-            },
-            {
-              start: "08:00",
-              end: "17:00",
-            },
-            {
-              start: "08:00",
-              end: "17:00",
-            },
-            {
-              start: "08:00",
-              end: "17:00",
-            },
-          ];
-        } else {
-          idCalendar = response.result.calendar.id;
-          console.log(idCalendar);
-          let availability = response.result.calendar.attributes.availability;
-          days = availability.map((day) => {
-            return day.name;
-          });
-          dayAvailable = availability.map((days) => {
-            return days.is_active;
-          });
-          dayAvailableCopy = [...dayAvailable];
-          timeAvailable = [availability[0].start, availability[0].end];
-          console.log("ini", timeAvailable);
-          timeAvailableCopy = [...timeAvailable];
-          timeAvailableIndividual = availability.map((time) => {
-            return {
-              start: time.start,
-              end: time.end,
-            };
-          });
-          timeAvailableIndividualCopy = [...timeAvailableIndividual];
-          timeAvailableIndividualMode =
-            response.result.calendar.attributes.individualMode === "Yes" ? "on" : "off";
-        }
         dataReady = true;
       }
     } catch (error) {
       console.log(error);
     }
   }
+
+  const handleSearchInvitees = async (value) => {
+    console.log("not yet implemented");
+    console.log(value);
+    return [];
+    // try {
+    //   const response = await axios.get(
+    //     `${API_URL}/api/users?type=search&value=${value}&role=${inviteTypeSelected}&unit=${inviteUnitSelected}`,
+    //     {
+    //       headers: {
+    //         Authorization: "Bearer " + userDataSession().jwt,
+    //       },
+    //     }
+    //   );
+    //   // console.log(response);
+
+    //   if (response?.data?.status === 401) {
+    //     alert("Session expired, please login again");
+    //     window.location = ("/");
+    //   }
+
+    //   if (response?.data) {
+    //     return response.data;
+    //   } else {
+    //     return [];
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
+  };
+
+  const handleDeleteInvitee = (email) => {
+    newSchedule.person = newSchedule.person.filter((person) => person.email !== email);
+  };
 
   onMount(() => {
     getSchedule();
@@ -921,7 +967,7 @@
                   <P class="font-semibold">
                     {format(startOfWeek(new Date(currentDate)), "dd MMMM")} - {format(
                       endOfWeek(new Date(currentDate)),
-                      "dd MMMM yyyy",
+                      "dd MMMM yyyy"
                     )}
                   </P>
                 {:else if currentCalendarMode === "day"}
@@ -1202,6 +1248,47 @@
         class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
       />
     </div>
+
+    <div>
+      <Label class="ml-2">Description</Label>
+      <Textarea
+        bind:value={newSchedule.description}
+        class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default resize-none"
+      />
+    </div>
+
+    <div>
+      <Label class="ml-2">Invite Person</Label>
+      <div
+        class={`col-span-6 [&>*]:w-full [&>*]:!h-[2.75rem] [&>*]:m-0 [&>*>div]:rounded-lg
+        `}
+      >
+        <AutoComplete
+          searchFunction={handleSearchInvitees}
+          delay="1000"
+          localFiltering={false}
+          labelFieldName="username"
+          valueFieldName="id"
+          class="h-[2.75rem] w-full m-0 border-hc-graylight-300 bg-primary-light dark:bg-primary-dark rounded-lg focus:ring-hc-brand-500 focus:border-hc-brand-500"
+        />
+      </div>
+    </div>
+
+    {#if newSchedule.person.length > 0}
+      <div class="flex gap-2">
+        {#each newSchedule.person as person}
+          <P class="p-2 rounded-lg border"
+            >{person.name} - {person.email}
+            <span
+              class="ml-2 cursor-pointer"
+              on:click={() => {
+                handleDeleteInvitee(person.email);
+              }}>x</span
+            ></P
+          >
+        {/each}
+      </div>
+    {/if}
 
     <div class="flex gap-4">
       <div class="flex-grow">
