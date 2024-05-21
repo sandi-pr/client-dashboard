@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 
+	"gitlab.hexacode.org/go-libs/cr3call"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
 	"gitlab.hexacode.org/go-libs/strapi"
@@ -132,6 +133,9 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		if status != 200 {
 			return ctx.Error(500, "Internal Server Error")
 		}
+
+		CR3 := cr3call.New(MODULE_MANAGER_URL)
+		go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{}, false)
 
 		return status, documents, nil
 	} else {
