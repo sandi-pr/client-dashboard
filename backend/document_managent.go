@@ -135,7 +135,11 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		}
 
 		CR3 := cr3call.New(MODULE_MANAGER_URL)
-		go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{}, false)
+		go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+			Headers: U.Dict{
+				"Authorization": bearer,
+			},
+		}, false)
 
 		return status, documents, nil
 	} else {
@@ -213,6 +217,13 @@ func GetDocuments(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+	}, false)
 
 	return 200, documents, nil
 }
@@ -348,6 +359,13 @@ func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai", "refresh-document", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+	}, false)
 
 	return 200, U.Dict{}, nil
 }
