@@ -12,7 +12,7 @@ module gitlab.hexacode.org/cr3/client-dashboard
 go 1.19
 
 require (
-	gitlab.hexacode.org/go-libs/cr3call v1.0.5
+	gitlab.hexacode.org/go-libs/cr3call v1.0.6
 	gitlab.hexacode.org/go-libs/hctypes v1.0.2
 	gitlab.hexacode.org/go-libs/microservice v1.1.12
 	gitlab.hexacode.org/go-libs/strapi v1.0.9
