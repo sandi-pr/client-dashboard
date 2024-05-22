@@ -70,7 +70,7 @@
       key !== "recipients" &&
       key !== "category" &&
       key !== "authority" &&
-      key !== "attendance_status"
+      key !== "attendance"
     );
   };
 
@@ -82,7 +82,7 @@
       key === "role" ||
       key === "category" ||
       key === "authority" ||
-      key === "attendance_status"
+      key === "attendance"
     );
   };
 
@@ -245,7 +245,7 @@
         {/each}
         {#each Object.keys(datas[0]) as key}
           {#if pillContent(key)}
-            <TableHeadCell>{key}</TableHeadCell>
+            <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
           {/if}
         {/each}
         {#if datas[0]?.avatar && Object.keys(datas[0].avatar).length > 0}
@@ -396,35 +396,41 @@
               {/if}
             {/each}
           {/if}
-          {#if datas[0]?.attendance_status && Object.keys(datas[0].attendance_status).length > 0}
+          {#if datas[0]?.attendance && Object.keys(datas[0].attendance).length > 0}
             {#each Object.keys(datas[0]) as key}
-              {#if key === "attendance_status"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400"
-                  ><p
-                    class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
-                      data.attendance_status.type,
-                    )}`}
-                  >
-                    {data[key].name}
-                  </p>
-                </TableBodyCell>
-              {/if}
-            {/each}
-          {/if}
-          {#if datas[0]?.attendance_status}
-            {#each Object.keys(datas[0]) as key}
-                {#if key === "attendance_status"}
-                  <TableBodyCell
-                    class="flex items-center text-hc-graylight-600 dark:text-hc-graydark-400"
-                    ><p>
-                      {#if data.country === "ID"}
-                        <img src={ID} alt="ID" class="w-6 h-6" />
-                      {/if}
+              {#if key === "attendance"}
+                {#if data.attendance.status.type}
+                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                    ><p
+                      class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
+                        data.attendance.status.type,
+                      )}`}
+                    >
+                      {data[key].status.name}
                     </p>
-                    <p class="ml-2 text-md">{data.country}</p>
+                  </TableBodyCell>
+                {:else}
+                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                    <div class="flex gap-1">
+                      <Button
+                        outline
+                        color="green"
+                        class="hover:!bg-transparent !border-hc-success-500 dark:!border-hc-success-400 focus-within:!ring-1 !p-2"
+                      >
+                        <img alt="refresh" src={CheckIcon} class="w-5 h-5" />
+                      </Button>
+                      <Button
+                        outline
+                        color="red"
+                        class="hover:!bg-transparent !border-hc-error-300 dark:!border-hc-error-400 focus-within:!ring-1 !p-2"
+                      >
+                        <img alt="refresh" src={XIcon} class="w-5 h-5" />
+                      </Button>
+                    </div>
                   </TableBodyCell>
                 {/if}
-              {/each}
+              {/if}
+            {/each}
           {/if}
           {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
             {#each Object.keys(datas[0]) as key}

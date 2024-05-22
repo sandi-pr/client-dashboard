@@ -146,6 +146,12 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "hr-employee"),
             name: "employee",
           },
+          {
+            href: isFrontend
+              ? "/hr/recruitment"
+              : await call.getPage("client-dashboard", "hr-recruitment"),
+            name: "recruitment",
+          },
         ],
       },
     ];
