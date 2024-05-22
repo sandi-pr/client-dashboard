@@ -16,6 +16,10 @@ All Rights Reserved
   import HexaAIChat from "$lib/components/HexaAI.svelte";
   import { onMount } from "svelte";
 
+  import { CR3Call } from "hexacomponents-svelte";
+
+  const call = new CR3Call(globalThis.location.origin);
+
   let { innerWidth, changeShowAI } = $props();
 
   let activities = $state([]);
@@ -41,7 +45,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     const callStatusRag = async () => {
       try {
-        let rag = await call.call("hexa-ai", "get-status-rag", {
+        let rag = await call.call("hexa-ai", "get-rag-status", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -50,7 +54,7 @@ All Rights Reserved
           },
         });
 
-        statusRAG = rag.result;
+        statusRAG = rag.result.rag_status;
         console.log(rag); // Mengganti statusRAG dengan rag
       } catch (error) {
         console.error("Error:", error);
@@ -102,7 +106,7 @@ All Rights Reserved
               />
             </div>
           {:else if tabDatas.selected === "Hexa AI"}
-            <div class="flex w-100  justify-between">
+            <div class="flex w-100 justify-between">
               <div class="flex">
                 <div
                   class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"

@@ -40,7 +40,6 @@
   onMount(async () => {
     const result = await call.getPage("client-dashboard", "home-page");
     baseUrl = result.slice(0, result.lastIndexOf("/"));
-    console.log(baseUrl);
   })
 
   $effect(() => {
