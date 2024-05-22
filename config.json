@@ -125,6 +125,26 @@
             "file_path": "template/document_management/detail.html"
         },
         {
+            "name": "hr-overview",
+            "path": "/hr",
+            "file_path": "template/hr.html"
+        },
+        {
+            "name": "hr-employee",
+            "path": "/hr/employee",
+            "file_path": "template/hr/employee.html"
+        },
+        {
+            "name": "hr-employee-create",
+            "path": "/hr/employee/create",
+            "file_path": "template/hr/employee/create.html"
+        },
+        {
+            "name": "hr-employee-detail",
+            "path": "/hr/employee/detail",
+            "file_path": "template/hr/employee/detail.html"
+        },
+        {
             "name": "hexabot-overview",
             "path": "/hexabot",
             "file_path": "template/hexabot.html"
@@ -1358,6 +1378,254 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "create-employee",
+            "path": "/create-employee",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateEmployee"
+            },
+            "params": [
+                {
+                    "name": "employee_name",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "email",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "phone",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "address",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "city",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "state",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "zip_code",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "country",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "date_of_birth",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "job_position",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "branch",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "employment_status",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "start_date",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "end_date",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "is_active",
+                    "type": "enumeration",
+                    "enum": [
+                        "Yes",
+                        "No"
+                    ],
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-employees",
+            "path": "/get-employees",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetEmployees"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-employee",
+            "path": "/get-employee/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetEmployee"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-employee",
+            "path": "/delete-employee/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteEmployee"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-employee",
+            "path": "/update-employee/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateEmployee"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "employee_name",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "email",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "phone",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "address",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "city",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "state",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "zip_code",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "country",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "date_of_birth",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "job_position",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "branch",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "employment_status",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "start_date",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "end_date",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "is_active",
+                    "type": "enumeration",
+                    "enum": [
+                        "Yes",
+                        "No"
+                    ],
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {
@@ -1848,6 +2116,60 @@
                     },
                     "contract_end": {
                         "type": "date"
+                    }
+                }
+            },{
+                "name": "employee",
+                "label": "Employee",
+                "fields": {
+                    "employee_name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "email"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "text"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "zip_code": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "date_of_birth": {
+                        "type": "date"
+                    },
+                    "job_position": {
+                        "type": "string"
+                    },
+                    "branch": {
+                        "type": "string"
+                    },
+                    "employment_status": {
+                        "type": "string"
+                    },
+                    "start_date": {
+                        "type": "date"
+                    },
+                    "end_date": {
+                        "type": "date"
+                    },
+                    "is_active": {
+                        "type": "enumeration",
+                        "enum": [
+                            "Yes",
+                            "No"
+                        ]
                     }
                 }
             }

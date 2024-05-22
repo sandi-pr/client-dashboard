@@ -163,11 +163,11 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={updateCategory} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
-          {:else}
             <Button onclick={deleteCategory} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
+            <Button onclick={updateCategory} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+          {:else}
             <!-- <Button
               onclick={() => {
                 onEdit = true;

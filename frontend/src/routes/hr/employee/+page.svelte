@@ -11,13 +11,13 @@
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
+  let pagination = $state({ page: 1, pageSize: 5, pageCount: 1, total: 0 });
 
   let datas = $state([]);
 
   let configs = $state({});
 
-  async function getEmployee(page) {
+  async function getEmployees(page) {
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
@@ -47,32 +47,22 @@
         let promises2 = response.result.data.map(async (employee, index) => {
           return {
             id: employee.id,
+            join_date: employee.attributes.start_date,
             employee_name: employee.attributes.employee_name,
             email: employee.attributes.email,
-            // phone: employee.attributes.phone,
-            // address: employee.attributes.address,
-            // city: employee.attributes.city,
-            // state: employee.attributes.state,
-            // zip_code: employee.attributes.zip_code,
-            // country: employee.attributes.country,
-            // date_of_birth: employee.attributes.date_of_birth,
-            // is_active: employee.attributes.is_active,
             job_position: employee.attributes.job_position,
-            // branch: employee.attributes.branch,
             employment_status: employee.attributes.employment_status,
-            join_date: employee.attributes.join_date,
-            // end_date: employee.attributes.end_date,
             actions: {
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-employee-detail")}` +
+                    `${await call.getPage("client-dashboard", "hr-employee-detail")}` +
                     `?employeeId=${employee.id}&edit=false`,
                   name: "View",
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-employee-detail")}` +
+                    `${await call.getPage("client-dashboard", "hr-employee-detail")}` +
                     "?employeeId=" +
                     employee.id +
                     "&edit=true",
@@ -89,11 +79,11 @@
   }
 
   async function next() {
-    getEmployee(pagination.page + 1);
+    getEmployees(pagination.page + 1);
   }
 
   async function previous() {
-    getEmployee(pagination.page - 1);
+    getEmployees(pagination.page - 1);
   }
 
   async function addEmployee() {
@@ -102,7 +92,7 @@
   }
 
   onMount(async () => {
-    getEmployee(pagination.page);
+    getEmployees(pagination.page);
   });
 </script>
 

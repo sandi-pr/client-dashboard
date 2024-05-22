@@ -39,11 +39,11 @@ All Rights Reserved
     city: "",
     state: "",
     zip_code: "",
-    is_active: "Yes",
+    is_active: false,
     job_position: "",
     branch: "",
     employment_status: "",
-    join_date: "",
+    start_date: "",
     end_date: "",
   });
 
@@ -99,23 +99,23 @@ All Rights Reserved
 
       if (response.status === 200) {
         data = {
-          employeeId: response.result.data.id,
-          employee_name: response.result.data.attributes.employee_name,
-          date_of_birth: response.result.data.attributes.date_of_birth,
-          email: response.result.data.attributes.email,
-          phone: response.result.data.attributes.phone,
-          country: response.result.data.attributes.country,
-          address: response.result.data.attributes.address,
-          city: response.result.data.attributes.city,
-          state: response.result.data.attributes.state,
-          zip_code: response.result.data.attributes.zip_code,
-          createdAt: formatDate(response.result.data.attributes.createdAt),
-          is_active: response.result.data.attributes.is_active === "Yes" ? true : false,
-          job_position: response.result.data.attributes.job_position,
-          branch: response.result.data.attributes.branch,
-          employment_status: response.result.data.attributes.employment_status,
-          join_date: response.result.data.attributes.join_date,
-          end_date: response.result.data.attributes.end_date,
+          employeeId: response.result.data[0].id,
+          employee_name: response.result.data[0].attributes.employee_name,
+          date_of_birth: response.result.data[0].attributes.date_of_birth,
+          email: response.result.data[0].attributes.email,
+          phone: response.result.data[0].attributes.phone,
+          country: response.result.data[0].attributes.country,
+          address: response.result.data[0].attributes.address,
+          city: response.result.data[0].attributes.city,
+          state: response.result.data[0].attributes.state,
+          zip_code: response.result.data[0].attributes.zip_code,
+          createdAt: formatDate(response.result.data[0].attributes.createdAt),
+          is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
+          job_position: response.result.data[0].attributes.job_position,
+          branch: response.result.data[0].attributes.branch,
+          employment_status: response.result.data[0].attributes.employment_status,
+          start_date: response.result.data[0].attributes.start_date,
+          end_date: response.result.data[0].attributes.end_date,
         };
       }
     } catch (error) {
@@ -131,22 +131,21 @@ All Rights Reserved
         URLQuery: {},
         URLParams: { id: employeeId },
         Params: {
-          employee_name: response.result.data.attributes.employee_name,
-          date_of_birth: response.result.data.attributes.date_of_birth,
-          email: response.result.data.attributes.email,
-          phone: response.result.data.attributes.phone,
-          country: response.result.data.attributes.country,
-          address: response.result.data.attributes.address,
-          city: response.result.data.attributes.city,
-          state: response.result.data.attributes.state,
-          zip_code: response.result.data.attributes.zip_code,
-          createdAt: formatDate(response.result.data.attributes.createdAt),
-          is_active: response.result.data.attributes.is_active === "Yes" ? true : false,
-          job_position: response.result.data.attributes.job_position,
-          branch: response.result.data.attributes.branch,
-          employment_status: response.result.data.attributes.employment_status,
-          join_date: response.result.data.attributes.join_date,
-          end_date: response.result.data.attributes.end_date,
+          employee_name: data.employee_name,
+          date_of_birth: data.date_of_birth,
+          email: data.email,
+          phone: data.phone.toString(),
+          country: data.country,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          zip_code: data.zip_code.toString(),
+          is_active: data.is_active === true ? "Yes" : "No",
+          job_position: data.job_position,
+          branch: data.branch,
+          employment_status: data.employment_status,
+          start_date: data.start_date,
+          end_date: data.end_date,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -155,7 +154,7 @@ All Rights Reserved
 
       if (response.status === 200) {
         triggerToast("created");
-        await call.goToPage("client-dashboard", "crm-employee");
+        await call.goToPage("client-dashboard", "hr-employee");
         return;
       }
     } catch (error) {
@@ -177,7 +176,7 @@ All Rights Reserved
       });
       if (response.status === 200) {
         triggerToast("deleted");
-        await call.goToPage("client-dashboard", "crm-employee");
+        await call.goToPage("client-dashboard", "hr-employee");
         return;
       }
     } catch (error) {
@@ -212,7 +211,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    await call.goToPage("client-dashboard", "crm-person");
+    await call.goToPage("client-dashboard", "hr-person");
     return;
   }
 
@@ -254,10 +253,7 @@ All Rights Reserved
         <div class="flex gap-2">
           {#if onEdit}
             <Button
-              onclick={async function () {
-                await call.goToPage("client-dashboard", "crm-person");
-                return;
-              }}
+              onclick={backPage}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
@@ -487,7 +483,7 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   type="date"
-                  bind:value={data.join_date}
+                  bind:value={data.start_date}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>

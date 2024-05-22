@@ -36,7 +36,7 @@ All Rights Reserved
     job_position: "",
     branch: "",
     employment_status: "",
-    join_date: "",
+    start_date: "",
     end_date: "",
   });
 
@@ -64,7 +64,7 @@ All Rights Reserved
     console.log(data);
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "create-person", {
+      let response = await call.call("client-dashboard", "create-employee", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -81,8 +81,9 @@ All Rights Reserved
           job_position: data.job_position,
           branch: data.branch,
           employment_status: data.employment_status,
-          join_date: data.join_date,
+          start_date: data.start_date,
           end_date: data.end_date,
+          is_active: "Yes",
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -91,7 +92,7 @@ All Rights Reserved
       console.log(response);
       if (response.status === 200) {
         triggerToast("created");
-        await call.goToPage("client-dashboard", "crm-person");
+        await call.goToPage("client-dashboard", "hr-employee");
         return;
       } else {
         triggerToast("error");
@@ -142,7 +143,7 @@ All Rights Reserved
       data.job_position.length < 1 ||
       data.branch.length < 1 ||
       data.employment_status.length < 1 ||
-      data.join_date.length < 1 ||
+      data.start_date.length < 1 ||
       data.end_date.length < 1 ||
       emailValid === false;
   });
@@ -334,7 +335,7 @@ All Rights Reserved
                 >
                 <Input
                   type="date"
-                  bind:value={data.join_date}
+                  bind:value={data.start_date}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
