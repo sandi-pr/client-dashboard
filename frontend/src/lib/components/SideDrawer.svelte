@@ -58,7 +58,7 @@ All Rights Reserved
         if (statusRAG.includes("!")) {
           let status2 = status.split("!")[0].trim();
           if (status2.includes("(NOVERB)") || status2.includes("(INOVERB)") || status2.includes("(!INOVERB)")) {
-            let status3 = status2.replace("(NOVERB)", "").replace("(INOVERB)", "").replace("(!INOVERB)", "");
+            let status3 = status2.replace("(NOVERB)", "").replace("(INOVERB)", "").replace("(!INOVERB)", "").replace("(!NOVERB)", "");
             statusRAG = status3;
           } else {
             statusRAG = status2;
