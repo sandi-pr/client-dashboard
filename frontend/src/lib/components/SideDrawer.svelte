@@ -54,7 +54,12 @@ All Rights Reserved
           },
         });
 
-        statusRAG = rag.result.rag_status;
+        let status = rag.result.rag_status;
+        if (statusRAG.includes('!')) {
+            statusRAG = status.replace('!', '');
+        } else {
+            statusRAG = status
+        }
         console.log(rag); // Mengganti statusRAG dengan rag
       } catch (error) {
         console.error("Error:", error);
