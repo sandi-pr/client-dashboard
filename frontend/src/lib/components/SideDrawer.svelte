@@ -58,7 +58,7 @@ All Rights Reserved
         if (statusRAG.includes('!')) {
             statusRAG = status.replace('!', '');
         } else {
-            statusRAG = status
+            statusRAG = status;
         }
         console.log(rag); // Mengganti statusRAG dengan rag
       } catch (error) {
