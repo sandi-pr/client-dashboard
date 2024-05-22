@@ -55,10 +55,16 @@ All Rights Reserved
         });
 
         let status = rag.result.rag_status;
-        if (statusRAG.includes('!')) {
-            statusRAG = status.replace('!', '');
+        if (statusRAG.includes("!")) {
+          let status2 = status.split("!")[0].trim();
+          if (status2.includes("(NOVERB)") || status2.includes("(INOVERB)") || status2.includes("(!INOVERB)")) {
+            let status3 = status2.replace("(NOVERB)", "").replace("(INOVERB)", "").replace("(!INOVERB)", "");
+            statusRAG = status3;
+          } else {
+            statusRAG = status2;
+          }
         } else {
-            statusRAG = status;
+          statusRAG = status;
         }
         console.log(rag); // Mengganti statusRAG dengan rag
       } catch (error) {
@@ -71,6 +77,8 @@ All Rights Reserved
 
   onMount(() => {
     getStatusRag();
+    let test = "dasda dasdas! sdasdas !dasdasd";
+    console.log(test.split("!")[0].trim());
   });
 </script>
 
