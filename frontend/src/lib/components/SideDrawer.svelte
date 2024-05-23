@@ -77,8 +77,6 @@ All Rights Reserved
 
   onMount(() => {
     getStatusRag();
-    let test = "dasda dasdas! sdasdas !dasdasd";
-    console.log(test.split("!")[0].trim());
   });
 </script>
 

@@ -95,8 +95,8 @@ All Rights Reserved
   const handleTextUploadWrapper = () => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    inputElement.accept = ".txt";
-    // inputElement.accept = ".txt, .pdf, .doc, .docx";
+    // inputElement.accept = ".txt";
+    inputElement.accept = ".txt, .pdf, .doc, .docx, .csv";
 
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
@@ -389,7 +389,7 @@ All Rights Reserved
                     >
                   </div>
                   <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none">Txt file</P>
+                  <P class="pointer-events-none">PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P>
                 {/if}
               </Button>
             </div>
