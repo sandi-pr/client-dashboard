@@ -242,5 +242,8 @@
     "branch": "Cabang",
     "employmentStatus": "Status Karyawan",
     "endDate": "Tgl. Berakhir",
-    "employeeInformation": "Informasi Karyawan"
+    "employeeInformation": "Informasi Karyawan",
+    "recruitmentList": "Daftar Rekrutmen",
+    "educationHistory": "Riwayat Pendidikan",
+    "skillsOrKeywords": "Keahlian atau Kata Kunci"
 }

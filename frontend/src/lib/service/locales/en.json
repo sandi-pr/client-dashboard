@@ -244,5 +244,8 @@
   "branch": "Branch",
   "employmentStatus": "Employment Status",
   "endDate": "End Date",
-  "employeeInformation": "Employee Information"
+  "employeeInformation": "Employee Information",
+  "recruitmentList": "Recruitment List",
+  "educationHistory": "Education History",
+  "skillsOrKeywords": "Skills or Keywords"
 }
