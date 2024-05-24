@@ -210,7 +210,7 @@
     "chooseOption": "Pilih Opsi",
     "areYouSureYouWantToDelete": "Apakah Anda yakin ingin menghapus?",
     "yesImSure": "Ya, Saya yakin",
-    "noCancel": "Tidak, Batalkan",
+    "noCancel": "Batalkan",
     "successfullyDeleted": "Berhasil dihapus.",
     "loading": "Memuat...",
     "thisMayTakeAFewSecondsPleaseWait": "Ini mungkin memakan beberapa detik. Mohon tunggu.",
@@ -245,5 +245,10 @@
     "employeeInformation": "Informasi Karyawan",
     "recruitmentList": "Daftar Rekrutmen",
     "educationHistory": "Riwayat Pendidikan",
-    "skillsOrKeywords": "Keahlian atau Kata Kunci"
+    "skillsOrKeywords": "Keahlian atau Kata Kunci",
+    "documentTitle": "Judul Dokumen",
+    "documentUpload": "Unggah Dokumen",
+    "clickToUpload": "Klik untuk mengunggah",
+    "orDragAndDrop": "atau seret dan lepas",
+    "selectDocumentType": "Pilih Tipe Dokumen"
 }

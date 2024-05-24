@@ -212,7 +212,7 @@
   "chooseOption": "Choose Option",
   "areYouSureYouWantToDelete": "Are you sure you want to delete?",
   "yesImSure": "Yes, I'm sure",
-  "noCancel": "No, cancel",
+  "noCancel": "Cancel",
   "successfullyDeleted": "Successfully deleted.",
   "loading": "Loading...",
   "thisMayTakeAFewSecondsPleaseWait": "This may take a few seconds. Please wait.",
@@ -247,5 +247,10 @@
   "employeeInformation": "Employee Information",
   "recruitmentList": "Recruitment List",
   "educationHistory": "Education History",
-  "skillsOrKeywords": "Skills or Keywords"
+  "skillsOrKeywords": "Skills or Keywords",
+  "documentTitle": "Document Title",
+  "documentUpload": "Document Upload",
+  "clickToUpload": "Click to upload",
+  "orDragAndDrop": "or drag and drop",
+  "selectDocumentType": "Select Document Type"
 }

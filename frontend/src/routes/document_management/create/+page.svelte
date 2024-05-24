@@ -307,7 +307,7 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              Add new document
+              {$_("addNewDocument")}
             </Heading>
           </div>
         </div>
@@ -340,7 +340,7 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("Document Title")}*
+                  {$_("documentTitle")}*
                 </P>
                 <Input
                   readonly={!onEdit}
@@ -352,7 +352,7 @@ All Rights Reserved
             <div class="flex flex-col col-span-5 gap-2">
               <P
                 class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >{$_("Document Upload")}*</P
+                >{$_("documentUpload")}*</P
               >
               <Button
                 ondragover={handleDragOver}
@@ -384,8 +384,8 @@ All Rights Reserved
                     <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
                   </div>
                   <div class="flex space-x-1">
-                    <P class="text-hc-brand-700 pointer-events-none">Click to upload</P><P
-                      class="pointer-events-none">or drag and drop</P
+                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P><P
+                      class="pointer-events-none">{$_("orDragAndDrop")}</P
                     >
                   </div>
                   <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
@@ -397,7 +397,7 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("Description")}</P
+                  >{$_("description")}</P
                 >
                 <Textarea
                   readonly={!onEdit}
@@ -414,19 +414,19 @@ All Rights Reserved
         <div class="flex gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-              {$_("Document Type")}
+              {$_("documentType")}
             </P>
           </div>
           <div class="flex flex-col grow gap-6">
             <div class="flex flex-col grow gap-2">
               <P
                 class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >{$_("Document Type")}*</P
+                >{$_("documentType")}*</P
               >
               <Select
                 items={categories}
                 bind:value={data.document_type}
-                placeholder="Select document type"
+                placeholder={$_("selectDocumentType")}
               />
               <!-- <Input
                 readonly={!onEdit}

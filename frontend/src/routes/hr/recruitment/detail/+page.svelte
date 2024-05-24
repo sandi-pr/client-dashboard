@@ -11,7 +11,8 @@ All Rights Reserved
  -->
 
 <script>
-  import { P, Heading, Input, Textarea, Button, Select } from "flowbite-svelte";
+  import { P, Heading, Input, Textarea, Button, Modal } from "flowbite-svelte";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
@@ -32,6 +33,8 @@ All Rights Reserved
   const dispatch = createEventDispatcher();
 
   let onEdit = $state(false);
+
+  let popupModal = $state(false);
 
   let contentFile = $state(null);
   let base64 = $state(null);
@@ -259,9 +262,42 @@ All Rights Reserved
         </div>
 
         <div class="flex gap-2">
-          <Button color="light" class="px-3 focus-within:!ring-1" onclick={deleteDocument}
-            >{$_("delete")}</Button
-          >
+          {#if onEdit}
+            <Button
+              onclick={() => {
+                onEdit = false;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+            >
+            <Button onclick={() => {}} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+          {:else}
+            <Button
+              onclick={async function () {
+                goto(await call.getPage("client-dashboard", "hr-recruitment"));
+                return;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("back")}</Button
+            >
+            <Button
+              onclick={() => (popupModal = true)}
+              outline color="red"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+            >
+            <Button
+              onclick={() => {
+                onEdit = true;
+              }}
+              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+            >
+            <!-- <Button
+              onclick={() => {
+                onEdit = true;
+              }}
+              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+            > -->
+          {/if}
         </div>
       </div>
 
@@ -409,3 +445,14 @@ All Rights Reserved
     </div>
   </div>
 </div>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={() => {}} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>
