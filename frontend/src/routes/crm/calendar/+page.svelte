@@ -12,7 +12,16 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { format, startOfWeek, endOfWeek } from "date-fns";
-  import { P, Button, Heading, Input, Modal, Label, Textarea } from "flowbite-svelte";
+  import {
+    P,
+    Button,
+    Heading,
+    Input,
+    Modal,
+    Label,
+    Textarea,
+    MultiSelect,
+  } from "flowbite-svelte";
   import {
     PlusOutline,
     ClockOutline,
@@ -38,6 +47,7 @@
   let observer;
   let dataReady = false;
   let frontEndOnly = false;
+  let notAvailableBookings = false;
 
   let tabDatas = {
     selected: "calendar",
@@ -52,6 +62,7 @@
   };
 
   let schedule = [];
+  let personClient = [];
 
   let newSchedule = {
     title: "",
@@ -147,13 +158,15 @@
 
       let eventsForDay = schedule.flatMap((event) =>
         event.dateEvent
-          .filter((dateEvent) => new Date(dateEvent.date).getDate() === dateOfWeek)
+          .filter(
+            (dateEvent) => new Date(dateEvent.date).getDate() === dateOfWeek,
+          )
           .map((dateEvent) => ({
             title: event.title,
             date: dateEvent.date,
             timeStart: dateEvent.timeStart,
             timeEnd: dateEvent.timeEnd,
-          }))
+          })),
       );
 
       daysOfWeek.push({
@@ -214,7 +227,17 @@
   }
 
   const handleClickDate = (date) => {
-    // console.log(getEventsForDate(date.dateObject));
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    console.log(date.dateObject <= today);
+    console.log(date);
+    console.log(today);
+
+    if (date.dateObject <= today) {
+        notAvailableBookings = true;
+    }
     const events = getEventsForDate(date.dateObject);
     modalMode = "event";
     modal = true;
@@ -267,7 +290,7 @@
           currentDate.getDate(),
           currentHour,
           currentMinute,
-          currentSecond
+          currentSecond,
         );
       } else if (direction === "next") {
         currentDate = new Date(
@@ -276,12 +299,15 @@
           currentDate.getDate(),
           currentHour,
           currentMinute,
-          currentSecond
+          currentSecond,
         );
       }
 
       // Update the daysInMonth array based on the new currentDate
-      daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
+      daysInMonth = getDaysInMonth(
+        currentDate.getMonth(),
+        currentDate.getFullYear(),
+      );
     } else if (currentCalendarMode === "week") {
       if (direction === "previous") {
         currentDate = new Date(
@@ -290,7 +316,7 @@
           currentDate.getDate() - 7,
           currentHour,
           currentMinute,
-          currentSecond
+          currentSecond,
         );
       } else if (direction === "next") {
         currentDate = new Date(
@@ -299,7 +325,7 @@
           currentDate.getDate() + 7,
           currentHour,
           currentMinute,
-          currentSecond
+          currentSecond,
         );
       }
 
@@ -313,7 +339,7 @@
           currentDate.getDate() - 1,
           currentHour,
           currentMinute,
-          currentSecond
+          currentSecond,
         );
       } else if (direction === "next") {
         currentDate = new Date(
@@ -322,7 +348,7 @@
           currentDate.getDate() + 1,
           currentHour,
           currentMinute,
-          currentSecond
+          currentSecond,
         );
       }
     }
@@ -339,7 +365,7 @@
         datetime: new Date(
           index === 0
             ? newSchedule.dateEvent[0].date + "T" + date.timeStart + ":00"
-            : newSchedule.dateEvent[1].date + "T" + date.timeEnd + ":00"
+            : newSchedule.dateEvent[1].date + "T" + date.timeEnd + ":00",
         ),
       };
     });
@@ -384,7 +410,9 @@
               ":" +
               ("0" + postProcessedDate[0].datetime.getSeconds()).slice(-2) +
               "." +
-              ("00" + postProcessedDate[0].datetime.getMilliseconds()).slice(-3),
+              ("00" + postProcessedDate[0].datetime.getMilliseconds()).slice(
+                -3,
+              ),
             end_time:
               ("0" + postProcessedDate[1].datetime.getHours()).slice(-2) +
               ":" +
@@ -392,7 +420,10 @@
               ":" +
               ("0" + postProcessedDate[1].datetime.getSeconds()).slice(-2) +
               "." +
-              ("00" + postProcessedDate[1].datetime.getMilliseconds()).slice(-3),
+              ("00" + postProcessedDate[1].datetime.getMilliseconds()).slice(
+                -3,
+              ),
+            description: postProcessedDate[0].description,
             is_active: "Yes",
           },
           Headers: {
@@ -408,37 +439,57 @@
         console.log(error);
       }
     } else {
-      for (let i = 0; i < postProcessedDate.length; i++) {
+      const startDate = postProcessedDate[0].datetime;
+      const endDate = postProcessedDate[1].datetime;
+
+      const timeDifference = Math.abs(endDate.getTime() - startDate.getTime());
+
+      const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+
+      console.log("Jarak tanggal:", daysDifference);
+
+      for (let i = 0; i < daysDifference; i++) {
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + i);
         let token = sessionStorage.getItem("token");
         try {
-          let response = await call.call("client-dashboard", "create-schedule", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              title: postProcessedDate[0].title,
-              date: postProcessedDate[i].datetime.toISOString().split("T")[0],
-              start_time:
-                ("0" + postProcessedDate[0].datetime.getHours()).slice(-2) +
-                ":" +
-                ("0" + postProcessedDate[0].datetime.getMinutes()).slice(-2) +
-                ":" +
-                ("0" + postProcessedDate[0].datetime.getSeconds()).slice(-2) +
-                "." +
-                ("00" + postProcessedDate[0].datetime.getMilliseconds()).slice(-3),
-              end_time:
-                ("0" + postProcessedDate[1].datetime.getHours()).slice(-2) +
-                ":" +
-                ("0" + postProcessedDate[1].datetime.getMinutes()).slice(-2) +
-                ":" +
-                ("0" + postProcessedDate[1].datetime.getSeconds()).slice(-2) +
-                "." +
-                ("00" + postProcessedDate[1].datetime.getMilliseconds()).slice(-3),
-              is_active: "Yes",
+          let response = await call.call(
+            "client-dashboard",
+            "create-schedule",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                title: postProcessedDate[0].title,
+                date: currentDate.toISOString().split("T")[0],
+                start_time:
+                  ("0" + postProcessedDate[0].datetime.getHours()).slice(-2) +
+                  ":" +
+                  ("0" + postProcessedDate[0].datetime.getMinutes()).slice(-2) +
+                  ":" +
+                  ("0" + postProcessedDate[0].datetime.getSeconds()).slice(-2) +
+                  "." +
+                  (
+                    "00" + postProcessedDate[0].datetime.getMilliseconds()
+                  ).slice(-3),
+                end_time:
+                  ("0" + postProcessedDate[1].datetime.getHours()).slice(-2) +
+                  ":" +
+                  ("0" + postProcessedDate[1].datetime.getMinutes()).slice(-2) +
+                  ":" +
+                  ("0" + postProcessedDate[1].datetime.getSeconds()).slice(-2) +
+                  "." +
+                  (
+                    "00" + postProcessedDate[1].datetime.getMilliseconds()
+                  ).slice(-3),
+                description: postProcessedDate[0].description,
+                is_active: "Yes",
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
             },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          );
           if (response.status === 200) {
             console.log(response);
             await getSchedule();
@@ -474,7 +525,7 @@
         !isTimeAvailable(
           `${postProcessedDate[0].datetime.getHours()}:${postProcessedDate[0].datetime.getMinutes()}`,
           `${postProcessedDate[1].datetime.getHours()}:${postProcessedDate[1].datetime.getMinutes()}`,
-          dayIndex
+          dayIndex,
         )
       ) {
         console.log(`Waktu yang Anda pilih tidak tersedia untuk booking.`);
@@ -491,7 +542,9 @@
     const start = availableTime.start;
     const end = availableTime.end;
 
-    const [availableStartHour, availableStartMinute] = start.split(":").map(Number);
+    const [availableStartHour, availableStartMinute] = start
+      .split(":")
+      .map(Number);
     const [availableEndHour, availableEndMinute] = end.split(":").map(Number);
 
     const [bookStartHour, bookStartMinute] = timeStart.split(":").map(Number);
@@ -502,9 +555,19 @@
     const bookStartTime = bookStartHour * 60 + bookStartMinute;
     const bookEndTime = bookEndHour * 60 + bookEndMinute;
 
-    console.log(bookStartTime, ">=", availableStartTime, "&&", bookEndTime, "<=", availableEndTime);
+    console.log(
+      bookStartTime,
+      ">=",
+      availableStartTime,
+      "&&",
+      bookEndTime,
+      "<=",
+      availableEndTime,
+    );
 
-    return bookStartTime >= availableStartTime && bookEndTime <= availableEndTime;
+    return (
+      bookStartTime >= availableStartTime && bookEndTime <= availableEndTime
+    );
   };
 
   const checkTimeFormat = (evt, time, index = -1) => {
@@ -614,7 +677,8 @@
     if (
       JSON.stringify(dayAvailable) !== JSON.stringify(dayAvailableCopy) ||
       JSON.stringify(timeAvailable) !== JSON.stringify(timeAvailableCopy) ||
-      JSON.stringify(timeAvailableIndividual) !== JSON.stringify(timeAvailableIndividualCopy)
+      JSON.stringify(timeAvailableIndividual) !==
+        JSON.stringify(timeAvailableIndividualCopy)
     ) {
       return true;
     }
@@ -662,36 +726,46 @@
     try {
       if (idCalendar === undefined) {
         let token = sessionStorage.getItem("token");
-        let response = await call.call("client-dashboard", "create-availability", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            availability: JSON.stringify(timeAvailability),
-            individualMode: timeAvailableIndividualMode === "on" ? "Yes" : "No",
+        let response = await call.call(
+          "client-dashboard",
+          "create-availability",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              availability: JSON.stringify(timeAvailability),
+              individualMode:
+                timeAvailableIndividualMode === "on" ? "Yes" : "No",
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
           },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        );
 
         if (response.status === 200) {
           console.log(response);
         }
       } else {
         let token = sessionStorage.getItem("token");
-        let response = await call.call("client-dashboard", "update-availability", {
-          URLQuery: {},
-          URLParams: {
-            id: idCalendar.toString(),
+        let response = await call.call(
+          "client-dashboard",
+          "update-availability",
+          {
+            URLQuery: {},
+            URLParams: {
+              id: idCalendar.toString(),
+            },
+            Params: {
+              availability: JSON.stringify(timeAvailability),
+              individualMode:
+                timeAvailableIndividualMode === "on" ? "Yes" : "No",
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
           },
-          Params: {
-            availability: JSON.stringify(timeAvailability),
-            individualMode: timeAvailableIndividualMode === "on" ? "Yes" : "No",
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        );
 
         console.log("ayam", response);
 
@@ -760,14 +834,25 @@
 
           console.log("itu", schedule);
 
-          daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
+          daysInMonth = getDaysInMonth(
+            currentDate.getMonth(),
+            currentDate.getFullYear(),
+          );
           daysInWeek = getDaysOfWeek(new Date(currentDate));
           hoursOfDay = getHoursOfDay();
 
           console.log("cek", response.result.calendar);
 
           if (response.result.calendar === null) {
-            days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            days = [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday",
+            ];
             dayAvailable = [false, false, false, false, false, false, false];
             dayAvailableCopy = [...dayAvailable];
             timeAvailable = ["08:00", "17:00"];
@@ -824,13 +909,18 @@
             });
             timeAvailableIndividualCopy = [...timeAvailableIndividual];
             timeAvailableIndividualMode =
-              response.result.calendar.attributes.individualMode === "Yes" ? "on" : "off";
+              response.result.calendar.attributes.individualMode === "Yes"
+                ? "on"
+                : "off";
           }
 
           dataReady = true;
         }
       } else {
-        daysInMonth = getDaysInMonth(currentDate.getMonth(), currentDate.getFullYear());
+        daysInMonth = getDaysInMonth(
+          currentDate.getMonth(),
+          currentDate.getFullYear(),
+        );
         daysInWeek = getDaysOfWeek(new Date(currentDate));
         hoursOfDay = getHoursOfDay();
         dataReady = true;
@@ -876,15 +966,62 @@
   };
 
   const handleDeleteInvitee = (email) => {
-    newSchedule.person = newSchedule.person.filter((person) => person.email !== email);
+    newSchedule.person = newSchedule.person.filter(
+      (person) => person.email !== email,
+    );
   };
+
+  async function getPersons() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let page = 1;
+      while (true) {
+        let response = await call.call("client-dashboard", "get-persons", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          let promise = response.result.data.map((person) => {
+            return {
+              value: person.id,
+              name:
+                person.attributes.fullname !== null
+                  ? person.attributes.fullname
+                  : `<${person.attributes.email}>`,
+            };
+          });
+
+          let data = await Promise.all(promise);
+          personClient = personClient.concat(data);
+          page++;
+        } else {
+          break;
+        }
+      }
+    }
+  }
 
   onMount(() => {
     getSchedule();
+    getPersons();
     observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === "class") {
-          const isDark = document.documentElement.classList.value.includes("dark");
+          const isDark =
+            document.documentElement.classList.value.includes("dark");
           currentTheme = isDark ? "dark" : "light";
         }
       });
@@ -892,7 +1029,9 @@
 
     observer.observe(document.documentElement, { attributes: true });
 
-    currentTheme = document.documentElement.classList.value.includes("dark") ? "dark" : "light";
+    currentTheme = document.documentElement.classList.value.includes("dark")
+      ? "dark"
+      : "light";
   });
 
   onDestroy(() => {
@@ -954,10 +1093,15 @@
 
           <!-- create a calendar -->
           {#if dataReady}
-            <div class="w-full border border-secondary-light dark:border-secondary-dark rounded-lg">
+            <div
+              class="w-full border border-secondary-light dark:border-secondary-dark rounded-lg"
+            >
               <!-- calendar header -->
               <div class="px-8 py-4 flex justify-between items-center">
-                <Button class="m-0 p-0" color="light" on:click={() => handleChangeDate("previous")}
+                <Button
+                  class="m-0 p-0"
+                  color="light"
+                  on:click={() => handleChangeDate("previous")}
                   ><ChevronLeftOutline
                     class="size-8 text-fg-secondary-light dark:text-fg-secondary-dark"
                   /></Button
@@ -973,13 +1117,16 @@
                   <P class="font-semibold">
                     {format(startOfWeek(new Date(currentDate)), "dd MMMM")} - {format(
                       endOfWeek(new Date(currentDate)),
-                      "dd MMMM yyyy"
+                      "dd MMMM yyyy",
                     )}
                   </P>
                 {:else if currentCalendarMode === "day"}
                   <!-- else content here -->
                 {/if}
-                <Button class="m-0 p-0" color="light" on:click={() => handleChangeDate("next")}
+                <Button
+                  class="m-0 p-0"
+                  color="light"
+                  on:click={() => handleChangeDate("next")}
                   ><ChevronRightOutline
                     class="size-8 text-fg-secondary-light dark:text-fg-secondary-dark"
                   /></Button
@@ -1012,14 +1159,18 @@
                   <div
                     class="grid sticky top-0 z-10 grid-cols-8 grid-rows-1 bg-primary-light dark:bg-primary-dark"
                   >
-                    <div class="border border-secondary-light dark:border-secondary-dark"></div>
+                    <div
+                      class="border border-secondary-light dark:border-secondary-dark"
+                    ></div>
                     <!-- Placeholder for the top-left corner -->
                     {#each daysInWeek as day}
                       <P
                         class="grid-item day-header text-center p-2 min-h-24 text-sm border border-secondary-light dark:border-secondary-dark"
                       >
                         {day.dayName}<br />
-                        <span class="text-3xl font-normal">{day.dateNumber}</span>
+                        <span class="text-3xl font-normal"
+                          >{day.dateNumber}</span
+                        >
                       </P>
                     {/each}
                   </div>
@@ -1039,8 +1190,12 @@
                           {#if _day.events.length > 0}
                             {#each _day.events as event}
                               {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
-                                <div class="rounded-md bg-brand-solid-hover-light mt-2 mx-auto">
-                                  <P class="my-2 mx-3 text-primary-dark">{event.title}</P>
+                                <div
+                                  class="rounded-md bg-brand-solid-hover-light mt-2 mx-auto"
+                                >
+                                  <P class="my-2 mx-3 text-primary-dark"
+                                    >{event.title}</P
+                                  >
                                 </div>
                               {/if}
                             {/each}
@@ -1059,12 +1214,18 @@
                     style="grid-template-columns: 1fr 4fr;"
                   >
                     <!-- Placeholder for the top-left corner -->
-                    <div class="border border-secondary-light dark:border-secondary-dark"></div>
+                    <div
+                      class="border border-secondary-light dark:border-secondary-dark"
+                    ></div>
                     <P
                       class="grid-item day-header text-center p-2 min-h-24 text-sm border border-secondary-light dark:border-secondary-dark"
                     >
-                      {currentDate.toLocaleDateString("en-US", { weekday: "long" })}<br />
-                      <span class="text-3xl font-normal">{currentDate.getDate()}</span>
+                      {currentDate.toLocaleDateString("en-US", {
+                        weekday: "long",
+                      })}<br />
+                      <span class="text-3xl font-normal"
+                        >{currentDate.getDate()}</span
+                      >
                     </P>
                   </div>
 
@@ -1080,7 +1241,8 @@
                         {hour}:00
                       </P>
                       <button
-                        on:click={() => handleClickHour(currentDate, hour, "day")}
+                        on:click={() =>
+                          handleClickHour(currentDate, hour, "day")}
                         class="grid-item hour-header border border-secondary-light dark:border-secondary-dark p-2 px-4 flex flex-col"
                       >
                         {#each daysInWeek as _day}
@@ -1088,8 +1250,12 @@
                             {#each _day.events as event}
                               {#if currentDate.getDate() === new Date(event.date).getDate()}
                                 {#if hour >= parseInt(event.timeStart.split(":")[0]) && hour < parseInt(event.timeEnd.split(":")[0])}
-                                  <div class="rounded-md w-full bg-brand-solid-hover-light mx-auto">
-                                    <P class="my-1 mx-2 text-primary-dark">{event.title}</P>
+                                  <div
+                                    class="rounded-md w-full bg-brand-solid-hover-light mx-auto"
+                                  >
+                                    <P class="my-1 mx-2 text-primary-dark"
+                                      >{event.title}</P
+                                    >
                                   </div>
                                 {/if}
                               {/if}
@@ -1145,7 +1311,10 @@
                   checkTimeFinal(evt, "availTimeStart");
                 }}
               >
-                <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <ClockOutline
+                  slot="right"
+                  class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                />
               </Input>
               <P class="mx-4 text-center content-center">-</P>
               <Input
@@ -1160,7 +1329,10 @@
                   checkTimeFinal(evt, "availTimeEnd");
                 }}
               >
-                <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <ClockOutline
+                  slot="right"
+                  class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                />
               </Input>
             </div>
           {:else}
@@ -1192,7 +1364,10 @@
                         checkTimeFinal(evt, "availTimeStart", index);
                       }}
                     >
-                      <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <ClockOutline
+                        slot="right"
+                        class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                      />
                     </Input>
                     <P class="mx-4 text-center content-center">-</P>
                     <Input
@@ -1208,7 +1383,10 @@
                         checkTimeFinal(evt, "availTimeEnd", index);
                       }}
                     >
-                      <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <ClockOutline
+                        slot="right"
+                        class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                      />
                     </Input>
                   </div>
                 </div>
@@ -1269,18 +1447,15 @@
         class={`col-span-6 [&>*]:w-full [&>*]:!h-[2.75rem] [&>*]:m-0 [&>*>div]:rounded-lg
         `}
       >
-        <AutoComplete
-          searchFunction={handleSearchInvitees}
-          delay="1000"
-          localFiltering={false}
-          labelFieldName="username"
-          valueFieldName="id"
-          class="h-[2.75rem] w-full m-0 border-hc-graylight-300 bg-primary-light dark:bg-primary-dark rounded-lg focus:ring-hc-brand-500 focus:border-hc-brand-500"
+        <MultiSelect
+          bind:value={newSchedule.person}
+          items={personClient}
+          placeholder={personClient.length > 0 ? "" : "No person found"}
         />
       </div>
     </div>
 
-    {#if newSchedule.person.length > 0}
+    <!-- {#if newSchedule.person.length > 0}
       <div class="flex gap-2">
         {#each newSchedule.person as person}
           <P class="p-2 rounded-lg border"
@@ -1294,14 +1469,19 @@
           >
         {/each}
       </div>
-    {/if}
+    {/if} -->
 
     <div class="flex gap-4">
       <div class="flex-grow">
         <Label class="ml-2">Date start</Label>
         <DatePicker
+          booking={true}
           on:datepicked={(evt) => {
-            // console.log(evt.detail.datepicked);
+            const selectedDate = new Date(evt.detail.datepicked);
+            const currentDate = new Date();
+            if (selectedDate < currentDate) {
+              return;
+            }
             newSchedule.dateEvent[0].date = evt.detail.datepicked;
           }}
           customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-primary-light dark:bg-primary-dark text-gray-900 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
@@ -1313,7 +1493,11 @@
         <DatePicker
           bind:value={newSchedule.dateEvent[1].date}
           on:datepicked={(evt) => {
-            // console.log(evt.detail.datepicked);
+            const selectedDate = new Date(evt.detail.datepicked);
+            const currentDate = new Date();
+            if (selectedDate < currentDate) {
+              return;
+            }
             newSchedule.dateEvent[1].date = evt.detail.datepicked;
           }}
           customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-primary-light dark:bg-primary-dark text-gray-900 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
@@ -1337,7 +1521,10 @@
             checkTimeFinal(evt, "newTimeStart");
           }}
         >
-          <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          <ClockOutline
+            slot="right"
+            class="w-5 h-5 text-gray-500 dark:text-gray-400"
+          />
         </Input>
       </div>
 
@@ -1356,7 +1543,10 @@
             checkTimeFinal(evt, "newTimeEnd");
           }}
         >
-          <ClockOutline slot="right" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          <ClockOutline
+            slot="right"
+            class="w-5 h-5 text-gray-500 dark:text-gray-400"
+          />
         </Input>
       </div>
     </div>
@@ -1365,7 +1555,9 @@
     {#if currentDateEvents.length > 0}
       <!-- content here -->
       {#each currentDateEvents as event}
-        <div class="p-4 border border-secondary-light dark:border-secondary-dark rounded-lg">
+        <div
+          class="p-4 border border-secondary-light dark:border-secondary-dark rounded-lg"
+        >
           <Label class="ml-2 text-lg">Title</Label>
           <Input
             bind:value={event.title}
@@ -1402,7 +1594,11 @@
         </div>
       {/each}
     {:else}
-      <P>No event found for the selected {currentCalendarMode === "month" ? "date" : "hour"}.</P>
+      <P
+        >No event found for the selected {currentCalendarMode === "month"
+          ? "date"
+          : "hour"}.</P
+      >
     {/if}
   {:else}
     <!-- placeholder -->
@@ -1434,6 +1630,7 @@
       >
     {:else if modalMode === "event"}
       <!-- view detail event modal -->
+      {#if !notAvailableBookings}
       <Button
         class="text-nowrap"
         on:click={() => {
@@ -1441,6 +1638,7 @@
           modal = true;
         }}><PlusOutline class="size-6" /> Add new booking</Button
       >
+      {/if}
     {:else}
       <!-- place holder -->
     {/if}

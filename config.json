@@ -145,6 +145,11 @@
             "file_path": "template/hr/employee/detail.html"
         },
         {
+            "name": "hr-attendance",
+            "path": "/hr/attendance",
+            "file_path": "template/hr/attendance.html"
+        },
+        {
             "name": "hexabot-overview",
             "path": "/hexabot",
             "file_path": "template/hexabot.html"
@@ -1662,8 +1667,14 @@
                     "end_time": {
                         "type": "time"
                     },
-                    "note": {
+                    "description": {
                         "type": "text"
+                    },
+                    "person": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "api::person.person",
+                        "inversedBy": "order_booking"
                     },
                     "is_active": {
                         "type": "enumeration",
@@ -1753,6 +1764,12 @@
                         "type": "relation",
                         "relation": "oneToMany",
                         "target": "api::document-management.document-management",
+                        "mappedBy": "person"
+                    },
+                    "booking": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::booking.booking",
                         "mappedBy": "person"
                     }
                 }

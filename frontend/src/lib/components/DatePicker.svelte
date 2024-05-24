@@ -32,6 +32,7 @@
 
   // props
   export let customclass = "";
+  export let booking = false;
 
   // reactivity, on inputTxt changes
   $: dispatch("datepicked", {
@@ -123,6 +124,17 @@
   }
 
   function selectDate(y, m, d) {
+    if (booking) {
+      const currentDate = Date.now();
+      const selectedDate = new Date(y, m - 1, d);
+
+      if (selectedDate < currentDate) {
+        return;
+      }
+
+      inputTxt = dayjs(y + "-" + m + "-" + d).format("YYYY-MM-DD");
+      isOpenCalendar = false;
+    }
     inputTxt = dayjs(y + "-" + m + "-" + d).format("YYYY-MM-DD");
     isOpenCalendar = false;
   }

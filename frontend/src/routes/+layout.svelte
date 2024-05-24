@@ -78,40 +78,40 @@ All Rights Reserved
 
   const getModules = async () => {
     return [
-      // {
-      //   icon: "users",
-      //   name: "crmOverview",
-      //   desc: "descCrm",
-      //   status: "coming soon",
-      //   children: [
-      //     {
-      //       href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
-      //       name: "persons",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/crm/product_service"
-      //         : await call.getPage("client-dashboard", "crm-product-service"),
-      //       name: "product&Services",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/crm/categories"
-      //         : await call.getPage("client-dashboard", "crm-categories"),
-      //       name: "categories",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/crm/calendar"
-      //         : await call.getPage("client-dashboard", "crm-calendar"),
-      //       name: "calendar",
-      //     },
-      //   ],
-      // },
+      {
+        icon: "users",
+        name: "crmOverview",
+        desc: "descCrm",
+        status: "coming soon",
+        children: [
+          {
+            href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+            name: "overview",
+          },
+          {
+            href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
+            name: "persons",
+          },
+          {
+            href: isFrontend
+              ? "/crm/product_service"
+              : await call.getPage("client-dashboard", "crm-product-service"),
+            name: "product&Services",
+          },
+          {
+            href: isFrontend
+              ? "/crm/categories"
+              : await call.getPage("client-dashboard", "crm-categories"),
+            name: "categories",
+          },
+          {
+            href: isFrontend
+              ? "/crm/calendar"
+              : await call.getPage("client-dashboard", "crm-calendar"),
+            name: "calendar",
+          },
+        ],
+      },
       {
         icon: "fileShield",
         name: "documentManagement",
