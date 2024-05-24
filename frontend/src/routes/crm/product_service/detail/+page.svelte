@@ -419,15 +419,15 @@ All Rights Reserved
               >{$_("back")}</Button
             >
             <Button
+              onclick={() => (popupModal = true)}
+              outline color="red"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+            >
+            <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
-            <Button
-              onclick={() => (popupModal = true)}
-              outline color="red"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
           {/if}
         </div>
@@ -668,7 +668,7 @@ All Rights Reserved
 
 <Modal bind:open={popupModal} size="xs" autoclose>
   <div class="text-center">
-    <ExclamationCircleSolid class="mx-auto mb-4 text-red-400 w-12 h-12 dark:text-red-200" />
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>

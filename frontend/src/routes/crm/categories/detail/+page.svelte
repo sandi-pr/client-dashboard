@@ -10,7 +10,8 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle, Modal } from "flowbite-svelte";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -23,6 +24,8 @@ All Rights Reserved
   const catergoryId = params.get("catergoryId");
   const edit = params.get("edit");
   let onEdit = $state(false);
+
+  let popupModal = $state(false);
 
   let data = $state({});
 
@@ -156,24 +159,33 @@ All Rights Reserved
         <div class="flex gap-2">
           {#if onEdit}
             <Button
+              onclick={() => {
+                onEdit = false;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+            >
+            <Button onclick={updateCategory} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+          {:else}
+            <Button
               onclick={async function () {
                 goto(await call.getPage("client-dashboard", "crm-categories"));
                 return;
               }}
               color="light"
-              class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+              class="px-3 focus-within:!ring-1">{$_("back")}</Button
             >
-            <Button onclick={deleteCategory} color="light" class="px-3 focus-within:!ring-1"
-              >{$_("delete")}</Button
+            <Button
+              onclick={() => (popupModal = true)}
+              outline color="red"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
-            <Button onclick={updateCategory} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
-          {:else}
-            <!-- <Button
+            <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            > -->
+            >
           {/if}
         </div>
       </div>
@@ -227,3 +239,14 @@ All Rights Reserved
     </div>
   </div>
 </div>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteCategory} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>
