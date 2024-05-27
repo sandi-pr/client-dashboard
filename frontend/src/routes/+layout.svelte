@@ -124,36 +124,36 @@ All Rights Reserved
           },
         ],
       },
-      // {
-      //   icon: "userSquare",
-      //   name: "HR",
-      //   children: [
-      //     {
-      //       href: isFrontend
-      //         ? "/hr"
-      //         : await call.getPage("client-dashboard", "hr-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/attendance"
-      //         : await call.getPage("client-dashboard", "hr-attendance"),
-      //       name: "attendance",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/employee"
-      //         : await call.getPage("client-dashboard", "hr-employee"),
-      //       name: "employee",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/recruitment"
-      //         : await call.getPage("client-dashboard", "hr-recruitment"),
-      //       name: "recruitment",
-      //     },
-      //   ],
-      // },
+      {
+        icon: "userSquare",
+        name: "HR",
+        children: [
+          {
+            href: isFrontend
+              ? "/hr"
+              : await call.getPage("client-dashboard", "hr-overview"),
+            name: "overview",
+          },
+          {
+            href: isFrontend
+              ? "/hr/attendance"
+              : await call.getPage("client-dashboard", "hr-attendance"),
+            name: "attendance",
+          },
+          {
+            href: isFrontend
+              ? "/hr/employee"
+              : await call.getPage("client-dashboard", "hr-employee"),
+            name: "employee",
+          },
+          {
+            href: isFrontend
+              ? "/hr/recruitment"
+              : await call.getPage("client-dashboard", "hr-recruitment"),
+            name: "recruitment",
+          },
+        ],
+      },
     ];
   };
 

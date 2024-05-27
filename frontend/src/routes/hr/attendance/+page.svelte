@@ -14,50 +14,50 @@
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
   let datas = $state([
-    {
-      id: 1,
-      employee_name: "John Doe",
-      job_position: "Software Engineer",
-      checkin_time: "09:00",
-      checkout_time: "18:00",
-      attendance: {
-        status: getStatus("Checkin"),
-        actions: {
-          objects: [
-            {
-              name: "Checkin",
-              on_click: () => { console.log("Checkin"); },
-            },
-            {
-              name: "Checkout",
-              on_click: () => { console.log("Checkout"); },
-            },
-          ],
-        }
-      },
-    },
-    {
-      id: 2,
-      employee_name: "John Doe",
-      job_position: "Software Engineer",
-      checkin_time: "09:00",
-      checkout_time: "18:00",
-      attendance: {
-        status: "",
-        action: {
-          objects: [
-            {
-              name: "Checkin",
-              on_click: () => { console.log("Checkin"); },
-            },
-            {
-              name: "Checkout",
-              on_click: () => { console.log("Checkout"); },
-            },
-          ],
-        }
-      },
-    },
+    // {
+    //   id: 1,
+    //   employee_name: "John Doe",
+    //   job_position: "Software Engineer",
+    //   checkin_time: "09:00",
+    //   checkout_time: "18:00",
+    //   attendance: {
+    //     status: getStatus("Checkin"),
+    //     actions: {
+    //       objects: [
+    //         {
+    //           name: "Checkin",
+    //           on_click: () => { console.log("Checkin"); },
+    //         },
+    //         {
+    //           name: "Checkout",
+    //           on_click: () => { console.log("Checkout"); },
+    //         },
+    //       ],
+    //     }
+    //   },
+    // },
+    // {
+    //   id: 2,
+    //   employee_name: "John Doe",
+    //   job_position: "Software Engineer",
+    //   checkin_time: "09:00",
+    //   checkout_time: "18:00",
+    //   attendance: {
+    //     status: "",
+    //     action: {
+    //       objects: [
+    //         {
+    //           name: "Checkin",
+    //           on_click: () => { console.log("Checkin"); },
+    //         },
+    //         {
+    //           name: "Checkout",
+    //           on_click: () => { console.log("Checkout"); },
+    //         },
+    //       ],
+    //     }
+    //   },
+    // },
   ]);
 
   let configs = $state({});

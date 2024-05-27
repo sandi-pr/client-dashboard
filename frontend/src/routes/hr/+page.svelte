@@ -30,53 +30,53 @@ All Rights Reserved
   let { showAI = false } = $props();
 
   let latestEmployee = $state([
-    {
-      id: 1,
-      join_date: "2022-01-01",
-      employee_name: "John Doe",
-      email: "john@doe.com",
-      job_position: "Software Engineer",
-      employee_status: "Permanent",
-      actions: {
-        objects: [
-          {
-            href: "hr/employee/detail?employeeId=" + 1 + "&edit=false",
-            name: "View",
-          },
-          {
-            href: "hr/employee/detail?employeeId=" + 1 + "&edit=true",
-            name: "Edit",
-          },
-        ],
-      },
-    }
+    // {
+    //   id: 1,
+    //   join_date: "2022-01-01",
+    //   employee_name: "John Doe",
+    //   email: "john@doe.com",
+    //   job_position: "Software Engineer",
+    //   employee_status: "Permanent",
+    //   actions: {
+    //     objects: [
+    //       {
+    //         href: "hr/employee/detail?employeeId=" + 1 + "&edit=false",
+    //         name: "View",
+    //       },
+    //       {
+    //         href: "hr/employee/detail?employeeId=" + 1 + "&edit=true",
+    //         name: "Edit",
+    //       },
+    //     ],
+    //   },
+    // }
   ]);
   let latestAttendance = $state([
-    {
-      id: 1,
-      employee_name: "John Doe",
-      job_position: "Software Engineer",
-      checkin_time: "09:00",
-      checkout_time: "18:00",
-      status: getStatus("Checkout"),
-    }
+  //   {
+  //     id: 1,
+  //     employee_name: "John Doe",
+  //     job_position: "Software Engineer",
+  //     checkin_time: "09:00",
+  //     checkout_time: "18:00",
+  //     status: getStatus("Checkout"),
+  //   }
   ]);
   let latestRecruitment = $state([
-    {
-      id: 1,
-      fullname: "John Doe",
-      job_position: "Software Engineer",
-      experience: "3+ YoE",
-      email: "john@doe.com",
-      actions: {
-        objects: [
-          {
-            href: "hr/recruitment/detail?recruitmentId=" + 1 + "&edit=true",
-            name: "Edit",
-          },
-        ],
-      },
-    }
+  //   {
+  //     id: 1,
+  //     fullname: "John Doe",
+  //     job_position: "Software Engineer",
+  //     experience: "3+ YoE",
+  //     email: "john@doe.com",
+  //     actions: {
+  //       objects: [
+  //         {
+  //           href: "hr/recruitment/detail?recruitmentId=" + 1 + "&edit=true",
+  //           name: "Edit",
+  //         },
+  //       ],
+  //     },
+  //   }
   ]);
   let configs = $state({});
   let dataReady = $state(false);
@@ -86,9 +86,9 @@ All Rights Reserved
   // let documentsComplete = [];
   // let allUrls = [];
   // let chart = true;
-  let monthlyEmployeeCounts = $state([]);
-  let monthlyCheckinEmployeeCounts = $state([]);
-  let monthlyLeaveEmployeeCounts = $state([]);
+  let monthlyEmployeeCounts = $state([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  let monthlyCheckinEmployeeCounts = $state([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  let monthlyLeaveEmployeeCounts = $state([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   let dataChartAll = $state({});
   let dataChartCheckin = $state({});
   let dataChartLeave = $state({});
@@ -654,8 +654,14 @@ All Rights Reserved
     };
   }
 
+  const damyData = $state({
+    total: 0,
+    change: 0,
+    changeType: "-",})
+
   onMount(async () => {
     // getCountPersonsPerMonth();
+    getChartAction(damyData, damyData, damyData);
     generateChartData();
     getActionItems();
     // getEmployee();
