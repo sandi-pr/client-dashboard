@@ -11,7 +11,8 @@ All Rights Reserved
 -->
 
 <script>
-  import { SectionHeader, Card, Typography, CR3Call } from "hexacomponents-svelte";
+  import { SectionHeader, Typography, CR3Call } from "hexacomponents-svelte";
+  import { Card } from "$lib";
   import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
   import { Alert, CloseButton } from "flowbite-svelte";
@@ -131,20 +132,20 @@ All Rights Reserved
   <SectionHeader title={$_("availableModules")} />
   <Card
     icon="users"
-    title="CRM"
+    title="{$_('crmOverview')}"
     description={$_("descCrm")}
     onclick={async () => {
       goto(await call.getPage("client-dashboard", "crm-overview"));
       return;
     }}
   />
-  <!-- <Card
-    icon="messageChat"
-    title="Hexa Bot"
-    description="Manage bots and automate your workflows"
+  <Card
+    icon="fileShield"
+    title="{$_('documentManagement')}"
+    description={$_("descDocumentManagement")}
     onclick={async () => {
-      await call.goToPage("client-dashboard", "hexabot-overview");
+      goto(await call.getPage("client-dashboard", "document-management-overview"));
       return;
     }}
-  /> -->
+  />
 </div>

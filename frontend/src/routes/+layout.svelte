@@ -28,7 +28,7 @@ All Rights Reserved
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
-  let isFrontend = $state(false); // for frontend change to true
+  let isFrontend = $state(true); // for frontend change to true
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -124,36 +124,36 @@ All Rights Reserved
           },
         ],
       },
-      {
-        icon: "userSquare",
-        name: "HR",
-        children: [
-          {
-            href: isFrontend
-              ? "/hr"
-              : await call.getPage("client-dashboard", "hr-overview"),
-            name: "overview",
-          },
-          {
-            href: isFrontend
-              ? "/hr/attendance"
-              : await call.getPage("client-dashboard", "hr-attendance"),
-            name: "attendance",
-          },
-          {
-            href: isFrontend
-              ? "/hr/employee"
-              : await call.getPage("client-dashboard", "hr-employee"),
-            name: "employee",
-          },
-          {
-            href: isFrontend
-              ? "/hr/recruitment"
-              : await call.getPage("client-dashboard", "hr-recruitment"),
-            name: "recruitment",
-          },
-        ],
-      },
+      // {
+      //   icon: "userSquare",
+      //   name: "HR",
+      //   children: [
+      //     {
+      //       href: isFrontend
+      //         ? "/hr"
+      //         : await call.getPage("client-dashboard", "hr-overview"),
+      //       name: "overview",
+      //     },
+      //     {
+      //       href: isFrontend
+      //         ? "/hr/attendance"
+      //         : await call.getPage("client-dashboard", "hr-attendance"),
+      //       name: "attendance",
+      //     },
+      //     {
+      //       href: isFrontend
+      //         ? "/hr/employee"
+      //         : await call.getPage("client-dashboard", "hr-employee"),
+      //       name: "employee",
+      //     },
+      //     {
+      //       href: isFrontend
+      //         ? "/hr/recruitment"
+      //         : await call.getPage("client-dashboard", "hr-recruitment"),
+      //       name: "recruitment",
+      //     },
+      //   ],
+      // },
     ];
   };
 
