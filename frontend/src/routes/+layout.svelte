@@ -28,7 +28,7 @@ All Rights Reserved
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
-  let isFrontend = $state(false); // for frontend change to true
+  let isFrontend = $state(true); // for frontend change to true
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -287,7 +287,7 @@ All Rights Reserved
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
-          <Pane minSize={innerWidth > 1024 ? "70" : "0"}>
+          <Pane minSize={innerWidth > 1024 ? 50 : 0}>
             <div class="transition-all duration-300">
               <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} {reset_database} />
               <slot />

@@ -30,6 +30,33 @@
       role: "assistant",
       message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
     },
+    {
+      role: "assistant",
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    },
+    {
+      role: "assistant",
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    },
+    {
+      role: "assistant",
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    }, {
+      role: "assistant",
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    }, {
+      role: "assistant",
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    }, {
+      role: "assistant",
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    }, {
+      role: "assistant",
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    }, {
+      role: "assistant",
+      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    },
   ]);
 
   $effect.pre(() => {
@@ -159,10 +186,10 @@
 
 <div
   bind:this={div}
-  class="static h-screen w-full overflow-y-auto bg-primary-light dark:bg-primary-dark"
+  class="static h-screen w-full bg-primary-light dark:bg-primary-dark"
 >
-  <div class="flex flex-col px-4 pt-6 pb-24">
-    <div class="flex flex-col gap-4">
+  <div class="flex h-full flex-col px-4 pb-[178px] pt-2">
+    <div class="flex flex-col gap-4 overflow-y-auto">
       <!-- <P
         size="xl"
         weight="bold"
@@ -225,22 +252,23 @@
       {/if}
     </div>
   </div>
-  <div class="absolute w-full bottom-4">
-    <form on:submit|preventDefault={sendMessage} class="px-4 [&>div>div]:!pe-4">
+  <div class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-4 py-2 flex items-center">
+    <form on:submit|preventDefault={sendMessage} class="flex-grow">
       <Input
-        bind:disabled={disableInput}
-        bind:value={messageInput}
-        placeholder="Send a message..."
-        class=" text-wrap min-h-16 pe-24 rounded-2xl"
+      bind:disabled={disableInput}
+      bind:value={messageInput}
+      placeholder="Send a message..."
+      class=" text-wrap min-h-12 pe-24 rounded-2xl"
+    >
+      <Button
+        slot="right"
+        size="sm"
+        type="submit"
+        class="my-3"
+        disabled={disableInput}>Send</Button
       >
-        <Button
-          slot="right"
-          size="sm"
-          type="submit"
-          class="my-3"
-          disabled={disableInput}>Send</Button
-        >
-      </Input>
+    </Input>
     </form>
   </div>
+  
 </div>

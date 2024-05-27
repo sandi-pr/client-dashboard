@@ -231,12 +231,10 @@
 
     today.setHours(0, 0, 0, 0);
 
-    console.log(date.dateObject <= today);
-    console.log(date);
-    console.log(today);
-
     if (date.dateObject <= today) {
         notAvailableBookings = true;
+    } else {
+        notAvailableBookings = false;
     }
     const events = getEventsForDate(date.dateObject);
     modalMode = "event";

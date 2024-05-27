@@ -2133,6 +2133,9 @@
                     },
                     "contract_end": {
                         "type": "date"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },{

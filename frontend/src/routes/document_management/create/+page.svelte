@@ -175,6 +175,7 @@ All Rights Reserved
               person: 0,
               contract_start: format(new Date(), "yyyy-MM-dd"),
               contract_end: format(new Date(), "yyyy-MM-dd"),
+              status: "Initiate",
             },
             Headers: {
               Authorization: "Bearer " + token,
@@ -208,6 +209,7 @@ All Rights Reserved
               person: data.person_client,
               contract_start: format(new Date(data.contract_start), "yyyy-MM-dd"),
               contract_end: format(new Date(data.contract_end), "yyyy-MM-dd"),
+              status: "Initiate",
             },
             Headers: {
               Authorization: "Bearer " + token,

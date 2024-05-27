@@ -81,14 +81,13 @@ All Rights Reserved
 </script>
 
 <Pane
-  size={innerWidth > 1024 ? "30" : "100"}
-  minSize={innerWidth > 1024 ? "30" : "100"}
-  maxSize={innerWidth > 1024 ? "50" : "100"}
+  size={innerWidth > 1024 ? 30 : 100}
+  minSize={innerWidth > 1024 ? 30 : 100}
 >
   <div
-    class="h-screen fixed transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
+    class="h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
   >
-    <div class="absolute w-screen top-0 z-10">
+    <div class="absolute top-0 z-10">
       <div class="flex items-center">
         <div
           id="drawer-label"
@@ -136,16 +135,16 @@ All Rights Reserved
                   />
                   <Typography
                     preset="Text sm/Regular"
-                    text="Assistant"
+                    text={`Status RAG: ${statusRAG}`}
                     color="tertiary"
                   />
+                  <!-- <Typography
+                    preset="Text sm/Regular"
+                    text="Assistant"
+                    color="tertiary"
+                  /> -->
                 </div>
               </div>
-              <Typography
-                preset="Text sm/Regular"
-                text={`Status RAG: ${statusRAG}`}
-                color="tertiary"
-              />
             </div>
           {/if}
           {#if innerWidth < 1024}
@@ -155,7 +154,7 @@ All Rights Reserved
       </div>
       <TabBar {tabDatas} {changeTabbar} />
     </div>
-    <div class="flex flex-col h-screen pt-[118px]">
+    <div class="flex w-full flex-col h-screen pt-[118px]">
       {#if tabDatas.selected === "Latest Activity"}
         <div class="p-4">
           {#if activities.length > 0}
