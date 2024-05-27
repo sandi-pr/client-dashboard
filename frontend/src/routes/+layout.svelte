@@ -283,12 +283,12 @@ All Rights Reserved
         {logout}
       />
       <div
-        class="w-full min-h-screen flex lg:pl-80 border-l border-secondary-light dark:border-secondary-dark"
+        class="w-full h-screen flex lg:pl-80 border-l border-secondary-light dark:border-secondary-dark"
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
           <Pane minSize={innerWidth > 1024 ? 50 : 0}>
-            <div class="transition-all duration-300">
+            <div class="transition-all duration-300 h-full overflow-y-auto">
               <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} {reset_database} />
               <slot />
             </div>
