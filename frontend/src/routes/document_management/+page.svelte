@@ -331,12 +331,16 @@ All Rights Reserved
       if (response.result.data.length > 0) {
         let latestData = response.result.data.slice(0, 5);
         let promises = latestData.map(async (document) => {
+          console.log(document.attributes.status);
           return {
             id: document.id,
             upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
             document_name: document.attributes.document_title,
             type: document.attributes.document_type === "GENERAL" ? "General" : "Contract",
-            status: document.attributes.status,
+            status: {
+              type: "brand",
+              name: document.attributes.status,
+            },
             actions: {
               objects: [
                 {
