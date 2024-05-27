@@ -1581,13 +1581,13 @@
             </div>
           </div>
           <div class="flex justify-end mt-2">
-            <Button
+            <!-- <Button
               class="text-nowrap"
               color="red"
               on:click={() => {
                 handleDeleteSchedule(event);
               }}><TrashBinOutline class="size-6" /> Delete Schedule</Button
-            >
+            > -->
           </div>
         </div>
       {/each}
