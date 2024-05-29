@@ -48,6 +48,7 @@
   let dataReady = false;
   let frontEndOnly = false;
   let notAvailableBookings = false;
+  let selectedDate = null;
 
   let tabDatas = {
     selected: "calendar",
@@ -237,6 +238,7 @@
         notAvailableBookings = false;
     }
     const events = getEventsForDate(date.dateObject);
+    selectedDate = date.dateObject;
     modalMode = "event";
     modal = true;
     currentDateEvents = events;
@@ -928,9 +930,34 @@
     }
   }
 
-  const handleDeleteSchedule = (event) => {
+  const handleDeleteSchedule = async (event) => {
     console.log("Not yet implemented");
-    console.log(event);
+    console.log(selectedDate);
+    let date = new Date(selectedDate);
+    let token = sessionStorage.getItem("token");
+    console.log(token);
+    if (token !== null) {
+      const response = await call.call("client-dashboard", "delete-schedule", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          date: format(date, "yyyy-MM-dd"),
+          start_time: event.timeStart + ":00",
+          end_time: event.timeEnd + ":00",
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+
+      if (response.status === 200) {
+        console.log(response);
+        await getSchedule();
+        modal = false;
+      } else {
+        console.log("Error", response);
+      }
+    }
   };
 
   const handleSearchInvitees = async (value) => {
@@ -1581,13 +1608,13 @@
             </div>
           </div>
           <div class="flex justify-end mt-2">
-            <!-- <Button
+            <Button
               class="text-nowrap"
               color="red"
               on:click={() => {
                 handleDeleteSchedule(event);
               }}><TrashBinOutline class="size-6" /> Delete Schedule</Button
-            > -->
+            >
           </div>
         </div>
       {/each}

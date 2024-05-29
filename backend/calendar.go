@@ -172,6 +172,96 @@ func CreateSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	return 200, booking, nil
 }
 
+func DeleteSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	date, ok := ctx.Params.GetString("date")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	start_time, ok := ctx.Params.GetString("start_time")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	end_time, ok := ctx.Params.GetString("end_time")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, booking, err := Strapi.Find("booking-table", U.Dict{
+		"filters": U.Dict{
+			"date": U.Dict{
+				"$eq": date,
+			},
+			"start_time": U.Dict{
+				"$eq": start_time,
+			},
+			"end_time": U.Dict{
+				"$eq": end_time,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	bookingArray, _ := booking.GetList("data")
+
+	if len(bookingArray) == 0 {
+		return 200, U.Dict{}, nil
+	}
+
+	dict := bookingArray[0].(U.Dict)
+
+	id, _ := dict.GetFloat64("id")
+
+	status, booking, err = Strapi.Delete("booking-table", int64(id))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(booking)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, booking, nil
+}
+
 func CreateAvailability(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 

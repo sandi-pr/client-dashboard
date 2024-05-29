@@ -922,6 +922,35 @@
             ]
         },
         {
+            "name": "delete-schedule",
+            "path": "/delete-schedule",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteSchedule"
+            },
+            "url_params": [],
+            "params": [
+                {
+                    "name": "date",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "start_time",
+                    "type": "time",
+                    "required": true
+                },
+                {
+                    "name": "end_time",
+                    "type": "time",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "create-availability",
             "path": "/create-availability",
             "method": "POST",
@@ -1785,7 +1814,7 @@
                         "type": "datetime"
                     },
                     "total_amount": {
-                        "type": "number"
+                        "type": "integer"
                     },
                     "payment_status": {
                         "type": "json"
