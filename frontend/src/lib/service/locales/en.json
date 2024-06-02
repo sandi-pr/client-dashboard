@@ -253,5 +253,8 @@
   "documentUpload": "Document Upload",
   "clickToUpload": "Click to upload",
   "orDragAndDrop": "or drag and drop",
-  "selectDocumentType": "Select Document Type"
+  "selectDocumentType": "Select Document Type",
+  "jobLevel": "Job Level",
+  "newJobLevel": "New Job Level",
+  "adjust&MoveOrderByDragging": "Adjust & move order by dragging"
 }

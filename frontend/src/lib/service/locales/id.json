@@ -251,5 +251,8 @@
     "documentUpload": "Unggah Dokumen",
     "clickToUpload": "Klik untuk mengunggah",
     "orDragAndDrop": "atau seret dan lepas",
-    "selectDocumentType": "Pilih Tipe Dokumen"
+    "selectDocumentType": "Pilih Tipe Dokumen",
+    "jobLevel": "Level Pekerja",
+    "newJobLevel": "Level Pekerja Baru",
+    "adjust&MoveOrderByDragging": "Tetapkan dan pindahkan dengan seret dan lepas"
 }
