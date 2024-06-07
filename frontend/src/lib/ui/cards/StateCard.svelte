@@ -21,7 +21,7 @@
     <Typography preset="Text md/Semibold" text={description} color="primary" />
     {/if}
   </div>
-  {#if funcButton || actionText}
+  {#if funcButton || actionText }
   <Button color="primary" text={actionText} {funcButton} />
   {/if}
 </div>

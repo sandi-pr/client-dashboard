@@ -53,7 +53,7 @@
     img: LogoIcon,
   };
 
-  let sidebarItems = $state([{ name: "home", href: "/", icon: "home", children: [] }]);
+  let sidebarItems = $state([]);
   let dropdownUser = $state(false);
 
   const call = new CR3Call(globalThis.location.origin);
@@ -82,7 +82,9 @@
 
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
-    sidebarItems = [...sidebarItems, ...sidebarAddition];
+    let home = await call.getPage("client-dashboard", "home-page");
+    sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
+    // sidebarItems = [...sidebarItems, ...sidebarAddition];
   });
 </script>
 

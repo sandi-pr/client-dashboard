@@ -12,10 +12,11 @@ All Rights Reserved
 <script>
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
-  import { P, Heading, Input, Button, Helper, Toast } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Helper, Toast, Select } from "flowbite-svelte";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { fly } from "svelte/transition";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
+
   const dispatch = createEventDispatcher();
 
   import { CR3Call } from "hexacomponents-svelte";
@@ -47,6 +48,8 @@ All Rights Reserved
   let toastCreated = $state(false);
   let toastError = $state(false);
   let counter = $state(6);
+
+  let jobLevels = $state([]);
 
   function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -128,6 +131,35 @@ All Rights Reserved
     await call.goToPage("client-dashboard", "crm-person");
     return;
   }
+
+  async function getJobLevels() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-level", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          let promise = response.result.job_level.map((job) => {
+            return { name: job.title, value: job.title };
+          });
+          jobLevels = await Promise.all(promise);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  onMount(async () => {
+    getJobLevels();
+  })
 
   $effect(() => {
     buttonDisable =
@@ -310,7 +342,11 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("jobPosition")}*</P
                 >
-                <Input bind:value={data.job_position} class="bg-primary-light dark:bg-secondary-dark" />
+                <Select
+                    class="bg-primary-light dark:bg-secondary-dark"
+                    items={jobLevels}
+                    bind:value={data.job_position}
+                  />
               </div>
               <div class="flex flex-col gap-2">
                 <P

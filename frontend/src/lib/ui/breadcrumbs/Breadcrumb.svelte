@@ -3,6 +3,7 @@
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
+  import { getIcons } from "$lib";
 
   let {
     activeUrl = "/",
@@ -40,7 +41,7 @@
   onMount(async () => {
     const result = await call.getPage("client-dashboard", "home-page");
     baseUrl = result.slice(0, result.lastIndexOf("/"));
-  })
+  });
 
   $effect(() => {
     if (activeUrl !== copyActiveUrl) {
@@ -48,7 +49,10 @@
       const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
       copyActiveUrl = activeUrl;
       let cleanActiveUrl = activeUrl;
-      activeUrlModified = cleanActiveUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
+      activeUrlModified = cleanActiveUrl.replace(
+        new RegExp(`^/${cleanAppUrl}`),
+        "",
+      );
       activeUrlArray = activeUrlModified
         .split("/")
         .filter((url) => url !== "client-dashboard")
@@ -65,11 +69,28 @@
           return { name: url, href: href };
         });
     }
-  })
+  });
 </script>
 
 <Breadcrumb aria-label="Default breadcrumb">
-  <BreadcrumbItem href="/" home></BreadcrumbItem>
+  <!-- <BreadcrumbItem href="/" home></BreadcrumbItem> -->
+  <li class={"inline-flex items-center"}>
+    <button
+      type="button"
+      class={linkClass}
+      onclick={() => {
+        // window.location = `${appUrl}${item.href}`;
+        // goto(`${appUrl}${item.href}`);
+        // console.log(item.href);
+        // globalThis.location.href = "/client-dashboard" + item.href;
+        goto(`${baseUrl}`);
+      }}
+      ><svelte:component
+        this={getIcons("home")}
+        svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
+      />
+    </button>
+  </li>
   {#if activeUrl !== "/"}
     {#each activeUrlArray as item, index (item.href)}
       <li class={"inline-flex items-center"}>
@@ -88,13 +109,15 @@
         {#if item.href}
           <button
             type="button"
-            class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
+            class={index === activeUrlArray.length - 1
+              ? `${linkClass} !font-bold`
+              : linkClass}
             onclick={() => {
               // window.location = `${appUrl}${item.href}`;
-                // goto(`${appUrl}${item.href}`);
-                console.log(item.href);
-                // globalThis.location.href = "/client-dashboard" + item.href;
-                goto(`${baseUrl}${item.href}`);
+              // goto(`${appUrl}${item.href}`);
+              console.log(item.href);
+              // globalThis.location.href = "/client-dashboard" + item.href;
+              goto(`${baseUrl}${item.href}`);
             }}
           >
             {postProcessName(item.name)}

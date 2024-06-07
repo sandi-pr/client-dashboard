@@ -150,6 +150,21 @@
             "file_path": "template/hr/attendance.html"
         },
         {
+            "name": "hr-recruitment",
+            "path": "/hr/recruitment",
+            "file_path": "template/hr/recruitment.html"
+        },
+        {
+            "name": "hr-recruitment-detail",
+            "path": "/hr/recruitment/detail",
+            "file_path": "template/hr/recruitment/detail.html"
+        },
+        {
+            "name": "hr-joblevel",
+            "path": "/hr/job_level",
+            "file_path": "template/hr/job_level.html"
+        },
+        {
             "name": "hexabot-overview",
             "path": "/hexabot",
             "file_path": "template/hexabot.html"
@@ -1660,6 +1675,35 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "create-job-level",
+            "path": "/create-job-level",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateJobLevel"
+            },
+            "params": [
+                {
+                    "name": "job_level",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-job-level",
+            "path": "/get-job-level",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetJobLevel"
+            }
         }
     ],
     "options": {
@@ -2048,6 +2092,9 @@
                     "company_description": {
                         "type": "text",
                         "required": true
+                    },
+                    "company_job_level": {
+                        "type": "json"
                     }
                 }
             },

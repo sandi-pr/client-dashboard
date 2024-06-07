@@ -10,44 +10,39 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
+  import { P, Heading, Input, Button, Toast } from "flowbite-svelte";
   import {
-    P,
-    Heading,
-    Input,
-    Button,
-    Select,
-    Textarea,
-    Toggle,
-    Toast,
-    Helper,
-  } from "flowbite-svelte";
-  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+    CheckCircleSolid,
+    ExclamationCircleSolid,
+  } from "flowbite-svelte-icons";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { dndzone, TRIGGERS } from "svelte-dnd-action";
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import DotsGridIcon from "$lib/icon/dots-grid.svelte";
-  import { goto } from "$app/navigation";
-  import { dndzone } from "svelte-dnd-action"
+  import { CR3Call } from "hexacomponents-svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let tmpJobLevel = $state("");
+  let tmpJobLevel = "";
 
-  let toastCreated = $state(false);
-  let toastResourceEmpty = $state(false);
-  let toastError = $state(false);
-  let counter = $state(6);
+  let toastCreated = false;
+  let toastResourceEmpty = false;
+  let toastError = false;
+  let counter = 6;
 
-  let jobLevels = $state([]);
+  let jobLevels = [];
 
   function addJobLevel() {
+    if (tmpJobLevel === "") {
+      return;
+    }
     const newJobLevel = {
       // dummy id
-      id: tmpJobLevel,
-      title: tmpJobLevel
+      id: Date.now(),
+      title: tmpJobLevel,
     };
     jobLevels = [...jobLevels, newJobLevel];
 
@@ -82,20 +77,87 @@ All Rights Reserved
     toastError = false;
   }
 
-  let buttonDisable = $state(true);
+  function handleDndConsider(e) {
+    const {
+      items: newItems,
+      info: { trigger },
+    } = e.detail;
+    if (trigger === TRIGGERS.DRAG_STARTED) {
+      // Optional: Handle logic when drag starts
+    }
+    jobLevels = newItems;
+  }
+
+  function handleDndFinalize(e) {
+    const { items: newItems } = e.detail;
+    jobLevels = newItems;
+  }
+
+  async function saveJobLevels() {
+    if (jobLevels.length === 0) {
+      triggerToast("resource_empty");
+    } else {
+      let token = sessionStorage.getItem("token");
+      if (token) {
+        try {
+          const response = await call.call("client-dashboard", "create-job-level", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              job_level: JSON.stringify(jobLevels),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          })
+
+          console.log(response);
+
+          if (response.status === 200) {
+            triggerToast("created");
+          }
+        } catch (error) {
+          console.log(error);
+          triggerToast("error");
+        }
+      }
+    }
+  }
+
+  async function getJobLevels() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-level", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          jobLevels = response.result.job_level;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 
   onMount(async () => {
-    // getCategories();
+    getJobLevels();
   });
-
-  // let dropdownOpen = false;
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- Header -->
-      <div class="flex items-center pb-8 border-b border-secondary-light dark:border-secondary-dark">
+      <div
+        class="flex items-center pb-8 border-b border-secondary-light dark:border-secondary-dark"
+      >
         <div class="flex flex-col gap-2 grow">
           <!-- Header -->
           <div class="gap-2">
@@ -108,9 +170,8 @@ All Rights Reserved
           </div>
         </div>
         <div class="flex gap-2">
-          <Button class="px-3 focus-within:!ring-1"
-            >{$_("importCsv")}</Button
-          >
+          <Button class="px-3 focus-within:!ring-1" on:click={saveJobLevels}>{$_("save")}</Button>
+          <Button class="px-3 focus-within:!ring-1">{$_("importCsv")}</Button>
         </div>
       </div>
 
@@ -118,7 +179,9 @@ All Rights Reserved
       <div class="flex gap-6 pt-8">
         <div class="w-60 space-y-2">
           <div>
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+            <P
+              class="font-semibold text-secondary-light dark:text-secondary-dark"
+            >
               {$_("newJobLevel")}
             </P>
             <P class="text-secondary-light dark:text-secondary-dark">
@@ -132,43 +195,67 @@ All Rights Reserved
           <Button color="light" on:click={addJobLevel}>{$_("add")}</Button>
         </div>
         <div class="flex flex-col grow gap-6">
-          
-            {#if jobLevels.length > 0}
-              <section use:dndzone="{{ items: jobLevels }}">
-                <div class="bg-secondary-light dark:bg-secondary-dark rounded-lg py-10 pl-4">
-                  {#each jobLevels as job (job.id)}
-                    <div class="px-4 py-2 bg-white rounded-lg backdrop-blur-[26px] justify-between items-center flex w-max">
-                      <div class="min-w-[172px] self-stretch items-center gap-4 flex">
-                        <!-- <div class="w-6 h-6 relative"></div> -->
-                        <DotsGridIcon class="w-6 h-6 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-                        <P size="lg" weight="semibold">{job.title}</P>
-                      </div>
-                      <Button
-                        on:click={() => deleteJobLevel(job.id)}
-                        color="light"
-                        class="w-max">{$_("delete")}</Button
-                      >
+          {#if jobLevels.length > 0}
+            <div
+              class="bg-secondary-light dark:bg-secondary-dark rounded-lg py-10 pl-4"
+            >
+              <div
+                use:dndzone={{ items: jobLevels, flipDurationMs: 150 }}
+                on:consider={handleDndConsider}
+                on:finalize={handleDndFinalize}
+                class="flex flex-col gap-4"
+              >
+                {#each jobLevels as job (job.id)}
+                  <div
+                    class="px-4 py-2 bg-white rounded-lg backdrop-blur-[26px] justify-between items-center flex w-2/5"
+                  >
+                    <div
+                      class="min-w-[172px] self-stretch items-center gap-4 flex"
+                    >
+                      <DotsGridIcon
+                        class="w-6 h-6 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                      />
+                      <P size="lg" weight="semibold">{job.title}</P>
                     </div>
-                  {/each}
-                </div>
-              </section>
-            {:else}
-              <div class="pt-8">
-                <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+                    <Button
+                      on:click={() => deleteJobLevel(job.id)}
+                      color="light"
+                      class="w-max">{$_("delete")}</Button
+                    >
+                  </div>
+                {/each}
               </div>
-            {/if}
+            </div>
+          {:else}
+            <div class="pt-8">
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
+            </div>
+          {/if}
         </div>
       </div>
     </div>
   </div>
   <div class="fixed bottom-5 end-5">
-    <Toast color="green" transition={fly} params={{ x: 200 }} bind:open={toastCreated}>
+    <Toast
+      color="green"
+      transition={fly}
+      params={{ x: 200 }}
+      bind:open={toastCreated}
+    >
       <svelte:fragment slot="icon">
         <CheckCircleSolid class="w-5 h-5" />
       </svelte:fragment>
       {$_("successfullyCreated")}
     </Toast>
-    <Toast color="red" transition={fly} params={{ x: 200 }} bind:open={toastResourceEmpty}>
+    <Toast
+      color="red"
+      transition={fly}
+      params={{ x: 200 }}
+      bind:open={toastResourceEmpty}
+    >
       <svelte:fragment slot="icon">
         <ExclamationCircleSolid class="w-5 h-5" />
       </svelte:fragment>

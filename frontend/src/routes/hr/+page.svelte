@@ -99,22 +99,22 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        // href: await call.getPage("client-dashboard", "hr-employee-attendance"),
-        href: "/hr/employee/attendance",
+        href: await call.getPage("client-dashboard", "hr-attendance"),
+        // href: "/hr/employee/attendance",
         icon: UserPlusIcon,
         actionName: "Employee Attendance",
         desc: "desc Employee Attendance",
       },
       {
-        // href: await call.getPage("client-dashboard", "hr-employee-create"),
-        href: "/hr/employee/create",
+        href: await call.getPage("client-dashboard", "hr-employee-create"),
+        // href: "/hr/employee/create",
         icon: PackagePlusIcon,
         actionName: "Add New Employee",
         desc: "desc Add New Employee",
       },
       {
-        // href: await call.getPage("client-dashboard", "hr-recruitment"),
-        href: "/hr/recruitment",
+        href: await call.getPage("client-dashboard", "hr-recruitment"),
+        // href: "/hr/recruitment",
         icon: PackageSearchIcon,
         actionName: "Add New Recruitment",
         desc: "desc Add New Recruitment",
@@ -359,24 +359,24 @@ All Rights Reserved
   async function getChartAction(totalEmployee, checkinEmployee, leaveEmployee) {
     chartAction = [
       {
-        // href: await call.getPage("client-dashboard", "hr-employee"),
-        href: "hr/employee",
+        href: await call.getPage("client-dashboard", "hr-employee"),
+        // href: "hr/employee",
         dataName: "Total Employee",
         value: totalEmployee.total,
         change: totalEmployee.change,
         changeType: totalEmployee.changeType,
       },
       {
-        // href: await call.getPage("client-dashboard", "hr-employee"),
-        href: "hr/employee",
+        href: await call.getPage("client-dashboard", "hr-employee"),
+        // href: "hr/employee",
         dataName: "Employee checked-in",
         value: checkinEmployee.total,
         change: checkinEmployee.change,
         changeType: checkinEmployee.changeType,
       },
       {
-        // href: await call.getPage("client-dashboard", "hr-employee"),
-        href: "hr/employee",
+        href: await call.getPage("client-dashboard", "hr-employee"),
+        // href: "hr/employee",
         dataName: "Employee leave",
         value: leaveEmployee.total,
         change: leaveEmployee.change,
