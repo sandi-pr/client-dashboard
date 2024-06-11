@@ -161,7 +161,7 @@ All Rights Reserved
             job_position: data.job_position,
             education_history: data.education_history,
             skills: data.skillsOrKeywords,
-            resume_name: "Resume - " + fullname,
+            resume_name: "Resume - " + data.fullname,
             resume: base64Data,
           },
           Headers: {
@@ -200,14 +200,9 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{data.document_title}<Button
-                outline
-                color="red"
-                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
-              >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-              </Button></Heading
             >
+              {$_("createNewRecruitment")}
+            </Heading>
           </div>
           <P
             class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
