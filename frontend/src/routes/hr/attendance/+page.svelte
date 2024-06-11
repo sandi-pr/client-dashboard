@@ -14,50 +14,58 @@
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
   let datas = $state([
-    // {
-    //   id: 1,
-    //   employee_name: "John Doe",
-    //   job_position: "Software Engineer",
-    //   checkin_time: "09:00",
-    //   checkout_time: "18:00",
-    //   attendance: {
-    //     status: getStatus("Checkin"),
-    //     actions: {
-    //       objects: [
-    //         {
-    //           name: "Checkin",
-    //           on_click: () => { console.log("Checkin"); },
-    //         },
-    //         {
-    //           name: "Checkout",
-    //           on_click: () => { console.log("Checkout"); },
-    //         },
-    //       ],
-    //     }
-    //   },
-    // },
-    // {
-    //   id: 2,
-    //   employee_name: "John Doe",
-    //   job_position: "Software Engineer",
-    //   checkin_time: "09:00",
-    //   checkout_time: "18:00",
-    //   attendance: {
-    //     status: "",
-    //     action: {
-    //       objects: [
-    //         {
-    //           name: "Checkin",
-    //           on_click: () => { console.log("Checkin"); },
-    //         },
-    //         {
-    //           name: "Checkout",
-    //           on_click: () => { console.log("Checkout"); },
-    //         },
-    //       ],
-    //     }
-    //   },
-    // },
+    {
+      id: 1,
+      employee_name: "John Doe",
+      job_position: "Software Engineer",
+      checkin_time: "09:00",
+      checkout_time: "18:00",
+      attendance: {
+        status: getStatus("Checkin"),
+        actions: {
+          objects: [
+            {
+              name: "Checkin",
+              on_click: () => {
+                console.log("Checkin");
+              },
+            },
+            {
+              name: "Checkout",
+              on_click: () => {
+                console.log("Checkout");
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      id: 2,
+      employee_name: "John Doe",
+      job_position: "Software Engineer",
+      checkin_time: "09:00",
+      checkout_time: "18:00",
+      attendance: {
+        status: "",
+        action: {
+          objects: [
+            {
+              name: "Checkin",
+              on_click: () => {
+                console.log("Checkin");
+              },
+            },
+            {
+              name: "Checkout",
+              on_click: () => {
+                console.log("Checkout");
+              },
+            },
+          ],
+        },
+      },
+    },
   ]);
 
   let configs = $state({});
@@ -122,14 +130,18 @@
                 objects: [
                   {
                     name: "Checkin",
-                    on_click: () => { console.log("Checkin"); },
+                    on_click: () => {
+                      console.log("Checkin");
+                    },
                   },
                   {
                     name: "Checkout",
-                    on_click: () => { console.log("Checkout"); },
+                    on_click: () => {
+                      console.log("Checkout");
+                    },
                   },
                 ],
-              }
+              },
             },
           };
         });
@@ -165,7 +177,11 @@
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={$_("employeeAttendance")} />
+          <Typography
+            preset="Display sm/Semibold"
+            color="primary"
+            text={$_("employeeAttendance")}
+          />
           <!-- <Button onclick={addEmployee} icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
           > -->

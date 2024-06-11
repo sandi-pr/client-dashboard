@@ -160,6 +160,11 @@
             "file_path": "template/hr/recruitment/detail.html"
         },
         {
+            "name": "hr-recruitment-create",
+            "path": "/hr/recruitment/create",
+            "file_path": "template/hr/recruitment/create.html"
+        },
+        {
             "name": "hr-joblevel",
             "path": "/hr/job_level",
             "file_path": "template/hr/job_level.html"
@@ -1704,6 +1709,64 @@
                 "plugin": "plugin.so",
                 "function": "GetJobLevel"
             }
+        },
+        {
+            "name": "create-recruitment",
+            "path": "/create-recruitment",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateRecruitment"
+            },
+            "params": [
+                {
+                    "name": "fullname",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "email",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "phone",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "address",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "job_position",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "education_history",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "skills",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "resume_name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "resume",
+                    "type": "string",
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {
@@ -2214,7 +2277,8 @@
                         "type": "string"
                     }
                 }
-            },{
+            },
+            {
                 "name": "employee",
                 "label": "Employee",
                 "fields": {
@@ -2266,6 +2330,36 @@
                             "Yes",
                             "No"
                         ]
+                    }
+                }
+            },
+            {
+                "name": "recruitment",
+                "label": "Recruitment",
+                "fields": {
+                    "fullname": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "email"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "text"
+                    },
+                    "job_position": {
+                        "type": "string"
+                    },
+                    "education_history": {
+                        "type": "text"
+                    },
+                    "skills": {
+                        "type": "text"
+                    },
+                    "resume": {
+                        "type": "media"
                     }
                 }
             }
