@@ -10,11 +10,10 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { _ } from "svelte-i18n";
+  import { P, Heading, Input, Button, Helper } from "flowbite-svelte";
+  import { ToastContainer, triggerToast } from "$lib";
   import Divider from "$lib/components/Divider.svelte";
-  import { P, Heading, Input, Button, Helper, Toast } from "flowbite-svelte";
-  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { fly } from "svelte/transition";
+  import { _ } from "svelte-i18n";
   import { createEventDispatcher } from "svelte";
   import { goto } from "$app/navigation";
 
@@ -83,7 +82,9 @@ All Rights Reserved
       console.log(response);
       if (response.status === 200) {
         triggerToast("created");
-        goto(await call.getPage("client-dashboard", "crm-person"));
+        setTimeout(async () => {
+          goto(await call.getPage("client-dashboard", "crm-person"));
+        }, 3000);
         return;
       } else {
         triggerToast("error");
@@ -93,26 +94,6 @@ All Rights Reserved
       triggerToast("error");
       console.log(error);
     }
-  }
-
-  function triggerToast(target) {
-    if (target === "created") {
-      toastCreated = true;
-      counter = 6;
-      timeout();
-    } else if (target === "error") {
-      toastError = true;
-      counter = 6;
-      timeout();
-    } else {
-      console.log("target not found");
-    }
-  }
-
-  function timeout() {
-    if (--counter > 0) return setTimeout(timeout, 1000);
-    open = false;
-    toastError = false;
   }
 
   async function backPage() {
@@ -285,24 +266,5 @@ All Rights Reserved
       </div>
     </div>
   </div>
-  <div class="fixed bottom-5 end-5">
-    <Toast color="green" transition={fly} params={{ x: 200 }} bind:open={toastCreated}>
-      <svelte:fragment slot="icon">
-        <CheckCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("successfullyCreated")}
-    </Toast>
-    <Toast
-      class="!max-w-sm"
-      color="red"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastError}
-    >
-      <svelte:fragment slot="icon">
-        <ExclamationCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("sometingWentWrongPleaseTryAgain")}
-    </Toast>
-  </div>
+  <ToastContainer />
 </div>

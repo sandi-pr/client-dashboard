@@ -18,15 +18,10 @@ All Rights Reserved
     Select,
     Textarea,
     Toggle,
-    Toast,
     Helper,
   } from "flowbite-svelte";
-  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { fly } from "svelte/transition";
-  import upload from "$lib/icon/upload-cloud-02.svg";
+  import { ToastContainer, triggerToast } from "$lib";
   import { _ } from "svelte-i18n";
-  import CopyIcon from "$lib/icon/copy-03.svelte";
-  import TabBar from "$lib/ui/tab_bar/TabBar.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { onMount } from "svelte";
@@ -52,7 +47,6 @@ All Rights Reserved
   });
 
   let toastCreated = $state(false);
-  let toastResourceEmpty = $state(false);
   let toastError = $state(false);
   let counter = $state(6);
 
@@ -192,7 +186,9 @@ All Rights Reserved
             }
           }
           triggerToast("created");
-          goto(await call.getPage("client-dashboard", "crm-product-service"));
+          setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "crm-product-service"));
+          }, 3000);
           return;
         } else {
           triggerToast("error");
@@ -236,30 +232,6 @@ All Rights Reserved
         return;
       }
     }
-  }
-
-  function triggerToast(target) {
-    if (target === "created") {
-      toastCreated = true;
-      counter = 6;
-      timeout();
-    } else if (target === "resource_empty") {
-      toastResourceEmpty = true;
-      counter = 6;
-      timeout();
-    } else if (target === "error") {
-      toastError = true;
-      counter = 6;
-      timeout();
-    } else {
-      console.log("target not found");
-    }
-  }
-
-  function timeout() {
-    if (--counter > 0) return setTimeout(timeout, 1000);
-    toastCreated = false;
-    toastError = false;
   }
 
   let buttonDisable = $state(true);
@@ -504,30 +476,5 @@ All Rights Reserved
       {/if}
     </div>
   </div>
-  <div class="fixed bottom-5 end-5">
-    <Toast color="green" transition={fly} params={{ x: 200 }} bind:open={toastCreated}>
-      <svelte:fragment slot="icon">
-        <CheckCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("successfullyCreated")}
-    </Toast>
-    <Toast color="red" transition={fly} params={{ x: 200 }} bind:open={toastResourceEmpty}>
-      <svelte:fragment slot="icon">
-        <ExclamationCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("resourceNameEmpty")}
-    </Toast>
-    <Toast
-      class="!max-w-sm"
-      color="red"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastError}
-    >
-      <svelte:fragment slot="icon">
-        <ExclamationCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("sometingWentWrongPleaseTryAgain")}
-    </Toast>
-  </div>
+  <ToastContainer />
 </div>

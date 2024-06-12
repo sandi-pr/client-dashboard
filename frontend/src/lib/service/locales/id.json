@@ -253,6 +253,15 @@
     "orDragAndDrop": "atau seret dan lepas",
     "selectDocumentType": "Pilih Tipe Dokumen",
     "jobLevel": "Level Pekerja",
-    "newJobLevel": "Level Pekerja Baru",
-    "adjust&MoveOrderByDragging": "Tetapkan dan pindahkan dengan seret dan lepas"
+    "newJobLevel": "Level Pekerja baru",
+    "adjust&MoveOrderByDragging": "Tetapkan dan pindahkan dengan seret dan lepas",
+    "successfullyUpdated": "Berhasil diperbarui.",
+    "notAvailable": "Tidak tersedia",
+    "dayNotAvailable": "Hari tidak tersedia",
+    "timeNotAvailable": "Waktu tidak tersedia",
+    "addNewBooking": "Tambahkan Pemesanan baru",
+    "availabilitySlots": "Ketersediaan",
+    "day": "Hari",
+    "week": "Minggu",
+    "month": "Bulan"
 }

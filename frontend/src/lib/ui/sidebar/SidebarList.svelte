@@ -121,6 +121,7 @@
             </svelte:fragment>
             {#each item.children as child}
               <SidebarNavItem
+                rel="external"
                 href={child.href}
                 {activeUrl}
                 icon={child.icon}

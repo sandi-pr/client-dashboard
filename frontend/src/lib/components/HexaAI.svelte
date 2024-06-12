@@ -192,7 +192,7 @@
             <div
               class="prose font-medium text-tertiary-light dark:text-primary-dark"
             >
-              <Markdown md={qaPair.message} {plugins} />
+              <Markdown md={qaPair.message} />
             </div>
           </div>
         </div>
