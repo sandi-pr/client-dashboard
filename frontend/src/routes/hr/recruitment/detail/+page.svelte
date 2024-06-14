@@ -11,8 +11,20 @@ All Rights Reserved
  -->
 
 <script>
-  import { P, Heading, Input, Textarea, Button, Modal } from "flowbite-svelte";
-  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import {
+    P,
+    Heading,
+    Input,
+    Textarea,
+    Button,
+    Modal,
+    MultiSelect,
+    Select,
+  } from "flowbite-svelte";
+  import {
+    CheckCircleSolid,
+    ExclamationCircleSolid,
+  } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
@@ -21,14 +33,14 @@ All Rights Reserved
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
-  import { goto } from "$app/navigation"; 
-  import { createEventDispatcher } from 'svelte';
+  import { goto } from "$app/navigation";
+  import { createEventDispatcher } from "svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
-  const documentId = params.get("documentId");
+  const recruitmentId = params.get("recruitmentId");
   const edit = params.get("edit");
   const dispatch = createEventDispatcher();
 
@@ -67,17 +79,38 @@ All Rights Reserved
     },
   ]);
 
-  let personClient = $state([]);
+  let jobLevels = $state([]);
 
-  let skillsOrKeywords = ["Figma", "JavaScript", "HTML", "CSS", "Svelte"];
+  let skillsOrKeywords = $state([
+    {
+      value: "Figma",
+      name: "Figma",
+    },
+    {
+      value: "JavaScript",
+      name: "JavaScript",
+    },
+    {
+      value: "HTML",
+      name: "HTML",
+    },
+    {
+      value: "CSS",
+      name: "CSS",
+    },
+    {
+      value: "Svelte",
+      name: "Svelte",
+    },
+  ]);
 
-  async function getDocument() {
+  async function getRecruitment() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-document", {
+      let response = await call.call("client-dashboard", "get-recruitment", {
         URLQuery: {},
         URLParams: {
-          id: documentId.toString(),
+          id: recruitmentId,
         },
         Params: {},
         Headers: {
@@ -85,58 +118,78 @@ All Rights Reserved
         },
       });
 
+      console.log(response);
+
       if (response.status !== 200) {
         console.log(response);
         return;
       }
 
-      if (response.result.document.data.length > 0) {
-        let documentData = response.result.document.data[0];
+      if (response.result.recruitment.data.length > 0) {
+        let recruitmentData = response.result.recruitment.data[0];
         data = {
-          id: documentData.id,
-          createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
-          document_title: documentData.attributes.document_title,
-          description: documentData.attributes.description,
-          document_type: documentData.attributes.document_type,
-          ext: documentData.attributes.document.data.attributes.ext,
-          person_client: documentData.attributes.person.data?.id,
-          contract_start:
-          documentData.attributes.contract_start !== null
-              ? format(new Date(documentData.attributes.contract_start), "yyyy-MM-dd")
-              : "",
-          contract_end:
-          documentData.attributes.contract_end !== null
-              ? format(new Date(documentData.attributes.contract_end), "yyyy-MM-dd")
-              : "",
+          id: recruitmentData.id,
+          fullname: recruitmentData.attributes.fullname,
+          email: recruitmentData.attributes.email,
+          phone: recruitmentData.attributes.phone,
+          address: recruitmentData.attributes.address,
+          education_history: recruitmentData.attributes.education_history,
+          job_position: recruitmentData.attributes.job_position,
+          experience: recruitmentData.attributes.experience,
+          createdAt: format(
+            new Date(recruitmentData.attributes.createdAt),
+            "dd MMMM yyyy",
+          ),
+          ext: recruitmentData.attributes.resume.data.attributes.ext,
+          resumeName: recruitmentData.attributes.resume.data.attributes.name,
+          skillsOrKeywords: recruitmentData.attributes.skills,
         };
 
         base64 = response.result.base64;
         contentFile = atob(base64);
 
-        const blob = base64toBlob(base64);
+        const blob = base64toBlob(base64, data.ext);
         fileUrl = URL.createObjectURL(blob);
         console.log(fileUrl);
-        
+
         pdfReady = true;
       }
     }
   }
 
-  async function deleteDocument() {
+  async function updateRecruitment() {
     let token = sessionStorage.getItem("token");
-    if (documentId !== "" && documentId !== null && documentId !== undefined) {
+    if (
+      recruitmentId !== "" &&
+      recruitmentId !== null &&
+      recruitmentId !== undefined
+    ) {
       try {
-        let response = await call.call("client-dashboard", "delete-document", {
-          URLQuery: {},
-          URLParams: {
-            id: documentId.toString(),
+        let response = await call.call(
+          "client-dashboard",
+          "update-recruitment",
+          {
+            URLQuery: {},
+            URLParams: {
+              id: recruitmentId.toString(),
+            },
+            Headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            Params: {
+              fullname: data.fullname,
+              email: data.email,
+              phone: data.phone.toString(),
+              address: data.address,
+              education_history: data.education_history,
+              skills: JSON.stringify(data.skillsOrKeywords),
+              job_position: data.job_position,
+              experience: data.experience,
+            },
           },
-          Headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        );
         if (response.status === 200) {
-          goto(await call.getPage("client-dashboard", "document-management-list"));
+          goto(await call.getPage("client-dashboard", "hr-recruitment"));
           return;
         } else {
           console.log(response);
@@ -148,45 +201,36 @@ All Rights Reserved
     }
   }
 
-  async function getPersons() {
+  async function deleteRecruitment() {
     let token = sessionStorage.getItem("token");
-    if (token !== null) {
-      let page = 1;
-      while (true) {
-        let response = await call.call("client-dashboard", "get-persons", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: page,
-            page_size: 25,
+    if (
+      recruitmentId !== "" &&
+      recruitmentId !== null &&
+      recruitmentId !== undefined
+    ) {
+      try {
+        let response = await call.call(
+          "client-dashboard",
+          "delete-recruitment",
+          {
+            URLQuery: {},
+            URLParams: {
+              id: recruitmentId.toString(),
+            },
+            Headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
+        );
+        if (response.status === 200) {
+          goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          return;
+        } else {
           console.log(response);
           return;
         }
-
-        if (response.result.data.length > 0) {
-          let promise = response.result.data.map((person) => {
-            return {
-              value: person.id,
-              name:
-                person.attributes.fullname !== null
-                  ? person.attributes.fullname
-                  : `<${person.attributes.email}>`,
-            };
-          });
-
-          let data = await Promise.all(promise);
-          personClient = personClient.concat(data);
-          page++;
-        } else {
-          break;
-        }
+      } catch (error) {
+        console.log(error);
       }
     }
   }
@@ -196,18 +240,18 @@ All Rights Reserved
     if (ext === ".pdf") {
       fileType = "application/pdf";
     } else if (ext === ".docx") {
-      fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      fileType =
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     } else if (ext === ".doc") {
       fileType = "application/msword";
     } else {
       fileType = "text/plain";
     }
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = URL.createObjectURL(base64toBlob(base64, fileType));
     a.download = fileName;
     a.click();
   }
-
 
   function base64toBlob(base64Data, fileType) {
     const byteCharacters = atob(base64Data);
@@ -229,10 +273,36 @@ All Rights Reserved
     return blob;
   }
 
+  async function getJobLevels() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-level", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          let promise = response.result.job_level.map((job) => {
+            return { name: job.title, value: job.title };
+          });
+          jobLevels = await Promise.all(promise);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     if (edit === "true") onEdit = true;
-    // getPersons();
-    // getDocument();
+    console.log("id", recruitmentId);
+    getRecruitment();
+    getJobLevels();
   });
 </script>
 
@@ -246,12 +316,14 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{data.document_title}<Button
+              >{data.fullname}<Button
                 outline
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <CopyIcon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
               </Button></Heading
             >
           </div>
@@ -270,7 +342,10 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={() => {}} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+            <Button
+              onclick={updateRecruitment}
+              class="px-3 focus-within:!ring-1">{$_("save")}</Button
+            >
           {:else}
             <Button
               onclick={async function () {
@@ -282,7 +357,8 @@ All Rights Reserved
             >
             <Button
               onclick={() => (popupModal = true)}
-              outline color="red"
+              outline
+              color="red"
               class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
             <Button
@@ -302,18 +378,22 @@ All Rights Reserved
       </div>
 
       <!-- Tab Bar -->
-      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+      <TabDetail
+        {tabDatas}
+        on:tabChange={(e) => (tabDatas.selected = e.detail)}
+      />
 
       <!-- Content -->
       <div class="">
         {#if tabDatas.selected === "Resume"}
           <div class="flex justify-between items-center pt-6 pb-4">
-            <P class="font-semibold text-hc-graylight-700 dark:text-hc-graydark-300"
-              >{$_("documentName")}</P
+            <P
+              class="font-semibold text-hc-graylight-700 dark:text-hc-graydark-300"
+              >{data.resumeName}</P
             >
             <div class="flex items-center gap-2">
               <Button
-                onclick={() => downloadFile(base64, data.document_title, data.ext)}
+                onclick={() => downloadFile(base64, data.resume, data.ext)}
                 class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1"
               >
                 <img alt="refresh" src={DownloadIcon} class="w-5 h-5" />
@@ -321,23 +401,28 @@ All Rights Reserved
               </Button>
             </div>
           </div>
-          <div class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800">
+          <div
+            class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800"
+          >
             {#if pdfReady}
               {#if data.ext === ".pdf"}
-                <iframe title="" class="w-full h-screen" src={`${fileUrl}`} ></iframe>
+                <iframe title="" class="w-full h-screen" src={`${fileUrl}`}
+                ></iframe>
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}
                   <p class="dark:text-white">{paragraphs}</p>
                 {/each}
               {/if}
             {/if}
-          </div>          
+          </div>
         {:else if tabDatas.selected === "Information"}
           <div class="flex flex-col gap-4 pt-6">
             <!-- general information -->
             <div class="flex gap-6">
               <div class="w-60">
-                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                <P
+                  class="font-semibold text-secondary-light dark:text-secondary-dark"
+                >
                   {$_("generalInformation")}
                 </P>
               </div>
@@ -361,10 +446,11 @@ All Rights Reserved
                     >
                       {$_("jobPosition")}
                     </P>
-                    <Input
-                      readonly={!onEdit}
-                      bind:value={data.job_position}
+                    <Select
+                      disabled={!onEdit}
                       class="bg-primary-light dark:bg-secondary-dark"
+                      items={jobLevels}
+                      bind:value={data.job_position}
                     />
                   </div>
                 </div>
@@ -427,15 +513,41 @@ All Rights Reserved
             <Divider />
             <div class="flex gap-6">
               <div class="w-60">
-                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                <P
+                  class="font-semibold text-secondary-light dark:text-secondary-dark"
+                >
                   {$_("skillsOrKeywords")}
                 </P>
               </div>
               <div class="flex flex-col grow gap-6">
-                <div class="flex flex-wrap gap-3">
-                  {#each skillsOrKeywords as skill}
+                <!-- {#if onEdit} -->
+                  <div class="flex grow gap-2">
+                  <MultiSelect
+                    disabled={!onEdit}
+                    items={skillsOrKeywords}
+                    bind:value={data.skillsOrKeywords}
+                  />
+                </div>
+                <!-- {:else}
+                  <div class="flex flex-wrap gap-2">
+                  {#each data.skillsOrKeywords as skill}
                     <Badge text={skill} type="info" class={slugify(skill)} />
                   {/each}
+                </div>
+                {/if} -->
+                <div class="flex gap-5">
+                  <div class="flex flex-col grow gap-2">
+                    <P
+                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >
+                      {$_("experience")}
+                    </P>
+                    <Input
+                      readonly={!onEdit}
+                      bind:value={data.experience}
+                      class="bg-primary-light dark:bg-secondary-dark"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -452,7 +564,9 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={() => {}} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={deleteRecruitment} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

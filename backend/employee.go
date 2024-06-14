@@ -154,8 +154,110 @@ func CreateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return status, employee, nil
+	status, checkPerson, err := Strapi.Find("person-table", U.Dict{
+		"filters": U.Dict{
+			"email": U.Dict{
+				"$eq": email,
+			},
+		},
+	})
 
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		fmt.Println(checkPerson)
+		fmt.Println("ayam")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	data, ok := checkPerson.GetList("data")
+
+	if !ok {
+		fmt.Println("ayam 1")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(data) > 0 {
+		person, ok := data.GetDict(0)
+
+		if !ok {
+			fmt.Println("ayam 2")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		idPerson, ok := person.GetFloat64("id")
+
+		if !ok {
+			fmt.Println("ayam 3")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		id, ok := employee["data"].(U.Dict).GetFloat64("id")
+
+		if !ok {
+			fmt.Println("ayam 4")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		status, updateEmployee, err := Strapi.Update("employee-table", int64(id), U.Dict{
+			"person": idPerson,
+		})
+
+		if err != nil {
+			fmt.Println("ayam 5")
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println("ayam 6")
+			fmt.Println(updateEmployee)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, employee, nil
+	} else {
+		fmt.Print("employee")
+		fmt.Print(employee)
+		id, ok := employee["data"].(U.Dict).GetFloat64("id")
+
+		if !ok {
+			fmt.Println("ayam 7")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		status, createPerson, err := Strapi.Create("person-table", U.Dict{
+			"fullname":      employee_name,
+			"email":         email,
+			"phone":         phone,
+			"address":       address,
+			"city":          city,
+			"state":         state,
+			"zip_code":      zip_code,
+			"country":       country,
+			"date_of_birth": date_of_birth,
+			"is_active":     "Yes",
+			"employee":      id,
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(createPerson)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, employee, nil
+	}
 }
 
 func GetEmployees(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

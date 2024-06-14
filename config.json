@@ -1757,6 +1757,11 @@
                     "required": true
                 },
                 {
+                    "name": "experience",
+                    "type": "number",
+                    "required": true
+                },
+                {
                     "name": "resume_name",
                     "type": "string",
                     "required": true
@@ -1765,6 +1770,185 @@
                     "name": "resume",
                     "type": "string",
                     "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-recruitments",
+            "path": "/get-recruitments",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetRecruitments"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-recruitment",
+            "path": "/get-recruitment/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetRecruitment"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-recruitment",
+            "path": "/update-recruitment/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateRecruitment"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "fullname",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "email",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "phone",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "address",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "job_position",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "education_history",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "skills",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "experience",
+                    "type": "number",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-recruitment",
+            "path": "/delete-recruitment/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteRecruitment"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-employee-attendances" ,
+            "path": "/get-employee-attendances",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetEmployeeAttendances"
+            },
+            "params": [
+                {
+                    "name": "date",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "create-attendance",
+            "path": "/create-attendance",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateAttendance"
+            },
+            "params": [
+                {
+                    "name": "date",
+                    "type": "string"
+                },
+                {
+                    "name": "payload",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-attendance",
+            "path": "/update-attendance/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateAttendance"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "payload",
+                    "type": "string"
                 }
             ]
         }
@@ -2193,7 +2377,8 @@
                         "type": "email",
                         "minLength": 6,
                         "configurable": false,
-                        "required": true
+                        "required": true,
+                        "unique": true
                     },
                     "provider": {
                         "type": "string",
@@ -2299,7 +2484,8 @@
                         "type": "string"
                     },
                     "email": {
-                        "type": "email"
+                        "type": "email",
+                        "unique": true
                     },
                     "phone": {
                         "type": "string"
@@ -2366,7 +2552,8 @@
                         "type": "string"
                     },
                     "email": {
-                        "type": "email"
+                        "type": "email",
+                        "unique": true
                     },
                     "phone": {
                         "type": "string"
@@ -2381,7 +2568,10 @@
                         "type": "text"
                     },
                     "skills": {
-                        "type": "text"
+                        "type": "json"
+                    },
+                    "experience": {
+                        "type": "integer"
                     },
                     "resume": {
                         "type": "media"
@@ -2397,6 +2587,18 @@
                         "relation": "oneToOne",
                         "target": "api::employee.employee",
                         "inversedBy": "recruitment"
+                    }
+                }
+            },
+            {
+                "name": "attendance",
+                "label": "Attendance",
+                "fields": {
+                    "date": {
+                        "type": "datetime"
+                    },
+                    "payload": {
+                        "type": "json"
                     }
                 }
             }

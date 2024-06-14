@@ -351,14 +351,6 @@ All Rights Reserved
                     "&edit=false",
                   name: "View",
                 },
-                // {
-                //   href:
-                //     `${await call.getPage("client-dashboard", "document-management-detail")}` +
-                //     "?documentId=" +
-                //     document.id +
-                //     "&edit=true",
-                //   name: "Edit",
-                // },
               ],
             },
           };
@@ -366,6 +358,14 @@ All Rights Reserved
 
         latestDocuments = await Promise.all(promises);
         documentsReady = true;
+
+        for (const document of latestDocuments) {
+          if (document.attributes.status !== "Ready") {
+            setTimeout(getDocumentLatest, 2000);
+            break;
+          }
+        }
+        
       }
     }
   }

@@ -8,6 +8,7 @@
   import { _ } from "svelte-i18n";
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -49,19 +50,19 @@
             id: recruitment.id,
             fullname: recruitment.attributes.fullname,
             job_position: recruitment.attributes.job_position,
-            experience: recruitment.attributes.experience,
+            experience: recruitment.attributes.experience + "+ YoE",
             email: recruitment.attributes.email,
             actions: {
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-recruitment-detail")}` +
+                    `${await call.getPage("client-dashboard", "hr-recruitment-detail")}` +
                     `?recruitmentId=${recruitment.id}&edit=false`,
                   name: "View",
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-recruitment-detail")}` +
+                    `${await call.getPage("client-dashboard", "hr-recruitment-detail")}` +
                     "?recruitmentId=" +
                     recruitment.id +
                     "&edit=true",
@@ -86,7 +87,7 @@
   }
 
   async function addRecruitment() {
-    await call.goToPage("client-dashboard", "hr-recruitment-create");
+    goto(await call.getPage("client-dashboard", "hr-recruitment-create"));
     return;
   }
 

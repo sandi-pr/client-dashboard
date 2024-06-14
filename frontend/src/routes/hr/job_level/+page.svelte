@@ -207,7 +207,7 @@ All Rights Reserved
               >
                 {#each jobLevels as job (job.id)}
                   <div
-                    class="px-4 py-2 bg-white rounded-lg backdrop-blur-[26px] justify-between items-center flex w-2/5"
+                    class="px-4 py-2 bg-white dark:bg-tertiary-dark rounded-lg backdrop-blur-[26px] justify-between items-center flex w-2/5"
                   >
                     <div
                       class="min-w-[172px] self-stretch items-center gap-4 flex"

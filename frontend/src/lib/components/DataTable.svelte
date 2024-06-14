@@ -30,6 +30,7 @@
   import RefreshIcon from "../icon/refresh.svelte";
   import EyeIcon from "../icon/eye.svelte";
   import CheckIcon from "../icon/check.svg";
+  import CheckIcon2 from "../icon/check2.svelte";
   import XIcon from "../icon/x.svg";
   import CheckWhiteIcon from "../icon/check-white.svg";
   import ID from "../icon/ID.svg";
@@ -51,7 +52,6 @@
   const splitCamelCase = (value) => {
     return value.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/_/g, " ");
   };
-  
 
   const normalContent = (key) => {
     return (
@@ -153,16 +153,24 @@
 </script>
 
 <div>
-  <div class={`flex items-center justify-between mb-4 ${withSeperator(configs)}`}>
+  <div
+    class={`flex items-center justify-between mb-4 ${withSeperator(configs)}`}
+  >
     {#if configs?.headers}
-      <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
+      <Heading
+        tag="h6"
+        class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
         >{configs.headers}</Heading
       >
     {/if}
     <div>
       {#if configs?.actions && Object.keys(configs.actions).length > 0}
         {#each configs.actions as action (action.id)}
-          <Button href={action.href} color="light" class={`${classActionType(action.type)}`}>
+          <Button
+            href={action.href}
+            color="light"
+            class={`${classActionType(action.type)}`}
+          >
             {#if action?.icon}
               {#if action.icon === "plus"}
                 <Icon.PlusOutline class="w-4 h-4" />&nbsp;
@@ -193,7 +201,10 @@
           placeholder={$_("search")}
           on:change={handleSearch}
         >
-          <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          <Icon.SearchOutline
+            slot="left"
+            class="w-5 h-5 text-gray-500 dark:text-gray-400"
+          />
         </Input>
         {#if configs.documentManagement}
           <div class="flex gap-2">
@@ -207,7 +218,10 @@
               />
               {"batchDelete"}
             </Button>
-            <Button type="submit" class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1">
+            <Button
+              type="submit"
+              class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1"
+            >
               <img alt="refresh" src={CheckWhiteIcon} class="w-5 h-5" />
               {"batchApprove"}
             </Button>
@@ -240,12 +254,14 @@
       {#if datas.length > 0}
         {#each Object.keys(datas[0]) as key}
           {#if normalContent(key)}
-            <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
+            <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell
+            >
           {/if}
         {/each}
         {#each Object.keys(datas[0]) as key}
           {#if pillContent(key)}
-            <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
+            <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell
+            >
           {/if}
         {/each}
         {#if datas[0]?.avatar && Object.keys(datas[0].avatar).length > 0}
@@ -269,7 +285,9 @@
         >
           {#each Object.keys(datas[0]) as key}
             {#if normalContent(key)}
-              <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+              <TableBodyCell
+                class="text-hc-graylight-600 dark:text-hc-graydark-400"
+              >
                 {data[key]}
               </TableBodyCell>
             {/if}
@@ -277,7 +295,9 @@
           {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0]?.role || datas[0]?.category || datas[0]?.authority}
             {#each Object.keys(datas[0]) as key}
               {#if key === "parentUnit" || key === "unit" || key === "role" || key === "category" || key === "authority"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                <TableBodyCell
+                  class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                >
                   {#if data[key]?.type}
                     <p
                       class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
@@ -298,7 +318,8 @@
           {#if datas[0]?.status && Object.keys(datas[0].status).length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key === "status"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                <TableBodyCell
+                  class="text-hc-graylight-600 dark:text-hc-graydark-400"
                   ><p
                     class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
                       data.status.type,
@@ -316,7 +337,10 @@
                 <Avatar src={avatar.photo} stacked />
               {/each}
               {#if data.avatar.length > 2}
-                <Avatar stacked href="/" class="bg-gray-700 text-white hover:bg-gray-600 text-sm"
+                <Avatar
+                  stacked
+                  href="/"
+                  class="bg-gray-700 text-white hover:bg-gray-600 text-sm"
                   >+{data.avatar.length - 2}</Avatar
                 >
               {/if}
@@ -325,7 +349,9 @@
           {#if datas[0]?.member}
             {#each Object.keys(datas[0]) as key}
               {#if key === "member"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                <TableBodyCell
+                  class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                >
                   <div class="flex">
                     <p class="mr-2">{`${data.member.length} users`}</p>
                     {#each data.member as member, index (member)}
@@ -342,7 +368,11 @@
                       {/if}
                     {/each}
                     {#if data.member.length > 5}
-                      <Avatar src="#" class="w-6 h-6" alt={`+${data.member.length - 5}`} />
+                      <Avatar
+                        src="#"
+                        class="w-6 h-6"
+                        alt={`+${data.member.length - 5}`}
+                      />
                     {/if}
                   </div>
                 </TableBodyCell>
@@ -352,7 +382,9 @@
           {#if datas[0]?.recipients}
             {#each Object.keys(datas[0]) as key}
               {#if key === "recipients"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                <TableBodyCell
+                  class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                >
                   <div class="flex">
                     {#each data.recipients as recipients, index (recipients)}
                       {#if index < 5}
@@ -400,7 +432,8 @@
             {#each Object.keys(datas[0]) as key}
               {#if key === "attendance"}
                 {#if data.attendance.status.type}
-                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                  <TableBodyCell
+                    class="text-hc-graylight-600 dark:text-hc-graydark-400"
                     ><p
                       class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
                         data.attendance.status.type,
@@ -410,7 +443,9 @@
                     </p>
                   </TableBodyCell>
                 {:else}
-                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                  <TableBodyCell
+                    class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                  >
                     <div class="flex gap-1">
                       <Button
                         outline
@@ -435,7 +470,9 @@
           {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key === "actions"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                <TableBodyCell
+                  class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                >
                   <div class="flex justify-end gap-8">
                     {#each datas[index].actions.objects as action (action.name)}
                       {#if action?.iconOnly && action.iconOnly === true}
@@ -447,7 +484,11 @@
                                 color="green"
                                 class="hover:!bg-transparent !border-hc-success-500 dark:!border-hc-success-400 focus-within:!ring-1 !p-2"
                               >
-                                <img alt="refresh" src={CheckIcon} class="w-5 h-5" />
+                                <img
+                                  alt="refresh"
+                                  src={CheckIcon}
+                                  class="w-5 h-5"
+                                />
                               </Button>
                             {/if}
                             {#if action?.actionButton?.reject}
@@ -456,11 +497,19 @@
                                 color="red"
                                 class="hover:!bg-transparent !border-hc-error-300 dark:!border-hc-error-400 focus-within:!ring-1 !p-2"
                               >
-                                <img alt="refresh" src={XIcon} class="w-5 h-5" />
+                                <img
+                                  alt="refresh"
+                                  src={XIcon}
+                                  class="w-5 h-5"
+                                />
                               </Button>
                             {/if}
                             {#if action?.actionButton?.recall}
-                              <Button color="white" class="!p-2 focus-within:!ring-1 " size="lg">
+                              <Button
+                                color="white"
+                                class="!p-2 focus-within:!ring-1 "
+                                size="lg"
+                              >
                                 <RefreshIcon
                                   class="w-5 h-5 text-fg-tertiary-light dark:text-fg-tertiary-dark"
                                 />
@@ -479,7 +528,9 @@
                           </div>
                         {:else if action.name === "Delete"}
                           <a href={action.href}>
-                            <Icon.TrashBinOutline class="w-5 h-5 text-gray-600" />
+                            <Icon.TrashBinOutline
+                              class="w-5 h-5 text-gray-600"
+                            />
                           </a>
                         {:else if action.name === "Edit"}
                           <a href={action.href}>
@@ -487,8 +538,45 @@
                           </a>
                         {:else}
                           <a href={action.href}>
-                            <Icon.TrashBinOutline class="w-3 h-3 text-gray-600" />
+                            <Icon.TrashBinOutline
+                              class="w-3 h-3 text-gray-600"
+                            />
                           </a>
+                        {/if}
+                      {:else if action?.attendance && action.attendance === true}
+                        {#if action?.actionButton?.CheckIn}
+                          <Button
+                            on:click={action?.actionButton?.CheckIn}
+                            outline
+                            color="green"
+                            class="hover:!bg-transparent !border-hc-success-500 dark:!border-hc-success-400 focus-within:!ring-1 !p-2"
+                          >
+                            <img
+                              alt="refresh"
+                              src={CheckIcon}
+                              class="w-5 h-5"
+                            />
+                          </Button>
+                        {/if}
+                        {#if action?.actionButton?.CheckOut}
+                          <Button
+                            on:click={action?.actionButton?.CheckOut}
+                            outline
+                            color="red"
+                            class="hover:!bg-transparent !border-hc-brand-300 dark:!border-hc-brand-400 focus-within:!ring-1 !p-2"
+                          >
+                            <CheckIcon2 svgClass="w-5 h-5 text-hc-brand-600 dark:text-hc-brand-400" />
+                          </Button>
+                        {/if}
+                        {#if action?.actionButton?.Absent}
+                          <Button
+                            on:click={action?.actionButton?.Absent}
+                            outline
+                            color="red"
+                            class="hover:!bg-transparent !border-hc-error-300 dark:!border-hc-error-400 focus-within:!ring-1 !p-2"
+                          >
+                            <img alt="refresh" src={XIcon} class="w-5 h-5" />
+                          </Button>
                         {/if}
                       {:else}
                         <a
@@ -515,11 +603,13 @@
       <span
         >{configs.pagination.page === 1
           ? 1
-          : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
+          : (configs.pagination.page - 1) * configs.pagination.pageSize +
+            1}</span
       >
       {"to"}
       <span
-        >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
+        >{configs.pagination.page * configs.pagination.pageSize >=
+        configs.pagination.total
           ? configs.pagination.total
           : configs.pagination.page * configs.pagination.pageSize}</span
       >

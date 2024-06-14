@@ -90,6 +90,12 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 
 	fmt.Println(me)
 
+	companyId, ok := me.GetFloat64("company")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
 	username, ok := ctx.Params.GetString("username")
 
 	if !ok {
@@ -127,7 +133,7 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, user, err := Strapi.UsersUpdate(int64(users["id"].(U.Float64)), U.Dict{"fullname": fullname})
+	status, user, err := Strapi.UsersUpdate(int64(users["id"].(U.Float64)), U.Dict{"fullname": fullname, "company": companyId})
 
 	if err != nil {
 		fmt.Println(err)

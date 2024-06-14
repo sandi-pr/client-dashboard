@@ -16,7 +16,8 @@ All Rights Reserved
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { fly } from "svelte/transition";
   import { createEventDispatcher, onMount } from "svelte";
-
+  import { goto } from "$app/navigation";
+ 
   const dispatch = createEventDispatcher();
 
   import { CR3Call } from "hexacomponents-svelte";
@@ -95,7 +96,7 @@ All Rights Reserved
       console.log(response);
       if (response.status === 200) {
         triggerToast("created");
-        await call.goToPage("client-dashboard", "hr-employee");
+        goto(await call.getPage("client-dashboard", "hr-employee"));
         return;
       } else {
         triggerToast("error");
@@ -128,7 +129,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    await call.goToPage("client-dashboard", "crm-person");
+    goto(await call.getPage("client-dashboard", "hr-employee"));
     return;
   }
 

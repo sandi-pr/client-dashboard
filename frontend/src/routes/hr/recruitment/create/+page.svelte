@@ -11,13 +11,22 @@ All Rights Reserved
  -->
 
 <script>
-  import { P, Heading, Input, Textarea, Button, MultiSelect } from "flowbite-svelte";
+  import {
+    P,
+    Heading,
+    Input,
+    Textarea,
+    Button,
+    MultiSelect,
+    Select,
+  } from "flowbite-svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
 
   const call = new CR3Call(globalThis.location.origin);
   let fileTextResult = $state(null);
@@ -32,6 +41,7 @@ All Rights Reserved
     education_history: "",
     job_position: "",
     skillsOrKeywords: "",
+    experience: "",
   });
 
   let skillsOrKeywords = $state([
@@ -56,6 +66,8 @@ All Rights Reserved
       name: "Svelte",
     },
   ]);
+
+  let jobLevels = $state([]);
 
   function handleDragOver(event) {
     event.preventDefault();
@@ -150,24 +162,31 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "create-recruitment", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            fullname: data.fullname,
-            email: data.email,
-            phone: data.phone,
-            address: data.address,
-            job_position: data.job_position,
-            education_history: data.education_history,
-            skills: data.skillsOrKeywords,
-            resume_name: "Resume - " + data.fullname,
-            resume: base64Data,
+        console.log(typeof data.phone)
+        console.log(typeof data.phone.toString())
+        let response = await call.call(
+          "client-dashboard",
+          "create-recruitment",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              fullname: data.fullname,
+              email: data.email,
+              phone: data.phone.toString(),
+              address: data.address,
+              job_position: data.job_position,
+              education_history: data.education_history,
+              skills: JSON.stringify(data.skillsOrKeywords),
+              experience: data.experience,
+              resume_name: fileTextName,
+              resume: base64Data,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
           },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        );
 
         console.log(response);
 
@@ -188,6 +207,35 @@ All Rights Reserved
       return;
     }
   }
+
+  async function getJobLevels() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-level", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          let promise = response.result.job_level.map((job) => {
+            return { name: job.title, value: job.title };
+          });
+          jobLevels = await Promise.all(promise);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  onMount(() => {
+    getJobLevels();
+  });
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -204,16 +252,12 @@ All Rights Reserved
               {$_("createNewRecruitment")}
             </Heading>
           </div>
-          <P
-            class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-            >{$_("createOn")}{` ${data.createdAt}`}</P
-          >
         </div>
 
         <div class="flex gap-2">
           <Button
             onclick={async () => {
-              await call.getPage("client-dashboard", "hr-recruitment");
+              goto(await call.getPage("client-dashboard", "hr-recruitment"));
             }}
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -228,7 +272,9 @@ All Rights Reserved
           <!-- general information -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              <P
+                class="font-semibold text-secondary-light dark:text-secondary-dark"
+              >
                 {$_("generalInformation")}
               </P>
             </div>
@@ -251,9 +297,10 @@ All Rights Reserved
                   >
                     {$_("jobPosition")}
                   </P>
-                  <Input
-                    bind:value={data.job_position}
+                  <Select
                     class="bg-primary-light dark:bg-secondary-dark"
+                    items={jobLevels}
+                    bind:value={data.job_position}
                   />
                 </div>
               </div>
@@ -264,7 +311,11 @@ All Rights Reserved
                   >
                     {$_("email")}
                   </P>
-                  <Input bind:value={data.email} class="bg-primary-light dark:bg-secondary-dark" />
+                  <Input
+                    type="email"
+                    bind:value={data.email}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
                 </div>
                 <div class="flex flex-col grow gap-2">
                   <P
@@ -272,7 +323,11 @@ All Rights Reserved
                   >
                     {$_("phone")}
                   </P>
-                  <Input bind:value={data.phone} class="bg-primary-light dark:bg-secondary-dark" />
+                  <Input
+                    type="number"
+                    bind:value={data.phone}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
                 </div>
               </div>
               <div class="grid grid-cols-1">
@@ -306,7 +361,9 @@ All Rights Reserved
           <Divider />
           <div class="flex gap-6">
             <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              <P
+                class="font-semibold text-secondary-light dark:text-secondary-dark"
+              >
                 {$_("resume")}
               </P>
             </div>
@@ -338,15 +395,21 @@ All Rights Reserved
                   <div
                     class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
                   >
-                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
+                    <img
+                      src={upload}
+                      alt="mail.svg"
+                      class="p-4 dark:invert pointer-events-none"
+                    />
                   </div>
                   <div class="flex space-x-1">
-                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P><P
-                      class="pointer-events-none">{$_("orDragAndDrop")}</P
-                    >
+                    <P class="text-hc-brand-700 pointer-events-none"
+                      >{$_("clickToUpload")}</P
+                    ><P class="pointer-events-none">{$_("orDragAndDrop")}</P>
                   </div>
                   <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none">PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P>
+                  <P class="pointer-events-none"
+                    >PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P
+                  >
                 {/if}
               </Button>
             </div>
@@ -354,12 +417,34 @@ All Rights Reserved
           <Divider />
           <div class="flex gap-6">
             <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              <P
+                class="font-semibold text-secondary-light dark:text-secondary-dark"
+              >
                 {$_("skillsOrKeywords")}
               </P>
             </div>
             <div class="flex flex-col grow gap-6">
-              <MultiSelect items={skillsOrKeywords} bind:value={data.skillsOrKeywords} />
+              <div class="flex flex-col grow gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("skillsOrKeywords")}</P
+                >
+                <MultiSelect
+                  items={skillsOrKeywords}
+                  bind:value={data.skillsOrKeywords}
+                />
+              </div>
+              <div class="flex flex-col grow gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("experience")} (YoE)</P
+                >
+                <Input
+                  type="number"
+                  bind:value={data.experience}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
             </div>
           </div>
         </div>
