@@ -69,6 +69,32 @@ All Rights Reserved
   let counter = $state(6);
 
   let popupModal = $state(false);
+  let jobLevels = $state([]);
+
+  async function getJobLevels() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-level", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          let promise = response.result.job_level.map((job) => {
+            return { name: job.title, value: job.title };
+          });
+          jobLevels = await Promise.all(promise);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 
   function formatDate(inputDate) {
     const date = new Date(inputDate);
@@ -236,6 +262,7 @@ All Rights Reserved
   onMount(async () => {
     if (edit === "true") onEdit = true;
     getEmployee();
+    getJobLevels();
   });
 
   // let dropdownOpen = false;

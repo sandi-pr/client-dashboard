@@ -382,6 +382,29 @@
             ]
         },
         {
+            "name": "get-count-employee-per-month",
+            "path": "/get-count-employee-per-month",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountEmployeePerMonth"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
+                    "type": "date",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-products",
             "path": "/get-products",
             "method": "POST",

@@ -86,9 +86,9 @@ All Rights Reserved
   // let documentsComplete = [];
   // let allUrls = [];
   // let chart = true;
-  let monthlyEmployeeCounts = $state([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-  let monthlyCheckinEmployeeCounts = $state([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-  let monthlyLeaveEmployeeCounts = $state([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  let monthlyEmployeeCounts = $state([]);
+  let monthlyCheckinEmployeeCounts = $state([]);
+  let monthlyLeaveEmployeeCounts = $state([]);
   let dataChartAll = $state({});
   let dataChartCheckin = $state({});
   let dataChartLeave = $state({});
@@ -123,11 +123,11 @@ All Rights Reserved
   }
 
   let tabDatas = $state({
-    selected: "Attendance",
+    selected: "Employee",
     data: [
-      {
-        name: "Attendance",
-      },
+      // {
+      //   name: "Attendance",
+      // },
       {
         name: "Employee",
       },
@@ -451,19 +451,17 @@ All Rights Reserved
         let promises = latestData.map(async (employee) => {
           return {
             id: employee.id,
-            join_date: employee.attributes.join_date,
-            employee_name: employee.attributes.fullname,
+            join_date: employee.attributes.start_date,
+            employee_name: employee.attributes.employee_name,
             email: employee.attributes.email,
-            job_position: employee.attributes.job,
-            employee_status: employee.attributes.is_active,
+            job_position: employee.attributes.job_position,
+            employment_status: employee.attributes.employment_status,
             actions: {
               objects: [
                 {
                   href:
                     `${await call.getPage("client-dashboard", "hr-employee-detail")}` +
-                    "?employeeId=" +
-                    employee.id +
-                    "&edit=false",
+                    `?employeeId=${employee.id}&edit=false`,
                   name: "View",
                 },
                 {
@@ -554,11 +552,17 @@ All Rights Reserved
           return {
             id: recruitment.id,
             fullname: recruitment.attributes.fullname,
-            job_position: recruitment.attributes.job,
-            experience: recruitment.attributes.experience,
+            job_position: recruitment.attributes.job_position,
+            experience: recruitment.attributes.experience + "+ YoE",
             email: recruitment.attributes.email,
             actions: {
               objects: [
+                {
+                  href:
+                    `${await call.getPage("client-dashboard", "hr-recruitment-detail")}` +
+                    `?recruitmentId=${recruitment.id}&edit=false`,
+                  name: "View",
+                },
                 {
                   href:
                     `${await call.getPage("client-dashboard", "hr-recruitment-detail")}` +
@@ -609,7 +613,7 @@ All Rights Reserved
 
         monthlyEmployeeCounts.push(response.result.employee.meta.pagination.total);
         monthlyCheckinEmployeeCounts.push(response.result.checkinEmployee.meta.pagination.total);
-        monthlyLeaveEmployeeCounts.push(response.result.leaveEmployee.meta.pagination.total);
+        monthlyLeaveEmployeeCounts.push(response.result.absentEmployee.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -660,13 +664,13 @@ All Rights Reserved
     changeType: "-",})
 
   onMount(async () => {
-    // getCountPersonsPerMonth();
-    getChartAction(damyData, damyData, damyData);
+    getCountPersonsPerMonth();
+    // getChartAction(damyData, damyData, damyData);
     generateChartData();
     getActionItems();
-    // getEmployee();
+    getEmployee();
     // getAttendance();
-    // getUsers();
+    getRecruitment();
   });
 </script>
 

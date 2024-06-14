@@ -577,3 +577,107 @@ func DeleteEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 	return status, employee, nil
 }
+
+func GetCountEmployeePerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	earlyDate, ok := ctx.Params.GetString("earlyDate")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	lastDate, ok := ctx.Params.GetString("lastDate")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, employee, err := Strapi.Find("employee-table", U.Dict{
+		"filters": U.Dict{
+			"createdAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+		},
+	})
+
+	fmt.Println(employee)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, checkinEmployee, err := Strapi.Find("attendance-table", U.Dict{
+		"filters": U.Dict{
+			"createdAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+			"payload": U.Dict{
+				"$containsi": "Checkin",
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("checkinEmployee :", checkinEmployee)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, absentEmployee, err := Strapi.Find("attendance-table", U.Dict{
+		"filters": U.Dict{
+			"createdAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+			"payload": U.Dict{
+				"$containsi": "Absent",
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("absentEmployee :", absentEmployee)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{"employee": employee, "checkinEmployee": checkinEmployee, "absentEmployee": absentEmployee}, nil
+}
