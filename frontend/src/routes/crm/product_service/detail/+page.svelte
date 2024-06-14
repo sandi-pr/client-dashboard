@@ -10,9 +10,9 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle, Toast, Modal } from "flowbite-svelte";
-  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { fly } from "svelte/transition";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle, Modal } from "flowbite-svelte";
+  import { ToastContainer, triggerToast } from "$lib";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -54,7 +54,9 @@ All Rights Reserved
   });
 
   let toastCreated = $state(false);
+  let toastUpdated = $state(false);
   let toastError = $state(false);
+  let toastDeleted = $state(false);
   let counter = $state(6);
 
   let popupModal = $state(false);
@@ -153,27 +155,14 @@ All Rights Reserved
     return formattedDate;
   }
 
-  function triggerToast(target) {
-    if (target === "created") {
-      toastCreated = true;
-      counter = 6;
-      timeout();
-    } else if (target === "error") {
-      toastError = true;
-      counter = 6;
-      timeout();
-    } else {
-      console.log("target not found");
-    }
-  }
-
-  function timeout() {
-    if (--counter > 0) return setTimeout(timeout, 1000);
-    open = false;
-    toastError = false;
-  }
-
   async function getProduct() {
+    if (productId === null) {
+      triggerToast("error");
+      setTimeout(async () => {
+        goto(await call.getPage("client-dashboard", "crm-product-service"));
+      }, 3000);
+      return;
+    };
     let token = sessionStorage.getItem("token");
     try {
       let response = await call.call("client-dashboard", "get-product", {
@@ -255,7 +244,10 @@ All Rights Reserved
         }
 
         if (response.status === 200) {
-          goto(await call.getPage("client-dashboard", "crm-product-service"));
+          triggerToast("updated");
+          setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "crm-product-service"));
+          }, 3000);
           return;
         }
       } else if (tabDatas.selected === "Resource") {
@@ -296,7 +288,10 @@ All Rights Reserved
         }
 
         if (response.status === 200) {
-          goto(await call.getPage("client-dashboard", "crm-product-service"));
+          triggerToast("updated");
+          setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "crm-product-service"));
+          }, 3000);
           return;
         }
       }
@@ -323,7 +318,10 @@ All Rights Reserved
       }
 
       if (response.status === 200) {
-        goto(await call.getPage("client-dashboard", "crm-product-service"));
+        triggerToast("deleted");
+        setTimeout(async () => {
+          goto(await call.getPage("client-dashboard", "crm-product-service"));
+        }, 3000);
         return;
       }
     } catch (error) {
@@ -644,26 +642,7 @@ All Rights Reserved
       {/if}
     </div>
   </div>
-  <div class="fixed bottom-5 end-5">
-    <Toast color="green" transition={fly} params={{ x: 200 }} bind:open={toastCreated}>
-      <svelte:fragment slot="icon">
-        <CheckCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("successfullyCreated")}
-    </Toast>
-    <Toast
-      class="!max-w-sm"
-      color="red"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastError}
-    >
-      <svelte:fragment slot="icon">
-        <ExclamationCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("sometingWentWrongPleaseTryAgain")}
-    </Toast>
-  </div>
+  <ToastContainer />
 </div>
 
 <Modal bind:open={popupModal} size="xs" autoclose>

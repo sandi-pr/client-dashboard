@@ -179,7 +179,7 @@ All Rights Reserved
 
       <div class="flex flex-col">
         <!-- User Information -->
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between pb-2">
           <Typography
             preset="Display sm/Semibold"
             color="primary"

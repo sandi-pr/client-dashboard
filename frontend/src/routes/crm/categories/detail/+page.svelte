@@ -11,6 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Select, Textarea, Toggle, Modal } from "flowbite-svelte";
+  import { ToastContainer, triggerToast } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -28,6 +29,12 @@ All Rights Reserved
   let popupModal = $state(false);
 
   let data = $state({});
+
+  let toastCreated = $state(false);
+  let toastUpdated = $state(false);
+  let toastError = $state(false);
+  let toastDeleted = $state(false);
+  let counter = $state(6);
 
   function formatDate(inputDate) {
     const date = new Date(inputDate);
@@ -47,6 +54,13 @@ All Rights Reserved
   }
 
   async function getCategory() {
+    if (personId === null) {
+      triggerToast("error");
+      setTimeout(async () => {
+        goto(await call.getPage("client-dashboard", "crm-categories"));
+      }, 3000);
+      return;
+    };
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       let response = await call.call("client-dashboard", "get-category", {
@@ -91,7 +105,10 @@ All Rights Reserved
           },
         });
         if (response.status === 200) {
-          goto(await call.getPage("client-dashboard", "crm-categories"));
+          triggerToast("updated");
+          setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "crm-categories"));
+          }, 3000);
         }
       } catch (error) {
         console.log(error);
@@ -113,7 +130,10 @@ All Rights Reserved
         },
       });
       if (response.status === 200) {
-        got(await call.getPage("client-dashboard", "crm-categories"));
+        triggerToast("deleted");
+        setTimeout(async () => {
+          goto(await call.getPage("client-dashboard", "crm-categories"));
+        }, 3000);
       }
     } catch (error) {
       console.log(error);
@@ -238,6 +258,7 @@ All Rights Reserved
       </div>
     </div>
   </div>
+  <ToastContainer />
 </div>
 
 <Modal bind:open={popupModal} size="xs" autoclose>

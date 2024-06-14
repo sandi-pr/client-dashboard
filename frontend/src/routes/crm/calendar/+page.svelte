@@ -11,7 +11,10 @@
 
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { format, startOfWeek, endOfWeek } from "date-fns";
+  import { _, locale } from "svelte-i18n";
+  import { DatePicker } from '@svelte-plugins/datepicker';
+  import { format, startOfWeek, endOfWeek, addHours, addMinutes } from "date-fns";
+  import { id as localeId, enUS as localeEn } from 'date-fns/locale';
   import {
     P,
     Button,
@@ -21,6 +24,7 @@
     Label,
     Textarea,
     MultiSelect,
+    Helper,
   } from "flowbite-svelte";
   import {
     PlusOutline,
@@ -30,11 +34,12 @@
     ChevronRightOutline,
   } from "flowbite-svelte-icons";
   import AutoComplete from "simple-svelte-autocomplete";
-  import DatePicker from "$lib/components/DatePicker.svelte";
-  import Divider from "$lib/components/Divider.svelte";
+  // import DatePicker from "$lib/components/DatePicker.svelte";
+  import { ToastContainer, triggerToast } from "$lib";
+  import TabDetail from "$lib/components/TabDetail.svelte";
   import Switch from "$lib/components/Switch.svelte";
-  import { TabBar } from "$lib";
   import { CR3Call } from "hexacomponents-svelte";
+  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -48,16 +53,21 @@
   let dataReady = false;
   let frontEndOnly = false;
   let notAvailableBookings = false;
-  let selectedDate = null;
+  let selectedDate = new Date();
+  let selectedTime = null;
+  let startDate = new Date();
+  let endDate = null;
+  let dateFormat = 'd MMM yyyy';
+  let isOpen = false;
 
   let tabDatas = {
-    selected: "calendar",
+    selected: "Calendar",
     data: [
       {
-        name: "calendar",
+        name: "Calendar",
       },
       {
-        name: "availability",
+        name: "Availability Slots",
       },
     ],
   };
@@ -96,6 +106,29 @@
   let daysInWeek = [];
   let hoursOfDay = [];
 
+  let buttonDisable = true;
+
+  const toggleDatePicker = () => {
+    isOpen = !isOpen;
+  };
+  const formatDate = (dateString) => dateString && format(new Date(dateString), dateFormat) || '';
+
+  $: formattedStartDate = formatDate(startDate);
+  $: formattedEndDate = formatDate(endDate);
+
+  $: startDate = new Date(selectedDate);
+  $: endDate = new Date(selectedDate);
+
+  $: newSchedule.dateEvent[0].date = format(new Date(startDate), "yyyy-MM-dd");
+  $: newSchedule.dateEvent[1].date = format(new Date(endDate), "yyyy-MM-dd");
+
+  $: newSchedule.dateEvent[0].timeStart = selectedTime ? selectedTime : format(new Date(), "kk:mm");
+  $: newSchedule.dateEvent[1].timeStart = selectedTime ? selectedTime : format(new Date(), "kk:mm");
+  $: newSchedule.dateEvent[0].timeEnd = selectedTime ? addOneHour(selectedTime) : format(addHours(new Date(), 1), "kk:mm");
+  $: newSchedule.dateEvent[1].timeEnd = selectedTime ? addOneHour(selectedTime) : format(addHours(new Date(), 1), "kk:mm");
+
+  $: buttonDisable = newSchedule.title.length < 1;
+
   const changeTabbar = (name) => {
     tabDatas.selected = name;
   };
@@ -110,7 +143,7 @@
       let prevDate = new Date(year, month, -i + 1);
       days.push({
         date: prevDate.getDate(),
-        dayName: prevDate.toLocaleDateString("en-US", { weekday: "short" }),
+        dayName: $locale === "id" ? prevDate.toLocaleDateString("id", { weekday: "short" }) : prevDate.toLocaleDateString("en-US", { weekday: "short" }),
         dateObject: prevDate,
         isCurrentMonth: false,
         dateEvent: getEventsForDate(prevDate),
@@ -122,7 +155,7 @@
       let currentDate = new Date(year, month, i);
       days.push({
         date: i,
-        dayName: currentDate.toLocaleDateString("en-US", { weekday: "short" }),
+        dayName: $locale === "id" ? currentDate.toLocaleDateString("id", { weekday: "short" }) : currentDate.toLocaleDateString("en-US", { weekday: "short" }),
         dateObject: currentDate,
         isCurrentMonth: true,
         dateEvent: getEventsForDate(currentDate),
@@ -135,7 +168,7 @@
       let nextDate = new Date(year, month + 1, i);
       days.push({
         date: nextDate.getDate(),
-        dayName: nextDate.toLocaleDateString("en-US", { weekday: "short" }),
+        dayName: $locale === "id" ? nextDate.toLocaleDateString("id", { weekday: "short" }) : nextDate.toLocaleDateString("en-US", { weekday: "short" }),
         dateObject: nextDate,
         isCurrentMonth: false,
         dateEvent: getEventsForDate(nextDate),
@@ -153,7 +186,7 @@
     day.setDate(day.getDate() - day.getDay());
 
     for (let i = 0; i < 7; i++) {
-      let dayOfWeek = day.toLocaleDateString("en-US", { weekday: "short" });
+      let dayOfWeek = $locale === "id" ? day.toLocaleDateString("id", { weekday: "short" }) : day.toLocaleDateString("en-US", { weekday: "short" });
       let dateOfWeek = day.getDate();
       let isCurrentDate = day.toDateString() === currentDate.toDateString(); // Check if it's the current date
 
@@ -188,10 +221,20 @@
     let hoursOfDay = [];
 
     for (let i = 1; i <= 24; i++) {
-      hoursOfDay.push(i);
+      let hour = i.toString().padStart(2, '0');
+      hoursOfDay.push(hour);
     }
 
     return hoursOfDay;
+  }
+
+  function addOneHour(time) {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    const newDate = addMinutes(date, 60);
+    return format(newDate, 'kk:mm');
   }
 
   function getEventsForDate(date, hour = -1) {
@@ -239,6 +282,7 @@
     }
     const events = getEventsForDate(date.dateObject);
     selectedDate = date.dateObject;
+    selectedTime = null;
     modalMode = "event";
     modal = true;
     currentDateEvents = events;
@@ -270,6 +314,9 @@
         }
       }
     }
+
+    selectedDate = mode === "day" ? currentDayOrDate.dateObject : date.dateObject;
+    selectedTime = hour + ":00";
 
     modalMode = "event";
     modal = true;
@@ -354,6 +401,24 @@
     }
   };
 
+  const resetSchedule = () => {
+    newSchedule = {
+      title: "",
+      dateEvent: [
+        {
+          date: new Date(),
+          timeStart: format(new Date(), "kk:mm"),
+          timeEnd: format(new Date(), "kk:mm"),
+        },
+        {
+          date: new Date(),
+          timeStart: format(new Date(), "kk:mm"),
+          timeEnd: format(new Date(), "kk:mm"),
+        },
+      ],
+    };
+  };
+
   const handleCreateNewSchedule = async () => {
     newSchedule.dateEvent[1].timeStart = newSchedule.dateEvent[0].timeStart;
     newSchedule.dateEvent[1].timeEnd = newSchedule.dateEvent[0].timeEnd;
@@ -432,10 +497,13 @@
         });
         if (response.status === 200) {
           console.log(response);
+          triggerToast("created");
           await getSchedule();
+          resetSchedule();
           modal = false;
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     } else {
@@ -492,10 +560,12 @@
           );
           if (response.status === 200) {
             console.log(response);
+            triggerToast("created");
             await getSchedule();
             modal = false;
           }
         } catch (error) {
+          triggerToast("error");
           console.log(error);
         }
       }
@@ -518,6 +588,7 @@
 
       if (!dayAvailableCopy[dayIndex]) {
         console.log(`Hari yang Anda pilih tidak tersedia untuk booking.`);
+        triggerToast("dayNotAvailable");
         return false;
       }
 
@@ -529,6 +600,7 @@
         )
       ) {
         console.log(`Waktu yang Anda pilih tidak tersedia untuk booking.`);
+        triggerToast("timeNotAvailable");
         return false;
       }
     }
@@ -744,7 +816,10 @@
         );
 
         if (response.status === 200) {
+          triggerToast("created");
           console.log(response);
+        } else {
+          triggerToast("error");
         }
       } else {
         let token = sessionStorage.getItem("token");
@@ -770,12 +845,16 @@
         console.log("ayam", response);
 
         if (response.status === 200) {
+          triggerToast("created");
           console.log(response);
+        } else {
+          triggerToast("error");
         }
       }
 
       await getSchedule();
     } catch (error) {
+      triggerToast("error");
       console.log(error);
     }
   };
@@ -915,6 +994,8 @@
           }
 
           dataReady = true;
+        } else {
+          triggerToast("error");
         }
       } else {
         daysInMonth = getDaysInMonth(
@@ -926,6 +1007,7 @@
         dataReady = true;
       }
     } catch (error) {
+      triggerToast("error");
       console.log(error);
     }
   }
@@ -1065,29 +1147,25 @@
 </script>
 
 <div class="m-4">
-  <div class="flex justify-between items-center">
+  <div class="flex pb-4 justify-between items-center">
     <Heading
       tag="h3"
       class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
     >
-      Calendar
+      {$_("calendar")}
     </Heading>
     <Button
-      class="text-nowrap"
+      class="text-nowrap gap-1"
       on:click={() => {
         modalMode = "form";
         modal = true;
-      }}><PlusOutline class="size-6" /> Add new booking</Button
+      }}><PlusOutline class="size-5" /> {$_("addNewBooking")}</Button
     >
   </div>
-  <div class="my-8">
-    <Divider />
+  <div class="pb-8">
+    <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
   </div>
-  <TabBar {tabDatas} {changeTabbar} />
-  <div class="my-8">
-    <Divider />
-  </div>
-  {#if tabDatas.selected === "calendar"}
+  {#if tabDatas.selected === "Calendar"}
     <div class="flex flex-col">
       <div class="flex gap-4">
         <div class="flex flex-col w-full">
@@ -1098,21 +1176,21 @@
               class={currentCalendarMode === "day"
                 ? "bg-brand-solid-hover-light dark:bg-brand-solid-hover-light text-primary-dark hover:bg-brand-primary-dark dark:hover:bg-brand-primary-dark"
                 : ""}
-              on:click={() => (currentCalendarMode = "day")}>Day</Button
+              on:click={() => (currentCalendarMode = "day")}>{$_("day")}</Button
             >
             <Button
               color="light"
               class={currentCalendarMode === "week"
                 ? "bg-brand-solid-hover-light dark:bg-brand-solid-hover-light text-primary-dark hover:bg-brand-primary-dark dark:hover:bg-brand-primary-dark"
                 : ""}
-              on:click={() => (currentCalendarMode = "week")}>Week</Button
+              on:click={() => (currentCalendarMode = "week")}>{$_("week")}</Button
             >
             <Button
               color="light"
               class={currentCalendarMode === "month"
                 ? "bg-brand-solid-hover-light dark:bg-brand-solid-hover-light text-primary-dark hover:bg-brand-primary-dark dark:hover:bg-brand-primary-dark"
                 : ""}
-              on:click={() => (currentCalendarMode = "month")}>Month</Button
+              on:click={() => (currentCalendarMode = "month")}>{$_("month")}</Button
             >
           </div>
 
@@ -1132,18 +1210,32 @@
                   /></Button
                 >
                 {#if currentCalendarMode === "month"}
-                  <P class="font-semibold"
-                    >{daysInMonth[15].dateObject.toLocaleDateString("en-US", {
-                      month: "long",
-                      year: "numeric",
-                    })}</P
-                  >
+                  <P class="font-semibold">
+                    {#if $locale === "id"}
+                      {daysInMonth[15].dateObject.toLocaleDateString("id-ID", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    {:else}
+                      {daysInMonth[15].dateObject.toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    {/if}
+                  </P>
                 {:else if currentCalendarMode === "week"}
                   <P class="font-semibold">
-                    {format(startOfWeek(new Date(currentDate)), "dd MMMM")} - {format(
+                    <!-- {format(startOfWeek(new Date(currentDate)), "dd MMMM")} - {format(
                       endOfWeek(new Date(currentDate)),
                       "dd MMMM yyyy",
-                    )}
+                    )} -->
+                    {#if $locale === 'id'}
+                      {format(startOfWeek(new Date(currentDate)), "dd MMMM", { locale: localeId })} - 
+                      {format(endOfWeek(new Date(currentDate)), "dd MMMM yyyy", { locale: localeId })}
+                    {:else}
+                      {format(startOfWeek(new Date(currentDate)), "dd MMMM", { locale: localeEn })} - 
+                      {format(endOfWeek(new Date(currentDate)), "dd MMMM yyyy", { locale: localeEn })}
+                    {/if}
                   </P>
                 {:else if currentCalendarMode === "day"}
                   <!-- else content here -->
@@ -1245,9 +1337,16 @@
                     <P
                       class="grid-item day-header text-center p-2 min-h-24 text-sm border border-secondary-light dark:border-secondary-dark"
                     >
-                      {currentDate.toLocaleDateString("en-US", {
-                        weekday: "long",
-                      })}<br />
+                      {#if $locale === "id"}
+                        {currentDate.toLocaleDateString("id-ID", {
+                          weekday: "long",
+                        })}
+                      {:else}
+                        {currentDate.toLocaleDateString("en-US", {
+                          weekday: "long",
+                        })}
+                      {/if}
+                      <br />
                       <span class="text-3xl font-normal"
                         >{currentDate.getDate()}</span
                       >
@@ -1297,7 +1396,7 @@
         </div>
       </div>
     </div>
-  {:else if tabDatas.selected === "availability"}
+  {:else if tabDatas.selected === "Availability Slots"}
     <div class="flex">
       <div class="w-1/3"><P class="font-semibold">Availability</P></div>
       <div class="w-2/3">
@@ -1441,6 +1540,7 @@
   {:else}
     <P>Loading...</P>
   {/if}
+  <ToastContainer />
 </div>
 
 <Modal
@@ -1450,15 +1550,79 @@
 >
   {#if modalMode === "form"}
     <!-- create new schedule modal -->
-    <div>
-      <Label class="ml-2">Title</Label>
-      <Input
-        bind:value={newSchedule.title}
-        class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
-      />
+
+    <div class="flex gap-4">
+      <div class="flex-grow space-y-1">
+        <Label class="ml-2">Date</Label>
+        <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates enablePastDates={false}>
+          <button on:click={toggleDatePicker} class:open={isOpen} class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 items-center">
+            <svelte:component this={CalendarPlus02} class="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400" />
+            <div class="date">
+              {#if startDate != endDate}
+                {formattedStartDate} - {formattedEndDate}
+              {:else if startDate}
+                {formattedStartDate}
+              {:else}
+                Pick a date, it can be a range
+              {/if}
+            </div>
+          </button>
+        </DatePicker>
+        <Helper class="text-sm text-quaternary-light dark:text-quaternary-dark ms-1">Pick a date, it can be a range</Helper>
+      </div>
     </div>
 
-    <div>
+    <div class="flex gap-4">
+      <div class="flex-grow space-y-1">
+        <Label class="ml-2">Time start</Label>
+        <Input
+          type="time"
+          placeholder={format(new Date(), "kk:mm")}
+          value={newSchedule.dateEvent[0].timeStart}
+          class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
+          on:keyup={(evt) => {
+            checkTimeFormat(evt, "newTimeStart");
+            checkConfigChange();
+          }}
+          on:change={(evt) => {
+            checkTimeFinal(evt, "newTimeStart");
+          }}
+        >
+        </Input>
+      </div>
+
+      <div class="flex-grow space-y-1">
+        <Label class="ml-2">Time end</Label>
+        <Input
+          type="time"
+          placeholder={format(new Date(), "kk:mm")}
+          value={newSchedule.dateEvent[0].timeEnd}
+          class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
+          on:keyup={(evt) => {
+            checkTimeFormat(evt, "newTimeEnd");
+            checkConfigChange();
+          }}
+          on:change={(evt) => {
+            checkTimeFinal(evt, "newTimeEnd");
+          }}
+        >
+        </Input>
+      </div>
+    </div>
+
+    <div class="space-y-1">
+      <Label class="ml-2">Title</Label>
+      <Input
+        required
+        bind:value={newSchedule.title}
+        class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 dark:border-gray-500 cursor-default"
+      />
+      {#if newSchedule.title.length === 0}
+      <Helper class="text-sm !text-red-400 ms-1">Title is required</Helper>
+      {/if}
+    </div>
+
+    <div class="space-y-1">
       <Label class="ml-2">Description</Label>
       <Textarea
         bind:value={newSchedule.description}
@@ -1466,7 +1630,7 @@
       />
     </div>
 
-    <div>
+    <div class="space-y-1">
       <Label class="ml-2">Invite Person</Label>
       <div
         class={`col-span-6 [&>*]:w-full [&>*]:!h-[2.75rem] [&>*]:m-0 [&>*>div]:rounded-lg
@@ -1496,7 +1660,7 @@
       </div>
     {/if} -->
 
-    <div class="flex gap-4">
+    <!-- <div class="flex gap-4">
       <div class="flex-grow">
         <Label class="ml-2">Date start</Label>
         <DatePicker
@@ -1528,53 +1692,8 @@
           customclass="block w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 bg-primary-light dark:bg-primary-dark text-gray-900 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg"
         />
       </div>
-    </div>
+    </div> -->
 
-    <div class="flex gap-4">
-      <div class="flex-grow">
-        <Label class="ml-2">Time start</Label>
-        <Input
-          type="text"
-          placeholder={format(new Date(), "kk:mm")}
-          value={newSchedule.dateEvent[0].timeStart}
-          class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
-          on:keyup={(evt) => {
-            checkTimeFormat(evt, "newTimeStart");
-            checkConfigChange();
-          }}
-          on:change={(evt) => {
-            checkTimeFinal(evt, "newTimeStart");
-          }}
-        >
-          <ClockOutline
-            slot="right"
-            class="w-5 h-5 text-gray-500 dark:text-gray-400"
-          />
-        </Input>
-      </div>
-
-      <div class="flex-grow">
-        <Label class="ml-2">Time end</Label>
-        <Input
-          type="text"
-          placeholder={format(new Date(), "kk:mm")}
-          value={newSchedule.dateEvent[0].timeEnd}
-          class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 flex-grow"
-          on:keyup={(evt) => {
-            checkTimeFormat(evt, "newTimeEnd");
-            checkConfigChange();
-          }}
-          on:change={(evt) => {
-            checkTimeFinal(evt, "newTimeEnd");
-          }}
-        >
-          <ClockOutline
-            slot="right"
-            class="w-5 h-5 text-gray-500 dark:text-gray-400"
-          />
-        </Input>
-      </div>
-    </div>
   {:else if modalMode === "event"}
     <!-- event detail event modal -->
     {#if currentDateEvents.length > 0}
@@ -1633,24 +1752,10 @@
     {#if modalMode === "form"}
       <!-- create new schedule modal -->
       <Button
+        disabled={buttonDisable}
         on:click={() => {
           handleCreateNewSchedule();
-          modal = false;
-          newSchedule = {
-            title: "",
-            dateEvent: [
-              {
-                date: new Date(),
-                timeStart: format(new Date(), "kk:mm"),
-                timeEnd: format(new Date(), "kk:mm"),
-              },
-              {
-                date: new Date(),
-                timeStart: format(new Date(), "kk:mm"),
-                timeEnd: format(new Date(), "kk:mm"),
-              },
-            ],
-          };
+          // modal = false;
         }}>Create</Button
       >
     {:else if modalMode === "event"}
@@ -1661,7 +1766,7 @@
         on:click={() => {
           modalMode = "form";
           modal = true;
-        }}><PlusOutline class="size-6" /> Add new booking</Button
+        }}><PlusOutline class="size-5" /> Add new booking</Button
       >
       {/if}
     {:else}

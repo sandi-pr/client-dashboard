@@ -11,11 +11,9 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
-  import CopyIcon from "$lib/icon/copy-03.svelte";
-  import TabBar from "$lib/ui/tab_bar/TabBar.svelte";
-  import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { onMount } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
@@ -190,9 +188,13 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
-            goto(await call.getPage("client-dashboard", "document-management-overview"));
+            triggerToast("created");
+            setTimeout(async () => {
+              goto(await call.getPage("client-dashboard", "document-management-overview"));
+            }, 3000);
           }
         } catch (error) {
+          triggerToast("error");
           console.log(error);
         }
       } else {
@@ -224,9 +226,13 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
-            goto(await call.getPage("client-dashboard", "document-management-overview"));
+            triggerToast("created");
+            setTimeout(async () => {
+              goto(await call.getPage("client-dashboard", "document-management-overview"));
+            }, 3000);
           }
         } catch (error) {
+          triggerToast("error");
           console.log(error);
         }
       }
@@ -498,4 +504,5 @@ All Rights Reserved
       </div>
     </div>
   </div>
+  <ToastContainer />
 </div>

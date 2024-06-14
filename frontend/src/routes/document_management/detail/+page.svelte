@@ -12,6 +12,7 @@ All Rights Reserved
 
 <script>
   import { P, Heading, Input, Textarea, Button, Select, Modal } from "flowbite-svelte";
+  import { ToastContainer, triggerToast } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
@@ -71,51 +72,59 @@ All Rights Reserved
   async function getDocument() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-document", {
-        URLQuery: {},
-        URLParams: {
-          id: documentId.toString(),
-        },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      try {
+        let response = await call.call("client-dashboard", "get-document", {
+          URLQuery: {},
+          URLParams: {
+            id: documentId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      if (response.status !== 200) {
-        console.log(response);
-        return;
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        if (response.result.document.data.length > 0) {
+          let documentData = response.result.document.data[0];
+          data = {
+            id: documentData.id,
+            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
+            document_title: documentData.attributes.document_title,
+            description: documentData.attributes.description,
+            document_type: documentData.attributes.document_type,
+            ext: documentData.attributes.document.data.attributes.ext,
+            person_client: documentData.attributes.person.data?.id,
+            contract_start:
+            documentData.attributes.contract_start !== null
+                ? format(new Date(documentData.attributes.contract_start), "yyyy-MM-dd")
+                : "",
+            contract_end:
+            documentData.attributes.contract_end !== null
+                ? format(new Date(documentData.attributes.contract_end), "yyyy-MM-dd")
+                : "",
+          };
+
+          base64 = response.result.base64;
+          contentFile = atob(base64);
+
+          const blob = base64toBlob(base64);
+          fileUrl = URL.createObjectURL(blob);
+          console.log(fileUrl);
+          
+          pdfReady = true;
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
       }
-
-      if (response.result.document.data.length > 0) {
-        let documentData = response.result.document.data[0];
-        data = {
-          id: documentData.id,
-          createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
-          document_title: documentData.attributes.document_title,
-          description: documentData.attributes.description,
-          document_type: documentData.attributes.document_type,
-          ext: documentData.attributes.document.data.attributes.ext,
-          person_client: documentData.attributes.person.data?.id,
-          contract_start:
-          documentData.attributes.contract_start !== null
-              ? format(new Date(documentData.attributes.contract_start), "yyyy-MM-dd")
-              : "",
-          contract_end:
-          documentData.attributes.contract_end !== null
-              ? format(new Date(documentData.attributes.contract_end), "yyyy-MM-dd")
-              : "",
-        };
-
-        base64 = response.result.base64;
-        contentFile = atob(base64);
-
-        const blob = base64toBlob(base64);
-        fileUrl = URL.createObjectURL(blob);
-        console.log(fileUrl);
-        
-        pdfReady = true;
-      }
+    } else {
+      triggerToast("error");
     }
   }
 
@@ -133,13 +142,18 @@ All Rights Reserved
           },
         });
         if (response.status === 200) {
-          goto(await call.getPage("client-dashboard", "document-management-list"));
+          triggerToast("deleted");
+          setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "document-management-list"));
+          }, 3000);
           return;
         } else {
+          triggerToast("error");
           console.log(response);
           return;
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
@@ -421,6 +435,7 @@ All Rights Reserved
       </div>
     </div>
   </div>
+  <ToastContainer />
 </div>
 
 <Modal bind:open={popupModal} size="xs" autoclose>

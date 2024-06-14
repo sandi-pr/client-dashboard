@@ -11,6 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import { ToastContainer, triggerToast } from "$lib";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -37,7 +38,20 @@ All Rights Reserved
     orderId: "",
   });
 
+  let toastCreated = $state(false);
+  let toastUpdated = $state(false);
+  let toastError = $state(false);
+  let toastDeleted = $state(false);
+  let counter = $state(6);
+
   async function getInvoice() {
+    if (invoiceId === null) {
+      triggerToast("error");
+      setTimeout(async () => {
+        goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+      }, 3000);
+      return;
+    };
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
@@ -98,14 +112,19 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
+          triggerToast("error");
           console.log(response);
           return;
         }
 
         if (response.status === 200) {
-          goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+          triggerToast("deleted");
+          setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+          }, 3000);
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
@@ -288,4 +307,5 @@ All Rights Reserved
       </div>
     </div>
   </div>
+  <ToastContainer />
 </div>

@@ -13,6 +13,7 @@ All Rights Reserved
   import { page } from "$app/stores";
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane, Splitpanes } from "svelte-splitpanes";
+  import { Datepicker } from 'flowbite-svelte';
   import { Navbar, Sidebar, Typography, TabBar, Card } from "$lib";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -106,6 +107,12 @@ All Rights Reserved
           },
           {
             href: isFrontend
+              ? "/crm/order_invoice"
+              : await call.getPage("client-dashboard", "crm-order-invoice"),
+            name: "order&Invoice",
+          },
+          {
+            href: isFrontend
               ? "/crm/calendar"
               : await call.getPage("client-dashboard", "crm-calendar"),
             name: "calendar",
@@ -156,7 +163,7 @@ All Rights Reserved
             href: isFrontend
               ? "/hr/job_level"
               : await call.getPage("client-dashboard", "hr-joblevel"),
-            name: "job_level",
+            name: "jobLevel",
           },
         ],
       },
@@ -294,9 +301,13 @@ All Rights Reserved
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
           <Pane minSize={innerWidth > 1024 ? 50 : 0}>
-            <div class="transition-all duration-300 h-full overflow-y-auto">
-              <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} {reset_database} />
-              <slot />
+            <div class="relative transition-all duration-300 h-full overflow-y-auto">
+              <div class="absolute w-full top-0 z-10">
+                <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} {reset_database} />
+              </div>
+              <div class="h-full pt-20">
+                <slot />
+              </div>
             </div>
           </Pane>
           <!-- Hexabot Sidebar -->

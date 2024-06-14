@@ -11,6 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Textarea, Select } from "flowbite-svelte";
+  import { ToastContainer, triggerToast } from "$lib";
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
   import { onMount } from "svelte";
@@ -30,6 +31,17 @@ All Rights Reserved
     shipping_address: "",
     total_amount: 0,
   });
+
+  let allProducts = $state([]);
+
+  let products = $state([]);
+  let resources = $state([]);
+
+  let persons = $state([]);
+
+  let toastCreated = $state(false);
+  let toastError = $state(false);
+  let counter = $state(6);
 
   async function createOrder() {
     let token = sessionStorage.getItem("token");
@@ -95,24 +107,22 @@ All Rights Reserved
             }
 
             if (response2.status === 200) {
-              goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+              triggerToast("created");
+              setTimeout(async () => {
+                goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+              }, 3000);
             }
           }
         } else {
+          triggerToast("error");
           console.log(response);
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
   }
-
-  let allProducts = $state([]);
-
-  let products = $state([]);
-  let resources = $state([]);
-
-  let persons = $state([]);
 
   async function getProducts() {
     let token = sessionStorage.getItem("token");
@@ -374,4 +384,5 @@ All Rights Reserved
       </div>
     </div>
   </div>
+  <ToastContainer />
 </div>

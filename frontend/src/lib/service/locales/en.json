@@ -256,5 +256,14 @@
   "selectDocumentType": "Select Document Type",
   "jobLevel": "Job Level",
   "newJobLevel": "New Job Level",
-  "adjust&MoveOrderByDragging": "Adjust & move order by dragging"
+  "adjust&MoveOrderByDragging": "Adjust & move order by dragging",
+  "successfullyUpdated": "Successfully updated.",
+  "notAvailable": "Not available",
+  "dayNotAvailable": "Day not available",
+  "timeNotAvailable": "Time not available",
+  "addNewBooking": "Add new booking",
+  "availabilitySlots": "Availability Slots",
+  "day": "Day",
+  "week": "Week",
+  "month": "Month"
 }
