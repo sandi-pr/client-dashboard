@@ -58,7 +58,7 @@
 
       messageInput = "";
 
-      let conversationId = localStorage.getItem("conversationId");
+      let conversationId = sessionStorage.getItem("conversationId");
 
       if (!conversationId) {
         try {
@@ -77,7 +77,7 @@
 
           if (createConversationResponse.status === 200) {
             conversationId = createConversationResponse.result.conversation_id;
-            localStorage.setItem("conversationId", conversationId);
+            sessionStorage.setItem("conversationId", conversationId);
           } else {
             console.log(createConversationResponse);
           }
@@ -123,7 +123,7 @@
   async function getMessage() {
     let token = sessionStorage.getItem("token");
 
-    let conversationId = localStorage.getItem("conversationId");
+    let conversationId = sessionStorage.getItem("conversationId");
 
     if (conversationId) {
       try {
