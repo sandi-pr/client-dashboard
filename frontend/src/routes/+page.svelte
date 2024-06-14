@@ -148,4 +148,13 @@ All Rights Reserved
       return;
     }}
   />
+  <Card
+    icon="userSquare"
+    title="{$_('HR')}"
+    description={$_("descHR")}
+    onclick={async () => {
+      goto(await call.getPage("client-dashboard", "hr-overview"));
+      return;
+    }}
+  />
 </div>
