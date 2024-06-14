@@ -562,7 +562,7 @@
                           <Button
                             on:click={action?.actionButton?.CheckOut}
                             outline
-                            color="red"
+                            color="primary"
                             class="hover:!bg-transparent !border-hc-brand-300 dark:!border-hc-brand-400 focus-within:!ring-1 !p-2"
                           >
                             <CheckIcon2 svgClass="w-5 h-5 text-hc-brand-600 dark:text-hc-brand-400" />
