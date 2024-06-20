@@ -25,6 +25,7 @@ All Rights Reserved
     CheckCircleSolid,
     ExclamationCircleSolid,
   } from "flowbite-svelte-icons";
+  import { ToastContainer, triggerToast } from "$lib";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -63,11 +64,6 @@ All Rights Reserved
 
   let emailValid = $state(true);
 
-  let toastCreated = $state(false);
-  let toastError = $state(false);
-  let toastDeleted = $state(false);
-  let counter = $state(6);
-
   let popupModal = $state(false);
   let jobLevels = $state([]);
 
@@ -91,6 +87,7 @@ All Rights Reserved
           jobLevels = await Promise.all(promise);
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
@@ -198,7 +195,9 @@ All Rights Reserved
 
       if (response.status === 200) {
         triggerToast("updated");
-        goto(await call.getPage("client-dashboard", "hr-employee"));
+        setTimeout(async () => {
+          goto(await call.getPage("client-dashboard", "hr-employee"));
+        }, 3000);
         return;
       }
     } catch (error) {
@@ -220,38 +219,15 @@ All Rights Reserved
       });
       if (response.status === 200) {
         triggerToast("deleted");
-        goto(await call.getPage("client-dashboard", "hr-employee"));
+        setTimeout(async () => {
+          goto(await call.getPage("client-dashboard", "hr-employee"));
+        }, 3000);
         return;
       }
     } catch (error) {
       triggerToast("error");
       console.log(error);
     }
-  }
-
-  function triggerToast(target) {
-    if (target === "created") {
-      toastCreated = true;
-      counter = 6;
-      timeout();
-    } else if (target === "deleted") {
-      toastDeleted = true;
-      counter = 6;
-      timeout();
-    } else if (target === "error") {
-      toastError = true;
-      counter = 6;
-      timeout();
-    } else {
-      console.log("target not found");
-    }
-  }
-
-  function timeout() {
-    if (--counter > 0) return setTimeout(timeout, 1000);
-    toastCreated = false;
-    toastDeleted = false;
-    toastError = false;
   }
 
   async function backPage() {
@@ -588,42 +564,7 @@ All Rights Reserved
       </div>
     </div>
   </div>
-  <div class="fixed bottom-5 end-5">
-    <Toast
-      color="green"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastCreated}
-    >
-      <svelte:fragment slot="icon">
-        <CheckCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("successfullyCreated")}
-    </Toast>
-    <Toast
-      color="green"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastDeleted}
-    >
-      <svelte:fragment slot="icon">
-        <CheckCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("successfullyDeleted")}
-    </Toast>
-    <Toast
-      class="!max-w-sm"
-      color="red"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastError}
-    >
-      <svelte:fragment slot="icon">
-        <ExclamationCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("sometingWentWrongPleaseTryAgain")}
-    </Toast>
-  </div>
+  <ToastContainer />
 </div>
 
 <Modal bind:open={popupModal} size="xs" autoclose>

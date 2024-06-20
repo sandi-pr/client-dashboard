@@ -25,6 +25,7 @@ All Rights Reserved
     CheckCircleSolid,
     ExclamationCircleSolid,
   } from "flowbite-svelte-icons";
+  import { ToastContainer, triggerToast } from "$lib";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
@@ -121,6 +122,7 @@ All Rights Reserved
       console.log(response);
 
       if (response.status !== 200) {
+        triggerToast("error");
         console.log(response);
         return;
       }
@@ -189,13 +191,18 @@ All Rights Reserved
           },
         );
         if (response.status === 200) {
-          goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          triggerToast("updated");
+          setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          }, 3000);
           return;
         } else {
+          triggerToast("error");
           console.log(response);
           return;
         }
       } catch (error) {
+        console.log("error");
         console.log(error);
       }
     }
@@ -223,13 +230,18 @@ All Rights Reserved
           },
         );
         if (response.status === 200) {
-          goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          triggerToast("deleted");
+          setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          }, 3000);
           return;
         } else {
+          triggerToast("error");
           console.log(response);
           return;
         }
       } catch (error) {
+        console.log("error");
         console.log(error);
       }
     }
@@ -293,6 +305,7 @@ All Rights Reserved
           jobLevels = await Promise.all(promise);
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
@@ -556,6 +569,7 @@ All Rights Reserved
       </div>
     </div>
   </div>
+  <ToastContainer />
 </div>
 
 <Modal bind:open={popupModal} size="xs" autoclose>

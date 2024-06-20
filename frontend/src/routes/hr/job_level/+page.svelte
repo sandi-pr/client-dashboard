@@ -15,6 +15,7 @@ All Rights Reserved
     CheckCircleSolid,
     ExclamationCircleSolid,
   } from "flowbite-svelte-icons";
+  import { ToastContainer, triggerToast } from "$lib";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
@@ -27,11 +28,6 @@ All Rights Reserved
   const call = new CR3Call(globalThis.location.origin);
 
   let tmpJobLevel = "";
-
-  let toastCreated = false;
-  let toastResourceEmpty = false;
-  let toastError = false;
-  let counter = 6;
 
   let jobLevels = [];
 
@@ -53,30 +49,6 @@ All Rights Reserved
     jobLevels = jobLevels.filter((jobLevel) => jobLevel.id !== id);
   }
 
-  function triggerToast(target) {
-    if (target === "created") {
-      toastCreated = true;
-      counter = 6;
-      timeout();
-    } else if (target === "resource_empty") {
-      toastResourceEmpty = true;
-      counter = 6;
-      timeout();
-    } else if (target === "error") {
-      toastError = true;
-      counter = 6;
-      timeout();
-    } else {
-      console.log("target not found");
-    }
-  }
-
-  function timeout() {
-    if (--counter > 0) return setTimeout(timeout, 1000);
-    toastCreated = false;
-    toastError = false;
-  }
-
   function handleDndConsider(e) {
     const {
       items: newItems,
@@ -95,7 +67,8 @@ All Rights Reserved
 
   async function saveJobLevels() {
     if (jobLevels.length === 0) {
-      triggerToast("resource_empty");
+      triggerToast("error");
+      return;
     } else {
       let token = sessionStorage.getItem("token");
       if (token) {
@@ -141,10 +114,13 @@ All Rights Reserved
           jobLevels = response.result.job_level;
         }
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
   }
+
+  $: buttonDisable = jobLevels.length < 1;
 
   onMount(async () => {
     getJobLevels();
@@ -170,7 +146,7 @@ All Rights Reserved
           </div>
         </div>
         <div class="flex gap-2">
-          <Button class="px-3 focus-within:!ring-1" on:click={saveJobLevels}>{$_("save")}</Button>
+          <Button class="px-3 focus-within:!ring-1" disabled={buttonDisable} on:click={saveJobLevels}>{$_("save")}</Button>
           <Button class="px-3 focus-within:!ring-1">{$_("importCsv")}</Button>
         </div>
       </div>
@@ -238,40 +214,5 @@ All Rights Reserved
       </div>
     </div>
   </div>
-  <div class="fixed bottom-5 end-5">
-    <Toast
-      color="green"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastCreated}
-    >
-      <svelte:fragment slot="icon">
-        <CheckCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("successfullyCreated")}
-    </Toast>
-    <Toast
-      color="red"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastResourceEmpty}
-    >
-      <svelte:fragment slot="icon">
-        <ExclamationCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("resourceNameEmpty")}
-    </Toast>
-    <Toast
-      class="!max-w-sm"
-      color="red"
-      transition={fly}
-      params={{ x: 200 }}
-      bind:open={toastError}
-    >
-      <svelte:fragment slot="icon">
-        <ExclamationCircleSolid class="w-5 h-5" />
-      </svelte:fragment>
-      {$_("sometingWentWrongPleaseTryAgain")}
-    </Toast>
-  </div>
+  <ToastContainer />
 </div>
