@@ -129,6 +129,18 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "document-management-overview"),
             name: "overview",
           },
+          {
+            href: isFrontend
+              ? "/document_management/general_document"
+              : await call.getPage("client-dashboard", "document-management-general"),
+            name: "generalDocuments",
+          },
+          {
+            href: isFrontend
+              ? "/document_management/contract"
+              : await call.getPage("client-dashboard", "document-management-contract"),
+            name: "contract",
+          },
         ],
       },
       {

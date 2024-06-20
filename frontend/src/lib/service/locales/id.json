@@ -270,5 +270,16 @@
     "month": "Bulan",
     "totalEmployee": "Total Karyawan",
     "employeeChecked-in": "Karyawan Check-in",
-    "employeeLeave": "Karyawan Tidak Hadir"
+    "employeeLeave": "Karyawan Tidak Hadir",
+    "contractList": "Daftar Kontrak",
+    "addNewContract": "Tambahkan Kontrak baru",
+    "uploadContract": "Unggah Kontrak",
+    "assignSigner": "Penandatangan",
+    "noOneInvitedYet": "Belum ada yang diundang",
+    "inviteSigner": "Undang Penandatangan",
+    "selectPerson": "Pilih individu",
+    "addSigner": "Tambahkan Penandatangan",
+    "invite": "Undang",
+    "whoDoYouWantToInvite": "Siapa yang ingin diundang?",
+    "thirdPartySigner": "Penandatangan pihak ketiga"
 }

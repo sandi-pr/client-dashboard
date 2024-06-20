@@ -273,5 +273,16 @@
   "month": "Month",
   "totalEmployee": "Total Employee",
   "employeeChecked-in": "Employee Checked-in",
-  "employeeLeave": "Employee Leave"
+  "employeeLeave": "Employee Leave",
+  "contractList": "Contract List",
+  "addNewContract": "Add new contract",
+  "uploadContract": "Upload Contract",
+  "assignSigner": "Assign Signer",
+  "noOneInvitedYet": "No one invited yet",
+  "inviteSigner": "Invite Signer",
+  "selectPerson": "Select person",
+  "addSigner": "Add Signer",
+  "invite": "Invite",
+  "whoDoYouWantToInvite": "Who do you want to invite?",
+  "thirdPartySigner": "Third-party signer"
 }
