@@ -52,31 +52,31 @@ All Rights Reserved
     // }
   ]);
   let latestAttendance = $state([
-  //   {
-  //     id: 1,
-  //     employee_name: "John Doe",
-  //     job_position: "Software Engineer",
-  //     checkin_time: "09:00",
-  //     checkout_time: "18:00",
-  //     status: getStatus("Checkout"),
-  //   }
+    //   {
+    //     id: 1,
+    //     employee_name: "John Doe",
+    //     job_position: "Software Engineer",
+    //     checkin_time: "09:00",
+    //     checkout_time: "18:00",
+    //     status: getStatus("Checkout"),
+    //   }
   ]);
   let latestRecruitment = $state([
-  //   {
-  //     id: 1,
-  //     fullname: "John Doe",
-  //     job_position: "Software Engineer",
-  //     experience: "3+ YoE",
-  //     email: "john@doe.com",
-  //     actions: {
-  //       objects: [
-  //         {
-  //           href: "hr/recruitment/detail?recruitmentId=" + 1 + "&edit=true",
-  //           name: "Edit",
-  //         },
-  //       ],
-  //     },
-  //   }
+    //   {
+    //     id: 1,
+    //     fullname: "John Doe",
+    //     job_position: "Software Engineer",
+    //     experience: "3+ YoE",
+    //     email: "john@doe.com",
+    //     actions: {
+    //       objects: [
+    //         {
+    //           href: "hr/recruitment/detail?recruitmentId=" + 1 + "&edit=true",
+    //           name: "Edit",
+    //         },
+    //       ],
+    //     },
+    //   }
   ]);
   let configs = $state({});
   let dataReady = $state(false);
@@ -133,7 +133,7 @@ All Rights Reserved
       },
       {
         name: "Recruitment",
-      }
+      },
     ],
   });
 
@@ -141,9 +141,16 @@ All Rights Reserved
     const currentDate = new Date();
     const twelveMonthsBefore = new Date();
     twelveMonthsBefore.setMonth(currentDate.getMonth() - 12);
+    const sevenDaysBefore = new Date();
+    sevenDaysBefore.setDate(currentDate.getDate() - 7);
 
     const formatDate = (date) => {
       const options = { month: "short", year: "numeric" };
+      return new Intl.DateTimeFormat("en-US", options).format(date);
+    };
+
+    const formatDate2 = (date) => {
+      const options = { day: "numeric", month: "short" };
       return new Intl.DateTimeFormat("en-US", options).format(date);
     };
 
@@ -265,10 +272,10 @@ All Rights Reserved
         },
       ],
       xaxis: {
-        categories: Array.from({ length: 12 }, (_, i) => {
-          const date = new Date(twelveMonthsBefore);
-          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
-          return formatDate(date);
+        categories: Array.from({ length: 7 }, (_, i) => {
+          const date = new Date(sevenDaysBefore);
+          date.setDate(sevenDaysBefore.getDate() + i + 1);
+          return formatDate2(date);
         }),
         labels: {
           show: false,
@@ -334,10 +341,10 @@ All Rights Reserved
         },
       ],
       xaxis: {
-        categories: Array.from({ length: 12 }, (_, i) => {
-          const date = new Date(twelveMonthsBefore);
-          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
-          return formatDate(date);
+        categories: Array.from({ length: 7 }, (_, i) => {
+          const date = new Date(sevenDaysBefore);
+          date.setDate(sevenDaysBefore.getDate() + i + 1);
+          return formatDate2(date);
         }),
         labels: {
           show: false,
@@ -586,6 +593,9 @@ All Rights Reserved
     const today = new Date();
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    let earlyDateCurrentDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    let lastDateCurrentDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    console.log(earlyDateCurrentDay.toISOString(), lastDateCurrentDay.toISOString());
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
@@ -605,15 +615,10 @@ All Rights Reserved
           console.log(response);
           return;
         }
-        // console.log(
-        //   "telor",
-        //   format(earlyDateCurrentMonth, "yyyy-MM-dd"),
-        //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
-        // );
 
         monthlyEmployeeCounts.push(response.result.employee.meta.pagination.total);
-        monthlyCheckinEmployeeCounts.push(response.result.checkinEmployee.meta.pagination.total);
-        monthlyLeaveEmployeeCounts.push(response.result.absentEmployee.meta.pagination.total);
+        // monthlyCheckinEmployeeCounts.push(response.result.checkinEmployee.meta.pagination.total);
+        // monthlyLeaveEmployeeCounts.push(response.result.absentEmployee.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -624,6 +629,40 @@ All Rights Reserved
           lastDateCurrentMonth.getFullYear(),
           lastDateCurrentMonth.getMonth(),
           0,
+        );
+      }
+
+      for (let i = 0; i < 7; i++) {
+        let response = await call.call("client-dashboard", "get-count-employee-per-month", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentDay.toISOString().split("T")[0],
+            lastDate: lastDateCurrentDay.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response.status);
+          console.log(response);
+          return;
+        }
+
+        // monthlyEmployeeCounts.push(response.result.employee.meta.pagination.total);
+        monthlyCheckinEmployeeCounts.push(response.result.checkinEmployee.meta.pagination.total);
+        monthlyLeaveEmployeeCounts.push(response.result.absentEmployee.meta.pagination.total);
+
+        earlyDateCurrentDay = new Date(
+          earlyDateCurrentDay.getFullYear(),
+          earlyDateCurrentDay.getMonth(),
+          earlyDateCurrentDay.getDate() - 1,
+        );
+        lastDateCurrentDay = new Date(
+          lastDateCurrentDay.getFullYear(),
+          lastDateCurrentDay.getMonth(),
+          lastDateCurrentDay.getDate() - 1,
         );
       }
 
@@ -661,7 +700,8 @@ All Rights Reserved
   const damyData = $state({
     total: 0,
     change: 0,
-    changeType: "-",})
+    changeType: "-",
+  });
 
   onMount(async () => {
     getCountPersonsPerMonth();
@@ -829,7 +869,7 @@ All Rights Reserved
                   />
                 </div>
               {/if}
-              {:else if tabDatas.selected === "Recruitment"}
+            {:else if tabDatas.selected === "Recruitment"}
               {#if latestRecruitment.length > 0}
                 <DataTable bind:datas={latestRecruitment} bind:configs />
               {:else}
