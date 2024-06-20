@@ -107,6 +107,7 @@
     "confirm": "Konfirmasi",
     "chooseSomeoneToDelegate": "Pilih seorang yang ingin di delegasi",
     "persons": "Individu",
+    "person": "Individu",
     "createNewPersons": "Buat Individu baru",
     "descCreateNewPerson": "Masukkan data pelanggan anda ke dalam sistem",
     "totalPersons": "Total Individu",
@@ -146,6 +147,7 @@
     "create": "Buat",
     "cancel": "Batal",
     "product&Service": "Produk & Layanan",
+    "productService": "Produk & Layanan",
     "createNewProduct&Services": "Buat Produk & Layanan baru",
     "descCreateNewProduct&Services": "Tambahkan data produk dan layanan baru",
     "manageCategories": "Manajemen Kategori",
@@ -223,6 +225,7 @@
     "createNewCategoriesProduct": "Tambahkan Kategori Produk",
     "back": "Kembali",
     "hrOverview": "Manajemen HR",
+    "hr": "HR",
     "descHr": "Manajemen data karyawan dan rekrutmen",
     "attendance": "Kehadiran",
     "employee": "Karyawan",
@@ -264,5 +267,8 @@
     "availabilitySlots": "Ketersediaan",
     "day": "Hari",
     "week": "Minggu",
-    "month": "Bulan"
+    "month": "Bulan",
+    "totalEmployee": "Total Karyawan",
+    "employeeChecked-in": "Karyawan Check-in",
+    "employeeLeave": "Karyawan Tidak Hadir"
 }

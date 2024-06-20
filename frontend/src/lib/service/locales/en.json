@@ -109,6 +109,7 @@
   "confirm": "Confirm",
   "chooseSomeoneToDelegate": "Choose someone to delegate",
   "persons": "Persons",
+  "person": "Person",
   "createNewPersons": "Create new Person",
   "descCreateNewPerson": "Add your customers data to the system",
   "totalPersons": "Total Persons",
@@ -168,6 +169,7 @@
   "crmOverview": "Business Management",
   "documentManagementOverview": "Document Management Overview",
   "product&Service": "Product & Service",
+  "productService": "Product & Service",
   "product&Services": "Product & Services",
   "products&Services": "Products & Services",
   "users": "Users",
@@ -202,6 +204,7 @@
   "contractEndPeriod": "Contract End Period",
   "personsOrClient": "Persons or Client",
   "order&Invoice": "Order & Invoice",
+  "orderInvoice": "Order & Invoice",
   "personsList": "Persons List",
   "addNew": "Add new",
   "emailNotValid": "Email not valid",
@@ -225,6 +228,7 @@
   "createNewCategoriesProduct": "Create new Categories Product",
   "back": "Back",
   "hrOverview": "HR Management",
+  "hr": "HR",
   "descHr": "Employee data management and recruitment",
   "attendance": "Attendance",
   "employee": "Employee",
@@ -266,5 +270,8 @@
   "availabilitySlots": "Availability Slots",
   "day": "Day",
   "week": "Week",
-  "month": "Month"
+  "month": "Month",
+  "totalEmployee": "Total Employee",
+  "employeeChecked-in": "Employee Checked-in",
+  "employeeLeave": "Employee Leave"
 }

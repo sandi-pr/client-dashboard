@@ -81,22 +81,22 @@
         },
         {
             "name": "crm-order-invoice",
-            "path": "/crm/order-invoice",
+            "path": "/crm/order_invoice",
             "file_path": "template/crm/order_invoice.html"
         },
         {
             "name": "crm-order-invoice-order",
-            "path": "/crm/order-invoice/order",
+            "path": "/crm/order_invoice/order",
             "file_path": "template/crm/order_invoice/order.html"
         },
         {
             "name": "crm-order-invoice-invoice",
-            "path": "/crm/order-invoice/invoice",
+            "path": "/crm/order_invoice/invoice",
             "file_path": "template/crm/order_invoice/invoice.html"
         },
         {
             "name": "crm-order-invoice-create",
-            "path": "/crm/order-invoice/create",
+            "path": "/crm/order_invoice/create",
             "file_path": "template/crm/order_invoice/create.html"
         },
         {

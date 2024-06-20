@@ -4,6 +4,8 @@
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { getIcons } from "$lib";
+  import { toCamelCase } from "$lib/utils/toCamelCase.js";
+  import { _ } from "svelte-i18n";
 
   let {
     activeUrl = "/",
@@ -120,11 +122,11 @@
               goto(`${baseUrl}${item.href}`);
             }}
           >
-            {postProcessName(item.name)}
+            {$_(toCamelCase(postProcessName(item.name)))}
           </button>
         {:else}
           <span class={spanClass}>
-            {postProcessName(item.name)}
+            {$_(toCamelCase(postProcessName(item.name)))}
           </span>
         {/if}
       </li>

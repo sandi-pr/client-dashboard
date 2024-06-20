@@ -559,7 +559,8 @@
             },
           );
           if (response.status === 200) {
-            console.log(response);
+            console.log("test",i);
+            console.log(currentDate.toISOString().split("T")[0]);
             triggerToast("created");
             await getSchedule();
             modal = false;
@@ -871,7 +872,7 @@
     if (firstDayOfWeek >= 1 && firstDayOfWeek <= 6) {
       firstDayOfMonth.setDate(firstDayOfMonth.getDate() - firstDayOfWeek);
     }
-    let lastDayOfMonth = new Date(today.getFullYear(), month + 1, 0);
+    let lastDayOfMonth = new Date(today.getFullYear(), month + 1, 1);
 
     let lastDayOfWeek = lastDayOfMonth.getDay();
 
@@ -920,7 +921,7 @@
           daysInWeek = getDaysOfWeek(new Date(currentDate));
           hoursOfDay = getHoursOfDay();
 
-          console.log("cek", response.result.calendar);
+          // console.log("cek", response.result.calendar);
 
           if (response.result.calendar === null) {
             days = [
