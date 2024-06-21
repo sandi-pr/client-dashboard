@@ -14,12 +14,15 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane, Splitpanes } from "svelte-splitpanes";
   import { Datepicker } from 'flowbite-svelte';
-  import { Navbar, Sidebar, Typography, TabBar, Card } from "$lib";
+  import { Navbar, Sidebar, ToastContainer } from "$lib";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+  import { set_pdfjs_context } from '$lib/utils/vite.ts';
+
+  set_pdfjs_context();
 
   let innerWidth = $state(0);
   let { showAI = false } = $props();
@@ -319,6 +322,7 @@ All Rights Reserved
               </div>
               <div class="h-full pt-20">
                 <slot />
+                <ToastContainer />
               </div>
             </div>
           </Pane>

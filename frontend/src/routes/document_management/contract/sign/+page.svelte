@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
   import { writable } from "svelte/store";
   import {
     P,
@@ -26,6 +26,7 @@
   import UsersUpIcon from "$lib/icon/users-up.svelte";
   import DotsGridIcon from "$lib/icon/dots-grid.svelte";
   import { dndzone, TRIGGERS } from "svelte-dnd-action";
+  import PdfViewer from "$lib/components/PdfViewer.svelte";
   // import PDFViewer from "pdf.svelte";
   // import {
   //   PUBLIC_API_URL_DEV,
@@ -50,13 +51,14 @@
   let pdf = null;
   let base64 = null;
   let fileUrl = null;
+  let pdfFile = null;
 
   // Create writable stores for QR code position
   const qrCodeX = writable(0);
   const qrCodeY = writable(0);
   // Variables to store initial mouse position and movement state
-  // let initialMouseX, initialMouseY;
-  // let isMoving = false;
+  let initialMouseX, initialMouseY;
+  let isMoving = false;
 
   let dropdownOpen = false;
   let formModal = false;
@@ -73,45 +75,41 @@
   let imagePosition = { x: 0, y: 0 };
 
   // // Function to handle QR code movement
-  // function handleQrCodeMove(event) {
-  //   if (isMoving) {
-  //     const deltaX = event.clientX - initialMouseX;
-  //     const deltaY = event.clientY - initialMouseY;
+  function handleQrCodeMove(event) {
+    if (isMoving) {
+      const deltaX = event.clientX - initialMouseX;
+      const deltaY = event.clientY - initialMouseY;
 
-  //     qrCodeX.update((x) => x + deltaX);
-  //     qrCodeY.update((y) => y + deltaY);
+      qrCodeX.update((x) => x + deltaX);
+      qrCodeY.update((y) => y + deltaY);
 
-  //     initialMouseX = event.clientX;
-  //     initialMouseY = event.clientY;
-  //   }
-  // }
+      initialMouseX = event.clientX;
+      initialMouseY = event.clientY;
+    }
+  }
 
   // // Function to start QR code movement
-  // function startMove(event) {
-  //   console.log("on mouse down");
-  //   console.log(event.clientX, event.clientY);
-  //   isMoving = true;
-  //   initialMouseX = event.clientX;
-  //   console.log(initialMouseX);
-  //   initialMouseY = event.clientY;
-  //   console.log(initialMouseY);
-  // }
+  function startMove(event) {
+    console.log("on mouse down");
+    console.log(event.clientX, event.clientY);
+    isMoving = true;
+    initialMouseX = event.clientX;
+    console.log(initialMouseX);
+    initialMouseY = event.clientY;
+    console.log(initialMouseY);
+  }
 
   // // Function to stop QR code movement
-  // function stopMove() {
-  //   isMoving = false;
-  //   saveQrCodePosition();
-  // }
+  function stopMove() {
+    isMoving = false;
+    saveQrCodePosition();
+  }
 
   // Function to save QR code position
   function saveQrCodePosition() {
     const position = { x: $qrCodeX, y: $qrCodeY };
     console.log("QR Code Position:", position);
     // You can save the position to a database or use it as needed
-  }
-
-  function removeAttribute(index) {
-    attributes = attributes.filter((_, i) => i !== index);
   }
 
   // Subscribe to timelineStep changes
@@ -126,31 +124,6 @@
       files = [];
     };
   });
-
-  // Step 1
-  // Current Workflow
-  // let currentWorkflow_Step1 = 0;
-
-  // Step 1
-  // Change Workflow
-  // function changeWorkflow_Step1(newValue) {
-  //   currentWorkflow_Step1 = newValue;
-  //   // console.log(currentWorkflow_Step1);
-  // }
-
-  // Step 2
-  // Convert file size
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
 
   // export let data;
   let data = {
@@ -202,89 +175,27 @@
     },
   };
 
-  let workflows = data.workflows.data ?? [];
-
-  let selectedWorkflow = null;
-  let workflowSteps = null;
-  let selectedSigner;
+  let selectedSigner = {
+    user: {
+      email: "san@mail",
+      fullname: "san",
+      role: "Signer",
+    },
+  };
   let dropdownSigner = false;
-  let signers = [];
+  let signers = [
+    {
+      email: "san@mail",
+      fullname: "san",
+      role: "Signer",
+      position: { x: 0, y: 0 },
+    },
+  ];
   let showQr = [];
   let useMeterai = false;
   let emeterai = [];
   let fileTextName = null;
-  let fileTextResult = null;
   let base64Data = "";
-
-  // async function selectWorkflow(item) {
-  //   selectedWorkflow = item;
-  //   const response = await axios.get(`${API_URL}/api/workflows/${item.id}`, {
-  //     headers: {
-  //       Authorization: "Bearer " + data.data.jwt,
-  //     },
-  //   });
-  //   workflowSteps = response.data.data.attributes.steps;
-  //   selectedSigner = workflowSteps[0];
-  //   const meterai = response.data.data.attributes.meterai_type;
-  //   if (meterai === "Meterai") {
-  //     useMeterai = true;
-  //   }
-  //   for (const step of workflowSteps) {
-  //     const newSigner = {
-  //       page: 1,
-  //       address: step.identity.data.attributes.address ?? "",
-  //       email: step.user.email,
-  //       position: { x: 0, y: 0 },
-  //     };
-  //     signers.push(newSigner);
-  //     showQr.push(false);
-  //     if (meterai === "Meterai") {
-  //       emeterai.push(false);
-  //     }
-  //   }
-  //   console.log(workflowSteps);
-  // }
-
-  // Step 2
-  // function handleFileChange(event) {
-  //   const selectedFiles = event.target.files;
-
-  //   for (const file of selectedFiles) {
-  //     if (file.size > 1 * 1024 * 1024) {
-  //       files = [];
-  //       alert(`File "${file.name}" size exceeds the 10 MB limit. Please choose a smaller file.`);
-  //       return;
-  //     }
-  //     if (file) {
-  //       const reader = new FileReader();
-  //       reader.onloadend = () => {
-  //         pdf = reader.result;
-  //         base64 = reader.result.split(",")[1];
-  //       };
-  //       reader.readAsDataURL(file);
-  //     }
-  //   }
-  // }
-
-  function removeFile(index) {
-    // files = files.filter((_, i) => i !== index);
-    let arrayFileList = [...files];
-    files = arrayFileList.filter((_, i) => i !== index);
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    addAttribute();
-    formModal = false;
-  }
-
-  function addAttribute() {
-    if (name && value) {
-      attributes = [...attributes, { name, value }];
-      name = "";
-      value = "";
-    }
-  }
 
   function selectSigner(signer) {
     selectedSigner = signer;
@@ -296,6 +207,8 @@
 
     const offsetX = e.clientX - imagePosition.x;
     const offsetY = e.clientY - imagePosition.y;
+
+    console.log("offsetX: ", offsetX, " offsetY: ", offsetY);
 
     const handleMouseMove = (e) => {
       if (isDragging) {
@@ -342,7 +255,7 @@
   }
 
   const validateCurrentStep = () => {
-    if (currentStep === 1 && selectedWorkflow === null) {
+    if (currentStep === 1 && fileUrl === null) {
       return false;
     }
     if (currentStep === 2 && pdf === null) {
@@ -354,44 +267,38 @@
     return true;
   };
 
-  async function readFileAsText(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const text = reader.result.replace(/\r\n/g, "\n");
-        const base64 = btoa(text);
-        resolve({ text, base64 });
-      };
-      reader.onerror = reject;
-
-      reader.readAsText(file);
-    });
-  }
-
   async function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
-      reader.readAsDataURL(file);
       reader.onload = () => {
         const base64Data = reader.result.split(",")[1];
         resolve(base64Data);
       };
       reader.onerror = reject;
-
+      reader.readAsDataURL(file);
     });
   }
 
-  const base64toBlob = (base64Data, contentType) => {
+  function base64toBlob(base64Data, fileType) {
     const byteCharacters = atob(base64Data);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
     }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: contentType });
-  };
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  }
 
   const handleFileUploadWrapper = () => {
     const inputElement = document.createElement("input");
@@ -404,13 +311,15 @@
 
       files = event.target.files;
 
+      pdfFile = file;
+
+      // console.log(file);
+
       if (file) {
         base64Data = await readFileAsBase64(file);
 
         const blob = base64toBlob(base64Data, file.type);
         fileUrl = URL.createObjectURL(blob);
-
-        console.log(fileUrl);
 
         fileTextName = file.name;
       } else {
@@ -525,7 +434,7 @@
 
   <!-- Step 1 -->
   {#if currentStep == 1}
-    <div class="flex flex-col justify-center lg:px-72 md:px-10 sm:px-4 gap-4">
+    <div class="flex flex-col justify-center items-center lg:px-72 md:px-10 sm:px-4 gap-4">
       <div class="flex justify-between items-start gap-3">
         <P size="3xl" weight="semibold">{$_("uploadContract")}</P>
       </div>
@@ -690,17 +599,6 @@
           <P class="text-3xl leading-9 font-semibold text-hc-graylight-900 dark:text-hc-graydark-50"
             >Signature Placement</P
           >
-          <div class="flex items-center gap-2">
-            <Button color="light">
-              {files[0].name}
-              <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
-            </Button>
-            <!-- <Dropdown bind:open={dropdownOpen} class="w-48 overflow-y-auto py-1">
-              <DropdownItem on:click={() => (dropdownOpen = false)}>
-                {files[0].name}
-              </DropdownItem>
-            </Dropdown> -->
-          </div>
         </div>
         <div class="flex gap-12">
           <div class="flex flex-col gap-4">
@@ -709,14 +607,10 @@
             >
             <Button outline color="light" class="focus-within:!ring-1">
               <Avatar />
-              <div class="flex-col grow pl-2 pr-4">
+              <div class="flex grow pl-2 pr-4">
                 <Span
-                  class="font-jakarta text-slate-700 dark:text-hc-graydark-300 text-sm leading-tight"
+                  class="font-jakarta text-start text-slate-700 dark:text-hc-graydark-300 text-sm leading-tight"
                   >{selectedSigner.user.fullname}</Span
-                >
-                <P
-                  class="font-jakarta text-slate-600 dark:text-hc-graydark-400 text-sm leading-tight"
-                  >{selectedSigner.user.unit.name}</P
                 >
               </div>
               <Button
@@ -726,7 +620,7 @@
                   rounded-md focus-within:ring-0 font-medium
                   `}
               >
-                {selectedSigner.step}
+                {selectedSigner.user.role}
               </Button>
               <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
             </Button>
@@ -765,19 +659,9 @@
               {/each}
             </Dropdown> -->
             <div class="flex gap-4 justify-center items-center">
-              {#if useMeterai}
-                <Button
-                  outline
-                  on:click={placeMeterai}
-                  color="purple"
-                  class="w-full hover:!bg-transparent hover:text-hc-brand-600 !border-hc-brand-300 dark:!border-hc-brand-400 focus-within:!ring-1 px-3 py-1 gap-1"
-                >
-                  Place e-Meterai
-                </Button>
-              {/if}
               <Button
                 on:click={placeSignature}
-                class="w-full px-3 !py-1 gap-1 focus-within:!ring-1"
+                class="w-full px-3 !py-2 gap-1 focus-within:!ring-1"
               >
                 Place Signature
               </Button>
@@ -800,10 +684,9 @@
                 <img src={QRCodeIcon} class="w-20 h-20" alt="QR Code" />
               </div> -->
               {#each signers as signer, index (signer)}
-                {#if showQr[index]}
+                <!-- {#if showQr[index]} -->
                   <div
-                    on:mousedown={(e) =>
-                      selectedSigner.user.email === signer.email ? handleMouseDown(e, signer) : ""}
+                    on:mousedown={(e) => handleMouseDown(e, signer)}
                     role="button"
                     aria-label="Move QR Code"
                     tabindex="0"
@@ -814,36 +697,14 @@
                       width="70"
                       height="70"
                       style="position: absolute; top: {signer.position.y}px; left: {signer.position
-                        .x}px; z-index: 2; cursor: {isDragging ? 'grabbing' : 'grab'}"
+                        .x}px; z-index: 50; cursor: {isDragging ? 'grabbing' : 'grab'}"
                     />
                   </div>
-                {/if}
-                {#if emeterai[index]}
-                  {#if showQr[index]}
-                    <div
-                      on:mousedown={(e) =>
-                        selectedSigner.user.email === signer.email
-                          ? handleMouseDown(e, signer)
-                          : ""}
-                      role="button"
-                      aria-label="Move QR Code"
-                      tabindex="0"
-                    >
-                      <img
-                        src={QRCodeIcon}
-                        alt=""
-                        width="70"
-                        height="70"
-                        style="position: absolute; top: {signer.position.y}px; left: {signer
-                          .position.x}px; z-index: 2; cursor: {isDragging ? 'grabbing' : 'grab'}"
-                      />
-                    </div>
-                  {/if}
-                {/if}
+                <!-- {/if} -->
               {/each}
 
-              <div class="flex justify-center grow bg-gray-50 rounded-lg dark:bg-gray-800">
-                <div>pdf viewer here</div>
+              <div class="flex z-0 flex-col justify-center grow bg-gray-50 rounded-lg dark:bg-gray-800">
+                <PdfViewer />
                 <!-- <PdfViewer
                   showBorder={false}
                   showButtons={false}
