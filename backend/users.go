@@ -11,7 +11,10 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -194,7 +197,33 @@ func GetUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, user, nil
+	fmt.Println("user", user)
+
+	photo, ok := user.GetDict("photo")
+
+	if !ok {
+		return 200, U.Dict{"user": user, "photo": ""}, nil
+	}
+
+	photo_url := photo["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+	photo_url = U.String(strings.TrimPrefix(string(photo_url), "/"))
+
+	resp, err := http.Get(STRAPI_URL + string(photo_url))
+	if err != nil {
+		fmt.Printf("error saat mengunduh file: %v", err)
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("error saat membaca isi file: %v", err)
+	}
+
+	base64Data := base64.StdEncoding.EncodeToString(data)
+
+	fmt.Println(base64Data)
+
+	return 200, U.Dict{"user": user, "photo": base64Data}, nil
 }
 
 func UpdateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
@@ -272,6 +301,99 @@ func UpdateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 	}
 
 	status, user, err := Strapi.UsersUpdate(int64(id), updateData)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, user, nil
+}
+
+func UpdatePhotoUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	userId, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	photoBase64, ok := ctx.Params.GetString("photo")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	photo, err := base64.StdEncoding.DecodeString(string(photoBase64))
+	if err != nil {
+		return ctx.Error(400, "failed to decode photo")
+	}
+
+	filename, ok := ctx.Params.GetString("filename")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(userId))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, upload, err := Strapi.Upload(string(filename), photo)
+
+	fmt.Println("upload", upload)
+
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	data, ok := upload.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	idPhoto, ok := data.GetFloat64("id")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, user, err := Strapi.UsersUpdate(int64(id), U.Dict{
+		"photo": idPhoto,
+	})
 
 	if err != nil {
 		fmt.Println(err)

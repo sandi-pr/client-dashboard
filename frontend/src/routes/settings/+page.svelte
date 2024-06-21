@@ -18,6 +18,9 @@
   import DataTable from "$lib/components/DataTable.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { datas, informationFormDatas, configs } from "./dummy";
+  import { CR3Call } from "hexacomponents-svelte";
+
+  const call = new CR3Call(globalThis.location.origin);
 
   let screenWidth;
   let user = informationFormDatas;
@@ -60,7 +63,10 @@
 
     const files = event.dataTransfer.files;
 
-    if (files[0] && (files[0].type === "image/jpeg" || files[0].type === "image/png")) {
+    if (
+      files[0] &&
+      (files[0].type === "image/jpeg" || files[0].type === "image/png")
+    ) {
       fileImageResult = await new Promise((resolve, reject) => {
         const reader = new FileReader();
 
@@ -96,7 +102,8 @@
           reader.readAsDataURL(file);
         });
 
-        fileImage = file;
+        // conver to base64
+        fileImage = await readFileAsBase64(file);
         fileImageName = file.name;
         // console.log(fileImageResult);
       } else {
@@ -107,42 +114,109 @@
     inputElement.click();
   };
 
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  }
+
   const getUser = async () => {
-    try {
-      console.log("not working");
-      // const cookieResponse = await axios.get(`${apiUrl}/api/cookies`);
-      // const cookies = cookieResponse.data.find((cookie) => cookie.name === "crd_cookies");
-      // const jwt = JSON.parse(cookies.value).jwt;
+    let me = JSON.parse(sessionStorage.getItem("user"));
+    user = {
+      grid: 4,
+      title: "My Details",
+      titleGrid: 1,
+      innerGrid: 5,
+      data: [
+        {
+          name: "Full Name",
+          value: me.fullname,
+          grid: 2,
+        },
+        {
+          name: "Username",
+          value: me.username,
+          grid: 2,
+        },
+        {
+          name: "User ID",
+          value: me.id,
+          grid: 1,
+        },
+        {
+          name: "Email",
+          value: me.email,
+          grid: 5,
+        },
+      ],
+    };
+  };
 
-      // const response = await axios.get(`${strapiUrl}/api/users/me?populate=*`, {
-      //   headers: {
-      //     Authorization: `Bearer ${jwt}`,
-      //   },
-      // });
+  const updatePhotoUser = async () => {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      let me = JSON.parse(sessionStorage.getItem("user"));
+      const response = await call.call(
+        "client-dashboard",
+        "update-photo-user",
+        {
+          URLQuery: {},
+          URLParams: {
+            id: me.id.toString(),
+          },
+          Params: {
+            photo: fileImage,
+            filename: fileImageName,
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
-      // // isAdmin = response.data?.user_roles[0]?.admin || false;
-      // user = response.data;
-      // userCopy = { ...user };
-      // // console.log(user);
-    } catch (error) {
-      if (error?.response?.status === 401) {
-        console.log("unauthorized");
-        window.location = "/";
-      } else {
-        console.log("error");
-        window.location = "/";
+      if (response.status !== 200) {
+        console.log(response);
+        return;
       }
+      console.log("ayam", response);
     }
   };
 
-  const updateUser = async () => {
-    console.log("nunggu Microservice");
-  };
+  const currentPasswordCheck = async () => {
+    let me = JSON.parse(sessionStorage.getItem("user"));
+    var resp = await call.call("client-login", "login", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {
+        email: me.email,
+        password: passwordObject.currentPassword,
+      },
+      Headers: {},
+    });
 
-  const currentPasswordCheck = () => {
-    console.log(passwordObject.currentPassword);
-    // check current password on database
-    currentPasswordMatch = true;
+    if (resp === null) {
+      throw new Error("Server sibuk");
+    }
+
+    if (resp.status === 200) {
+      // login success
+      if (resp.result.token !== undefined) {
+        currentPasswordMatch = true;
+      } else {
+        currentPasswordMatch = false;
+      }
+    } else {
+      currentPasswordMatch = false;
+    }
+    // currentPasswordMatch = true;
   };
 
   const passwordCheck = () => {
@@ -178,7 +252,42 @@
   };
 
   const updatePassword = async () => {
-    console.log("Logic here");
+    if (!passwordCheck()) {
+      return;
+    }
+
+    if (!currentPasswordMatch) {
+      return;
+    }
+
+    let me = JSON.parse(sessionStorage.getItem("user"));
+    let token = sessionStorage.getItem("token");
+    var resp = await call.call("client-dashboard", "update-user", {
+      URLQuery: {},
+      URLParams: {
+        id: me.id.toString(),
+      },
+      Params: {
+        fullname: me.fullname,
+        username: me.username,
+        password: passwordObject.newPassword,
+        email: me.email,
+        company: me.company,
+        blocked: me.is_active,
+      },
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    console.log("telur", resp);
+
+    if (resp.status !== 200) {
+      console.log(resp);
+      return;
+    }
+
+    console.log("ayam", resp);
   };
 
   const changeTabbar = (name) => {
@@ -186,7 +295,7 @@
   };
 
   onMount(() => {
-    // getUser();
+    getUser();
   });
 </script>
 
@@ -206,12 +315,19 @@
         <Button
           class="bg-hc-brand-600 hover:bg-hc-brand-700"
           disabled={JSON.stringify(user) === JSON.stringify(userCopy)}
-          on:click={updateUser}>Save</Button
+          on:click={updatePhotoUser}>Save</Button
         > -->
-        <div class="flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none">
-          <SearchOutline class="w-4 h-4 text-primary-light dark:text-primary-dark" />
+        <div
+          class="flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none"
+        >
+          <SearchOutline
+            class="w-4 h-4 text-primary-light dark:text-primary-dark"
+          />
         </div>
-        <Input class="ps-10 bg-primary-light dark:bg-primary-dark" placeholder="Search" />
+        <Input
+          class="ps-10 bg-primary-light dark:bg-primary-dark"
+          placeholder="Search"
+        />
       </div>
     </div>
 
@@ -222,14 +338,18 @@
     {#if isAdmin}
       {#if tabDatas.selected === "My Profile"}
         <div class="mx-4 mt-8">
-          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+          <div
+            class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark"
+          >
             <Typography preset="Text lg/Semibold" text="Personal info" />
             <Typography
               preset="Text sm/Reguler"
               text="Update your photo and personal details here."
             />
           </div>
-          <div class="py-8 border-b border-secondary-light dark:border-secondary-dark">
+          <div
+            class="py-8 border-b border-secondary-light dark:border-secondary-dark"
+          >
             <InformationForm datas={user} {screenWidth} />
           </div>
           <div class="py-8">
@@ -238,7 +358,10 @@
                 <Typography preset="Text lg/Semibold" text="Your photo" />
               </div>
               <div class="col-span-3 flex w-full">
-                <Avatar class="size-16" src={fileImageName ? fileImageResult : ""} />
+                <Avatar
+                  class="size-16"
+                  src={fileImageName ? fileImageResult : ""}
+                />
                 <div class="w-full ml-8">
                   <Button
                     ondragover={handleDragOver}
@@ -258,11 +381,13 @@
                       />
                     </div>
                     <div class="flex space-x-1">
-                      <P class="text-hc-brand-700 pointer-events-none">Click to upload</P><P
-                        class="pointer-events-none">or drag and drop</P
-                      >
+                      <P class="text-hc-brand-700 pointer-events-none"
+                        >Click to upload</P
+                      ><P class="pointer-events-none">or drag and drop</P>
                     </div>
-                    <P class="pointer-events-none">PNG, JPG file (max. 800x400px)</P>
+                    <P class="pointer-events-none"
+                      >PNG, JPG file (max. 800x400px)</P
+                    >
                   </Button>
                 </div>
               </div>
@@ -272,7 +397,9 @@
       {:else if tabDatas.selected === "Password"}
         <div class="mx-4 mt-8">
           <!-- <DataTable {datas} {configs} /> -->
-          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+          <div
+            class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark"
+          >
             <Typography preset="Text lg/Semibold" text="Password" />
             <Typography
               preset="Text sm/Reguler"
@@ -285,7 +412,7 @@
               <Input
                 type="password"
                 bind:value={passwordObject.currentPassword}
-                on:change={currentPasswordCheck}
+                on:input={currentPasswordCheck}
                 class="mt-2 bg-primary-light dark:bg-primary-dark"
               />
               {#if !currentPasswordMatch && passwordObject.currentPassword.length > 0}
@@ -344,7 +471,7 @@
           class="bg-hc-brand-600 hover:bg-hc-brand-700"
           on:click={() => {
             if (tabDatas.selected === "My Profile") {
-              updateUser();
+              updatePhotoUser();
             } else if (tabDatas.selected === "Password") {
               updatePassword();
             }

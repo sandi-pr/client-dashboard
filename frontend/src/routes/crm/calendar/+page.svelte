@@ -1616,6 +1616,7 @@
       <Input
         required
         bind:value={newSchedule.title}
+        maxlength="50"
         class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 dark:border-gray-500 cursor-default"
       />
       {#if newSchedule.title.length === 0}

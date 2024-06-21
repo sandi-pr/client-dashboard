@@ -16,7 +16,7 @@ All Rights Reserved
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
-  import Divider from "../../../lib/components/Divider.svelte";
+  import Divider from "$lib/components/Divider.svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";

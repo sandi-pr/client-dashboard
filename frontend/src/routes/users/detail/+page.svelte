@@ -75,14 +75,14 @@ All Rights Reserved
       console.log("ayam", response);
 
       data = {
-        userId: response.result.id,
-        fullname: response.result.fullname !== null ? response.result.fullname : "",
-        username: response.result.username,
-        email: response.result.email,
-        createdAt: formatDate(response.result.createdAt),
-        authority: response.result.authority === "Admin" ? "Admin" : "User",
-        is_active: !response.result.Blocked,
-        company: response.result.company,
+        userId: response.result.user.id,
+        fullname: response.result.user.fullname !== null ? response.result.user.fullname : "",
+        username: response.result.user.username,
+        email: response.result.user.email,
+        createdAt: formatDate(response.result.user.createdAt),
+        authority: response.result.user.authority === "Admin" ? "Admin" : "User",
+        is_active: !response.result.user.Blocked,
+        company: response.result.user.company,
       };
     } catch (error) {
       console.log(error);

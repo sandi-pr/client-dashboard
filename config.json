@@ -65,6 +65,11 @@
             "file_path": "template/users/create.html"
         },
         {
+            "name": "settings",
+            "path": "/settings",
+            "file_path": "template/settings.html"
+        },
+        {
             "name": "crm-categories",
             "path": "/crm/categories",
             "file_path": "template/crm/categories.html"
@@ -110,19 +115,39 @@
             "file_path": "template/document_management.html"
         },
         {
-            "name": "document-management-create",
-            "path": "/document_management/create",
-            "file_path": "template/document_management/create.html"
+            "name": "document-management-general",
+            "path": "/document_management/general_document",
+            "file_path": "template/document_management/general_document.html"
         },
         {
-            "name": "document-management-list",
-            "path": "/document_management/list",
-            "file_path": "template/document_management/list.html"
+            "name": "document-management-general-create",
+            "path": "/document_management/general_document/create",
+            "file_path": "template/document_management/general_document/create.html"
         },
         {
-            "name": "document-management-detail",
-            "path": "/document_management/detail",
-            "file_path": "template/document_management/detail.html"
+            "name": "document-management-general-detail",
+            "path": "/document_management/general_document/detail",
+            "file_path": "template/document_management/general_document/detail.html"
+        },
+        {
+            "name": "document-management-contract",
+            "path": "/document_management/contract",
+            "file_path": "template/document_management/contract.html"
+        },
+        {
+            "name": "document-management-contract-create",
+            "path": "/document_management/contract/create",
+            "file_path": "template/document_management/contract/create.html"
+        },
+        {
+            "name": "document-management-contract-sign",
+            "path": "/document_management/contract/sign",
+            "file_path": "template/document_management/contract/sign.html"
+        },
+        {
+            "name": "document-management-contract-detail",
+            "path": "/document_management/contract/detail",
+            "file_path": "template/document_management/contract/detail.html"
         },
         {
             "name": "hr-overview",
@@ -747,6 +772,36 @@
                 {
                     "name": "company",
                     "type": "number",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-photo-user",
+            "path": "/update-photo-user/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdatePhotoUser"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "photo",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "filename",
+                    "type": "text",
                     "required": true
                 }
             ]
@@ -2454,6 +2509,10 @@
                             "Admin",
                             "Employee"
                         ],
+                        "configurable": false
+                    },
+                    "photo": {
+                        "type": "media",
                         "configurable": false
                     }
                 }

@@ -193,6 +193,10 @@
               <Typography preset="Text lg/Semibold" text="Manage User" color="secondary" />
             </button>
             <button
+              onclick={async () => {
+                if (!isFrontend) goto(await call.getPage("client-dashboard", "settings")); 
+                else goto("/settings");
+              }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
               <CogOutline class="size-8 mr-4 text-secondary-light dark:text-secondary-dark" />

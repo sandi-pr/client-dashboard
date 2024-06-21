@@ -205,6 +205,8 @@
     "personsList": "Daftar Individu",
     "addNew": "Tambahkan baru",
     "emailNotValid": "Email tidak valid",
+    "passwordNotValid": "Password tidak valid",
+    "passwordInfo": "Password harus terdiri dari 8 karakter, memuat huruf kecil, huruf kapital, angka, dan simbol",
     "successfullyCreated": "Berhasil dibuat.",
     "sometingWentWrongPleaseTryAgain": "Ada yang salah. Silahkan coba lagi.",
     "productDescription": "Deskripsi Produk",
@@ -281,5 +283,6 @@
     "addSigner": "Tambahkan Penandatangan",
     "invite": "Undang",
     "whoDoYouWantToInvite": "Siapa yang ingin diundang?",
-    "thirdPartySigner": "Penandatangan pihak ketiga"
+    "thirdPartySigner": "Penandatangan pihak ketiga",
+    "createNewRecruitment": "Buat rekrutmen baru"
 }

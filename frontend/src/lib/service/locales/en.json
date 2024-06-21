@@ -208,6 +208,8 @@
   "personsList": "Persons List",
   "addNew": "Add new",
   "emailNotValid": "Email not valid",
+  "passwordNotValid": "Password not valid",
+  "passwordInfo": "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character",
   "successfullyCreated": "Successfully created.",
   "sometingWentWrongPleaseTryAgain": "Something went wrong. Please try again.",
   "productDescription": "Product Description",
@@ -284,5 +286,6 @@
   "addSigner": "Add Signer",
   "invite": "Invite",
   "whoDoYouWantToInvite": "Who do you want to invite?",
-  "thirdPartySigner": "Third-party signer"
+  "thirdPartySigner": "Third-party signer",
+  "createNewRecruitment": "Create new recruitment"
 }

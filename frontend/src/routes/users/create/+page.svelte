@@ -10,14 +10,15 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Toggle, Helper } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
+  import { writable } from "svelte/store";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -72,6 +73,32 @@ All Rights Reserved
     } catch (error) {
       console.log(error);
     }
+  }
+
+  const dispatch = createEventDispatcher();
+  let emailValid = $state(false);
+  let passwordValid = $state(false);
+
+  function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  function validatePassword(password) {
+    const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    return passwordRegex.test(password);
+  }
+
+  function handleEmailChange(event) {
+    const newEmail = event.target.value;
+    emailValid = validateEmail(newEmail);
+    dispatch("emailChange", { email: newEmail, emailValid });
+  }
+
+  function handlePasswordChange(event) {
+    const newPassword = event.target.value;
+    passwordValid = validatePassword(newPassword);
+    dispatch("passwordChange", { password: newPassword, passwordValid });
   }
 
   onMount(async () => {
@@ -149,8 +176,12 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.email}
+                  on:input={handleEmailChange}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
+                {#if !emailValid && data.email.length > 0}
+                  <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
+                {/if}
               </div>
               <div class="flex flex-col col-span-3 gap-2">
                 <P
@@ -162,8 +193,12 @@ All Rights Reserved
                   type="password"
                   readonly={!onEdit}
                   bind:value={data.password}
+                  on:input={handlePasswordChange}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
+                {#if !passwordValid && data.password.length > 0}
+                  <Helper class="text-sm !text-red-400 pt-2">{$_("passwordInfo")}</Helper>
+                {/if}
               </div>
               <!-- <div class="flex flex-col gap-2">
                 <P

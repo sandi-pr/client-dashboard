@@ -16,7 +16,7 @@ All Rights Reserved
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
-  import Divider from "../../../lib/components/Divider.svelte";
+  import Divider from "$lib/components/Divider.svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";
@@ -113,7 +113,18 @@ All Rights Reserved
           base64 = response.result.base64;
           contentFile = atob(base64);
 
-          const blob = base64toBlob(base64);
+          let fileType = "";
+          if (data.ext === ".pdf") {
+            fileType = "application/pdf";
+          } else if (data.ext === ".docx") {
+            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+          } else if (data.ext === ".doc") {
+            fileType = "application/msword";
+          } else {
+            fileType = "text/plain";
+          }
+
+          const blob = base64toBlob(base64, fileType);
           fileUrl = URL.createObjectURL(blob);
           console.log(fileUrl);
           

@@ -71,7 +71,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                    `${await call.getPage("client-dashboard", "document-management-contract-detail")}` +
                     "?documentId=" +
                     document.id +
                     "&edit=false",

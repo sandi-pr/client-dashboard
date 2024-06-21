@@ -19,6 +19,7 @@ All Rights Reserved
     Button,
     MultiSelect,
     Select,
+    Helper
   } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -27,7 +28,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
 
   const call = new CR3Call(globalThis.location.origin);
   let fileTextResult = $state(null);
@@ -241,6 +242,21 @@ All Rights Reserved
     }
   }
 
+  const dispatch = createEventDispatcher();
+  let emailValid = $state(false);
+
+  function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  function handleEmailChange(event) {
+    const newEmail = event.target.value;
+    emailValid = validateEmail(newEmail);
+    let email = newEmail;
+    dispatch("emailChange", { email, emailValid });
+  }
+
   onMount(() => {
     getJobLevels();
   });
@@ -292,7 +308,7 @@ All Rights Reserved
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
-                    {$_("fullName")}
+                    {$_("fullName")}*
                   </P>
                   <Input
                     bind:value={data.fullname}
@@ -303,7 +319,7 @@ All Rights Reserved
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
-                    {$_("jobPosition")}
+                    {$_("jobPosition")}*
                   </P>
                   <Select
                     class="bg-primary-light dark:bg-secondary-dark"
@@ -317,19 +333,23 @@ All Rights Reserved
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
-                    {$_("email")}
+                    {$_("email")}*
                   </P>
                   <Input
                     type="email"
                     bind:value={data.email}
+                    on:input={handleEmailChange}
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
+                  {#if !emailValid && data.email.length > 0}
+                    <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
+                  {/if}
                 </div>
                 <div class="flex flex-col grow gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
-                    {$_("phone")}
+                    {$_("phone")}*
                   </P>
                   <Input
                     type="number"
@@ -342,7 +362,7 @@ All Rights Reserved
                 <div class="flex flex-col gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("address")}</P
+                    >{$_("address")}*</P
                   >
                   <Textarea
                     bind:value={data.address}
@@ -356,7 +376,7 @@ All Rights Reserved
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
-                    {$_("educationHistory")}
+                    {$_("educationHistory")}*
                   </P>
                   <Input
                     bind:value={data.education_history}
@@ -372,7 +392,7 @@ All Rights Reserved
               <P
                 class="font-semibold text-secondary-light dark:text-secondary-dark"
               >
-                {$_("resume")}
+                {$_("resume")}*
               </P>
             </div>
             <div class="flex flex-col grow gap-6">
@@ -428,14 +448,14 @@ All Rights Reserved
               <P
                 class="font-semibold text-secondary-light dark:text-secondary-dark"
               >
-                {$_("skillsOrKeywords")}
+                {$_("skillsOrKeywords")}*
               </P>
             </div>
             <div class="flex flex-col grow gap-6">
               <div class="flex flex-col grow gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("skillsOrKeywords")}</P
+                  >{$_("skillsOrKeywords")}*</P
                 >
                 <MultiSelect
                   items={skillsOrKeywords}
@@ -445,7 +465,7 @@ All Rights Reserved
               <div class="flex flex-col grow gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("experience")} (YoE)</P
+                  >{$_("experience")} (YoE)*</P
                 >
                 <Input
                   type="number"

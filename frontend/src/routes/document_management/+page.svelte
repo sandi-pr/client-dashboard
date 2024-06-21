@@ -49,7 +49,7 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "document-management-create"),
+        href: await call.getPage("client-dashboard", "document-management-general-create"),
         icon: UserPlusIcon,
         actionName: "Add new document",
         desc: "desc Add new document",
@@ -279,21 +279,21 @@ All Rights Reserved
   async function getChartAction(totalPersons, activePersons, inactivePersons) {
     chartAction = [
       {
-        href: await call.getPage("client-dashboard", "document-management-list"),
+        href: await call.getPage("client-dashboard", "document-management-general"),
         dataName: "Total Documents",
         value: totalPersons.total,
         change: totalPersons.change,
         changeType: totalPersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-management-list"),
+        href: await call.getPage("client-dashboard", "document-management-general"),
         dataName: "General Documents",
         value: activePersons.total,
         change: activePersons.change,
         changeType: activePersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-management-list"),
+        href: await call.getPage("client-dashboard", "document-management-general"),
         dataName: "Contract Documents",
         value: inactivePersons.total,
         change: inactivePersons.change,
@@ -305,7 +305,7 @@ All Rights Reserved
   let latestDocuments = $state([]);
 
   async function viewAll() {
-    goto(await call.getPage("client-dashboard", "document-management-list"));
+    goto(await call.getPage("client-dashboard", "document-management-general"));
   }
 
   async function getDocumentLatest() {
@@ -345,7 +345,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                    `${await call.getPage("client-dashboard", "document-management-general-detail")}` +
                     "?documentId=" +
                     document.id +
                     "&edit=false",
