@@ -20,9 +20,9 @@ All Rights Reserved
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
-  import { set_pdfjs_context } from '$lib/utils/vite.ts';
+  // import { set_pdfjs_context } from '$lib/utils/vite.ts';
 
-  set_pdfjs_context();
+  // set_pdfjs_context();
 
   let innerWidth = $state(0);
   let { showAI = false } = $props();

@@ -26,7 +26,7 @@
   import UsersUpIcon from "$lib/icon/users-up.svelte";
   import DotsGridIcon from "$lib/icon/dots-grid.svelte";
   import { dndzone, TRIGGERS } from "svelte-dnd-action";
-  import PdfViewer from "$lib/components/PdfViewer.svelte";
+  // import PdfViewer from "$lib/components/PdfViewer.svelte";
   // import PDFViewer from "pdf.svelte";
   // import {
   //   PUBLIC_API_URL_DEV,
@@ -704,7 +704,7 @@
               {/each}
 
               <div class="flex z-0 flex-col justify-center grow bg-gray-50 rounded-lg dark:bg-gray-800">
-                <PdfViewer />
+                <!-- <PdfViewer /> -->
                 <!-- <PdfViewer
                   showBorder={false}
                   showButtons={false}

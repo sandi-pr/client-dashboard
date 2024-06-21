@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
 	import { browser } from '$app/environment';
   import pdfTemplate from '$lib/template.pdf';
 
@@ -37,4 +37,4 @@
 
 <section class="settings flex gap-2 items-center justify-end mt-4 mb-10">
 	Page <input type="number" bind:value={num} step="1" min="1" max={max_pages} /> of {max_pages}
-</section>
+</section> -->
