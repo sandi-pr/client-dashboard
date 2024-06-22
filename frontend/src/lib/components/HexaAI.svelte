@@ -11,7 +11,7 @@
   import { tick } from "svelte";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import { PaperPlaneOutline } from "flowbite-svelte-icons";
+  import { PaperPlaneOutline, TrashBinOutline } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
 
   const plugins = [gfmPlugin()];
@@ -253,11 +253,9 @@
     </Input> -->
       <label for="chat" class="sr-only">Your message</label>
       <div class="flex items-center py-2 rounded-lg">
-        <ToolbarButton>
-          <Button on:click={clearChat} color="primary" size="sm"
-            >{$_("clearChat")}</Button
-          >
-          <span class="sr-only">Add emoji</span>
+        <ToolbarButton color="primary" on:click={clearChat}>
+          <TrashBinOutline class="w-6 h-6" />
+          <span class="sr-only">{$_("clearChat")}</span>
         </ToolbarButton>
         <Textarea
           id="chat"
