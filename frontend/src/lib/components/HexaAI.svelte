@@ -1,6 +1,6 @@
 <script>
   import { Button, Input, P, Textarea, ToolbarButton } from "flowbite-svelte";
-  
+
   import UserIcon from "$lib/icon/user-01.svg";
   import UsersIcon from "$lib/icon/users-03.svg";
   import VerifiedIcon from "$lib/icon/verified.svg";
@@ -11,7 +11,8 @@
   import { tick } from "svelte";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import { PaperPlaneOutline } from 'flowbite-svelte-icons';
+  import { PaperPlaneOutline } from "flowbite-svelte-icons";
+  import { _ } from "svelte-i18n";
 
   const plugins = [gfmPlugin()];
 
@@ -154,6 +155,11 @@
     }
   }
 
+  function clearChat() {
+    sessionStorage.removeItem("conversationId");
+    window.location.reload();
+  }
+
   onMount(() => {
     getMessage();
   });
@@ -246,9 +252,13 @@
       >
     </Input> -->
       <label for="chat" class="sr-only">Your message</label>
-      <div
-        class="flex items-center py-2 rounded-lg"
-      >
+      <div class="flex items-center py-2 rounded-lg">
+        <ToolbarButton>
+          <Button on:click={clearChat} color="primary" size="sm"
+            >{$_("clearChat")}</Button
+          >
+          <span class="sr-only">Add emoji</span>
+        </ToolbarButton>
         <Textarea
           id="chat"
           bind:disabled={disableInput}
@@ -257,11 +267,7 @@
           rows="1"
           placeholder="Send a message..."
         />
-        <ToolbarButton
-          type="submit"
-          color="primary"
-          class="rounded-full"
-        >
+        <ToolbarButton type="submit" color="primary" class="rounded-full">
           <PaperPlaneOutline class="w-6 h-6 rotate-45" />
           <span class="sr-only">Send</span>
         </ToolbarButton>

@@ -287,5 +287,6 @@
   "invite": "Invite",
   "whoDoYouWantToInvite": "Who do you want to invite?",
   "thirdPartySigner": "Third-party signer",
-  "createNewRecruitment": "Create new recruitment"
+  "createNewRecruitment": "Create new recruitment",
+  "clearChat": "Clear"
 }
