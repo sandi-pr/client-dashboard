@@ -1,5 +1,6 @@
 <script>
-  import { Button, Input, P } from "flowbite-svelte";
+  import { Button, Input, P, Textarea, ToolbarButton } from "flowbite-svelte";
+  
   import UserIcon from "$lib/icon/user-01.svg";
   import UsersIcon from "$lib/icon/users-03.svg";
   import VerifiedIcon from "$lib/icon/verified.svg";
@@ -10,6 +11,7 @@
   import { tick } from "svelte";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
+  import { PaperPlaneOutline } from 'flowbite-svelte-icons';
 
   const plugins = [gfmPlugin()];
 
@@ -225,9 +227,11 @@
       {/if}
     </div>
   </div>
-  <div class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-4 py-2 flex items-center">
+  <div
+    class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-4 py-2 flex items-center"
+  >
     <form on:submit|preventDefault={sendMessage} class="flex-grow">
-      <Input
+      <!-- <Input
       bind:disabled={disableInput}
       bind:value={messageInput}
       placeholder="Send a message..."
@@ -240,8 +244,28 @@
         class="my-3"
         disabled={disableInput}>Send</Button
       >
-    </Input>
+    </Input> -->
+      <label for="chat" class="sr-only">Your message</label>
+      <div
+        class="flex items-center py-2 rounded-lg"
+      >
+        <Textarea
+          id="chat"
+          bind:disabled={disableInput}
+          bind:value={messageInput}
+          class="mx-4"
+          rows="1"
+          placeholder="Send a message..."
+        />
+        <ToolbarButton
+          type="submit"
+          color="primary"
+          class="rounded-full"
+        >
+          <PaperPlaneOutline class="w-6 h-6 rotate-45" />
+          <span class="sr-only">Send</span>
+        </ToolbarButton>
+      </div>
     </form>
   </div>
-  
 </div>
