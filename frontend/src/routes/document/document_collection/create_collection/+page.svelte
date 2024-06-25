@@ -212,7 +212,7 @@ All Rights Reserved
           URLQuery: {},
           URLParams: {},
           Params: {
-            collection_id: response.result.data.id,
+            collection_id: response.result.data.id.toString(),
           },
           Headers: {
             Authorization: "Bearer " + token,
