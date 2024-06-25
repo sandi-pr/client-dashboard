@@ -14,7 +14,8 @@ All Rights Reserved
   import { P, Card, Avatar, Heading, A, Button } from "flowbite-svelte";
   import { StateCard } from "$lib";
   import { _ } from "svelte-i18n";
-  import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
+  import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
+  import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
   import Chart from "$lib/components/Chart.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
@@ -50,9 +51,15 @@ All Rights Reserved
     actionItems = [
       {
         href: await call.getPage("client-dashboard", "document-management-general-create"),
-        icon: UserPlusIcon,
-        actionName: "Add new document",
-        desc: "desc Add new document",
+        icon: FolderPlusIcon,
+        actionName: "Add new document collection",
+        desc: "desc Add new document collection",
+      },      
+      {
+        href: await call.getPage("client-dashboard", "document-management-contract-create"),
+        icon: FilePlusIcon,
+        actionName: "Add new contract document",
+        desc: "desc Add new contract document",
       },
     ];
   }
@@ -287,13 +294,13 @@ All Rights Reserved
       },
       {
         href: await call.getPage("client-dashboard", "document-management-general"),
-        dataName: "General Documents",
+        dataName: "Document Collection",
         value: activePersons.total,
         change: activePersons.change,
         changeType: activePersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-management-general"),
+        href: await call.getPage("client-dashboard", "document-management-contract"),
         dataName: "Contract Documents",
         value: inactivePersons.total,
         change: inactivePersons.change,
@@ -360,7 +367,7 @@ All Rights Reserved
         documentsReady = true;
 
         for (const document of latestDocuments) {
-          if (document.attributes.status !== "Ready") {
+          if (document.status !== "Ready") {
             setTimeout(getDocumentLatest, 2000);
             break;
           }
@@ -447,9 +454,9 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    getChartAction( {total: 0, change: 0, changeType: "-"}, {total: 0, change: 0, changeType: "-"}, {total: 0, change: 0, changeType: "-"});
     getDocumentLatest();
     getCountDocumentsPerMonth();
-    getChartAction();
     generateChartData();
     getActionItems();
   });
@@ -552,7 +559,7 @@ All Rights Reserved
                   >
                   <A
                     {href}
-                    class="text-sm font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark font-jakarta leading-tight"
+                    class="text-sm font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark font-jakarta leading-tight cursor-pointer"
                     >{$_("seeAll")}</A
                   >
                 </div>

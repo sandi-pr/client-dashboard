@@ -289,5 +289,16 @@
   "thirdPartySigner": "Third-party signer",
   "createNewRecruitment": "Create new recruitment",
   "clearChat": "Clear",
-  "generalDocument": "General Document"
+  "generalDocument": "General Document",
+  "aiEngine": "AI Engine",
+  "documentCollection": "Document Collection",
+  "contract": "Contract",
+  "addNewDocumentCollection": "Add new Document Collection",
+  "descAddNewDocumentCollection": "Register new document collection data",
+  "addNewContractDocument": "Add new Contract Document",
+  "descAddNewContractDocument": "Register new contract document",
+  "documentCollectionList": "Document Collection List",
+  "chat": "Chat",
+  "documentCollectionName": "Document Collection Name",
+  "askToAI": "Ask to AI"
 }

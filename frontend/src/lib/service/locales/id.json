@@ -286,5 +286,16 @@
     "thirdPartySigner": "Penandatangan pihak ketiga",
     "createNewRecruitment": "Buat rekrutmen baru",
     "clearChat": "Bersihkan",
-    "generalDocument": "Dokumen Umum"
+    "generalDocument": "Dokumen Umum",
+    "aiEngine": "AI Engine",
+    "documentCollection": "Koleksi Dokumen",
+    "contract": "Kontrak",
+    "addNewDocumentCollection": "Tambahkan Koleksi Dokumen baru",
+    "descAddNewDocumentCollection": "Masukkan data koleksi dokumen baru",
+    "addNewContractDocument": "Tambahkan Dokumen Kontrak baru",
+    "descAddNewContractDocument": "Masukkan dokumen kontrak baru",
+    "documentCollectionList": "Daftar Koleksi Dokumen",
+    "chat": "Chat",
+    "documentCollectionTitle": "Judul Koleksi Dokumen",
+    "askToAI": "Tanya AI"
 }

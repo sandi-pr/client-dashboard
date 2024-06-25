@@ -48,12 +48,34 @@ All Rights Reserved
 
   const call = isFrontend ? "" : new CR3Call(globalThis.location.origin);
 
-  const hideLayoutList = [
-    "/forgot-password",
+  const hideLayoutList = $state([
     "/workflow/update",
     "/workflow/create",
     "/hexabot/webchat",
-  ];
+  ]);
+
+  const hideScrollList = $state([
+    "/document_management/document_collection/chat",
+  ]);
+
+  const hideScroll = () => {
+    return !hideScrollList.some((path) => {
+      try {
+        if (path.endsWith("/*")) {
+          return globalThis.location.pathname.startsWith(path.slice(0, -1));
+        } else {
+          return globalThis.location.pathname === path;
+        }
+      } catch (error) {
+        console.log(error);
+        if (path.endsWith("/*")) {
+          return window.location.pathname.startsWith(path.slice(0, -1));
+        } else {
+          return window.location.pathname === path;
+        }
+      }
+    });
+  }
 
   const hideLayout = () => {
     return !hideLayoutList.some((path) => {
@@ -134,9 +156,9 @@ All Rights Reserved
           },
           {
             href: isFrontend
-              ? "/document_management/general_document"
-              : await call.getPage("client-dashboard", "document-management-general"),
-            name: "generalDocuments",
+              ? "/document_management/document_collection"
+              : await call.getPage("client-dashboard", "document-management-collection"),
+            name: "documentCollection",
           },
           {
             href: isFrontend
@@ -316,12 +338,20 @@ All Rights Reserved
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
           <Pane minSize={innerWidth > 1024 ? 50 : 0}>
-            <div class="relative transition-all duration-300 h-full overflow-y-auto">
+            <div class="relative transition-all duration-300 h-screen">
               <div class="absolute w-full top-0 z-10">
                 <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} {reset_database} />
               </div>
-              <div class="h-full pt-20">
-                <slot />
+              <div class="h-screen pt-20">
+                {#if hideScroll()}
+                  <div class="h-full overflow-y-auto">
+                    <slot />
+                  </div>
+                {:else}
+                  <div class="h-full">
+                    <slot />
+                  </div>
+                {/if}
                 <ToastContainer />
               </div>
             </div>

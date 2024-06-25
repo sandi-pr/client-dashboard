@@ -312,7 +312,7 @@
 
 <svelte:window bind:innerWidth={screenWidth} />
 
-<LoadingSpinner {isLoading} />
+<!-- <LoadingSpinner {isLoading} /> -->
 
 <div class="m-4">
   <div class="flex justify-between">
