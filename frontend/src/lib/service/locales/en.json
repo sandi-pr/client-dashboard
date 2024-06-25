@@ -63,6 +63,7 @@
   "needsSigning": "Needs Signing",
   "completed": "Completed",
   "documents": "Documents",
+  "document": "Document",
   "updatedAt": "Updated At",
   "name": "Name",
   "recipients": "Recipients",

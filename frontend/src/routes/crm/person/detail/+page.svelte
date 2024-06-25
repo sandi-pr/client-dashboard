@@ -81,9 +81,9 @@ All Rights Reserved
   async function getPerson() {
     if (personId === null) {
       triggerToast("error");
-      setTimeout(async () => {
+      // setTimeout(async () => {
         goto(await call.getPage("client-dashboard", "crm-person"));
-      }, 3000);
+      // }, 3000);
       return;
     };
     let token = sessionStorage.getItem("token");
@@ -144,9 +144,9 @@ All Rights Reserved
 
       if (response.status === 200) {
         triggerToast("updated");
-        setTimeout(async () => {
+        // setTimeout(async () => {
           goto(await call.getPage("client-dashboard", "crm-person"));
-        }, 3000);
+        // }, 3000);
         return;
       }
     } catch (error) {
@@ -168,9 +168,9 @@ All Rights Reserved
       });
       if (response.status === 200) {
         triggerToast("deleted");
-        setTimeout(async () => {
+        // setTimeout(async () => {
           goto(await call.getPage("client-dashboard", "crm-person"));
-        }, 3000);
+        // }, 3000);
         return;
       }
     } catch (error) {

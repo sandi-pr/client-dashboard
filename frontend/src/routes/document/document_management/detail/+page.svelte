@@ -155,7 +155,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("deleted");
           setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "document-management-general"));
+            goto(await call.getPage("client-dashboard", "document-management"));
           }, 3000);
           return;
         } else {
@@ -258,7 +258,7 @@ All Rights Reserved
 
   $effect(async () => {
     if (documentId) {
-      `${await call.getPage("client-dashboard", "document-management-general-detail")}` + "?documentId=" + document.id + "&edit=false"
+      `${await call.getPage("client-dashboard", "document-management-detail")}` + "?documentId=" + document.id + "&edit=false"
     }
   })
 

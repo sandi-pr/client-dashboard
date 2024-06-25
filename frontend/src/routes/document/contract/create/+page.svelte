@@ -335,7 +335,7 @@
       }
 
       console.log(response);
-      goto(await call.getPage("client-dashboard", "document-management-contract"));
+      goto(await call.getPage("client-dashboard", "document-contract"));
     }
   };
 

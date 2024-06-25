@@ -165,7 +165,7 @@ func GetContracts(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 		page_size = 10
 	}
 
-	status, documents, err := Strapi.Find("document-management-table", U.Dict{
+	status, contract, err := Strapi.Find("contract-table", U.Dict{
 		"pagination": U.Dict{
 			"page":     page,
 			"pageSize": page_size,
@@ -183,14 +183,7 @@ func GetContracts(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	CR3 := cr3call.New(MODULE_MANAGER_URL)
-	go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
-		Headers: U.Dict{
-			"Authorization": bearer,
-		},
-	}, false)
-
-	return 200, documents, nil
+	return 200, contract, nil
 }
 
 func GetContract(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

@@ -195,9 +195,9 @@ All Rights Reserved
 
       if (response.status === 200) {
         triggerToast("updated");
-        setTimeout(async () => {
+        // setTimeout(async () => {
           goto(await call.getPage("client-dashboard", "hr-employee"));
-        }, 3000);
+        // }, 3000);
         return;
       }
     } catch (error) {
@@ -219,9 +219,9 @@ All Rights Reserved
       });
       if (response.status === 200) {
         triggerToast("deleted");
-        setTimeout(async () => {
+        // setTimeout(async () => {
           goto(await call.getPage("client-dashboard", "hr-employee"));
-        }, 3000);
+        // }, 3000);
         return;
       }
     } catch (error) {

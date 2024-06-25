@@ -50,13 +50,13 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "document-management-general-create"),
+        href: await call.getPage("client-dashboard", "document-management-create"),
         icon: FolderPlusIcon,
         actionName: "Add new document collection",
         desc: "desc Add new document collection",
       },      
       {
-        href: await call.getPage("client-dashboard", "document-management-contract-create"),
+        href: await call.getPage("client-dashboard", "document-contract-create"),
         icon: FilePlusIcon,
         actionName: "Add new contract document",
         desc: "desc Add new contract document",
@@ -286,21 +286,21 @@ All Rights Reserved
   async function getChartAction(totalPersons, activePersons, inactivePersons) {
     chartAction = [
       {
-        href: await call.getPage("client-dashboard", "document-management-general"),
+        href: await call.getPage("client-dashboard", "document-management"),
         dataName: "Total Documents",
         value: totalPersons.total,
         change: totalPersons.change,
         changeType: totalPersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-management-general"),
+        href: await call.getPage("client-dashboard", "document-management"),
         dataName: "Document Collection",
         value: activePersons.total,
         change: activePersons.change,
         changeType: activePersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-management-contract"),
+        href: await call.getPage("client-dashboard", "document-contract"),
         dataName: "Contract Documents",
         value: inactivePersons.total,
         change: inactivePersons.change,
@@ -312,7 +312,7 @@ All Rights Reserved
   let latestDocuments = $state([]);
 
   async function viewAll() {
-    goto(await call.getPage("client-dashboard", "document-management-general"));
+    goto(await call.getPage("client-dashboard", "document-management"));
   }
 
   async function getDocumentLatest() {
@@ -352,7 +352,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "document-management-general-detail")}` +
+                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
                     "?documentId=" +
                     document.id +
                     "&edit=false",

@@ -76,7 +76,7 @@ All Rights Reserved
   }
 
   onMount(() => {
-    getStatusRag();
+    // getStatusRag();
   });
 </script>
 

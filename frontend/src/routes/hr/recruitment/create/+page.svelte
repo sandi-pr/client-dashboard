@@ -200,9 +200,9 @@ All Rights Reserved
 
         if (response.status === 200) {
           triggerToast("created");
-          setTimeout(async () => {
+          // setTimeout(async () => {
             goto(await call.getPage("client-dashboard", "hr-recruitment"));
-          }, 3000);
+          // }, 3000);
         }
       } catch (error) {
         console.log("error");

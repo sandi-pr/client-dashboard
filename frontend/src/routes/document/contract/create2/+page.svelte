@@ -190,7 +190,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("created");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-management-overview"));
+              goto(await call.getPage("client-dashboard", "document-overview"));
             }, 3000);
           }
         } catch (error) {
@@ -228,7 +228,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("created");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-management-overview"));
+              goto(await call.getPage("client-dashboard", "document-overview"));
             }, 3000);
           }
         } catch (error) {
@@ -315,14 +315,14 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              {$_("addNewDocument")}
+              {$_("addNewContract")}
             </Heading>
           </div>
         </div>
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              goto(await call.getPage("client-dashboard", "document-management-general-list"));
+              goto(await call.getPage("client-dashboard", "document-management-list"));
               return;
             }}
             color="light"

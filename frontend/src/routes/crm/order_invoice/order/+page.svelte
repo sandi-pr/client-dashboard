@@ -60,9 +60,9 @@ All Rights Reserved
   async function getOrder() {
     if (orderId === null) {
       triggerToast("error");
-      setTimeout(async () => {
+      // setTimeout(async () => {
         goto(await call.getPage("client-dashboard", "crm-order-invoice"));
-      }, 3000);
+      // }, 3000);
       return;
     }
     let token = sessionStorage.getItem("token");
@@ -194,9 +194,9 @@ All Rights Reserved
 
           if (response.status === 200) {
             triggerToast("deleted");
-            setTimeout(async () => {
+            // setTimeout(async () => {
               goto(await call.getPage("client-dashboard", "crm-order-invoice"));
-            }, 3000);
+            // }, 3000);
           }
         }
       } catch (error) {
@@ -217,9 +217,9 @@ All Rights Reserved
 
       if (response.status === 200) {
         triggerToast("deleted");
-        setTimeout(async () => {
+        // setTimeout(async () => {
           goto(await call.getPage("client-dashboard", "crm-order-invoice"));
-        }, 3000);
+        // }, 3000);
       }
     }
   }

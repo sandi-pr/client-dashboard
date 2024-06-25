@@ -54,11 +54,11 @@ All Rights Reserved
   }
 
   async function getCategory() {
-    if (personId === null) {
+    if (catergoryId === null) {
       triggerToast("error");
-      setTimeout(async () => {
+      // setTimeout(async () => {
         goto(await call.getPage("client-dashboard", "crm-categories"));
-      }, 3000);
+      // }, 3000);
       return;
     };
     let token = sessionStorage.getItem("token");
@@ -106,9 +106,9 @@ All Rights Reserved
         });
         if (response.status === 200) {
           triggerToast("updated");
-          setTimeout(async () => {
+          // setTimeout(async () => {
             goto(await call.getPage("client-dashboard", "crm-categories"));
-          }, 3000);
+          // }, 3000);
         }
       } catch (error) {
         console.log(error);
@@ -131,9 +131,9 @@ All Rights Reserved
       });
       if (response.status === 200) {
         triggerToast("deleted");
-        setTimeout(async () => {
+        // setTimeout(async () => {
           goto(await call.getPage("client-dashboard", "crm-categories"));
-        }, 3000);
+        // }, 3000);
       }
     } catch (error) {
       console.log(error);

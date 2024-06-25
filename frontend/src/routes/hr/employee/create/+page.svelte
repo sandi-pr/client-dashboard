@@ -93,9 +93,9 @@ All Rights Reserved
       console.log(response);
       if (response.status === 200) {
         triggerToast("created");
-        setTimeout(async () => {
+        // setTimeout(async () => {
           goto(await call.getPage("client-dashboard", "hr-employee"));
-        }, 3000);
+        // }, 3000);
         return;
       } else {
         triggerToast("error");

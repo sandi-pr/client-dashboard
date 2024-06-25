@@ -63,15 +63,15 @@ All Rights Reserved
             upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
             document_name: document.attributes.document_title,
             type: document.attributes.document_type === "GENERAL" ? "General" : "Contract",
-            status: {
-              type: "brand",
-              name: document.attributes.status,
-            },
+            // status: {
+            //   type: "brand",
+            //   name: document.attributes.status,
+            // },
             actions: {
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "document-management-general-detail")}` +
+                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
                     "?documentId=" +
                     document.id +
                     "&edit=false",
@@ -109,7 +109,7 @@ All Rights Reserved
   });
 
   async function addDocument() {
-    goto(await call.getPage("client-dashboard", "document-management-general-create"));
+    goto(await call.getPage("client-dashboard", "document-management-create"));
     return;
   }
 </script>

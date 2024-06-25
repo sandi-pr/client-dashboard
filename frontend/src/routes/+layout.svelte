@@ -146,24 +146,30 @@ All Rights Reserved
       },
       {
         icon: "fileShield",
-        name: "documentManagement",
+        name: "document",
         children: [
           {
             href: isFrontend
-              ? "/document_management"
-              : await call.getPage("client-dashboard", "document-management-overview"),
+              ? "/document"
+              : await call.getPage("client-dashboard", "document-overview"),
             name: "overview",
           },
           {
             href: isFrontend
-              ? "/document_management/document_collection"
-              : await call.getPage("client-dashboard", "document-management-collection"),
+              ? "/document/document_management"
+              : await call.getPage("client-dashboard", "document-management"),
+            name: "documentManagement",
+          },
+          {
+            href: isFrontend
+              ? "/document/document_collection"
+              : await call.getPage("client-dashboard", "document-collection"),
             name: "documentCollection",
           },
           {
             href: isFrontend
-              ? "/document_management/contract"
-              : await call.getPage("client-dashboard", "document-management-contract"),
+              ? "/document/contract"
+              : await call.getPage("client-dashboard", "document-contract"),
             name: "contract",
           },
         ],

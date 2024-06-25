@@ -144,7 +144,7 @@ All Rights Reserved
     title="{$_('documentManagement')}"
     description={$_("descDocumentManagement")}
     onclick={async () => {
-      goto(await call.getPage("client-dashboard", "document-management-overview"));
+      goto(await call.getPage("client-dashboard", "document-overview"));
       return;
     }}
   />

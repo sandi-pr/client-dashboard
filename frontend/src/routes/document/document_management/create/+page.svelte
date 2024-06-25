@@ -10,7 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Checkbox } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
@@ -19,19 +19,28 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
-  import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
-  import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
-  import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
 
   const call = new CR3Call(globalThis.location.origin);
 
   let dropzoneActive = false;
   let onEdit = $state(true);
-  let files = $state([]);
-  let fileTextNames = $state([]);
+  let uploadedImage = $state(null);
+  let uploadedImageName = $state(null);
+  let fileImage = $state(null);
+  let fileText = $state(null);
   let fileTextName = $state(null);
   let fileTextResult = $state(null);
   let base64Data = $state("");
+  let categories = $state([
+    {
+      value: "GENERAL",
+      name: "General",
+    },
+    {
+      value: "CONTRACT",
+      name: "Contract",
+    },
+  ]);
 
   let personClient = $state([]);
 
@@ -81,33 +90,25 @@ All Rights Reserved
     }
   }
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  const handleFileUploadWrapper = () => {
+  const handleTextUploadWrapper = () => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    inputElement.accept = ".pdf, .doc, .docx";
-    inputElement.multiple = true;
+    // inputElement.accept = ".txt";
+    inputElement.accept = ".txt, .pdf, .doc, .docx, .csv";
 
     inputElement.addEventListener("change", async (event) => {
-      const uploadedFiles = event.target.files;
+      const file = event.target.files[0];
 
-      if (uploadedFiles.length > 0) {
-        for (const file of uploadedFiles) {
-          const base64Data = await readFileAsBase64(file);
-          files.push({ name: file.name, size: formatBytes(file.size), base64: base64Data });
-          fileTextNames.push(file.name);
+      if (file) {
+        if (file.type === "text/plain") {
+          const { text, base64 } = await readFileAsText(file);
+          fileTextResult = text;
+          base64Data = base64;
+        } else {
+          base64Data = await readFileAsBase64(file);
         }
+
+        fileTextName = file.name;
       } else {
         alert("Invalid file. Please select a valid file.");
       }
@@ -189,7 +190,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("created");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-management-overview"));
+              goto(await call.getPage("client-dashboard", "document-overview"));
             }, 3000);
           }
         } catch (error) {
@@ -227,7 +228,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("created");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-management-overview"));
+              goto(await call.getPage("client-dashboard", "document-overview"));
             }, 3000);
           }
         } catch (error) {
@@ -314,7 +315,7 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              {$_("addNewDocumentCollection")}
+              {$_("addNewDocument")}
             </Heading>
           </div>
         </div>
@@ -347,7 +348,7 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("documentCollectionName")}*
+                  {$_("documentTitle")}*
                 </P>
                 <Input
                   readonly={!onEdit}
@@ -355,6 +356,51 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
+            </div>
+            <div class="flex flex-col col-span-5 gap-2">
+              <P
+                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >{$_("documentUpload")}*</P
+              >
+              <Button
+                ondragover={handleDragOver}
+                ondragleave={handleDragLeave}
+                ondrop={handleDrop}
+                onclick={() => {
+                  handleTextUploadWrapper();
+                }}
+                color="light"
+                class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-8 flex flex-col justify-start ${fileTextName ? "items-start cursor-default" : "items-center"}`}
+              >
+                {#if fileTextName}
+                  {#if fileTextName.endsWith(".txt")}
+                    <!-- {#each fileTextResult.split("\n") as paragraphs, i}
+                      <P>{paragraphs}</P>
+                    {/each} -->
+                    <P>{fileTextName}</P>
+                  {:else if fileTextName.endsWith(".pdf")}
+                    <P>{fileTextName}</P>
+                  {:else if fileTextName.endsWith(".doc") || fileTextName.endsWith(".docx")}
+                    <P>{fileTextName}</P>
+                  {:else}
+                    <P>{fileTextName}</P>
+                  {/if}
+                {:else}
+                  <div
+                    class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
+                  >
+                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
+                  </div>
+                  <div class="flex space-x-1">
+                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
+                    <P class="pointer-events-none">
+                      <!-- {$_("orDragAndDrop")} -->
+                    </P>
+                  </div>
+                  <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
+                  <P class="pointer-events-none">PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P>
+                {/if}
+              </Button>
             </div>
             <div class="grid grid-cols-1">
               <div class="flex flex-col gap-2">
@@ -370,57 +416,92 @@ All Rights Reserved
                 />
               </div>
             </div>
-            <div class="flex flex-col col-span-5 gap-2">
-              <P
-                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >{$_("documentUpload")}*</P
-              >
-              <Button
-                onclick={() => {
-                  handleFileUploadWrapper();
-                }}
-                color="light"
-                class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-8 flex flex-col justify-start ${fileTextName ? "items-start cursor-default" : "items-center"}`}
-              >
-                  <div
-                    class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
-                  >
-                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
-                  </div>
-                  <div class="flex space-x-1">
-                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
-                    <P class="pointer-events-none">
-                      <!-- {$_("orDragAndDrop")} -->
-                    </P>
-                  </div>
-                  <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P>
-              </Button>
-            </div>
-            <!-- Display uploaded file names -->
-            {#if fileTextNames.length > 0}
-            <div class="flex flex-col gap-3">
-              {#each files as file}
-                <div class="flex justify-between p-4 rounded-xl border border-secondary-light dark:border-secondary-dark">
-                  <div class="flex gap-3">
-                    {#if file.name.includes(".pdf")}
-                      <img src={PDFSolidIcon} alt="">
-                    {:else if file.name.includes(".docx")}
-                      <img src={DOCXSolidIcon} alt="">
-                    {:else if file.name.includes(".doc")}
-                      <img src={DOCSolidIcon} alt="">
-                    {/if}
-                    <div class="flex flex-col justify-center">
-                      <P class="text-secondary-light dark:text-secondary-dark">{file.name}</P>
-                      <P class="text-secondary-light dark:text-secondary-dark">{file.size}</P>
-                    </div>
-                  </div>
-                </div>
-              {/each}
-            </div>
-            {/if}
           </div>
         </div>
+        <Divider />
+        <!-- product detail -->
+        <div class="flex gap-6">
+          <div class="w-60">
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              {$_("documentType")}
+            </P>
+          </div>
+          <div class="flex flex-col grow gap-6">
+            <div class="flex flex-col grow gap-2">
+              <P
+                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >{$_("documentType")}*</P
+              >
+              <Select
+                items={categories}
+                bind:value={data.document_type}
+                placeholder={$_("selectDocumentType")}
+              />
+              <!-- <Input
+                readonly={!onEdit}
+                bind:value={data.document_type}
+                class="bg-primary-light dark:bg-secondary-dark"
+              />   -->
+            </div>
+          </div>
+        </div>
+        {#if data.document_type === "CONTRACT"}
+          <Divider />
+          <!-- product detail -->
+          <div class="flex gap-6">
+            <div class="w-60">
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                {$_("contractInformation")}
+              </P>
+            </div>
+            <div class="flex grow flex-col gap-6">
+              <div class="flex flex-col grow gap-6">
+                <div class="flex flex-col gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("personsOrClient")}*</P
+                  >
+                  <Select
+                    class="bg-primary-light dark:bg-secondary-dark"
+                    items={personClient}
+                    bind:value={data.person_client}
+                  />
+                </div>
+              </div>
+              <div class="flex justify-center items-center gap-5">
+                <div class="flex flex-col grow gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("contractStartPeriod")}
+                  </P>
+                  <Input
+                    readonly={!onEdit}
+                    type="date"
+                    bind:value={data.contract_start}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="mt-6">
+                  <P>-</P>
+                </div>
+                <div class="flex flex-col grow gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("contractEndPeriod")}
+                  </P>
+                  <Input
+                    readonly={!onEdit}
+                    type="date"
+                    bind:value={data.contract_end}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        {/if}
       </div>
     </div>
   </div>

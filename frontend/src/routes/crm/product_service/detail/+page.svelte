@@ -158,9 +158,9 @@ All Rights Reserved
   async function getProduct() {
     if (productId === null) {
       triggerToast("error");
-      setTimeout(async () => {
+      // setTimeout(async () => {
         goto(await call.getPage("client-dashboard", "crm-product-service"));
-      }, 3000);
+      // }, 3000);
       return;
     };
     let token = sessionStorage.getItem("token");
@@ -245,9 +245,9 @@ All Rights Reserved
 
         if (response.status === 200) {
           triggerToast("updated");
-          setTimeout(async () => {
+          // setTimeout(async () => {
             goto(await call.getPage("client-dashboard", "crm-product-service"));
-          }, 3000);
+          // }, 3000);
           return;
         }
       } else if (tabDatas.selected === "Resource") {
@@ -289,9 +289,9 @@ All Rights Reserved
 
         if (response.status === 200) {
           triggerToast("updated");
-          setTimeout(async () => {
+          // setTimeout(async () => {
             goto(await call.getPage("client-dashboard", "crm-product-service"));
-          }, 3000);
+          // }, 3000);
           return;
         }
       }
@@ -319,9 +319,9 @@ All Rights Reserved
 
       if (response.status === 200) {
         triggerToast("deleted");
-        setTimeout(async () => {
+        // setTimeout(async () => {
           goto(await call.getPage("client-dashboard", "crm-product-service"));
-        }, 3000);
+        // }, 3000);
         return;
       }
     } catch (error) {

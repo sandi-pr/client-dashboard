@@ -130,10 +130,17 @@ func CreateOrder(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	resource, ok := ctx.Params.GetFloat64("resource")
+	resourceString, ok := ctx.Params.GetString("resource")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters")
+	}
+
+	var resource interface{}
+	err = json.Unmarshal([]byte(resourceString), &resource)
+
+	if err != nil {
+		return ctx.Error(400, "invalid resource format")
 	}
 
 	shipping_address, ok := ctx.Params.GetString("shipping_address")
@@ -156,9 +163,11 @@ func CreateOrder(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		"resources":        resource,
 		"shipping_address": shipping_address,
 		"total_amount":     total_amount,
+		"is_active":        "Yes",
 	})
 
 	fmt.Println(order)
+	fmt.Println(err)
 
 	if err != nil {
 		fmt.Println(err)

@@ -54,7 +54,7 @@ All Rights Reserved
             person: data.customerId,
             order_date: new Date(data.order_date + " " + data.order_time + ":00").toISOString(),
             product: data.productId,
-            resource: data.resourceId,
+            resource: JSON.stringify([data.resourceId]),
             total_amount: data.total_amount,
             shipping_address: data.shipping_address,
             order_status: JSON.stringify([
@@ -108,9 +108,9 @@ All Rights Reserved
 
             if (response2.status === 200) {
               triggerToast("created");
-              setTimeout(async () => {
+              // setTimeout(async () => {
                 goto(await call.getPage("client-dashboard", "crm-order-invoice"));
-              }, 3000);
+              // }, 3000);
             }
           }
         } else {
@@ -134,6 +134,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             page: page,
+            page_size: 25,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -174,6 +175,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             page: page,
+            page_size: 25,
           },
           Headers: {
             Authorization: "Bearer " + token,

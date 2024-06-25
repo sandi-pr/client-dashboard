@@ -186,9 +186,9 @@ All Rights Reserved
             }
           }
           triggerToast("created");
-          setTimeout(async () => {
+          // setTimeout(async () => {
             goto(await call.getPage("client-dashboard", "crm-product-service"));
-          }, 3000);
+          // }, 3000);
           return;
         } else {
           triggerToast("error");

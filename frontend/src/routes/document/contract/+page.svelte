@@ -32,10 +32,10 @@ All Rights Reserved
 
   let configs = $state({});
 
-  async function getDocuments(page) {
+  async function getContract(page) {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-documents", {
+      let response = await call.call("client-dashboard", "get-contracts", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -60,18 +60,22 @@ All Rights Reserved
         let promises = response.result.data.map(async (document) => {
           return {
             id: document.id,
-            upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
-            document_name: document.attributes.document_title,
-            type: document.attributes.document_type === "GENERAL" ? "General" : "Contract",
+            createdAt: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
+            contract_name: document.attributes.contract_name,
             status: {
               type: "brand",
-              name: document.attributes.status,
+              name: document.attributes.status[document.attributes.status.length - 1].status,
             },
+            member: document.attributes.signers.map((signer) => {
+              return {
+                url: "",
+              };
+            }),
             actions: {
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "document-management-contract-detail")}` +
+                    `${await call.getPage("client-dashboard", "document-contract-detail")}` +
                     "?documentId=" +
                     document.id +
                     "&edit=false",
@@ -105,11 +109,11 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    getDocuments(pagination.page);
+    getContract(pagination.page);
   });
 
   async function addContract() {
-    goto(await call.getPage("client-dashboard", "document-management-contract-create"));
+    goto(await call.getPage("client-dashboard", "document-contract-create"));
     return;
   }
 </script>

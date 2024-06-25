@@ -54,9 +54,9 @@ All Rights Reserved
         console.log("kelinci", response);
         if (response.status === 200) {
           triggerToast("created");
-          setTimeout(async () => {
+          // setTimeout(async () => {
             goto(await call.getPage("client-dashboard", "crm-categories"));
-          }, 3000);
+          // }, 3000);
         }
       } catch (error) {
         triggerToast("error");

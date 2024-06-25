@@ -190,7 +190,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("created");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-management-overview"));
+              goto(await call.getPage("client-dashboard", "document-overview"));
             }, 3000);
           }
         } catch (error) {
@@ -228,7 +228,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("created");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-management-overview"));
+              goto(await call.getPage("client-dashboard", "document-overview"));
             }, 3000);
           }
         } catch (error) {
