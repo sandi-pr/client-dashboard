@@ -35,7 +35,7 @@ All Rights Reserved
   let collections = $state([]);
   let documents = $state([]);
 
-  let statusRAG = $state(""););
+  let statusRAG = $state("");
 
   async function getCollections() {
     let token = sessionStorage.getItem("token");
