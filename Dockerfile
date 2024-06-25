@@ -17,9 +17,9 @@ ENV PATH="/root/.bun/bin:${PATH}"
 
 # FROM localhost:32000/bun:latest AS frontend
 
-# WORKDIR /app
+WORKDIR /app
 
-# RUN apt update && apt install -y git
+RUN apt update && apt install -y git
 
 COPY frontend /app
 COPY config.json /config.json
