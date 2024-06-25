@@ -153,6 +153,24 @@ All Rights Reserved
           },
         });
         if (response.status === 200) {
+          let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              id: documentId.toString(),
+            },
+            Headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+
+          if (response2.status !== 200) {
+            console.log(response2);
+            return;
+          }
+
+          console.log(response2);
+          
           triggerToast("deleted");
           // setTimeout(async () => {
             goto(await call.getPage("client-dashboard", "document-collection-list") + "?collectionId=" + collectionId);

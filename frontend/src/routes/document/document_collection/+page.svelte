@@ -35,6 +35,8 @@ All Rights Reserved
   let collections = $state([]);
   let documents = $state([]);
 
+  let statusRAG = $state(""););
+
   async function getCollections() {
     let token = sessionStorage.getItem("token");
 
@@ -109,6 +111,7 @@ All Rights Reserved
           ),
           collectionName: collection.attributes.collection_name,
           totalDocuments: totalDocuments,
+          deployStatus: statusRAG,
         };
       });
     }
@@ -132,8 +135,43 @@ All Rights Reserved
   //   getUsers(pagination.page - 1);
   // }
 
+  async function getStatusRag() {
+    let token = sessionStorage.getItem("token");
+    const callStatusRag = async () => {
+      try {
+        let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        let status = rag.result.rag_status;
+        if (statusRAG.includes("!")) {
+          let status2 = status.split("!")[0].trim();
+          if (status2.includes("(NOVERB)") || status2.includes("(INOVERB)") || status2.includes("(!INOVERB)")) {
+            let status3 = status2.replace("(NOVERB)", "").replace("(INOVERB)", "").replace("(!INOVERB)", "").replace("(!NOVERB)", "");
+            statusRAG = status3;
+          } else {
+            statusRAG = status2;
+          }
+        } else {
+          statusRAG = status;
+        }
+        console.log(rag); // Mengganti statusRAG dengan rag
+      } catch (error) {
+        console.error("Error:", error);
+      }
+      setTimeout(callStatusRag, 2000);
+    };
+    callStatusRag();
+  }
+
   onMount(async () => {
     await getCollections();
+    await getStatusRag();
   });
 
   async function addDocument() {

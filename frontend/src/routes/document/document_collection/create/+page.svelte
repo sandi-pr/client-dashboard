@@ -10,7 +10,15 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import {
+    P,
+    Heading,
+    Input,
+    Button,
+    Select,
+    Textarea,
+    Toggle,
+  } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
@@ -150,7 +158,9 @@ All Rights Reserved
   }
 
   async function createProduct() {
-    const fileTextResultBlob = new Blob([fileTextResult], { type: "text/plain" });
+    const fileTextResultBlob = new Blob([fileTextResult], {
+      type: "text/plain",
+    });
 
     // console.log(data);
     // console.log(fileText);
@@ -164,25 +174,29 @@ All Rights Reserved
     if (token !== null) {
       if (data.document_type === "GENERAL") {
         try {
-          let response = await call.call("client-dashboard", "create-document", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              document_title: data.document_title,
-              document: base64Data,
-              document_name: fileTextName,
-              description: data.description,
-              document_type: data.document_type,
-              person: 0,
-              contract_start: format(new Date(), "yyyy-MM-dd"),
-              contract_end: format(new Date(), "yyyy-MM-dd"),
-              status: "Initiate",
-              collection_id: collectionId,
+          let response = await call.call(
+            "client-dashboard",
+            "create-document",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                document_title: data.document_title,
+                document: base64Data,
+                document_name: fileTextName,
+                description: data.description,
+                document_type: data.document_type,
+                person: 0,
+                contract_start: format(new Date(), "yyyy-MM-dd"),
+                contract_end: format(new Date(), "yyyy-MM-dd"),
+                status: "Initiate",
+                collection_id: collectionId,
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
             },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          );
 
           console.log(response);
 
@@ -192,9 +206,37 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
+            let response2 = await call.call(
+              "hexa-ai-rag",
+              "add-document-by-collection-id",
+              {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  collection_id: collectionId,
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              },
+            );
+
+            if (response2.status !== 200) {
+              console.log(response2);
+              return;
+            }
+
+            console.log(response2);
             triggerToast("created");
             // setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-collection-list") + "?collectionId=" + collectionId);
+            goto(
+              (await call.getPage(
+                "client-dashboard",
+                "document-collection-list",
+              )) +
+                "?collectionId=" +
+                collectionId,
+            );
             // }, 3000);
           }
         } catch (error) {
@@ -203,25 +245,32 @@ All Rights Reserved
         }
       } else {
         try {
-          let response = await call.call("client-dashboard", "create-document", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              document_title: data.document_title,
-              document: base64Data,
-              document_name: fileTextName,
-              description: data.description,
-              document_type: data.document_type,
-              person: data.person_client,
-              contract_start: format(new Date(data.contract_start), "yyyy-MM-dd"),
-              contract_end: format(new Date(data.contract_end), "yyyy-MM-dd"),
-              status: "Initiate",
-              collection_id: collectionId,
+          let response = await call.call(
+            "client-dashboard",
+            "create-document",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                document_title: data.document_title,
+                document: base64Data,
+                document_name: fileTextName,
+                description: data.description,
+                document_type: data.document_type,
+                person: data.person_client,
+                contract_start: format(
+                  new Date(data.contract_start),
+                  "yyyy-MM-dd",
+                ),
+                contract_end: format(new Date(data.contract_end), "yyyy-MM-dd"),
+                status: "Initiate",
+                collection_id: collectionId,
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
             },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          );
 
           console.log(response);
 
@@ -231,9 +280,37 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
+            let response2 = await call.call(
+              "hexa-ai-rag",
+              "add-document-by-collection-id",
+              {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  collection_id: collectionId,
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              },
+            );
+
+            if (response2.status !== 200) {
+              console.log(response2);
+              return;
+            }
+
+            console.log(response2);
             triggerToast("created");
             // setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-collection-list") + "?collectionId=" + collectionId);
+            goto(
+              (await call.getPage(
+                "client-dashboard",
+                "document-collection-list",
+              )) +
+                "?collectionId=" +
+                collectionId,
+            );
             // }, 3000);
           }
         } catch (error) {
@@ -327,13 +404,22 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              goto(await call.getPage("client-dashboard", "document-collection-list") + "?collectionId=" + collectionId);
+              goto(
+                (await call.getPage(
+                  "client-dashboard",
+                  "document-collection-list",
+                )) +
+                  "?collectionId=" +
+                  collectionId,
+              );
               return;
             }}
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
           >
-          <Button onclick={createProduct} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
+          <Button onclick={createProduct} class="px-3 focus-within:!ring-1"
+            >{$_("create")}</Button
+          >
         </div>
       </div>
 
@@ -343,7 +429,9 @@ All Rights Reserved
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+            <P
+              class="font-semibold text-secondary-light dark:text-secondary-dark"
+            >
               {$_("generalInformation")}
             </P>
           </div>
@@ -394,16 +482,24 @@ All Rights Reserved
                   <div
                     class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
                   >
-                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
+                    <img
+                      src={upload}
+                      alt="mail.svg"
+                      class="p-4 dark:invert pointer-events-none"
+                    />
                   </div>
                   <div class="flex space-x-1">
-                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
+                    <P class="text-hc-brand-700 pointer-events-none"
+                      >{$_("clickToUpload")}</P
+                    >
                     <P class="pointer-events-none">
                       <!-- {$_("orDragAndDrop")} -->
                     </P>
                   </div>
                   <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none">PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P>
+                  <P class="pointer-events-none"
+                    >PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P
+                  >
                 {/if}
               </Button>
             </div>
@@ -427,7 +523,9 @@ All Rights Reserved
         <!-- product detail -->
         <div class="flex gap-6">
           <div class="w-60">
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+            <P
+              class="font-semibold text-secondary-light dark:text-secondary-dark"
+            >
               {$_("documentType")}
             </P>
           </div>
@@ -455,7 +553,9 @@ All Rights Reserved
           <!-- product detail -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              <P
+                class="font-semibold text-secondary-light dark:text-secondary-dark"
+              >
                 {$_("contractInformation")}
               </P>
             </div>

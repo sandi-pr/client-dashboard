@@ -4,6 +4,9 @@
   import UserIcon from "$lib/icon/user-03.svg";
   import VerifiedIcon from "$lib/icon/verified.svg";
 
+  const params = new URLSearchParams(window.location.search);
+  let collectionId = params.get("collectionId");
+
   let disableInput = $state(false);
 
   let div;
@@ -36,58 +39,61 @@
 
       messageInput = "";
 
-      // let conversationId = localStorage.getItem("conversationId");
+      let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
 
-      // if (!conversationId) {
-      //   try {
-      //     let createConversationResponse = await call.call(
-      //       "hexa-ai",
-      //       "create-conversation-public",
-      //       {
-      //         URLQuery: {},
-      //         URLParams: {},
-      //         Params: {},
-      //         Headers: {},
-      //       },
-      //     );
+      if (!conversationIdCollection) {
+        try {
+          let createConversationResponse = await call.call(
+            "hexa-ai-rag",
+            "create-conversation",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                collection_id: collectionId,
+              },
+              Headers: {},
+            },
+          );
 
-      //     console.log("createConversationResponse", createConversationResponse);
+          console.log("createConversationResponse", createConversationResponse);
 
-      //     if (createConversationResponse.status === 200) {
-      //       conversationId = createConversationResponse.result.conversation_id;
-      //       localStorage.setItem("conversationId", conversationId);
-      //     } else {
-      //       console.log(createConversationResponse);
-      //     }
-      //   } catch (error) {
-      //     console.log(error);
-      //   }
-      // }
+          if (createConversationResponse.status === 200) {
+            conversationIdCollection = createConversationResponse.result.conversation_id;
+            sessionStorage.setItem("conversationIdCollection", conversationIdCollection);
+          } else {
+            console.log(createConversationResponse);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
 
-      // try {
-      //   let chat = await call.call("hexa-ai", "chat-public", {
-      //     URLQuery: {},
-      //     URLParams: {
-      //       conversation_id: conversationId,
-      //     },
-      //     Params: {
-      //       message: newMessage,
-      //     },
-      //     Headers: {},
-      //   });
+      try {
+        let chat = await call.call("hexa-ai-rag", "chat", {
+          URLQuery: {},
+          URLParams: {
+            collection_id: collectionId,
+            conversation_id: conversationIdCollection,
+          },
+          Params: {
+            message: newMessage,
+          },
+          Headers: {},
+        });
 
-      //   console.log("chat", chat);
+        console.log("chat", chat);
 
-      //   if (chat.status === 200) {
-      //     disableInput = false;
-      //     dataConversatonLogs = [
-      //       ...dataConversatonLogs,
-      //       { role: chat.result.message.role, message: chat.result.message.message },
-      //     ];
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
+        if (chat.status === 200) {
+          disableInput = false;
+          dataConversatonLogs = [
+            ...dataConversatonLogs,
+            { role: chat.result.message.role, message: chat.result.message.message },
+          ];
+        }
+      } catch (error) {
+        console.log(error);
+      }
 
       disableInput = false;
     }
@@ -107,6 +113,37 @@
       });
     }
   });
+
+  async function getMessages() {
+    let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
+
+    if (conversationIdCollection) {
+      try {
+        let chat = await call.call("hexa-ai-rag", "get-messages", {
+          URLQuery: {},
+          URLParams: {
+            collection_id: collectionId,
+            conversation_id: conversationIdCollection,
+          },
+          Params: {},
+          Headers: {},
+        });
+
+        console.log("chat", chat);
+
+        if (chat.status === 200) {
+          dataConversatonLogs = chat.result.messages;
+        }
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  onMount(async () => {
+    getMessages();
+  });
 </script>
 
 <div class="static h-full flex flex-col">
@@ -116,7 +153,7 @@
     </P>
   </div> -->
   <div class="flex h-screen flex-col px-4 pt-2">
-    <div bind:this={div} class="flex flex-col gap-4 overflow-y-auto">
+    <div bind:this={div} class="flex flex-col gap-4">
       {#each dataConversatonLogs as qaPair}
         <div
           class="flex bg-secondary-light dark:bg-secondary-dark rounded-2xl px-8 py-6 mx-4 my-6 items-start gap-4"

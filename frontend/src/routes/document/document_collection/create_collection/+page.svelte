@@ -10,7 +10,15 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Checkbox } from "flowbite-svelte";
+  import {
+    P,
+    Heading,
+    Input,
+    Button,
+    Select,
+    Textarea,
+    Checkbox,
+  } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
@@ -105,7 +113,11 @@ All Rights Reserved
       if (uploadedFiles.length > 0) {
         for (const file of uploadedFiles) {
           const base64Data = await readFileAsBase64(file);
-          files.push({ name: file.name, size: formatBytes(file.size), base64: base64Data });
+          files.push({
+            name: file.name,
+            size: formatBytes(file.size),
+            base64: base64Data,
+          });
           fileTextNames.push(file.name);
         }
       } else {
@@ -152,31 +164,39 @@ All Rights Reserved
     if (token !== null) {
       let response;
       if (files.length > 0) {
-        response = await call.call("client-dashboard", "create-document-collection", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_name: data.document_title,
-            // description: data.description,
-            documents: JSON.stringify(files)
+        response = await call.call(
+          "client-dashboard",
+          "create-document-collection",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_name: data.document_title,
+              // description: data.description,
+              documents: JSON.stringify(files),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
           },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        );
       } else {
-        response = await call.call("client-dashboard", "create-document-collection", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_name: data.document_title,
-            // description: data.description,
-            documents: "-"
+        response = await call.call(
+          "client-dashboard",
+          "create-document-collection",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_name: data.document_title,
+              // description: data.description,
+              documents: "-",
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
           },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        );
       }
       if (response.status !== 200) {
         console.log(response);
@@ -184,6 +204,28 @@ All Rights Reserved
       }
 
       console.log(response);
+
+      let response2 = await call.call(
+        "hexa-ai-rag",
+        "add-document-by-collection-id",
+        {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_id: response.result.data.id,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        },
+      );
+
+      if (response2.status !== 200) {
+        console.log(response2);
+        return;
+      }
+
+      console.log(response2);
 
       goto(await call.getPage("client-dashboard", "document-collection"));
     }
@@ -209,13 +251,17 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              goto(await call.getPage("client-dashboard", "document-collection"));
+              goto(
+                await call.getPage("client-dashboard", "document-collection"),
+              );
               return;
             }}
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
           >
-          <Button onclick={createCollection} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
+          <Button onclick={createCollection} class="px-3 focus-within:!ring-1"
+            >{$_("create")}</Button
+          >
         </div>
       </div>
 
@@ -225,7 +271,9 @@ All Rights Reserved
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+            <P
+              class="font-semibold text-secondary-light dark:text-secondary-dark"
+            >
               {$_("generalInformation")}
             </P>
           </div>
@@ -270,42 +318,54 @@ All Rights Reserved
                 color="light"
                 class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-8 flex flex-col justify-start ${fileTextName ? "items-start cursor-default" : "items-center"}`}
               >
-                  <div
-                    class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
+                <div
+                  class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
+                >
+                  <img
+                    src={upload}
+                    alt="mail.svg"
+                    class="p-4 dark:invert pointer-events-none"
+                  />
+                </div>
+                <div class="flex space-x-1">
+                  <P class="text-hc-brand-700 pointer-events-none"
+                    >{$_("clickToUpload")}</P
                   >
-                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
-                  </div>
-                  <div class="flex space-x-1">
-                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
-                    <P class="pointer-events-none">
-                      <!-- {$_("orDragAndDrop")} -->
-                    </P>
-                  </div>
-                  <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P>
+                  <P class="pointer-events-none">
+                    <!-- {$_("orDragAndDrop")} -->
+                  </P>
+                </div>
+                <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
+                <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P>
               </Button>
             </div>
             <!-- Display uploaded file names -->
             {#if fileTextNames.length > 0}
-            <div class="flex flex-col gap-3">
-              {#each files as file}
-                <div class="flex justify-between p-4 rounded-xl border border-secondary-light dark:border-secondary-dark">
-                  <div class="flex gap-3">
-                    {#if file.name.includes(".pdf")}
-                      <img src={PDFSolidIcon} alt="">
-                    {:else if file.name.includes(".docx")}
-                      <img src={DOCXSolidIcon} alt="">
-                    {:else if file.name.includes(".doc")}
-                      <img src={DOCSolidIcon} alt="">
-                    {/if}
-                    <div class="flex flex-col justify-center">
-                      <P class="text-secondary-light dark:text-secondary-dark">{file.name}</P>
-                      <P class="text-secondary-light dark:text-secondary-dark">{file.size}</P>
+              <div class="flex flex-col gap-3">
+                {#each files as file}
+                  <div
+                    class="flex justify-between p-4 rounded-xl border border-secondary-light dark:border-secondary-dark"
+                  >
+                    <div class="flex gap-3">
+                      {#if file.name.includes(".pdf")}
+                        <img src={PDFSolidIcon} alt="" />
+                      {:else if file.name.includes(".docx")}
+                        <img src={DOCXSolidIcon} alt="" />
+                      {:else if file.name.includes(".doc")}
+                        <img src={DOCSolidIcon} alt="" />
+                      {/if}
+                      <div class="flex flex-col justify-center">
+                        <P class="text-secondary-light dark:text-secondary-dark"
+                          >{file.name}</P
+                        >
+                        <P class="text-secondary-light dark:text-secondary-dark"
+                          >{file.size}</P
+                        >
+                      </div>
                     </div>
                   </div>
-                </div>
-              {/each}
-            </div>
+                {/each}
+              </div>
             {/if}
           </div>
         </div>
