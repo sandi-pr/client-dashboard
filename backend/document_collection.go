@@ -51,14 +51,44 @@ func CreateDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		return ctx.Error(400, "invalid parameters collection_name")
 	}
 
-	description, ok := ctx.Params.GetString("description")
-	if !ok {
-		return ctx.Error(400, "invalid parameters description")
-	}
+	// description, ok := ctx.Params.GetString("description")
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters description")
+	// }
 
 	documentsString, ok := ctx.Params.GetString("documents")
 	if !ok {
 		return ctx.Error(400, "invalid parameters documents")
+	}
+
+	status, documentCollection, err := Strapi.Create("document-collection-table", U.Dict{
+		"collection_name": collection_name,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dataCollection, ok := documentCollection.GetDict("data")
+	if !ok {
+		fmt.Println("failed to get data")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	idCollection, ok := dataCollection.GetFloat64("id")
+	if !ok {
+		fmt.Println("failed to get id")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if documentsString == "-" {
+		return 200, documentCollection, nil
 	}
 
 	var documents interface{}
@@ -69,9 +99,7 @@ func CreateDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		return ctx.Error(400, "invalid parameters documents")
 	}
 
-	var documentIds []int
 	for _, document := range documents.([]interface{}) {
-		// saya ingin ambil base64 dari document = { base64, name }
 
 		documentBase64, ok := document.(map[string]interface{})["base64"].(string)
 		if !ok {
@@ -117,23 +145,30 @@ func CreateDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		documentIds = append(documentIds, int(id))
-	}
+		status, document, err := Strapi.Create("document-management-table", U.Dict{
+			"document_title": collection_name,
+			"description":    "-",
+			"document_type":  "GENERAL",
+			"document":       id,
+			"collection_id":  idCollection,
+		})
 
-	status, documentCollection, err := Strapi.Create("document-collection-table", U.Dict{
-		"collection_name": collection_name,
-		"description":     description,
-		"documents":       documentIds,
-	})
+		fmt.Println("document", document)
 
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
 
-	if status != 200 {
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
+		if status != 200 {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		// CR3 := cr3call.New(MODULE_MANAGER_URL)
+		// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+		// 	Headers: U.Dict{
+		// 		"Authorization": bearer,
+		// 	},
+		// }, false)
 	}
 
 	return 200, documentCollection, nil

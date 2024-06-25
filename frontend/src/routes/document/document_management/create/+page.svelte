@@ -20,6 +20,9 @@ All Rights Reserved
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
 
+  const params = new URLSearchParams(window.location.search);
+  let collectionId = params.get("collectionId");
+
   const call = new CR3Call(globalThis.location.origin);
 
   let dropzoneActive = false;
@@ -174,6 +177,7 @@ All Rights Reserved
               contract_start: format(new Date(), "yyyy-MM-dd"),
               contract_end: format(new Date(), "yyyy-MM-dd"),
               status: "Initiate",
+              collection_id: collectionId,
             },
             Headers: {
               Authorization: "Bearer " + token,
@@ -212,6 +216,7 @@ All Rights Reserved
               contract_start: format(new Date(data.contract_start), "yyyy-MM-dd"),
               contract_end: format(new Date(data.contract_end), "yyyy-MM-dd"),
               status: "Initiate",
+              collection_id: collectionId,
             },
             Headers: {
               Authorization: "Bearer " + token,

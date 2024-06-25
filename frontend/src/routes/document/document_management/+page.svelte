@@ -22,6 +22,9 @@ All Rights Reserved
 
   import { goto } from "$app/navigation";
 
+  const params = new URLSearchParams(window.location.search);
+  let collectionId = params.get("collectionId");
+
   const call = new CR3Call(globalThis.location.origin);
 
   let documentsReady = $state(false);
@@ -35,65 +38,75 @@ All Rights Reserved
   async function getDocuments(page) {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-documents", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: page,
-          page_size: pagination.pageSize,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        return;
-      }
-
-      if (response.result.data.length > 0) {
-        configs = {
-          search: true,
-          pagination: response.result.meta.pagination,
-        };
-        let promises = response.result.data.map(async (document) => {
-          return {
-            id: document.id,
-            upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
-            document_name: document.attributes.document_title,
-            type: document.attributes.document_type === "GENERAL" ? "General" : "Contract",
-            // status: {
-            //   type: "brand",
-            //   name: document.attributes.status,
-            // },
-            actions: {
-              objects: [
-                {
-                  href:
-                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
-                    "?documentId=" +
-                    document.id +
-                    "&edit=false",
-                  name: "View",
-                },
-                // {
-                //   href:
-                //     `${await call.getPage("client-dashboard", "document-management-detail")}` +
-                //     "?documentId=" +
-                //     document.id +
-                //     "&edit=true",
-                //   name: "Edit",
-                // },
-              ],
+      while (true) {
+        let response = await call.call(
+          "client-dashboard",
+          "get-documents-by-collectionid",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: page,
+              page_size: pagination.pageSize,
+              collection_id: collectionId,
             },
-          };
-        });
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
 
-        datas = await Promise.all(promises);
-        documentsReady = true;
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          configs = {
+            search: true,
+            pagination: response.result.meta.pagination,
+          };
+          let promises = response.result.data.map(async (document) => {
+            return {
+              id: document.id,
+              upload_date: format(
+                document.attributes.createdAt,
+                "dd-MM-yyyy HH:mm",
+              ),
+              document_name: document.attributes.document_title,
+              type:
+                document.attributes.document_type === "GENERAL"
+                  ? "General"
+                  : "Contract",
+              // status: {
+              //   type: "brand",
+              //   name: document.attributes.status,
+              // },
+              actions: {
+                objects: [
+                  {
+                    href:
+                      `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                      "?documentId=" +
+                      document.id +
+                      "&edit=false",
+                    name: "View",
+                  },
+                ],
+              },
+            };
+          });
+
+          let documents = await Promise.all(promises);
+
+          datas = datas.concat(documents);
+        } else {
+          break;
+        }
       }
     }
+
+    documentsReady = true;
   }
 
   async function next() {
@@ -122,9 +135,14 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={$_("documentsList")} />
+          <Typography
+            preset="Display sm/Semibold"
+            color="primary"
+            text={$_("documentsList")}
+          />
           <Button onclick={addDocument} icon={PlusIcon}
-            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
+            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
+            {$_("addNew")}</Button
           >
         </div>
 
@@ -133,11 +151,13 @@ All Rights Reserved
           <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else}
           <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+            />
           </div>
         {/if}
       </div>
     </div>
   </div>
 </div>
-

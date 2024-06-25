@@ -154,12 +154,12 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "document-overview"),
             name: "overview",
           },
-          {
-            href: isFrontend
-              ? "/document/document_management"
-              : await call.getPage("client-dashboard", "document-management"),
-            name: "documentManagement",
-          },
+          // {
+          //   href: isFrontend
+          //     ? "/document/document_management"
+          //     : await call.getPage("client-dashboard", "document-management"),
+          //   name: "documentManagement",
+          // },
           {
             href: isFrontend
               ? "/document/document_collection"

@@ -120,16 +120,6 @@
             "file_path": "template/document/document_management.html"
         },
         {
-            "name": "document-management-create",
-            "path": "/document/document_management/create",
-            "file_path": "template/document/document_management/create.html"
-        },
-        {
-            "name": "document-management-detail",
-            "path": "/document/document_management/detail",
-            "file_path": "template/document/document_management/detail.html"
-        },
-        {
             "name": "document-contract",
             "path": "/document/contract",
             "file_path": "template/document/contract.html"
@@ -151,8 +141,18 @@
         },
         {
             "name": "document-collection-create",
+            "path": "/document/document_collection/create_collection",
+            "file_path": "template/document/document_collection/create_collection.html"
+        },
+        {
+            "name": "document-management-create",
             "path": "/document/document_collection/create",
             "file_path": "template/document/document_collection/create.html"
+        },
+        {
+            "name": "document-collection-list",
+            "path": "/document/document_collection/list",
+            "file_path": "template/document/document_collection/list.html"
         },
         {
             "name": "document-collection-detail",
@@ -1441,6 +1441,10 @@
                 {
                     "name": "contract_end",
                     "type": "date"
+                },
+                {
+                    "name": "collection_id",
+                    "type": "string"
                 }
             ]
         },
@@ -1465,6 +1469,34 @@
                     "type": "number",
                     "required": false
                 }
+            ]
+        },
+        {
+            "name": "get-documents-by-collectionid",
+            "path": "/get-documents-by-collectionid",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDocumentsByCollectionId"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number",
+                    "required": false
+                },
+                {
+                    "name": "page_size",
+                    "type": "number",
+                    "required": false
+                },
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": false
+                } 
             ]
         },
         {
@@ -2111,10 +2143,6 @@
                     "type": "string"
                 },
                 {
-                    "name": "description",
-                    "type": "string"
-                },
-                {
                     "name": "documents",
                     "type": "string"
                 }
@@ -2684,6 +2712,9 @@
                     },
                     "status": {
                         "type": "string"
+                    },
+                    "collection_id": {
+                        "type": "integer"
                     }
                 }
             },

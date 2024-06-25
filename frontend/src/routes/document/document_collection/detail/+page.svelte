@@ -11,23 +11,9 @@ All Rights Reserved
  -->
 
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Textarea,
-    Button,
-    Select,
-    Modal,
-    Dropdown,
-    DropdownItem,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Textarea, Button, Select, Modal } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
-  import {
-    CheckCircleSolid,
-    ExclamationCircleSolid,
-    ChevronDownOutline,
-  } from "flowbite-svelte-icons";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
@@ -36,25 +22,23 @@ All Rights Reserved
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
-  import { goto } from "$app/navigation";
-  import { createEventDispatcher } from "svelte";
-  import PdfViewer from "svelte-pdf";
+  import { goto } from "$app/navigation"; 
+  import { createEventDispatcher } from 'svelte';
 
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
+  let documentId = params.get("documentId");
   let collectionId = params.get("collectionId");
-  const edit = params.get("edit");
   const dispatch = createEventDispatcher();
 
   let onEdit = $state(false);
 
   let popupModal = $state(false);
-  let dropdownOpen = $state(false);
 
-  let files = $state([]);
-
-  let selectedFile = $state(null);
+  let contentFile = $state(null);
+  let base64 = $state(null);
+  let fileUrl = $state("null");
 
   let tabDatas = $state({
     selected: "Documents",
@@ -72,24 +56,33 @@ All Rights Reserved
 
   let data = $state({});
 
-  async function getCollection() {
+  let categories = $state([
+    {
+      value: "GENERAL",
+      name: "General",
+    },
+    {
+      value: "CONTRACT",
+      name: "Contract",
+    },
+  ]);
+
+  let personClient = $state([]);
+
+  async function getDocument() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call(
-          "client-dashboard",
-          "get-document-collection",
-          {
-            URLQuery: {},
-            URLParams: {
-              id: collectionId.toString(),
-            },
-            Params: {},
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let response = await call.call("client-dashboard", "get-document", {
+          URLQuery: {},
+          URLParams: {
+            id: documentId.toString(),
           },
-        );
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         if (response.status !== 200) {
           triggerToast("error");
@@ -97,58 +90,44 @@ All Rights Reserved
           return;
         }
 
-        console.log("getCollection", response);
-
         if (response.result.document.data.length > 0) {
           let documentData = response.result.document.data[0];
           data = {
             id: documentData.id,
-            createdAt: format(
-              documentData.attributes.createdAt,
-              "yyyy-MM-dd HH:mm",
-            ),
-            collectionName: documentData.attributes.collection_name,
+            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
+            document_title: documentData.attributes.document_title,
             description: documentData.attributes.description,
-            documents: documentData.attributes.documents.data,
+            document_type: documentData.attributes.document_type,
+            ext: documentData.attributes.document.data.attributes.ext,
+            person_client: documentData.attributes.person.data?.id,
+            contract_start:
+            documentData.attributes.contract_start !== null
+                ? format(new Date(documentData.attributes.contract_start), "yyyy-MM-dd")
+                : "",
+            contract_end:
+            documentData.attributes.contract_end !== null
+                ? format(new Date(documentData.attributes.contract_end), "yyyy-MM-dd")
+                : "",
           };
 
-          selectedFile =
-            documentData.attributes.documents.data[0].attributes.name;
+          base64 = response.result.base64;
+          contentFile = atob(base64);
 
-          for (let i = 0; i < response.result.base64.length; i++) {
-            let fileType = "";
-            if (
-              documentData.attributes.documents.data[i].attributes.ext ===
-              ".pdf"
-            ) {
-              fileType = "application/pdf";
-            } else if (
-              documentData.attributes.documents.data[i].attributes.ext ===
-              ".docx"
-            ) {
-              fileType =
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-            } else if (
-              documentData.attributes.documents.data[i].attributes.ext ===
-              ".doc"
-            ) {
-              fileType = "application/msword";
-            } else {
-              fileType = "text/plain";
-            }
-
-            const blob = base64toBlob(response.result.base64[i], fileType);
-            const fileUrl = URL.createObjectURL(blob);
-
-            files = files.concat({
-              name: documentData.attributes.documents.data[i].attributes.name,
-              base64: response.result.base64[i],
-              ext: documentData.attributes.documents.data[i].attributes.ext,
-              contentFile: atob(response.result.base64[i]),
-              fileUrl: fileUrl,
-            });
+          let fileType = "";
+          if (data.ext === ".pdf") {
+            fileType = "application/pdf";
+          } else if (data.ext === ".docx") {
+            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+          } else if (data.ext === ".doc") {
+            fileType = "application/msword";
+          } else {
+            fileType = "text/plain";
           }
 
+          const blob = base64toBlob(base64, fileType);
+          fileUrl = URL.createObjectURL(blob);
+          console.log(fileUrl);
+          
           pdfReady = true;
         }
       } catch (error) {
@@ -162,16 +141,12 @@ All Rights Reserved
 
   async function deleteDocument() {
     let token = sessionStorage.getItem("token");
-    if (
-      collectionId !== "" &&
-      collectionId !== null &&
-      collectionId !== undefined
-    ) {
+    if (documentId !== "" && documentId !== null && documentId !== undefined) {
       try {
         let response = await call.call("client-dashboard", "delete-document", {
           URLQuery: {},
           URLParams: {
-            id: collectionId.toString(),
+            id: documentId.toString(),
           },
           Headers: {
             Authorization: `Bearer ${token}`,
@@ -179,14 +154,9 @@ All Rights Reserved
         });
         if (response.status === 200) {
           triggerToast("deleted");
-          setTimeout(async () => {
-            goto(
-              await call.getPage(
-                "client-dashboard",
-                "document-management-general-list",
-              ),
-            );
-          }, 3000);
+          // setTimeout(async () => {
+            goto(await call.getPage("client-dashboard", "document-collection-list") + "?collectionId=" + collectionId);
+          // }, 3000);
           return;
         } else {
           triggerToast("error");
@@ -200,27 +170,66 @@ All Rights Reserved
     }
   }
 
-  function downloadFile() {
-    let base64 = files.find((file) => file.name === selectedFile).base64;
-    let ext = files.find((file) => file.name === selectedFile).ext;
-    let fileName = files.find((file) => file.name === selectedFile).name;
+  async function getPersons() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let page = 1;
+      while (true) {
+        let response = await call.call("client-dashboard", "get-persons", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          let promise = response.result.data.map((person) => {
+            return {
+              value: person.id,
+              name:
+                person.attributes.fullname !== null
+                  ? person.attributes.fullname
+                  : `<${person.attributes.email}>`,
+            };
+          });
+
+          let data = await Promise.all(promise);
+          personClient = personClient.concat(data);
+          page++;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
+  function downloadFile(content, fileName, ext) {
     let fileType = "";
     if (ext === ".pdf") {
       fileType = "application/pdf";
     } else if (ext === ".docx") {
-      fileType =
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     } else if (ext === ".doc") {
       fileType = "application/msword";
     } else {
       fileType = "text/plain";
     }
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = URL.createObjectURL(base64toBlob(base64, fileType));
     a.download = fileName;
     a.click();
   }
+
 
   function base64toBlob(base64Data, fileType) {
     const byteCharacters = atob(base64Data);
@@ -242,8 +251,36 @@ All Rights Reserved
     return blob;
   }
 
+  function getDocumentId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('documentid');
+  }
+
+  $effect(async () => {
+    if (documentId) {
+      `${await call.getPage("client-dashboard", "document-management-detail")}` + "?documentId=" + document.id + "&collectionId=" + collectionId
+    }
+  })
+
   onMount(() => {
-    getCollection();
+    const handleUrlChange = () => {
+      const newDocumentId = getDocumentId();
+      if (newDocumentId !== documentId) {
+        documentId = newDocumentId;
+      }
+    };
+    // if (edit === "true") onEdit = true;
+
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('pushstate', handleUrlChange); // In case you use pushState for navigation
+
+    getPersons();
+    getDocument();
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('pushstate', handleUrlChange);
+    };
   });
 </script>
 
@@ -257,14 +294,12 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{data.collectionName}<Button
+              >{data.document_title}<Button
                 outline
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
+                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               </Button></Heading
             >
           </div>
@@ -277,51 +312,25 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={() => (popupModal = true)}
-            outline
-            color="red"
+            outline color="red"
             class="px-3 focus-within:!ring-1">{$_("delete")}</Button
           >
         </div>
       </div>
 
       <!-- Tab Bar -->
-      <TabDetail
-        {tabDatas}
-        on:tabChange={(e) => (tabDatas.selected = e.detail)}
-      />
+      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
       <!-- Content -->
       <div class="">
         {#if tabDatas.selected === "Documents"}
           <div class="flex justify-between items-center pt-6 pb-4">
-            <P
-              class="font-semibold text-hc-graylight-700 dark:text-hc-graydark-300"
+            <P class="font-semibold text-hc-graylight-700 dark:text-hc-graydark-300"
               >{$_("documentName")}</P
             >
             <div class="flex items-center gap-2">
               <Button
-                onclick={() => (dropdownOpen = !dropdownOpen)}
-                color="light"
-                class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1"
-              >
-                {selectedFile}
-                <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
-              </Button>
-              <Dropdown bind:open={dropdownOpen} placement="bottom">
-                {#each files as file}
-                  <DropdownItem
-                    on:click={() => {
-                      (selectedFile = file.name), (dropdownOpen = false);
-                    }}
-                  >
-                    <P class="text-secondary-light dark:text-secondary-dark"
-                      >{file.name}</P
-                    >
-                  </DropdownItem>
-                {/each}
-              </Dropdown>
-              <Button
-                onclick={() => downloadFile()}
+                onclick={() => downloadFile(base64, data.document_title, data.ext)}
                 class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1"
               >
                 <img alt="refresh" src={DownloadIcon} class="w-5 h-5" />
@@ -329,39 +338,23 @@ All Rights Reserved
               </Button>
             </div>
           </div>
-          <div
-            class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800"
-          >
+          <div class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800">
             {#if pdfReady}
-              {#each files as file}
-                {#if selectedFile === file.name && file.ext === ".pdf"}
-                  <!-- ketengahin dong -->
-                  <div
-                    class="flex justify-center w-full bg-gray-50 rounded-lg dark:bg-gray-800"
-                  >
-                    <PdfViewer
-                      showBorder={false}
-                      showButtons={true}
-                      scale={1}
-                      data={atob(file.base64)}
-                    />
-                  </div>
-                {:else if selectedFile === file.name && file.ext !== ".pdf"}
-                  {#each file.contentFile.split("\n") as paragraphs, i}
-                    <p class="dark:text-white">{paragraphs}</p>
-                  {/each}
-                {/if}
-              {/each}
+              {#if data.ext === ".pdf"}
+                <iframe class="w-full h-screen" src={`${fileUrl}`} ></iframe>
+              {:else}
+                {#each contentFile.split("\n") as paragraphs, i}
+                  <p class="dark:text-white">{paragraphs}</p>
+                {/each}
+              {/if}
             {/if}
-          </div>
+          </div>          
         {:else if tabDatas.selected === "Information"}
           <div class="flex flex-col gap-4 pt-6">
             <!-- general information -->
             <div class="flex gap-6">
               <div class="w-60">
-                <P
-                  class="font-semibold text-secondary-light dark:text-secondary-dark"
-                >
+                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                   {$_("generalInformation")}
                 </P>
               </div>
@@ -371,11 +364,11 @@ All Rights Reserved
                     <P
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >
-                      {$_("documentCollectionName")}
+                      {$_("documentName")}
                     </P>
                     <Input
                       readonly={!onEdit}
-                      bind:value={data.collectionName}
+                      bind:value={data.document_title}
                       class="bg-primary-light dark:bg-secondary-dark"
                     />
                   </div>
@@ -396,6 +389,84 @@ All Rights Reserved
                 </div>
               </div>
             </div>
+            <Divider />
+            <div class="flex gap-6">
+              <div class="w-60">
+                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                  {$_("documentType")}*
+                </P>
+              </div>
+              <div class="flex flex-col grow gap-6">
+                <div class="flex flex-col gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("documentType")}*</P
+                  >
+                  <Select
+                    disabled={!onEdit}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                    items={categories}
+                    bind:value={data.document_type}
+                  />
+                </div>
+              </div>
+            </div>
+            {#if data.document_type === "CONTRACT"}
+              <Divider />
+              <!-- general information -->
+              <div class="flex gap-6">
+                <div class="w-60">
+                  <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                    {$_("contractInformation")}
+                  </P>
+                </div>
+                <div class="flex grow flex-col gap-6">
+                  <div class="flex flex-col grow gap-6">
+                    <div class="flex flex-col gap-2">
+                      <P
+                        class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                        >{$_("personsOrClient")}*</P
+                      >
+                      <Select
+                        disabled={!onEdit}
+                        class="bg-primary-light dark:bg-secondary-dark"
+                        items={personClient}
+                        bind:value={data.person_client}
+                      />
+                    </div>
+                  </div>
+                  <div class="flex justify-center items-center gap-5">
+                    <div class="flex flex-col grow gap-2">
+                      <P
+                        class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                      >
+                        {$_("contractStartPeriod")}
+                      </P>
+                      <Input
+                        readonly={!onEdit}
+                        bind:value={data.contract_start}
+                        class="bg-primary-light dark:bg-secondary-dark"
+                      />
+                    </div>
+                    <div class="mt-6">
+                      <P>-</P>
+                    </div>
+                    <div class="flex flex-col grow gap-2">
+                      <P
+                        class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                      >
+                        {$_("contractEndPeriod")}
+                      </P>
+                      <Input
+                        readonly={!onEdit}
+                        bind:value={data.contract_end}
+                        class="bg-primary-light dark:bg-secondary-dark"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {/if}
           </div>
         {/if}
       </div>
@@ -410,9 +481,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteDocument} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
-    >
+    <Button onclick={deleteDocument} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
