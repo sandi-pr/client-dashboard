@@ -28,7 +28,7 @@ All Rights Reserved
   const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
-  const documentId = params.get("documentId");
+  let documentId = params.get("documentId");
   const edit = params.get("edit");
   const dispatch = createEventDispatcher();
 
@@ -155,7 +155,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("deleted");
           setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "document-management-general-list"));
+            goto(await call.getPage("client-dashboard", "document-management-general"));
           }, 3000);
           return;
         } else {
@@ -251,10 +251,36 @@ All Rights Reserved
     return blob;
   }
 
+  function getDocumentId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('documentid');
+  }
+
+  $effect(async () => {
+    if (documentId) {
+      `${await call.getPage("client-dashboard", "document-management-general-detail")}` + "?documentId=" + document.id + "&edit=false"
+    }
+  })
+
   onMount(() => {
-    if (edit === "true") onEdit = true;
+    const handleUrlChange = () => {
+      const newDocumentId = getDocumentId();
+      if (newDocumentId !== documentId) {
+        documentId = newDocumentId;
+      }
+    };
+    // if (edit === "true") onEdit = true;
+
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('pushstate', handleUrlChange); // In case you use pushState for navigation
+
     getPersons();
     getDocument();
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('pushstate', handleUrlChange);
+    };
   });
 </script>
 

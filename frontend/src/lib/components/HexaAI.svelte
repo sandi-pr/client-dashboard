@@ -1,5 +1,5 @@
 <script>
-  import { Button, Input, P, Textarea, ToolbarButton } from "flowbite-svelte";
+  import { P, Button, ToolbarButton } from "flowbite-svelte";
 
   import UserIcon from "$lib/icon/user-01.svg";
   import UsersIcon from "$lib/icon/users-03.svg";
@@ -9,9 +9,10 @@
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane } from "svelte-splitpanes";
   import { tick } from "svelte";
+  import { goto } from "$app/navigation";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import { PaperPlaneOutline, TrashBinOutline } from "flowbite-svelte-icons";
+  import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
 
   const plugins = [gfmPlugin()];
@@ -19,6 +20,7 @@
   const call = new CR3Call(globalThis.location.origin);
 
   let div;
+  let textarea;
 
   let chat_id = $state("");
   let content = $state("");
@@ -27,6 +29,7 @@
   let messageInput = $state("");
 
   let disableInput = $state(false);
+  let disableButton = $state(false);
 
   let dataConversatonLogs = $state([
     {
@@ -35,17 +38,63 @@
     },
   ]);
 
-  $effect.pre(() => {
-    dataConversatonLogs;
-    const autoscroll =
-      div && div.offsetHeight + div.scrollTop > div.scrollHeight - 50;
+  // $effect.pre(() => {
+  //   if (!div) return;
+  //   dataConversatonLogs;
+  //   const autoscroll =
+  //     div.offsetHeight + div.scrollTop > div.scrollHeight - 50;
 
-    if (autoscroll) {
+  //   if (autoscroll) {
+  //     tick().then(() => {
+  //       div.scrollTo(0, div.scrollHeight);
+  //     });
+  //   }
+  // });
+
+  $effect(() => {
+    // if (!div) return; // not yet mounted
+
+    // reference `messages` so that this code re-runs whenever it changes
+    dataConversatonLogs;
+
+    // autoscroll when new messages are added
+    if (div) {
       tick().then(() => {
         div.scrollTo(0, div.scrollHeight);
       });
     }
   });
+
+    // Function to adjust the height of the textarea
+  function autosize() {
+    textarea.addEventListener("keyup", e => {
+      textarea.style.height = "auto";
+      let scHeight = e.target.scrollHeight;
+      textarea.style.height = `${scHeight}px`;
+    })
+  }
+
+  $effect(() => {
+    if (textarea) {
+      autosize();
+    }
+  });
+
+  $effect(() => {
+    disableButton = messageInput.length < 1;
+  });
+
+  // // Add event listener on mount
+  // onMount(() => {
+  //   if (textarea) {
+  //     textarea.addEventListener('keydown', autosize);
+  //   }
+  //   return () => {
+  //     if (textarea) {
+  //       textarea.removeEventListener('keydown', autosize);
+  //     }
+  //   };
+  // });
 
   async function sendMessage() {
     disableInput = true;
@@ -165,12 +214,9 @@
   });
 </script>
 
-<div
-  bind:this={div}
-  class="static h-screen w-full bg-primary-light dark:bg-primary-dark"
->
+<div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
   <div class="flex h-full flex-col px-4 pb-[178px] pt-2">
-    <div class="flex flex-col gap-4 overflow-y-auto">
+    <div bind:this={div} class="flex flex-col gap-4 overflow-y-auto">
       <!-- <P
         size="xl"
         weight="bold"
@@ -198,7 +244,7 @@
               >
             </div>
             <div
-              class="prose font-medium text-tertiary-light dark:text-primary-dark"
+              class="prose font-medium text-tertiary-light dark:text-primary-dark [&>p>a]:text-primary-light dark:[&>p>a]:text-primary-dark"
             >
               <Markdown md={qaPair.message} />
             </div>
@@ -234,7 +280,7 @@
     </div>
   </div>
   <div
-    class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-4 py-2 flex items-center"
+    class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-2 py-2 flex items-center"
   >
     <form on:submit|preventDefault={sendMessage} class="flex-grow">
       <!-- <Input
@@ -253,23 +299,41 @@
     </Input> -->
       <label for="chat" class="sr-only">Your message</label>
       <div class="flex items-center py-2 rounded-lg">
-        <ToolbarButton color="primary" on:click={clearChat}>
-          <TrashBinOutline class="w-6 h-6" />
+        <ToolbarButton color="primary" on:click={clearChat} class="rounded-full">
+          <RefreshOutline class="w-6 h-6" />
           <span class="sr-only">{$_("clearChat")}</span>
         </ToolbarButton>
-        <Textarea
+        <!-- <Textarea
           id="chat"
           bind:disabled={disableInput}
           bind:value={messageInput}
           class="mx-4"
           rows="1"
           placeholder="Send a message..."
-        />
-        <ToolbarButton type="submit" color="primary" class="rounded-full">
-          <PaperPlaneOutline class="w-6 h-6 rotate-45" />
-          <span class="sr-only">Send</span>
-        </ToolbarButton>
+        /> -->
+        <textarea
+          bind:this={textarea}
+          bind:value={messageInput}
+          id="chat"
+          rows="1"
+          class="block mx-2 p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
+          placeholder="Send a message..."
+        ></textarea>
+        <Button type="submit" disabled={disableButton} color="primary" class="rounded-full !px-2.5">
+          <PaperPlaneOutline class="w-5 h-5 rotate-45" />
+          <!-- <span class="sr-only">Send</span> -->
+        </Button>
       </div>
     </form>
   </div>
 </div>
+
+<style>
+  textarea {
+    /* overflow-y: hidden; */
+    max-height: 220px;
+  }
+  textarea::-webkit-scrollbar {
+    display: none;
+  }
+</style>
