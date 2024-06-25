@@ -6,12 +6,20 @@
 # All Rights Reserved
 
 
-# Build frontend #
-FROM localhost:32000/bun:latest AS frontend
+# Build frontend 
+FROM node:18 AS frontend
 
-WORKDIR /app
+# Instal Bun
+RUN curl -fsSL https://bun.sh/install | bash
 
-RUN apt update && apt install -y git python3
+# Set Bun ke PATH
+ENV PATH="/root/.bun/bin:${PATH}"
+
+# FROM localhost:32000/bun:latest AS frontend
+
+# WORKDIR /app
+
+# RUN apt update && apt install -y git
 
 COPY frontend /app
 COPY config.json /config.json

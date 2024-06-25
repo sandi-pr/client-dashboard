@@ -140,9 +140,9 @@
             "file_path": "template/document_management/contract/create.html"
         },
         {
-            "name": "document-management-contract-sign",
-            "path": "/document_management/contract/sign",
-            "file_path": "template/document_management/contract/sign.html"
+            "name": "document-management-contract-create2",
+            "path": "/document_management/contract/create2",
+            "file_path": "template/document_management/contract/create2.html"
         },
         {
             "name": "document-management-contract-detail",
@@ -2029,6 +2029,35 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "create-contract",
+            "path": "/create-contract",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateContract"
+            },
+            "params": [
+                {
+                    "name": "contract_name",
+                    "type": "string"
+                },
+                {
+                    "name": "contract",
+                    "type": "string"
+                },
+                {
+                    "name": "signers",
+                    "type": "string"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -2680,6 +2709,27 @@
                         "type": "datetime"
                     },
                     "payload": {
+                        "type": "json"
+                    }
+                }
+            },
+            {
+                "name": "contract",
+                "label": "Contract",
+                "fields": {
+                    "contract_name": {
+                        "type": "string"
+                    },
+                    "contract": {
+                        "type": "media"
+                    },
+                    "signers": {
+                        "type": "json"
+                    },
+                    "marking": {
+                        "type": "media"
+                    },
+                    "status": {
                         "type": "json"
                     }
                 }
