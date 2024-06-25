@@ -570,12 +570,15 @@
                   rounded-md focus-within:ring-0 font-medium
                   `}
               >
-                {signers[0]?.role}
+                {selectedSigner !== null
+                  ? selectedSigner.role
+                  : signers[0].role}
               </Button>
               <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
             </Button>
             <Dropdown triggeredBy=".acs" placement="bottom">
               {#each signers as signer}
+               {#if signer.role === "signer"}
                 <DropdownItem>
                   <Button
                     on:click={() => {
@@ -608,6 +611,7 @@
                     <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
                   </Button>
                 </DropdownItem>
+                {/if}
               {/each}
             </Dropdown>
             <div class="flex gap-4 justify-center items-center">
