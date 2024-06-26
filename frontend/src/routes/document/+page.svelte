@@ -50,7 +50,7 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "document-management-create"),
+        href: await call.getPage("client-dashboard", "document-collection-create"),
         icon: FolderPlusIcon,
         actionName: "Add new document collection",
         desc: "desc Add new document collection",
