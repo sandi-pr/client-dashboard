@@ -242,10 +242,10 @@
     </P>
   </div> -->
     <div class="flex h-screen flex-col px-4 pt-2">
-      <div bind:this={div} class="flex flex-col gap-4">
+      <div bind:this={div} class="flex flex-col">
         {#each dataConversatonLogs as qaPair}
           <div
-            class="flex bg-secondary-light dark:bg-secondary-dark rounded-2xl px-8 py-6 mx-4 my-6 items-start gap-4"
+            class="flex bg-secondary-light dark:bg-secondary-dark rounded-2xl px-8 py-6 mx-4 my-4 items-start gap-4"
           >
             <div
               class="w-12 h-12 relative flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
