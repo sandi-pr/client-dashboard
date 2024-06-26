@@ -11,8 +11,10 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
+	"gitlab.hexacode.org/go-libs/cr3call"
 	"gitlab.hexacode.org/go-libs/hctypes"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
@@ -163,6 +165,18 @@ func reset(table string, token string) error {
 		if status != 200 {
 			return fmt.Errorf("error deleting id %d: %d", ids[i], status)
 		}
+
+		if table == "document-management" {
+			CR3 := cr3call.New(MODULE_MANAGER_URL)
+			go CR3.Call("hexa-ai-rag", "delete-document-by-id", cr3call.CR3CallData{
+				Headers: U.Dict{
+					"Authorization": "Bearier " + token,
+				},
+				Params: U.Dict{
+					"document_id": strconv.Itoa(int(ids[i])),
+				},
+			}, false)
+		}
 	}
 
 	return nil
@@ -214,10 +228,15 @@ func Reset(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		"company-profile",
 		"booking",
 		"document-management",
+		"document-collection",
 
 		"conversation",
 		"conversation-message",
 		"ai-history",
+
+		"conversation-rag",
+		"conversation-message-rag",
+		"ai-history-rag",
 	}
 
 	for i := 0; i < len(tables); i++ {
