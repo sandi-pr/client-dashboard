@@ -141,8 +141,8 @@ All Rights Reserved
   />
   <Card
     icon="fileShield"
-    title="{$_('documentManagement')}"
-    description={$_("descDocumentManagement")}
+    title="{$_('documentCollection')}"
+    description={$_("documentCollection")}
     onclick={async () => {
       goto(await call.getPage("client-dashboard", "document-overview"));
       return;
