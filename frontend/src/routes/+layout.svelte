@@ -55,7 +55,7 @@ All Rights Reserved
   ]);
 
   const hideScrollList = $state([
-    "/document_management/document_collection/chat",
+    "/document/document_collection/chat",
   ]);
 
   const hideScroll = () => {

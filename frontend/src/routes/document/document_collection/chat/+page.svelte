@@ -235,14 +235,14 @@
 {#if isLoading}
   <LoadingSpinner />
 {:else}
-  <div class="static h-full flex flex-col">
+  <div class="static h-screen flex flex-col">
     <!-- <div class="mx-4 py-6 border-b border-secondary-light dark:border-secondary-dark">
     <P size="3xl" weight="semibold" class="text-primary-light dark:text-primary-dark leading-[38px]"
       >Conversation Logs 4c64986428240cn948929284
     </P>
   </div> -->
     <div class="flex h-screen flex-col px-4 pt-2">
-      <div bind:this={div} class="flex flex-col">
+      <div bind:this={div} class="flex flex-col overflow-y-auto">
         {#each dataConversatonLogs as qaPair}
           <div
             class="flex bg-secondary-light dark:bg-secondary-dark rounded-2xl px-8 py-6 mx-4 my-4 items-start gap-4"
