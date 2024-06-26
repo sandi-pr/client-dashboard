@@ -4,6 +4,10 @@
   import UserIcon from "$lib/icon/user-03.svg";
   import VerifiedIcon from "$lib/icon/verified.svg";
   import { onMount } from "svelte";
+  import { tick } from "svelte";
+  import { CR3Call } from "hexacomponents-svelte";
+
+  const call = new CR3Call(globalThis.location.origin);
 
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");

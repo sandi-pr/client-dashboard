@@ -111,7 +111,6 @@ All Rights Reserved
           ),
           collectionName: collection.attributes.collection_name,
           totalDocuments: totalDocuments,
-          deployStatus: statusRAG,
         };
       });
     }
@@ -250,9 +249,9 @@ All Rights Reserved
                             >
                             <div
                               class={`px-2 w-full py-0.5 rounded-full border justify-start items-center inline-flex text-center text-xs font-medium leading-[18px] 
-                              ${classStatusType(doc.deployStatus)}`}
+                              ${classStatusType(statusRAG)}`}
                             >
-                              {doc.deployStatus}
+                              {statusRAG}
                             </div>
                           </div>
                           <P
