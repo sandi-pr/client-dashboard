@@ -24,11 +24,6 @@
       message:
         "What would you like to know in this collection?",
     },
-    {
-      role: "user",
-      message:
-        "I want to know the document collection. Do you have any suggestions?",
-    },
   ]);
 
   async function sendMessage() {
@@ -55,7 +50,7 @@
               URLQuery: {},
               URLParams: {},
               Params: {
-                collection_id: collectionId,
+                collection_id: parseInt(collectionId),
               },
               Headers: {},
             },
