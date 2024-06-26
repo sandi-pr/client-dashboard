@@ -108,6 +108,28 @@
 
     let token = sessionStorage.getItem("token");
 
+    let response2 = await call.call(
+      "hexa-ai-rag",
+      "add-document-by-collection-id",
+      {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: collectionId,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      },
+    );
+
+    if (response2.status !== 200) {
+      console.log(response2);
+      return;
+    }
+
+    console.log(response2);
+
     if (conversationIdCollection && token) {
       try {
         let chat = await call.call("hexa-ai-rag", "get-messages", {
@@ -215,6 +237,7 @@
         }
 
         if (statusRAG === "Ready") {
+          console.log(statusRAG);
           isLoading = false;
           return;
         }
