@@ -12,6 +12,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -45,44 +46,49 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 	fmt.Println(me)
 
-	document_title, ok := ctx.Params.GetString("document_title")
-	if !ok {
-		return ctx.Error(400, "invalid parameters document_title")
-	}
+	// document_title, ok := ctx.Params.GetString("document_title")
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters document_title")
+	// }
 
-	description, ok := ctx.Params.GetString("description")
-	if !ok {
-		return ctx.Error(400, "invalid parameters description")
-	}
+	// description, ok := ctx.Params.GetString("description")
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters description")
+	// }
 
-	document_type, ok := ctx.Params.GetString("document_type")
-	if !ok {
-		return ctx.Error(400, "invalid parameters document_type")
-	}
+	// document_type, ok := ctx.Params.GetString("document_type")
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters document_type")
+	// }
 
-	documentBase64, ok := ctx.Params.GetString("document")
-	if !ok {
-		return ctx.Error(400, "invalid parameters document")
-	}
+	// documentBase64, ok := ctx.Params.GetString("document")
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters document")
+	// }
 
-	document_name, ok := ctx.Params.GetString("document_name")
-	if !ok {
-		return ctx.Error(400, "invalid parameters document_name")
-	}
+	// document_name, ok := ctx.Params.GetString("document_name")
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters document_name")
+	// }
 
-	person, ok := ctx.Params.GetFloat64("person")
-	if !ok {
-		fmt.Println("not found person")
-	}
+	// person, ok := ctx.Params.GetFloat64("person")
+	// if !ok {
+	// 	fmt.Println("not found person")
+	// }
 
-	date_start, ok := ctx.Params.GetString("contract_start")
-	if !ok {
-		fmt.Println("invalid parameters date_start")
-	}
+	// date_start, ok := ctx.Params.GetString("contract_start")
+	// if !ok {
+	// 	fmt.Println("invalid parameters date_start")
+	// }
 
-	date_end, ok := ctx.Params.GetString("contract_end")
+	// date_end, ok := ctx.Params.GetString("contract_end")
+	// if !ok {
+	// 	fmt.Println("invalid parameters date_end")
+	// }
+
+	documentsString, ok := ctx.Params.GetString("documents")
 	if !ok {
-		fmt.Println("invalid parameters date_end")
+		return ctx.Error(400, "invalid parameters documents")
 	}
 
 	collection_idStr, ok := ctx.Params.GetString("collection_id")
@@ -95,46 +101,69 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters collection_id")
 	}
 
-	document, err := base64.StdEncoding.DecodeString(string(documentBase64))
-	if err != nil {
-		return ctx.Error(400, "failed to decode document")
-	}
-
-	status, upload, err := Strapi.Upload(string(document_name), document)
-
-	fmt.Println("upload", upload)
+	var documents interface{}
+	err = json.Unmarshal([]byte(documentsString), &documents)
 
 	if err != nil {
-		return ctx.Error(500, "Internal Server Error")
+		fmt.Println(err)
+		return ctx.Error(400, "invalid parameters documents")
 	}
 
-	if status != 200 {
-		return ctx.Error(500, "Internal Server Error")
-	}
+	for _, document := range documents.([]interface{}) {
 
-	data, ok := upload.GetDict(0)
+		documentBase64, ok := document.(map[string]interface{})["base64"].(string)
+		if !ok {
+			return ctx.Error(400, "invalid parameters documents")
+		}
 
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
+		documentFile, err := base64.StdEncoding.DecodeString(documentBase64)
 
-	id, ok := data.GetFloat64("id")
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(400, "invalid parameters documents")
+		}
 
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
+		documentName, ok := document.(map[string]interface{})["name"].(string)
+		if !ok {
+			return ctx.Error(400, "invalid parameters documents")
+		}
 
-	if document_type == "GENERAL" {
+		status, upload, err := Strapi.Upload(documentName, documentFile)
 
-		status, documents, err := Strapi.Create("document-management-table", U.Dict{
-			"document_title": document_title,
-			"description":    description,
-			"document_type":  document_type,
+		fmt.Println("upload", upload)
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		data, ok := upload.GetDict(0)
+
+		if !ok {
+			fmt.Println("failed to get dict")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		id, ok := data.GetFloat64("id")
+		if !ok {
+			fmt.Println("failed to get id")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		status, document, err := Strapi.Create("document-management-table", U.Dict{
+			"document_title": documentName,
+			"description":    "-",
+			"document_type":  "GENERAL",
 			"document":       id,
 			"collection_id":  collection_id,
 		})
 
-		fmt.Println("document", documents)
+		fmt.Println("document", document)
 
 		if err != nil {
 			return ctx.Error(500, "Internal Server Error")
@@ -150,32 +179,91 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		// 		"Authorization": bearer,
 		// 	},
 		// }, false)
-
-		return status, documents, nil
-	} else {
-		status, documents, err := Strapi.Create("document-management-table", U.Dict{
-			"document_title": document_title,
-			"description":    description,
-			"document_type":  document_type,
-			"document":       id,
-			"person":         person,
-			"contract_start": date_start,
-			"contract_end":   date_end,
-			"collection_id":  collection_id,
-		})
-
-		fmt.Println("document", documents)
-
-		if err != nil {
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		if status != 200 {
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		return status, documents, nil
 	}
+
+	return 200, U.Dict{}, nil
+
+	// document, err := base64.StdEncoding.DecodeString(string(documentBase64))
+	// if err != nil {
+	// 	return ctx.Error(400, "failed to decode document")
+	// }
+
+	// status, upload, err := Strapi.Upload(string(document_name), document)
+
+	// fmt.Println("upload", upload)
+
+	// if err != nil {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
+
+	// if status != 200 {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
+
+	// data, ok := upload.GetDict(0)
+
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
+
+	// id, ok := data.GetFloat64("id")
+
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
+
+	// if document_type == "GENERAL" {
+
+	// 	status, documents, err := Strapi.Create("document-management-table", U.Dict{
+	// 		"document_title": document_title,
+	// 		"description":    description,
+	// 		"document_type":  document_type,
+	// 		"document":       id,
+	// 		"collection_id":  collection_id,
+	// 	})
+
+	// 	fmt.Println("document", documents)
+
+	// 	if err != nil {
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
+
+	// 	if status != 200 {
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
+
+	// 	// CR3 := cr3call.New(MODULE_MANAGER_URL)
+	// 	// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+	// 	// 	Headers: U.Dict{
+	// 	// 		"Authorization": bearer,
+	// 	// 	},
+	// 	// }, false)
+
+	// 	return status, documents, nil
+	// } else {
+	// 	status, documents, err := Strapi.Create("document-management-table", U.Dict{
+	// 		"document_title": document_title,
+	// 		"description":    description,
+	// 		"document_type":  document_type,
+	// 		"document":       id,
+	// 		"person":         person,
+	// 		"contract_start": date_start,
+	// 		"contract_end":   date_end,
+	// 		"collection_id":  collection_id,
+	// 	})
+
+	// 	fmt.Println("document", documents)
+
+	// 	if err != nil {
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
+
+	// 	if status != 200 {
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
+
+	// 	return status, documents, nil
+	// }
 }
 
 func GetDocuments(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

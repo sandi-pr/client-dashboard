@@ -1406,45 +1406,14 @@
             },
             "params": [
                 {
-                    "name": "document_title",
-                    "type": "text",
+                    "name": "documents",
+                    "type": "string",
                     "required": true
-                },
-                {
-                    "name": "description",
-                    "type": "text",
-                    "required": true
-                },
-                {
-                    "name": "document_type",
-                    "type": "text",
-                    "required": true
-                },
-                {
-                    "name": "document",
-                    "type": "text",
-                    "required": true
-                },
-                {
-                    "name": "document_name",
-                    "type": "text",
-                    "required": true
-                },
-                {
-                    "name": "person",
-                    "type": "number"
-                },
-                {
-                    "name": "contract_start",
-                    "type": "date"
-                },
-                {
-                    "name": "contract_end",
-                    "type": "date"
                 },
                 {
                     "name": "collection_id",
-                    "type": "string"
+                    "type": "string",
+                    "required": true
                 }
             ]
         },

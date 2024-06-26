@@ -27,6 +27,9 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
+  import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
+  import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
+  import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
 
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");
@@ -35,10 +38,8 @@ All Rights Reserved
 
   let dropzoneActive = false;
   let onEdit = $state(true);
-  let uploadedImage = $state(null);
-  let uploadedImageName = $state(null);
-  let fileImage = $state(null);
-  let fileText = $state(null);
+  let files = $state([]);
+  let fileTextNames = $state([]);
   let fileTextName = $state(null);
   let fileTextResult = $state(null);
   let base64Data = $state("");
@@ -85,7 +86,7 @@ All Rights Reserved
     const files = event.dataTransfer.files;
 
     if (files[0]) {
-      if (file.type === "text/plain") {
+      if (files.type === "text/plain") {
         const { text, base64 } = await readFileAsText(file);
         fileTextResult = text;
         base64Data = base64;
@@ -95,31 +96,31 @@ All Rights Reserved
         // Perform operations specific to other file types here
       }
 
-      fileTextName = files[0].name;
+      fileTextNames = files[0].name;
     } else {
       alert("Invalid file. Please select a valid file.");
     }
   }
 
-  const handleTextUploadWrapper = () => {
+  const handleFileUploadWrapper = () => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    // inputElement.accept = ".txt";
-    inputElement.accept = ".txt, .pdf, .doc, .docx, .csv";
+    inputElement.accept = ".pdf, .doc, .docx";
+    inputElement.multiple = true;
 
     inputElement.addEventListener("change", async (event) => {
-      const file = event.target.files[0];
+      const uploadedFiles = event.target.files;
 
-      if (file) {
-        if (file.type === "text/plain") {
-          const { text, base64 } = await readFileAsText(file);
-          fileTextResult = text;
-          base64Data = base64;
-        } else {
-          base64Data = await readFileAsBase64(file);
+      if (uploadedFiles.length > 0) {
+        for (const file of uploadedFiles) {
+          const base64Data = await readFileAsBase64(file);
+          files.push({
+            name: file.name,
+            size: formatBytes(file.size),
+            base64: base64Data,
+          });
+          fileTextNames.push(file.name);
         }
-
-        fileTextName = file.name;
       } else {
         alert("Invalid file. Please select a valid file.");
       }
@@ -127,6 +128,18 @@ All Rights Reserved
 
     inputElement.click();
   };
+
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
 
   async function readFileAsText(file) {
     return new Promise((resolve, reject) => {
@@ -172,7 +185,8 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
-      if (data.document_type === "GENERAL") {
+      // if (data.document_type === "GENERAL") {
+      if (files.length > 0) {
         try {
           let response = await call.call(
             "client-dashboard",
@@ -181,15 +195,16 @@ All Rights Reserved
               URLQuery: {},
               URLParams: {},
               Params: {
-                document_title: data.document_title,
-                document: base64Data,
-                document_name: fileTextName,
-                description: data.description,
-                document_type: data.document_type,
-                person: 0,
-                contract_start: format(new Date(), "yyyy-MM-dd"),
-                contract_end: format(new Date(), "yyyy-MM-dd"),
-                status: "Initiate",
+                // document_title: data.document_title,
+                // document: base64Data,
+                // document_name: fileTextName,
+                // description: data.description,
+                // document_type: data.document_type,
+                // person: 0,
+                // contract_start: format(new Date(), "yyyy-MM-dd"),
+                // contract_end: format(new Date(), "yyyy-MM-dd"),
+                // status: "Initiate",
+                documents: JSON.stringify(files),
                 collection_id: collectionId,
               },
               Headers: {
@@ -206,27 +221,27 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
-            let response2 = await call.call(
-              "hexa-ai-rag",
-              "add-document-by-collection-id",
-              {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  collection_id: collectionId,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              },
-            );
+            // let response2 = await call.call(
+            //   "hexa-ai-rag",
+            //   "add-document-by-collection-id",
+            //   {
+            //     URLQuery: {},
+            //     URLParams: {},
+            //     Params: {
+            //       collection_id: collectionId,
+            //     },
+            //     Headers: {
+            //       Authorization: "Bearer " + token,
+            //     },
+            //   },
+            // );
 
-            if (response2.status !== 200) {
-              console.log(response2);
-              return;
-            }
+            // if (response2.status !== 200) {
+            //   console.log(response2);
+            //   return;
+            // }
 
-            console.log(response2);
+            // console.log(response2);
             triggerToast("created");
             // setTimeout(async () => {
             goto(
@@ -436,7 +451,7 @@ All Rights Reserved
             </P>
           </div>
           <div class="flex flex-col grow gap-6">
-            <div class="flex gap-5">
+            <!-- <div class="flex gap-5">
               <div class="flex flex-col grow gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
@@ -449,36 +464,20 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-            </div>
+            </div> -->
             <div class="flex flex-col col-span-5 gap-2">
               <P
                 class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >{$_("documentUpload")}*</P
               >
-              <Button
-                ondragover={handleDragOver}
-                ondragleave={handleDragLeave}
-                ondrop={handleDrop}
-                onclick={() => {
-                  handleTextUploadWrapper();
-                }}
-                color="light"
-                class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-8 flex flex-col justify-start ${fileTextName ? "items-start cursor-default" : "items-center"}`}
-              >
-                {#if fileTextName}
-                  {#if fileTextName.endsWith(".txt")}
-                    <!-- {#each fileTextResult.split("\n") as paragraphs, i}
-                      <P>{paragraphs}</P>
-                    {/each} -->
-                    <P>{fileTextName}</P>
-                  {:else if fileTextName.endsWith(".pdf")}
-                    <P>{fileTextName}</P>
-                  {:else if fileTextName.endsWith(".doc") || fileTextName.endsWith(".docx")}
-                    <P>{fileTextName}</P>
-                  {:else}
-                    <P>{fileTextName}</P>
-                  {/if}
-                {:else}
+              <div class="flex flex-col col-span-5 gap-2">
+                <Button
+                  onclick={() => {
+                    handleFileUploadWrapper();
+                  }}
+                  color="light"
+                  class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-8 flex flex-col justify-start ${fileTextName ? "items-start cursor-default" : "items-center"}`}
+                >
                   <div
                     class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
                   >
@@ -497,13 +496,41 @@ All Rights Reserved
                     </P>
                   </div>
                   <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none"
-                    >PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P
-                  >
-                {/if}
-              </Button>
+                  <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P>
+                </Button>
+              </div>
+              <!-- Display uploaded file names -->
+              {#if fileTextNames.length > 0}
+                <div class="flex flex-col gap-3">
+                  {#each files as file}
+                    <div
+                      class="flex justify-between p-4 rounded-xl border border-secondary-light dark:border-secondary-dark"
+                    >
+                      <div class="flex gap-3">
+                        {#if file.name.includes(".pdf")}
+                          <img src={PDFSolidIcon} alt="" />
+                        {:else if file.name.includes(".docx")}
+                          <img src={DOCXSolidIcon} alt="" />
+                        {:else if file.name.includes(".doc")}
+                          <img src={DOCSolidIcon} alt="" />
+                        {/if}
+                        <div class="flex flex-col justify-center">
+                          <P
+                            class="text-secondary-light dark:text-secondary-dark"
+                            >{file.name}</P
+                          >
+                          <P
+                            class="text-secondary-light dark:text-secondary-dark"
+                            >{file.size}</P
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              {/if}
             </div>
-            <div class="grid grid-cols-1">
+            <!-- <div class="grid grid-cols-1">
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
@@ -516,12 +543,12 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
-        <Divider />
+        <!-- <Divider /> -->
         <!-- product detail -->
-        <div class="flex gap-6">
+        <!-- <div class="flex gap-6">
           <div class="w-60">
             <P
               class="font-semibold text-secondary-light dark:text-secondary-dark"
@@ -540,17 +567,11 @@ All Rights Reserved
                 bind:value={data.document_type}
                 placeholder={$_("selectDocumentType")}
               />
-              <!-- <Input
-                readonly={!onEdit}
-                bind:value={data.document_type}
-                class="bg-primary-light dark:bg-secondary-dark"
-              />   -->
             </div>
           </div>
-        </div>
-        {#if data.document_type === "CONTRACT"}
+        </div> -->
+        <!-- {#if data.document_type === "CONTRACT"}
           <Divider />
-          <!-- product detail -->
           <div class="flex gap-6">
             <div class="w-60">
               <P
@@ -606,7 +627,7 @@ All Rights Reserved
               </div>
             </div>
           </div>
-        {/if}
+        {/if} -->
       </div>
     </div>
   </div>

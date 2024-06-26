@@ -146,7 +146,7 @@ func CreateDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		}
 
 		status, document, err := Strapi.Create("document-management-table", U.Dict{
-			"document_title": collection_name,
+			"document_title": documentName,
 			"description":    "-",
 			"document_type":  "GENERAL",
 			"document":       id,
