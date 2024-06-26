@@ -6,6 +6,8 @@
   import { onMount } from "svelte";
   import { tick } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
+  import { goto } from "$app/navigation";
+  import { triggerToast } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -18,11 +20,12 @@
 
   let messageInput = $state("");
 
+  let statusRAG = $state("");
+
   let dataConversatonLogs = $state([
     {
       role: "assistant",
-      message:
-        "What would you like to know in this collection?",
+      message: "What would you like to know in this collection?",
     },
   ]);
 
@@ -40,8 +43,9 @@
 
       messageInput = "";
 
-      let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
-
+      let conversationIdCollection = sessionStorage.getItem(
+        "conversationIdCollection",
+      );
 
       if (!conversationIdCollection) {
         try {
@@ -63,8 +67,12 @@
           console.log("createConversationResponse", createConversationResponse);
 
           if (createConversationResponse.status === 200) {
-            conversationIdCollection = createConversationResponse.result.conversation_id;
-            sessionStorage.setItem("conversationIdCollection", conversationIdCollection);
+            conversationIdCollection =
+              createConversationResponse.result.conversation_id;
+            sessionStorage.setItem(
+              "conversationIdCollection",
+              conversationIdCollection,
+            );
           } else {
             console.log(createConversationResponse);
           }
@@ -94,7 +102,10 @@
           disableInput = false;
           dataConversatonLogs = [
             ...dataConversatonLogs,
-            { role: chat.result.message.role, message: chat.result.message.message },
+            {
+              role: chat.result.message.role,
+              message: chat.result.message.message,
+            },
           ];
         }
       } catch (error) {
@@ -121,7 +132,9 @@
   });
 
   async function getMessages() {
-    let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
+    let conversationIdCollection = sessionStorage.getItem(
+      "conversationIdCollection",
+    );
 
     let token = sessionStorage.getItem("token");
 
@@ -143,15 +156,65 @@
 
         if (chat.status === 200) {
           dataConversatonLogs = chat.result.messages;
+          if (dataConversatonLogs.length > 0) {
+            dataConversatonLogs = [
+              {
+                role: "assistant",
+                message: "What would you like to know in this collection?",
+              },
+            ];
+          }
         }
-
       } catch (error) {
         console.log(error);
       }
     }
   }
 
+  async function getStatusRag() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      let status = rag.result.rag_status;
+      if (statusRAG.includes("!")) {
+        let status2 = status.split("!")[0].trim();
+        if (
+          status2.includes("(NOVERB)") ||
+          status2.includes("(INOVERB)") ||
+          status2.includes("(!INOVERB)")
+        ) {
+          let status3 = status2
+            .replace("(NOVERB)", "")
+            .replace("(INOVERB)", "")
+            .replace("(!INOVERB)", "")
+            .replace("(!NOVERB)", "");
+          statusRAG = status3;
+        } else {
+          statusRAG = status2;
+        }
+      } else {
+        statusRAG = status;
+      }
+      console.log(rag);
+      if (statusRAG !== "Ready") {
+        triggerToast("error");
+        goto(await call.getPage("client-dashboard", "document-collection"));
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
   onMount(async () => {
+    getStatusRag();
     getMessages();
   });
 </script>
@@ -177,7 +240,11 @@
             {#if qaPair.role === "assistant"}
               <img src={UserIcon} alt="User" class="" />
               <div class="absolute bottom-0 right-0">
-                <img src={VerifiedIcon} alt="User" style={{ width: 16, height: 16 }} />
+                <img
+                  src={VerifiedIcon}
+                  alt="User"
+                  style={{ width: 16, height: 16 }}
+                />
               </div>
             {/if}
           </div>
@@ -187,10 +254,44 @@
                 >{qaPair.role === "user" ? "Customer" : "Assistant"}</P
               >
             </div>
-            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark">{qaPair.message}</P>
+            <P
+              weight="medium"
+              class="text-tertiary-light dark:text-tertiary-dark"
+              >{qaPair.message}</P
+            >
           </div>
         </div>
       {/each}
+      {#if disableInput}
+      <div
+          class="flex bg-secondary-light dark:bg-secondary-dark rounded-2xl px-8 py-6 mx-4 my-6 items-start gap-4"
+        >
+          <div
+            class="w-12 h-12 relative flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+          >
+              <img src={UserIcon} alt="User" class="" />
+              <div class="absolute bottom-0 right-0">
+                <img
+                  src={VerifiedIcon}
+                  alt="User"
+                  style={{ width: 16, height: 16 }}
+                />
+              </div>
+          </div>
+          <div class="flex flex-col w-full gap-1">
+            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+              <P weight="bold" class="text-primary-light dark:text-primary-dark"
+                >{"Assistant"}</P
+              >
+            </div>
+            <P
+              weight="medium"
+              class="text-tertiary-light dark:text-tertiary-dark"
+              >{"Assistant is typing..."}</P
+            >
+          </div>
+        </div>
+      {/if}
     </div>
   </div>
 
@@ -207,7 +308,8 @@
           slot="right"
           size="sm"
           type="submit"
-          class="my-3 bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark">Send</Button
+          class="my-3 bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"
+          >Send</Button
         >
         <!-- <Button
           disabled={disableInput}

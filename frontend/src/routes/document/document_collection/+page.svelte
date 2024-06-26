@@ -150,8 +150,16 @@ All Rights Reserved
         let status = rag.result.rag_status;
         if (statusRAG.includes("!")) {
           let status2 = status.split("!")[0].trim();
-          if (status2.includes("(NOVERB)") || status2.includes("(INOVERB)") || status2.includes("(!INOVERB)")) {
-            let status3 = status2.replace("(NOVERB)", "").replace("(INOVERB)", "").replace("(!INOVERB)", "").replace("(!NOVERB)", "");
+          if (
+            status2.includes("(NOVERB)") ||
+            status2.includes("(INOVERB)") ||
+            status2.includes("(!INOVERB)")
+          ) {
+            let status3 = status2
+              .replace("(NOVERB)", "")
+              .replace("(INOVERB)", "")
+              .replace("(!INOVERB)", "")
+              .replace("(!NOVERB)", "");
             statusRAG = status3;
           } else {
             statusRAG = status2;
@@ -230,8 +238,8 @@ All Rights Reserved
             placeholder={$_("searchBotName")}
             bind:value={searchTerm}
           /> -->
-          <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
-            {#if datas.length > 0}
+          {#if datas.length > 0}
+            <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
               {#each datas as doc (doc.collectionID)}
                 <!-- {#if doc.deployStatus === "RAG Ready"} -->
                 <div class="span-col-1">
@@ -369,7 +377,14 @@ All Rights Reserved
                       class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
                     >
                       {#await askToAI(doc.collectionID) then href}
-                        <Button {href} color="light" class="w-full">
+                        <Button
+                          onclick={() => {
+                            goto(href);
+                          }}
+                          disabled={statusRAG !== "Ready" ? true : false}
+                          color="light"
+                          class="w-full"
+                        >
                           {$_("askToAI")}
                         </Button>
                       {/await}
@@ -378,8 +393,13 @@ All Rights Reserved
                 </div>
                 <!-- {/if} -->
               {/each}
-            {/if}
-          </div>
+            </div>
+          {:else}
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+            />
+          {/if}
         </div>
       </div>
     </div>
