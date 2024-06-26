@@ -29,7 +29,8 @@
   async function sendMessage() {
     disableInput = true;
 
-    if (messageInput.trim() !== "") {
+    let token = sessionStorage.getItem("token");
+    if (messageInput.trim() !== "" && token) {
       dataConversatonLogs = [
         ...dataConversatonLogs,
         { role: "user", message: messageInput.trim() },
@@ -40,6 +41,7 @@
       messageInput = "";
 
       let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
+
 
       if (!conversationIdCollection) {
         try {
@@ -52,7 +54,9 @@
               Params: {
                 collection_id: parseInt(collectionId),
               },
-              Headers: {},
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
             },
           );
 
@@ -79,7 +83,9 @@
           Params: {
             message: newMessage,
           },
-          Headers: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
         });
 
         console.log("chat", chat);
@@ -117,7 +123,9 @@
   async function getMessages() {
     let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
 
-    if (conversationIdCollection) {
+    let token = sessionStorage.getItem("token");
+
+    if (conversationIdCollection && token) {
       try {
         let chat = await call.call("hexa-ai-rag", "get-messages", {
           URLQuery: {},
@@ -126,7 +134,9 @@
             conversation_id: conversationIdCollection,
           },
           Params: {},
-          Headers: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
         });
 
         console.log("chat", chat);
