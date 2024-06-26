@@ -221,27 +221,27 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
-            // let response2 = await call.call(
-            //   "hexa-ai-rag",
-            //   "add-document-by-collection-id",
-            //   {
-            //     URLQuery: {},
-            //     URLParams: {},
-            //     Params: {
-            //       collection_id: collectionId,
-            //     },
-            //     Headers: {
-            //       Authorization: "Bearer " + token,
-            //     },
-            //   },
-            // );
+            let response2 = await call.call(
+              "hexa-ai-rag",
+              "add-document-by-collection-id",
+              {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  collection_id: collectionId,
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              },
+            );
 
-            // if (response2.status !== 200) {
-            //   console.log(response2);
-            //   return;
-            // }
+            if (response2.status !== 200) {
+              console.log(response2);
+              return;
+            }
 
-            // console.log(response2);
+            console.log(response2);
             triggerToast("created");
             // setTimeout(async () => {
             goto(
