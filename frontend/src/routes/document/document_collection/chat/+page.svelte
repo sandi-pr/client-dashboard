@@ -216,6 +216,7 @@
 
         if (statusRAG === "Ready") {
           isLoading = false;
+          return;
         }
         console.log(rag); // Mengganti statusRAG dengan rag
       } catch (error) {

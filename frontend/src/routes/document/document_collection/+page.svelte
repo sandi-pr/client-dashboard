@@ -168,6 +168,10 @@ All Rights Reserved
           statusRAG = status;
         }
         console.log(rag); // Mengganti statusRAG dengan rag
+
+        if (statusRAG === "Ready") {
+          return;
+        }
       } catch (error) {
         console.error("Error:", error);
       }
