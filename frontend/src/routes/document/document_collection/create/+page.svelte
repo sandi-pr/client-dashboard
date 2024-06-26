@@ -171,17 +171,6 @@ All Rights Reserved
   }
 
   async function createProduct() {
-    const fileTextResultBlob = new Blob([fileTextResult], {
-      type: "text/plain",
-    });
-
-    // console.log(data);
-    // console.log(fileText);
-    // console.log(fileTextName);
-    // console.log(fileTextResult);
-    // console.log(fileTextResultBlob);
-    console.log(typeof base64Data);
-
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {

@@ -170,8 +170,8 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    await getCollections();
     await getStatusRag();
+    await getCollections();
   });
 
   async function addDocument() {

@@ -3,6 +3,7 @@
   import UsersIcon from "$lib/icon/users-01.svg";
   import UserIcon from "$lib/icon/user-03.svg";
   import VerifiedIcon from "$lib/icon/verified.svg";
+  import { onMount } from "svelte";
 
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");
