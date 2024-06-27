@@ -38,16 +38,18 @@ All Rights Reserved
   let documents = $state([]);
 
   let tmpCollectionName = $state("");
+  let tmpCollectionId = $state("");
   let editModal = $state(false);
   let deleteModal = $state(false);
 
-  let statusRAG = $state("Ready");
+  let statusRAG = $state("");
 
   async function getCollections() {
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
       let page = 1;
+      collections = [];
       while (true) {
         let response = await call.call(
           "client-dashboard",
@@ -123,11 +125,79 @@ All Rights Reserved
   }
 
   async function editCollectionName() {
-    // TODO: Implement edit
+    let token = sessionStorage.getItem("token");
+    console.log(tmpCollectionName);
+    console.log(tmpCollectionId);
+
+    if (token !== null) {
+      try {
+        let response = await call.call(
+          "client-dashboard",
+          "update-document-collection",
+          {
+            URLQuery: {},
+            URLParams: {
+              id: tmpCollectionId.toString(),
+            },
+            Params: {
+              collection_name: tmpCollectionName,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        editModal = false;
+        getCollections();
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("Token not found");
+    }
   }
 
   async function deleteDocumentCollection() {
-    // TODO: Implement delete
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await call.call(
+          "client-dashboard",
+          "delete-document-collection",
+          {
+            URLQuery: {},
+            URLParams: {
+              id: tmpCollectionId.toString(),
+            },
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        console.log("ayam", response);
+        
+        getCollections();
+        deleteModal = false;
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("Token not found");
+    }
   }
 
   const classStatusType = (type) => {
@@ -189,7 +259,7 @@ All Rights Reserved
       } catch (error) {
         console.error("Error:", error);
       }
-      setTimeout(callStatusRag, 2000);
+      setTimeout(callStatusRag, 5000);
     };
     callStatusRag();
   }
@@ -306,14 +376,21 @@ All Rights Reserved
                             >
                             <Dropdown placement="bottom" containerClass="border">
                               <DropdownItem>
-                                <button onclick={() => (editModal = true)} class="flex">
+                                <button onclick={() => {
+                                  editModal = true;
+                                  tmpCollectionName = doc.collectionName;
+                                  tmpCollectionId = doc.collectionID;
+                                }} class="flex">
                                   <PencilLine
                                     svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
                                   />{$_("editCollectionName")}
                                 </button>
                               </DropdownItem>
                               <DropdownItem>
-                                <button onclick={() => (deleteModal = true)} class="flex">
+                                <button onclick={() => {
+                                  deleteModal = true;
+                                  tmpCollectionId = doc.collectionID;
+                                }} class="flex">
                                   <TrashIcon
                                     svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
                                   />{$_("deleteCollection")}
@@ -433,6 +510,6 @@ All Rights Reserved
       {$_("areYouSureYouWantToDelete")}
     </h3>
     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
-    <Button color="alternative">{$_("noCancel")}</Button>
+    <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>

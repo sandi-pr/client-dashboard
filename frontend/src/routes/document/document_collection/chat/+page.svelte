@@ -23,7 +23,7 @@
 
   let statusRAG = $state("");
 
-  let isLoading = $state(true);
+  let isLoading = $state(false); //dammy
 
   let dataConversatonLogs = $state([
     {
@@ -130,7 +130,7 @@
 
     console.log(response2);
 
-    if (conversationIdCollection && token) {
+    if (conversationIdCollection) {
       try {
         let chat = await call.call("hexa-ai-rag", "get-messages", {
           URLQuery: {},
@@ -202,53 +202,50 @@
     }
   }
 
+  const callStatusRag = async () => {};
+
   async function getStatusRag() {
-    let token = sessionStorage.getItem("token");
-    const callStatusRag = async () => {
-      try {
-        let rag = await call.call("hexa-ai-rag", "get-rag-status", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+    try {
+      let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-        let status = rag.result.rag_status;
-        if (statusRAG.includes("!")) {
-          let status2 = status.split("!")[0].trim();
-          if (
-            status2.includes("(NOVERB)") ||
-            status2.includes("(INOVERB)") ||
-            status2.includes("(!INOVERB)")
-          ) {
-            let status3 = status2
-              .replace("(NOVERB)", "")
-              .replace("(INOVERB)", "")
-              .replace("(!INOVERB)", "")
-              .replace("(!NOVERB)", "");
-            statusRAG = status3;
-          } else {
-            statusRAG = status2;
-          }
+      let status = rag.result.rag_status;
+      if (statusRAG.includes("!")) {
+        let status2 = status.split("!")[0].trim();
+        if (
+          status2.includes("(NOVERB)") ||
+          status2.includes("(INOVERB)") ||
+          status2.includes("(!INOVERB)")
+        ) {
+          let status3 = status2
+            .replace("(NOVERB)", "")
+            .replace("(INOVERB)", "")
+            .replace("(!INOVERB)", "")
+            .replace("(!NOVERB)", "");
+          statusRAG = status3;
         } else {
-          statusRAG = status;
+          statusRAG = status2;
         }
-
-        if (statusRAG === "Ready") {
-          console.log(statusRAG);
-          isLoading = false;
-          return;
-        }
-        console.log(rag); // Mengganti statusRAG dengan rag
-      } catch (error) {
-        triggerToast("error");
-        console.error("Error:", error);
+      } else {
+        statusRAG = status;
       }
-      setTimeout(callStatusRag, 2000);
-    };
-    callStatusRag();
+
+      if (statusRAG === "Ready") {
+        console.log(statusRAG);
+        isLoading = false;
+      }
+      console.log(rag); // Mengganti statusRAG dengan rag
+    } catch (error) {
+      triggerToast("error");
+      console.error("Error:", error);
+    }
+    setTimeout(getStatusRag, 3000);
   }
 
   onMount(async () => {

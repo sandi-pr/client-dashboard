@@ -2155,7 +2155,49 @@
                     "required": true
                 }
             ]
-        }  
+        },
+        {
+            "name": "update-document-collection",
+            "path": "/update-document-collection/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateDocumentCollection"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "collection_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delete-document-collection",
+            "path": "/delete-document-collection/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteDocumentCollection"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        }
     ],
     "options": {
         "strapi_schemas": [
