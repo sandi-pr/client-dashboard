@@ -133,11 +133,11 @@ All Rights Reserved
                     text="Hexa AI"
                     color="primary"
                   />
-                  <Typography
+                  <!-- <Typography
                     preset="Text sm/Regular"
                     text={`Status RAG: ${statusRAG}`}
                     color="tertiary"
-                  />
+                  /> -->
                   <!-- <Typography
                     preset="Text sm/Regular"
                     text="Assistant"

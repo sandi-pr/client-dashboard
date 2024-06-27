@@ -44,9 +44,9 @@
 
   const qrCodeX = writable(0);
   const qrCodeY = writable(0);
-  let initialMouseX, initialMouseY;
-  let isMoving = false;
+  const isMoving = writable(false);
 
+  let initialMouseX, initialMouseY;
   let addSignerModal = false;
   let selectRoleModal = false;
   let personClient = [];
@@ -55,22 +55,24 @@
 
   // // Function to handle QR code movement
   function handleQrCodeMove(event) {
-    console.log("on mouse move");
-    if (isMoving) {
-      const deltaX = event.clientX - initialMouseX;
-      const deltaY = event.clientY - initialMouseY;
+    isMoving.update((moving) => {
+      if (moving) {
+        const deltaX = event.clientX - initialMouseX;
+        const deltaY = event.clientY - initialMouseY;
 
-      qrCodeX.update((x) => x + deltaX);
-      qrCodeY.update((y) => y + deltaY);
+        qrCodeX.update((x) => x + deltaX);
+        qrCodeY.update((y) => y + deltaY);
 
-      initialMouseX = event.clientX;
-      initialMouseY = event.clientY;
-    }
+        initialMouseX = event.clientX;
+        initialMouseY = event.clientY;
+      }
+      return moving;
+    });
   }
 
   function startMove(event) {
-    console.log("on mouse down");
-    isMoving = true;
+    console.log("startMove");
+    isMoving.set(true);
     initialMouseX = event.clientX;
     initialMouseY = event.clientY;
 
@@ -79,19 +81,26 @@
   }
 
   function stopMove() {
-    console.log("on mouse up");
-    if (isMoving) {
-      isMoving = false;
-      saveQrCodePosition();
+    isMoving.set(false);
+    saveQrCodePosition();
 
-      document.removeEventListener("mousemove", handleQrCodeMove);
-      document.removeEventListener("mouseup", stopMove);
-    }
+    document.removeEventListener("mousemove", handleQrCodeMove);
+    document.removeEventListener("mouseup", stopMove);
   }
 
   function saveQrCodePosition() {
-    qrCodeX.subscribe((x) => (signers.find((signer) => signer.email === selectedSigner.email).position.x = x));
-    qrCodeY.subscribe((y) => (signers.find((signer) => signer.email === selectedSigner.email).position.y = y));
+    qrCodeX.subscribe(
+      (x) =>
+        (signers.find(
+          (signer) => signer.email === selectedSigner.email,
+        ).position.x = x),
+    );
+    qrCodeY.subscribe(
+      (y) =>
+        (signers.find(
+          (signer) => signer.email === selectedSigner.email,
+        ).position.y = y),
+    );
   }
 
   // Subscribe to timelineStep changes
@@ -118,6 +127,13 @@
 
   function selectSigner(signer) {
     selectedSigner = signer;
+
+    if (showQr.length < signers.length) {
+      for (let i = 0; i < signers.length; i++) {
+        showQr[i] = false;
+      }
+    }
+
     qrCodeX.set(signer.position.x);
     qrCodeY.set(signer.position.y);
     console.log("selectedSigner", selectedSigner);
@@ -130,7 +146,20 @@
     const existingSignerIndex = signers.findIndex(
       (signer) => signer.email === selectedSigner.email,
     );
+
+    qrCodeX.set(signers[existingSignerIndex].position.x);
+    qrCodeY.set(signers[existingSignerIndex].position.y);
+
+    if (showQr.length < signers.length) {
+      for (let i = 0; i < signers.length; i++) {
+        showQr[i] = false;
+      }
+    }
+
     showQr[existingSignerIndex] = true;
+
+    console.log("selectedSigner", selectedSigner);
+    console.log("showQr", showQr);
   }
 
   function placeMeterai() {
@@ -578,39 +607,41 @@
             </Button>
             <Dropdown triggeredBy=".acs" placement="bottom">
               {#each signers as signer}
-               {#if signer.role === "signer"}
-                <DropdownItem>
-                  <Button
-                    on:click={() => {
-                      selectSigner(signer);
-                    }}
-                    outline
-                    color="light"
-                    class="focus-within:!ring-1"
-                  >
-                    <Avatar />
-                    <div class="flex-col grow pl-2 pr-4">
-                      <Span
-                        class="font-jakarta text-slate-700 dark:text-hc-graydark-300 text-sm leading-tight"
-                        >{signer.name}</Span
-                      >
-                      <P
-                        class="font-jakarta text-slate-600 dark:text-hc-graydark-400 text-sm leading-tight"
-                        >{signer.email}</P
-                      >
-                    </div>
+                {#if signer.role === "signer"}
+                  <DropdownItem>
                     <Button
-                      pill
-                      class={`
+                      on:click={() => {
+                        selectSigner(signer);
+                      }}
+                      outline
+                      color="light"
+                      class="focus-within:!ring-1"
+                    >
+                      <Avatar />
+                      <div class="flex-col grow pl-2 pr-4">
+                        <Span
+                          class="font-jakarta text-slate-700 dark:text-hc-graydark-300 text-sm leading-tight"
+                          >{signer.name}</Span
+                        >
+                        <P
+                          class="font-jakarta text-slate-600 dark:text-hc-graydark-400 text-sm leading-tight"
+                          >{signer.email}</P
+                        >
+                      </div>
+                      <Button
+                        pill
+                        class={`
                         px-2 py-0 bg-hc-warning-50 dark:bg-hc-warning-950 text-hc-warning-700 dark:text-hc-warning-300 border border-hc-warning-200 dark:border-hc-warning-800 hover:bg-hc-warning-50 dark:hover:bg-hc-warning-950
                         rounded-md focus-within:ring-0 font-medium
                         `}
-                    >
-                      {signer.role}
+                      >
+                        {signer.role}
+                      </Button>
+                      <ChevronDownOutline
+                        class="w-3 h-3 ms-2 dark:text-white"
+                      />
                     </Button>
-                    <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
-                  </Button>
-                </DropdownItem>
+                  </DropdownItem>
                 {/if}
               {/each}
             </Dropdown>
@@ -637,24 +668,35 @@
               <div class="">
                 {#each signers as signer, index (signer)}
                   {#if showQr[index]}
-                    <div
-                      on:mousedown={signer.email === selectedSigner?.email ? startMove : null}
-                      role="button"
-                      aria-label="Move QR Code"
-                      tabindex="0"
-                    >
-                      <img
-                        src={QRCodeIcon}
-                        alt=""
-                        width="70"
-                        height="70"
+                    {#if signer.email === selectedSigner.email}
+                      <div
+                        on:mousedown={selectedSigner.email === signer.email
+                          ? startMove
+                          : null}
+                        role="button"
+                        aria-label="Move QR Code"
+                        tabindex="0"
+                        style="position: absolute; top: {$qrCodeY}px; left: {$qrCodeX}px; cursor: {selectedSigner.email !==
+                        signer.email
+                          ? ''
+                          : $isMoving
+                            ? 'grabbing'
+                            : 'grab'};"
+                      >
+                        <img src={QRCodeIcon} alt="" width="70" height="70" />
+                      </div>
+                    {:else}
+                      <div
+                        role="button"
+                        aria-label="QR Code"
+                        tabindex="0"
                         style="position: absolute; top: {signer.position
-                          .y}px; left: {signer.position
-                          .x}px; z-index: 50; cursor: {signer.email !== selectedSigner?.email ? "" : isMoving
-                          ? 'grabbing'
-                          : 'grab'}"
-                      />
-                    </div>
+                          .y}px; left: {signer.position.x}px;"
+                      >
+                        <img src={QRCodeIcon} alt="" width="70" height="70" />
+                        <span class="text-xs">{signer.name}</span>
+                      </div>
+                    {/if}
                   {/if}
                 {/each}
               </div>
