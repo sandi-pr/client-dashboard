@@ -17,10 +17,12 @@ All Rights Reserved
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
-  import { Button, Heading, Card, A, P } from "flowbite-svelte";
+  import { Button, Heading, Card, A, P, Dropdown, DropdownItem, Modal, Input } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
+  import PencilLine from "$lib/icon/pencil-line.svelte";
+  import TrashIcon from "$lib/icon/trash-01.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  import CopyIcon from "$lib/icon/copy-03.svelte";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
 
   import { goto } from "$app/navigation";
 
@@ -35,7 +37,11 @@ All Rights Reserved
   let collections = $state([]);
   let documents = $state([]);
 
-  let statusRAG = $state("");
+  let tmpCollectionName = $state("");
+  let editModal = $state(false);
+  let deleteModal = $state(false);
+
+  let statusRAG = $state("Ready");
 
   async function getCollections() {
     let token = sessionStorage.getItem("token");
@@ -116,8 +122,16 @@ All Rights Reserved
     }
   }
 
+  async function editCollectionName() {
+    // TODO: Implement edit
+  }
+
+  async function deleteDocumentCollection() {
+    // TODO: Implement delete
+  }
+
   const classStatusType = (type) => {
-    if (type === "RAG Ready") {
+    if (type === "Ready") {
       return "bg-hc-success-50 border-hc-success-200 text-hc-success-700 dark:bg-hc-success-900 dark:border-hc-success-700 dark:text-hc-success-300";
     } else if (type === "Not Ready") {
       return "bg-hc-error-50 border-hc-error-200 text-hc-error-700 dark:bg-hc-error-900 dark:border-hc-error-700 dark:text-hc-error-300";
@@ -260,7 +274,7 @@ All Rights Reserved
                               >{`${doc.collectionName}`}</Heading
                             >
                             <div
-                              class={`px-2 w-full py-0.5 rounded-full border justify-start items-center inline-flex text-center text-xs font-medium leading-[18px] 
+                              class={`px-2 py-0.5 rounded-full border justify-start items-center inline-flex text-center text-xs font-medium leading-[18px] 
                               ${classStatusType(statusRAG)}`}
                             >
                               {statusRAG}
@@ -283,36 +297,29 @@ All Rights Reserved
                           {/await}
                           <div class=" flex items-center">
                             <Button
-                              class="focus-within:ring-0 !p-0"
+                              class="focus-within:ring-0 !p-0 asc"
                               color="none"
                               size="xs"
                               ><DotsVerticalIcon
                                 class="text-fg-quinary-light dark:text-fg-quinary-dark"
                               /></Button
                             >
-                            <!-- <Dropdown>
+                            <Dropdown placement="bottom" containerClass="border">
                               <DropdownItem>
-                                <div class="flex">
-                                  <MessageChatSquare
-                                    svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                  />{$_("conversationLogs")}
-                                </div>
-                              </DropdownItem>
-                              <DropdownItem>
-                                <div class="flex">
+                                <button onclick={() => (editModal = true)} class="flex">
                                   <PencilLine
                                     svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                  />{$_("editBotName")}
-                                </div>
+                                  />{$_("editCollectionName")}
+                                </button>
                               </DropdownItem>
                               <DropdownItem>
-                                <div class="flex">
-                                  <FileAttachment_02
+                                <button onclick={() => (deleteModal = true)} class="flex">
+                                  <TrashIcon
                                     svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                  />{$_("viewDocuments")}
-                                </div>
+                                  />{$_("deleteCollection")}
+                                </button>
                               </DropdownItem>
-                            </Dropdown> -->
+                            </Dropdown>
                           </div>
                         </div>
                       </div>
@@ -409,3 +416,23 @@ All Rights Reserved
     </div>
   </div>
 </div>
+
+<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
+  <div class="text-center">
+    <Input bind:value={tmpCollectionName} placeholder={$_("enterCollectionName")} />
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={editCollectionName} color="green" class="me-2">{$_("save")}</Button>
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={deleteModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>

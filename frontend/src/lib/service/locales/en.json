@@ -301,5 +301,8 @@
   "documentCollectionList": "Document Collection List",
   "chat": "Chat",
   "documentCollectionName": "Document Collection Name",
-  "askToAI": "Ask to AI"
+  "askToAI": "Ask to AI",
+  "editCollectionName": "Edit Collection Name",
+  "deleteCollection": "Delete Collection",
+  "enterCollectionName": "Enter Collection Name"
 }

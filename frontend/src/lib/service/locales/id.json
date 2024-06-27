@@ -297,6 +297,9 @@
     "descAddNewContractDocument": "Masukkan dokumen kontrak baru",
     "documentCollectionList": "Daftar Koleksi Dokumen",
     "chat": "Chat",
-    "documentCollectionTitle": "Judul Koleksi Dokumen",
-    "askToAI": "Tanya AI"
+    "documentCollectionName": "Nama Koleksi Dokumen",
+    "askToAI": "Tanya AI",
+    "editCollectionName": "Edit Nama Koleksi",
+    "deleteCollection": "Hapus Koleksi",
+    "enterCollectionName": "Masukkan Nama Koleksi"
 }
