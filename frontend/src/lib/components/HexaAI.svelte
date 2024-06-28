@@ -19,6 +19,8 @@
 
   const call = new CR3Call(globalThis.location.origin);
 
+  let { imageFileName, imageUrl = "", imageFile } = $props();
+
   let div;
   let textarea;
 
@@ -35,6 +37,22 @@
     {
       role: "assistant",
       message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+    },
+    {
+      role: "user",
+      message: "Hi there! I want to know how to use Hexa AI.",
+    },
+    {
+      role: "assistant",
+      message: "Sure. How can I help you today?",
+    },
+    {
+      role: "user",
+      message: "I need to ocr an image. Can you help me?",
+    },
+    {
+      role: "assistant",
+      message: "Sure. Please upload an image.",
     },
   ]);
 
@@ -62,6 +80,22 @@
       tick().then(() => {
         div.scrollTo(0, div.scrollHeight);
       });
+    }
+  });
+
+  $effect(() => {
+    if (imageUrl) {
+      console.log("image url:", imageUrl);
+
+      dataConversatonLogs = [
+        ...dataConversatonLogs,
+        {
+          role: "user",
+          message: `![image](${imageUrl})`,
+        },
+      ];
+
+      imageUrl = "";
     }
   });
 

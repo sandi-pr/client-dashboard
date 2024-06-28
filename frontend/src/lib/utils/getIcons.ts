@@ -8,6 +8,7 @@ import MessageChatIcon from "../icon/message-chat-circle.svelte";
 import BlockchainIcon from '../icon/blockchain.svelte';
 import BellIcon from "../icon/bell-01.svelte";
 import FileShieldIcon from "../icon/file-shield-02.svelte";
+import FIleAttachmentIcon from "../icon/file-attachment-04.svelte";
 import UserSquareIcon from "../icon/user-square.svelte";
 
 let getIcons = (presetIcon: String) => {
@@ -32,6 +33,8 @@ let getIcons = (presetIcon: String) => {
       return BellIcon;
     case "fileShield":
       return FileShieldIcon;
+    case "fileAttachment":
+      return FIleAttachmentIcon;
     case "userSquare":
       return UserSquareIcon;
     default:

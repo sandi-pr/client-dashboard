@@ -516,7 +516,7 @@
                               </Button>
                             {/if}
                             <Button
-                              href="/documents/single?documentId={data.id}"
+                              href="/document_signing/detail/?documentId={data.id}"
                               color="white"
                               class="!p-2 focus-within:!ring-1"
                               size="lg"

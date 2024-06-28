@@ -11,10 +11,11 @@ All Rights Reserved
   import { Typography, TabBar, Card } from "$lib";
   import { Pane } from "svelte-splitpanes";
   import DataflowIcon from "$lib/icon/dataflow-solid.svelte";
-  import { CloseButton } from "flowbite-svelte";
+  import { CloseButton, Button, P } from "flowbite-svelte";
   import HexaAi from "$lib/icon/hexa-ai.svelte";
   import HexaAIChat from "$lib/components/HexaAI.svelte";
   import { onMount } from "svelte";
+  import { _ } from "svelte-i18n";
 
   import { CR3Call } from "hexacomponents-svelte";
 
@@ -25,15 +26,19 @@ All Rights Reserved
   let activities = $state([]);
   let statusRAG = $state("progress");
 
+  let imageFileName = $state("");
+  let imageUrl = $state(null);
+  let imageFile = $state(null);
+
   let tabDatas = $state({
     selected: "Hexa AI",
     data: [
       {
         name: "Hexa AI",
       },
-      {
-        name: "Latest Activity",
-      },
+      // {
+      //   name: "Latest Activity",
+      // },
     ],
   });
 
@@ -75,6 +80,27 @@ All Rights Reserved
     callStatusRag();
   }
 
+  const handleFileUploadWrapper = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = ".jpg, .jpeg, .png";
+
+    inputElement.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+
+      if (file) {
+        imageUrl = URL.createObjectURL(file);
+        imageFile = file;
+
+        imageFileName = file.name;
+      } else {
+        alert("Invalid file. Please select a valid file.");
+      }
+    });
+
+    inputElement.click();
+  };
+
   onMount(() => {
     // getStatusRag();
   });
@@ -87,7 +113,7 @@ All Rights Reserved
   <div
     class="h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
   >
-    <div class="absolute top-0 z-10">
+    <div class="sticky top-0 z-10">
       <div class="flex items-center">
         <div
           id="drawer-label"
@@ -116,8 +142,8 @@ All Rights Reserved
               />
             </div>
           {:else if tabDatas.selected === "Hexa AI"}
-            <div class="flex w-100 justify-between">
-              <div class="flex">
+            <div class="flex grow justify-between">
+              <div class="flex items-center">
                 <div
                   class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
                 >
@@ -126,7 +152,6 @@ All Rights Reserved
                     svgClass="text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
                   />
                 </div>
-                &nbsp;
                 <div>
                   <Typography
                     preset="Text xl/Semibold"
@@ -145,6 +170,15 @@ All Rights Reserved
                   /> -->
                 </div>
               </div>
+              <Button
+                on:click={() => {
+                  handleFileUploadWrapper();
+                }}
+                color="light"
+                class={`w-max mt-2 ms-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex flex-col justify-start`}
+              >
+                <P>{$_("newOcr")}</P>
+              </Button>
             </div>
           {/if}
           {#if innerWidth < 1024}
@@ -152,9 +186,9 @@ All Rights Reserved
           {/if}
         </div>
       </div>
-      <TabBar {tabDatas} {changeTabbar} />
+      <!-- <TabBar {tabDatas} {changeTabbar} /> -->
     </div>
-    <div class="flex w-full flex-col h-screen pt-[118px]">
+    <div class="flex w-full flex-col h-screen">
       {#if tabDatas.selected === "Latest Activity"}
         <div class="p-4">
           {#if activities.length > 0}
@@ -190,7 +224,7 @@ All Rights Reserved
           {/if}
         </div>
       {:else if tabDatas.selected === "Hexa AI"}
-        <HexaAIChat />
+        <HexaAIChat {imageUrl} {imageFileName} {imageFile} />
       {/if}
     </div>
   </div>

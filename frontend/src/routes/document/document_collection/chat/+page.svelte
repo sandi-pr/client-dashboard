@@ -17,7 +17,9 @@
 
   let disableInput = $state(false);
 
-  let div;
+  let disableButton = $state(false);
+
+  let div = $state();
 
   let messageInput = $state("");
 
@@ -99,6 +101,10 @@
         div.scrollTo(0, div.scrollHeight);
       });
     }
+  });
+
+  $effect(() => {
+    disableButton = messageInput.trim() === "";
   });
 
   async function getMessages() {
@@ -263,7 +269,7 @@
     </P>
   </div> -->
     <div class="flex h-screen flex-col px-4 pt-2">
-      <div bind:this={div} class="flex flex-col overflow-y-auto">
+      <div bind:this={div} class="flex flex-col pb-40 overflow-y-auto">
         {#each dataConversatonLogs as qaPair}
           <div
             class="flex bg-secondary-light dark:bg-secondary-dark rounded-2xl px-8 py-6 mx-4 my-4 items-start gap-4"
@@ -348,7 +354,7 @@
           class=" text-wrap min-h-16 pe-24 rounded-2xl focus:border-utility-brand-500-light focus:ring-utility-brand-500-light dark:focus:border-utility-brand-500-dark dark:focus:ring-utility-brand-500-dark"
         >
           <Button
-            disabled={disableInput}
+            disabled={disableButton}
             slot="right"
             size="sm"
             type="submit"

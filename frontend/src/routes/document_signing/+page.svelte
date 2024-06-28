@@ -21,20 +21,20 @@
       href: "/signing",
       icon: UploadIcon,
       moduleName: "initiate New Signing",
-      desc: "desc Initiate New Signing",
+      desc: "desc Chose Document",
     },
-    {
-      href: "/workflow/create",
-      icon: LightningIcon,
-      moduleName: "create A New Workflow",
-      desc: "desc Create A New Workflow",
-    },
-    {
-      href: "/workflow",
-      icon: FileSearchIcon,
-      moduleName: "view All Workflows",
-      desc: "desc View All Workflows",
-    },
+    // {
+    //   href: "/workflow/create",
+    //   icon: LightningIcon,
+    //   moduleName: "create A New Workflow",
+    //   desc: "desc Create A New Workflow",
+    // },
+    // {
+    //   href: "/workflow",
+    //   icon: FileSearchIcon,
+    //   moduleName: "view All Workflows",
+    //   desc: "desc View All Workflows",
+    // },
   ];
 
   let documentsLatest = [];
@@ -431,21 +431,21 @@
 
   let docData = [
     {
-      href: "/documents",
+      href: "/document_signing/list",
       dataName: "Documents signed",
       value: "10",
       change: "3",
       changeType: "increase",
     },
     {
-      href: "/documents",
+      href: "/document_signing/list",
       dataName: "Needs Signing",
       value: "7",
       change: "3",
       changeType: "decrease",
     },
     {
-      href: "/documents",
+      href: "/document_signing/list",
       dataName: "Completed",
       value: "3",
       change: "3",
@@ -457,87 +457,6 @@
     // await getAllDocument();
     generateChartData();
   });
-
-  // dami
-  // const dataChartDami = {
-  //   chart: {
-  //     height: "150px",
-  //     width: "180px",
-  //     type: "area",
-  //     fontFamily: "Inter, sans-serif",
-  //     dropShadow: {
-  //       enabled: false,
-  //     },
-  //     toolbar: {
-  //       show: false,
-  //     },
-  //   },
-  //   tooltip: {
-  //     enabled: true,
-  //     x: {
-  //       show: false,
-  //     },
-  //   },
-  //   fill: {
-  //     type: "gradient",
-  //     gradient: {
-  //       opacityFrom: 0.55,
-  //       opacityTo: 0,
-  //       shade: "#17B169",
-  //       gradientToColors: ["#17B169"],
-  //     },
-  //   },
-  //   dataLabels: {
-  //     enabled: false,
-  //   },
-  //   stroke: {
-  //     width: 2,
-  //   },
-  //   grid: {
-  //     show: false,
-  //     strokeDashArray: 4,
-  //     padding: {
-  //       left: 2,
-  //       right: 2,
-  //       top: 0,
-  //     },
-  //   },
-  //   series: [
-  //     {
-  //       name: "New users",
-  //       data: [50, 22, 35, 42, 60, 29, 15, 55, 48, 33, 18, 63],
-  //       color: "#17B169",
-  //     },
-  //   ],
-  //   xaxis: {
-  //     categories: [
-  //       "02-2023",
-  //       "03-2023",
-  //       "04-2023",
-  //       "05-2023",
-  //       "06-2023",
-  //       "07-2023",
-  //       "08-2023",
-  //       "09-2023",
-  //       "10-2023",
-  //       "11-2023",
-  //       "12-2023",
-  //       "01-2024",
-  //     ],
-  //     labels: {
-  //       show: false,
-  //     },
-  //     axisBorder: {
-  //       show: false,
-  //     },
-  //     axisTicks: {
-  //       show: false,
-  //     },
-  //   },
-  //   yaxis: {
-  //     show: false,
-  //   },
-  // };
 
   documentsLatest = [
     {
@@ -683,7 +602,6 @@
     return {
       approve,
       reject,
-      recall,
       finalize,
     };
   };
@@ -714,7 +632,7 @@
     actions: [
       {
         name: "View All",
-        href: "/documents",
+        href: "/document_signing/list",
         type: "info",
       },
     ],
@@ -722,7 +640,7 @@
 </script>
 
 <div class="flex bg-primary-light dark:bg-primary-dark">
-  <div class="w-full pb-10 lg:ml-80">
+  <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- <Navbar /> -->
 
@@ -780,7 +698,7 @@
               {$_("reports")}
             </Heading>
             <Button
-              href="/documents"
+              href="/document_signing/list"
               color="light"
               class="bg-secondary-light dark:bg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-hover-light hover:dark:bg-secondary-hover-dark focus-within:ring-0 hover:no-underline"
               >{$_("viewAll")}</Button

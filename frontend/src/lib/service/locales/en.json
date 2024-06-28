@@ -53,6 +53,7 @@
   "action": "Action",
   "initiateNewSigning": "Initiate new Signing",
   "descInitiateNewSigning": "Upload documents quickly using pre-made workflow templates",
+  "descChoseDocument": "Choose document you want to sign",
   "createANewWorkflow": "Create a new Workflow",
   "descCreateANewWorkflow": "Create workflow templates to speed up the digital signing process",
   "viewAllWorkflows": "View All Workflows",
@@ -304,5 +305,11 @@
   "askToAI": "Ask to AI",
   "editCollectionName": "Edit Collection Name",
   "deleteCollection": "Delete Collection",
-  "enterCollectionName": "Enter Collection Name"
+  "enterCollectionName": "Enter Collection Name",
+  "chooseDocument": "Choose Document",
+  "searchDocument": "Search Document",
+  "recentDocument": "Recent Document",
+  "totalPage": "Total Page",
+  "uploadImage": "Upload Image",
+  "newOcr": "New OCR"
 }

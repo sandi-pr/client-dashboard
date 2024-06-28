@@ -51,6 +51,7 @@
     "action": "Opsi",
     "initiateNewSigning": "Mulai Tanda Tangan baru",
     "descInitiateNewSigning": "Unggah dokumen dengan cepat menggunakan template alur kerja yang sudah dibuat sebelumnya",
+    "descChoseDocument": "Pilih dokumen yang ingin Anda tanda tangan",
     "createANewWorkflow": "Buat Alur Kerja baru",
     "descCreateANewWorkflow": "Buat template alur kerja untuk mempercepat proses tanda tangan digital",
     "viewAllWorkflows": "Lihat Semua Alur Kerja",
@@ -301,5 +302,11 @@
     "askToAI": "Tanya AI",
     "editCollectionName": "Edit Nama Koleksi",
     "deleteCollection": "Hapus Koleksi",
-    "enterCollectionName": "Masukkan Nama Koleksi"
+    "enterCollectionName": "Masukkan Nama Koleksi",
+    "chooseDocument": "Pilih Dokumen",
+    "searchDocument": "Cari Dokumen",
+    "recentDocument": "Dokumen Terbaru",
+    "totalPage": "Total Halaman",
+    "uploadImage": "Unggah Gambar",
+    "newOcr": "OCR Baru"
 }

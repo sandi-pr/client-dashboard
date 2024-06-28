@@ -175,6 +175,18 @@ All Rights Reserved
         ],
       },
       {
+        icon: "fileAttachment",
+        name: "documentSigning",
+        children: [
+          {
+            href: isFrontend
+              ? "/document_signing"
+              : await call.getPage("client-dashboard", "document-signing-overview"),
+            name: "overview",
+          },
+        ],
+      },
+      {
         icon: "userSquare",
         name: "HR",
         children: [
@@ -343,7 +355,7 @@ All Rights Reserved
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
-          <Pane minSize={innerWidth > 1024 ? 50 : 0}>
+          <Pane minSize={innerWidth > 1024 ? 80 : 0}>
             <div class="relative transition-all duration-300 h-screen">
               <div class="absolute w-full top-0 z-10">
                 <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} {reset_database} />
