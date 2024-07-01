@@ -38,22 +38,6 @@
       role: "assistant",
       message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
     },
-    {
-      role: "user",
-      message: "Hi there! I want to know how to use Hexa AI.",
-    },
-    {
-      role: "assistant",
-      message: "Sure. How can I help you today?",
-    },
-    {
-      role: "user",
-      message: "I need to ocr an image. Can you help me?",
-    },
-    {
-      role: "assistant",
-      message: "Sure. Please upload an image.",
-    },
   ]);
 
   // $effect.pre(() => {
