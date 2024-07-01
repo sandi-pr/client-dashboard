@@ -12,7 +12,11 @@
   import { goto } from "$app/navigation";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
+  import {
+    PaperPlaneOutline,
+    TrashBinOutline,
+    RefreshOutline,
+  } from "flowbite-svelte-icons";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
 
@@ -86,13 +90,13 @@
     }
   });
 
-    // Function to adjust the height of the textarea
+  // Function to adjust the height of the textarea
   function autosize() {
-    textarea.addEventListener("keyup", e => {
+    textarea.addEventListener("keyup", (e) => {
       textarea.style.height = "auto";
       let scHeight = e.target.scrollHeight;
       textarea.style.height = `${scHeight}px`;
-    })
+    });
   }
 
   $effect(() => {
@@ -184,8 +188,13 @@
               message: chat.result.message.message,
             },
           ];
-          if (chat.result.message.message === "I'm sorry we're busy. Please wait a few minutes, and then resend your message") {
-            sessionStorage.removeItem("conversationId");
+          if (
+            chat.result.message.message ===
+            "I'm sorry we're busy. Please wait a few minutes, and then resend your message"
+          ) {
+            if (dataConversatonLogs.length < 4) {
+              sessionStorage.removeItem("conversationId");
+            }
           }
         }
       } catch (error) {
@@ -344,8 +353,14 @@
     </Input> -->
       <label for="chat" class="sr-only">Your message</label>
       <div class="flex items-center py-2 rounded-lg">
-        <Button on:click={() => handleFileUploadWrapper()} color="light" class="rounded-full !px-2.5">
-          <FilePlus02Icon svgClass="w-5 h-5 text-fg-brand-secondary-light dark:text-fg-brand-secondary-dark" />
+        <Button
+          on:click={() => handleFileUploadWrapper()}
+          color="light"
+          class="rounded-full !px-2.5"
+        >
+          <FilePlus02Icon
+            svgClass="w-5 h-5 text-fg-brand-secondary-light dark:text-fg-brand-secondary-dark"
+          />
         </Button>
         <!-- <Textarea
           id="chat"
@@ -363,7 +378,12 @@
           class="block mx-2 p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
           placeholder="Send a message..."
         ></textarea>
-        <Button type="submit" disabled={disableButton} color="primary" class="rounded-full !px-2.5">
+        <Button
+          type="submit"
+          disabled={disableButton}
+          color="primary"
+          class="rounded-full !px-2.5"
+        >
           <PaperPlaneOutline class="w-5 h-5 rotate-45" />
           <!-- <span class="sr-only">Send</span> -->
         </Button>
