@@ -8,10 +8,13 @@ All Rights Reserved
 -->
 
 <script>
-  import { Typography, TabBar, Card } from "$lib";
+  import { Typography, TabBar } from "$lib";
   import { Pane } from "svelte-splitpanes";
   import DataflowIcon from "$lib/icon/dataflow-solid.svelte";
-  import { CloseButton, Button, P } from "flowbite-svelte";
+  import { CloseButton, Button, P, Dropdown, DropdownItem, Modal, Input, Card, Badge } from "flowbite-svelte";
+  import { ChevronRightOutline, SearchOutline } from "flowbite-svelte-icons";
+  import SettingsIcon from "$lib/icon/settings-02.svelte"; 
+  import RefreshCwIcon from "$lib/icon/refresh-cw-01.svelte";
   import HexaAi from "$lib/icon/hexa-ai.svelte";
   import HexaAIChat from "$lib/components/HexaAI.svelte";
   import { onMount } from "svelte";
@@ -29,6 +32,34 @@ All Rights Reserved
   let imageFileName = $state("");
   let imageUrl = $state(null);
   let imageFile = $state(null);
+
+  let dropdownOpen = $state(false);
+  let modalOpen = $state(false);
+  let selectedDropdown = $state("general");
+  let selectedCollection = $state("");
+  let disableButton = $state(false);
+  let disableConfigButton = $state(false);
+
+  let collections = $state([
+    {
+      id: 1,
+      name: "Collection 1",
+      description: "Description 1",
+      totalDocuments: 2,
+    },
+    {
+      id: 2,
+      name: "Collection 2",
+      description: "Description 2",
+      totalDocuments: 3,
+    },
+    {
+      id: 3,
+      name: "Collection 3",
+      description: "Description 3",
+      totalDocuments: 4,
+    },
+  ]);
 
   let tabDatas = $state({
     selected: "Hexa AI",
@@ -101,14 +132,33 @@ All Rights Reserved
     inputElement.click();
   };
 
+  const selectDropdown = (item) => {
+    dropdownOpen = false;
+    selectedDropdown = item;
+  }
+
+  const selectCollection = (item) => {
+    selectedCollection = item;
+  }
+
+  function clearChat() {
+    sessionStorage.removeItem("conversationId");
+    window.location.reload();
+  }
+
+  $effect(() => {
+    disableButton = selectedCollection === "" ? true : false;
+    disableConfigButton = selectedDropdown === "general" ? true : false;
+  });
+
   onMount(() => {
     // getStatusRag();
   });
 </script>
 
 <Pane
-  size={innerWidth > 1024 ? 30 : 100}
-  minSize={innerWidth > 1024 ? 30 : 100}
+  size={innerWidth > 1024 ? 40 : 100}
+  minSize={innerWidth > 1024 ? 40 : 100}
 >
   <div
     class="h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
@@ -142,7 +192,8 @@ All Rights Reserved
               />
             </div>
           {:else if tabDatas.selected === "Hexa AI"}
-            <div class="flex grow justify-between">
+          <div class="flex flex-col grow">
+            <div class="flex grow justify-between pb-4 border-b border-primary-light dark:border-primary-dark">
               <div class="flex items-center">
                 <div
                   class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
@@ -170,16 +221,49 @@ All Rights Reserved
                   /> -->
                 </div>
               </div>
-              <Button
-                on:click={() => {
-                  handleFileUploadWrapper();
-                }}
-                color="light"
-                class={`w-max mt-2 ms-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex flex-col justify-start`}
-              >
-                <P>{$_("newOcr")}</P>
-              </Button>
             </div>
+            <div class="flex justify-between">
+              <Button
+                on:click={() => (dropdownOpen = !dropdownOpen)}
+                color="light"
+                class={`w-max mt-4 !pr-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex justify-start`}
+              >
+                <P>{$_(selectedDropdown)}</P>
+                <ChevronRightOutline class="text-fg-secondary-light dark:text-fg-secondary-dark" />
+              </Button>
+              <!-- Dropdown menu -->
+              <Dropdown placement="right" containerClass="border rounded-xl">
+                <DropdownItem>
+                  <button onclick={() => selectDropdown("general")}>
+                    {$_("general")}
+                  </button>
+                </DropdownItem>
+                <DropdownItem>
+                  <button onclick={() => selectDropdown("collections")}>
+                    {$_("collections")}
+                  </button>
+                </DropdownItem>
+              </Dropdown>
+              <div class="flex gap-2">
+                <Button
+                  disabled={disableConfigButton}
+                  on:click={() => (modalOpen = true)}
+                  color="light"
+                  class={`w-max mt-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
+                >
+                  <P>{$_("configure")}</P>
+                  <SettingsIcon svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                </Button>
+                <Button
+                  on:click={clearChat}
+                  color="light"
+                  class={`w-max mt-4 !px-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
+                >
+                  <RefreshCwIcon svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                </Button>
+              </div>
+            </div>
+          </div>
           {/if}
           {#if innerWidth < 1024}
             <CloseButton on:click={changeShowAI} class="mb-4 dark:text-white" />
@@ -228,4 +312,50 @@ All Rights Reserved
       {/if}
     </div>
   </div>
+  <Modal title={$_("chooseSource")} bind:open={modalOpen} autoclose outsideclose>
+    <div class="flex flex-col justify-center gap-4">
+      <Input
+        id="collection"
+        size="lg"
+        color="base"
+        class="focus:border-hc-brand-600 focus:ring-hc-brand-600"
+        type="text"
+        placeholder={$_("search")}
+      >
+        <SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+      </Input>
+      <div class="flex flex-col justify-center mt-3 gap-3">
+        <div class="flex text-start">
+          <P class="text-tertiary-light dark:text-tertiary-dark text-base font-normal">{$_("recentCollections")}</P>
+        </div>
+  
+        <div class="flex flex-col gap-6">
+          {#each collections as item, index (item)}
+            <Card
+              class="{selectedCollection === item
+                ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
+                : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 gap-3 cursor-pointer"
+              size="xl"
+              on:click={() => selectCollection(item)}
+            >
+              <div class="flex flex-col gap-0.5">
+                <P weight="semibold" class={`${selectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}>{item.name}</P>
+                <P size="xs" class={`${selectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}>{item.description}</P>
+              </div>
+              <div class="flex justify-between">
+                <Badge
+                  rounded
+                  class="bg-utility-brand-50-light dark:bg-utility-brand-50-dark text-utility-brand-700-light dark:text-utility-brand-700-dark border border-utility-brand-200-light dark:border-utility-brand-200-dark"
+                  >{item.totalDocuments} {$_("documents")}</Badge
+                >
+              </div>
+            </Card>
+          {/each}
+        </div>
+      </div>
+    </div>
+    <svelte:fragment slot="footer">
+      <Button on:click={() => {}} class="w-full" disabled={disableButton}>{$_("select")}</Button>
+    </svelte:fragment>
+  </Modal>
 </Pane>

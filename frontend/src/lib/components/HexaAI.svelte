@@ -13,13 +13,16 @@
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
+  import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
 
   const plugins = [gfmPlugin()];
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let { imageFileName, imageUrl = "", imageFile } = $props();
+  let imageFileName = $state("");
+  let imageUrl = $state(null);
+  let imageFile = $state(null);
 
   let div;
   let textarea;
@@ -222,6 +225,27 @@
     }
   }
 
+  const handleFileUploadWrapper = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = ".jpg, .jpeg, .png";
+
+    inputElement.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+
+      if (file) {
+        imageUrl = URL.createObjectURL(file);
+        imageFile = file;
+
+        imageFileName = file.name;
+      } else {
+        alert("Invalid file. Please select a valid file.");
+      }
+    });
+
+    inputElement.click();
+  };
+
   function clearChat() {
     sessionStorage.removeItem("conversationId");
     window.location.reload();
@@ -233,7 +257,7 @@
 </script>
 
 <div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
-  <div class="flex h-full flex-col px-4 pb-[178px] pt-2">
+  <div class="flex h-full flex-col px-4 pb-[178px] pt-4">
     <div bind:this={div} class="flex flex-col gap-4 overflow-y-auto">
       <!-- <P
         size="xl"
@@ -317,10 +341,9 @@
     </Input> -->
       <label for="chat" class="sr-only">Your message</label>
       <div class="flex items-center py-2 rounded-lg">
-        <ToolbarButton color="primary" on:click={clearChat} class="rounded-full">
-          <RefreshOutline class="w-6 h-6" />
-          <span class="sr-only">{$_("clearChat")}</span>
-        </ToolbarButton>
+        <Button on:click={() => handleFileUploadWrapper()} color="light" class="rounded-full !px-2.5">
+          <FilePlus02Icon svgClass="w-5 h-5 text-fg-brand-secondary-light dark:text-fg-brand-secondary-dark" />
+        </Button>
         <!-- <Textarea
           id="chat"
           bind:disabled={disableInput}
