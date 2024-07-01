@@ -184,6 +184,9 @@
               message: chat.result.message.message,
             },
           ];
+          if (chat.result.message.message === "I'm sorry we're busy. Please wait a few minutes, and then resend your message") {
+            sessionStorage.removeItem("conversationId");
+          }
         }
       } catch (error) {
         console.log(error);
