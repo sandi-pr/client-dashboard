@@ -11,9 +11,19 @@ All Rights Reserved
   import { Typography, TabBar } from "$lib";
   import { Pane } from "svelte-splitpanes";
   import DataflowIcon from "$lib/icon/dataflow-solid.svelte";
-  import { CloseButton, Button, P, Dropdown, DropdownItem, Modal, Input, Card, Badge } from "flowbite-svelte";
+  import {
+    CloseButton,
+    Button,
+    P,
+    Dropdown,
+    DropdownItem,
+    Modal,
+    Input,
+    Card,
+    Badge,
+  } from "flowbite-svelte";
   import { ChevronRightOutline, SearchOutline } from "flowbite-svelte-icons";
-  import SettingsIcon from "$lib/icon/settings-02.svelte"; 
+  import SettingsIcon from "$lib/icon/settings-02.svelte";
   import RefreshCwIcon from "$lib/icon/refresh-cw-01.svelte";
   import HexaAi from "$lib/icon/hexa-ai.svelte";
   import HexaAIChat from "$lib/components/HexaAI.svelte";
@@ -21,6 +31,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
 
   import { CR3Call } from "hexacomponents-svelte";
+    import CollectionsAi from "./CollectionsAI.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -36,30 +47,14 @@ All Rights Reserved
   let dropdownOpen = $state(false);
   let modalOpen = $state(false);
   let selectedDropdown = $state("general");
-  let selectedCollection = $state("");
+  let selectedCollection = $state(null);
+  let tmpSelectedCollection = $state(null);
   let disableButton = $state(false);
   let disableConfigButton = $state(false);
 
-  let collections = $state([
-    {
-      id: 1,
-      name: "Collection 1",
-      description: "Description 1",
-      totalDocuments: 2,
-    },
-    {
-      id: 2,
-      name: "Collection 2",
-      description: "Description 2",
-      totalDocuments: 3,
-    },
-    {
-      id: 3,
-      name: "Collection 3",
-      description: "Description 3",
-      totalDocuments: 4,
-    },
-  ]);
+  let initCollections = $state([]);
+  let documents = $state([]);
+  let collections = $state([]);
 
   let tabDatas = $state({
     selected: "Hexa AI",
@@ -77,6 +72,84 @@ All Rights Reserved
     tabDatas.selected = tabName;
   };
 
+  async function getCollections() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let page = 1;
+      initCollections = [];
+      while (true) {
+        let response = await call.call(
+          "client-dashboard",
+          "get-document-collections",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          initCollections = initCollections.concat(response.result.data);
+          page++;
+        } else {
+          break;
+        }
+
+        let page2 = 1;
+        documents = [];
+        while (true) {
+          let response2 = await call.call("client-dashboard", "get-documents", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: page2,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status !== 200) {
+            console.log(response2);
+            return;
+          }
+
+          if (response2.result.data.length > 0) {
+            documents = documents.concat(response2.result.data);
+            page2++;
+          } else {
+            break;
+          }
+        }
+
+        collections = initCollections.map((collection) => {
+          let totalDocuments = documents.filter(
+            (document) => document.attributes.collection_id === collection.id,
+          ).length;
+          return {
+            id: collection.id,
+            name: collection.attributes.collection_name,
+            description: collection.attributes.description,
+            totalDocuments: totalDocuments,
+          };
+        });
+      }
+    }
+  }
+
   async function getStatusRag() {
     let token = sessionStorage.getItem("token");
     const callStatusRag = async () => {
@@ -93,8 +166,16 @@ All Rights Reserved
         let status = rag.result.rag_status;
         if (statusRAG.includes("!")) {
           let status2 = status.split("!")[0].trim();
-          if (status2.includes("(NOVERB)") || status2.includes("(INOVERB)") || status2.includes("(!INOVERB)")) {
-            let status3 = status2.replace("(NOVERB)", "").replace("(INOVERB)", "").replace("(!INOVERB)", "").replace("(!NOVERB)", "");
+          if (
+            status2.includes("(NOVERB)") ||
+            status2.includes("(INOVERB)") ||
+            status2.includes("(!INOVERB)")
+          ) {
+            let status3 = status2
+              .replace("(NOVERB)", "")
+              .replace("(INOVERB)", "")
+              .replace("(!INOVERB)", "")
+              .replace("(!NOVERB)", "");
             statusRAG = status3;
           } else {
             statusRAG = status2;
@@ -135,10 +216,37 @@ All Rights Reserved
   const selectDropdown = (item) => {
     dropdownOpen = false;
     selectedDropdown = item;
-  }
+  };
 
   const selectCollection = (item) => {
-    selectedCollection = item;
+    tmpSelectedCollection = item;
+  };
+
+  async function callColection() {
+    selectedCollection = tmpSelectedCollection;
+    let token = sessionStorage.getItem("token");
+
+    let response2 = await call.call(
+      "hexa-ai-rag",
+      "add-document-by-collection-id",
+      {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: selectedCollection.id.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      },
+    );
+
+    if (response2.status !== 200) {
+      console.log(response2);
+      return;
+    }
+
+    console.log(response2);
   }
 
   function clearChat() {
@@ -147,12 +255,13 @@ All Rights Reserved
   }
 
   $effect(() => {
-    disableButton = selectedCollection === "" ? true : false;
+    disableButton = selectedCollection === null ? true : false;
     disableConfigButton = selectedDropdown === "general" ? true : false;
   });
 
   onMount(() => {
     // getStatusRag();
+    getCollections();
   });
 </script>
 
@@ -192,78 +301,86 @@ All Rights Reserved
               />
             </div>
           {:else if tabDatas.selected === "Hexa AI"}
-          <div class="flex flex-col grow">
-            <div class="flex grow justify-between pb-4 border-b border-primary-light dark:border-primary-dark">
-              <div class="flex items-center">
-                <div
-                  class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
-                >
-                  <svelte:component
-                    this={HexaAi}
-                    svgClass="text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
-                  />
-                </div>
-                <div>
-                  <Typography
-                    preset="Text xl/Semibold"
-                    text="Hexa AI"
-                    color="primary"
-                  />
-                  <!-- <Typography
+            <div class="flex flex-col grow">
+              <div
+                class="flex grow justify-between pb-4 border-b border-primary-light dark:border-primary-dark"
+              >
+                <div class="flex items-center">
+                  <div
+                    class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
+                  >
+                    <svelte:component
+                      this={HexaAi}
+                      svgClass="text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
+                    />
+                  </div>
+                  <div>
+                    <Typography
+                      preset="Text xl/Semibold"
+                      text="Hexa AI"
+                      color="primary"
+                    />
+                    <!-- <Typography
                     preset="Text sm/Regular"
                     text={`Status RAG: ${statusRAG}`}
                     color="tertiary"
                   /> -->
-                  <!-- <Typography
+                    <!-- <Typography
                     preset="Text sm/Regular"
                     text="Assistant"
                     color="tertiary"
                   /> -->
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-between">
+                <Button
+                  on:click={() => (dropdownOpen = !dropdownOpen)}
+                  color="light"
+                  class={`w-max mt-4 !pr-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex justify-start`}
+                >
+                  <P>{$_(selectedDropdown)}</P>
+                  <ChevronRightOutline
+                    class="text-fg-secondary-light dark:text-fg-secondary-dark"
+                  />
+                </Button>
+                <!-- Dropdown menu -->
+                <Dropdown placement="right" containerClass="border rounded-xl">
+                  <DropdownItem>
+                    <button onclick={() => selectDropdown("general")}>
+                      {$_("general")}
+                    </button>
+                  </DropdownItem>
+                  <DropdownItem>
+                    <button onclick={() => selectDropdown("collections")}>
+                      {$_("collections")}
+                    </button>
+                  </DropdownItem>
+                </Dropdown>
+                <div class="flex gap-2">
+                  <Button
+                    disabled={disableConfigButton}
+                    on:click={() => (modalOpen = true)}
+                    color="light"
+                    class={`w-max mt-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
+                  >
+                    <P>{$_("configure")}</P>
+                    <SettingsIcon
+                      svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
+                    />
+                  </Button>
+                  <Button
+                    on:click={clearChat}
+                    color="light"
+                    class={`w-max mt-4 !px-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
+                  >
+                    <RefreshCwIcon
+                      svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
+                    />
+                  </Button>
                 </div>
               </div>
             </div>
-            <div class="flex justify-between">
-              <Button
-                on:click={() => (dropdownOpen = !dropdownOpen)}
-                color="light"
-                class={`w-max mt-4 !pr-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex justify-start`}
-              >
-                <P>{$_(selectedDropdown)}</P>
-                <ChevronRightOutline class="text-fg-secondary-light dark:text-fg-secondary-dark" />
-              </Button>
-              <!-- Dropdown menu -->
-              <Dropdown placement="right" containerClass="border rounded-xl">
-                <DropdownItem>
-                  <button onclick={() => selectDropdown("general")}>
-                    {$_("general")}
-                  </button>
-                </DropdownItem>
-                <DropdownItem>
-                  <button onclick={() => selectDropdown("collections")}>
-                    {$_("collections")}
-                  </button>
-                </DropdownItem>
-              </Dropdown>
-              <div class="flex gap-2">
-                <Button
-                  disabled={disableConfigButton}
-                  on:click={() => (modalOpen = true)}
-                  color="light"
-                  class={`w-max mt-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
-                >
-                  <P>{$_("configure")}</P>
-                  <SettingsIcon svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark" />
-                </Button>
-                <Button
-                  on:click={clearChat}
-                  color="light"
-                  class={`w-max mt-4 !px-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
-                >
-                  <RefreshCwIcon svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark" />
-                </Button>
-              </div>
-            </div>
-          </div>
           {/if}
           {#if innerWidth < 1024}
             <CloseButton on:click={changeShowAI} class="mb-4 dark:text-white" />
@@ -308,11 +425,20 @@ All Rights Reserved
           {/if}
         </div>
       {:else if tabDatas.selected === "Hexa AI"}
-        <HexaAIChat {imageUrl} {imageFileName} {imageFile} />
+       {#if selectedDropdown === "general"}
+        <HexaAIChat/>
+       {:else if selectedDropdown === "collections"}
+        <CollectionsAi bind:selectedCollection />
+       {/if}
       {/if}
     </div>
   </div>
-  <Modal title={$_("chooseSource")} bind:open={modalOpen} autoclose outsideclose>
+  <Modal
+    title={$_("chooseSource")}
+    bind:open={modalOpen}
+    autoclose
+    outsideclose
+  >
     <div class="flex flex-col justify-center gap-4">
       <Input
         id="collection"
@@ -322,13 +448,19 @@ All Rights Reserved
         type="text"
         placeholder={$_("search")}
       >
-        <SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+        <SearchOutline
+          slot="left"
+          class="w-5 h-5 text-gray-500 dark:text-gray-400"
+        />
       </Input>
       <div class="flex flex-col justify-center mt-3 gap-3">
         <div class="flex text-start">
-          <P class="text-tertiary-light dark:text-tertiary-dark text-base font-normal">{$_("recentCollections")}</P>
+          <P
+            class="text-tertiary-light dark:text-tertiary-dark text-base font-normal"
+            >{$_("recentCollections")}</P
+          >
         </div>
-  
+
         <div class="flex flex-col gap-6">
           {#each collections as item, index (item)}
             <Card
@@ -339,8 +471,16 @@ All Rights Reserved
               on:click={() => selectCollection(item)}
             >
               <div class="flex flex-col gap-0.5">
-                <P weight="semibold" class={`${selectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}>{item.name}</P>
-                <P size="xs" class={`${selectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}>{item.description}</P>
+                <P
+                  weight="semibold"
+                  class={`${selectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}
+                  >{item.name}</P
+                >
+                <P
+                  size="xs"
+                  class={`${selectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}
+                  >{item.description}</P
+                >
               </div>
               <div class="flex justify-between">
                 <Badge
@@ -355,7 +495,9 @@ All Rights Reserved
       </div>
     </div>
     <svelte:fragment slot="footer">
-      <Button on:click={() => {}} class="w-full" disabled={disableButton}>{$_("select")}</Button>
+      <Button on:click={callColection} class="w-full" disabled={disableButton}
+        >{$_("select")}</Button
+      >
     </svelte:fragment>
   </Modal>
 </Pane>
