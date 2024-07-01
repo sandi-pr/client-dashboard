@@ -310,5 +310,11 @@
     "uploadImage": "Unggah Gambar",
     "newOcr": "OCR Baru",
     "categoryId": "Kategori ID",
-    "recruitmentId": "Rekrutmen ID"
+    "recruitmentId": "Rekrutmen ID",
+    "general": "Umum",
+    "collections": "Koleksi",
+    "configure": "Konfigurasi",
+    "chooseSource": "Pilih koleksi",
+    "recentCollections": "Koleksi Terbaru",
+    "select": "Pilih"
 }

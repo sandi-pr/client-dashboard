@@ -313,5 +313,11 @@
   "uploadImage": "Upload Image",
   "newOcr": "New OCR",
   "categoryId": "Category ID",
-  "recruitmentId": "Recruitment ID"
+  "recruitmentId": "Recruitment ID",
+  "general": "General",
+  "collections": "Collections",
+  "configure": "Configure",
+  "chooseSource": "Choose Source",
+  "recentCollections": "Recent Collections",
+  "select": "Select"
 }
