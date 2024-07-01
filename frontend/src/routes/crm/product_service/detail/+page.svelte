@@ -10,7 +10,16 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle, Modal } from "flowbite-svelte";
+  import {
+    P,
+    Heading,
+    Input,
+    Button,
+    Select,
+    Textarea,
+    Toggle,
+    Modal,
+  } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -22,6 +31,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
+  import { generateUniqueId, decodeUniqueId } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -87,7 +97,7 @@ All Rights Reserved
         let token = sessionStorage.getItem("token");
         let response = await call.call("client-dashboard", "delete-resource", {
           URLQuery: {},
-          URLParams: { id: id.toString() },
+          URLParams: { id: decodeUniqueId(id).toString() },
           Params: {},
           Headers: {
             Authorization: "Bearer " + token,
@@ -132,7 +142,9 @@ All Rights Reserved
 
         reader.readAsDataURL(file);
       } else {
-        alert("Invalid file. Please select a valid image file (max. 800x400px).");
+        alert(
+          "Invalid file. Please select a valid image file (max. 800x400px).",
+        );
       }
     });
     inputElement.click();
@@ -159,10 +171,10 @@ All Rights Reserved
     if (productId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-product-service"));
+      goto(await call.getPage("client-dashboard", "crm-product-service"));
       // }, 3000);
       return;
-    };
+    }
     let token = sessionStorage.getItem("token");
     try {
       let response = await call.call("client-dashboard", "get-product", {
@@ -183,26 +195,31 @@ All Rights Reserved
 
       if (response.status === 200 && response.result.data.length > 0) {
         data = {
-          productId: response.result.data[0].id,
+          productId: generateUniqueId(response.result.data[0].id, "product"),
           product_name: response.result.data[0].attributes.product_name,
           createdAt: formatDate(response.result.data[0].attributes.createdAt),
           description: response.result.data[0].attributes.description,
           price: response.result.data[0].attributes.price,
-          category: response.result.data[0].attributes.category_product.data.id || null,
-          is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
+          category:
+            response.result.data[0].attributes.category_product.data.id || null,
+          is_active:
+            response.result.data[0].attributes.is_active === "Yes"
+              ? true
+              : false,
         };
 
         if (response.result.data[0].attributes.resources.data.length > 0) {
           let promise = response.result.data[0].attributes.resources.data.map(
             async (resource, index) => {
               return {
-                id: resource.id,
+                id: generateUniqueId(resource.id, "resource"),
                 resource_name: resource.attributes.resource_name,
                 image: "",
                 description: resource.attributes.description,
                 resource_type_name: "",
                 resource_type_id: "",
-                is_active: resource.attributes.is_active === "Yes" ? true : false,
+                is_active:
+                  resource.attributes.is_active === "Yes" ? true : false,
               };
             },
           );
@@ -246,7 +263,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("updated");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "crm-product-service"));
+          goto(await call.getPage("client-dashboard", "crm-product-service"));
           // }, 3000);
           return;
         }
@@ -255,7 +272,7 @@ All Rights Reserved
           if (resourceReady.includes(resources[i].id)) {
             response = await call.call("client-dashboard", "update-resource", {
               URLQuery: {},
-              URLParams: { id: resources[i].id.toString() },
+              URLParams: { id: decodeUniqueId(resources[i].id).toString() },
               Params: {
                 resource_name: resources[i].resource_name,
                 description: resources[i].description,
@@ -290,7 +307,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("updated");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "crm-product-service"));
+          goto(await call.getPage("client-dashboard", "crm-product-service"));
           // }, 3000);
           return;
         }
@@ -320,7 +337,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-product-service"));
+        goto(await call.getPage("client-dashboard", "crm-product-service"));
         // }, 3000);
         return;
       }
@@ -392,7 +409,9 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <CopyIcon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
               </Button>
             </Heading>
           </div>
@@ -411,14 +430,19 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={updateProduct} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+            <Button onclick={updateProduct} class="px-3 focus-within:!ring-1"
+              >{$_("save")}</Button
+            >
           {:else}
-            <Button color="light" class="px-3 focus-within:!ring-1" onclick={backPage}
-              >{$_("back")}</Button
+            <Button
+              color="light"
+              class="px-3 focus-within:!ring-1"
+              onclick={backPage}>{$_("back")}</Button
             >
             <Button
               onclick={() => (popupModal = true)}
-              outline color="red"
+              outline
+              color="red"
               class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
             <Button
@@ -432,14 +456,19 @@ All Rights Reserved
       </div>
 
       <!-- Submenu -->
-      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+      <TabDetail
+        {tabDatas}
+        on:tabChange={(e) => (tabDatas.selected = e.detail)}
+      />
 
       {#if tabDatas.selected === "Information"}
         <div class="flex flex-col gap-4 pt-8">
           <!-- general information -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              <P
+                class="font-semibold text-secondary-light dark:text-secondary-dark"
+              >
                 {$_("generalInformation")}
               </P>
             </div>
@@ -464,7 +493,6 @@ All Rights Reserved
                     {$_("productId")}
                   </P>
                   <Input
-                    type="number"
                     readonly
                     bind:value={data.productId}
                     class="bg-primary-light dark:bg-secondary-dark"
@@ -491,7 +519,9 @@ All Rights Reserved
           <!-- product detail -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              <P
+                class="font-semibold text-secondary-light dark:text-secondary-dark"
+              >
                 {$_("productDetail")}
               </P>
             </div>
@@ -527,7 +557,8 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle disabled={!onEdit} bind:checked={data.is_active}></Toggle>
+                  <Toggle disabled={!onEdit} bind:checked={data.is_active}
+                  ></Toggle>
                 </div>
               </div>
             </div>
@@ -536,7 +567,9 @@ All Rights Reserved
       {:else if tabDatas.selected === "Resource"}
         <div class="flex gap-6 pt-8">
           <div class="w-60 space-y-2">
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+            <P
+              class="font-semibold text-secondary-light dark:text-secondary-dark"
+            >
               {$_("resources")}
             </P>
             {#if onEdit}
@@ -544,22 +577,25 @@ All Rights Reserved
             {/if}
           </div>
           <div class="flex flex-col grow gap-6">
-            {#each resources as resource (resource.id)}
+            {#each resources as resource}
               <div class="grid grid-cols-5 gap-5 border rounded-lg p-4">
                 <div class="flex items-center col-span-5 gap-2">
                   <div class="flex items-center w-full justify-between gap-2">
-                    <div></div>
-                    <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
-                      >{$_("delete")}</Button
+                    <div>
+                      <P
+                        class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                        >{resource.id}</P
+                      >
+                    </div>
+                    <Button
+                      on:click={() => deleteResource(resource.id)}
+                      color="light"
+                      class="w-max">{$_("delete")}</Button
                     >
                   </div>
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
-                  <!-- <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("image")}</P
-                  >
-                  <Button
+                  <!-- <Button
                     on:click={handleImageUploadWrapper}
                     color="light"
                     class="w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark flex-col justify-start items-center gap-1 flex py-8"
@@ -633,7 +669,8 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle disabled={!onEdit} bind:checked={resource.is_active}></Toggle>
+                  <Toggle disabled={!onEdit} bind:checked={resource.is_active}
+                  ></Toggle>
                 </div>
               </div>
             {/each}
@@ -651,7 +688,9 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteProduct} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={deleteProduct} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

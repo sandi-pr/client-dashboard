@@ -24,6 +24,7 @@ All Rights Reserved
   import { format } from "date-fns";
   import { goto } from "$app/navigation"; 
   import { createEventDispatcher } from 'svelte';
+  import { generateUniqueId } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 

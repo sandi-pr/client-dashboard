@@ -308,5 +308,7 @@
     "recentDocument": "Dokumen Terbaru",
     "totalPage": "Total Halaman",
     "uploadImage": "Unggah Gambar",
-    "newOcr": "OCR Baru"
+    "newOcr": "OCR Baru",
+    "categoryId": "Kategori ID",
+    "recruitmentId": "Rekrutmen ID"
 }

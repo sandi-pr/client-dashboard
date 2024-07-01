@@ -311,5 +311,7 @@
   "recentDocument": "Recent Document",
   "totalPage": "Total Page",
   "uploadImage": "Upload Image",
-  "newOcr": "New OCR"
+  "newOcr": "New OCR",
+  "categoryId": "Category ID",
+  "recruitmentId": "Recruitment ID"
 }

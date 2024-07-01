@@ -18,6 +18,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import {goto} from "$app/navigation";
+  import { generateUniqueId } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -76,6 +77,7 @@ All Rights Reserved
       console.log("kelinci", response);
       if (response.status === 200) {
         data = {
+          id: generateUniqueId(response.result.data[0].id, "category"),
           createdAt: formatDate(response.result.data[0].attributes.createdAt),
           category_name: response.result.data[0].attributes.category_name,
           description: response.result.data[0].attributes.description,
@@ -228,6 +230,18 @@ All Rights Reserved
                 <Input
                   readonly={!onEdit}
                   bind:value={data.category_name}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col grow gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >
+                  {$_("categoryId")}
+                </P>
+                <Input
+                  readonly
+                  bind:value={data.id}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>

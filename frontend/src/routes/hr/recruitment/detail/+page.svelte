@@ -37,6 +37,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { createEventDispatcher } from "svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
+  import { generateUniqueId } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -130,7 +131,7 @@ All Rights Reserved
       if (response.result.recruitment.data.length > 0) {
         let recruitmentData = response.result.recruitment.data[0];
         data = {
-          id: recruitmentData.id,
+          id: generateUniqueId(recruitmentData.id, "recruitment"),
           fullname: recruitmentData.attributes.fullname,
           email: recruitmentData.attributes.email,
           phone: recruitmentData.attributes.phone,
@@ -450,6 +451,18 @@ All Rights Reserved
                     <Input
                       readonly={!onEdit}
                       bind:value={data.fullname}
+                      class="bg-primary-light dark:bg-secondary-dark"
+                    />
+                  </div>
+                  <div class="flex flex-col grow gap-2">
+                    <P
+                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >
+                      {$_("recruitmentId")}
+                    </P>
+                    <Input
+                      readonly={!onEdit}
+                      bind:value={data.id}
                       class="bg-primary-light dark:bg-secondary-dark"
                     />
                   </div>

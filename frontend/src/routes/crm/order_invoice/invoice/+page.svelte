@@ -19,6 +19,7 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
+  import { generateUniqueId } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -76,8 +77,8 @@ All Rights Reserved
           if (response.result.data.length > 0) {
             let invoice = response.result.data[0];
             data = {
-              invoiceId: invoice.id,
-              customerId: invoice.attributes.person?.data.id,
+              invoiceId: generateUniqueId(invoice.id, "invoice"),
+              customerId: generateUniqueId(invoice.attributes.person?.data.id, "person"),
               createdAt: invoice.attributes.created_at,
               invoice_date: format(new Date(invoice.attributes.invoice_date), "yyyy-MM-dd HH:mm"),
               due_date: format(new Date(invoice.attributes.due_date), "yyyy-MM-dd HH:mm"),
@@ -86,7 +87,7 @@ All Rights Reserved
                 invoice.attributes.payment_status[invoice.attributes.payment_status.length - 1]
                   .status,
               notes: invoice.attributes.note,
-              orderId: invoice.attributes.order_booking?.data.id,
+              orderId: generateUniqueId(invoice.attributes.order_booking?.data.id),
             };
           }
         }

@@ -33,6 +33,7 @@ All Rights Reserved
   import { onMount, createEventDispatcher } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
+  import { generateUniqueId } from "$lib";
 
   const dispatch = createEventDispatcher();
 
@@ -136,7 +137,7 @@ All Rights Reserved
 
       if (response.status === 200) {
         data = {
-          employeeId: response.result.data[0].id,
+          employeeId: generateUniqueId(response.result.data[0].id, "employee"),
           employee_name: response.result.data[0].attributes.employee_name,
           date_of_birth: response.result.data[0].attributes.date_of_birth,
           email: response.result.data[0].attributes.email,

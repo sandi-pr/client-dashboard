@@ -34,3 +34,4 @@ export { default as CR3Call } from "$lib/utils/cr3call";
 export { default as getTextColors } from "$lib/utils/getTextColors";
 export { default as getIcons } from "$lib/utils/getIcons";
 export { default as triggerToast } from "$lib/utils/toast";
+export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";

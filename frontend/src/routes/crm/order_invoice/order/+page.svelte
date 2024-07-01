@@ -19,6 +19,7 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
+  import { generateUniqueId } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -90,8 +91,8 @@ All Rights Reserved
             let order = response.result.data[0];
             invoiceId = order.attributes.invoice.data?.id;
             data = {
-              orderId: order.id,
-              customerId: order.attributes.person.data?.id,
+              orderId: generateUniqueId(order.id, "order"),
+              customerId: generateUniqueId(order.attributes.person.data?.id, "person"),
               createdAt: order.attributes.created_at,
               order_date: format(new Date(order.attributes.order_date), "MM/dd/yyyy kk:mm"),
               total_amount: order.attributes.total_amount,
@@ -107,9 +108,9 @@ All Rights Reserved
               //   notes: order.attributes.note,
               // },
               product: {
-                id: order.attributes.product.data?.id,
+                id: generateUniqueId(order.attributes.product.data?.id, "product"),
                 name: order.attributes.product.data?.attributes.product_name,
-                resourceId: order.attributes.resources.data[0]?.id,
+                resourceId: JSON.stringify(order.attributes.resource.data.map((resource) => generateUniqueId(resource.id))),
               },
               shipping_address: order.attributes.shipping_address,
             };
