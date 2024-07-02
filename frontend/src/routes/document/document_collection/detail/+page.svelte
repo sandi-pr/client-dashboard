@@ -319,10 +319,12 @@ All Rights Reserved
     collectionId = getCollectionId();
     if (documentId && documentId !== documentIdOld) {
       documentIdOld = documentId;
+      collectionIdOld = collectionId;
       getDocument();
     }
     if (collectionId && collectionId !== collectionIdOld) {
       collectionIdOld = collectionId;
+      documentIdOld = documentId;
       getDocument();
     }
   }); 
