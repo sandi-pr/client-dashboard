@@ -315,16 +315,15 @@ All Rights Reserved
   }
 
   $effect(async () => {
-    const newDocumentId = getDocumentId();
-    const newCollectionId = getCollectionId();
-    if (newDocumentId && newDocumentId !== documentId) {
-      documentId = newDocumentId;
-      collectionId = newCollectionId;
-      await getDocument();
-    } else if ( newCollectionId && newCollectionId !== collectionId) {
-      collectionId = newCollectionId;
-      documentId = newDocumentId;
-      await getDocument();
+    documentId = getDocumentId();
+    collectionId = getCollectionId();
+    if (documentId && documentId !== documentIdOld) {
+      documentIdOld = documentId;
+      getDocument();
+    }
+    if (collectionId && collectionId !== collectionIdOld) {
+      collectionIdOld = collectionId;
+      getDocument();
     }
   }); 
 
