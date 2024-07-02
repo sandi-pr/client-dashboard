@@ -354,7 +354,8 @@ All Rights Reserved
                   href:
                     `${await call.getPage("client-dashboard", "document-management-detail")}` +
                     "?documentId=" +
-                    document.id +
+                    document.id  +
+                    "&collectionId=" + document.attributes.collection_id +
                     "&edit=false",
                   name: "View",
                 },
