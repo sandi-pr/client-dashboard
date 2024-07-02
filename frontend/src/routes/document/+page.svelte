@@ -368,7 +368,7 @@ All Rights Reserved
         documentsReady = true;
 
         for (const document of latestDocuments) {
-          if (document.status !== "Ready") {
+          if (document.status.name !== "Ready") {
             setTimeout(getDocumentLatest, 2000);
             break;
           }

@@ -97,6 +97,13 @@ All Rights Reserved
         });
 
         datas = await Promise.all(promises);
+
+        for (const document of datas) {
+          if (document.status.name !== "Ready") {
+            setTimeout(getDocuments, 2000);
+            break;
+          }
+        }
       }
     }
 
