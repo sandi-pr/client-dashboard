@@ -144,7 +144,7 @@
       messageInput = "";
 
       let conversationIdCollection = sessionStorage.getItem(
-        "conversationIdCollection",
+        "conversationIdCollection-" + selectedCollection.id.toString(),
       );
 
       try {
@@ -407,7 +407,7 @@
     if (selectedCollection) {
       if (
         selectedCollection !== selectedCollectionOld ||
-        selectedCollection === ""
+        selectedCollectionOld === ""
       ) {
         if (selectedCollection !== null) {
           selectedCollectionOld = selectedCollection;
