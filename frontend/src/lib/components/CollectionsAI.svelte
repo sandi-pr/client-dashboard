@@ -5,7 +5,7 @@
   import UsersIcon from "$lib/icon/users-03.svg";
   import VerifiedIcon from "$lib/icon/verified.svg";
   import Sidebar from "$lib/components/Sidebar.svelte";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane } from "svelte-splitpanes";
   import { tick } from "svelte";
@@ -114,6 +114,17 @@
 
   $effect(() => {
     disableButton = statusRAG !== "Ready" || messageInput.length < 1;
+
+    if (statusRAG){
+      if (statusRAG === "Ready") {
+        dataConversatonLogs = [
+          {
+            role: "assistant",
+            message: "Your document is ready",
+          }
+        ]
+      }
+    }
   });
 
   // // Add event listener on mount
@@ -238,14 +249,6 @@
 
         if (chat.status === 200) {
           dataConversatonLogs = chat.result.messages;
-          if (dataConversatonLogs.length > 0) {
-            dataConversatonLogs = [
-              {
-                role: "assistant",
-                message: "What would you like to know in this collection?",
-              },
-            ];
-          }
 
           getStatusRag();
         }
@@ -325,6 +328,15 @@
           statusRAG = status;
         }
         console.log(rag);
+        if (statusRAG === "Ready") {
+          dataConversatonLogs = [
+            {
+              role: "assistant",
+              message: "Your document is ready",
+            }
+          ]
+          clearTimeout(timer);
+        }
       } catch (error) {
         console.error("Error:", error);
       }
