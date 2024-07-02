@@ -31,6 +31,8 @@ All Rights Reserved
   const params = new URLSearchParams(window.location.search);
   let documentId = params.get("documentId");
   let collectionId = params.get("collectionId");
+  let documentIdOld = $state("");
+  let collectionIdOld = $state("");
   const dispatch = createEventDispatcher();
 
   let onEdit = $state(false);
@@ -277,7 +279,11 @@ All Rights Reserved
 
   $effect(async () => {
     if (documentId) {
-      `${await call.getPage("client-dashboard", "document-management-detail")}` + "?documentId=" + document.id + "&collectionId=" + collectionId
+      if (documentId !== documentIdOld || collectionId !== collectionIdOld) {
+        documentIdOld = documentId;
+        collectionIdOld = collectionId;
+        goto(`${await call.getPage("client-dashboard", "document-management-detail")}` + "?documentId=" + documentId + "&collectionId=" + collectionId)
+      }
     }
   })
 
