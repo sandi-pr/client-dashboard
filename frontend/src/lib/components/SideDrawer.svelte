@@ -357,11 +357,11 @@ All Rights Reserved
                       {$_("collections")}
                     </button>
                   </DropdownItem>
-                  <DropdownItem>
+                  <!-- <DropdownItem>
                     <button onclick={() => selectDropdown("ocr")}>
                       {$_("ocr")}
                     </button>
-                  </DropdownItem>
+                  </DropdownItem> -->
                 </Dropdown>
                 <div class="flex gap-2">
                   <Button
@@ -435,8 +435,8 @@ All Rights Reserved
         <HexaAIChat/>
        {:else if selectedDropdown === "collections"}
         <CollectionsAi bind:selectedCollection />
-       {:else if selectedDropdown === "ocr"}
-        <Ocr />
+       <!-- {:else if selectedDropdown === "ocr"}
+        <Ocr /> -->
        {/if}
       {/if}
     </div>
