@@ -26,6 +26,7 @@
   const call = new CR3Call(globalThis.location.origin);
 
   let { selectedCollection = $bindable() } = $props();
+  let selectedCollectionOld = selectedCollection;
 
   let statusRAG = $state("");
 
@@ -376,8 +377,9 @@
   // });
 
   $effect(() => {
-    if (selectedCollection) {
+    if (selectedCollection !== selectedCollectionOld) {
       if (selectedCollection !== null) {
+        selectedCollectionOld = selectedCollection;
         getMessage();
       }
     }
