@@ -26,7 +26,7 @@
   const call = new CR3Call(globalThis.location.origin);
 
   let { selectedCollection = $bindable() } = $props();
-  let selectedCollectionOld = selectedCollection;
+  let selectedCollectionOld = $state("");
 
   let statusRAG = $state("");
 
