@@ -321,26 +321,49 @@
       }
       console.log(rag);
       if (statusRAG === "Ready") {
-        if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
-          dataConversatonLogs[dataConversatonLogs.length - 1].message = "Your document is ready";
+        if (
+          dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
+            "Processing...",
+          )
+        ) {
+          dataConversatonLogs[dataConversatonLogs.length - 1].message =
+            "Your document is ready";
         } else {
-          dataConversatonLogs.push(
-            {
+          if (
+            dataConversatonLogs[
+              dataConversatonLogs.length - 1
+            ].message.includes("Your document is ready")
+          ) {
+            console.log("Already");
+            clearTimeout(timer);
+            return;
+          } else {
+            dataConversatonLogs.push({
               role: "assistant",
               message: "Your document is ready",
-            }
-          );
+            });
+          }
         }
       } else {
-        if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
-          dataConversatonLogs[dataConversatonLogs.length - 1].message = "Processing... " + statusRAG;
+        if (
+          dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
+            "Processing...",
+          )
+        ) {
+          dataConversatonLogs[dataConversatonLogs.length - 1].message =
+            "Processing... " + statusRAG;
+        } else if (
+          dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
+            "Your document is ready",
+          )
+        ) {
+          dataConversatonLogs[dataConversatonLogs.length - 1].message =
+            "Processing... " + statusRAG;
         } else {
-          dataConversatonLogs.push(
-            {
-              role: "assistant",
-              message: "Processing... " + statusRAG,
-            }
-          );
+          dataConversatonLogs.push({
+            role: "assistant",
+            message: "Processing... " + statusRAG,
+          });
         }
       }
     } catch (error) {
@@ -382,7 +405,10 @@
 
   $effect(() => {
     if (selectedCollection) {
-      if (selectedCollection !== selectedCollectionOld) {
+      if (
+        selectedCollection !== selectedCollectionOld ||
+        selectedCollection === ""
+      ) {
         if (selectedCollection !== null) {
           selectedCollectionOld = selectedCollection;
           getMessage();
