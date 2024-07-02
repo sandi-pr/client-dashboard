@@ -309,23 +309,24 @@ All Rights Reserved
     return urlParams.get("documentId");
   }
 
+  function getCollectionId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("collectionId");
+  }
+
   $effect(async () => {
-    if (params.get("documentId")) {
-      if (documentIdOld === "" || collectionIdOld === "") {
-        documentId = params.get("documentId");
-        documentIdOld = documentId;
-        collectionId = params.get("collectionId");
-        collectionIdOld = collectionId;
-      } else if (
-        documentId !== documentIdOld ||
-        collectionId !== collectionIdOld
-      ) {
-        documentIdOld = documentId;
-        collectionIdOld = collectionId;
-        getDocument();
-      }
+    const newDocumentId = getDocumentId();
+    const newCollectionId = getCollectionId();
+    if (newDocumentId && newDocumentId !== documentId) {
+      documentId = newDocumentId;
+      collectionId = newCollectionId;
+      await getDocument();
+    } else if ( newCollectionId && newCollectionId !== collectionId) {
+      collectionId = newCollectionId;
+      documentId = newDocumentId;
+      await getDocument();
     }
-  });
+  }); 
 
   onMount(() => {
     const handleUrlChange = () => {
