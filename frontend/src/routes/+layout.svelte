@@ -362,7 +362,7 @@ All Rights Reserved
               </div>
               <div class="h-screen pt-20">
                 {#if hideScroll()}
-                  <div class="h-full overflow-y-auto">
+                  <div class="h-full overflow-y-auto no-scrollbar">
                     <slot />
                   </div>
                 {:else}
@@ -385,3 +385,16 @@ All Rights Reserved
     <slot />
   {/if}
 {/if}
+
+<style>
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+  }
+</style>

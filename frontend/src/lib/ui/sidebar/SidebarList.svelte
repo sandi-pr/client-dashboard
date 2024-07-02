@@ -94,6 +94,7 @@
 >
   <SidebarWrapper
     class="h-full w-full lg:pt-6 lg:px-4 flex flex-col justify-between bg-white dark:bg-primary-dark"
+    divClass = 'overflow-y-hidden hover:overflow-y-auto overflow-x-hidden no-scrollbar py-4 px-3 bg-gray-50 rounded dark:bg-gray-800'
   >
     <SidebarGroup>
       <div class="flex justify-between items-start">
@@ -239,3 +240,17 @@
     </div>
   </SidebarWrapper>
 </Sidebar>
+
+
+<style>
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+  }
+</style>
