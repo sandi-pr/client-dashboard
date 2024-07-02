@@ -144,7 +144,7 @@ All Rights Reserved
     title="{$_('documentCollection')}"
     description={$_("documentCollection")}
     onclick={async () => {
-      goto(await call.getPage("client-dashboard", "document-overview"));
+      goto(await call.getPage("client-dashboard", "document-collection"));
       return;
     }}
   />
