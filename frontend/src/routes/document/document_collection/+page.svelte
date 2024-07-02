@@ -273,7 +273,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    await getStatusRag();
+    // await getStatusRag();
     await getCollections();
   });
 
@@ -357,12 +357,12 @@ All Rights Reserved
                               class="!font-semibold text-primary-light dark:text-primary-dark"
                               >{`${doc.collectionName}`}</Heading
                             >
-                            <div
+                            <!-- <div
                               class={`px-2 py-0.5 rounded-full border justify-start items-center inline-flex text-center text-xs font-medium leading-[18px] 
                               ${classStatusType(statusRAG)}`}
                             >
                               {statusRAG}
-                            </div>
+                            </div> -->
                           </div>
                           <P
                             size="sm"

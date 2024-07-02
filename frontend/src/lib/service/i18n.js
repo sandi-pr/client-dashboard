@@ -8,5 +8,6 @@ register('id', () => import('./locales/id.json'));
 
 init({
   fallbackLocale: defaultLocale,
-  initialLocale: browser ? getLocaleFromNavigator() : defaultLocale,
+  // initialLocale: browser ? getLocaleFromNavigator() : defaultLocale,
+  initialLocale: defaultLocale,
 });
