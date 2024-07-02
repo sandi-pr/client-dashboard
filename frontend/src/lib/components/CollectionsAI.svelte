@@ -330,8 +330,15 @@
         clearTimeout(timer);
         return;
       } else {
-        if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Collection is selected. Please wait while we prepare your assistant.")) {
-          dataConversatonLogs[dataConversatonLogs.length - 1].message = "Collection is selected. Please wait while we prepare your assistant. Processing... " + statusRAG;
+        if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
+          dataConversatonLogs[dataConversatonLogs.length - 1].message = "Processing... " + statusRAG;
+        } else {
+          dataConversatonLogs.push(
+            {
+              role: "assistant",
+              message: "Processing... " + statusRAG,
+            }
+          );
         }
       }
     } catch (error) {
