@@ -336,6 +336,7 @@
             }
           ]
           clearTimeout(timer);
+          return;
         }
       } catch (error) {
         console.error("Error:", error);
