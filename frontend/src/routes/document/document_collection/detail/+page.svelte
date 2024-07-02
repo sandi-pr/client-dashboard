@@ -11,9 +11,20 @@ All Rights Reserved
  -->
 
 <script>
-  import { P, Heading, Input, Textarea, Button, Select, Modal } from "flowbite-svelte";
+  import {
+    P,
+    Heading,
+    Input,
+    Textarea,
+    Button,
+    Select,
+    Modal,
+  } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
-  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import {
+    CheckCircleSolid,
+    ExclamationCircleSolid,
+  } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
@@ -22,8 +33,8 @@ All Rights Reserved
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
-  import { goto } from "$app/navigation"; 
-  import { createEventDispatcher } from 'svelte';
+  import { goto } from "$app/navigation";
+  import { createEventDispatcher } from "svelte";
   import { generateUniqueId } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
@@ -97,19 +108,28 @@ All Rights Reserved
           let documentData = response.result.document.data[0];
           data = {
             id: documentData.id,
-            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
+            createdAt: format(
+              documentData.attributes.createdAt,
+              "yyyy-MM-dd HH:mm",
+            ),
             document_title: documentData.attributes.document_title,
             description: documentData.attributes.description,
             document_type: documentData.attributes.document_type,
             ext: documentData.attributes.document.data.attributes.ext,
             person_client: documentData.attributes.person.data?.id,
             contract_start:
-            documentData.attributes.contract_start !== null
-                ? format(new Date(documentData.attributes.contract_start), "yyyy-MM-dd")
+              documentData.attributes.contract_start !== null
+                ? format(
+                    new Date(documentData.attributes.contract_start),
+                    "yyyy-MM-dd",
+                  )
                 : "",
             contract_end:
-            documentData.attributes.contract_end !== null
-                ? format(new Date(documentData.attributes.contract_end), "yyyy-MM-dd")
+              documentData.attributes.contract_end !== null
+                ? format(
+                    new Date(documentData.attributes.contract_end),
+                    "yyyy-MM-dd",
+                  )
                 : "",
           };
 
@@ -120,7 +140,8 @@ All Rights Reserved
           if (data.ext === ".pdf") {
             fileType = "application/pdf";
           } else if (data.ext === ".docx") {
-            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            fileType =
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
           } else if (data.ext === ".doc") {
             fileType = "application/msword";
           } else {
@@ -130,7 +151,7 @@ All Rights Reserved
           const blob = base64toBlob(base64, fileType);
           fileUrl = URL.createObjectURL(blob);
           console.log(fileUrl);
-          
+
           pdfReady = true;
         }
       } catch (error) {
@@ -156,16 +177,20 @@ All Rights Reserved
           },
         });
         if (response.status === 200) {
-          let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              id: documentId.toString(),
+          let response2 = await call.call(
+            "hexa-ai-rag",
+            "delete-document-by-id",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                id: documentId.toString(),
+              },
+              Headers: {
+                Authorization: `Bearer ${token}`,
+              },
             },
-            Headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          );
 
           if (response2.status !== 200) {
             console.log(response2);
@@ -173,10 +198,17 @@ All Rights Reserved
           }
 
           console.log(response2);
-          
+
           triggerToast("deleted");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "document-collection-list") + "?collectionId=" + collectionId);
+          goto(
+            (await call.getPage(
+              "client-dashboard",
+              "document-collection-list",
+            )) +
+              "?collectionId=" +
+              collectionId,
+          );
           // }, 3000);
           return;
         } else {
@@ -239,18 +271,18 @@ All Rights Reserved
     if (ext === ".pdf") {
       fileType = "application/pdf";
     } else if (ext === ".docx") {
-      fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      fileType =
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     } else if (ext === ".doc") {
       fileType = "application/msword";
     } else {
       fileType = "text/plain";
     }
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = URL.createObjectURL(base64toBlob(base64, fileType));
     a.download = fileName;
     a.click();
   }
-
 
   function base64toBlob(base64Data, fileType) {
     const byteCharacters = atob(base64Data);
@@ -274,18 +306,30 @@ All Rights Reserved
 
   function getDocumentId() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('documentid');
+    return urlParams.get("documentid");
   }
 
   $effect(async () => {
     if (documentId) {
-      if (documentId !== documentIdOld || collectionId !== collectionIdOld) {
+      if (documentIdOld === "" || collectionIdOld === "") {
         documentIdOld = documentId;
         collectionIdOld = collectionId;
-        goto(`${await call.getPage("client-dashboard", "document-management-detail")}` + "?documentId=" + documentId + "&collectionId=" + collectionId)
+      } else if (
+        documentId !== documentIdOld ||
+        collectionId !== collectionIdOld
+      ) {
+        documentIdOld = documentId;
+        collectionIdOld = collectionId;
+        goto(
+          `${await call.getPage("client-dashboard", "document-collection-detail")}` +
+            "?documentId=" +
+            documentId +
+            "&collectionId=" +
+            collectionId,
+        );
       }
     }
-  })
+  });
 
   onMount(() => {
     const handleUrlChange = () => {
@@ -296,15 +340,15 @@ All Rights Reserved
     };
     // if (edit === "true") onEdit = true;
 
-    window.addEventListener('popstate', handleUrlChange);
-    window.addEventListener('pushstate', handleUrlChange); // In case you use pushState for navigation
+    window.addEventListener("popstate", handleUrlChange);
+    window.addEventListener("pushstate", handleUrlChange); // In case you use pushState for navigation
 
     getPersons();
     getDocument();
 
     return () => {
-      window.removeEventListener('popstate', handleUrlChange);
-      window.removeEventListener('pushstate', handleUrlChange);
+      window.removeEventListener("popstate", handleUrlChange);
+      window.removeEventListener("pushstate", handleUrlChange);
     };
   });
 </script>
@@ -324,7 +368,9 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <CopyIcon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
               </Button></Heading
             >
           </div>
@@ -337,25 +383,31 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={() => (popupModal = true)}
-            outline color="red"
+            outline
+            color="red"
             class="px-3 focus-within:!ring-1">{$_("delete")}</Button
           >
         </div>
       </div>
 
       <!-- Tab Bar -->
-      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+      <TabDetail
+        {tabDatas}
+        on:tabChange={(e) => (tabDatas.selected = e.detail)}
+      />
 
       <!-- Content -->
       <div class="">
         {#if tabDatas.selected === "Documents"}
           <div class="flex justify-between items-center pt-6 pb-4">
-            <P class="font-semibold text-hc-graylight-700 dark:text-hc-graydark-300"
+            <P
+              class="font-semibold text-hc-graylight-700 dark:text-hc-graydark-300"
               >{$_("documentName")}</P
             >
             <div class="flex items-center gap-2">
               <Button
-                onclick={() => downloadFile(base64, data.document_title, data.ext)}
+                onclick={() =>
+                  downloadFile(base64, data.document_title, data.ext)}
                 class="w-max px-3 py-[10px] gap-1 focus-within:!ring-1"
               >
                 <img alt="refresh" src={DownloadIcon} class="w-5 h-5" />
@@ -363,23 +415,27 @@ All Rights Reserved
               </Button>
             </div>
           </div>
-          <div class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800">
+          <div
+            class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800"
+          >
             {#if pdfReady}
               {#if data.ext === ".pdf"}
-                <iframe class="w-full h-screen" src={`${fileUrl}`} ></iframe>
+                <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe>
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}
                   <p class="dark:text-white">{paragraphs}</p>
                 {/each}
               {/if}
             {/if}
-          </div>          
+          </div>
         {:else if tabDatas.selected === "Information"}
           <div class="flex flex-col gap-4 pt-6">
             <!-- general information -->
             <div class="flex gap-6">
               <div class="w-60">
-                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                <P
+                  class="font-semibold text-secondary-light dark:text-secondary-dark"
+                >
                   {$_("generalInformation")}
                 </P>
               </div>
@@ -417,7 +473,9 @@ All Rights Reserved
             <Divider />
             <div class="flex gap-6">
               <div class="w-60">
-                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                <P
+                  class="font-semibold text-secondary-light dark:text-secondary-dark"
+                >
                   {$_("documentType")}*
                 </P>
               </div>
@@ -441,7 +499,9 @@ All Rights Reserved
               <!-- general information -->
               <div class="flex gap-6">
                 <div class="w-60">
-                  <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                  <P
+                    class="font-semibold text-secondary-light dark:text-secondary-dark"
+                  >
                     {$_("contractInformation")}
                   </P>
                 </div>
@@ -506,7 +566,9 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteDocument} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={deleteDocument} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
