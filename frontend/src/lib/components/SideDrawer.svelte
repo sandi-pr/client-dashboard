@@ -243,6 +243,7 @@ All Rights Reserved
 
     if (response2.status !== 200) {
       console.log(response2);
+      return;
     }
 
     selectedCollection = tmpSelectedCollection;
