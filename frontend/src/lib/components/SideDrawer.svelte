@@ -224,7 +224,6 @@ All Rights Reserved
   };
 
   async function callColection() {
-    selectedCollection = tmpSelectedCollection;
     let token = sessionStorage.getItem("token");
 
     let response2 = await call.call(
@@ -244,7 +243,7 @@ All Rights Reserved
 
     if (response2.status !== 200) {
       console.log(response2);
-      return;
+      selectedCollection = tmpSelectedCollection;
     }
 
     console.log(response2);

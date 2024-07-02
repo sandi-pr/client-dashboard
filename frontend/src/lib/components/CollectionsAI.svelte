@@ -194,7 +194,7 @@
     }
 
     let conversationIdCollection = sessionStorage.getItem(
-      "conversationIdCollection",
+      "conversationIdCollection-" + selectedCollection.id.toString(),
     );
 
     let token = sessionStorage.getItem("token");
@@ -271,7 +271,7 @@
           conversationIdCollection =
             createConversationResponse.result.conversation_id;
           sessionStorage.setItem(
-            "conversationIdCollection",
+            "conversationIdCollection-" + selectedCollection.id.toString(),
             conversationIdCollection,
           );
 
@@ -331,8 +331,6 @@
             }
           );
         }
-        clearTimeout(timer);
-        return;
       } else {
         if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
           dataConversatonLogs[dataConversatonLogs.length - 1].message = "Processing... " + statusRAG;
