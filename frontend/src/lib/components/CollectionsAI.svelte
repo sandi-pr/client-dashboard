@@ -41,6 +41,7 @@
 
   let chatId = $state("");
   let messageInput = $state("");
+  let timer;
 
   let disableInput = $state(false);
   let disableButton = $state(false);
@@ -292,10 +293,9 @@
   }
 
   async function getStatusRag() {
-    let token = sessionStorage.getItem("token");
-    const callStatusRag = async () => {
+    let token = sessionStorage.getItem("token")
       try {
-        let rag = await call.call("hexa-ai", "get-rag-status", {
+        let rag = await call.call("hexa-ai-rag", "get-rag-status", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -328,9 +328,7 @@
       } catch (error) {
         console.error("Error:", error);
       }
-      setTimeout(callStatusRag, 2000);
-    };
-    callStatusRag();
+      timer = setTimeout(callStatusRag, 2000);
   }
 
   const handleFileUploadWrapper = () => {
@@ -359,10 +357,10 @@
     window.location.reload();
   }
 
-  $effect(() => {
-    if (selectedCollection !== null && statusRAG !== "Ready") {
-    }
-  });
+  // $effect(() => {
+  //   if (selectedCollection !== null && statusRAG !== "Ready") {
+  //   }
+  // });
 
   $effect(() => {
     if (selectedCollection) {
@@ -375,6 +373,12 @@
   onMount(() => {
     // getMessage();
   });
+
+  onDestroy(() => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  })
 </script>
 
 <div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
