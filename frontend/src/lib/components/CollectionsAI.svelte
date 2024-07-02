@@ -321,12 +321,16 @@
       }
       console.log(rag);
       if (statusRAG === "Ready") {
-        dataConversatonLogs.push(
-          {
-            role: "assistant",
-            message: "Your document is ready",
-          }
-        );
+        if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
+          dataConversatonLogs[dataConversatonLogs.length - 1].message = "Your document is ready";
+        } else {
+          dataConversatonLogs.push(
+            {
+              role: "assistant",
+              message: "Your document is ready",
+            }
+          );
+        }
         clearTimeout(timer);
         return;
       } else {
