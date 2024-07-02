@@ -243,9 +243,9 @@ All Rights Reserved
 
     if (response2.status !== 200) {
       console.log(response2);
-      selectedCollection = tmpSelectedCollection;
     }
 
+    selectedCollection = tmpSelectedCollection;
     console.log(response2);
   }
 
