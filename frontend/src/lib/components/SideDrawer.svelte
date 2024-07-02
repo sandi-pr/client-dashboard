@@ -233,7 +233,7 @@ All Rights Reserved
         URLQuery: {},
         URLParams: {},
         Params: {
-          collection_id: selectedCollection.id.toString(),
+          collection_id: tmpSelectedCollection.id.toString(),
         },
         Headers: {
           Authorization: "Bearer " + token,
