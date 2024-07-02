@@ -32,6 +32,7 @@ All Rights Reserved
 
   import { CR3Call } from "hexacomponents-svelte";
     import CollectionsAi from "./CollectionsAI.svelte";
+    import Ocr from "./OCR.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -255,8 +256,8 @@ All Rights Reserved
   }
 
   $effect(() => {
-    disableButton = selectedCollection === null ? true : false;
-    disableConfigButton = selectedDropdown === "general" ? true : false;
+    disableButton = tmpSelectedCollection === null ? true : false;
+    disableConfigButton = selectedDropdown === "general" ? true : selectedDropdown === "ocr" ? true : false;
   });
 
   onMount(() => {
@@ -356,6 +357,11 @@ All Rights Reserved
                       {$_("collections")}
                     </button>
                   </DropdownItem>
+                  <DropdownItem>
+                    <button onclick={() => selectDropdown("ocr")}>
+                      {$_("ocr")}
+                    </button>
+                  </DropdownItem>
                 </Dropdown>
                 <div class="flex gap-2">
                   <Button
@@ -429,6 +435,8 @@ All Rights Reserved
         <HexaAIChat/>
        {:else if selectedDropdown === "collections"}
         <CollectionsAi bind:selectedCollection />
+       {:else if selectedDropdown === "ocr"}
+        <Ocr />
        {/if}
       {/if}
     </div>
@@ -464,7 +472,7 @@ All Rights Reserved
         <div class="flex flex-col gap-6">
           {#each collections as item, index (item)}
             <Card
-              class="{selectedCollection === item
+              class="{tmpSelectedCollection === item
                 ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
                 : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 gap-3 cursor-pointer"
               size="xl"
@@ -473,12 +481,12 @@ All Rights Reserved
               <div class="flex flex-col gap-0.5">
                 <P
                   weight="semibold"
-                  class={`${selectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}
+                  class={`${tmpSelectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}
                   >{item.name}</P
                 >
                 <P
                   size="xs"
-                  class={`${selectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}
+                  class={`${tmpSelectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}
                   >{item.description}</P
                 >
               </div>

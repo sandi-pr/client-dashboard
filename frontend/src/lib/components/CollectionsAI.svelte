@@ -462,7 +462,7 @@
     </Input> -->
       <label for="chat" class="sr-only">Your message</label>
       <div class="flex items-center py-2 rounded-lg">
-        <Button
+        <!-- <Button
           on:click={() => handleFileUploadWrapper()}
           color="light"
           class="rounded-full !px-2.5"
@@ -470,7 +470,7 @@
           <FilePlus02Icon
             svgClass="w-5 h-5 text-fg-brand-secondary-light dark:text-fg-brand-secondary-dark"
           />
-        </Button>
+        </Button> -->
         <!-- <Textarea
           id="chat"
           bind:disabled={disableInput}
