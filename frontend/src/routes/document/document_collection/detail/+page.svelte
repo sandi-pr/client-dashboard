@@ -28,7 +28,7 @@ All Rights Reserved
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
@@ -45,6 +45,7 @@ All Rights Reserved
   let documentIdOld = $state("");
   let collectionIdOld = $state("");
   const dispatch = createEventDispatcher();
+  let timer;
 
   let onEdit = $state(false);
 
@@ -84,6 +85,8 @@ All Rights Reserved
   let personClient = $state([]);
 
   async function getDocument() {
+    documentId = params.get("documentId");
+    collectionId = params.get("collectionId");
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
@@ -153,6 +156,9 @@ All Rights Reserved
           console.log(fileUrl);
 
           pdfReady = true;
+          timer = setTimeout(() => {
+            getDocument();
+          }, 3000);
         }
       } catch (error) {
         triggerToast("error");
@@ -349,6 +355,14 @@ All Rights Reserved
       window.removeEventListener("pushstate", handleUrlChange);
     };
   });
+
+  onDestroy(() => {
+    window.removeEventListener("popstate", handleUrlChange);
+    window.removeEventListener("pushstate", handleUrlChange);
+    if (timer) {
+      clearTimeout(timer);
+    }
+  })
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
