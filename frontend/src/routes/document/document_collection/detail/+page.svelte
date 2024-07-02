@@ -320,24 +320,13 @@ All Rights Reserved
       ) {
         documentIdOld = documentId;
         collectionIdOld = collectionId;
-        goto(
-          `${await call.getPage("client-dashboard", "document-collection-detail")}` +
-            "?documentId=" +
-            documentId +
-            "&collectionId=" +
-            collectionId,
-        );
+        getDocument();
       }
     }
   });
 
   onMount(() => {
-    const handleUrlChange = () => {
-      const newDocumentId = getDocumentId();
-      if (newDocumentId !== documentId) {
-        documentId = newDocumentId;
-      }
-    };
+    getDocumentId();
     // if (edit === "true") onEdit = true;
 
     window.addEventListener("popstate", handleUrlChange);
