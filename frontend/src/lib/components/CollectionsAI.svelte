@@ -116,14 +116,14 @@
   $effect(() => {
     disableButton = statusRAG !== "Ready" || messageInput.length < 1;
 
-    if (statusRAG){
+    if (statusRAG) {
       if (statusRAG === "Ready") {
         dataConversatonLogs = [
           {
             role: "assistant",
             message: "Your document is ready",
-          }
-        ]
+          },
+        ];
       }
     }
   });
@@ -297,52 +297,52 @@
   }
 
   async function getStatusRag() {
-    let token = sessionStorage.getItem("token")
-      try {
-        let rag = await call.call("hexa-ai-rag", "get-rag-status", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+    let token = sessionStorage.getItem("token");
+    try {
+      let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-        let status = rag.result.rag_status;
-        if (statusRAG.includes("!")) {
-          let status2 = status.split("!")[0].trim();
-          if (
-            status2.includes("(NOVERB)") ||
-            status2.includes("(INOVERB)") ||
-            status2.includes("(!INOVERB)")
-          ) {
-            let status3 = status2
-              .replace("(NOVERB)", "")
-              .replace("(INOVERB)", "")
-              .replace("(!INOVERB)", "")
-              .replace("(!NOVERB)", "");
-            statusRAG = status3;
-          } else {
-            statusRAG = status2;
-          }
+      let status = rag.result.rag_status;
+      if (statusRAG.includes("!")) {
+        let status2 = status.split("!")[0].trim();
+        if (
+          status2.includes("(NOVERB)") ||
+          status2.includes("(INOVERB)") ||
+          status2.includes("(!INOVERB)")
+        ) {
+          let status3 = status2
+            .replace("(NOVERB)", "")
+            .replace("(INOVERB)", "")
+            .replace("(!INOVERB)", "")
+            .replace("(!NOVERB)", "");
+          statusRAG = status3;
         } else {
-          statusRAG = status;
+          statusRAG = status2;
         }
-        console.log(rag);
-        if (statusRAG === "Ready") {
-          dataConversatonLogs = [
-            {
-              role: "assistant",
-              message: "Your document is ready",
-            }
-          ]
-          clearTimeout(timer);
-          return;
-        }
-      } catch (error) {
-        console.error("Error:", error);
+      } else {
+        statusRAG = status;
       }
-      timer = setTimeout(callStatusRag, 2000);
+      console.log(rag);
+      if (statusRAG === "Ready") {
+        dataConversatonLogs = [
+          {
+            role: "assistant",
+            message: "Your document is ready",
+          },
+        ];
+        clearTimeout(timer);
+        return;
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    timer = setTimeout(getStatusRag, 2000);
   }
 
   const handleFileUploadWrapper = () => {
@@ -377,10 +377,12 @@
   // });
 
   $effect(() => {
-    if (selectedCollection !== selectedCollectionOld) {
-      if (selectedCollection !== null) {
-        selectedCollectionOld = selectedCollection;
-        getMessage();
+    if (selectedCollection) {
+      if (selectedCollection !== selectedCollectionOld) {
+        if (selectedCollection !== null) {
+          selectedCollectionOld = selectedCollection;
+          getMessage();
+        }
       }
     }
   });
@@ -393,7 +395,7 @@
     if (timer) {
       clearTimeout(timer);
     }
-  })
+  });
 </script>
 
 <div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
