@@ -326,7 +326,12 @@ All Rights Reserved
   });
 
   onMount(() => {
-    getDocumentId();
+    const handleUrlChange = () => {
+      const newDocumentId = getDocumentId();
+      if (newDocumentId !== documentId) {
+        documentId = newDocumentId;
+      }
+    };
     // if (edit === "true") onEdit = true;
 
     window.addEventListener("popstate", handleUrlChange);
