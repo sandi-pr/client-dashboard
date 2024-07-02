@@ -23,17 +23,17 @@
 </script>
 
 <div class={`flex ${position ?? 'justify-center'}`}>
-  <Button onclick={funcButton} color={color ?? 'primary'} outline={outline} class={`${width ?? 'w-max'} ${spaceY ?? 'mt-4'} ${text ? '' : '!px-[10px]'}`}>
+  <Button on:click={funcButton} color={color ?? 'primary'} outline={outline} class={`${width ?? 'w-max'} ${spaceY ?? 'mt-4'} ${text ? '' : '!px-[10px]'}`}>
     {#if leftIcon || icon}
     {#if classesSvg}
-      <svelte:component this={getIcons(classesSvg) } svgClass={svgClass} onclick={funcButton} />
+      <svelte:component this={getIcons(classesSvg) } svgClass={svgClass} />
     {:else}
-      <img src={leftIcon ?? icon} alt={alt ?? ''} class={text ? 'me-2' : ''} onclick={funcButton} />
+      <img src={leftIcon ?? icon} alt={alt ?? ''} class={text ? 'me-2' : ''} />
     {/if}
     {/if}
     {text ?? ''}
     {#if rightIcon}
-      <img src={rightIcon} alt={alt ?? ''} class={text ? 'ms-2' : ''} onclick={funcButton} />
+      <img src={rightIcon} alt={alt ?? ''} class={text ? 'ms-2' : ''} />
     {/if}
     <slot />
   </Button>
