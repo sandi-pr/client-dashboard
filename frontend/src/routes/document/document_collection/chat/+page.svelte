@@ -3,7 +3,7 @@
   import UsersIcon from "$lib/icon/users-01.svg";
   import UserIcon from "$lib/icon/user-03.svg";
   import VerifiedIcon from "$lib/icon/verified.svg";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { tick } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";

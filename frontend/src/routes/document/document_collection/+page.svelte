@@ -10,7 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { _ } from "svelte-i18n";
   import DataTable from "$lib/components/DataTable.svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
