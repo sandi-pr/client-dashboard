@@ -162,7 +162,7 @@
         let chat = await call.call("hexa-ai-rag", "chat", {
           URLQuery: {},
           URLParams: {
-            collection_id: collectionId,
+            collection_id: selectedCollection.id.toString(),
             conversation_id: conversationIdCollection,
           },
           Params: {
@@ -249,7 +249,9 @@
         console.log("chat", chat);
 
         if (chat.status === 200) {
-          dataConversatonLogs = chat.result.messages;
+          if (chat.result.messages.length > 0) {
+            dataConversatonLogs = chat.result.messages;
+          }
 
           getStatusRag();
         }
