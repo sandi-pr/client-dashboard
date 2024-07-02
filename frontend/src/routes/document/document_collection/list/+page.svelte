@@ -77,10 +77,10 @@ All Rights Reserved
               document.attributes.document_type === "GENERAL"
                 ? "General"
                 : "Contract",
-            // status: {
-            //   type: "brand",
-            //   name: document.attributes.status,
-            // },
+            status: {
+              type: "brand",
+              name: document.attributes.status,
+            },
             actions: {
               objects: [
                 {
