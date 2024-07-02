@@ -145,10 +145,10 @@
 
     let token = sessionStorage.getItem("token");
     if (messageInput.trim() !== "" && token) {
-      dataConversatonLogs = [
-        ...dataConversatonLogs,
-        { role: "user", message: messageInput.trim() },
-      ];
+      dataConversatonLogs.push({
+        role: "user",
+        message: messageInput.trim(),
+      });
 
       let newMessage = messageInput.trim();
 
