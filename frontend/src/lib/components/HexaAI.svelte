@@ -45,30 +45,6 @@
       role: "assistant",
       message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
     },
-    {
-      role: "assistant",
-      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
-    },
-    {
-      role: "assistant",
-      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
-    },
-    {
-      role: "assistant",
-      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
-    },
-    {
-      role: "assistant",
-      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
-    },
-    {
-      role: "assistant",
-      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
-    },
-    {
-      role: "assistant",
-      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
-    },
   ]);
 
   // $effect.pre(() => {
