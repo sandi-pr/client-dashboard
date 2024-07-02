@@ -115,17 +115,6 @@
 
   $effect(() => {
     disableButton = statusRAG !== "Ready" || messageInput.length < 1;
-
-    if (statusRAG) {
-      if (statusRAG === "Ready") {
-        dataConversatonLogs = [
-          {
-            role: "assistant",
-            message: "Your document is ready",
-          },
-        ];
-      }
-    }
   });
 
   // // Add event listener on mount
@@ -332,12 +321,12 @@
       }
       console.log(rag);
       if (statusRAG === "Ready") {
-        dataConversatonLogs = [
+        dataConversatonLogs.push(
           {
             role: "assistant",
             message: "Your document is ready",
-          },
-        ];
+          }
+        );
         clearTimeout(timer);
         return;
       }

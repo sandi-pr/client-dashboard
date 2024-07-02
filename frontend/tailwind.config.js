@@ -14,11 +14,12 @@ const config = {
     "./node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}",
   ],
 
-  plugins: [require("flowbite/plugin"), require("@tailwindcss/typography")],
+  plugins: [require("flowbite/plugin"), require("@tailwindcss/typography"), require("tailwind-fluid-typography")],
 
   darkMode: "class",
 
   theme: {
+    fluidTypography: {},
     fontFamily: {
       jakarta: ["Plus Jakarta Sans", "sans-serif"],
     },

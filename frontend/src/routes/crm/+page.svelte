@@ -581,7 +581,7 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Heading tag="h2" class="font-jakarta text-primary-light dark:text-primary-dark">
+        <Heading tag="h2" class="fluid-3xl font-jakarta text-primary-light dark:text-primary-dark">
           {$_("crmOverview")}
         </Heading>
 
