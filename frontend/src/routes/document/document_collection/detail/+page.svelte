@@ -306,13 +306,15 @@ All Rights Reserved
 
   function getDocumentId() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("documentid");
+    return urlParams.get("documentId");
   }
 
   $effect(async () => {
-    if (documentId) {
+    if (params.get("documentId")) {
       if (documentIdOld === "" || collectionIdOld === "") {
+        documentId = params.get("documentId");
         documentIdOld = documentId;
+        collectionId = params.get("collectionId");
         collectionIdOld = collectionId;
       } else if (
         documentId !== documentIdOld ||
