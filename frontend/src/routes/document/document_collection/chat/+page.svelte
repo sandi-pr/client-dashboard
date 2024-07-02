@@ -27,6 +27,8 @@
 
   let isLoading = $state(false); //dammy
 
+  let timer;
+
   let dataConversatonLogs = $state([
     {
       role: "assistant",
@@ -211,6 +213,7 @@
   const callStatusRag = async () => {};
 
   async function getStatusRag() {
+    let token = sessionStorage.getItem("token");
     try {
       let rag = await call.call("hexa-ai-rag", "get-rag-status", {
         URLQuery: {},
@@ -251,12 +254,18 @@
       triggerToast("error");
       console.error("Error:", error);
     }
-    setTimeout(getStatusRag, 3000);
+    timer = setTimeout(getStatusRag, 3000);
   }
 
   onMount(async () => {
     getMessages();
   });
+
+  onDestroy(() => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+});
 </script>
 
 {#if isLoading}

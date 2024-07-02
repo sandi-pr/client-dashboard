@@ -17,7 +17,17 @@ All Rights Reserved
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
-  import { Button, Heading, Card, A, P, Dropdown, DropdownItem, Modal, Input } from "flowbite-svelte";
+  import {
+    Button,
+    Heading,
+    Card,
+    A,
+    P,
+    Dropdown,
+    DropdownItem,
+    Modal,
+    Input,
+  } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import PencilLine from "$lib/icon/pencil-line.svelte";
   import TrashIcon from "$lib/icon/trash-01.svelte";
@@ -43,6 +53,7 @@ All Rights Reserved
   let deleteModal = $state(false);
 
   let statusRAG = $state("");
+  let timer;
 
   async function getCollections() {
     let token = sessionStorage.getItem("token");
@@ -189,7 +200,7 @@ All Rights Reserved
         }
 
         console.log("ayam", response);
-        
+
         getCollections();
         deleteModal = false;
       } catch (error) {
@@ -220,53 +231,56 @@ All Rights Reserved
 
   async function getStatusRag() {
     let token = sessionStorage.getItem("token");
-    const callStatusRag = async () => {
-      try {
-        let rag = await call.call("hexa-ai-rag", "get-rag-status", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+    try {
+      let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-        let status = rag.result.rag_status;
-        if (statusRAG.includes("!")) {
-          let status2 = status.split("!")[0].trim();
-          if (
-            status2.includes("(NOVERB)") ||
-            status2.includes("(INOVERB)") ||
-            status2.includes("(!INOVERB)")
-          ) {
-            let status3 = status2
-              .replace("(NOVERB)", "")
-              .replace("(INOVERB)", "")
-              .replace("(!INOVERB)", "")
-              .replace("(!NOVERB)", "");
-            statusRAG = status3;
-          } else {
-            statusRAG = status2;
-          }
+      let status = rag.result.rag_status;
+      if (statusRAG.includes("!")) {
+        let status2 = status.split("!")[0].trim();
+        if (
+          status2.includes("(NOVERB)") ||
+          status2.includes("(INOVERB)") ||
+          status2.includes("(!INOVERB)")
+        ) {
+          let status3 = status2
+            .replace("(NOVERB)", "")
+            .replace("(INOVERB)", "")
+            .replace("(!INOVERB)", "")
+            .replace("(!NOVERB)", "");
+          statusRAG = status3;
         } else {
-          statusRAG = status;
+          statusRAG = status2;
         }
-        console.log(rag); // Mengganti statusRAG dengan rag
-
-        if (statusRAG === "Ready") {
-          return;
-        }
-      } catch (error) {
-        console.error("Error:", error);
+      } else {
+        statusRAG = status;
       }
-      setTimeout(callStatusRag, 5000);
-    };
-    callStatusRag();
+      console.log(rag); // Mengganti statusRAG dengan rag
+
+      if (statusRAG === "Ready") {
+        return;
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    timer = setTimeout(callStatusRag, 3000);
   }
 
   onMount(async () => {
     await getStatusRag();
     await getCollections();
+  });
+
+  onDestroy(() => {
+    if (timer) {
+      clearTimeout(timer);
+    }
   });
 
   async function addDocument() {
@@ -374,23 +388,32 @@ All Rights Reserved
                                 class="text-fg-quinary-light dark:text-fg-quinary-dark"
                               /></Button
                             >
-                            <Dropdown placement="bottom" containerClass="border">
+                            <Dropdown
+                              placement="bottom"
+                              containerClass="border"
+                            >
                               <DropdownItem>
-                                <button onclick={() => {
-                                  editModal = true;
-                                  tmpCollectionName = doc.collectionName;
-                                  tmpCollectionId = doc.collectionID;
-                                }} class="flex">
+                                <button
+                                  onclick={() => {
+                                    editModal = true;
+                                    tmpCollectionName = doc.collectionName;
+                                    tmpCollectionId = doc.collectionID;
+                                  }}
+                                  class="flex"
+                                >
                                   <PencilLine
                                     svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
                                   />{$_("editCollectionName")}
                                 </button>
                               </DropdownItem>
                               <DropdownItem>
-                                <button onclick={() => {
-                                  deleteModal = true;
-                                  tmpCollectionId = doc.collectionID;
-                                }} class="flex">
+                                <button
+                                  onclick={() => {
+                                    deleteModal = true;
+                                    tmpCollectionId = doc.collectionID;
+                                  }}
+                                  class="flex"
+                                >
                                   <TrashIcon
                                     svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
                                   />{$_("deleteCollection")}
@@ -461,7 +484,7 @@ All Rights Reserved
                         </Button> -->
                       </div>
                     </div>
-                    <div
+                    <!-- <div
                       class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
                     >
                       {#await askToAI(doc.collectionID) then href}
@@ -476,7 +499,7 @@ All Rights Reserved
                           {$_("askToAI")}
                         </Button>
                       {/await}
-                    </div>
+                    </div> -->
                   </Card>
                 </div>
                 <!-- {/if} -->
@@ -494,12 +517,22 @@ All Rights Reserved
   </div>
 </div>
 
-<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
+<Modal
+  title={$_("editCollectionName")}
+  bind:open={editModal}
+  size="xs"
+  autoclose
+>
   <div class="text-center">
-    <Input bind:value={tmpCollectionName} placeholder={$_("enterCollectionName")} />
+    <Input
+      bind:value={tmpCollectionName}
+      placeholder={$_("enterCollectionName")}
+    />
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={editCollectionName} color="green" class="me-2">{$_("save")}</Button>
+    <Button onclick={editCollectionName} color="green" class="me-2"
+      >{$_("save")}</Button
+    >
   </svelte:fragment>
 </Modal>
 
@@ -509,7 +542,11 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
-    <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
+    <Button onclick={deleteDocumentCollection} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
+    <Button color="alternative" onclick={() => (deleteModal = false)}
+      >{$_("noCancel")}</Button
+    >
   </div>
 </Modal>
