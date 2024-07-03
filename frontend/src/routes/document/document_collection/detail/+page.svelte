@@ -335,8 +335,10 @@ All Rights Reserved
   onMount(() => {
     const handleUrlChange = () => {
       const newDocumentId = getDocumentId();
-      if (newDocumentId !== documentId) {
+      const newCollectionId = getCollectionId();
+      if (newDocumentId !== documentId || newCollectionId !== collectionId) {
         documentId = newDocumentId;
+        collectionId = newCollectionId;
         getDocument();
       }
     };
@@ -357,9 +359,9 @@ All Rights Reserved
   onDestroy(() => {
     window.removeEventListener("popstate", handleUrlChange);
     window.removeEventListener("pushstate", handleUrlChange);
-    if (timer) {
-      clearTimeout(timer);
-    }
+    // if (timer) {
+    //   clearTimeout(timer);
+    // }
   })
 </script>
 

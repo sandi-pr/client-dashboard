@@ -100,7 +100,7 @@ All Rights Reserved
 
         for (const document of datas) {
           if (document.status.name !== "Ready") {
-            setTimeout(getDocuments, 2000);
+            setTimeout(getDocuments(pagination.page), 2000);
             break;
           }
         }
