@@ -156,9 +156,6 @@ All Rights Reserved
           console.log(fileUrl);
 
           pdfReady = true;
-          timer = setTimeout(() => {
-            getDocument();
-          }, 3000);
         }
       } catch (error) {
         triggerToast("error");
@@ -320,26 +317,27 @@ All Rights Reserved
     return urlParams.get("collectionId");
   }
 
-  $effect(async () => {
-    documentId = getDocumentId();
-    collectionId = getCollectionId();
-    if (documentId && documentId !== documentIdOld) {
-      documentIdOld = documentId;
-      collectionIdOld = collectionId;
-      getDocument();
-    }
-    if (collectionId && collectionId !== collectionIdOld) {
-      collectionIdOld = collectionId;
-      documentIdOld = documentId;
-      getDocument();
-    }
-  }); 
+  // $effect(async () => {
+  //   documentId = getDocumentId();
+  //   collectionId = getCollectionId();
+  //   if (documentId && documentId !== documentIdOld) {
+  //     documentIdOld = documentId;
+  //     collectionIdOld = collectionId;
+  //     getDocument();
+  //   }
+  //   if (collectionId && collectionId !== collectionIdOld) {
+  //     collectionIdOld = collectionId;
+  //     documentIdOld = documentId;
+  //     getDocument();
+  //   }
+  // }); 
 
   onMount(() => {
     const handleUrlChange = () => {
       const newDocumentId = getDocumentId();
       if (newDocumentId !== documentId) {
         documentId = newDocumentId;
+        getDocument();
       }
     };
     // if (edit === "true") onEdit = true;
