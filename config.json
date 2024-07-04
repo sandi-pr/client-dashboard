@@ -726,6 +726,11 @@
                     "name": "password",
                     "type": "text",
                     "required": true
+                },
+                {
+                    "name": "authority",
+                    "type": "text",
+                    "required": true
                 }
             ]
         },
@@ -787,6 +792,11 @@
                 {
                     "name": "company",
                     "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "authority",
+                    "type": "text",
                     "required": true
                 }
             ]
@@ -2673,9 +2683,8 @@
                     "authority": {
                         "type": "enumeration",
                         "enum": [
-                            "Super Admin",
                             "Admin",
-                            "Employee"
+                            "User"
                         ],
                         "configurable": false
                     },

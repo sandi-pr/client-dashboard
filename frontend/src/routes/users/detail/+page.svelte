@@ -104,7 +104,7 @@ All Rights Reserved
             email: data.email,
             company: data.company,
             blocked: !data.is_active,
-            // authority: data.authority === "Admin" ? "admin" : "user",
+            authority: data.authority,
             // is_active: data.is_active ? "Yes" : "No",
           },
           Headers: {
@@ -122,7 +122,7 @@ All Rights Reserved
             email: data.email,
             company: data.company,
             blocked: !data.is_active,
-            // authority: data.authority === "Admin" ? "admin" : "user",
+            authority: data.authority,
             // is_active: data.is_active ? "Yes" : "No",
           },
           Headers: {
@@ -284,13 +284,13 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <!-- <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
                   {$_("authority")}
-                </P> -->
-              <!-- <div class="my-auto">
+                </P>
+              <div class="my-auto">
                   <Button
                     color="light"
                     class="py-[9px] px-3"
@@ -333,11 +333,11 @@ All Rights Reserved
                       </button>
                     </ul>
                   </div>
-                </div> -->
+                </div>
               <!-- <div class="my-auto">
                     <Badge text={data.authority} />
                   </div> -->
-              <!-- </div> -->
+              </div>
               <div class="flex flex-col gap-2 w-max">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"

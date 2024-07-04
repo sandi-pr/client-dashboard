@@ -55,6 +55,8 @@
 
   let sidebarItems = $state([]);
   let dropdownUser = $state(false);
+  let isOpen = $state({});
+  let isOpenOld = $state({});
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -83,8 +85,28 @@
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
     let home = await call.getPage("client-dashboard", "home-page");
-    sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
-    // sidebarItems = [...sidebarItems, ...sidebarAddition];
+    sidebarItems = [
+      { name: "home", href: home, icon: "home", children: [] },
+      ...sidebarAddition,
+    ];
+
+    // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
+    let isOpenSession = JSON.parse(sessionStorage.getItem("isOpen"));
+    if (isOpenSession !== null) {
+      isOpen = isOpenSession;
+    } else {
+      for (const item of sidebarItems) {
+        isOpen[item.name] = false;
+      }
+      sessionStorage.setItem("isOpen", JSON.stringify(isOpen));
+    }
+  });
+
+  $effect(() => {
+    if (JSON.stringify(isOpen) !== JSON.stringify(isOpenOld)) {
+      isOpenOld = { ...isOpen };
+      sessionStorage.setItem("isOpen", JSON.stringify(isOpen));
+    }
   });
 </script>
 
@@ -94,7 +116,7 @@
 >
   <SidebarWrapper
     class="h-full w-full lg:pt-6 lg:px-4 flex flex-col justify-between bg-white dark:bg-primary-dark"
-    divClass = 'overflow-y-hidden hover:overflow-y-auto overflow-x-hidden no-scrollbar py-4 px-3 bg-gray-50 rounded dark:bg-gray-800'
+    divClass="overflow-y-hidden hover:overflow-y-auto overflow-x-hidden no-scrollbar py-4 px-3 bg-gray-50 rounded dark:bg-gray-800"
   >
     <SidebarGroup>
       <div class="flex justify-between items-start">
@@ -105,11 +127,15 @@
           <!-- <CloseButton on:click={funcButton} class="dark:text-white" /> -->
         {/if}
       </div>
-      <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark mb-6" />
+      <Search
+        placeholder={$_("search")}
+        class="bg-white dark:bg-primary-dark mb-6"
+      />
       <!-- TODO Search component belom kelar -->
       {#each sidebarItems as item}
         {#if item.children.length > 0}
           <SidebarDropdownWrapper
+            bind:isOpen={isOpen[item.name]}
             spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
             btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
             label={$_(item.name)}
@@ -142,7 +168,11 @@
             href={item.href}
             {activeUrl}
             icon={item.icon}
-            typographyData={{ preset: "Text md/Semibold", text: $_(item.name), color: "secondary" }}
+            typographyData={{
+              preset: "Text md/Semibold",
+              text: $_(item.name),
+              color: "secondary",
+            }}
           />
         {/if}
       {/each}
@@ -166,11 +196,21 @@
             aria-labelledby="dropdownDefaultButton"
           >
             <div class="flex pb-3 justify-between rounded-lg border-b">
-              <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
+              <div
+                class="flex w-full h-full space-x-4 items-center cursor-pointer"
+              >
                 <Avatar />
                 <div class="grow">
-                  <Typography preset="Text md/Semibold" text={name} color="secondary" />
-                  <Typography preset="Text sm/Regular" text={email} color="tertiary" />
+                  <Typography
+                    preset="Text md/Semibold"
+                    text={name}
+                    color="secondary"
+                  />
+                  <Typography
+                    preset="Text sm/Regular"
+                    text={email}
+                    color="tertiary"
+                  />
                 </div>
               </div>
               <Button
@@ -185,23 +225,37 @@
             </div>
             <button
               onclick={async () => {
-               if (!isFrontend) goto(await call.getPage("client-dashboard", "users")); 
-               else goto("/crm/users");
+                if (!isFrontend)
+                  goto(await call.getPage("client-dashboard", "users"));
+                else goto("/crm/users");
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
-              <UsersOutline class="size-8 mr-4 text-secondary-light dark:text-secondary-dark" />
-              <Typography preset="Text lg/Semibold" text="Manage User" color="secondary" />
+              <UsersOutline
+                class="size-8 mr-4 text-secondary-light dark:text-secondary-dark"
+              />
+              <Typography
+                preset="Text lg/Semibold"
+                text="Manage User"
+                color="secondary"
+              />
             </button>
             <button
               onclick={async () => {
-                if (!isFrontend) goto(await call.getPage("client-dashboard", "settings")); 
+                if (!isFrontend)
+                  goto(await call.getPage("client-dashboard", "settings"));
                 else goto("/settings");
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
-              <CogOutline class="size-8 mr-4 text-secondary-light dark:text-secondary-dark" />
-              <Typography preset="Text lg/Semibold" text="Settings" color="secondary" />
+              <CogOutline
+                class="size-8 mr-4 text-secondary-light dark:text-secondary-dark"
+              />
+              <Typography
+                preset="Text lg/Semibold"
+                text="Settings"
+                color="secondary"
+              />
             </button>
           </ul>
         </div>
@@ -213,11 +267,21 @@
               dropdownUser = !dropdownUser;
             }}
           >
-            <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
+            <div
+              class="flex w-full h-full space-x-4 items-center cursor-pointer"
+            >
               <Avatar />
               <div class="grow">
-                <Typography preset="Text md/Semibold" text={name} color="secondary" />
-                <Typography preset="Text sm/Regular" text={email} color="tertiary" />
+                <Typography
+                  preset="Text md/Semibold"
+                  text={name}
+                  color="secondary"
+                />
+                <Typography
+                  preset="Text sm/Regular"
+                  text={email}
+                  color="tertiary"
+                />
               </div>
             </div>
             <Button
@@ -241,16 +305,15 @@
   </SidebarWrapper>
 </Sidebar>
 
-
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
-      display: none;
+    display: none;
   }
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 </style>

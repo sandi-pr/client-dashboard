@@ -33,7 +33,7 @@ All Rights Reserved
     email: "",
     password: "",
     createdAt: "",
-    authority: "",
+    authority: "User",
     is_active: true,
   });
 
@@ -58,6 +58,7 @@ All Rights Reserved
           email: data.email,
           username: data.username,
           password: data.password,
+          authority: data.authority,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -200,7 +201,7 @@ All Rights Reserved
                   <Helper class="text-sm !text-red-400 pt-2">{$_("passwordInfo")}</Helper>
                 {/if}
               </div>
-              <!-- <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -231,29 +232,23 @@ All Rights Reserved
                     >
                       <button
                         class="flex p-2"
-                        onclick={() => (data.authority = "Super Admin")((dropdownOpen = false))}
-                      >
-                        <Badge text="Super Admin" />
-                      </button>
-                      <button
-                        class="flex p-2"
                         onclick={() => (data.authority = "Admin")((dropdownOpen = false))}
                       >
                         <Badge text="Admin" />
                       </button>
                       <button
                         class="flex p-2"
-                        onclick={() => (data.authority = "Employee")((dropdownOpen = false))}
+                        onclick={() => (data.authority = "User")((dropdownOpen = false))}
                       >
-                        <Badge text="Employee" type="info" />
+                        <Badge text="User" type="info" />
                       </button>
                     </ul>
                   </div>
                 </div>
-                 <div class="my-auto">
+                 <!-- <div class="my-auto">
                     <Badge text={data.authority} />
-                  </div> 
-              </div> -->
+                  </div>  -->
+              </div>
               <div class="flex flex-col gap-2 w-max">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"

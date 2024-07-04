@@ -10,7 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { _ } from "svelte-i18n";
   import DataTable from "$lib/components/DataTable.svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
@@ -34,6 +34,8 @@ All Rights Reserved
   let datas = $state([]);
 
   let configs = $state({});
+
+  let timer;
 
   async function getDocuments(page) {
     let token = sessionStorage.getItem("token");
@@ -97,14 +99,9 @@ All Rights Reserved
         });
 
         datas = await Promise.all(promises);
-
-        for (const document of datas) {
-          if (document.status.name !== "Ready") {
-            setTimeout(getDocuments(pagination.page), 2000);
-            break;
-          }
-        }
       }
+
+      // timer = setTimeout(getDocuments(pagination.page), 2000);
     }
 
     documentsReady = true;
@@ -120,6 +117,10 @@ All Rights Reserved
 
   onMount(async () => {
     getDocuments(pagination.page);
+  });
+
+  onDestroy(() => {
+    if (timer) clearTimeout(timer);
   });
 
   async function addDocument() {

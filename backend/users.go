@@ -123,8 +123,13 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	users := U.Dict{}
-	status, users, err = Strapi.UsersCreate(string(username), string(email), string(password), true, false, int64(1))
+	authority, ok := ctx.Params.GetString("authority")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, users, err := Strapi.UsersCreate(string(username), string(email), string(password), true, false, int64(1))
 
 	if err != nil {
 		fmt.Println(err)
@@ -136,7 +141,7 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, user, err := Strapi.UsersUpdate(int64(users["id"].(U.Float64)), U.Dict{"fullname": fullname, "company": companyId})
+	status, user, err := Strapi.UsersUpdate(int64(users["id"].(U.Float64)), U.Dict{"fullname": fullname, "company": companyId, "authority": authority})
 
 	if err != nil {
 		fmt.Println(err)
@@ -285,6 +290,12 @@ func UpdateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	authority, ok := ctx.Params.GetString("authority")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
 	updateData := U.Dict{
 		"username":  username,
 		"email":     email,
@@ -292,6 +303,7 @@ func UpdateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		"confirmed": true,
 		"roles":     1,
 		"company":   company,
+		"authority": authority,
 	}
 
 	password, ok := ctx.Params.GetString("password")

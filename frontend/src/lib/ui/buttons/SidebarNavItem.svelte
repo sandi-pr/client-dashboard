@@ -12,6 +12,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { Typography, getIcons } from "$lib";
+  import { page } from "$app/stores";
 
   const {
     href = "/",
@@ -22,10 +23,17 @@
     classesSvg = "w-5 h-5 text-gray-700 dark:text-gray-400",
     typographyData = {},
   } = $props();
+
+  function extractPath(url) {
+    const match = url.match(/^(?:https?:\/\/)?[^\/]+(\/[^?#]*)/);
+    return match ? match[1] : url;
+  }
+
+  let activeUrl2 = $derived($page.url.pathname);
 </script>
 
 <button
-  class={href === activeUrl ? classesActive : classes}
+  class={activeUrl2 === extractPath(href) ? classesActive : classes}
   onclick={() => {
     // console.log(href);
     goto(href);

@@ -10,7 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { P, Card, Avatar, Heading, A, Button } from "flowbite-svelte";
   import { StateCard } from "$lib";
   import { _ } from "svelte-i18n";
@@ -46,6 +46,7 @@ All Rights Reserved
   let chartReady = $state(false);
   let actionItems = $state([]);
   let chartAction = $state([]);
+  let timer;
 
   async function getActionItems() {
     actionItems = [
@@ -369,7 +370,7 @@ All Rights Reserved
 
         for (const document of latestDocuments) {
           if (document.status.name !== "Ready") {
-            setTimeout(getDocumentLatest, 2000);
+            timer = setTimeout(getDocumentLatest, 2000);
             break;
           }
         }
@@ -461,6 +462,12 @@ All Rights Reserved
     generateChartData();
     getActionItems();
   });
+
+  onDestroy(() => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  })
 </script>
 
 <div class="flex dark:bg-primary-dark">
