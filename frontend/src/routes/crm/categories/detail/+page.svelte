@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Select, Textarea, Toggle, Modal } from "flowbite-svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -227,11 +227,7 @@ All Rights Reserved
                 >
                   {$_("categoryName")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.category_name}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.category_name} />
               </div>
               <div class="flex flex-col grow gap-2">
                 <P
@@ -239,11 +235,7 @@ All Rights Reserved
                 >
                   {$_("categoryId")}
                 </P>
-                <Input
-                  readonly
-                  bind:value={data.id}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw onEdit={false} bind:value={data.id} />
               </div>
               <div class="flex flex-col gap-2 justify-center w-max px-4">
                 <P
@@ -259,12 +251,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("description")}</P
                 >
-                <Textarea
-                  readonly={!onEdit}
-                  bind:value={data.description}
-                  rows="4"
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <TextareaRw {onEdit} bind:value={data.description} />
               </div>
             </div>
           </div>

@@ -25,7 +25,7 @@ All Rights Reserved
     CheckCircleSolid,
     ExclamationCircleSolid,
   } from "flowbite-svelte-icons";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, InputRw } from "$lib";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -333,11 +333,7 @@ All Rights Reserved
                 >
                   {$_("employeeName")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.employee_name}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.employee_name} />
               </div>
               <div class="flex flex-col gap-2">
                 <P
@@ -345,11 +341,7 @@ All Rights Reserved
                 >
                   {$_("employeeId")}
                 </P>
-                <Input
-                  readonly
-                  bind:value={data.employeeId}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.employeeId} />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-5">
@@ -358,12 +350,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("email")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.email}
-                  on:input={handleEmailChange}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.email} on:input={handleEmailChange} />
                 {#if onEdit}
                   {#if !emailValid && data.email.length > 0}
                     <Helper class="text-sm !text-red-400 pt-2"
@@ -377,12 +364,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("phone")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.phone}
-                  type="number"
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.phone} type="number" />
               </div>
             </div>
             <div class="flex flex-col grow gap-2">
@@ -391,11 +373,7 @@ All Rights Reserved
               >
                 {$_("address")}
               </P>
-              <Input
-                readonly={!onEdit}
-                bind:value={data.address}
-                class="bg-primary-light dark:bg-secondary-dark"
-              />
+              <InputRw {onEdit} bind:value={data.address} />
             </div>
             <div class="grid grid-cols-2 gap-5">
               <div class="flex flex-col gap-2">
@@ -403,22 +381,14 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("city")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.city}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.city} />
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("state")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.state}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.state} />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-5">
@@ -427,22 +397,14 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("zipCode")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.zip_code}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.zip_code} type="number" />
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("country")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.country}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.country} />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-5">
@@ -451,12 +413,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("dateOfBirth")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  type="date"
-                  bind:value={data.date_of_birth}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.date_of_birth} type="date" />
               </div>
               <div class="flex flex-col gap-2">
                 <P
@@ -516,22 +473,14 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("branch")}*</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.branch}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.branch} />
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("employmentStatus")}*</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.employment_status}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.employment_status} />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-5">
@@ -540,24 +489,14 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("joinDate")}*</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  type="date"
-                  bind:value={data.start_date}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.start_date} type="date" />
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("endDate")}*</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  type="date"
-                  bind:value={data.end_date}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.end_date} type="date" />
               </div>
             </div>
           </div>

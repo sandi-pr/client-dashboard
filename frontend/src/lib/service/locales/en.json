@@ -319,5 +319,12 @@
   "configure": "Configure",
   "chooseSource": "Choose Source",
   "recentCollections": "Recent Collections",
-  "select": "Select"
+  "select": "Select",
+  "invoiceId": "Invoice ID",
+  "customerId": "Customer ID",
+  "orderId": "Order ID",
+  "resourceId": "Resource ID",
+  "orderDate": "Order Date",
+  "shippingAddress": "Shipping Address",
+  "employeeId": "Employee ID"
 }

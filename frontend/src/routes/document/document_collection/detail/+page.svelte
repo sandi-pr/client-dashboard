@@ -20,7 +20,7 @@ All Rights Reserved
     Select,
     Modal,
   } from "flowbite-svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
   import {
     CheckCircleSolid,
     ExclamationCircleSolid,
@@ -459,11 +459,7 @@ All Rights Reserved
                     >
                       {$_("documentName")}
                     </P>
-                    <Input
-                      readonly={!onEdit}
-                      bind:value={data.document_title}
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <InputRw {onEdit} bind:value={data.document_title} />
                   </div>
                 </div>
                 <div class="grid grid-cols-1">
@@ -472,12 +468,7 @@ All Rights Reserved
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                       >{$_("description")}</P
                     >
-                    <Textarea
-                      readonly={!onEdit}
-                      bind:value={data.description}
-                      rows="4"
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <TextareaRw {onEdit} bind:value={data.description} />
                   </div>
                 </div>
               </div>

@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Select, Helper, Modal, Toggle } from "flowbite-svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, Typography } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
@@ -268,11 +268,7 @@ All Rights Reserved
                 >
                   {$_("fullname")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.fullname}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.fullname} />
               </div>
               <div class="flex flex-col gap-2">
                 <P
@@ -280,11 +276,7 @@ All Rights Reserved
                 >
                   {$_("personId")}
                 </P>
-                <Input
-                  readonly
-                  bind:value={data.personId}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw onEdit={false} bind:value={data.personId} />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-5">
@@ -293,12 +285,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("email")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.email}
-                  on:input={handleEmailChange}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.email} on:input={handleEmailChange} />
                 {#if onEdit}
                   {#if !emailValid && data.email.length > 0}
                     <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
@@ -310,12 +297,13 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("phone")}</P
                 >
-                <Input
+                <InputRw {onEdit} bind:value={data.phone} type="number" />
+                <!-- <Input
                   readonly={!onEdit}
                   bind:value={data.phone}
                   type="number"
                   class="bg-primary-light dark:bg-secondary-dark"
-                />
+                /> -->
               </div>
             </div>
             <div class="flex flex-col grow gap-2">
@@ -324,11 +312,7 @@ All Rights Reserved
               >
                 {$_("address")}
               </P>
-              <Input
-                readonly={!onEdit}
-                bind:value={data.address}
-                class="bg-primary-light dark:bg-secondary-dark"
-              />
+              <InputRw {onEdit} bind:value={data.address} />
             </div>
             <div class="grid grid-cols-2 gap-5">
               <div class="flex flex-col gap-2">
@@ -336,22 +320,14 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("city")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.city}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.city} />
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("state")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.state}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.state} />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-5">
@@ -360,22 +336,14 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("zipCode")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.zip_code}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.zip_code} type="number" />
               </div>
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("country")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.country}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.country} />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-5">
@@ -384,12 +352,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("dateOfBirth")}</P
                 >
-                <Input
-                  readonly={!onEdit}
-                  type="date"
-                  bind:value={data.date_of_birth}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw {onEdit} bind:value={data.date_of_birth} type="date" />
               </div>
               <div class="flex flex-col gap-2">
                 <P

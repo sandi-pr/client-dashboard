@@ -20,12 +20,13 @@ All Rights Reserved
     Modal,
     MultiSelect,
     Select,
+    Helper,
   } from "flowbite-svelte";
   import {
     CheckCircleSolid,
     ExclamationCircleSolid,
   } from "flowbite-svelte-icons";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
@@ -312,6 +313,20 @@ All Rights Reserved
     }
   }
 
+  let emailValid = $state(false);
+
+  function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  function handleEmailChange(event) {
+    const newEmail = event.target.value;
+    emailValid = validateEmail(newEmail);
+    let email = newEmail;
+    dispatch("emailChange", { email, emailValid });
+  }
+
   onMount(() => {
     if (edit === "true") onEdit = true;
     console.log("id", recruitmentId);
@@ -448,11 +463,7 @@ All Rights Reserved
                     >
                       {$_("fullName")}
                     </P>
-                    <Input
-                      readonly={!onEdit}
-                      bind:value={data.fullname}
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <InputRw {onEdit} bind:value={data.fullname} />
                   </div>
                   <div class="flex flex-col grow gap-2">
                     <P
@@ -460,11 +471,7 @@ All Rights Reserved
                     >
                       {$_("recruitmentId")}
                     </P>
-                    <Input
-                      readonly={!onEdit}
-                      bind:value={data.id}
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <InputRw bind:value={data.id} />
                   </div>
                   <div class="flex flex-col grow gap-2">
                     <P
@@ -487,11 +494,10 @@ All Rights Reserved
                     >
                       {$_("email")}
                     </P>
-                    <Input
-                      readonly={!onEdit}
-                      bind:value={data.email}
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <InputRw {onEdit} bind:value={data.email} on:input={handleEmailChange} />
+                    {#if !emailValid}
+                      <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
+                    {/if}
                   </div>
                   <div class="flex flex-col grow gap-2">
                     <P
@@ -499,11 +505,7 @@ All Rights Reserved
                     >
                       {$_("phone")}
                     </P>
-                    <Input
-                      readonly={!onEdit}
-                      bind:value={data.phone}
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <InputRw {onEdit} bind:value={data.phone} type="number" />
                   </div>
                 </div>
                 <div class="grid grid-cols-1">
@@ -512,12 +514,7 @@ All Rights Reserved
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                       >{$_("address")}</P
                     >
-                    <Textarea
-                      readonly={!onEdit}
-                      bind:value={data.address}
-                      rows="4"
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <TextareaRw {onEdit} bind:value={data.address} />
                   </div>
                 </div>
                 <div class="flex gap-5">
@@ -527,11 +524,7 @@ All Rights Reserved
                     >
                       {$_("educationHistory")}
                     </P>
-                    <Input
-                      readonly={!onEdit}
-                      bind:value={data.education_history}
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <InputRw {onEdit} bind:value={data.education_history} />
                   </div>
                 </div>
               </div>
@@ -568,11 +561,7 @@ All Rights Reserved
                     >
                       {$_("experience")}
                     </P>
-                    <Input
-                      readonly={!onEdit}
-                      bind:value={data.experience}
-                      class="bg-primary-light dark:bg-secondary-dark"
-                    />
+                    <InputRw {onEdit} bind:value={data.experience} />
                   </div>
                 </div>
               </div>

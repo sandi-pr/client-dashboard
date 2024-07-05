@@ -12,6 +12,7 @@
 <script lang="ts">
   import { P } from "flowbite-svelte";
   import { getTextColors } from "$lib";
+  import { twMerge } from 'tailwind-merge'
 
   let { preset = "Text md/Regular", text = "", color = "primary", propClass = "" } = $props();
 
@@ -36,7 +37,7 @@
   let [group, weight] = preset.split("/") as [string, string];
   let { size, leading } = presets[group] || {};
 
-  let classes = propClass + leading.includes("px") ? ` leading-[${leading}]` : ` leading-${leading}`;
+  let classes = twMerge(propClass, leading.includes("px") ? ` leading-[${leading}]` : ` leading-${leading}`);
 </script>
 
 <P {size} color={getTextColors(color)} weight={weight.toLowerCase()} class={classes}>

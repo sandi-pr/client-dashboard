@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button } from "flowbite-svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, InputRw } from "$lib";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -296,37 +296,25 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Order ID
+                  {$_("orderId")}
                 </P>
-                <Input
-                  readonly
-                  bind:value={data.orderId}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.orderId} />
               </div>
               <div class="flex flex-col w-max gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Customer ID
+                  {$_("customerId")}
                 </P>
-                <Input
-                  readonly
-                  bind:value={data.customerId}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.customerId} />
               </div>
               <div class="flex flex-col w-max gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Order Date
+                  {$_("orderDate")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.order_date}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.order_date} />
               </div>
               <!-- <div class="flex flex-col w-max gap-2">
                 <P
@@ -334,11 +322,7 @@ All Rights Reserved
                 >
                   Booking Date
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.booking_date}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.booking_date} />
               </div> -->
             </div>
             <div class="flex gap-5">
@@ -346,37 +330,25 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Total Amounts
+                  {$_("totalAmount")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.total_amount}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.total_amount} />
               </div>
               <div class="flex flex-col w-max gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Payment Status
+                  {$_("paymentStatus")}
                 </P>
-                <Input
-                  readonly
-                  bind:value={data.payment_status}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.payment_status} />
               </div>
               <div class="flex flex-col w-max gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Order Status
+                  {$_("orderStatus")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.order_status}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.order_status} />
               </div>
             </div>
           </div>
@@ -448,37 +420,25 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Time
+                  {$_("productName")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.product.name}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.product.name} />
               </div>
               <div class="flex flex-col w-max gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Product ID
+                  {$_("productId")}
                 </P>
-                <Input
-                  readonly
-                  bind:value={data.product.id}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.product.id} />
               </div>
               <div class="flex flex-col w-max gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Resource ID
+                  {$_("resourceId")}
                 </P>
-                <Input
-                  readonly
-                  bind:value={data.product.resourceId}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.product.resourceId} />
               </div>
             </div>
           </div>
@@ -497,13 +457,9 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  Shipping Address
+                  {$_("shippingAddress")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.shipping_address}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <InputRw bind:value={data.shipping_address} />
               </div>
             </div>
           </div>

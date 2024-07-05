@@ -20,7 +20,7 @@ All Rights Reserved
     Toggle,
     Modal,
   } from "flowbite-svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
@@ -480,11 +480,7 @@ All Rights Reserved
                   >
                     {$_("productName")}
                   </P>
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={data.product_name}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <InputRw {onEdit} bind:value={data.product_name} />
                 </div>
                 <div class="flex flex-col gap-2">
                   <P
@@ -492,11 +488,7 @@ All Rights Reserved
                   >
                     {$_("productId")}
                   </P>
-                  <Input
-                    readonly
-                    bind:value={data.productId}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <InputRw bind:value={data.productId} />
                 </div>
               </div>
               <div class="grid grid-cols-1">
@@ -505,12 +497,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("description")}</P
                   >
-                  <Textarea
-                    readonly={!onEdit}
-                    bind:value={data.description}
-                    rows="4"
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <TextareaRw {onEdit} bind:value={data.description} />
                 </div>
               </div>
             </div>
@@ -532,12 +519,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("pricing")}</P
                   >
-                  <Input
-                    type="number"
-                    readonly={!onEdit}
-                    bind:value={data.price}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <InputRw {onEdit} bind:value={data.price} type="number" />
                 </div>
                 <div class="flex flex-col col-span-2 gap-2">
                   <P
@@ -625,22 +607,14 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("name")}</P
                   >
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={resource.resource_name}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <InputRw {onEdit} bind:value={resource.resource_name} />
                 </div>
                 <div class="flex flex-col col-span-5 gap-2">
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("description")}</P
                   >
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={resource.description}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <InputRw {onEdit} bind:value={resource.description} />
                 </div>
                 <!-- <div class="flex flex-col col-span-2 gap-2">
                   <P

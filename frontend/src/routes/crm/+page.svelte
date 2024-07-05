@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { P, Card, Avatar, Heading, A, Button } from "flowbite-svelte";
-  import { StateCard } from "$lib";
+  import { StateCard, Typography } from "$lib";
   import { _ } from "svelte-i18n";
   import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
   import PackagePlusIcon from "$lib/icon/package-plus.svelte";
@@ -20,7 +20,7 @@ All Rights Reserved
   import Chart from "$lib/components/Chart.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { CR3Call } from "hexacomponents-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
@@ -581,9 +581,10 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Heading tag="h2" class="fluid-3xl font-jakarta text-primary-light dark:text-primary-dark">
+        <!-- <Heading class="fluid-3xl font-jakarta text-primary-light dark:text-primary-dark">
           {$_("crmOverview")}
-        </Heading>
+        </Heading> -->
+        <Typography preset="Display sm/Semibold" text={$_("crmOverview")} propClass="fluid-xl" />
 
         <!-- Action Items -->
         <div>
@@ -610,10 +611,7 @@ All Rights Reserved
                   /></Avatar
                 >
                 <div class="ml-4 gap[2px]">
-                  <P
-                    class="font-jakarta text-base font-semibold leading-normal text-primary-light dark:text-primary-dark"
-                    >{$_(toCamelCase(item.actionName))}</P
-                  >
+                  <Typography preset="Text md/Semibold" text={$_(toCamelCase(item.actionName))} />
                   <P
                     class="font-jakarta text-sm font-normal leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_(toCamelCase(item.desc))}</P

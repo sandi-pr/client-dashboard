@@ -309,12 +309,19 @@
     "totalPage": "Total Halaman",
     "uploadImage": "Unggah Gambar",
     "newOcr": "OCR Baru",
-    "categoryId": "Kategori ID",
-    "recruitmentId": "Rekrutmen ID",
+    "categoryId": "ID Kategori",
+    "recruitmentId": "ID Rekrutmen",
     "general": "Umum",
     "collections": "Koleksi",
     "configure": "Konfigurasi",
     "chooseSource": "Pilih koleksi",
     "recentCollections": "Koleksi Terbaru",
-    "select": "Pilih"
+    "select": "Pilih",
+    "invoiceId": "ID Invoice",
+    "customerId": "ID Customer",
+    "orderId": "ID Order",
+    "resourceId": "ID Resource",
+    "orderDate": "Tanggal Order",
+    "shippingAddress": "Alamat Pengiriman",
+  "employeeId": "ID Karyawan"
 }
