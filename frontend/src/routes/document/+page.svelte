@@ -287,14 +287,14 @@ All Rights Reserved
   async function getChartAction(totalPersons, activePersons, inactivePersons) {
     chartAction = [
       {
-        href: await call.getPage("client-dashboard", "document-management"),
+        href: await call.getPage("client-dashboard", "document-collection"),
         dataName: "Total Documents",
         value: totalPersons.total,
         change: totalPersons.change,
         changeType: totalPersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-management"),
+        href: await call.getPage("client-dashboard", "document-collection"),
         dataName: "Document Collection",
         value: activePersons.total,
         change: activePersons.change,
@@ -313,7 +313,7 @@ All Rights Reserved
   let latestDocuments = $state([]);
 
   async function viewAll() {
-    goto(await call.getPage("client-dashboard", "document-management"));
+    goto(await call.getPage("client-dashboard", "document-collection"));
   }
 
   async function getDocumentLatest() {
@@ -353,7 +353,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                    `${await call.getPage("client-dashboard", "document-collection-detail")}` +
                     "?documentId=" +
                     document.id  +
                     "&collectionId=" + document.attributes.collection_id +

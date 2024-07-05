@@ -66,7 +66,7 @@ All Rights Reserved
               type: "brand",
               name: document.attributes.status[document.attributes.status.length - 1].status,
             },
-            member: document.attributes.signers.map((signer) => {
+            recipients: document.attributes.signers.map((signer) => {
               return {
                 url: "",
               };

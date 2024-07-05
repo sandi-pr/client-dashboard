@@ -108,11 +108,11 @@ All Rights Reserved
   }
 
   async function next() {
-    getUsers(pagination.page + 1);
+    getDocuments(pagination.page + 1);
   }
 
   async function previous() {
-    getUsers(pagination.page - 1);
+    getDocuments(pagination.page - 1);
   }
 
   onMount(async () => {

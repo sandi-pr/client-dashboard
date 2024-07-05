@@ -35,6 +35,7 @@ All Rights Reserved
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
   import { createEventDispatcher } from "svelte";
+  import PdfViewer from "svelte-pdf";
   import { generateUniqueId } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
@@ -333,32 +334,11 @@ All Rights Reserved
   // }); 
 
   onMount(() => {
-    const handleUrlChange = () => {
-      const newDocumentId = getDocumentId();
-      const newCollectionId = getCollectionId();
-      if (newDocumentId !== documentId || newCollectionId !== collectionId) {
-        documentId = newDocumentId;
-        collectionId = newCollectionId;
-        getDocument();
-      }
-    };
-    // if (edit === "true") onEdit = true;
-
-    window.addEventListener("popstate", handleUrlChange);
-    window.addEventListener("pushstate", handleUrlChange); // In case you use pushState for navigation
-
     getPersons();
     getDocument();
-
-    return () => {
-      window.removeEventListener("popstate", handleUrlChange);
-      window.removeEventListener("pushstate", handleUrlChange);
-    };
   });
 
   onDestroy(() => {
-    window.removeEventListener("popstate", handleUrlChange);
-    window.removeEventListener("pushstate", handleUrlChange);
     // if (timer) {
     //   clearTimeout(timer);
     // }
@@ -432,7 +412,10 @@ All Rights Reserved
           >
             {#if pdfReady}
               {#if data.ext === ".pdf"}
-                <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe>
+                <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
+                <div class="flex justify-center">
+                  <PdfViewer showBorder={false} showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]} scale={1} data={atob(base64)} />
+                </div>
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}
                   <p class="dark:text-white">{paragraphs}</p>
