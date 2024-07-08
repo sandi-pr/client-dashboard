@@ -326,5 +326,12 @@
   "resourceId": "Resource ID",
   "orderDate": "Order Date",
   "shippingAddress": "Shipping Address",
-  "employeeId": "Employee ID"
+  "employeeId": "Employee ID",
+  "finetuning": "Fine-tuning",
+  "addNewFinetuningData": "Add new Fine-tuning data",
+  "trainingData": "Training Data",
+  "imageUpload": "Image Upload",
+  "sourceText": "Source Text",
+  "upload": "Upload",
+  "startTraining": "Start Training"
 }

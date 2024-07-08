@@ -25,6 +25,7 @@
   } = $props();
 
   function extractPath(url) {
+    if (!url) return;
     const match = url.match(/^(?:https?:\/\/)?[^\/]+(\/[^?#]*)/);
     return match ? match[1] : url;
   }

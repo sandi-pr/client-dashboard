@@ -172,6 +172,12 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "document-contract"),
             name: "contract",
           },
+          {
+            href: isFrontend
+              ? "/document/finetuning"
+              : await call.getPage("client-dashboard", "document-finetuning"),
+            name: "finetuning",
+          },
         ],
       },
       {
@@ -362,7 +368,7 @@ All Rights Reserved
               </div>
               <div class="h-screen pt-20">
                 {#if hideScroll()}
-                  <div class="h-full overflow-y-auto no-scrollbar">
+                  <div class="h-full overflow-y-auto">
                     <slot />
                   </div>
                 {:else}
