@@ -1024,6 +1024,11 @@
                     "required": true
                 },
                 {
+                    "name": "description",
+                    "type": "text",
+                    "required": true
+                },
+                {
                     "name": "date",
                     "type": "date",
                     "required": true
@@ -1046,6 +1051,10 @@
                         "No"
                     ],
                     "required": true
+                },
+                {
+                    "name": "person",
+                    "type": "string"
                 }
             ]
         },
@@ -2270,7 +2279,7 @@
                     },
                     "person": {
                         "type": "relation",
-                        "relation": "manyToOne",
+                        "relation": "manyToMany",
                         "target": "api::person.person",
                         "inversedBy": "booking"
                     },
@@ -2367,7 +2376,7 @@
                     },
                     "booking": {
                         "type": "relation",
-                        "relation": "oneToMany",
+                        "relation": "manyToMany",
                         "target": "api::booking.booking",
                         "mappedBy": "person"
                     },

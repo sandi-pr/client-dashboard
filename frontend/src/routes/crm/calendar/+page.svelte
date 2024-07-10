@@ -253,6 +253,8 @@
                 title: item.title,
                 timeStart: event.timeStart,
                 timeEnd: event.timeEnd,
+                description: item.description,
+                person: item.person.join(", "),
               });
             }
           } else {
@@ -261,6 +263,8 @@
               title: item.title,
               timeStart: event.timeStart,
               timeEnd: event.timeEnd,
+              description: item.description,
+              person: item.person,
             });
           }
         }
@@ -404,6 +408,7 @@
   const resetSchedule = () => {
     newSchedule = {
       title: "",
+      description: "",
       dateEvent: [
         {
           date: new Date(),
@@ -416,6 +421,7 @@
           timeEnd: format(new Date(), "kk:mm"),
         },
       ],
+      person : [],
     };
   };
 
@@ -427,6 +433,7 @@
     const postProcessedDate = newSchedule.dateEvent.map((date, index) => {
       return {
         title: newSchedule.title,
+        description: newSchedule.description,
         datetime: new Date(
           index === 0
             ? newSchedule.dateEvent[0].date + "T" + date.timeStart + ":00"
@@ -490,6 +497,7 @@
               ),
             description: postProcessedDate[0].description,
             is_active: "Yes",
+            person: JSON.stringify(newSchedule.person),
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -552,6 +560,7 @@
                   ).slice(-3),
                 description: postProcessedDate[0].description,
                 is_active: "Yes",
+                person: JSON.stringify(newSchedule.person),
               },
               Headers: {
                 Authorization: "Bearer " + token,
@@ -901,6 +910,7 @@
             date.setDate(date.getDate() - 1);
             return {
               title: item.attributes.title,
+              description: item.attributes.description,
               dateEvent: [
                 {
                   date: date.toISOString().split("T")[0],
@@ -908,6 +918,9 @@
                   timeEnd: item.attributes.end_time.substring(0, 5),
                 },
               ],
+              person: item.attributes.person.data.map((item) => {
+                return item.attributes.fullname;
+              }),
             };
           });
           schedule = await Promise.all(promise);
@@ -1710,6 +1723,13 @@
             readonly
             class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
           />
+
+          <Label class="mt-4 ml-2 text-lg">Description</Label>
+          <Textarea
+            bind:value={event.description}
+            readonly
+            class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default resize-none"
+          />
           <div class="mt-4 flex items-center w-full gap-4">
             <div class="flex-grow">
               <Label class="ml-2 text-lg">Time Start</Label>
@@ -1728,6 +1748,14 @@
               />
             </div>
           </div>
+
+          <Label class="mt-4 ml-2 text-lg" for="multiselect-disabled">Person</Label>
+          <Input
+            bind:value={event.person}
+            readonly
+            class="bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus:ring-0 border-gray-300 focus:border-gray-300 dark:border-gray-500 focus:dark:border-gray-500 cursor-default"
+          />
+          
           <div class="flex justify-end mt-2">
             <Button
               class="text-nowrap"

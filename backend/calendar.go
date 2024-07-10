@@ -62,6 +62,7 @@ func GetSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 				"$lte": end_date,
 			},
 		},
+		"populate": "*",
 	})
 
 	if err != nil {
@@ -125,6 +126,12 @@ func CreateSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	description, ok := ctx.Params.GetString("description")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
 	date, ok := ctx.Params.GetString("date")
 
 	if !ok {
@@ -149,25 +156,62 @@ func CreateSchedule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, booking, err := Strapi.Create("booking-table", U.Dict{
-		"title":      title,
-		"date":       date,
-		"start_time": start_time,
-		"end_time":   end_time,
-		"is_active":  is_active,
-	})
+	personString, ok := ctx.Params.GetString("person")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var person []interface{}
+	err = json.Unmarshal([]byte(personString), &person)
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var booking U.Dict
+
+	if len(person) > 0 {
+		status, booking, err = Strapi.Create("booking-table", U.Dict{
+			"title":       title,
+			"description": description,
+			"date":        date,
+			"start_time":  start_time,
+			"end_time":    end_time,
+			"is_active":   is_active,
+			"person":      person,
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+	} else {
+		status, booking, err = Strapi.Create("booking-table", U.Dict{
+			"title":       title,
+			"description": description,
+			"date":        date,
+			"start_time":  start_time,
+			"end_time":    end_time,
+			"is_active":   is_active,
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+	}
 
 	fmt.Println("booking", booking)
-
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	if status != 200 {
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
-	}
 
 	return 200, booking, nil
 }
