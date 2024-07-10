@@ -172,26 +172,26 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "document-contract"),
             name: "contract",
           },
-          {
-            href: isFrontend
-              ? "/document/finetuning"
-              : await call.getPage("client-dashboard", "document-finetuning"),
-            name: "finetuning",
-          },
+          // {
+          //   href: isFrontend
+          //     ? "/document/finetuning"
+          //     : await call.getPage("client-dashboard", "document-finetuning"),
+          //   name: "finetuning",
+          // },
         ],
       },
-      {
-        icon: "fileAttachment",
-        name: "documentSigning",
-        children: [
-          {
-            href: isFrontend
-              ? "/document_signing"
-              : await call.getPage("client-dashboard", "document-signing-overview"),
-            name: "overview",
-          },
-        ],
-      },
+      // {
+      //   icon: "fileAttachment",
+      //   name: "documentSigning",
+      //   children: [
+      //     {
+      //       href: isFrontend
+      //         ? "/document_signing"
+      //         : await call.getPage("client-dashboard", "document-signing-overview"),
+      //       name: "overview",
+      //     },
+      //   ],
+      // },
       {
         icon: "userSquare",
         name: "HR",

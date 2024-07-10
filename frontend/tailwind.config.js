@@ -8,13 +8,28 @@
  */
 
 /** @type {import('tailwindcss').Config}*/
+
+const { createThemes } = require('tw-colors');
+
 const config = {
   content: [
     "./src/**/*.{html,js,svelte,ts}",
     "./node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}",
   ],
 
-  plugins: [require("flowbite/plugin"), require("@tailwindcss/typography"), require("tailwind-fluid-typography")],
+  plugins: [
+    require("flowbite/plugin"), 
+    require("@tailwindcss/typography"), 
+    require("tailwind-fluid-typography"),
+    createThemes({
+      forest: {
+        primary: '#2A9D8F',
+        'secondary': '#E9C46A',
+        'brand': '#264653',
+        ontest: '#E9C46A',
+      },
+    })
+  ],
 
   darkMode: "class",
 

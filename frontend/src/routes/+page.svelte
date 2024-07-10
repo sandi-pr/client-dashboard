@@ -11,11 +11,11 @@ All Rights Reserved
 -->
 
 <script>
-  import { SectionHeader, Typography, CR3Call } from "hexacomponents-svelte";
-  import { Card } from "$lib";
+  import { CR3Call } from "hexacomponents-svelte";
+  import { Card, Typography, SectionHeader } from "$lib";
   import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
-  import { Alert, CloseButton } from "flowbite-svelte";
+  import { Alert, CloseButton, P } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
@@ -99,16 +99,6 @@ All Rights Reserved
   </div>
 {/if}
 <div class="flex flex-col gap-4 px-4 pt-8">
-  <!-- {#if isFirstTime}
-    <StateCard
-      illustration={IllustrationFirst}
-      description="Welcome to Crossroads! We need you to set up your product."
-      actionText="Product Setup"
-      funcButton={() => (isFirstTime = false)}
-    />
-  {:else}
-    <SelectedCard {companyType} />
-  {/if} -->
   {#if isFirstTime}
   <Alert dismissable on:close={setFristTime} class="relative flex justify-center">
     <CloseButton

@@ -18,7 +18,7 @@
 
 <div class="flex flex-col gap-5">
   <div class="flex justify-between items-center">
-    <Typography preset="Text lg/Bold" text={title} color="primary" />
+    <Typography preset="Text lg/Semibold" text={title} color="primary" />
     {#if hrefAction}
     <Button color="light" text="View All" funcButton={() => {goto(hrefAction)}} spaceY="mt-0" />
     {/if}
