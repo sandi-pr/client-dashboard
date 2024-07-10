@@ -330,5 +330,7 @@
   "imageUpload": "Unggah Gambar",
   "sourceText": "Teks Sumber",
   "upload": "Unggah",
-  "startTraining": "Mulai Training"
+  "startTraining": "Mulai Training",
+  "positionList": "Daftar Posisi",
+  "positionInformation": "Informasi Posisi"
 }
