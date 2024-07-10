@@ -52,12 +52,6 @@ All Rights Reserved
 
   let orderStatusCopy = $state([]);
 
-  let toastCreated = $state(false);
-  let toastUpdated = $state(false);
-  let toastError = $state(false);
-  let toastDeleted = $state(false);
-  let counter = $state(6);
-
   async function getOrder() {
     if (orderId === null) {
       triggerToast("error");
@@ -110,7 +104,10 @@ All Rights Reserved
               product: {
                 id: generateUniqueId(order.attributes.product.data?.id, "product"),
                 name: order.attributes.product.data?.attributes.product_name,
-                resourceId: JSON.stringify(order.attributes.resource.data.map((resource) => generateUniqueId(resource.id))),
+                resourceId: order.attributes.resources.data.map((resource) => {
+                  return generateUniqueId(resource.id, "resource");
+                }).join(","),
+                // resourceId: order.attributes.resources.data.map((resource) => generateUniqueId(resource.id)).join(","),
               },
               shipping_address: order.attributes.shipping_address,
             };

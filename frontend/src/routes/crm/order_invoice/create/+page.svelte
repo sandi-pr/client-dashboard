@@ -10,7 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Textarea, Select } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Textarea, Select, MultiSelect } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
@@ -27,7 +27,7 @@ All Rights Reserved
     order_date: "",
     order_time: "",
     productId: "",
-    resourceId: "",
+    resourceId: [],
     shipping_address: "",
     total_amount: 0,
   });
@@ -54,7 +54,7 @@ All Rights Reserved
             person: data.customerId,
             order_date: new Date(data.order_date + " " + data.order_time + ":00").toISOString(),
             product: data.productId,
-            resource: JSON.stringify([data.resourceId]),
+            resource: JSON.stringify(data.resourceId),
             total_amount: data.total_amount,
             shipping_address: data.shipping_address,
             order_status: JSON.stringify([
@@ -357,7 +357,7 @@ All Rights Reserved
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                       >Resource</P
                     >
-                    <Select
+                    <MultiSelect
                       bind:items={resources}
                       bind:value={data.resourceId}
                       placeholder="Select Resource"
