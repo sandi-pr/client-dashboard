@@ -333,5 +333,7 @@
   "imageUpload": "Image Upload",
   "sourceText": "Source Text",
   "upload": "Upload",
-  "startTraining": "Start Training"
+  "startTraining": "Start Training",
+  "positionList": "Position List",
+  "positionInformation": "Position Information"
 }

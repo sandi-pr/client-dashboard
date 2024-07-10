@@ -13,7 +13,7 @@ All Rights Reserved
   import { page } from "$app/stores";
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane, Splitpanes } from "svelte-splitpanes";
-  import { Datepicker } from 'flowbite-svelte';
+  import { Datepicker } from "flowbite-svelte";
   import { Navbar, Sidebar, ToastContainer } from "$lib";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -48,15 +48,9 @@ All Rights Reserved
 
   const call = isFrontend ? "" : new CR3Call(globalThis.location.origin);
 
-  const hideLayoutList = $state([
-    "/workflow/update",
-    "/workflow/create",
-    "/hexabot/webchat",
-  ]);
+  const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
 
-  const hideScrollList = $state([
-    "/document/document_collection/chat",
-  ]);
+  const hideScrollList = $state(["/document/document_collection/chat"]);
 
   const hideScroll = () => {
     return !hideScrollList.some((path) => {
@@ -75,7 +69,7 @@ All Rights Reserved
         }
       }
     });
-  }
+  };
 
   const hideLayout = () => {
     return !hideLayoutList.some((path) => {
@@ -197,9 +191,7 @@ All Rights Reserved
         name: "HR",
         children: [
           {
-            href: isFrontend
-              ? "/hr"
-              : await call.getPage("client-dashboard", "hr-overview"),
+            href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
             name: "overview",
           },
           {
@@ -225,6 +217,12 @@ All Rights Reserved
               ? "/hr/job_level"
               : await call.getPage("client-dashboard", "hr-joblevel"),
             name: "jobLevel",
+          },
+          {
+            href: isFrontend
+              ? "/hr/job_position"
+              : await call.getPage("client-dashboard", "hr-jobposition"),
+            name: "jobPosition",
           },
         ],
       },
@@ -395,12 +393,12 @@ All Rights Reserved
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
-      display: none;
+    display: none;
   }
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 </style>
