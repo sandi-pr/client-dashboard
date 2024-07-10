@@ -165,6 +165,11 @@
             "file_path": "template/document/document_collection/chat.html"
         },
         {
+            "name": "document-finetuning",
+            "path": "/document/finetuning",
+            "file_path": "template/document/finetuning.html"
+        },
+        {
             "name": "hr-overview",
             "path": "/hr",
             "file_path": "template/hr.html"
@@ -2207,6 +2212,23 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "add-data-handwriting",
+            "path": "/add-data-handwriting",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "AddDataHandwriting"
+            },
+            "params": [
+                {
+                    "name": "images",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -2250,7 +2272,7 @@
                         "type": "relation",
                         "relation": "manyToOne",
                         "target": "api::person.person",
-                        "inversedBy": "order_booking"
+                        "inversedBy": "booking"
                     },
                     "is_active": {
                         "type": "enumeration",
@@ -2868,7 +2890,7 @@
                         "type": "relation",
                         "relation": "oneToOne",
                         "target": "api::employee.employee",
-                        "inversedBy": "recruitment"
+                        "mappedBy": "recruitment"
                     }
                 }
             },
@@ -2903,6 +2925,22 @@
                     "status": {
                         "type": "json"
                     }
+                }
+            },
+            {
+                "name": "data-handwriting",
+                "label": "Data Handwriting",
+                "fields": {
+                    "image": {
+                        "type": "media",
+                        "configurable": false
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "source_text": {
+                        "type": "string"
+                    } 
                 }
             }
         ]

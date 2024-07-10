@@ -199,6 +199,27 @@ All Rights Reserved
           return;
         }
 
+
+        let response2 = await call.call(
+          "hexa-ai-rag",
+          "delete-document-by-collection-id",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              id: tmpCollectionId.toString(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          return;
+        }
+
         console.log("ayam", response);
 
         getCollections();

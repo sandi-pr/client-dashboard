@@ -35,25 +35,9 @@ All Rights Reserved
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let files = $state([]);
-  let fileTextNames = $state([]);
   let fileTextName = $state(null);
-  let base64Data = $state("");
 
   let images = $state([]);
-  let imageFileName = $state("");
-  let imageUrl = $state(null);
-  let imageFile = $state(null);
-
-  let data = $state({
-    document_title: "",
-    document_upload: null,
-    description: "",
-    document_type: "",
-    person_client: "",
-    contract_start: "",
-    contract_end: "",
-  });
 
   const handleFileUploadWrapper = () => {
     const inputElement = document.createElement("input");
@@ -105,31 +89,20 @@ All Rights Reserved
     });
   }
 
-  async function createProduct() {
+  async function addDataFineTuning() {
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
-      // if (data.document_type === "GENERAL") {
-      if (files.length > 0) {
+      if (images.length > 0) {
         try {
           let response = await call.call(
             "client-dashboard",
-            "create-document",
+            "add-data-handwriting",
             {
               URLQuery: {},
               URLParams: {},
               Params: {
-                // document_title: data.document_title,
-                // document: base64Data,
-                // document_name: fileTextName,
-                // description: data.description,
-                // document_type: data.document_type,
-                // person: 0,
-                // contract_start: format(new Date(), "yyyy-MM-dd"),
-                // contract_end: format(new Date(), "yyyy-MM-dd"),
-                // status: "Initiate",
-                documents: JSON.stringify(files),
-                collection_id: collectionId,
+                images: JSON.stringify(images),
               },
               Headers: {
                 Authorization: "Bearer " + token,
@@ -145,137 +118,21 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
-            let response2 = await call.call(
-              "hexa-ai-rag",
-              "add-document-by-collection-id",
-              {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  collection_id: collectionId,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              },
-            );
-
-            if (response2.status !== 200) {
-              console.log(response2);
-              return;
-            }
-
-            console.log(response2);
             triggerToast("created");
             // setTimeout(async () => {
-            goto(
-              (await call.getPage(
-                "client-dashboard",
-                "document-collection-list",
-              )) +
-                "?collectionId=" +
-                collectionId,
-            );
+            window.location.reload();
             // }, 3000);
           }
         } catch (error) {
           triggerToast("error");
           console.log(error);
         }
-      } else {
-        try {
-          let response = await call.call(
-            "client-dashboard",
-            "create-document",
-            {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                document_title: data.document_title,
-                document: base64Data,
-                document_name: fileTextName,
-                description: data.description,
-                document_type: data.document_type,
-                person: data.person_client,
-                contract_start: format(
-                  new Date(data.contract_start),
-                  "yyyy-MM-dd",
-                ),
-                contract_end: format(new Date(data.contract_end), "yyyy-MM-dd"),
-                status: "Initiate",
-                collection_id: collectionId,
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            },
-          );
-
-          console.log(response);
-
-          if (response.status !== 200) {
-            console.log(response);
-            return;
-          }
-
-          if (response.status === 200) {
-            let response2 = await call.call(
-              "hexa-ai-rag",
-              "add-document-by-collection-id",
-              {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  collection_id: collectionId,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              },
-            );
-
-            if (response2.status !== 200) {
-              console.log(response2);
-              return;
-            }
-
-            console.log(response2);
-            triggerToast("created");
-            // setTimeout(async () => {
-            goto(
-              (await call.getPage(
-                "client-dashboard",
-                "document-collection-list",
-              )) +
-                "?collectionId=" +
-                collectionId,
-            );
-            // }, 3000);
-          }
-        } catch (error) {
-          triggerToast("error");
-          console.log(error);
-        }
-      }
+      } 
       return;
+    } else {
+      triggerToast("error");
     }
   }
-
-  let buttonDisable = $state(true);
-
-  $effect(() => {
-    if (
-      data.document_title !== "" &&
-      data.description !== "" &&
-      data.description !== "" &&
-      data.is_active !== ""
-    ) {
-      buttonDisable = false;
-    } else {
-      buttonDisable = true;
-    }
-  });
-
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -302,7 +159,7 @@ All Rights Reserved
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
           >
-          <Button onclick={createProduct} class="px-3 focus-within:!ring-1"
+          <Button onclick={addDataFineTuning} class="px-3 focus-within:!ring-1"
             >{$_("startTraining")}</Button
           >
         </div>
@@ -321,20 +178,6 @@ All Rights Reserved
             </P>
           </div>
           <div class="flex flex-col grow gap-6">
-            <!-- <div class="flex gap-5">
-              <div class="flex flex-col grow gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >
-                  {$_("documentTitle")}*
-                </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.document_title}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
-              </div>
-            </div> -->
             <div class="flex flex-col col-span-5 gap-2">
               <P
                 class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"

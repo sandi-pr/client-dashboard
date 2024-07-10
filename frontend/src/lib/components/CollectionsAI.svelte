@@ -290,37 +290,87 @@
   async function getStatusRag() {
     let token = sessionStorage.getItem("token");
     try {
-      let rag = await call.call("hexa-ai-rag", "get-rag-status", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      // let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+      //   URLQuery: {},
+      //   URLParams: {},
+      //   Params: {},
+      //   Headers: {
+      //     Authorization: "Bearer " + token,
+      //   },
+      // });
 
-      let status = rag.result.rag_status;
-      if (statusRAG.includes("!")) {
-        let status2 = status.split("!")[0].trim();
-        if (
-          status2.includes("(NOVERB)") ||
-          status2.includes("(INOVERB)") ||
-          status2.includes("(!INOVERB)")
-        ) {
-          let status3 = status2
-            .replace("(NOVERB)", "")
-            .replace("(INOVERB)", "")
-            .replace("(!INOVERB)", "")
-            .replace("(!NOVERB)", "");
-          statusRAG = status3;
-        } else {
-          statusRAG = status2;
+      // let status = rag.result.rag_status;
+      // if (statusRAG.includes("!")) {
+      //   let status2 = status.split("!")[0].trim();
+      //   if (
+      //     status2.includes("(NOVERB)") ||
+      //     status2.includes("(INOVERB)") ||
+      //     status2.includes("(!INOVERB)")
+      //   ) {
+      //     let status3 = status2
+      //       .replace("(NOVERB)", "")
+      //       .replace("(INOVERB)", "")
+      //       .replace("(!INOVERB)", "")
+      //       .replace("(!NOVERB)", "");
+      //     statusRAG = status3;
+      //   } else {
+      //     statusRAG = status2;
+      //   }
+      // } else {
+      //   statusRAG = status;
+      // }
+      // console.log(rag);
+      let allData = [];
+      let page = 1;
+      while (true) {
+        let response = await call.call(
+          "client-dashboard",
+          "get-documents-by-collectionid",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: page,
+              page_size:25,
+              collection_id: selectedCollectionOld.id.toString(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
         }
-      } else {
-        statusRAG = status;
+
+        if (response.result.data.length > 0) {
+          allData = allData.concat(response.result.data);
+          page++;
+        } else {
+          break;
+        }
       }
-      console.log(rag);
-      if (statusRAG === "Ready") {
+
+      if (allData.length === 0) {
+        dataConversatonLogs.push({
+          role: "assistant",
+          message: "Your collection is empty",
+        })
+        return;
+      }
+
+      let allReady = true;
+
+      for (let i = 0; i < allData.length; i++) {
+        if (allData[i].attributes.status !== "Ready") {
+          allReady = false;
+          break;
+        }
+      }
+
+      if (allReady) {
         if (
           dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
             "Processing...",
@@ -345,6 +395,16 @@
           }
         }
       } else {
+        let totalDocument = allData.length;
+        let totalProcessed = 0;
+        for (let i = 0; i < allData.length; i++) {
+          if (allData[i].attributes.status === "Ready") {
+            totalProcessed++;
+          }
+        }
+        let percentage = (totalProcessed / totalDocument) * 100;
+        statusRAG = percentage.toFixed(2) + "%";
+
         if (
           dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
             "Processing...",
