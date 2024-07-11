@@ -11,8 +11,8 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { P, Card, Avatar, Heading, A, Button } from "flowbite-svelte";
-  import { StateCard, Typography } from "$lib";
+  import { P, Avatar, Heading, A, Button } from "flowbite-svelte";
+  import { StateCard, Typography, Card, ChartCard } from "$lib";
   import { _ } from "svelte-i18n";
   import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
   import PackagePlusIcon from "$lib/icon/package-plus.svelte";
@@ -41,9 +41,9 @@ All Rights Reserved
   let monthlyPersonsCounts = $state([]);
   let monthlyActivePersonsCounts = $state([]);
   let monthlyInactivePersonsCounts = $state([]);
-  let dataChartAll = $state({});
-  let dataChartNeed = $state({});
-  let dataChartComplete = $state({});
+  let dataChartTotalPersons = $state({});
+  let dataChartActivePersons = $state({});
+  let dataChartInactivePersons = $state({});
   let chartReady = $state(false);
   let actionItems = $state([]);
   let chartAction = $state([]);
@@ -52,19 +52,19 @@ All Rights Reserved
     actionItems = [
       {
         href: await call.getPage("client-dashboard", "crm-person-create"),
-        icon: UserPlusIcon,
+        icon: "userPlus",
         actionName: "Create new persons",
         desc: "desc Create New Person",
       },
       {
         href: await call.getPage("client-dashboard", "crm-product-service-create"),
-        icon: PackagePlusIcon,
+        icon: "packagePlus",
         actionName: "Create new Product & Services",
         desc: "desc Create New Product & Services",
       },
       {
         href: await call.getPage("client-dashboard", "crm-categories"),
-        icon: PackageSearchIcon,
+        icon: "packageSearch",
         actionName: "Manage Categories",
         desc: "desc Manage Categories",
       },
@@ -93,7 +93,7 @@ All Rights Reserved
       return new Intl.DateTimeFormat("en-US", options).format(date);
     };
 
-    dataChartAll = {
+    dataChartTotalPersons = {
       chart: {
         type: "area",
         fontFamily: "Inter, sans-serif",
@@ -162,7 +162,7 @@ All Rights Reserved
       },
     };
 
-    dataChartNeed = {
+    dataChartActivePersons = {
       chart: {
         type: "area",
         fontFamily: "Inter, sans-serif",
@@ -231,7 +231,7 @@ All Rights Reserved
       },
     };
 
-    dataChartComplete = {
+    dataChartInactivePersons = {
       chart: {
         type: "area",
         fontFamily: "Inter, sans-serif",
@@ -565,6 +565,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    getChartAction({ total: 0, change: 0, changeType: "-" }, { total: 0, change: 0, changeType: "-" }, { total: 0, change: 0, changeType: "-" });
     getCountPersonsPerMonth();
     generateChartData();
     getActionItems();
@@ -581,9 +582,6 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <!-- <Heading class="fluid-3xl font-jakarta text-primary-light dark:text-primary-dark">
-          {$_("crmOverview")}
-        </Heading> -->
         <Typography preset="Display sm/Semibold" text={$_("crmOverview")} propClass="fluid-xl" />
 
         <!-- Action Items -->
@@ -597,27 +595,10 @@ All Rights Reserved
             {#each actionItems as item}
               <Card
                 href={item.href}
-                horizontal="true"
-                class="cursor-pointer items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
-                size="none"
-              >
-                <Avatar
-                  size="sm"
-                  border
-                  class="!ring-0 bg-brand-secondary-light dark:bg-brand-secondary-dark !p-2 !h-10 !w-10"
-                  ><svelte:component
-                    this={item.icon}
-                    svgClass="w-5 h-5 text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
-                  /></Avatar
-                >
-                <div class="ml-4 gap[2px]">
-                  <Typography preset="Text md/Semibold" text={$_(toCamelCase(item.actionName))} />
-                  <P
-                    class="font-jakarta text-sm font-normal leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_(toCamelCase(item.desc))}</P
-                  >
-                </div>
-              </Card>
+                icon={item.icon}
+                title={$_(toCamelCase(item.actionName))}
+                description={$_(toCamelCase(item.desc))}
+              />
             {/each}
           </div>
         </div>
@@ -632,61 +613,16 @@ All Rights Reserved
           <div
             class={`grid ${showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
           >
-            {#each chartAction as { href, dataName, value, change, changeType }, index ({ href, dataName, value, change, changeType })}
-              <Card
-                horizontal="true"
-                class="grid grid-cols-12 items-center !px-4 !py-0 min-h-28 justify-between bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark shadow-sm"
-                size="none"
-              >
-                <div class="space-y-2 col-span-6 sm:col-span-7 md:col-span-5">
-                  <div class="flex items-center gap-2">
-                    <P
-                      size="base"
-                      weight="semibold"
-                      color="text-secondary-light dark:text-secondary-dark"
-                      class="font-jakarta">{$_(toCamelCase(dataName))}</P
-                    >
-                    <P
-                      size="sm"
-                      weight="bold"
-                      color={`${
-                        changeType === "decrease"
-                          ? "text-error-primary-light dark:text-error-primary-dark"
-                          : changeType === "increase"
-                            ? "text-success-primary-light dark:text-success-primary-dark"
-                            : ""
-                      }`}
-                      class="font-jakarta leading-tight"
-                      >{`${changeType === "decrease" ? "" : changeType === "increase" ? "+" : ""}${change}`}</P
-                    >
-                  </div>
-                  <P
-                    size="xl"
-                    weight="semibold"
-                    color="text-gray-900"
-                    class="font-jakarta leading-[30px] text-primary-light dark:text-primary-dark"
-                    >{value}</P
-                  >
-                  <A
-                    {href}
-                    class="text-sm font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark font-jakarta leading-tight"
-                    >{$_("seeAll")}</A
-                  >
-                </div>
-                <div class="col-span-6 sm:col-span-5 md:col-span-7">
-                  {#if chartReady}
-                    {#if index === 0}
-                      <Chart dataChart={dataChartAll} />
-                    {:else if index === 1}
-                      <Chart dataChart={dataChartNeed} />
-                    {:else}
-                      <Chart dataChart={dataChartComplete} />
-                    {/if}
-                  {:else}
-                    <div></div>
-                  {/if}
-                </div>
-              </Card>
+            {#each chartAction as { href, dataName, value, change, changeType }, index}
+              <ChartCard
+                {href}
+                dataName = {$_(toCamelCase(dataName))}
+                {value}
+                {change}
+                {changeType}
+                {index}
+                chartList={[dataChartTotalPersons, dataChartActivePersons, dataChartInactivePersons]}
+              />
             {/each}
           </div>
         </div>

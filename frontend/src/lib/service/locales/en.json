@@ -335,5 +335,21 @@
   "upload": "Upload",
   "startTraining": "Start Training",
   "positionList": "Position List",
-  "positionInformation": "Position Information"
+  "positionInformation": "Position Information",
+  "documentCollectionOverview": "Document Collection Overview",
+  "createNewCollection": "Create new Collection",
+  "addNewCollection": "Add new Collection",
+  "addDocuments": "Add Documents",
+  "uploadDocuments": "Upload Documents",
+  "selectCollection": "Select Collection",
+  "collectionName": "Collection Name",
+  "whatIsYourCollectionTitle": "What is your collection title?",
+  "egDescription": "e.g. This is a collection of general documents",
+  "collectionList": "Collection List",
+  "ready": "Ready",
+  "aiIsReading": "AI is reading...",
+  "collectingData": "Collecting Data",
+  "askAI": "Ask AI",
+  "reading": "Reading...",
+  "startReading": "Start Reading"
 }

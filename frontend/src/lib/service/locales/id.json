@@ -332,5 +332,21 @@
   "upload": "Unggah",
   "startTraining": "Mulai Training",
   "positionList": "Daftar Posisi",
-  "positionInformation": "Informasi Posisi"
+  "positionInformation": "Informasi Posisi"  ,
+  "documentCollectionOverview": "Koleksi Dokumen",
+  "createNewCollection": "Buat Koleksi baru",
+  "addNewCollection": "Tambahkan Koleksi baru",
+  "addDocuments": "Tambahkan Dokumen",
+  "uploadDocuments": "Unggah Dokumen",
+  "selectCollection": "Pilih Koleksi",
+  "collectionName": "Nama Koleksi",
+  "whatIsYourCollectionTitle": "Apa judul koleksi Anda?",
+  "egDescription": "Contoh: Koleksi dokumen umum",
+  "collectionList": "Daftar Koleksi",
+  "ready": "Siap",
+  "aiIsReading": "AI sedang membaca...",
+  "collectingData": "Mengumpulkan Data",
+  "askAI": "Tanya AI",
+  "reading": "Membaca...",
+  "startReading": "Mulai Membaca"
 }

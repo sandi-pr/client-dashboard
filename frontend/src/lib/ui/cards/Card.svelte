@@ -28,7 +28,7 @@
 </script>
 
 <button {onclick}>
-  <Card {href} horizontal={true} class={`items-center w-full ${type === "ledger" ? "!p-6 border-secondary-light dark:border-secondary-dark" : "min-h-28 !p-4 border-brand-light dark:border-primary-dark gap-3"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark shadow-sm hover:no-underline`} size="none">
+  <Card {href} horizontal={true} class={`md:items-center w-full ${type === "ledger" ? "!p-6 border-secondary-light dark:border-secondary-dark" : "min-h-28 !p-4 border-brand-light dark:border-primary-dark gap-3"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark shadow-sm hover:no-underline`} size="none">
     {#if icon}
       <FeaturedIcon classesSvg={getIcons(icon)} />
     {/if}

@@ -19,11 +19,33 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
+  import { writable } from "svelte/store";
 
   const call = new CR3Call(globalThis.location.origin);
   let userData = $state({ username: "", email: "", brand: "" });
 
   let isFirstTime = $state(true);
+
+  const cards = [
+    {
+      icon: 'users',
+      title: 'crmOverview',
+      description: 'descCrm',
+      page: 'crm-overview'
+    },
+    {
+      icon: 'fileShield',
+      title: 'documentCollection',
+      description: 'documentCollection',
+      page: 'document-collection'
+    },
+    {
+      icon: 'userSquare',
+      title: 'HR',
+      description: 'descHr',
+      page: 'hr-overview'
+    }
+  ];
 
   function setFristTime() {
     isFirstTime = false;
@@ -82,6 +104,10 @@ All Rights Reserved
     }
   }
 
+  const navigateToPage = async (page) => {
+    goto(await call.getPage('client-dashboard', page));
+  };
+
   onMount(() => {
     getFristTime();
     CheckSetup();
@@ -89,16 +115,7 @@ All Rights Reserved
 
 </script>
 
-{#if !isFirstTime}
-  <div class="flex flex-col gap-1 px-4 pt-6">
-    <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
-    <Typography
-      text="{userData.username} - {userData.email}"
-      color="tertiary"
-    />
-  </div>
-{/if}
-<div class="flex flex-col gap-4 px-4 pt-8">
+<div class="flex flex-col gap-4 px-4 py-8">
   {#if isFirstTime}
   <Alert dismissable on:close={setFristTime} class="relative flex justify-center">
     <CloseButton
@@ -118,33 +135,22 @@ All Rights Reserved
       /> -->
     </div>
   </Alert>
+  {:else}
+  <div class="flex flex-col gap-1">
+    <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
+    <Typography
+      text="{userData.username} - {userData.email}"
+      color="tertiary"
+    />
+  </div>
   {/if}
   <SectionHeader title={$_("availableModules")} />
-  <Card
-    icon="users"
-    title="{$_('crmOverview')}"
-    description={$_("descCrm")}
-    onclick={async () => {
-      goto(await call.getPage("client-dashboard", "crm-overview"));
-      return;
-    }}
-  />
-  <Card
-    icon="fileShield"
-    title="{$_('documentCollection')}"
-    description={$_("documentCollection")}
-    onclick={async () => {
-      goto(await call.getPage("client-dashboard", "document-collection"));
-      return;
-    }}
-  />
-  <Card
-    icon="userSquare"
-    title="{$_('HR')}"
-    description={$_("descHr")}
-    onclick={async () => {
-      goto(await call.getPage("client-dashboard", "hr-overview"));
-      return;
-    }}
-  />
+  {#each cards as card}
+    <Card
+      icon={card.icon}
+      title={$_(card.title)}
+      description={$_(card.description)}
+      onclick={() => navigateToPage(card.page)}
+    />
+  {/each}
 </div>

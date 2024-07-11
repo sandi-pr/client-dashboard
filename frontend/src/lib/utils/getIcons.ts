@@ -10,6 +10,11 @@ import BellIcon from "../icon/bell-01.svelte";
 import FileShieldIcon from "../icon/file-shield-02.svelte";
 import FIleAttachmentIcon from "../icon/file-attachment-04.svelte";
 import UserSquareIcon from "../icon/user-square.svelte";
+import UserPlusIcon from "../icon/user-plus-02.svelte";
+import PackagePlusIcon from "../icon/package-plus.svelte";
+import PackageSearchIcon from "../icon/package-search.svelte";
+import FolderPlusIcon from "../icon/folder-plus.svelte";
+import FilePlusIcon from "../icon/file-plus-02.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -37,6 +42,16 @@ let getIcons = (presetIcon: String) => {
       return FIleAttachmentIcon;
     case "userSquare":
       return UserSquareIcon;
+    case "userPlus":
+      return UserPlusIcon;
+    case "packagePlus":
+      return PackagePlusIcon;
+    case "packageSearch":
+      return PackageSearchIcon;
+    case "folderPlus":
+      return FolderPlusIcon;
+    case "filePlus":
+      return FilePlusIcon;
     default:
       return "";
   }

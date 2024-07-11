@@ -12,48 +12,142 @@ All Rights Reserved
 <script>
   import { onMount, onDestroy } from "svelte";
   import { _ } from "svelte-i18n";
-  import DataTable from "$lib/components/DataTable.svelte";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
-  import { StateCard } from "$lib";
+  import { CR3Call } from "hexacomponents-svelte";
+  import { StateCard, Typography, CollectionCard, triggerToast, ToastContainer } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
-  import {
-    Button,
-    Heading,
-    Card,
-    A,
-    P,
-    Dropdown,
-    DropdownItem,
-    Modal,
-    Input,
-  } from "flowbite-svelte";
+  import { Button, Modal, Input, P, Indicator } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
-  import PencilLine from "$lib/icon/pencil-line.svelte";
-  import TrashIcon from "$lib/icon/trash-01.svelte";
-  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
+  import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
+  import upload from "$lib/icon/upload-cloud-02.svg";
 
   import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let documentsReady = $state(false);
-
-  let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
-
-  let datas = $state([]);
+  let datas = $state([
+    {
+      id: "1",
+      collectionName: "Bakrie’s Handwriting",
+      totalDocuments: 2,
+      type: "",
+      status: "ready",
+    },
+    {
+      id: "2",
+      collectionName: "Study Scriptures of Qur’an Tafsir",
+      totalDocuments: 2,
+      type: "",
+      status: "reading",
+    },
+    {
+      id: "3",
+      collectionName: "Laws and Regulations",
+      totalDocuments: 0,
+      type: "",
+      status: "collecting data",
+    },
+  ]);
 
   let collections = $state([]);
   let documents = $state([]);
-
+  let files = $state([]);
   let tmpCollectionName = $state("");
+  let tmpDescription = $state("");
   let tmpCollectionId = $state("");
+  let createModal = $state(false);
+  let addDocumentsModal = $state(false);
   let editModal = $state(false);
   let deleteModal = $state(false);
+  let dropdownOpen = $state(false);
+
+  let acceptedFileTypes = $state("");
+
+  let selectedTypeCollection = $state("");
 
   let statusRAG = $state("");
   let timer;
+
+  async function createCollection() {
+    console.log(files);
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let response;
+      if (files.length > 0) {
+        response = await call.call(
+          "client-dashboard",
+          "create-document-collection",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_name: tmpCollectionName,
+              description: tmpDescription,
+              documents: JSON.stringify(files),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+      } else {
+        response = await call.call(
+          "client-dashboard",
+          "create-document-collection",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_name: tmpCollectionName,
+              description: tmpDescription,
+              documents: "-",
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+      }
+      if (response.status !== 200) {
+        console.log(response);
+        triggerToast("error");
+        return;
+      }
+
+      console.log(response);
+
+      let response2 = await call.call(
+        "hexa-ai-rag",
+        "add-document-by-collection-id",
+        {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_id: response.result.data.id.toString(),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        },
+      );
+
+      if (response2.status !== 200) {
+        console.log(response2);
+        triggerToast("error");
+        return;
+      }
+
+      console.log(response2);
+
+      tmpCollectionName = "";
+      tmpDescription = "";
+
+      triggerToast("created");
+      goto(await call.getPage("client-dashboard", "document-collection"));
+    }
+  }
 
   async function getCollections() {
     let token = sessionStorage.getItem("token");
@@ -165,9 +259,11 @@ All Rights Reserved
         }
 
         editModal = false;
+        triggerToast("updated");
         getCollections();
       } catch (error) {
         console.log(error);
+        triggerToast("error");
       }
     } else {
       console.log("Token not found");
@@ -196,6 +292,7 @@ All Rights Reserved
 
         if (response.status !== 200) {
           console.log(response);
+          triggerToast("error");
           return;
         }
 
@@ -217,19 +314,92 @@ All Rights Reserved
 
         if (response2.status !== 200) {
           console.log(response2);
+          triggerToast("error");
           return;
         }
 
         console.log("ayam", response);
 
+        triggerToast("deleted");
+
         getCollections();
         deleteModal = false;
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     } else {
       console.log("Token not found");
     }
+  }
+
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
+
+  const handleFileUploadWrapper = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = acceptedFileTypes;
+    inputElement.multiple = true;
+
+    inputElement.addEventListener("change", async (event) => {
+      const uploadedFiles = event.target.files;
+
+      if (uploadedFiles.length > 0) {
+        for (const file of uploadedFiles) {
+          const base64Data = await readFileAsBase64(file);
+          files.push({
+            name: file.name,
+            size: formatBytes(file.size),
+            base64: base64Data,
+          });
+        }
+      } else {
+        alert("Invalid file. Please select a valid file.");
+      }
+    });
+
+    inputElement.click();
+  };
+
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const selectTypeCollection = (type) => {
+    if (type === "Documents") {
+      selectedTypeCollection = "Documents (TXT, PDF, DOC, DOCX)";
+      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
+    } else if (type === "Images") {
+      selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
+      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
+    } else if (type === "Handwriting") {
+      selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
+      acceptedFileTypes = ".pdf, .jpg, .jpeg, .png, .webp, .img";
+    }
+
+    files = [];
+
+    dropdownOpen = false;
   }
 
   const classStatusType = (type) => {
@@ -293,6 +463,12 @@ All Rights Reserved
     timer = setTimeout(callStatusRag, 3000);
   }
 
+  let buttonDisabled = $state(false);
+  
+  $effect (() => {
+    buttonDisabled = files.length === 0;
+  });
+
   onMount(async () => {
     // await getStatusRag();
     await getCollections();
@@ -337,22 +513,13 @@ All Rights Reserved
           <Typography
             preset="Display sm/Semibold"
             color="primary"
-            text={$_("documentCollectionList")}
+            text={$_("collectionList")}
           />
-          <Button onclick={addDocument} icon={PlusIcon}
+          <Button on:click={() => (createModal = true)} icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
             {$_("addNew")}</Button
           >
         </div>
-
-        <!-- Person Table Data
-        {#if datas.length > 0}
-          <DataTable bind:datas bind:configs bind:next bind:previous />
-        {:else}
-          <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          </div>
-        {/if} -->
 
         <!-- Bots List Data -->
         <div>
@@ -362,168 +529,16 @@ All Rights Reserved
             bind:value={searchTerm}
           /> -->
           {#if datas.length > 0}
-            <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
-              {#each datas as doc (doc.collectionID)}
-                <!-- {#if doc.deployStatus === "RAG Ready"} -->
-                <div class="span-col-1">
-                  <Card padding="none" size="md">
-                    <div
-                      class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-3"
-                    >
-                      <div class="flex justify-between items-center">
-                        <div class="flex flex-col">
-                          <div class="flex items-center gap-2">
-                            <Heading
-                              tag="h6"
-                              class="!font-semibold text-primary-light dark:text-primary-dark"
-                              >{`${doc.collectionName}`}</Heading
-                            >
-                            <!-- <div
-                              class={`px-2 py-0.5 rounded-full border justify-start items-center inline-flex text-center text-xs font-medium leading-[18px] 
-                              ${classStatusType(statusRAG)}`}
-                            >
-                              {statusRAG}
-                            </div> -->
-                          </div>
-                          <P
-                            size="sm"
-                            class="text-secondary-light dark:text-secondary-dark"
-                            >{`ID: ${doc.collectionID}`}</P
-                          >
-                        </div>
-                        <div class="flex items-center pl-2 gap-2">
-                          {#await getDocumentCollectionDetail(doc.collectionID) then href}
-                            <A
-                              {href}
-                              class="text-fg-brand-primary-light dark:text-fg-brand-primary-dark text-sm font-semibold hover:no-underline"
-                            >
-                              {$_("view")}
-                            </A>
-                          {/await}
-                          <div class=" flex items-center">
-                            <Button
-                              class="focus-within:ring-0 !p-0 asc"
-                              color="none"
-                              size="xs"
-                              ><DotsVerticalIcon
-                                class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                              /></Button
-                            >
-                            <Dropdown
-                              placement="bottom"
-                              containerClass="border"
-                            >
-                              <DropdownItem>
-                                <button
-                                  onclick={() => {
-                                    editModal = true;
-                                    tmpCollectionName = doc.collectionName;
-                                    tmpCollectionId = doc.collectionID;
-                                  }}
-                                  class="flex"
-                                >
-                                  <PencilLine
-                                    svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                  />{$_("editCollectionName")}
-                                </button>
-                              </DropdownItem>
-                              <DropdownItem>
-                                <button
-                                  onclick={() => {
-                                    deleteModal = true;
-                                    tmpCollectionId = doc.collectionID;
-                                  }}
-                                  class="flex"
-                                >
-                                  <TrashIcon
-                                    svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                  />{$_("deleteCollection")}
-                                </button>
-                              </DropdownItem>
-                            </Dropdown>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                    >
-                      <div class="flex justify-between items-center">
-                        <div>
-                          <P
-                            size="sm"
-                            weight="semibold"
-                            class="text-primary-light dark:text-primary-dark"
-                            >{$_("totalDocuments")}</P
-                          >
-                          <P
-                            size="sm"
-                            weight="normal"
-                            class="text-secondary-light dark:text-secondary-dark line-clamp-1"
-                            >{doc.totalDocuments}</P
-                          >
-                        </div>
-                        <!-- <Button
-                          on:click={() => copyToClipboard(bot.totalDocuments)}
-                          class="p-0 bg-transparent dark:bg-transparent hover:bg-transparent hover:dark:bg-transparent focus-within:ring-0"
-                        >
-                          <div>
-                            <CopyIcon
-                              svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                            />
-                          </div>
-                        </Button> -->
-                      </div>
-                    </div>
-                    <div
-                      class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                    >
-                      <div class="flex justify-between items-center">
-                        <div>
-                          <P
-                            size="sm"
-                            weight="semibold"
-                            class="text-primary-light dark:text-primary-dark"
-                            >{$_("activation")}</P
-                          >
-                          <P
-                            size="sm"
-                            weight="normal"
-                            class="text-secondary-light dark:text-secondary-dark line-clamp-1"
-                            >{doc.activationTime}</P
-                          >
-                        </div>
-                        <!-- <Button
-                          on:click={() => copyToClipboard(bot.activationTime)}
-                          class="p-0 bg-transparent dark:bg-transparent hover:bg-transparent hover:dark:bg-transparent focus-within:ring-0"
-                        >
-                          <div>
-                            <CopyIcon
-                              svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                            />
-                          </div>
-                        </Button> -->
-                      </div>
-                    </div>
-                    <!-- <div
-                      class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                    >
-                      {#await askToAI(doc.collectionID) then href}
-                        <Button
-                          onclick={() => {
-                            goto(href);
-                          }}
-                          disabled={statusRAG !== "Ready" ? true : false}
-                          color="light"
-                          class="w-full"
-                        >
-                          {$_("askToAI")}
-                        </Button>
-                      {/await}
-                    </div> -->
-                  </Card>
-                </div>
-                <!-- {/if} -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {#each datas as document}
+                <CollectionCard 
+                  collectionName={document.collectionName} 
+                  totalDocuments={document.totalDocuments} 
+                  status={document.status}
+                  functAddDocuments={() => (addDocumentsModal = true)}
+                  functEdit={() => (editModal = true)}
+                  functDelete={() => (deleteModal = true)}
+                />
               {/each}
             </div>
           {:else}
@@ -536,7 +551,112 @@ All Rights Reserved
       </div>
     </div>
   </div>
+  <ToastContainer />
 </div>
+
+<Modal
+  title={$_("createNewCollection")}
+  bind:open={createModal}
+  size="xs"
+  autoclose
+>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Input
+        bind:value={tmpCollectionName}
+        placeholder={$_("whatIsYourCollectionTitle")}
+      />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Input
+        bind:value={tmpDescription}
+        placeholder={$_("egDescription")}
+      />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={createCollection} disabled={!tmpCollectionName} class="w-full"
+      >{$_("addNewCollection")}</Button
+    >
+  </svelte:fragment>
+</Modal>
+
+<Modal
+  title={$_("addDocuments")}
+  bind:open={addDocumentsModal}
+  size="xs"
+>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5 relative">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Button color="light" class="flex justify-between" on:click={() => (dropdownOpen = !dropdownOpen)}>
+        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectCollection")}`}
+        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
+      </Button>
+      <div class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+          <button class="flex p-2" onclick={() => {selectTypeCollection("Documents")}}>Documents (TXT, PDF, DOC, DOCX)</button>
+          <button class="flex p-2" onclick={() => {selectTypeCollection("Images")}}>Images (JPG, JPEG, PNG, WEBP, IMG)</button>
+          <button class="flex p-2" onclick={() => {selectTypeCollection("Handwriting")}}>Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)</button>
+        </ul>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <P
+        class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+        >{$_("uploadDocuments")}</P
+      >
+      {#if files.length === 0}
+        <Button
+          onclick={() => {
+            handleFileUploadWrapper();
+          }}
+          color="light"
+          class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-3 py-4 flex flex-col justify-start items-center`}
+        >
+          <div
+            class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex pointer-events-none"
+          >
+            <img
+              src={upload}
+              alt="mail.svg"
+              class="p-4 dark:invert pointer-events-none"
+            />
+          </div>
+          <div class="flex space-x-1">
+            <P class="text-hc-brand-700 pointer-events-none"
+              >{$_("clickToUpload")}</P
+            >
+            <P class="pointer-events-none">
+              <!-- {$_("orDragAndDrop")} -->
+            </P>
+          </div>
+          <!-- <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P> -->
+        </Button>
+      {:else}
+        <div class="flex items-center justify-center">
+          <div class="relative w-min">
+            <FileTypeIcon />
+            <Indicator
+              color="purple"
+              border
+              placement="center-right"
+              class="!w-8 !h-8 text-white text-xs font-semibold p-4"
+              >+{files.length}</Indicator
+            >
+          </div>
+        </div>
+      {/if}
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={createCollection} disabled={buttonDisabled} class="w-full"
+      >{$_("addNewCollection")}</Button
+    >
+  </svelte:fragment>
+</Modal>
 
 <Modal
   title={$_("editCollectionName")}
@@ -551,7 +671,7 @@ All Rights Reserved
     />
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={editCollectionName} color="green" class="me-2"
+    <Button onclick={editCollectionName} class="me-2"
       >{$_("save")}</Button
     >
   </svelte:fragment>

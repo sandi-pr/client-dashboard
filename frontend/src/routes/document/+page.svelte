@@ -11,15 +11,15 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { P, Card, Avatar, Heading, A, Button } from "flowbite-svelte";
-  import { StateCard } from "$lib";
+  import { P, Avatar, Heading, A, Button } from "flowbite-svelte";
+  import { StateCard, Typography, SectionHeader, Card, ChartCard, CollectionCard } from "$lib";
   import { _ } from "svelte-i18n";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
   import Chart from "$lib/components/Chart.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
+  import { CR3Call } from "hexacomponents-svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
@@ -37,12 +37,12 @@ All Rights Reserved
   // let documentsComplete = [];
   // let allUrls = [];
   // let chart = true;
-  let monthlyPersonsCounts = $state([]);
-  let monthlyActivePersonsCounts = $state([]);
-  let monthlyInactivePersonsCounts = $state([]);
+  let monthlyCollectionsCounts = $state([]);
+  let monthlyCollectionReadyCounts = $state([]);
+  let monthlyCollectingDataCounts = $state([]);
   let dataChartAll = $state({});
-  let dataChartNeed = $state({});
-  let dataChartComplete = $state({});
+  let dataChartReady = $state({});
+  let dataChartCollecting = $state({});
   let chartReady = $state(false);
   let actionItems = $state([]);
   let chartAction = $state([]);
@@ -52,15 +52,9 @@ All Rights Reserved
     actionItems = [
       {
         href: await call.getPage("client-dashboard", "document-collection-create"),
-        icon: FolderPlusIcon,
+        icon: "filePlus",
         actionName: "Add new document collection",
         desc: "desc Add new document collection",
-      },      
-      {
-        href: await call.getPage("client-dashboard", "document-contract-create"),
-        icon: FilePlusIcon,
-        actionName: "Add new contract document",
-        desc: "desc Add new contract document",
       },
     ];
   }
@@ -119,7 +113,7 @@ All Rights Reserved
       series: [
         {
           name: "New users",
-          data: monthlyPersonsCounts,
+          data: monthlyCollectionsCounts,
           color: "#17B169",
         },
       ],
@@ -144,7 +138,7 @@ All Rights Reserved
       },
     };
 
-    dataChartNeed = {
+    dataChartReady = {
       chart: {
         type: "area",
         fontFamily: "Inter, sans-serif",
@@ -188,7 +182,7 @@ All Rights Reserved
       series: [
         {
           name: "New users",
-          data: monthlyActivePersonsCounts,
+          data: monthlyCollectionReadyCounts,
           color: "#17B169",
         },
       ],
@@ -213,7 +207,7 @@ All Rights Reserved
       },
     };
 
-    dataChartComplete = {
+    dataChartCollecting = {
       chart: {
         type: "area",
         fontFamily: "Inter, sans-serif",
@@ -257,7 +251,7 @@ All Rights Reserved
       series: [
         {
           name: "New users",
-          data: monthlyInactivePersonsCounts,
+          data: monthlyCollectingDataCounts,
           color: "#17B169",
         },
       ],
@@ -284,33 +278,57 @@ All Rights Reserved
     chartReady = true;
   }
 
-  async function getChartAction(totalPersons, activePersons, inactivePersons) {
+  async function getChartAction(totalCollections, readyCollection, dataCollecting) {
     chartAction = [
       {
         href: await call.getPage("client-dashboard", "document-collection"),
         dataName: "Total Documents",
-        value: totalPersons.total,
-        change: totalPersons.change,
-        changeType: totalPersons.changeType,
+        value: totalCollections.total,
+        change: totalCollections.change,
+        changeType: totalCollections.changeType,
       },
       {
         href: await call.getPage("client-dashboard", "document-collection"),
         dataName: "Document Collection",
-        value: activePersons.total,
-        change: activePersons.change,
-        changeType: activePersons.changeType,
+        value: readyCollection.total,
+        change: readyCollection.change,
+        changeType: readyCollection.changeType,
       },
       {
         href: await call.getPage("client-dashboard", "document-contract"),
         dataName: "Contract Documents",
-        value: inactivePersons.total,
-        change: inactivePersons.change,
-        changeType: inactivePersons.changeType,
+        value: dataCollecting.total,
+        change: dataCollecting.change,
+        changeType: dataCollecting.changeType,
       },
     ];
   }
 
   let latestDocuments = $state([]);
+
+  let latestDocumentCollection = $state([
+    {
+      id: "1",
+      collectionName: "Bakrie’s Handwriting",
+      totalDocuments: 2,
+      type: "",
+      status: "ready",
+    },
+    {
+      id: "2",
+      collectionName: "Study Scriptures of Qur’an Tafsir",
+      totalDocuments: 2,
+      type: "",
+      status: "reading",
+    },
+    {
+      id: "3",
+      collectionName: "Laws and Regulations",
+      totalDocuments: 0,
+      type: "",
+      status: "collecting data",
+    },
+  ]);
 
   async function viewAll() {
     goto(await call.getPage("client-dashboard", "document-collection"));
@@ -408,9 +426,11 @@ All Rights Reserved
         //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
         // );
 
-        monthlyPersonsCounts.push(response.result.document.meta.pagination.total);
-        monthlyActivePersonsCounts.push(response.result.general.meta.pagination.total);
-        monthlyInactivePersonsCounts.push(response.result.contract.meta.pagination.total);
+        monthlyCollectionsCounts.push(response.result.document.meta.pagination.total);
+        // TODO: adjust response to collection ready
+        monthlyCollectionReadyCounts.push(response.result.general.meta.pagination.total);
+        // TODO: adjust response to collecting data
+        monthlyCollectingDataCounts.push(response.result.contract.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -424,15 +444,15 @@ All Rights Reserved
         );
       }
 
-      monthlyPersonsCounts.reverse();
-      monthlyActivePersonsCounts.reverse();
-      monthlyInactivePersonsCounts.reverse();
+      monthlyCollectionsCounts.reverse();
+      monthlyCollectionReadyCounts.reverse();
+      monthlyCollectingDataCounts.reverse();
 
-      let totalPersons = groupingDataChart(monthlyPersonsCounts);
-      let activePersons = groupingDataChart(monthlyActivePersonsCounts);
-      let inactivePersons = groupingDataChart(monthlyInactivePersonsCounts);
+      let totalCollections = groupingDataChart(monthlyCollectionsCounts);
+      let readyCollection = groupingDataChart(monthlyCollectionReadyCounts);
+      let dataCollecting = groupingDataChart(monthlyCollectingDataCounts);
 
-      getChartAction(totalPersons, activePersons, inactivePersons);
+      getChartAction(totalCollections, readyCollection, dataCollecting);
     } else {
       console.log("no token");
     }
@@ -477,128 +497,57 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Heading tag="h2" class="font-jakarta text-primary-light dark:text-primary-dark">
-          {$_("documentManagementOverview")}
-        </Heading>
+        <Typography preset="Display sm/Semibold" text={$_("documentCollectionOverview")} />
 
         <!-- Action Items -->
-        <div>
-          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
-            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
-              {$_("action")}
-            </Heading>
-          </div>
+        <div class="flex flex-col gap-4">
+          <SectionHeader title={$_("action")}/>
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
             {#each actionItems as item}
               <Card
                 href={item.href}
-                horizontal="true"
-                class="cursor-pointer items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
-                size="none"
-              >
-                <Avatar
-                  size="sm"
-                  border
-                  class="!ring-0 bg-brand-secondary-light dark:bg-brand-secondary-dark !p-2 !h-10 !w-10"
-                  ><svelte:component
-                    this={item.icon}
-                    svgClass="w-5 h-5 text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
-                  /></Avatar
-                >
-                <div class="ml-4 gap[2px]">
-                  <P
-                    class="font-jakarta text-base font-semibold leading-normal text-primary-light dark:text-primary-dark"
-                    >{$_(toCamelCase(item.actionName))}</P
-                  >
-                  <P
-                    class="font-jakarta text-sm font-normal leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_(toCamelCase(item.desc))}</P
-                  >
-                </div>
-              </Card>
+                icon={item.icon}
+                title={$_(toCamelCase(item.actionName))}
+                description={$_(toCamelCase(item.desc))}
+              />
             {/each}
           </div>
         </div>
 
         <!-- Reports Monitoring -->
-        <div>
-          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
-            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
-              {$_("reports")}
-            </Heading>
-          </div>
+        <div class="flex flex-col gap-4">
+          <SectionHeader title={$_("reports")}/>
           <div
             class={`grid ${showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
           >
-            {#each chartAction as { href, dataName, value, change, changeType }, index ({ href, dataName, value, change, changeType })}
-              <Card
-                horizontal="true"
-                class="grid grid-cols-12 items-center !px-4 !py-0 min-h-28 justify-between bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark shadow-sm"
-                size="none"
-              >
-                <div class="space-y-2 col-span-6 sm:col-span-7 md:col-span-5">
-                  <div class="flex items-center gap-2">
-                    <P
-                      size="base"
-                      weight="semibold"
-                      color="text-secondary-light dark:text-secondary-dark"
-                      class="font-jakarta">{$_(toCamelCase(dataName))}</P
-                    >
-                    <P
-                      size="sm"
-                      weight="bold"
-                      color={`${
-                        changeType === "decrease"
-                          ? "text-error-primary-light dark:text-error-primary-dark"
-                          : changeType === "increase"
-                            ? "text-success-primary-light dark:text-success-primary-dark"
-                            : ""
-                      }`}
-                      class="font-jakarta leading-tight"
-                      >{`${changeType === "decrease" ? "" : changeType === "increase" ? "+" : ""}${change}`}</P
-                    >
-                  </div>
-                  <P
-                    size="xl"
-                    weight="semibold"
-                    color="text-gray-900"
-                    class="font-jakarta leading-[30px] text-primary-light dark:text-primary-dark"
-                    >{value}</P
-                  >
-                  <A
-                    {href}
-                    class="text-sm font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark font-jakarta leading-tight cursor-pointer"
-                    >{$_("seeAll")}</A
-                  >
-                </div>
-                <div class="col-span-6 sm:col-span-5 md:col-span-7">
-                  {#if chartReady}
-                    {#if index === 0}
-                      <Chart dataChart={dataChartAll} />
-                    {:else if index === 1}
-                      <Chart dataChart={dataChartNeed} />
-                    {:else}
-                      <Chart dataChart={dataChartComplete} />
-                    {/if}
-                  {:else}
-                    <div></div>
-                  {/if}
-                </div>
-              </Card>
+            {#each chartAction as { href, dataName, value, change, changeType }, index}
+              <ChartCard
+                {href}
+                dataName = {$_(toCamelCase(dataName))}
+                {value}
+                {change}
+                {changeType}
+                {index}
+                chartList={[dataChartAll, dataChartReady, dataChartCollecting]}
+              />
             {/each}
           </div>
         </div>
 
-        <div class="flex flex-col">
-          <div class="flex justify-between">
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between border-b border-secondary-light dark:border-secondary-dark pb-4">
             <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")} />
             <div></div>
             <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
           </div>
 
           <div>
-            {#if latestDocuments.length > 0}
-              <DataTable bind:datas={latestDocuments} bind:configs />
+            {#if latestDocumentCollection.length > 0}
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {#each latestDocumentCollection as document}
+                  <CollectionCard collectionName={document.collectionName} totalDocuments={document.totalDocuments} status={document.status} />
+                {/each}
+              </div>
             {:else}
               <div class="pt-6">
                 <StateCard
