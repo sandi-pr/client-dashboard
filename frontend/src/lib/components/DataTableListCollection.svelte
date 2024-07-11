@@ -137,14 +137,14 @@
 
 <div>
   <div
-    class={`flex items-center justify-between p-4 mt-8 border-t-2 border-x-2 rounded-t-lg ${withSeperator(configs)}`}
+    class={`flex items-center justify-between p-4 mt-8 border-t-2 border-x-2 border-primary-light dark:border-primary-dark rounded-t-lg ${withSeperator(configs)}`}
   >
     {#if configs?.headers}
       <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
         >{configs.headers}</Heading
       >
     {/if}
-    <div class="flex items-center gap-3 w-[20%]">
+    <div class="flex items-center gap-3">
       <Input
         id="search"
         type="search"
@@ -159,7 +159,7 @@
           <Button
             href={action.href}
             color="light"
-            class={`${classActionType(action.type)} w-[30%] px-2 py-3`}
+            class={`${classActionType(action.type)} min-w-max px-2 py-3`}
           >
             {#if action?.icon}
               {#if action.icon === "plus"}
@@ -173,7 +173,7 @@
     </div>
   </div>
   <div
-    class="[&>div]:sm:rounded-none [&>div]:sm:rounded-b-lg [&>div]:border-x-2 [&>div]:border-b-2"
+    class="[&>div]:sm:rounded-none [&>div]:sm:rounded-b-lg [&>div]:border-x-2 [&>div]:border-b-2 [&>div]:border-primary-light [&>div]:dark:border-primary-dark"
   >
     <Table class="font-jakarta dark:border-white">
       <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
@@ -186,7 +186,7 @@
             on:click={() => {
               handleCheckAll();
             }}
-            class="rounded h-5 w-5 text-white focus:outline-none checked:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
+            class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
           />
         </TableHeadCell>
         {#if datas.length > 0}
@@ -214,7 +214,7 @@
                 on:click={() => {
                   handleCheck(data.id);
                 }}
-                class="rounded h-5 w-5 text-white focus:outline-none checked:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
+                class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
               />
             </TableBodyCell>
             {#each Object.keys(datas[0]) as key}

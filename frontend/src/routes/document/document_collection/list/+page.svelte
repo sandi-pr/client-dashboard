@@ -14,7 +14,8 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
-  import { StateCard, TabBar } from "$lib";
+  import { StateCard, InputRw, TextareaRw } from "$lib";
+  import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
   import { Button, P } from "flowbite-svelte";
@@ -33,13 +34,15 @@ All Rights Reserved
 
   let datas = $state([]);
 
+  let onEdit = $state(false);
+
   let datasChecked = $state([]);
 
   let collection = $state({});
 
   let configs = $state({});
 
-  let tabDatas = {
+  let tabDatas = $state({
     selected: "Documents",
     data: [
       {
@@ -49,7 +52,7 @@ All Rights Reserved
         name: "Information",
       },
     ],
-  };
+  });
 
   let timer;
 
@@ -266,7 +269,10 @@ All Rights Reserved
         </div>
 
         <!-- Submenu -->
-        <TabBar {tabDatas} {changeTabbar} />
+        <!-- <TabBar {tabDatas} {changeTabbar} /> -->
+        <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+
+        {#if tabDatas.selected === "Documents"}
 
         <!-- Person Table Data -->
         {#if datas.length > 0}
@@ -283,6 +289,42 @@ All Rights Reserved
           <div class="pt-8">
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           </div>
+        {/if}
+
+        {:else if tabDatas.selected === "Information"}
+        <div class="flex flex-col gap-4 pt-6">
+          <!-- general information -->
+          <div class="flex gap-6">
+            <div class="w-60">
+              <P
+                class="font-semibold text-secondary-light dark:text-secondary-dark"
+              >
+                {$_("generalInformation")}
+              </P>
+            </div>
+            <div class="flex flex-col grow gap-6">
+              <div class="flex gap-5">
+                <div class="flex flex-col grow gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("collectionName")}
+                  </P>
+                  <InputRw {onEdit} bind:value={collection.name} />
+                </div>
+              </div>
+              <div class="grid grid-cols-1">
+                <div class="flex flex-col gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("description")}</P
+                  >
+                  <TextareaRw {onEdit} bind:value={collection.description} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         {/if}
       </div>
     </div>

@@ -54,11 +54,13 @@
   };
 </script>
 
-<Card class="gap-2.5 !p-0">
+<Card class="gap-2.5 justify-between !p-0">
   <div
     class="flex justify-between px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
-    <Typography preset="Text md/Semibold" text={collectionName} />
+    <button onclick={funcDetailCollection}>
+      <Typography preset="Text md/Semibold" text={collectionName} propClass="hover:underline" />
+    </button>
     <div class=" flex items-center relative">
       <Button on:click={() => (dropdownOpen = !dropdownOpen)} class="focus-within:ring-0 !p-0" color="none" size="xs"
         ><DotsVerticalIcon
@@ -74,7 +76,7 @@
       </div>
     </div>
   </div>
-  <div class="flex flex-col items-center gap-2.5 px-6 pb-6 pt-2">
+  <Card on:click={funcDetailCollection} class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-6 pt-2">
     <div class="relative">
       <FileTypeIcon />
       {#if totalDocuments > 0}
@@ -91,8 +93,8 @@
       text={$_(getTextStatus(status))}
       type={`${status === "ready" ? "success" : status === "reading" ? "warning" : "info"}`}
     />
-  </div>
-  <div class="flex border-t border-secondary-light dark:border-secondary-dark">
+  </Card>
+  <div class="flex justify-center border-t border-secondary-light dark:border-secondary-dark">
     <Button
       on:click={functButton}
       disabled={status === "reading"}
