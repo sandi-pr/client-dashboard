@@ -145,7 +145,7 @@ All Rights Reserved
             actions: {
               objects: [
                 {
-                  href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
+                  href: "/document/document_collection/detail?documentId=1&collectionId=1",
                   // `${await call.getPage("client-dashboard", "document-collection-detail")}` +
                   // "?documentId=" +
                   // document.id +
