@@ -27,27 +27,27 @@ All Rights Reserved
   const call = new CR3Call(globalThis.location.origin);
 
   let datas = $state([
-    {
-      id: "1",
-      collectionName: "Bakrie’s Handwriting",
-      totalDocuments: 2,
-      type: "",
-      status: "ready",
-    },
-    {
-      id: "2",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "3",
-      collectionName: "Laws and Regulations",
-      totalDocuments: 0,
-      type: "",
-      status: "collecting data",
-    },
+    // {
+    //   id: "1",
+    //   collectionName: "Bakrie’s Handwriting",
+    //   totalDocuments: 2,
+    //   type: "",
+    //   status: "ready",
+    // },
+    // {
+    //   id: "2",
+    //   collectionName: "Study Scriptures of Qur’an Tafsir",
+    //   totalDocuments: 2,
+    //   type: "",
+    //   status: "reading",
+    // },
+    // {
+    //   id: "3",
+    //   collectionName: "Laws and Regulations",
+    //   totalDocuments: 0,
+    //   type: "",
+    //   status: "collecting data",
+    // },
   ]);
 
   let collections = $state([]);
@@ -212,6 +212,8 @@ All Rights Reserved
         }
       }
 
+      let collectionList = await call.getPage("client-dashboard", "document-collection-list");
+
       datas = collections.map((collection) => {
         let totalDocuments = documents.filter(
           (document) => document.attributes.collection_id === collection.id,
@@ -224,6 +226,7 @@ All Rights Reserved
           ),
           collectionName: collection.attributes.collection_name,
           totalDocuments: totalDocuments,
+          href: `${collectionList}?collectionId=${collection.id}`,
         };
       });
     }
@@ -528,7 +531,7 @@ All Rights Reserved
             placeholder={$_("searchBotName")}
             bind:value={searchTerm}
           /> -->
-          {#if datas.length > 0}
+          {#if datas.length > 0 }
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {#each datas as document}
                 <CollectionCard 
@@ -538,6 +541,7 @@ All Rights Reserved
                   functAddDocuments={() => (addDocumentsModal = true)}
                   functEdit={() => (editModal = true)}
                   functDelete={() => (deleteModal = true)}
+                  funcDetailCollection={() => {goto(document.href)}}
                 />
               {/each}
             </div>

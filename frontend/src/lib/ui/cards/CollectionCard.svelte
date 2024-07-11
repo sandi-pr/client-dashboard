@@ -22,6 +22,7 @@
     functAddDocuments = () => {},
     functDelete = () => {},
     dropdownOpen = false,
+    funcDetailCollection = () => {},
   } = $props();
 
   const getTextStatus = (status) => {

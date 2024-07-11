@@ -2722,6 +2722,12 @@
                     "photo": {
                         "type": "media",
                         "configurable": false
+                    },
+                    "document-management": {
+                        "type": "relation",
+                        "relation": "oneToMany",
+                        "target": "api::document-management.document-management",
+                        "mappedBy": "user"
                     }
                 }
             },
@@ -2738,11 +2744,7 @@
                     },
                     "document_type": {
                         "type": "string",
-                        "required": true,
-                        "enum": [
-                            "GENERAL",
-                            "CONTRACT"
-                        ]
+                        "required": true
                     },
                     "document": {
                         "type": "media",
@@ -2766,6 +2768,12 @@
                     },
                     "collection_id": {
                         "type": "integer"
+                    },
+                    "upload_by": {
+                        "type": "relation",
+                        "relation": "manyToOne",
+                        "target": "plugin::users-permissions.user",
+                        "inversedBy": "document-management"
                     }
                 }
             },
