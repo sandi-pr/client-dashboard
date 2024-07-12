@@ -1438,6 +1438,11 @@
                     "name": "collection_id",
                     "type": "string",
                     "required": true
+                },
+                {
+                    "name": "document_type",
+                    "type": "string",
+                    "required": true
                 }
             ]
         },
@@ -1489,7 +1494,7 @@
                     "name": "collection_id",
                     "type": "string",
                     "required": false
-                } 
+                }
             ]
         },
         {
@@ -2009,7 +2014,7 @@
             ]
         },
         {
-            "name": "get-employee-attendances" ,
+            "name": "get-employee-attendances",
             "path": "/get-employee-attendances",
             "method": "POST",
             "content_type": "application/json",
@@ -2136,7 +2141,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "documents",
+                    "name": "description",
                     "type": "string"
                 }
             ]
@@ -2200,6 +2205,10 @@
             "params": [
                 {
                     "name": "collection_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
                     "type": "string"
                 }
             ]
@@ -2488,7 +2497,7 @@
                         "inversedBy": "order_booking"
                     }
                 }
-            },            
+            },
             {
                 "name": "product",
                 "label": "Product",
@@ -2534,7 +2543,7 @@
                         "mappedBy": "product"
                     }
                 }
-            },            
+            },
             {
                 "name": "resource",
                 "label": "Resource",
@@ -2957,7 +2966,7 @@
                     },
                     "source_text": {
                         "type": "string"
-                    } 
+                    }
                 }
             }
         ]

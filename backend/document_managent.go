@@ -46,6 +46,11 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 	fmt.Println(me)
 
+	upload_by, ok := me.GetFloat64("id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	// document_title, ok := ctx.Params.GetString("document_title")
 	// if !ok {
 	// 	return ctx.Error(400, "invalid parameters document_title")
@@ -89,6 +94,11 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	documentsString, ok := ctx.Params.GetString("documents")
 	if !ok {
 		return ctx.Error(400, "invalid parameters documents")
+	}
+
+	document_type, ok := ctx.Params.GetString("document_type")
+	if !ok {
+		return ctx.Error(400, "invalid parameters document_type")
 	}
 
 	collection_idStr, ok := ctx.Params.GetString("collection_id")
@@ -158,9 +168,10 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		status, document, err := Strapi.Create("document-management-table", U.Dict{
 			"document_title": documentName,
 			"description":    "-",
-			"document_type":  "GENERAL",
+			"document_type":  document_type,
 			"document":       id,
 			"collection_id":  collection_id,
+			"upload_by":      upload_by,
 		})
 
 		fmt.Println("document", document)
@@ -362,7 +373,7 @@ func GetDocumentsByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config
 
 	collection_id, ok := ctx.Params.GetString("collection_id")
 	if !ok {
-		return ctx.Error(500, "Internal Server Error")
+		return ctx.Error(400, "invalid parameters collection_id")
 	}
 
 	id, err := strconv.Atoi(string(collection_id))
@@ -389,6 +400,7 @@ func GetDocumentsByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config
 	}
 
 	if status != 200 {
+		fmt.Println(documents)
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}

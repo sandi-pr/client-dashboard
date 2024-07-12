@@ -56,6 +56,7 @@ All Rights Reserved
   let tmpCollectionName = $state("");
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
+  let tmpDocumentType = $state("");
   let createModal = $state(false);
   let addDocumentsModal = $state(false);
   let editModal = $state(false);
@@ -74,42 +75,18 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
-      let response;
-      if (files.length > 0) {
-        response = await call.call(
-          "client-dashboard",
-          "create-document-collection",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_name: tmpCollectionName,
-              description: tmpDescription,
-              documents: JSON.stringify(files),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          },
-        );
-      } else {
-        response = await call.call(
-          "client-dashboard",
-          "create-document-collection",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_name: tmpCollectionName,
-              description: tmpDescription,
-              documents: "-",
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          },
-        );
-      }
+      let response = await call.call("client-dashboard", "create-document-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_name: tmpCollectionName,
+          description: tmpDescription,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
       if (response.status !== 200) {
         console.log(response);
         triggerToast("error");
@@ -118,33 +95,32 @@ All Rights Reserved
 
       console.log(response);
 
-      let response2 = await call.call(
-        "hexa-ai-rag",
-        "add-document-by-collection-id",
-        {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_id: response.result.data.id.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        },
-      );
+      // let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      //   URLQuery: {},
+      //   URLParams: {},
+      //   Params: {
+      //     collection_id: response.result.data.id.toString(),
+      //   },
+      //   Headers: {
+      //     Authorization: "Bearer " + token,
+      //   },
+      // });
 
-      if (response2.status !== 200) {
-        console.log(response2);
-        triggerToast("error");
-        return;
-      }
+      // if (response2.status !== 200) {
+      //   console.log(response2);
+      //   triggerToast("error");
+      //   return;
+      // }
 
-      console.log(response2);
+      // console.log(response2);
 
       tmpCollectionName = "";
       tmpDescription = "";
 
-      triggerToast("created");
+      triggerToast("success");
+
+      createModal = false;
+      getCollections();
       goto(await call.getPage("client-dashboard", "document-collection"));
     }
   }
@@ -155,22 +131,19 @@ All Rights Reserved
     if (token !== null) {
       let page = 1;
       collections = [];
+      documents = [];
       while (true) {
-        let response = await call.call(
-          "client-dashboard",
-          "get-document-collections",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              page: page,
-              page_size: 25,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let response = await call.call("client-dashboard", "get-document-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 25,
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         if (response.status !== 200) {
           console.log(response);
@@ -185,30 +158,60 @@ All Rights Reserved
         }
       }
 
-      let page2 = 1;
-      while (true) {
-        let response2 = await call.call("client-dashboard", "get-documents", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: page2,
-            page_size: 25,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+      // let page2 = 1;
+      // while (true) {
+      //   let response2 = await call.call("client-dashboard", "get-documents", {
+      //     URLQuery: {},
+      //     URLParams: {},
+      //     Params: {
+      //       page: page2,
+      //       page_size: 25,
+      //     },
+      //     Headers: {
+      //       Authorization: "Bearer " + token,
+      //     },
+      //   });
 
-        if (response2.status !== 200) {
-          console.log(response2);
-          return;
-        }
+      //   if (response2.status !== 200) {
+      //     console.log(response2);
+      //     return;
+      //   }
 
-        if (response2.result.data.length > 0) {
-          documents = documents.concat(response2.result.data);
-          page2++;
-        } else {
-          break;
+      //   if (response2.result.data.length > 0) {
+      //     documents = documents.concat(response2.result.data);
+      //     page2++;
+      //   } else {
+      //     break;
+      //   }
+      // }
+
+      for (const collection of collections) {
+        let page = 1;
+        while (true) {
+          let response3 = await call.call("client-dashboard", "get-documents-by-collectionid", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_id: collection.id.toString(),
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response3.status !== 200) {
+            console.log(response3);
+            return;
+          }
+
+          if (response3.result.data.length > 0) {
+            documents = documents.concat(response3.result.data);
+            page++;
+          } else {
+            break;
+          }
         }
       }
 
@@ -219,11 +222,8 @@ All Rights Reserved
           (document) => document.attributes.collection_id === collection.id,
         ).length;
         return {
-          collectionID: collection.id,
-          activationTime: format(
-            collection.attributes.createdAt,
-            "dd-MM-yyyy HH:mm",
-          ),
+          collectionId: collection.id,
+          activationTime: format(collection.attributes.createdAt, "dd-MM-yyyy HH:mm"),
           collectionName: collection.attributes.collection_name,
           totalDocuments: totalDocuments,
           href: `${collectionList}?collectionId=${collection.id}`,
@@ -234,27 +234,23 @@ All Rights Reserved
 
   async function editCollectionName() {
     let token = sessionStorage.getItem("token");
-    console.log(tmpCollectionName);
-    console.log(tmpCollectionId);
 
     if (token !== null) {
       try {
-        let response = await call.call(
-          "client-dashboard",
-          "update-document-collection",
-          {
-            URLQuery: {},
-            URLParams: {
-              id: tmpCollectionId.toString(),
-            },
-            Params: {
-              collection_name: tmpCollectionName,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let response = await call.call("client-dashboard", "update-document-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
           },
-        );
+          Params: {
+            collection_name: tmpCollectionName,
+            // description: "", //tmp
+            description: "-",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         if (response.status !== 200) {
           console.log(response);
@@ -278,20 +274,16 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call(
-          "client-dashboard",
-          "delete-document-collection",
-          {
-            URLQuery: {},
-            URLParams: {
-              id: tmpCollectionId.toString(),
-            },
-            Params: {},
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let response = await call.call("client-dashboard", "delete-document-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
           },
-        );
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         if (response.status !== 200) {
           console.log(response);
@@ -299,27 +291,22 @@ All Rights Reserved
           return;
         }
 
+        // let response2 = await call.call("hexa-ai-rag", "delete-document-by-collection-id", {
+        //   URLQuery: {},
+        //   URLParams: {},
+        //   Params: {
+        //     id: tmpCollectionId.toString(),
+        //   },
+        //   Headers: {
+        //     Authorization: "Bearer " + token,
+        //   },
+        // });
 
-        let response2 = await call.call(
-          "hexa-ai-rag",
-          "delete-document-by-collection-id",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              id: tmpCollectionId.toString(),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          },
-        );
-
-        if (response2.status !== 200) {
-          console.log(response2);
-          triggerToast("error");
-          return;
-        }
+        // if (response2.status !== 200) {
+        //   console.log(response2);
+        //   triggerToast("error");
+        //   return;
+        // }
 
         console.log("ayam", response);
 
@@ -333,6 +320,36 @@ All Rights Reserved
       }
     } else {
       console.log("Token not found");
+    }
+  }
+
+  async function addDocumentByCollection() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "create-document", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          documents: JSON.stringify(files),
+          collection_id: tmpCollectionId.toString(),
+          document_type: tmpDocumentType,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        triggerToast("error");
+        return;
+      }
+
+      console.log(response);
+      tmpCollectionId = "";
+
+      triggerToast("success");
     }
   }
 
@@ -389,6 +406,8 @@ All Rights Reserved
   }
 
   const selectTypeCollection = (type) => {
+    tmpDocumentType = type;
+
     if (type === "Documents") {
       selectedTypeCollection = "Documents (TXT, PDF, DOC, DOCX)";
       acceptedFileTypes = ".txt, .pdf, .doc, .docx";
@@ -403,7 +422,7 @@ All Rights Reserved
     files = [];
 
     dropdownOpen = false;
-  }
+  };
 
   const classStatusType = (type) => {
     if (type === "Ready") {
@@ -467,8 +486,8 @@ All Rights Reserved
   }
 
   let buttonDisabled = $state(false);
-  
-  $effect (() => {
+
+  $effect(() => {
     buttonDisabled = files.length === 0;
   });
 
@@ -513,11 +532,7 @@ All Rights Reserved
       <div class="flex flex-col gap-8">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography
-            preset="Display sm/Semibold"
-            color="primary"
-            text={$_("collectionList")}
-          />
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("collectionList")} />
           <Button on:click={() => (createModal = true)} icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
             {$_("addNew")}</Button
@@ -531,25 +546,35 @@ All Rights Reserved
             placeholder={$_("searchBotName")}
             bind:value={searchTerm}
           /> -->
-          {#if datas.length > 0 }
+          {#if datas.length > 0}
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {#each datas as document}
-                <CollectionCard 
-                  collectionName={document.collectionName} 
-                  totalDocuments={document.totalDocuments} 
+                <CollectionCard
+                  collectionName={document.collectionName}
+                  totalDocuments={document.totalDocuments}
                   status={document.status}
-                  functAddDocuments={() => (addDocumentsModal = true)}
-                  functEdit={() => (editModal = true)}
-                  functDelete={() => (deleteModal = true)}
-                  funcDetailCollection={() => {goto(document.href)}}
+                  functAddDocuments={() => {
+                    tmpCollectionId = document.collectionId;
+                    addDocumentsModal = true;
+                  }}
+                  functEdit={() => {
+                    tmpCollectionId = document.collectionId;
+                    tmpCollectionName = document.collectionName;
+                    tmpDescription = document.description;
+                    editModal = true;
+                  }}
+                  functDelete={() => {
+                    tmpCollectionId = document.collectionId;
+                    deleteModal = true;
+                  }}
+                  funcDetailCollection={() => {
+                    goto(document.href);
+                  }}
                 />
               {/each}
             </div>
           {:else}
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-            />
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}
         </div>
       </div>
@@ -558,26 +583,15 @@ All Rights Reserved
   <ToastContainer />
 </div>
 
-<Modal
-  title={$_("createNewCollection")}
-  bind:open={createModal}
-  size="xs"
-  autoclose
->
+<Modal title={$_("createNewCollection")} bind:open={createModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input
-        bind:value={tmpCollectionName}
-        placeholder={$_("whatIsYourCollectionTitle")}
-      />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
-      <Input
-        bind:value={tmpDescription}
-        placeholder={$_("egDescription")}
-      />
+      <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
@@ -587,29 +601,45 @@ All Rights Reserved
   </svelte:fragment>
 </Modal>
 
-<Modal
-  title={$_("addDocuments")}
-  bind:open={addDocumentsModal}
-  size="xs"
->
+<Modal title={$_("addDocuments")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5 relative">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Button color="light" class="flex justify-between" on:click={() => (dropdownOpen = !dropdownOpen)}>
+      <Button
+        color="light"
+        class="flex justify-between"
+        on:click={() => (dropdownOpen = !dropdownOpen)}
+      >
         {`${selectedTypeCollection ? selectedTypeCollection : $_("selectCollection")}`}
         <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
       </Button>
-      <div class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
+      <div
+        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+      >
         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-          <button class="flex p-2" onclick={() => {selectTypeCollection("Documents")}}>Documents (TXT, PDF, DOC, DOCX)</button>
-          <button class="flex p-2" onclick={() => {selectTypeCollection("Images")}}>Images (JPG, JPEG, PNG, WEBP, IMG)</button>
-          <button class="flex p-2" onclick={() => {selectTypeCollection("Handwriting")}}>Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)</button>
+          <button
+            class="flex p-2"
+            onclick={() => {
+              selectTypeCollection("Documents");
+            }}>Documents (TXT, PDF, DOC, DOCX)</button
+          >
+          <button
+            class="flex p-2"
+            onclick={() => {
+              selectTypeCollection("Images");
+            }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
+          >
+          <button
+            class="flex p-2"
+            onclick={() => {
+              selectTypeCollection("Handwriting");
+            }}>Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)</button
+          >
         </ul>
       </div>
     </div>
     <div class="flex flex-col gap-1.5">
-      <P
-        class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+      <P class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
         >{$_("uploadDocuments")}</P
       >
       {#if files.length === 0}
@@ -623,16 +653,10 @@ All Rights Reserved
           <div
             class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex pointer-events-none"
           >
-            <img
-              src={upload}
-              alt="mail.svg"
-              class="p-4 dark:invert pointer-events-none"
-            />
+            <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
           </div>
           <div class="flex space-x-1">
-            <P class="text-hc-brand-700 pointer-events-none"
-              >{$_("clickToUpload")}</P
-            >
+            <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
             <P class="pointer-events-none">
               <!-- {$_("orDragAndDrop")} -->
             </P>
@@ -647,8 +671,7 @@ All Rights Reserved
               color="purple"
               border
               placement="center-right"
-              class="!w-8 !h-8 text-white text-xs font-semibold p-4"
-              >+{files.length}</Indicator
+              class="!w-8 !h-8 text-white text-xs font-semibold p-4">+{files.length}</Indicator
             >
           </div>
         </div>
@@ -656,28 +679,18 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createCollection} disabled={buttonDisabled} class="w-full"
+    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
       >{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
 </Modal>
 
-<Modal
-  title={$_("editCollectionName")}
-  bind:open={editModal}
-  size="xs"
-  autoclose
->
+<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
   <div class="text-center">
-    <Input
-      bind:value={tmpCollectionName}
-      placeholder={$_("enterCollectionName")}
-    />
+    <Input bind:value={tmpCollectionName} placeholder={$_("enterCollectionName")} />
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={editCollectionName} class="me-2"
-      >{$_("save")}</Button
-    >
+    <Button onclick={editCollectionName} class="me-2">{$_("save")}</Button>
   </svelte:fragment>
 </Modal>
 
@@ -687,11 +700,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteDocumentCollection} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
-    >
-    <Button color="alternative" onclick={() => (deleteModal = false)}
-      >{$_("noCancel")}</Button
-    >
+    <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>

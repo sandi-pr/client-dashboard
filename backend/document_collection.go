@@ -12,7 +12,6 @@ package main
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -51,18 +50,19 @@ func CreateDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		return ctx.Error(400, "invalid parameters collection_name")
 	}
 
-	// description, ok := ctx.Params.GetString("description")
-	// if !ok {
-	// 	return ctx.Error(400, "invalid parameters description")
-	// }
-
-	documentsString, ok := ctx.Params.GetString("documents")
+	description, ok := ctx.Params.GetString("description")
 	if !ok {
-		return ctx.Error(400, "invalid parameters documents")
+		return ctx.Error(400, "invalid parameters description")
 	}
+
+	// documentsString, ok := ctx.Params.GetString("documents")
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters documents")
+	// }
 
 	status, documentCollection, err := Strapi.Create("document-collection-table", U.Dict{
 		"collection_name": collection_name,
+		"description":     description,
 	})
 
 	if err != nil {
@@ -75,101 +75,101 @@ func CreateDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	dataCollection, ok := documentCollection.GetDict("data")
-	if !ok {
-		fmt.Println("failed to get data")
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// dataCollection, ok := documentCollection.GetDict("data")
+	// if !ok {
+	// 	fmt.Println("failed to get data")
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	idCollection, ok := dataCollection.GetFloat64("id")
-	if !ok {
-		fmt.Println("failed to get id")
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// idCollection, ok := dataCollection.GetFloat64("id")
+	// if !ok {
+	// 	fmt.Println("failed to get id")
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	if documentsString == "-" {
-		return 200, documentCollection, nil
-	}
+	// if documentsString == "-" {
+	// 	return 200, documentCollection, nil
+	// }
 
-	var documents interface{}
-	err = json.Unmarshal([]byte(documentsString), &documents)
+	// var documents interface{}
+	// err = json.Unmarshal([]byte(documentsString), &documents)
 
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(400, "invalid parameters documents")
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return ctx.Error(400, "invalid parameters documents")
+	// }
 
-	for _, document := range documents.([]interface{}) {
+	// for _, document := range documents.([]interface{}) {
 
-		documentBase64, ok := document.(map[string]interface{})["base64"].(string)
-		if !ok {
-			return ctx.Error(400, "invalid parameters documents")
-		}
+	// 	documentBase64, ok := document.(map[string]interface{})["base64"].(string)
+	// 	if !ok {
+	// 		return ctx.Error(400, "invalid parameters documents")
+	// 	}
 
-		documentFile, err := base64.StdEncoding.DecodeString(documentBase64)
+	// 	documentFile, err := base64.StdEncoding.DecodeString(documentBase64)
 
-		if err != nil {
-			fmt.Println(err)
-			return ctx.Error(400, "invalid parameters documents")
-		}
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		return ctx.Error(400, "invalid parameters documents")
+	// 	}
 
-		documentName, ok := document.(map[string]interface{})["name"].(string)
-		if !ok {
-			return ctx.Error(400, "invalid parameters documents")
-		}
+	// 	documentName, ok := document.(map[string]interface{})["name"].(string)
+	// 	if !ok {
+	// 		return ctx.Error(400, "invalid parameters documents")
+	// 	}
 
-		status, upload, err := Strapi.Upload(documentName, documentFile)
+	// 	status, upload, err := Strapi.Upload(documentName, documentFile)
 
-		fmt.Println("upload", upload)
+	// 	fmt.Println("upload", upload)
 
-		if err != nil {
-			fmt.Println(err)
-			return ctx.Error(500, "Internal Server Error")
-		}
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
 
-		if status != 200 {
-			fmt.Println(status)
-			return ctx.Error(500, "Internal Server Error")
-		}
+	// 	if status != 200 {
+	// 		fmt.Println(status)
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
 
-		data, ok := upload.GetDict(0)
+	// 	data, ok := upload.GetDict(0)
 
-		if !ok {
-			fmt.Println("failed to get dict")
-			return ctx.Error(500, "Internal Server Error")
-		}
+	// 	if !ok {
+	// 		fmt.Println("failed to get dict")
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
 
-		id, ok := data.GetFloat64("id")
-		if !ok {
-			fmt.Println("failed to get id")
-			return ctx.Error(500, "Internal Server Error")
-		}
+	// 	id, ok := data.GetFloat64("id")
+	// 	if !ok {
+	// 		fmt.Println("failed to get id")
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
 
-		status, document, err := Strapi.Create("document-management-table", U.Dict{
-			"document_title": documentName,
-			"description":    "-",
-			"document_type":  "GENERAL",
-			"document":       id,
-			"collection_id":  idCollection,
-		})
+	// 	status, document, err := Strapi.Create("document-management-table", U.Dict{
+	// 		"document_title": documentName,
+	// 		"description":    "-",
+	// 		"document_type":  "GENERAL",
+	// 		"document":       id,
+	// 		"collection_id":  idCollection,
+	// 	})
 
-		fmt.Println("document", document)
+	// 	fmt.Println("document", document)
 
-		if err != nil {
-			return ctx.Error(500, "Internal Server Error")
-		}
+	// 	if err != nil {
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
 
-		if status != 200 {
-			return ctx.Error(500, "Internal Server Error")
-		}
+	// 	if status != 200 {
+	// 		return ctx.Error(500, "Internal Server Error")
+	// 	}
 
-		// CR3 := cr3call.New(MODULE_MANAGER_URL)
-		// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
-		// 	Headers: U.Dict{
-		// 		"Authorization": bearer,
-		// 	},
-		// }, false)
-	}
+	// 	// CR3 := cr3call.New(MODULE_MANAGER_URL)
+	// 	// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+	// 	// 	Headers: U.Dict{
+	// 	// 		"Authorization": bearer,
+	// 	// 	},
+	// 	// }, false)
+	// }
 
 	return 200, documentCollection, nil
 }
@@ -386,8 +386,14 @@ func UpdateDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		return ctx.Error(400, "invalid parameters collection_name")
 	}
 
+	description, ok := ctx.Params.GetString("description")
+	if !ok {
+		return ctx.Error(400, "invalid parameters description")
+	}
+
 	status, document, err := Strapi.Update("document-collection-table", int64(id), U.Dict{
 		"collection_name": collection_name,
+		"description":     description,
 	})
 
 	if err != nil {
