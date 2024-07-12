@@ -10,15 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Button,
-    Select,
-    Textarea,
-    Checkbox,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Checkbox } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
@@ -164,39 +156,31 @@ All Rights Reserved
     if (token !== null) {
       let response;
       if (files.length > 0) {
-        response = await call.call(
-          "client-dashboard",
-          "create-document-collection",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_name: data.document_title,
-              // description: data.description,
-              documents: JSON.stringify(files),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        response = await call.call("client-dashboard", "create-document-collection", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_name: data.document_title,
+            // description: data.description,
+            documents: JSON.stringify(files),
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
       } else {
-        response = await call.call(
-          "client-dashboard",
-          "create-document-collection",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_name: data.document_title,
-              // description: data.description,
-              documents: "-",
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        response = await call.call("client-dashboard", "create-document-collection", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_name: data.document_title,
+            // description: data.description,
+            documents: "-",
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
       }
       if (response.status !== 200) {
         console.log(response);
@@ -205,20 +189,16 @@ All Rights Reserved
 
       console.log(response);
 
-      let response2 = await call.call(
-        "hexa-ai-rag",
-        "add-document-by-collection-id",
-        {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_id: response.result.data.id.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
+      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: response.result.data.id.toString(),
         },
-      );
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
       if (response2.status !== 200) {
         console.log(response2);
@@ -251,9 +231,7 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              goto(
-                await call.getPage("client-dashboard", "document-collection"),
-              );
+              goto(await call.getPage("client-dashboard", "document-collection"));
               return;
             }}
             color="light"
@@ -271,9 +249,7 @@ All Rights Reserved
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
             </P>
           </div>
@@ -306,7 +282,7 @@ All Rights Reserved
                 />
               </div>
             </div> -->
-            <div class="flex flex-col col-span-5 gap-2">
+            <!-- <div class="flex flex-col col-span-5 gap-2">
               <P
                 class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >{$_("documentUpload")}*</P
@@ -332,13 +308,11 @@ All Rights Reserved
                     >{$_("clickToUpload")}</P
                   >
                   <P class="pointer-events-none">
-                    <!-- {$_("orDragAndDrop")} -->
                   </P>
                 </div>
-                <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
                 <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P>
               </Button>
-            </div>
+            </div> -->
             <!-- Display uploaded file names -->
             {#if fileTextNames.length > 0}
               <div class="flex flex-col gap-3">
@@ -355,12 +329,8 @@ All Rights Reserved
                         <img src={DOCSolidIcon} alt="" />
                       {/if}
                       <div class="flex flex-col justify-center">
-                        <P class="text-secondary-light dark:text-secondary-dark"
-                          >{file.name}</P
-                        >
-                        <P class="text-secondary-light dark:text-secondary-dark"
-                          >{file.size}</P
-                        >
+                        <P class="text-secondary-light dark:text-secondary-dark">{file.name}</P>
+                        <P class="text-secondary-light dark:text-secondary-dark">{file.size}</P>
                       </div>
                     </div>
                   </div>
