@@ -623,13 +623,13 @@ All Rights Reserved
 <Modal title={$_("addDocuments")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5 relative">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
       <Button
         color="light"
         class="flex justify-between"
         on:click={() => (dropdownOpen = !dropdownOpen)}
       >
-        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectCollection")}`}
+        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
         <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
       </Button>
       <div
@@ -699,7 +699,7 @@ All Rights Reserved
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-      >{$_("addNewCollection")}</Button
+      >{$_("addNewDocument")}</Button
     >
   </svelte:fragment>
 </Modal>
