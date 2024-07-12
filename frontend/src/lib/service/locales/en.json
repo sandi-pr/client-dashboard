@@ -351,5 +351,7 @@
   "collectingData": "Collecting Data",
   "askAI": "Ask AI",
   "reading": "Reading...",
-  "startReading": "Start Reading"
+  "startReading": "Start Reading",
+  "inHere": "in here",
+  "addMoreFiles": "Add more files"
 }

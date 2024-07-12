@@ -11,8 +11,8 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { P, Avatar, Heading, A, Button } from "flowbite-svelte";
-  import { StateCard, Typography, SectionHeader, Card, ChartCard, CollectionCard } from "$lib";
+  import { Modal, Button, Input } from "flowbite-svelte";
+  import { StateCard, Typography, SectionHeader, Card, ChartCard, CollectionCard, triggerToast } from "$lib";
   import { _ } from "svelte-i18n";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
@@ -46,6 +46,9 @@ All Rights Reserved
   let chartReady = $state(false);
   let actionItems = $state([]);
   let chartAction = $state([]);
+  let tmpCollectionName = $state("");
+  let tmpDescription = $state("");
+  let addCollectionsModal = $state(false);
   let timer;
 
   async function getActionItems() {
@@ -312,6 +315,61 @@ All Rights Reserved
     goto(await call.getPage("client-dashboard", "document-collection"));
   }
 
+  async function createCollection() {
+    console.log(files);
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "create-document-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_name: tmpCollectionName,
+          description: tmpDescription,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        triggerToast("error");
+        return;
+      }
+
+      console.log(response);
+
+      // let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      //   URLQuery: {},
+      //   URLParams: {},
+      //   Params: {
+      //     collection_id: response.result.data.id.toString(),
+      //   },
+      //   Headers: {
+      //     Authorization: "Bearer " + token,
+      //   },
+      // });
+
+      // if (response2.status !== 200) {
+      //   console.log(response2);
+      //   triggerToast("error");
+      //   return;
+      // }
+
+      // console.log(response2);
+
+      tmpCollectionName = "";
+      tmpDescription = "";
+
+      triggerToast("success");
+
+      addCollectionsModal = false;
+      getCollections();
+      // goto(await call.getPage("client-dashboard", "document-collection"));
+    }
+  }
+
   async function getCollections() {
     let token = sessionStorage.getItem("token");
 
@@ -525,7 +583,7 @@ All Rights Reserved
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
             {#each actionItems as item}
               <Card
-                href={item.href}
+                onclick={() => (addCollectionsModal = true)}
                 icon={item.icon}
                 title={$_(toCamelCase(item.actionName))}
                 description={$_(toCamelCase(item.desc))}
@@ -588,3 +646,21 @@ All Rights Reserved
     </div>
   </div>
 </div>
+
+<Modal title={$_("createNewCollection")} bind:open={addCollectionsModal} size="xs" autoclose>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={createCollection} disabled={!tmpCollectionName} class="w-full"
+      >{$_("addNewCollection")}</Button
+    >
+  </svelte:fragment>
+</Modal>

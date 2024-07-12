@@ -18,7 +18,7 @@ All Rights Reserved
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
-  import { Button, P, Modal } from "flowbite-svelte";
+  import { Button, P, Modal, Tooltip } from "flowbite-svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -133,6 +133,7 @@ All Rights Reserved
               icon: "plus",
               type: "brand-inverse",
               onclick: () => {
+                selectTypeCollection("Documents");
                 addDocumentsModal = true;
               },
             },
@@ -472,13 +473,13 @@ All Rights Reserved
 <Modal title={$_("addDocuments")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5 relative">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
       <Button
         color="light"
         class="flex justify-between"
         on:click={() => (dropdownOpen = !dropdownOpen)}
       >
-        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectCollection")}`}
+        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
         <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
       </Button>
       <div
@@ -532,7 +533,7 @@ All Rights Reserved
           <!-- <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P> -->
         </Button>
       {:else}
-        <div class="flex items-center justify-center">
+        <div class="flex items-center justify-center relative">
           <div class="relative w-min">
             <FileTypeIcon />
             <Indicator
@@ -542,13 +543,19 @@ All Rights Reserved
               class="!w-8 !h-8 text-white text-xs font-semibold p-4">+{files.length}</Indicator
             >
           </div>
+          <div class="absolute bottom-0 right-0">
+            <Button on:click={handleFileUploadWrapper} pill={true} id="placement-1" class="!p-2"><img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button>
+            <Tooltip type='light' triggeredBy="#placement-1" placement='left'>
+              {$_("addMoreFiles")}
+            </Tooltip>
+          </div>
         </div>
       {/if}
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-      >{$_("addNewCollection")}</Button
+      >{$_("addNewDocument")}</Button
     >
   </svelte:fragment>
 </Modal>

@@ -16,7 +16,7 @@ All Rights Reserved
   import { StateCard, Typography, CollectionCard, triggerToast, ToastContainer } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
-  import { Button, Modal, Input, P, Indicator } from "flowbite-svelte";
+  import { Button, Modal, Input, P, Indicator, Tooltip } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
@@ -57,7 +57,7 @@ All Rights Reserved
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
   let tmpDocumentType = $state("");
-  let addDocumentsModal = $state(false);
+  let addCollectionsModal = $state(false);
   let addDocumentsModal = $state(false);
   let editModal = $state(false);
   let deleteModal = $state(false);
@@ -119,7 +119,7 @@ All Rights Reserved
 
       triggerToast("success");
 
-      addDocumentsModal = false;
+      addCollectionsModal = false;
       getCollections();
       goto(await call.getPage("client-dashboard", "document-collection"));
     }
@@ -552,7 +552,7 @@ All Rights Reserved
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text={$_("collectionList")} />
-          <Button on:click={() => (addDocumentsModal = true)} icon={PlusIcon}
+          <Button on:click={() => (addCollectionsModal = true)} icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
             {$_("addNew")}</Button
           >
@@ -574,6 +574,7 @@ All Rights Reserved
                   status={document.status}
                   functAddDocuments={() => {
                     tmpCollectionId = document.collectionId;
+                    selectTypeCollection("Documents");
                     addDocumentsModal = true;
                   }}
                   functEdit={() => {
@@ -602,7 +603,7 @@ All Rights Reserved
   <ToastContainer />
 </div>
 
-<Modal title={$_("createNewCollection")} bind:open={addDocumentsModal} size="xs" autoclose>
+<Modal title={$_("createNewCollection")} bind:open={addCollectionsModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
@@ -683,7 +684,7 @@ All Rights Reserved
           <!-- <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P> -->
         </Button>
       {:else}
-        <div class="flex items-center justify-center">
+        <div class="flex items-center justify-center relative">
           <div class="relative w-min">
             <FileTypeIcon />
             <Indicator
@@ -692,6 +693,12 @@ All Rights Reserved
               placement="center-right"
               class="!w-8 !h-8 text-white text-xs font-semibold p-4">+{files.length}</Indicator
             >
+          </div>
+          <div class="absolute bottom-0 right-0">
+            <Button on:click={handleFileUploadWrapper} pill={true} id="placement-1" class="!p-2"><img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button>
+            <Tooltip type='light' triggeredBy="#placement-1" placement='left'>
+              {$_("addMoreFiles")}
+            </Tooltip>
           </div>
         </div>
       {/if}

@@ -19,7 +19,9 @@ All Rights Reserved
     Textarea,
     Toggle,
     Helper,
+    Alert,
   } from "flowbite-svelte";
+  import { InfoCircleSolid } from 'flowbite-svelte-icons';
   import { ToastContainer, triggerToast } from "$lib";
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";
@@ -241,8 +243,13 @@ All Rights Reserved
       data.product_name < 1 || data.description < 1 || data.price < 1 || data.category < 1;
   });
 
+  async function addCategory() {
+    goto(await call.getPage("client-dashboard", "crm-category-create"));
+    return;
+  }
+
   onMount(async () => {
-    getCategories();
+    getCategories();;
   });
 
   // let dropdownOpen = false;
@@ -356,7 +363,12 @@ All Rights Reserved
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                   {#if categories.length === 0}
-                    <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper>
+                  <Alert color="red">
+                    <InfoCircleSolid slot="icon" class="w-5 h-5" />
+                    {$_("pleaseAddCategoryFirst")}
+                    <button onclick={addCategory} class="font-semibold underline hover:text-red-800 dark:hover:text-red-900">{$_("inHere")}</button>
+                  </Alert>
+                    <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
                   {/if}
                   <!-- <Input
                     readonly={!onEdit}
