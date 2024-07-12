@@ -1470,6 +1470,24 @@
             ]
         },
         {
+            "name": "get-collection-by-id",
+            "path": "/get-collection-by-id/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCollectionById"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-documents-by-collectionid",
             "path": "/get-documents-by-collectionid",
             "method": "POST",
@@ -2783,6 +2801,9 @@
                         "relation": "manyToOne",
                         "target": "plugin::users-permissions.user",
                         "inversedBy": "document-management"
+                    },
+                    "file_size": {
+                        "type": "string"
                     }
                 }
             },

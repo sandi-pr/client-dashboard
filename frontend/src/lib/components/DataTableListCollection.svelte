@@ -157,7 +157,7 @@
       {#if configs?.actions && Object.keys(configs.actions).length > 0}
         {#each configs.actions as action (action.id)}
           <Button
-            href={action.href}
+            onclick={action.onclick}
             color="light"
             class={`${classActionType(action.type)} min-w-max px-2 py-3`}
           >

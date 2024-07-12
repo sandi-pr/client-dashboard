@@ -11,20 +11,9 @@ All Rights Reserved
  -->
 
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Textarea,
-    Button,
-    Select,
-    Modal,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Textarea, Button, Select, Modal } from "flowbite-svelte";
   import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
-  import {
-    CheckCircleSolid,
-    ExclamationCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
@@ -112,29 +101,27 @@ All Rights Reserved
           let documentData = response.result.document.data[0];
           data = {
             id: documentData.id,
-            createdAt: format(
-              documentData.attributes.createdAt,
-              "yyyy-MM-dd HH:mm",
-            ),
+            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
             document_title: documentData.attributes.document_title,
-            description: documentData.attributes.description,
             document_type: documentData.attributes.document_type,
             ext: documentData.attributes.document.data.attributes.ext,
-            person_client: documentData.attributes.person.data?.id,
-            contract_start:
-              documentData.attributes.contract_start !== null
-                ? format(
-                    new Date(documentData.attributes.contract_start),
-                    "yyyy-MM-dd",
-                  )
-                : "",
-            contract_end:
-              documentData.attributes.contract_end !== null
-                ? format(
-                    new Date(documentData.attributes.contract_end),
-                    "yyyy-MM-dd",
-                  )
-                : "",
+            // description: documentData.attributes.description,
+            // document_type: documentData.attributes.document_type,
+            // person_client: documentData.attributes.person.data?.id,
+            // contract_start:
+            //   documentData.attributes.contract_start !== null
+            //     ? format(
+            //         new Date(documentData.attributes.contract_start),
+            //         "yyyy-MM-dd",
+            //       )
+            //     : "",
+            // contract_end:
+            //   documentData.attributes.contract_end !== null
+            //     ? format(
+            //         new Date(documentData.attributes.contract_end),
+            //         "yyyy-MM-dd",
+            //       )
+            //     : "",
           };
 
           base64 = response.result.base64;
@@ -144,8 +131,7 @@ All Rights Reserved
           if (data.ext === ".pdf") {
             fileType = "application/pdf";
           } else if (data.ext === ".docx") {
-            fileType =
-              "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
           } else if (data.ext === ".doc") {
             fileType = "application/msword";
           } else {
@@ -181,20 +167,16 @@ All Rights Reserved
           },
         });
         if (response.status === 200) {
-          let response2 = await call.call(
-            "hexa-ai-rag",
-            "delete-document-by-id",
-            {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                id: documentId.toString(),
-              },
-              Headers: {
-                Authorization: `Bearer ${token}`,
-              },
+          let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              id: documentId.toString(),
             },
-          );
+            Headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (response2.status !== 200) {
             console.log(response2);
@@ -206,10 +188,7 @@ All Rights Reserved
           triggerToast("deleted");
           // setTimeout(async () => {
           goto(
-            (await call.getPage(
-              "client-dashboard",
-              "document-collection-list",
-            )) +
+            (await call.getPage("client-dashboard", "document-collection-list")) +
               "?collectionId=" +
               collectionId,
           );
@@ -275,8 +254,7 @@ All Rights Reserved
     if (ext === ".pdf") {
       fileType = "application/pdf";
     } else if (ext === ".docx") {
-      fileType =
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     } else if (ext === ".doc") {
       fileType = "application/msword";
     } else {
@@ -331,10 +309,10 @@ All Rights Reserved
   //     documentIdOld = documentId;
   //     getDocument();
   //   }
-  // }); 
+  // });
 
   onMount(() => {
-    getPersons();
+    // getPersons();
     getDocument();
   });
 
@@ -342,7 +320,7 @@ All Rights Reserved
     // if (timer) {
     //   clearTimeout(timer);
     // }
-  })
+  });
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -360,9 +338,7 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
+                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               </Button></Heading
             >
           </div>
@@ -383,49 +359,51 @@ All Rights Reserved
       </div>
 
       <!-- Tab Bar -->
-      <TabDetail
-        {tabDatas}
-        on:tabChange={(e) => (tabDatas.selected = e.detail)}
-      />
+      <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
 
       <!-- Content -->
       <div class="flex flex-col gap-4 pt-6">
         <!-- general information -->
-        <div class="flex gap-6">
-          <div class="w-60">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
-              {$_("handwritingInformation")}
-            </P>
-          </div>
-          <div class="flex flex-col grow gap-6">
-            <div class="grid grid-cols-1">
-              <div class="flex flex-col gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("detectedText")}</P
-                >
-                <TextareaRw {onEdit} bind:value={data.detectedText} />
+        {#if data.document_type === "Handwriting"}
+          <div class="flex gap-6">
+            <div class="w-60">
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                {$_("handwritingInformation")}
+              </P>
+            </div>
+            <div class="flex flex-col grow gap-6">
+              <div class="grid grid-cols-1">
+                <div class="flex flex-col gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("detectedText")}</P
+                  >
+                  <TextareaRw {onEdit} bind:value={data.detectedText} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <Divider />
+          <Divider />
+        {/if}
         <div class="flex gap-6">
           <div class="w-60">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("viewer")}*
             </P>
           </div>
-          <div class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark">
+          <div
+            class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+          >
             {#if fileReady}
               {#if data.ext === ".pdf"}
                 <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
                 <div class="flex justify-center">
-                  <PdfViewer showBorder={false} showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]} scale={1} data={atob(base64)} />
+                  <PdfViewer
+                    showBorder={false}
+                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+                    scale={1}
+                    data={atob(base64)}
+                  />
                 </div>
               {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
                 <div class="flex justify-center">
@@ -451,9 +429,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteDocument} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
-    >
+    <Button onclick={deleteDocument} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

@@ -28,11 +28,11 @@ All Rights Reserved
 
   let { showAI = false } = $props();
 
-  let latestPersons = $state([]);
+  let documents = $state([]);
+  let collections = $state([]);
   let configs = $state({});
   let documentsReady = $state(false);
   let personsIsEmpty = $state(true);
-  // let documents = [];
   // let documentsNeed = [];
   // let documentsComplete = [];
   // let allUrls = [];
@@ -306,38 +306,19 @@ All Rights Reserved
 
   let latestDocuments = $state([]);
 
-  let latestDocumentCollection = $state([
-    {
-      id: "1",
-      collectionName: "Bakrie’s Handwriting",
-      totalDocuments: 2,
-      type: "",
-      status: "ready",
-    },
-    {
-      id: "2",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "3",
-      collectionName: "Laws and Regulations",
-      totalDocuments: 0,
-      type: "",
-      status: "collecting data",
-    },
-  ]);
+  let latestDocumentCollection = $state([]);
 
   async function viewAll() {
     goto(await call.getPage("client-dashboard", "document-collection"));
   }
 
-  async function getDocumentLatest() {
+  async function getCollections() {
     let token = sessionStorage.getItem("token");
+
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-documents", {
+      collections = [];
+      documents = [];
+      let response = await call.call("client-dashboard", "get-document-collections", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -355,45 +336,80 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
-        let latestData = response.result.data.slice(0, 5);
-        let promises = latestData.map(async (document) => {
-          console.log(document.attributes.status);
-          return {
-            id: document.id,
-            upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
-            document_name: document.attributes.document_title,
-            type: document.attributes.document_type === "GENERAL" ? "General" : "Contract",
-            status: {
-              type: "brand",
-              name: document.attributes.status,
-            },
-            actions: {
-              objects: [
-                {
-                  href:
-                    `${await call.getPage("client-dashboard", "document-collection-detail")}` +
-                    "?documentId=" +
-                    document.id  +
-                    "&collectionId=" + document.attributes.collection_id +
-                    "&edit=false",
-                  name: "View",
-                },
-              ],
-            },
-          };
-        });
+        collections = collections.concat(response.result.data);
+      }
 
-        latestDocuments = await Promise.all(promises);
-        documentsReady = true;
+      // let page2 = 1;
+      // while (true) {
+      //   let response2 = await call.call("client-dashboard", "get-documents", {
+      //     URLQuery: {},
+      //     URLParams: {},
+      //     Params: {
+      //       page: page2,
+      //       page_size: 25,
+      //     },
+      //     Headers: {
+      //       Authorization: "Bearer " + token,
+      //     },
+      //   });
 
-        for (const document of latestDocuments) {
-          if (document.status.name !== "Ready") {
-            timer = setTimeout(getDocumentLatest, 2000);
+      //   if (response2.status !== 200) {
+      //     console.log(response2);
+      //     return;
+      //   }
+
+      //   if (response2.result.data.length > 0) {
+      //     documents = documents.concat(response2.result.data);
+      //     page2++;
+      //   } else {
+      //     break;
+      //   }
+      // }
+
+      for (const collection of collections) {
+        let page = 1;
+        while (true) {
+          let response3 = await call.call("client-dashboard", "get-documents-by-collectionid", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_id: collection.id.toString(),
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response3.status !== 200) {
+            console.log(response3);
+            return;
+          }
+
+          if (response3.result.data.length > 0) {
+            documents = documents.concat(response3.result.data);
+            page++;
+          } else {
             break;
           }
         }
-        
       }
+
+      let collectionList = await call.getPage("client-dashboard", "document-collection-list");
+
+      latestDocumentCollection = collections.map((collection) => {
+        let totalDocuments = documents.filter(
+          (document) => document.attributes.collection_id === collection.id,
+        ).length;
+        return {
+          collectionId: collection.id,
+          activationTime: format(collection.attributes.createdAt, "dd-MM-yyyy HH:mm"),
+          collectionName: collection.attributes.collection_name,
+          totalDocuments: totalDocuments,
+          href: `${collectionList}?collectionId=${collection.id}`,
+        };
+      });
     }
   }
 
@@ -476,8 +492,12 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    getChartAction( {total: 0, change: 0, changeType: "-"}, {total: 0, change: 0, changeType: "-"}, {total: 0, change: 0, changeType: "-"});
-    getDocumentLatest();
+    getChartAction(
+      { total: 0, change: 0, changeType: "-" },
+      { total: 0, change: 0, changeType: "-" },
+      { total: 0, change: 0, changeType: "-" },
+    );
+    getCollections();
     getCountDocumentsPerMonth();
     generateChartData();
     getActionItems();
@@ -487,7 +507,7 @@ All Rights Reserved
     if (timer) {
       clearTimeout(timer);
     }
-  })
+  });
 </script>
 
 <div class="flex dark:bg-primary-dark">
@@ -501,7 +521,7 @@ All Rights Reserved
 
         <!-- Action Items -->
         <div class="flex flex-col gap-4">
-          <SectionHeader title={$_("action")}/>
+          <SectionHeader title={$_("action")} />
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
             {#each actionItems as item}
               <Card
@@ -516,14 +536,14 @@ All Rights Reserved
 
         <!-- Reports Monitoring -->
         <div class="flex flex-col gap-4">
-          <SectionHeader title={$_("reports")}/>
+          <SectionHeader title={$_("reports")} />
           <div
             class={`grid ${showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
           >
             {#each chartAction as { href, dataName, value, change, changeType }, index}
               <ChartCard
                 {href}
-                dataName = {$_(toCamelCase(dataName))}
+                dataName={$_(toCamelCase(dataName))}
                 {value}
                 {change}
                 {changeType}
@@ -535,7 +555,9 @@ All Rights Reserved
         </div>
 
         <div class="flex flex-col gap-4">
-          <div class="flex justify-between border-b border-secondary-light dark:border-secondary-dark pb-4">
+          <div
+            class="flex justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
+          >
             <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")} />
             <div></div>
             <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
@@ -545,7 +567,11 @@ All Rights Reserved
             {#if latestDocumentCollection.length > 0}
               <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {#each latestDocumentCollection as document}
-                  <CollectionCard collectionName={document.collectionName} totalDocuments={document.totalDocuments} status={document.status} />
+                  <CollectionCard
+                    collectionName={document.collectionName}
+                    totalDocuments={document.totalDocuments}
+                    status={document.status}
+                  />
                 {/each}
               </div>
             {:else}

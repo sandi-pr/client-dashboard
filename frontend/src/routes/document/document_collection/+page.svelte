@@ -244,7 +244,6 @@ All Rights Reserved
           },
           Params: {
             collection_name: tmpCollectionName,
-            // description: "", //tmp
             description: "-",
           },
           Headers: {
@@ -274,7 +273,26 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "delete-document-collection", {
+        for (const document of documents) {
+          if (document.attributes.collection_id === tmpCollectionId) {
+            let response = await call.call("client-dashboard", "delete-document", {
+              URLQuery: {},
+              URLParams: {
+                id: document.id.toString(),
+              },
+              Params: {},
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
+            if (response.status !== 200) {
+              console.log(response);
+              triggerToast("error");
+              return;
+            }
+          }
+        }
+        let response2 = await call.call("client-dashboard", "delete-document-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -285,13 +303,13 @@ All Rights Reserved
           },
         });
 
-        if (response.status !== 200) {
-          console.log(response);
+        if (response2.status !== 200) {
+          console.log(response2);
           triggerToast("error");
           return;
         }
 
-        // let response2 = await call.call("hexa-ai-rag", "delete-document-by-collection-id", {
+        // let response3 = await call.call("hexa-ai-rag", "delete-document-by-collection-id", {
         //   URLQuery: {},
         //   URLParams: {},
         //   Params: {
@@ -302,13 +320,13 @@ All Rights Reserved
         //   },
         // });
 
-        // if (response2.status !== 200) {
-        //   console.log(response2);
+        // if (response3.status !== 200) {
+        //   console.log(response3);
         //   triggerToast("error");
         //   return;
         // }
 
-        console.log("ayam", response);
+        console.log("ayam", response2);
 
         triggerToast("deleted");
 

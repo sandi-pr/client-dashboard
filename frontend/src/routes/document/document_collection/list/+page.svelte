@@ -18,8 +18,10 @@ All Rights Reserved
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
-  import { Button, P } from "flowbite-svelte";
+  import { Button, P, Modal } from "flowbite-svelte";
+  import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
+  import upload from "$lib/icon/upload-cloud-02.svg";
 
   import { goto } from "$app/navigation";
 
@@ -54,66 +56,70 @@ All Rights Reserved
     ],
   });
 
+  let files = $state([]);
+  let tmpDocumentType = $state("");
+  let selectedTypeCollection = $state("");
+  let acceptedFileTypes = $state("");
+  let addDocumentsModal = $state(false);
+  let dropdownOpen = $state(false);
+
   let timer;
 
   async function getDocuments(page) {
     let token = sessionStorage.getItem("token");
-    token = true;
     if (token !== null) {
-      // let response = await call.call(
-      //   "client-dashboard",
-      //   "get-documents-by-collectionid",
-      //   {
-      //     URLQuery: {},
-      //     URLParams: {},
-      //     Params: {
-      //       page: page,
-      //       page_size: pagination.pageSize,
-      //       collection_id: collectionId,
-      //     },
-      //     Headers: {
-      //       Authorization: "Bearer " + token,
+      let response = await call.call("client-dashboard", "get-documents-by-collectionid", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: page,
+          page_size: pagination.pageSize,
+          collection_id: collectionId,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("ayam", response);
+
+      // let response = {
+      //   result: {
+      //     data: [
+      //       {
+      //         id: 1,
+      //         attributes: {
+      //           createdAt: new Date(),
+      //           document_title: "Document 1",
+      //           document_type: "GENERAL",
+      //           status: "PENDING",
+      //         },
+      //       },
+      //       {
+      //         id: 2,
+      //         attributes: {
+      //           createdAt: new Date(),
+      //           document_title: "Document 2",
+      //           document_type: "CONTRACT",
+      //           status: "APPROVED",
+      //         },
+      //       },
+      //     ],
+      //     meta: {
+      //       pagination: {
+      //         page: 1,
+      //         pageSize: 10,
+      //         pageCount: 1,
+      //         total: 2,
+      //       },
       //     },
       //   },
-      // );
-
-      // if (response.status !== 200) {
-      //   console.log(response);
-      //   return;
-      // }
-
-      let response = {
-        result: {
-          data: [
-            {
-              id: 1,
-              attributes: {
-                createdAt: new Date(),
-                document_title: "Document 1",
-                document_type: "GENERAL",
-                status: "PENDING",
-              },
-            },
-            {
-              id: 2,
-              attributes: {
-                createdAt: new Date(),
-                document_title: "Document 2",
-                document_type: "CONTRACT",
-                status: "APPROVED",
-              },
-            },
-          ],
-          meta: {
-            pagination: {
-              page: 1,
-              pageSize: 10,
-              pageCount: 1,
-              total: 2,
-            },
-          },
-        },
-      };
+      // };
 
       if (response.result.data.length > 0) {
         configs = {
@@ -126,31 +132,39 @@ All Rights Reserved
               name: "Add New",
               icon: "plus",
               type: "brand-inverse",
-              href: "#",
+              onclick: () => {
+                addDocumentsModal = true;
+              },
             },
           ],
         };
         let promises = response.result.data.map(async (document) => {
+          let link = await call.getPage("client-dashboard", "document-collection-detail");
           return {
             id: document.id,
-            file_name: { name: document.attributes.document_title, type: "custom", size: "200Kb" },
+            file_name: {
+              name: document.attributes.document_title,
+              type: "custom",
+              size:
+                document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
+            },
             type: {
-              name: document.attributes.document_type === "GENERAL" ? "General" : "Contract",
+              name: document.attributes.document_type,
               type: "pill",
               color: "brand",
             },
-            file_size: "200Kb",
+            file_size:
+              document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
             upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
-            uploaded_by: "Admin",
+            uploaded_by:
+              document.attributes.upload_by.data.attributes.username === null
+                ? "Unknown"
+                : document.attributes.upload_by.data.attributes.username,
             actions: {
               objects: [
                 {
-                  href: "/document/document_collection/detail?documentId=1&collectionId=1",
-                  // `${await call.getPage("client-dashboard", "document-collection-detail")}` +
-                  // "?documentId=" +
-                  // document.id +
-                  // "&collectionId=" +
-                  // collectionId,
+                  // href: "/document/document_collection/detail?documentId=1&collectionId=1",
+                  href: `${link}` + "?documentId=" + document.id + "&collectionId=" + collectionId,
                   name: "View",
                 },
                 {
@@ -182,13 +196,138 @@ All Rights Reserved
 
   async function getCollection() {
     // search collection using params collectionId here
-    collection = {
-      id: 1,
-      name: "Collection 1",
-      createdAt: format(new Date(), "dd-MM-yyyy HH:mm"),
-      description: "Collection 1 Description",
-    };
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-collection-by-id", {
+        URLQuery: {},
+        URLParams: {
+          id: collectionId.toString(),
+        },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      collection = {
+        id: response.result.data.id,
+        name: response.result.data.attributes.collection_name,
+        createdAt: format(response.result.data.attributes.createdAt, "dd-MM-yyyy HH:mm"),
+        description: response.result.data.attributes.description,
+      };
+    }
   }
+
+  async function addDocumentByCollection() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "create-document", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          documents: JSON.stringify(files),
+          collection_id: collectionId,
+          document_type: tmpDocumentType,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        triggerToast("error");
+        return;
+      }
+
+      console.log(response);
+      tmpCollectionId = "";
+
+      triggerToast("success");
+    }
+  }
+
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
+
+  const handleFileUploadWrapper = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = acceptedFileTypes;
+    inputElement.multiple = true;
+
+    inputElement.addEventListener("change", async (event) => {
+      const uploadedFiles = event.target.files;
+
+      if (uploadedFiles.length > 0) {
+        for (const file of uploadedFiles) {
+          const base64Data = await readFileAsBase64(file);
+          files.push({
+            name: file.name,
+            size: formatBytes(file.size),
+            base64: base64Data,
+          });
+        }
+      } else {
+        alert("Invalid file. Please select a valid file.");
+      }
+    });
+
+    inputElement.click();
+  };
+
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const selectTypeCollection = (type) => {
+    tmpDocumentType = type;
+
+    if (type === "Documents") {
+      selectedTypeCollection = "Documents (TXT, PDF, DOC, DOCX)";
+      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
+    } else if (type === "Images") {
+      selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
+      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
+    } else if (type === "Handwriting") {
+      selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
+      acceptedFileTypes = ".pdf, .jpg, .jpeg, .png, .webp, .img";
+    }
+
+    files = [];
+
+    dropdownOpen = false;
+  };
+
+  let buttonDisabled = $state(false);
+
+  $effect(() => {
+    buttonDisabled = files.length === 0;
+  });
 
   const changeTabbar = (name) => {
     tabDatas.selected = name;
@@ -236,7 +375,7 @@ All Rights Reserved
     goto(
       (await call.getPage("client-dashboard", "document-management-create")) +
         "?collectionId=" +
-        collectionId
+        collectionId,
     );
     return;
   }
@@ -273,60 +412,143 @@ All Rights Reserved
         <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
         {#if tabDatas.selected === "Documents"}
-
-        <!-- Person Table Data -->
-        {#if datas.length > 0}
-          <DataTableListCollection
-            bind:datas
-            bind:datasChecked
-            bind:configs
-            bind:next
-            bind:previous
-            bind:handleCheckAll
-            bind:handleCheck
-          />
-        {:else}
-          <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          </div>
-        {/if}
-
+          <!-- Person Table Data -->
+          {#if datas.length > 0}
+            <DataTableListCollection
+              bind:datas
+              bind:datasChecked
+              bind:configs
+              bind:next
+              bind:previous
+              bind:handleCheckAll
+              bind:handleCheck
+            />
+          {:else}
+            <div class="pt-8">
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
+            </div>
+          {/if}
         {:else if tabDatas.selected === "Information"}
-        <div class="flex flex-col gap-4 pt-6">
-          <!-- general information -->
-          <div class="flex gap-6">
-            <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
-                {$_("generalInformation")}
-              </P>
-            </div>
-            <div class="flex flex-col grow gap-6">
-              <div class="flex gap-5">
-                <div class="flex flex-col grow gap-2">
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >
-                    {$_("collectionName")}
-                  </P>
-                  <InputRw {onEdit} bind:value={collection.name} />
-                </div>
+          <div class="flex flex-col gap-4 pt-6">
+            <!-- general information -->
+            <div class="flex gap-6">
+              <div class="w-60">
+                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                  {$_("generalInformation")}
+                </P>
               </div>
-              <div class="grid grid-cols-1">
-                <div class="flex flex-col gap-2">
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("description")}</P
-                  >
-                  <TextareaRw {onEdit} bind:value={collection.description} />
+              <div class="flex flex-col grow gap-6">
+                <div class="flex gap-5">
+                  <div class="flex flex-col grow gap-2">
+                    <P
+                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >
+                      {$_("collectionName")}
+                    </P>
+                    <InputRw {onEdit} bind:value={collection.name} />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1">
+                  <div class="flex flex-col gap-2">
+                    <P
+                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                      >{$_("description")}</P
+                    >
+                    <TextareaRw {onEdit} bind:value={collection.description} />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
         {/if}
       </div>
     </div>
   </div>
 </div>
+
+<Modal title={$_("addDocuments")} bind:open={addDocumentsModal} size="xs">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5 relative">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Button
+        color="light"
+        class="flex justify-between"
+        on:click={() => (dropdownOpen = !dropdownOpen)}
+      >
+        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectCollection")}`}
+        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
+      </Button>
+      <div
+        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+      >
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+          <button
+            class="flex p-2"
+            onclick={() => {
+              selectTypeCollection("Documents");
+            }}>Documents (TXT, PDF, DOC, DOCX)</button
+          >
+          <button
+            class="flex p-2"
+            onclick={() => {
+              selectTypeCollection("Images");
+            }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
+          >
+          <button
+            class="flex p-2"
+            onclick={() => {
+              selectTypeCollection("Handwriting");
+            }}>Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)</button
+          >
+        </ul>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <P class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+        >{$_("uploadDocuments")}</P
+      >
+      {#if files.length === 0}
+        <Button
+          onclick={() => {
+            handleFileUploadWrapper();
+          }}
+          color="light"
+          class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-3 py-4 flex flex-col justify-start items-center`}
+        >
+          <div
+            class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex pointer-events-none"
+          >
+            <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
+          </div>
+          <div class="flex space-x-1">
+            <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
+            <P class="pointer-events-none">
+              <!-- {$_("orDragAndDrop")} -->
+            </P>
+          </div>
+          <!-- <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P> -->
+        </Button>
+      {:else}
+        <div class="flex items-center justify-center">
+          <div class="relative w-min">
+            <FileTypeIcon />
+            <Indicator
+              color="purple"
+              border
+              placement="center-right"
+              class="!w-8 !h-8 text-white text-xs font-semibold p-4">+{files.length}</Indicator
+            >
+          </div>
+        </div>
+      {/if}
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
+      >{$_("addNewCollection")}</Button
+    >
+  </svelte:fragment>
+</Modal>

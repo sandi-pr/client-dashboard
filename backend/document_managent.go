@@ -138,6 +138,11 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
+		file_size, ok := document.(map[string]interface{})["size"].(string)
+		if !ok {
+			return ctx.Error(400, "invalid parameters documents")
+		}
+
 		status, upload, err := Strapi.Upload(documentName, documentFile)
 
 		fmt.Println("upload", upload)
@@ -172,6 +177,7 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			"document":       id,
 			"collection_id":  collection_id,
 			"upload_by":      upload_by,
+			"file_size":      file_size,
 		})
 
 		fmt.Println("document", document)
@@ -275,6 +281,53 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 	// 	return status, documents, nil
 	// }
+}
+
+func GetCollectionById(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idStr, ok := ctx.URLParams.GetString("id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, collection, err := Strapi.FindOne("document-collection-table", int64(id))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, collection, nil
 }
 
 func GetDocuments(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
