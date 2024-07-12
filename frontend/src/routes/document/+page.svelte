@@ -295,8 +295,8 @@ All Rights Reserved
         changeType: readyCollection.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-contract"),
-        dataName: "Contract Documents",
+        href: await call.getPage("client-dashboard", "document-collection"),
+        dataName: "Collecting Data",
         value: dataCollecting.total,
         change: dataCollecting.change,
         changeType: dataCollecting.changeType,

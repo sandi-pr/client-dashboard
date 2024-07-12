@@ -366,6 +366,7 @@ All Rights Reserved
 
       console.log(response);
       tmpCollectionId = "";
+      createModal = false;
 
       triggerToast("success");
     }
