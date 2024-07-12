@@ -368,7 +368,7 @@ All Rights Reserved
       tmpCollectionId = "";
       createModal = false;
 
-      triggerToast("success");
+      triggerToast("created");
     }
   }
 
