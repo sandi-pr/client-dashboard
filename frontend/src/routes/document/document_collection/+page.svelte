@@ -58,7 +58,7 @@ All Rights Reserved
   let tmpCollectionId = $state("");
   let tmpDocumentType = $state("");
   let addCollectionsModal = $state(false);
-  let addDocumentsModal = $state(false);
+  let addDocumentsModal = $state(true);
   let editModal = $state(false);
   let deleteModal = $state(false);
   let dropdownOpen = $state(false);
@@ -244,7 +244,7 @@ All Rights Reserved
           },
           Params: {
             collection_name: tmpCollectionName,
-            description: "-",
+            description: tmpDescription,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -255,6 +255,9 @@ All Rights Reserved
           console.log(response);
           return;
         }
+
+        tmpCollectionName = "";
+        tmpDescription = "";
 
         editModal = false;
         triggerToast("updated");
@@ -712,8 +715,9 @@ All Rights Reserved
 </Modal>
 
 <Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
-  <div class="text-center">
+  <div class="text-center gap-4">
     <Input bind:value={tmpCollectionName} placeholder={$_("enterCollectionName")} />
+    <Input bind:value={tmpDescription} placeholder={$_("enterCollectionDescription")} />
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={editCollectionName} class="me-2">{$_("save")}</Button>

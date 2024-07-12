@@ -16,10 +16,10 @@ let getTextColor = (presetColor: String) => {
       return "text-tertiary-onbrand-light dark:text-tertiary-onbrand-dark";
     case "tertiary-hover":
       return "text-tertiary-hover-light dark:text-tertiary-hover-dark";
-    case "quaternary":
-      return "text-quaternary-light dark:text-quaternary-dark";
-    case "quaternary-onbrand":
-      return "text-quaternary-onbrand-light dark:text-quaternary-onbrand-dark";
+    case "quarterary":
+      return "text-quarterary-light dark:text-quarterary-dark";
+    case "quarterary-onbrand":
+      return "text-quarterary-onbrand-light dark:text-quarterary-onbrand-dark";
     case "disabled":
       return "text-disabled-light dark:text-disabled-dark";
     case "placeholder":

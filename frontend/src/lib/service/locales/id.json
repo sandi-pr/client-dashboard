@@ -350,5 +350,11 @@
   "reading": "Membaca...",
   "startReading": "Mulai Membaca",
   "inHere": "di sini",
-  "addMoreFiles": "Tambahkan berkas"
+  "addMoreFiles": "Tambahkan berkas",
+  "handwritingInformation": "Informasi Handwriting",
+  "detectedText": "Teks Terdeteksi",
+  "viewer": "Pratinjau",
+  "wrongDetectedText": "Teks yang terdeteksi salah?",
+  "correctHere": "Perbaiki di sini",
+  "correctHandwriting": "Teks yang terdeteksi salah? Perbaiki di sini"
 }

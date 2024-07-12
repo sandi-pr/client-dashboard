@@ -12,7 +12,7 @@ All Rights Reserved
 
 <script>
   import { P, Heading, Input, Textarea, Button, Select, Modal } from "flowbite-svelte";
-  import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, TextareaRw, Typography } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
@@ -311,6 +311,10 @@ All Rights Reserved
   //   }
   // });
 
+  async function editDetectedText() {
+    onEdit = false;
+  }
+
   onMount(() => {
     // getPersons();
     getDocument();
@@ -364,12 +368,23 @@ All Rights Reserved
       <!-- Content -->
       <div class="flex flex-col gap-4 pt-6">
         <!-- general information -->
-        {#if data.document_type === "Handwriting"}
+        {#if data.document_type !== "Handwriting"}
           <div class="flex gap-6">
             <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("handwritingInformation")}
               </P>
+              <div class="pt-2">
+                {#if onEdit}
+                  <div class="flex gap-2">
+                    <button onclick={() => (onEdit = false)} class="text-start text-sm text-tertiary-light dark:text-tertiary-dark">{$_("cancel")}</button>
+                    <button onclick={editDetectedText} class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("confirm")}</button>
+                  </div>
+                {:else}
+                  <Typography preset="Text sm/Regular" color="quarterary" text={$_("wrongDetectedText")} />
+                  <button onclick={() => (onEdit = true)} class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("correctHere")}</button>
+                {/if}
+              </div>
             </div>
             <div class="flex flex-col grow gap-6">
               <div class="grid grid-cols-1">
@@ -388,7 +403,7 @@ All Rights Reserved
         <div class="flex gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-              {$_("viewer")}*
+              {$_("viewer")}
             </P>
           </div>
           <div

@@ -353,5 +353,11 @@
   "reading": "Reading...",
   "startReading": "Start Reading",
   "inHere": "in here",
-  "addMoreFiles": "Add more files"
+  "addMoreFiles": "Add more files",
+  "handwritingInformation": "Handwriting Information",
+  "detectedText": "Detected Text",
+  "viewer": "Viewer",
+  "wrongDetectedText": "Wrong detected text?",
+  "correctHere": "correct here",
+  "correctHandwriting": "Wrong detected text? Correct here"
 }

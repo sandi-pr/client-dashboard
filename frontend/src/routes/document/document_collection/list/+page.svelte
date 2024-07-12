@@ -18,7 +18,8 @@ All Rights Reserved
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
-  import { Button, P, Modal, Tooltip } from "flowbite-svelte";
+  import { Button, P, Modal, Tooltip, Indicator } from "flowbite-svelte";
+  import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
   import upload from "$lib/icon/upload-cloud-02.svg";
