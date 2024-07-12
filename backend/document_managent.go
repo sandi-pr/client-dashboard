@@ -665,14 +665,11 @@ func GetCountDocumentsPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, general, err := Strapi.Find("document-management-table", U.Dict{
+	status, general, err := Strapi.Find("document-collection-table", U.Dict{
 		"filters": U.Dict{
 			"updatedAt": U.Dict{
 				"$gte": earlyDate,
 				"$lte": lastDate,
-			},
-			"document_type": U.Dict{
-				"$eq": "GENERAL",
 			},
 		},
 	})
@@ -688,14 +685,14 @@ func GetCountDocumentsPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, contract, err := Strapi.Find("document-management-table", U.Dict{
+	status, contract, err := Strapi.Find("document-collection-table", U.Dict{
 		"filters": U.Dict{
 			"updatedAt": U.Dict{
 				"$gte": earlyDate,
 				"$lte": lastDate,
 			},
-			"document_type": U.Dict{
-				"$eq": "CONTRACT",
+			"status": U.Dict{
+				"$eq": "Ready",
 			},
 		},
 	})
