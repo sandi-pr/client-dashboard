@@ -57,7 +57,7 @@ All Rights Reserved
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
   let tmpDocumentType = $state("");
-  let createModal = $state(false);
+  let addDocumentsModal = $state(false);
   let addDocumentsModal = $state(false);
   let editModal = $state(false);
   let deleteModal = $state(false);
@@ -119,7 +119,7 @@ All Rights Reserved
 
       triggerToast("success");
 
-      createModal = false;
+      addDocumentsModal = false;
       getCollections();
       goto(await call.getPage("client-dashboard", "document-collection"));
     }
@@ -366,7 +366,7 @@ All Rights Reserved
 
       console.log(response);
       tmpCollectionId = "";
-      createModal = false;
+      addDocumentsModal = false;
 
       triggerToast("created");
     }
@@ -552,7 +552,7 @@ All Rights Reserved
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text={$_("collectionList")} />
-          <Button on:click={() => (createModal = true)} icon={PlusIcon}
+          <Button on:click={() => (addDocumentsModal = true)} icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
             {$_("addNew")}</Button
           >
@@ -602,7 +602,7 @@ All Rights Reserved
   <ToastContainer />
 </div>
 
-<Modal title={$_("createNewCollection")} bind:open={createModal} size="xs" autoclose>
+<Modal title={$_("createNewCollection")} bind:open={addDocumentsModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
