@@ -247,6 +247,25 @@ All Rights Reserved
         return;
       }
 
+      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: collectionId.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response2.status !== 200) {
+        console.log(response2);
+        triggerToast("error");
+        return;
+      }
+
+      console.log(response2);
+
       console.log(response);
       tmpCollectionId = "";
 
@@ -545,8 +564,10 @@ All Rights Reserved
             >
           </div>
           <div class="absolute bottom-0 right-0">
-            <Button on:click={handleFileUploadWrapper} pill={true} id="placement-1" class="!p-2"><img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button>
-            <Tooltip type='light' triggeredBy="#placement-1" placement='left'>
+            <Button on:click={handleFileUploadWrapper} pill={true} id="placement-1" class="!p-2"
+              ><img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+            >
+            <Tooltip type="light" triggeredBy="#placement-1" placement="left">
               {$_("addMoreFiles")}
             </Tooltip>
           </div>

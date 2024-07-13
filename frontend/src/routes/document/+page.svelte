@@ -12,7 +12,15 @@ All Rights Reserved
 <script>
   import { onMount, onDestroy } from "svelte";
   import { Modal, Button, Input } from "flowbite-svelte";
-  import { StateCard, Typography, SectionHeader, Card, ChartCard, CollectionCard, triggerToast } from "$lib";
+  import {
+    StateCard,
+    Typography,
+    SectionHeader,
+    Card,
+    ChartCard,
+    CollectionCard,
+    triggerToast,
+  } from "$lib";
   import { _ } from "svelte-i18n";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
@@ -340,24 +348,24 @@ All Rights Reserved
 
       console.log(response);
 
-      // let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
-      //   URLQuery: {},
-      //   URLParams: {},
-      //   Params: {
-      //     collection_id: response.result.data.id.toString(),
-      //   },
-      //   Headers: {
-      //     Authorization: "Bearer " + token,
-      //   },
-      // });
+      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: response.result.data.id.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-      // if (response2.status !== 200) {
-      //   console.log(response2);
-      //   triggerToast("error");
-      //   return;
-      // }
+      if (response2.status !== 200) {
+        console.log(response2);
+        triggerToast("error");
+        return;
+      }
 
-      // console.log(response2);
+      console.log(response2);
 
       tmpCollectionName = "";
       tmpDescription = "";
@@ -650,7 +658,12 @@ All Rights Reserved
 <Modal title={$_("createNewCollection")} bind:open={addCollectionsModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Typography
+        preset="Text sm/medium"
+        color="seaddCollectionsModal
+      addCollectionsModalcondary"
+        text={`${$_("collectionName")}*`}
+      />
       <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
