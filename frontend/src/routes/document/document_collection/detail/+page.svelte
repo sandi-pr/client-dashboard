@@ -98,32 +98,6 @@ All Rights Reserved
         }
 
         if (response.result.document.data.length > 0) {
-          let documentData = response.result.document.data[0];
-          data = {
-            id: documentData.id,
-            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
-            document_title: documentData.attributes.document_title,
-            document_type: documentData.attributes.document_type,
-            ext: documentData.attributes.document.data.attributes.ext,
-            // description: documentData.attributes.description,
-            // document_type: documentData.attributes.document_type,
-            // person_client: documentData.attributes.person.data?.id,
-            // contract_start:
-            //   documentData.attributes.contract_start !== null
-            //     ? format(
-            //         new Date(documentData.attributes.contract_start),
-            //         "yyyy-MM-dd",
-            //       )
-            //     : "",
-            // contract_end:
-            //   documentData.attributes.contract_end !== null
-            //     ? format(
-            //         new Date(documentData.attributes.contract_end),
-            //         "yyyy-MM-dd",
-            //       )
-            //     : "",
-          };
-
           base64 = response.result.base64;
           const response2 = await call.call("hexa-ai-rag", "trocr-predict", {
             URLQuery: {},
@@ -143,6 +117,35 @@ All Rights Reserved
           }
 
           console.log("trocr-predict", response2);
+
+          let documentData = response.result.document.data[0];
+          data = {
+            id: documentData.id,
+            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
+            document_title: documentData.attributes.document_title,
+            document_type: documentData.attributes.document_type,
+            ext: documentData.attributes.document.data.attributes.ext,
+            detectedText: documentData.attributes.detected_text
+              ? documentData.attributes.detected_text
+              : response2.result.text,
+            // description: documentData.attributes.description,
+            // document_type: documentData.attributes.document_type,
+            // person_client: documentData.attributes.person.data?.id,
+            // contract_start:
+            //   documentData.attributes.contract_start !== null
+            //     ? format(
+            //         new Date(documentData.attributes.contract_start),
+            //         "yyyy-MM-dd",
+            //       )
+            //     : "",
+            // contract_end:
+            //   documentData.attributes.contract_end !== null
+            //     ? format(
+            //         new Date(documentData.attributes.contract_end),
+            //         "yyyy-MM-dd",
+            //       )
+            //     : "",
+          };
 
           contentFile = atob(base64);
 
@@ -387,7 +390,7 @@ All Rights Reserved
       <!-- Content -->
       <div class="flex flex-col gap-4 pt-6">
         <!-- general information -->
-        {#if data.document_type !== "Handwriting"}
+        {#if data.document_type === "Handwriting"}
           <div class="flex gap-6">
             <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">

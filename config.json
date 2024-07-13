@@ -2804,6 +2804,9 @@
                     },
                     "file_size": {
                         "type": "string"
+                    },
+                    "detected_text": {
+                        "type": "text"
                     }
                 }
             },
