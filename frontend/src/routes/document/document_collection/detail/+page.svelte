@@ -98,6 +98,7 @@ All Rights Reserved
         }
 
         if (response.result.document.data.length > 0) {
+          let documentData = response.result.document.data[0];
           data = {
             id: documentData.id,
             createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
@@ -173,7 +174,6 @@ All Rights Reserved
             }
           }
 
-          let documentData = response.result.document.data[0];
           data = {
             id: documentData.id,
             createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
