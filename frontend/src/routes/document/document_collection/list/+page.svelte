@@ -159,7 +159,7 @@ All Rights Reserved
               document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
             upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
             uploaded_by:
-              document.attributes.upload_by?.data.attributes.fullname === null
+              document.attributes.upload_by.data === null
                 ? "Unknown"
                 : document.attributes.upload_by.data.attributes.fullname,
             actions: {
