@@ -512,9 +512,12 @@ All Rights Reserved
                       width: {slice.box[2]}px;
                       height: {slice.box[3]}px;
                     "
-                      >
-                        {slice.text}
-                      </div> -->
+                      > -->
+                        <P
+                          class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                          >{slice.text}</P
+                        >
+                        <!-- </div> -->
                       </div>
                     {/each}
                   </div>
