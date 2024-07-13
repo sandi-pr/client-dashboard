@@ -129,7 +129,7 @@ All Rights Reserved
           let response2;
           if (
             documentData.attributes.detected_text === null &&
-            documentData.attributes.detected_text === ""
+            documentData.attributes.document_type === "Handwriting"
           ) {
             response2 = await call.call("hexa-ai-rag", "trocr-predict", {
               URLQuery: {},
@@ -182,7 +182,9 @@ All Rights Reserved
             ext: documentData.attributes.document.data.attributes.ext,
             detectedText: documentData.attributes.detected_text
               ? documentData.attributes.detected_text
-              : response2.result.text,
+              : documentData.attributes.document_type === "Handwriting"
+                ? response2.result.text
+                : "",
             // description: documentData.attributes.description,
             // document_type: documentData.attributes.document_type,
             // person_client: documentData.attributes.person.data?.id,
