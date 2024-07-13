@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 
+	"gitlab.hexacode.org/go-libs/cr3call"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
 	"gitlab.hexacode.org/go-libs/strapi"
@@ -190,12 +191,12 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		// CR3 := cr3call.New(MODULE_MANAGER_URL)
-		// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
-		// 	Headers: U.Dict{
-		// 		"Authorization": bearer,
-		// 	},
-		// }, false)
+		CR3 := cr3call.New(MODULE_MANAGER_URL)
+		go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+			Headers: U.Dict{
+				"Authorization": bearer,
+			},
+		}, false)
 	}
 
 	return 200, U.Dict{}, nil
@@ -381,12 +382,12 @@ func GetDocuments(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-	// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
-	// 	Headers: U.Dict{
-	// 		"Authorization": bearer,
-	// 	},
-	// }, false)
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+	}, false)
 
 	return 200, documents, nil
 }
@@ -458,12 +459,12 @@ func GetDocumentsByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-	// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
-	// 	Headers: U.Dict{
-	// 		"Authorization": bearer,
-	// 	},
-	// }, false)
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+	}, false)
 
 	return 200, documents, nil
 }
@@ -654,12 +655,12 @@ func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-	// go CR3.Call("hexa-ai", "refresh-document", cr3call.CR3CallData{
-	// 	Headers: U.Dict{
-	// 		"Authorization": bearer,
-	// 	},
-	// }, false)
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai", "refresh-document", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+	}, false)
 
 	return 200, U.Dict{}, nil
 }

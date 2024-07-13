@@ -252,7 +252,7 @@ All Rights Reserved
             URLQuery: {},
             URLParams: {},
             Params: {
-              collection_id: documentId.toString(),
+              document_id: documentId.toString(),
             },
             Headers: {
               Authorization: `Bearer ${token}`,
