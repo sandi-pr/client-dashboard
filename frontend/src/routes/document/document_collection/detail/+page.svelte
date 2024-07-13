@@ -98,6 +98,32 @@ All Rights Reserved
         }
 
         if (response.result.document.data.length > 0) {
+          data = {
+            id: documentData.id,
+            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
+            document_title: documentData.attributes.document_title,
+            document_type: documentData.attributes.document_type,
+            ext: documentData.attributes.document.data.attributes.ext,
+            // detectedText: "",
+            // description: documentData.attributes.description,
+            // document_type: documentData.attributes.document_type,
+            // person_client: documentData.attributes.person.data?.id,
+            // contract_start:
+            //   documentData.attributes.contract_start !== null
+            //     ? format(
+            //         new Date(documentData.attributes.contract_start),
+            //         "yyyy-MM-dd",
+            //       )
+            //     : "",
+            // contract_end:
+            //   documentData.attributes.contract_end !== null
+            //     ? format(
+            //         new Date(documentData.attributes.contract_end),
+            //         "yyyy-MM-dd",
+            //       )
+            //     : "",
+          };
+
           base64 = response.result.base64;
           let response2;
           if (
