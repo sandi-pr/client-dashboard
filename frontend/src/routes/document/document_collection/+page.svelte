@@ -218,17 +218,48 @@ All Rights Reserved
       let collectionList = await call.getPage("client-dashboard", "document-collection-list");
 
       datas = collections.map((collection) => {
-        let totalDocuments = documents.filter(
+        const filteredDocuments = documents.filter(
           (document) => document.attributes.collection_id === collection.id,
+        );
+
+        // Hitung total dokumen
+        const totalDocuments = filteredDocuments.length;
+
+        // Hitung jumlah dokumen dengan status null
+        const nullDocuments = filteredDocuments.filter(
+          (document) => document.attributes.status === null,
         ).length;
+
+        // Hitung jumlah dokumen dengan status angka
+        const numberDocuments = filteredDocuments.filter(
+          (document) => typeof document.attributes.status === "number",
+        ).length;
+
+        // Hitung total dokumen yang Ready
+        const readyDocuments = filteredDocuments.filter(
+          (document) => document.attributes.status === "Ready",
+        ).length;
+
+        // Tentukan status koleksi berdasarkan kondisi yang diberikan
+        let collectionStatus;
+        if (nullDocuments === totalDocuments) {
+          collectionStatus = null;
+        } else if (nullDocuments > 0 || numberDocuments > 0) {
+          collectionStatus = "reading";
+        } else if (numberDocuments === totalDocuments && readyDocuments === totalDocuments) {
+          collectionStatus = "ready";
+        }
         return {
           collectionId: collection.id,
           activationTime: format(collection.attributes.createdAt, "dd-MM-yyyy HH:mm"),
           collectionName: collection.attributes.collection_name,
           totalDocuments: totalDocuments,
+          status: collectionStatus,
           href: `${collectionList}?collectionId=${collection.id}`,
         };
       });
+
+      timer = setTimeout(getCollections, 2000);
     }
   }
 
@@ -389,6 +420,7 @@ All Rights Reserved
       console.log(response2);
 
       tmpCollectionId = "";
+      getCollections();
       addDocumentsModal = false;
 
       triggerToast("created");
@@ -457,8 +489,9 @@ All Rights Reserved
       selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
     } else if (type === "Handwriting") {
-      selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".pdf, .jpg, .jpeg, .png, .webp, .img";
+      selectedTypeCollection = "Handwriting (JPG, JPEG, PNG)";
+      acceptedFileTypes = ".jpg, .jpeg, .png";
+      // acceptedFileTypes = ".pdf, .jpg, .jpeg, .png, .webp, .img";
     }
 
     files = [];
@@ -524,7 +557,29 @@ All Rights Reserved
     } catch (error) {
       console.error("Error:", error);
     }
-    timer = setTimeout(callStatusRag, 3000);
+    timer = setTimeout(getStatusRag, 3000);
+  }
+
+  async function addDocument(id) {
+    if (id) {
+      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: id.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response2.status !== 200) {
+        console.log(response2);
+        return;
+      }
+
+      console.log(response2);
+    }
   }
 
   let buttonDisabled = $state(false);
@@ -544,10 +599,10 @@ All Rights Reserved
     }
   });
 
-  async function addDocument() {
-    goto(await call.getPage("client-dashboard", "document-collection-create"));
-    return;
-  }
+  // async function addDocument() {
+  //   goto(await call.getPage("client-dashboard", "document-collection-create"));
+  //   return;
+  // }
 
   async function getDocumentCollectionDetail(id) {
     return (
@@ -595,6 +650,7 @@ All Rights Reserved
                   collectionName={document.collectionName}
                   totalDocuments={document.totalDocuments}
                   status={document.status}
+                  functButton={addDocument(document.collectionId)}
                   functAddDocuments={() => {
                     tmpCollectionId = document.collectionId;
                     selectTypeCollection("Documents");
@@ -676,7 +732,7 @@ All Rights Reserved
             class="flex p-2"
             onclick={() => {
               selectTypeCollection("Handwriting");
-            }}>Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)</button
+            }}>Handwriting (JPG, JPEG, PNG)</button
           >
         </ul>
       </div>

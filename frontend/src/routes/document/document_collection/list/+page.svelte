@@ -14,7 +14,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
-  import { StateCard, InputRw, TextareaRw } from "$lib";
+  import { StateCard, InputRw, TextareaRw, triggerToast } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
@@ -267,6 +267,8 @@ All Rights Reserved
       console.log(response2);
 
       console.log(response);
+      addDocumentsModal = false;
+      getDocuments();
 
       triggerToast("success");
     }
@@ -392,12 +394,25 @@ All Rights Reserved
   });
 
   async function addDocument() {
-    goto(
-      (await call.getPage("client-dashboard", "document-management-create")) +
-        "?collectionId=" +
-        collectionId,
-    );
-    return;
+    if (collectionId) {
+      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: collectionId.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response2.status !== 200) {
+        console.log(response2);
+        return;
+      }
+
+      console.log(response2);
+    }
   }
 </script>
 

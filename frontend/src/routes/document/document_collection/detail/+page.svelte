@@ -106,6 +106,7 @@ All Rights Reserved
             document_title: documentData.attributes.document_title,
             document_type: documentData.attributes.document_type,
             ext: documentData.attributes.document.data.attributes.ext,
+            detectedText: documentData.attributes.detected_text,
             // detectedText: "",
             // description: documentData.attributes.description,
             // document_type: documentData.attributes.document_type,
@@ -127,6 +128,26 @@ All Rights Reserved
           };
 
           base64 = response.result.base64;
+
+          contentFile = atob(base64);
+
+          let fileType = "";
+          if (data.ext === ".pdf") {
+            fileType = "application/pdf";
+          } else if (data.ext === ".docx") {
+            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+          } else if (data.ext === ".doc") {
+            fileType = "application/msword";
+          } else {
+            fileType = "text/plain";
+          }
+
+          const blob = base64toBlob(base64, fileType);
+          fileUrl = URL.createObjectURL(blob);
+          console.log(fileUrl);
+
+          fileReady = true;
+
           let response2;
           // if (
           //   documentData.attributes.detected_text === null &&
@@ -205,25 +226,6 @@ All Rights Reserved
             //       )
             //     : "",
           };
-
-          contentFile = atob(base64);
-
-          let fileType = "";
-          if (data.ext === ".pdf") {
-            fileType = "application/pdf";
-          } else if (data.ext === ".docx") {
-            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-          } else if (data.ext === ".doc") {
-            fileType = "application/msword";
-          } else {
-            fileType = "text/plain";
-          }
-
-          const blob = base64toBlob(base64, fileType);
-          fileUrl = URL.createObjectURL(blob);
-          console.log(fileUrl);
-
-          fileReady = true;
         }
       } catch (error) {
         triggerToast("error");
@@ -493,7 +495,7 @@ All Rights Reserved
                   <TextareaRw {onEdit} bind:value={data.detectedText} />
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("Result cut image")}</P
+                    >{$_("Result slice image")}</P
                   >
                   {#each slices as slice}
                     <div class="relative">
