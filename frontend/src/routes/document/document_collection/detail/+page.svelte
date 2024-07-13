@@ -125,6 +125,25 @@ All Rights Reserved
           };
 
           base64 = response.result.base64;
+          const response2 = await call.call("client-dashboard", "trocr-predict", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              image: base64,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status !== 200) {
+            triggerToast("error");
+            console.log(response);
+            return;
+          }
+
+          console.log("trocr-predict", response2);
+
           contentFile = atob(base64);
 
           let fileType = "";
@@ -377,12 +396,28 @@ All Rights Reserved
               <div class="pt-2">
                 {#if onEdit}
                   <div class="flex gap-2">
-                    <button onclick={() => (onEdit = false)} class="text-start text-sm text-tertiary-light dark:text-tertiary-dark">{$_("cancel")}</button>
-                    <button onclick={editDetectedText} class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("confirm")}</button>
+                    <button
+                      onclick={() => (onEdit = false)}
+                      class="text-start text-sm text-tertiary-light dark:text-tertiary-dark"
+                      >{$_("cancel")}</button
+                    >
+                    <button
+                      onclick={editDetectedText}
+                      class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
+                      >{$_("confirm")}</button
+                    >
                   </div>
                 {:else}
-                  <Typography preset="Text sm/Regular" color="quarterary" text={$_("wrongDetectedText")} />
-                  <button onclick={() => (onEdit = true)} class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("correctHere")}</button>
+                  <Typography
+                    preset="Text sm/Regular"
+                    color="quarterary"
+                    text={$_("wrongDetectedText")}
+                  />
+                  <button
+                    onclick={() => (onEdit = true)}
+                    class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
+                    >{$_("correctHere")}</button
+                  >
                 {/if}
               </div>
             </div>
