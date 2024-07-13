@@ -561,6 +561,7 @@ All Rights Reserved
   }
 
   async function addDocument(id) {
+    let token = sessionStorage.getItem("token");
     if (id) {
       let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
         URLQuery: {},
