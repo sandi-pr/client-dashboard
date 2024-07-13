@@ -493,7 +493,7 @@ All Rights Reserved
                   <TextareaRw {onEdit} bind:value={data.detectedText} />
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("result cut image")}</P
+                    >{$_("Result cut image")}</P
                   >
                   {#each slices as slice}
                     <div class="relative">
@@ -507,7 +507,7 @@ All Rights Reserved
                       height: {slice.box[3]}px;
                     "
                       >
-                        {text}
+                        {slice.text}
                       </div>
                     </div>
                   {/each}
