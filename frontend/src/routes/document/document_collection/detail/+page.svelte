@@ -60,7 +60,7 @@ All Rights Reserved
   let fileReady = $state(false);
 
   let data = $state({});
-  let slice = $state([]);
+  let slices = $state([]);
 
   let categories = $state([
     {
