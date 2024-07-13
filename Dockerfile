@@ -7,7 +7,7 @@
 
 
 # Build frontend 
-FROM node:18 AS frontend
+FROM localhost:32000/node:18 AS frontend
 
 # Instal Bun
 RUN curl -fsSL https://bun.sh/install | bash
