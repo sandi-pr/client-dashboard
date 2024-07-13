@@ -125,7 +125,7 @@ All Rights Reserved
           };
 
           base64 = response.result.base64;
-          const response2 = await call.call("client-dashboard", "trocr-predict", {
+          const response2 = await call.call("hexa-ai-rag", "trocr-predict", {
             URLQuery: {},
             URLParams: {},
             Params: {
