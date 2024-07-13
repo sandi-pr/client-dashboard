@@ -380,7 +380,7 @@
           }
         }
         let percentage = (totalProcessed / totalDocument) * 100;
-        statusRAG = percentage + "%";
+        statusRAG = percentage.toFixed(1) + "%";
 
         if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
           dataConversatonLogs[dataConversatonLogs.length - 1].message =
