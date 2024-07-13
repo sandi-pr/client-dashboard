@@ -60,6 +60,7 @@ All Rights Reserved
   let fileReady = $state(false);
 
   let data = $state({});
+  let slice = $state([]);
 
   let categories = $state([
     {
@@ -127,52 +128,53 @@ All Rights Reserved
 
           base64 = response.result.base64;
           let response2;
-          if (
-            documentData.attributes.detected_text === null &&
-            documentData.attributes.document_type === "Handwriting"
-          ) {
-            response2 = await call.call("hexa-ai-rag", "trocr-predict", {
+          // if (
+          //   documentData.attributes.detected_text === null &&
+          //   documentData.attributes.document_type === "Handwriting"
+          // ) {
+          response2 = await call.call("hexa-ai-rag", "trocr-predict", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              image: base64,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status !== 200) {
+            triggerToast("error");
+            console.log(response);
+            return;
+          }
+
+          console.log("trocr-predict", response2);
+
+          if (response2?.result?.text !== null) {
+            const response3 = await call.call("client-dashboard", "update-document", {
               URLQuery: {},
-              URLParams: {},
+              URLParams: {
+                id: documentId.toString(),
+              },
               Params: {
-                image: base64,
+                detected_text: response2.result.text,
               },
               Headers: {
                 Authorization: "Bearer " + token,
               },
             });
 
-            if (response2.status !== 200) {
+            if (response3.status !== 200) {
               triggerToast("error");
               console.log(response);
               return;
             }
 
-            console.log("trocr-predict", response2);
-
-            if (response2?.result?.text !== null) {
-              const response3 = await call.call("client-dashboard", "update-document", {
-                URLQuery: {},
-                URLParams: {
-                  id: documentId.toString(),
-                },
-                Params: {
-                  detected_text: response2.result.text,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
-
-              if (response3.status !== 200) {
-                triggerToast("error");
-                console.log(response);
-                return;
-              }
-
-              console.log("ayam", response3);
-            }
+            console.log("ayam", response3);
+            slices = response2.result.slices;
           }
+          // }
 
           data = {
             id: documentData.id,
@@ -250,7 +252,7 @@ All Rights Reserved
             URLQuery: {},
             URLParams: {},
             Params: {
-              id: documentId.toString(),
+              collection_id: documentId.toString(),
             },
             Headers: {
               Authorization: `Bearer ${token}`,
@@ -489,6 +491,26 @@ All Rights Reserved
                     >{$_("detectedText")}</P
                   >
                   <TextareaRw {onEdit} bind:value={data.detectedText} />
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("result cut image")}</P
+                  >
+                  {#each slices as slice}
+                    <div class="relative">
+                      <img src={slice.image} alt="Dynamic Image" class="w-full h-auto" />
+                      <div
+                        class="absolute bg-white bg-opacity-50 flex items-center justify-center text-black text-base"
+                        style="
+                      top: {slice.box[1]}px;
+                      left: {slice.box[0]}px;
+                      width: {slice.box[2]}px;
+                      height: {slice.box[3]}px;
+                    "
+                      >
+                        {text}
+                      </div>
+                    </div>
+                  {/each}
                 </div>
               </div>
             </div>

@@ -316,7 +316,7 @@ All Rights Reserved
           URLQuery: {},
           URLParams: {},
           Params: {
-            id: tmpCollectionId.toString(),
+            collection_id: tmpCollectionId.toString(),
           },
           Headers: {
             Authorization: "Bearer " + token,

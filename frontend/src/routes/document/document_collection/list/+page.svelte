@@ -267,7 +267,6 @@ All Rights Reserved
       console.log(response2);
 
       console.log(response);
-      tmpCollectionId = "";
 
       triggerToast("success");
     }
