@@ -58,7 +58,7 @@ All Rights Reserved
   let tmpCollectionId = $state("");
   let tmpDocumentType = $state("");
   let addCollectionsModal = $state(false);
-  let addDocumentsModal = $state(true);
+  let addDocumentsModal = $state(false);
   let editModal = $state(false);
   let deleteModal = $state(false);
   let dropdownOpen = $state(false);
