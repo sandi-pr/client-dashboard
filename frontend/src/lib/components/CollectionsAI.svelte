@@ -12,11 +12,7 @@
   import { goto } from "$app/navigation";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import {
-    PaperPlaneOutline,
-    TrashBinOutline,
-    RefreshOutline,
-  } from "flowbite-svelte-icons";
+  import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
   import { triggerToast } from "$lib";
@@ -188,8 +184,7 @@
     if (dataConversatonLogs.length < 2) {
       dataConversatonLogs.push({
         role: "assistant",
-        message:
-          "Collection is selected. Please wait while we prepare your assistant.",
+        message: "Collection is selected. Please wait while we prepare your assistant.",
       });
     }
 
@@ -199,20 +194,16 @@
 
     let token = sessionStorage.getItem("token");
 
-    let response2 = await call.call(
-      "hexa-ai-rag",
-      "add-document-by-collection-id",
-      {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: selectedCollection.id.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
+    let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {
+        collection_id: selectedCollection.id.toString(),
       },
-    );
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
 
     if (response2.status !== 200) {
       console.log(response2);
@@ -250,26 +241,21 @@
       }
     } else {
       try {
-        let createConversationResponse = await call.call(
-          "hexa-ai-rag",
-          "create-conversation",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_id: parseInt(selectedCollection.id.toString()),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let createConversationResponse = await call.call("hexa-ai-rag", "create-conversation", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_id: parseInt(selectedCollection.id.toString()),
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         console.log("createConversationResponse", createConversationResponse);
 
         if (createConversationResponse.status === 200) {
-          conversationIdCollection =
-            createConversationResponse.result.conversation_id;
+          conversationIdCollection = createConversationResponse.result.conversation_id;
           sessionStorage.setItem(
             "conversationIdCollection-" + selectedCollection.id.toString(),
             conversationIdCollection,
@@ -323,22 +309,18 @@
       let allData = [];
       let page = 1;
       while (true) {
-        let response = await call.call(
-          "client-dashboard",
-          "get-documents-by-collectionid",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              page: page,
-              page_size:25,
-              collection_id: selectedCollectionOld.id.toString(),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let response = await call.call("client-dashboard", "get-documents-by-collectionid", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 25,
+            collection_id: selectedCollectionOld.id.toString(),
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         if (response.status !== 200) {
           console.log(response);
@@ -357,7 +339,7 @@
         dataConversatonLogs.push({
           role: "assistant",
           message: "Your collection is empty",
-        })
+        });
         return;
       }
 
@@ -371,18 +353,13 @@
       }
 
       if (allReady) {
-        if (
-          dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
-            "Processing...",
-          )
-        ) {
-          dataConversatonLogs[dataConversatonLogs.length - 1].message =
-            "Your document is ready";
+        if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
+          dataConversatonLogs[dataConversatonLogs.length - 1].message = "Your document is ready";
         } else {
           if (
-            dataConversatonLogs[
-              dataConversatonLogs.length - 1
-            ].message.includes("Your document is ready")
+            dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
+              "Your document is ready",
+            )
           ) {
             console.log("Already");
             clearTimeout(timer);
@@ -403,13 +380,9 @@
           }
         }
         let percentage = (totalProcessed / totalDocument) * 100;
-        statusRAG = percentage.toFixed(2) + "%";
+        statusRAG = percentage + "%";
 
-        if (
-          dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
-            "Processing...",
-          )
-        ) {
+        if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
           dataConversatonLogs[dataConversatonLogs.length - 1].message =
             "Processing... " + statusRAG;
         } else if (
@@ -465,10 +438,7 @@
 
   $effect(() => {
     if (selectedCollection) {
-      if (
-        selectedCollection !== selectedCollectionOld ||
-        selectedCollectionOld === ""
-      ) {
+      if (selectedCollection !== selectedCollectionOld || selectedCollectionOld === "") {
         if (selectedCollection !== null) {
           selectedCollectionOld = selectedCollection;
           getMessage();
@@ -539,13 +509,9 @@
                   <img src={VerifiedIcon} alt="User" class="w-3 h-3" />
                 </div>
               </div>
-              <P weight="bold" class="text-primary-light dark:text-primary-dark"
-                >{"HexaAI"}</P
-              >
+              <P weight="bold" class="text-primary-light dark:text-primary-dark">{"HexaAI"}</P>
             </div>
-            <P
-              weight="medium"
-              class="text-tertiary-light dark:text-tertiary-dark"
+            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
               >{"Assistant is typing..."}</P
             >
           </div>
@@ -553,9 +519,7 @@
       {/if}
     </div>
   </div>
-  <div
-    class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-2 py-2 flex items-center"
-  >
+  <div class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-2 py-2 flex items-center">
     <form on:submit|preventDefault={sendMessage} class="flex-grow">
       <!-- <Input
       bind:disabled={disableInput}
@@ -599,12 +563,7 @@
           class="block mx-2 p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
           placeholder="Send a message..."
         ></textarea>
-        <Button
-          type="submit"
-          disabled={disableButton}
-          color="primary"
-          class="rounded-full !px-2.5"
-        >
+        <Button type="submit" disabled={disableButton} color="primary" class="rounded-full !px-2.5">
           <PaperPlaneOutline class="w-5 h-5 rotate-45" />
           <!-- <span class="sr-only">Send</span> -->
         </Button>
