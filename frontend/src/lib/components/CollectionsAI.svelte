@@ -353,6 +353,7 @@
       }
 
       if (allReady) {
+        statusRAG = "Ready";
         if (dataConversatonLogs[dataConversatonLogs.length - 1].message.includes("Processing...")) {
           dataConversatonLogs[dataConversatonLogs.length - 1].message = "Your document is ready";
         } else {
