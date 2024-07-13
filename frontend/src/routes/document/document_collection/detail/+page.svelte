@@ -26,6 +26,7 @@ All Rights Reserved
   import { createEventDispatcher } from "svelte";
   import PdfViewer from "svelte-pdf";
   import { generateUniqueId } from "$lib";
+  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -146,8 +147,6 @@ All Rights Reserved
           fileUrl = URL.createObjectURL(blob);
           console.log(fileUrl);
 
-          fileReady = true;
-
           let response2;
           // if (
           //   documentData.attributes.detected_text === null &&
@@ -226,6 +225,8 @@ All Rights Reserved
             //       )
             //     : "",
           };
+
+          fileReady = true;
         }
       } catch (error) {
         triggerToast("error");
@@ -410,97 +411,100 @@ All Rights Reserved
   });
 </script>
 
-<div class="flex dark:bg-hc-graydark-950">
-  <div class="w-full pb-10">
-    <div class="flex flex-col m-4">
-      <div class="flex items-center justify-between pb-8">
-        <div class="flex flex-col grow">
-          <!-- Header -->
-          <div class="gap-2">
-            <Heading
-              tag="h3"
-              class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{data.document_title}<Button
-                outline
-                color="red"
-                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
+{#if fileReady}
+  <div class="flex dark:bg-hc-graydark-950">
+    <div class="w-full pb-10">
+      <div class="flex flex-col m-4">
+        <div class="flex items-center justify-between pb-8">
+          <div class="flex flex-col grow">
+            <!-- Header -->
+            <div class="gap-2">
+              <Heading
+                tag="h3"
+                class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
+                >{data.document_title}<Button
+                  outline
+                  color="red"
+                  class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
+                >
+                  <CopyIcon
+                    svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                  />
+                </Button></Heading
               >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-              </Button></Heading
+            </div>
+            <P
+              class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
+              >{$_("createOn")}{` ${data.createdAt}`}</P
             >
           </div>
-          <P
-            class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-            >{$_("createOn")}{` ${data.createdAt}`}</P
-          >
+
+          <div class="flex gap-2">
+            <Button
+              onclick={() => (popupModal = true)}
+              outline
+              color="red"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+            >
+          </div>
         </div>
 
-        <div class="flex gap-2">
-          <Button
-            onclick={() => (popupModal = true)}
-            outline
-            color="red"
-            class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-          >
-        </div>
-      </div>
+        <!-- Tab Bar -->
+        <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
 
-      <!-- Tab Bar -->
-      <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
-
-      <!-- Content -->
-      <div class="flex flex-col gap-4 pt-6">
-        <!-- general information -->
-        {#if data.document_type === "Handwriting"}
-          <div class="flex gap-6">
-            <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                {$_("handwritingInformation")}
-              </P>
-              <div class="pt-2">
-                {#if onEdit}
-                  <div class="flex gap-2">
+        <!-- Content -->
+        <div class="flex flex-col gap-4 pt-6">
+          <!-- general information -->
+          {#if data.document_type === "Handwriting"}
+            <div class="flex gap-6">
+              <div class="w-60">
+                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                  {$_("handwritingInformation")}
+                </P>
+                <div class="pt-2">
+                  {#if onEdit}
+                    <div class="flex gap-2">
+                      <button
+                        onclick={() => (onEdit = false)}
+                        class="text-start text-sm text-tertiary-light dark:text-tertiary-dark"
+                        >{$_("cancel")}</button
+                      >
+                      <button
+                        onclick={editDetectedText}
+                        class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
+                        >{$_("confirm")}</button
+                      >
+                    </div>
+                  {:else}
+                    <Typography
+                      preset="Text sm/Regular"
+                      color="quarterary"
+                      text={$_("wrongDetectedText")}
+                    />
                     <button
-                      onclick={() => (onEdit = false)}
-                      class="text-start text-sm text-tertiary-light dark:text-tertiary-dark"
-                      >{$_("cancel")}</button
-                    >
-                    <button
-                      onclick={editDetectedText}
+                      onclick={() => (onEdit = true)}
                       class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
-                      >{$_("confirm")}</button
+                      >{$_("correctHere")}</button
                     >
-                  </div>
-                {:else}
-                  <Typography
-                    preset="Text sm/Regular"
-                    color="quarterary"
-                    text={$_("wrongDetectedText")}
-                  />
-                  <button
-                    onclick={() => (onEdit = true)}
-                    class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
-                    >{$_("correctHere")}</button
-                  >
-                {/if}
+                  {/if}
+                </div>
               </div>
-            </div>
-            <div class="flex flex-col grow gap-6">
-              <div class="grid grid-cols-1">
-                <div class="flex flex-col gap-2">
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("detectedText")}</P
-                  >
-                  <TextareaRw {onEdit} bind:value={data.detectedText} />
-                  <P
-                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_("Result slice image")}</P
-                  >
-                  {#each slices as slice}
-                    <div class="relative">
-                      <img src={slice.image} alt="Dynamic Image" class="w-full h-auto" />
-                      <!-- <div
+              <div class="flex flex-col grow gap-6">
+                <div class="grid grid-cols-1">
+                  <div class="flex flex-col gap-2">
+                    <P
+                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                      >{$_("detectedText")}</P
+                    >
+                    <TextareaRw {onEdit} bind:value={data.detectedText} />
+                    <P
+                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                      >{$_("Result slice image")}</P
+                    >
+                    {#each slices as slice}
+                      <div class="relative">
+                        <img src={slice.image} alt="Dynamic Image" class="w-full h-auto" />
+                        <!-- <div
                         class="absolute bg-white bg-opacity-50 flex items-center justify-center text-black text-base"
                         style="
                       top: {slice.box[1]}px;
@@ -511,24 +515,23 @@ All Rights Reserved
                       >
                         {slice.text}
                       </div> -->
-                    </div>
-                  {/each}
+                      </div>
+                    {/each}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <Divider />
-        {/if}
-        <div class="flex gap-6">
-          <div class="w-60">
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-              {$_("viewer")}
-            </P>
-          </div>
-          <div
-            class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
-          >
-            {#if fileReady}
+            <Divider />
+          {/if}
+          <div class="flex gap-6">
+            <div class="w-60">
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                {$_("viewer")}
+              </P>
+            </div>
+            <div
+              class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+            >
               {#if data.ext === ".pdf"}
                 <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
                 <div class="flex justify-center">
@@ -548,14 +551,16 @@ All Rights Reserved
                   <p class="dark:text-white">{paragraphs}</p>
                 {/each}
               {/if}
-            {/if}
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <ToastContainer />
   </div>
-  <ToastContainer />
-</div>
+{:else}
+  <LoadingSpinner />
+{/if}
 
 <Modal bind:open={popupModal} size="xs" autoclose>
   <div class="text-center">
