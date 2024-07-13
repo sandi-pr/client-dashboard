@@ -498,7 +498,7 @@ All Rights Reserved
                   {#each slices as slice}
                     <div class="relative">
                       <img src={slice.image} alt="Dynamic Image" class="w-full h-auto" />
-                      <div
+                      <!-- <div
                         class="absolute bg-white bg-opacity-50 flex items-center justify-center text-black text-base"
                         style="
                       top: {slice.box[1]}px;
@@ -508,7 +508,7 @@ All Rights Reserved
                     "
                       >
                         {slice.text}
-                      </div>
+                      </div> -->
                     </div>
                   {/each}
                 </div>
