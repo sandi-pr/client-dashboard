@@ -12,7 +12,14 @@ All Rights Reserved
 
 <script>
   import { P, Heading, Input, Textarea, Button, Select, Modal } from "flowbite-svelte";
-  import { ToastContainer, triggerToast, InputRw, TextareaRw, Typography } from "$lib";
+  import {
+    ToastContainer,
+    triggerToast,
+    InputRw,
+    TextareaRw,
+    Typography,
+    triggerLoading,
+  } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
@@ -26,13 +33,15 @@ All Rights Reserved
   import { createEventDispatcher } from "svelte";
   import PdfViewer from "svelte-pdf";
   import { generateUniqueId } from "$lib";
-  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+  import { page } from "$app/stores";
+
+  let documentId, collectionId;
 
   const call = new CR3Call(globalThis.location.origin);
 
-  const params = new URLSearchParams(window.location.search);
-  let documentId = params.get("documentId");
-  let collectionId = params.get("collectionId");
+  // const params = new URLSearchParams(window.location.search);
+  // let documentId = params.get("documentId");
+  // let collectionId = params.get("collectionId");
   let documentIdOld = $state("");
   let collectionIdOld = $state("");
   const dispatch = createEventDispatcher();
@@ -61,7 +70,6 @@ All Rights Reserved
   let fileReady = $state(false);
 
   let data = $state({});
-  let slices = $state([]);
 
   let categories = $state([
     {
@@ -77,8 +85,7 @@ All Rights Reserved
   let personClient = $state([]);
 
   async function getDocument() {
-    documentId = params.get("documentId");
-    collectionId = params.get("collectionId");
+    console.log("getDocument");
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
@@ -101,32 +108,6 @@ All Rights Reserved
 
         if (response.result.document.data.length > 0) {
           let documentData = response.result.document.data[0];
-          data = {
-            id: documentData.id,
-            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
-            document_title: documentData.attributes.document_title,
-            document_type: documentData.attributes.document_type,
-            ext: documentData.attributes.document.data.attributes.ext,
-            detectedText: documentData.attributes.detected_text,
-            // detectedText: "",
-            // description: documentData.attributes.description,
-            // document_type: documentData.attributes.document_type,
-            // person_client: documentData.attributes.person.data?.id,
-            // contract_start:
-            //   documentData.attributes.contract_start !== null
-            //     ? format(
-            //         new Date(documentData.attributes.contract_start),
-            //         "yyyy-MM-dd",
-            //       )
-            //     : "",
-            // contract_end:
-            //   documentData.attributes.contract_end !== null
-            //     ? format(
-            //         new Date(documentData.attributes.contract_end),
-            //         "yyyy-MM-dd",
-            //       )
-            //     : "",
-          };
 
           base64 = response.result.base64;
 
@@ -148,53 +129,55 @@ All Rights Reserved
           console.log(fileUrl);
 
           let response2;
-          // if (
-          //   documentData.attributes.detected_text === null &&
-          //   documentData.attributes.document_type === "Handwriting"
-          // ) {
-          response2 = await call.call("hexa-ai-rag", "trocr-predict", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              image: base64,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          if (documentData.attributes.document_type === "Handwriting") {
+            if (
+              documentData.attributes.detected_text === null ||
+              documentData.attributes.result_trocr === null
+            ) {
+              response2 = await call.call("hexa-ai-rag", "trocr-predict", {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  image: base64,
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              });
 
-          if (response2.status !== 200) {
-            triggerToast("error");
-            console.log(response);
-            return;
-          }
+              if (response2.status !== 200) {
+                triggerToast("error");
+                console.log(response);
+                return;
+              }
 
-          console.log("trocr-predict", response2);
+              console.log("trocr-predict", response2);
 
-          if (response2?.result?.text !== null) {
-            const response3 = await call.call("client-dashboard", "update-document", {
-              URLQuery: {},
-              URLParams: {
-                id: documentId.toString(),
-              },
-              Params: {
-                detected_text: response2.result.text,
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
+              if (response2?.result?.text !== null) {
+                const response3 = await call.call("client-dashboard", "update-document", {
+                  URLQuery: {},
+                  URLParams: {
+                    id: documentId.toString(),
+                  },
+                  Params: {
+                    detected_text: response2.result.text,
+                    result_trocr: JSON.stringify(response2.result),
+                  },
+                  Headers: {
+                    Authorization: "Bearer " + token,
+                  },
+                });
 
-            if (response3.status !== 200) {
-              triggerToast("error");
-              console.log(response);
-              return;
+                if (response3.status !== 200) {
+                  triggerToast("error");
+                  console.log(response);
+                  return;
+                }
+
+                console.log("ayam", response3);
+              }
             }
-
-            console.log("ayam", response3);
-            slices = response2.result.slices;
           }
-          // }
 
           data = {
             id: documentData.id,
@@ -206,6 +189,11 @@ All Rights Reserved
               ? documentData.attributes.detected_text
               : documentData.attributes.document_type === "Handwriting"
                 ? response2.result.text
+                : "",
+            slices: documentData.attributes.result_trocr
+              ? JSON.parse(documentData.attributes.result_trocr).slices
+              : documentData.attributes.document_type === "Handwriting"
+                ? response2.result.slices
                 : "",
             // description: documentData.attributes.description,
             // document_type: documentData.attributes.document_type,
@@ -227,6 +215,7 @@ All Rights Reserved
           };
 
           fileReady = true;
+          triggerLoading(!fileReady);
         }
       } catch (error) {
         triggerToast("error");
@@ -401,7 +390,22 @@ All Rights Reserved
 
   onMount(() => {
     // getPersons();
-    getDocument();
+    triggerLoading(!fileReady);
+    const unsubscribe = page.subscribe(($page) => {
+      documentId = $page.url.searchParams.get("documentId");
+      collectionId = $page.url.searchParams.get("collectionId");
+      getDocument();
+    });
+    return () => unsubscribe();
+  });
+
+  $effect(async () => {
+    const unsubscribe = page.subscribe(($page) => {
+      documentId = $page.url.searchParams.get("documentId");
+      collectionId = $page.url.searchParams.get("collectionId");
+      getDocument();
+    });
+    return () => unsubscribe();
   });
 
   onDestroy(() => {
@@ -411,49 +415,47 @@ All Rights Reserved
   });
 </script>
 
-{#if fileReady}
-  <div class="flex dark:bg-hc-graydark-950">
-    <div class="w-full pb-10">
-      <div class="flex flex-col m-4">
-        <div class="flex items-center justify-between pb-8">
-          <div class="flex flex-col grow">
-            <!-- Header -->
-            <div class="gap-2">
-              <Heading
-                tag="h3"
-                class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-                >{data.document_title}<Button
-                  outline
-                  color="red"
-                  class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
-                >
-                  <CopyIcon
-                    svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                  />
-                </Button></Heading
+<div class="flex dark:bg-hc-graydark-950">
+  <div class="w-full pb-10">
+    <div class="flex flex-col m-4">
+      <div class="flex items-center justify-between pb-8">
+        <div class="flex flex-col grow">
+          <!-- Header -->
+          <div class="gap-2">
+            <Heading
+              tag="h3"
+              class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
+              >{data.document_title}<Button
+                outline
+                color="red"
+                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-            </div>
-            <P
-              class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-              >{$_("createOn")}{` ${data.createdAt}`}</P
+                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+              </Button></Heading
             >
           </div>
-
-          <div class="flex gap-2">
-            <Button
-              onclick={() => (popupModal = true)}
-              outline
-              color="red"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-            >
-          </div>
+          <P
+            class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
+            >{$_("createOn")}{` ${data.createdAt}`}</P
+          >
         </div>
 
-        <!-- Tab Bar -->
-        <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
+        <div class="flex gap-2">
+          <Button
+            onclick={() => (popupModal = true)}
+            outline
+            color="red"
+            class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+          >
+        </div>
+      </div>
 
-        <!-- Content -->
-        <div class="flex flex-col gap-4 pt-6">
+      <!-- Tab Bar -->
+      <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
+
+      <!-- Content -->
+      <div class="flex flex-col gap-4 pt-6">
+        {#if fileReady}
           <!-- general information -->
           {#if data.document_type === "Handwriting"}
             <div class="flex gap-6">
@@ -501,7 +503,7 @@ All Rights Reserved
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                       >{$_("Result slice image")}</P
                     >
-                    {#each slices as slice}
+                    {#each data.slices as slice}
                       <div class="relative">
                         <img src={slice.image} alt="Dynamic Image" class="w-full h-auto" />
                         <!-- <div
@@ -556,14 +558,12 @@ All Rights Reserved
               {/if}
             </div>
           </div>
-        </div>
+        {/if}
       </div>
     </div>
-    <ToastContainer />
   </div>
-{:else}
-  <LoadingSpinner />
-{/if}
+  <ToastContainer />
+</div>
 
 <Modal bind:open={popupModal} size="xs" autoclose>
   <div class="text-center">

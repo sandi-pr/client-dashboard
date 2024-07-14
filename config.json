@@ -1555,6 +1555,11 @@
                     "name": "detected_text",
                     "type": "string",
                     "required": true
+                },
+                {
+                    "name": "result_trocr",
+                    "type": "string",
+                    "required": true
                 }
             ]
         },
@@ -2832,6 +2837,9 @@
                     },
                     "detected_text": {
                         "type": "text"
+                    },
+                    "result_trocr": {
+                        "type": "json"
                     }
                 }
             },

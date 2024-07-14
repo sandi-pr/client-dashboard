@@ -259,7 +259,7 @@ All Rights Reserved
         };
       });
 
-      timer = setTimeout(getCollections, 2000);
+      // timer = setTimeout(getCollections, 2000);
     }
   }
 
@@ -651,7 +651,9 @@ All Rights Reserved
                   collectionName={document.collectionName}
                   totalDocuments={document.totalDocuments}
                   status={document.status}
-                  functButton={addDocument(document.collectionId)}
+                  functButton={() => {
+                    addDocument(document.collectionId);
+                  }}
                   functAddDocuments={() => {
                     tmpCollectionId = document.collectionId;
                     selectTypeCollection("Documents");

@@ -594,8 +594,22 @@ func UpdateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters detected_text")
 	}
 
+	result_trocr, ok := ctx.Params.GetString("result_trocr")
+	if !ok {
+		return ctx.Error(400, "invalid parameters result_trocr")
+	}
+
+	var result_trocr_json interface{}
+	err = json.Unmarshal([]byte(result_trocr), &result_trocr_json)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
 		"detected_text": detected_text,
+		"result_trocr":  result_trocr_json,
 	})
 	if err != nil {
 		fmt.Println(err)
