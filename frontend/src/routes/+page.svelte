@@ -12,7 +12,7 @@ All Rights Reserved
 
 <script>
   import { CR3Call } from "hexacomponents-svelte";
-  import { Card, Typography, SectionHeader } from "$lib";
+  import { Card, Typography, SectionHeader, triggerLoading } from "$lib";
   import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
   import { Alert, CloseButton, P } from "flowbite-svelte";
@@ -20,6 +20,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
+    import LoadingContainer from "../lib/components/LoadingContainer.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
   let userData = $state({ username: "", email: "", brand: "" });
@@ -109,6 +110,10 @@ All Rights Reserved
   };
 
   onMount(() => {
+    // triggerLoading(true);
+    // setTimeout(async () => {
+    //   triggerLoading(false);
+    // }, 3000);
     getFristTime();
     CheckSetup();
   })
@@ -154,3 +159,5 @@ All Rights Reserved
     />
   {/each}
 </div>
+
+<LoadingContainer />
