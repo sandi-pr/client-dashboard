@@ -34,6 +34,7 @@ All Rights Reserved
   import PdfViewer from "svelte-pdf";
   import { generateUniqueId } from "$lib";
   import { page } from "$app/stores";
+  import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
   let documentId, collectionId;
 
@@ -191,7 +192,7 @@ All Rights Reserved
                 ? response2.result.text
                 : "",
             slices: documentData.attributes.result_trocr
-              ? JSON.parse(documentData.attributes.result_trocr).slices
+              ? documentData.attributes.result_trocr.slices
               : documentData.attributes.document_type === "Handwriting"
                 ? response2.result.slices
                 : "",
@@ -441,7 +442,7 @@ All Rights Reserved
         </div>
 
         <div class="flex gap-2">
-          <Button
+          <ButtontoastLoading
             onclick={() => (popupModal = true)}
             outline
             color="red"
@@ -575,3 +576,5 @@ All Rights Reserved
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
+
+<LoadingContainer />
