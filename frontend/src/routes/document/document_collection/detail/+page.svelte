@@ -86,7 +86,7 @@ All Rights Reserved
   let personClient = $state([]);
 
   async function getDocument() {
-    console.log("getDocument");
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
@@ -216,7 +216,7 @@ All Rights Reserved
           };
 
           fileReady = true;
-          triggerLoading(!fileReady);
+          triggerLoading(false);
         }
       } catch (error) {
         // triggerToast("error");
@@ -390,8 +390,6 @@ All Rights Reserved
   }
 
   onMount(() => {
-    // getPersons();
-    triggerLoading(!fileReady);
     const unsubscribe = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
       collectionId = $page.url.searchParams.get("collectionId");
