@@ -47,7 +47,6 @@ All Rights Reserved
   let collectionIdOld = $state("");
   const dispatch = createEventDispatcher();
   let timer;
-  let unsubscribePage;
 
   let onEdit = $state(false);
 
@@ -103,7 +102,7 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          triggerToast("error");
+          // triggerToast("error");
           console.log(response);
           return;
         }
@@ -148,7 +147,7 @@ All Rights Reserved
               });
 
               if (response2.status !== 200) {
-                triggerToast("error");
+                // triggerToast("error");
                 console.log(response);
                 return;
               }
@@ -171,7 +170,7 @@ All Rights Reserved
                 });
 
                 if (response3.status !== 200) {
-                  triggerToast("error");
+                  // triggerToast("error");
                   console.log(response);
                   return;
                 }
@@ -220,11 +219,11 @@ All Rights Reserved
           triggerLoading(!fileReady);
         }
       } catch (error) {
-        triggerToast("error");
+        // triggerToast("error");
         console.log(error);
       }
     } else {
-      triggerToast("error");
+      // triggerToast("error");
     }
   }
 
@@ -393,32 +392,28 @@ All Rights Reserved
   onMount(() => {
     // getPersons();
     triggerLoading(!fileReady);
-    unsubscribePage = page.subscribe(($page) => {
+    const unsubscribe = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
       collectionId = $page.url.searchParams.get("collectionId");
       getDocument();
     });
-    return () => {
-      if (unsubscribePage) {
-        unsubscribePage();
-      }
-    };
+    return () => unsubscribe();
   });
 
   $effect(async () => {
-    unsubscribePage = page.subscribe(($page) => {
+    const unsubscribe = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
       collectionId = $page.url.searchParams.get("collectionId");
       getDocument();
     });
-    return () => {
-      if (unsubscribePage) {
-        unsubscribePage();
-      }
-    };
+    onDestroy(() => unsubscribe());
   });
 
-  onDestroy(() => {});
+  // onDestroy(() => {
+  // if (timer) {
+  //   clearTimeout(timer);
+  // }
+  // });
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
