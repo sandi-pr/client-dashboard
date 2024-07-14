@@ -47,6 +47,7 @@ All Rights Reserved
   let collectionIdOld = $state("");
   const dispatch = createEventDispatcher();
   let timer;
+  let unsubscribePage;
 
   let onEdit = $state(false);
 
@@ -392,28 +393,32 @@ All Rights Reserved
   onMount(() => {
     // getPersons();
     triggerLoading(!fileReady);
-    const unsubscribe = page.subscribe(($page) => {
+    unsubscribePage = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
       collectionId = $page.url.searchParams.get("collectionId");
       getDocument();
     });
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribePage) {
+        unsubscribePage();
+      }
+    };
   });
 
   $effect(async () => {
-    const unsubscribe = page.subscribe(($page) => {
+    unsubscribePage = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
       collectionId = $page.url.searchParams.get("collectionId");
       getDocument();
     });
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribePage) {
+        unsubscribePage();
+      }
+    };
   });
 
-  onDestroy(() => {
-    // if (timer) {
-    //   clearTimeout(timer);
-    // }
-  });
+  onDestroy(() => {});
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
