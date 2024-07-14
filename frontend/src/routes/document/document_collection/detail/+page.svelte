@@ -442,7 +442,7 @@ All Rights Reserved
         </div>
 
         <div class="flex gap-2">
-          <ButtontoastLoading
+          <Button
             onclick={() => (popupModal = true)}
             outline
             color="red"
