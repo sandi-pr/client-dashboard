@@ -22,10 +22,7 @@ All Rights Reserved
     Select,
     Helper,
   } from "flowbite-svelte";
-  import {
-    CheckCircleSolid,
-    ExclamationCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
@@ -34,7 +31,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
-  import { format } from "date-fns";
+  import { format, formatDistanceToNow } from "date-fns";
   import { goto } from "$app/navigation";
   import { createEventDispatcher } from "svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
@@ -140,10 +137,9 @@ All Rights Reserved
           education_history: recruitmentData.attributes.education_history,
           job_position: recruitmentData.attributes.job_position,
           experience: recruitmentData.attributes.experience,
-          createdAt: format(
-            new Date(recruitmentData.attributes.createdAt),
-            "dd MMMM yyyy",
-          ),
+          createdAt: formatDistanceToNow(new Date(recruitmentData.attributes.createdAt), {
+            addSuffix: true,
+          }),
           ext: recruitmentData.attributes.resume.data.attributes.ext,
           resumeName: recruitmentData.attributes.resume.data.attributes.name,
           skillsOrKeywords: recruitmentData.attributes.skills,
@@ -163,39 +159,31 @@ All Rights Reserved
 
   async function updateRecruitment() {
     let token = sessionStorage.getItem("token");
-    if (
-      recruitmentId !== "" &&
-      recruitmentId !== null &&
-      recruitmentId !== undefined
-    ) {
+    if (recruitmentId !== "" && recruitmentId !== null && recruitmentId !== undefined) {
       try {
-        let response = await call.call(
-          "client-dashboard",
-          "update-recruitment",
-          {
-            URLQuery: {},
-            URLParams: {
-              id: recruitmentId.toString(),
-            },
-            Headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            Params: {
-              fullname: data.fullname,
-              email: data.email,
-              phone: data.phone.toString(),
-              address: data.address,
-              education_history: data.education_history,
-              skills: JSON.stringify(data.skillsOrKeywords),
-              job_position: data.job_position,
-              experience: data.experience,
-            },
+        let response = await call.call("client-dashboard", "update-recruitment", {
+          URLQuery: {},
+          URLParams: {
+            id: recruitmentId.toString(),
           },
-        );
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          Params: {
+            fullname: data.fullname,
+            email: data.email,
+            phone: data.phone.toString(),
+            address: data.address,
+            education_history: data.education_history,
+            skills: JSON.stringify(data.skillsOrKeywords),
+            job_position: data.job_position,
+            experience: data.experience,
+          },
+        });
         if (response.status === 200) {
           triggerToast("updated");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          goto(await call.getPage("client-dashboard", "hr-recruitment"));
           // }, 3000);
           return;
         } else {
@@ -212,29 +200,21 @@ All Rights Reserved
 
   async function deleteRecruitment() {
     let token = sessionStorage.getItem("token");
-    if (
-      recruitmentId !== "" &&
-      recruitmentId !== null &&
-      recruitmentId !== undefined
-    ) {
+    if (recruitmentId !== "" && recruitmentId !== null && recruitmentId !== undefined) {
       try {
-        let response = await call.call(
-          "client-dashboard",
-          "delete-recruitment",
-          {
-            URLQuery: {},
-            URLParams: {
-              id: recruitmentId.toString(),
-            },
-            Headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        let response = await call.call("client-dashboard", "delete-recruitment", {
+          URLQuery: {},
+          URLParams: {
+            id: recruitmentId.toString(),
           },
-        );
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.status === 200) {
           triggerToast("deleted");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          goto(await call.getPage("client-dashboard", "hr-recruitment"));
           // }, 3000);
           return;
         } else {
@@ -254,8 +234,7 @@ All Rights Reserved
     if (ext === ".pdf") {
       fileType = "application/pdf";
     } else if (ext === ".docx") {
-      fileType =
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     } else if (ext === ".doc") {
       fileType = "application/msword";
     } else {
@@ -350,9 +329,7 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
+                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               </Button></Heading
             >
           </div>
@@ -371,9 +348,8 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button
-              onclick={updateRecruitment}
-              class="px-3 focus-within:!ring-1">{$_("save")}</Button
+            <Button onclick={updateRecruitment} class="px-3 focus-within:!ring-1"
+              >{$_("save")}</Button
             >
           {:else}
             <Button
@@ -407,17 +383,13 @@ All Rights Reserved
       </div>
 
       <!-- Tab Bar -->
-      <TabDetail
-        {tabDatas}
-        on:tabChange={(e) => (tabDatas.selected = e.detail)}
-      />
+      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
       <!-- Content -->
       <div class="">
         {#if tabDatas.selected === "Resume"}
           <div class="flex justify-between items-center pt-6 pb-4">
-            <P
-              class="font-semibold text-hc-graylight-700 dark:text-hc-graydark-300"
+            <P class="font-semibold text-hc-graylight-700 dark:text-hc-graydark-300"
               >{data.resumeName}</P
             >
             <div class="flex items-center gap-2">
@@ -435,8 +407,7 @@ All Rights Reserved
           >
             {#if pdfReady}
               {#if data.ext === ".pdf"}
-                <iframe title="" class="w-full h-screen" src={`${fileUrl}`}
-                ></iframe>
+                <iframe title="" class="w-full h-screen" src={`${fileUrl}`}></iframe>
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}
                   <p class="dark:text-white">{paragraphs}</p>
@@ -449,9 +420,7 @@ All Rights Reserved
             <!-- general information -->
             <div class="flex gap-6">
               <div class="w-60">
-                <P
-                  class="font-semibold text-secondary-light dark:text-secondary-dark"
-                >
+                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                   {$_("generalInformation")}
                 </P>
               </div>
@@ -532,15 +501,13 @@ All Rights Reserved
             <Divider />
             <div class="flex gap-6">
               <div class="w-60">
-                <P
-                  class="font-semibold text-secondary-light dark:text-secondary-dark"
-                >
+                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                   {$_("skillsOrKeywords")}
                 </P>
               </div>
               <div class="flex flex-col grow gap-6">
                 <!-- {#if onEdit} -->
-                  <div class="flex grow gap-2">
+                <div class="flex grow gap-2">
                   <MultiSelect
                     disabled={!onEdit}
                     items={skillsOrKeywords}
@@ -580,9 +547,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteRecruitment} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
-    >
+    <Button onclick={deleteRecruitment} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

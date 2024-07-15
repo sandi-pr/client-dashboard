@@ -21,6 +21,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
   import { generateUniqueId } from "$lib";
+  import { formatDistanceToNow } from "date-fns";
 
   const dispatch = createEventDispatcher();
 
@@ -50,23 +51,6 @@ All Rights Reserved
 
   let popupModal = $state(false);
 
-  function formatDate(inputDate) {
-    const date = new Date(inputDate);
-
-    const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
-      .getDate()
-      .toString()
-      .padStart(2, "0")}/${date.getFullYear()}, ${date
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
-
-    return formattedDate;
-  }
-
   function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -83,10 +67,10 @@ All Rights Reserved
     if (personId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-person"));
+      goto(await call.getPage("client-dashboard", "crm-person"));
       // }, 3000);
       return;
-    };
+    }
     let token = sessionStorage.getItem("token");
     try {
       let response = await call.call("client-dashboard", "get-person", {
@@ -110,7 +94,9 @@ All Rights Reserved
           city: response.result.data.attributes.city,
           state: response.result.data.attributes.state,
           zip_code: response.result.data.attributes.zip_code,
-          createdAt: formatDate(response.result.data.attributes.createdAt),
+          createdAt: formatDistanceToNow(response.result.data.attributes.createdAt, {
+            addSuffix: true,
+          }),
           is_active: response.result.data.attributes.is_active === "Yes" ? true : false,
         };
       }
@@ -146,7 +132,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("updated");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-person"));
+        goto(await call.getPage("client-dashboard", "crm-person"));
         // }, 3000);
         return;
       }
@@ -170,14 +156,13 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-person"));
+        goto(await call.getPage("client-dashboard", "crm-person"));
         // }, 3000);
         return;
       }
     } catch (error) {
       triggerToast("error");
       console.log(error);
-      
     }
   }
 

@@ -28,7 +28,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
-  import { format } from "date-fns";
+  import { format, formatDistanceToNow } from "date-fns";
   import { goto } from "$app/navigation";
   import { createEventDispatcher } from "svelte";
   import PdfViewer from "svelte-pdf";
@@ -182,7 +182,7 @@ All Rights Reserved
 
           data = {
             id: documentData.id,
-            createdAt: format(documentData.attributes.createdAt, "yyyy-MM-dd HH:mm"),
+            createdAt: formatDistanceToNow(documentData.attributes.createdAt, { addSuffix: true }),
             document_title: documentData.attributes.document_title,
             document_type: documentData.attributes.document_type,
             ext: documentData.attributes.document.data.attributes.ext,

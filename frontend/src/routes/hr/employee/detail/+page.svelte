@@ -10,21 +10,8 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Button,
-    Select,
-    Helper,
-    Toast,
-    Modal,
-    Toggle,
-  } from "flowbite-svelte";
-  import {
-    CheckCircleSolid,
-    ExclamationCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { P, Heading, Input, Button, Select, Helper, Toast, Modal, Toggle } from "flowbite-svelte";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { ToastContainer, triggerToast, InputRw } from "$lib";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
@@ -34,6 +21,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
   import { generateUniqueId } from "$lib";
+  import { formatDistanceToNow } from "date-fns";
 
   const dispatch = createEventDispatcher();
 
@@ -94,23 +82,6 @@ All Rights Reserved
     }
   }
 
-  function formatDate(inputDate) {
-    const date = new Date(inputDate);
-
-    const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
-      .getDate()
-      .toString()
-      .padStart(2, "0")}/${date.getFullYear()}, ${date
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
-
-    return formattedDate;
-  }
-
   function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -147,15 +118,13 @@ All Rights Reserved
           city: response.result.data[0].attributes.city,
           state: response.result.data[0].attributes.state,
           zip_code: response.result.data[0].attributes.zip_code,
-          createdAt: formatDate(response.result.data[0].attributes.createdAt),
-          is_active:
-            response.result.data[0].attributes.is_active === "Yes"
-              ? true
-              : false,
+          createdAt: formatDistanceToNow(response.result.data[0].attributes.createdAt, {
+            addSuffix: true,
+          }),
+          is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
           job_position: response.result.data[0].attributes.job_position,
           branch: response.result.data[0].attributes.branch,
-          employment_status:
-            response.result.data[0].attributes.employment_status,
+          employment_status: response.result.data[0].attributes.employment_status,
           start_date: response.result.data[0].attributes.start_date,
           end_date: response.result.data[0].attributes.end_date,
         };
@@ -197,7 +166,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("updated");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "hr-employee"));
+        goto(await call.getPage("client-dashboard", "hr-employee"));
         // }, 3000);
         return;
       }
@@ -221,7 +190,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "hr-employee"));
+        goto(await call.getPage("client-dashboard", "hr-employee"));
         // }, 3000);
         return;
       }
@@ -262,9 +231,7 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
+                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               </Button>
             </Heading>
           </div>
@@ -283,14 +250,10 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={updateEmployee} class="px-3 focus-within:!ring-1"
-              >{$_("save")}</Button
-            >
+            <Button onclick={updateEmployee} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button
-              onclick={backPage}
-              color="light"
-              class="px-3 focus-within:!ring-1">{$_("back")}</Button
+            <Button onclick={backPage} color="light" class="px-3 focus-within:!ring-1"
+              >{$_("back")}</Button
             >
             <Button
               onclick={() => (popupModal = true)}
@@ -319,9 +282,7 @@ All Rights Reserved
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
             </P>
           </div>
@@ -353,9 +314,7 @@ All Rights Reserved
                 <InputRw {onEdit} bind:value={data.email} on:input={handleEmailChange} />
                 {#if onEdit}
                   {#if !emailValid && data.email.length > 0}
-                    <Helper class="text-sm !text-red-400 pt-2"
-                      >{$_("emailNotValid")}</Helper
-                    >
+                    <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
                   {/if}
                 {/if}
               </div>
@@ -421,8 +380,7 @@ All Rights Reserved
                   >{$_("active")}</P
                 >
                 <!-- <Input readonly={!onEdit} bind:value={data.active} /> -->
-                <Toggle disabled={!onEdit} bind:checked={data.is_active}
-                ></Toggle>
+                <Toggle disabled={!onEdit} bind:checked={data.is_active}></Toggle>
                 <!-- <Select
                   readonly={!onEdit}
                   class="bg-primary-light dark:bg-secondary-dark"
@@ -448,9 +406,7 @@ All Rights Reserved
         <Divider />
         <div class="flex gap-6 pt-2">
           <div class="w-60">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("employeeInformation")}
             </P>
           </div>
@@ -513,9 +469,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteEmployee} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
-    >
+    <Button onclick={deleteEmployee} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

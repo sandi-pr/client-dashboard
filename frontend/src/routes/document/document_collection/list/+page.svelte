@@ -17,7 +17,7 @@ All Rights Reserved
   import { StateCard, InputRw, TextareaRw, triggerToast } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import { format } from "date-fns";
+  import { format, formatDistanceToNow } from "date-fns";
   import { Button, P, Modal, Tooltip, Indicator } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
@@ -157,7 +157,7 @@ All Rights Reserved
             },
             file_size:
               document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
-            upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
+            upload_date: formatDistanceToNow(document.attributes.createdAt, { addSuffix: true }),
             uploaded_by:
               document.attributes.upload_by.data === null
                 ? "Unknown"
@@ -218,7 +218,9 @@ All Rights Reserved
       collection = {
         id: response.result.data.id,
         name: response.result.data.attributes.collection_name,
-        createdAt: format(response.result.data.attributes.createdAt, "dd-MM-yyyy HH:mm"),
+        createdAt: formatDistanceToNow(response.result.data.attributes.createdAt, {
+          addSuffix: true,
+        }),
         description: response.result.data.attributes.description,
       };
     }
@@ -337,7 +339,7 @@ All Rights Reserved
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
     } else if (type === "Handwriting") {
       selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".pdf, .jpg, .jpeg, .png, .webp, .img";
+      acceptedFileTypes = ".jpg, .jpeg, .png";
     }
 
     files = [];
@@ -536,7 +538,7 @@ All Rights Reserved
             class="flex p-2"
             onclick={() => {
               selectTypeCollection("Handwriting");
-            }}>Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)</button
+            }}>Handwriting (JPG, JPEG, PNG)</button
           >
         </ul>
       </div>

@@ -17,8 +17,9 @@ All Rights Reserved
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
-  import {goto} from "$app/navigation";
+  import { goto } from "$app/navigation";
   import { generateUniqueId } from "$lib";
+  import { formatDistanceToNow } from "date-fns";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -37,31 +38,14 @@ All Rights Reserved
   let toastDeleted = $state(false);
   let counter = $state(6);
 
-  function formatDate(inputDate) {
-    const date = new Date(inputDate);
-
-    const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
-      .getDate()
-      .toString()
-      .padStart(2, "0")}/${date.getFullYear()}, ${date
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
-
-    return formattedDate;
-  }
-
   async function getCategory() {
     if (catergoryId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-categories"));
+      goto(await call.getPage("client-dashboard", "crm-categories"));
       // }, 3000);
       return;
-    };
+    }
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       let response = await call.call("client-dashboard", "get-category", {
@@ -78,7 +62,9 @@ All Rights Reserved
       if (response.status === 200) {
         data = {
           id: generateUniqueId(response.result.data[0].id, "category"),
-          createdAt: formatDate(response.result.data[0].attributes.createdAt),
+          createdAt: formatDistanceToNow(response.result.data[0].attributes.createdAt, {
+            addSuffix: true,
+          }),
           category_name: response.result.data[0].attributes.category_name,
           description: response.result.data[0].attributes.description,
           is_active: response.result.data[0].attributes.is_active,
@@ -109,7 +95,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("updated");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "crm-categories"));
+          goto(await call.getPage("client-dashboard", "crm-categories"));
           // }, 3000);
         }
       } catch (error) {
@@ -134,7 +120,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-categories"));
+        goto(await call.getPage("client-dashboard", "crm-categories"));
         // }, 3000);
       }
     } catch (error) {
@@ -199,7 +185,8 @@ All Rights Reserved
             >
             <Button
               onclick={() => (popupModal = true)}
-              outline color="red"
+              outline
+              color="red"
               class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
             <Button

@@ -20,7 +20,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
-    import LoadingContainer from "../lib/components/LoadingContainer.svelte";
+  import LoadingContainer from "../lib/components/LoadingContainer.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
   let userData = $state({ username: "", email: "", brand: "" });
@@ -29,23 +29,23 @@ All Rights Reserved
 
   const cards = [
     {
-      icon: 'users',
-      title: 'crmOverview',
-      description: 'descCrm',
-      page: 'crm-overview'
+      icon: "users",
+      title: "crmOverview",
+      description: "descCrm",
+      page: "crm-overview",
     },
     {
-      icon: 'fileShield',
-      title: 'documentCollection',
-      description: 'documentCollection',
-      page: 'document-collection'
+      icon: "fileShield",
+      title: "documentCollection",
+      description: "documentCollection",
+      page: "document-collection",
     },
     {
-      icon: 'userSquare',
-      title: 'HR',
-      description: 'descHr',
-      page: 'hr-overview'
-    }
+      icon: "userSquare",
+      title: "HR",
+      description: "descHr",
+      page: "hr-overview",
+    },
   ];
 
   function setFristTime() {
@@ -106,7 +106,7 @@ All Rights Reserved
   }
 
   const navigateToPage = async (page) => {
-    goto(await call.getPage('client-dashboard', page));
+    goto(await call.getPage("client-dashboard", page));
   };
 
   onMount(() => {
@@ -116,38 +116,34 @@ All Rights Reserved
     // }, 3000);
     getFristTime();
     CheckSetup();
-  })
-
+  });
 </script>
 
 <div class="flex flex-col gap-4 px-4 py-8">
   {#if isFirstTime}
-  <Alert dismissable on:close={setFristTime} class="relative flex justify-center">
-    <CloseButton
-      slot="close-button"
-      let:close
-      class="absolute top-2 right-2 ms-1.5 dark:hover:bg-gray-700"
-      color="primary"
-      on:click={close}
-    />
-    <StateCard illustration={IllustrationFirst} />
-    <div class="flex flex-col justify-center items-center gap-1 pt-2">
-      <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
-      <!-- <Typography
+    <Alert dismissable on:close={setFristTime} class="relative flex justify-center">
+      <CloseButton
+        slot="close-button"
+        let:close
+        class="absolute top-2 right-2 ms-1.5 dark:hover:bg-gray-700"
+        color="primary"
+        on:click={close}
+      />
+      <StateCard illustration={IllustrationFirst} />
+      <div class="flex flex-col justify-center items-center gap-1 pt-2">
+        <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
+        <!-- <Typography
         text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
           'staff@hexacode.org'}"
         color="tertiary"
       /> -->
-    </div>
-  </Alert>
+      </div>
+    </Alert>
   {:else}
-  <div class="flex flex-col gap-1">
-    <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
-    <Typography
-      text="{userData.username} - {userData.email}"
-      color="tertiary"
-    />
-  </div>
+    <div class="flex flex-col gap-1">
+      <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
+      <Typography text="{userData.username} - {userData.email}" color="tertiary" />
+    </div>
   {/if}
   <SectionHeader title={$_("availableModules")} />
   {#each cards as card}

@@ -17,7 +17,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import Divider from "$lib/components/Divider.svelte";
-  import { format } from "date-fns";
+  import { format, formatDistanceToNow } from "date-fns";
   import { goto } from "$app/navigation";
   import { generateUniqueId } from "$lib";
 
@@ -56,7 +56,7 @@ All Rights Reserved
     if (orderId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+      goto(await call.getPage("client-dashboard", "crm-order-invoice"));
       // }, 3000);
       return;
     }
@@ -88,7 +88,9 @@ All Rights Reserved
               orderId: generateUniqueId(order.id, "order"),
               customerId: generateUniqueId(order.attributes.person.data?.id, "person"),
               createdAt: order.attributes.created_at,
-              order_date: format(new Date(order.attributes.order_date), "MM/dd/yyyy kk:mm"),
+              order_date: formatDistanceToNow(new Date(order.attributes.order_date), {
+                addSuffix: true,
+              }),
               total_amount: order.attributes.total_amount,
               payment_status:
                 order.attributes.invoice.data?.attributes.payment_status[
@@ -104,9 +106,11 @@ All Rights Reserved
               product: {
                 id: generateUniqueId(order.attributes.product.data?.id, "product"),
                 name: order.attributes.product.data?.attributes.product_name,
-                resourceId: order.attributes.resources.data.map((resource) => {
-                  return generateUniqueId(resource.id, "resource");
-                }).join(","),
+                resourceId: order.attributes.resources.data
+                  .map((resource) => {
+                    return generateUniqueId(resource.id, "resource");
+                  })
+                  .join(","),
                 // resourceId: order.attributes.resources.data.map((resource) => generateUniqueId(resource.id)).join(","),
               },
               shipping_address: order.attributes.shipping_address,
@@ -193,7 +197,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("deleted");
             // setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+            goto(await call.getPage("client-dashboard", "crm-order-invoice"));
             // }, 3000);
           }
         }
@@ -216,7 +220,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+        goto(await call.getPage("client-dashboard", "crm-order-invoice"));
         // }, 3000);
       }
     }

@@ -17,7 +17,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import Divider from "$lib/components/Divider.svelte";
-  import { format } from "date-fns";
+  import { format, formatDistanceToNow } from "date-fns";
   import { goto } from "$app/navigation";
   import { generateUniqueId } from "$lib";
 
@@ -49,10 +49,10 @@ All Rights Reserved
     if (invoiceId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+      goto(await call.getPage("client-dashboard", "crm-order-invoice"));
       // }, 3000);
       return;
-    };
+    }
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
@@ -80,8 +80,12 @@ All Rights Reserved
               invoiceId: generateUniqueId(invoice.id, "invoice"),
               customerId: generateUniqueId(invoice.attributes.person?.data.id, "person"),
               createdAt: invoice.attributes.created_at,
-              invoice_date: format(new Date(invoice.attributes.invoice_date), "yyyy-MM-dd HH:mm"),
-              due_date: format(new Date(invoice.attributes.due_date), "yyyy-MM-dd HH:mm"),
+              invoice_date: formatDistanceToNow(new Date(invoice.attributes.invoice_date), {
+                addSuffix: true,
+              }),
+              due_date: formatDistanceToNow(new Date(invoice.attributes.due_date), {
+                addSuffix: true,
+              }),
               total_amount: invoice.attributes.order_booking?.data.attributes.total_amount,
               payment_status:
                 invoice.attributes.payment_status[invoice.attributes.payment_status.length - 1]
@@ -121,7 +125,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("deleted");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+          goto(await call.getPage("client-dashboard", "crm-order-invoice"));
           // }, 3000);
         }
       } catch (error) {

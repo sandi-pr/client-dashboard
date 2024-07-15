@@ -10,16 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Button,
-    Select,
-    Textarea,
-    Toggle,
-    Modal,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle, Modal } from "flowbite-svelte";
   import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -32,6 +23,7 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
   import { generateUniqueId, decodeUniqueId } from "$lib";
+  import { formatDistanceToNow } from "date-fns";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -142,30 +134,11 @@ All Rights Reserved
 
         reader.readAsDataURL(file);
       } else {
-        alert(
-          "Invalid file. Please select a valid image file (max. 800x400px).",
-        );
+        alert("Invalid file. Please select a valid image file (max. 800x400px).");
       }
     });
     inputElement.click();
   };
-
-  function formatDate(inputDate) {
-    const date = new Date(inputDate);
-
-    const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
-      .getDate()
-      .toString()
-      .padStart(2, "0")}/${date.getFullYear()}, ${date
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")} ${date.getHours() >= 12 ? "PM" : "AM"}`;
-
-    return formattedDate;
-  }
 
   async function getProduct() {
     if (productId === null) {
@@ -197,15 +170,13 @@ All Rights Reserved
         data = {
           productId: generateUniqueId(response.result.data[0].id, "product"),
           product_name: response.result.data[0].attributes.product_name,
-          createdAt: formatDate(response.result.data[0].attributes.createdAt),
+          createdAt: formatDistanceToNow(response.result.data[0].attributes.createdAt, {
+            addSuffix: true,
+          }),
           description: response.result.data[0].attributes.description,
           price: response.result.data[0].attributes.price,
-          category:
-            response.result.data[0].attributes.category_product.data.id || null,
-          is_active:
-            response.result.data[0].attributes.is_active === "Yes"
-              ? true
-              : false,
+          category: response.result.data[0].attributes.category_product.data.id || null,
+          is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
         };
 
         if (response.result.data[0].attributes.resources.data.length > 0) {
@@ -218,8 +189,7 @@ All Rights Reserved
                 description: resource.attributes.description,
                 resource_type_name: "",
                 resource_type_id: "",
-                is_active:
-                  resource.attributes.is_active === "Yes" ? true : false,
+                is_active: resource.attributes.is_active === "Yes" ? true : false,
               };
             },
           );
@@ -409,9 +379,7 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
+                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               </Button>
             </Heading>
           </div>
@@ -430,14 +398,10 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={updateProduct} class="px-3 focus-within:!ring-1"
-              >{$_("save")}</Button
-            >
+            <Button onclick={updateProduct} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button
-              color="light"
-              class="px-3 focus-within:!ring-1"
-              onclick={backPage}>{$_("back")}</Button
+            <Button color="light" class="px-3 focus-within:!ring-1" onclick={backPage}
+              >{$_("back")}</Button
             >
             <Button
               onclick={() => (popupModal = true)}
@@ -456,19 +420,14 @@ All Rights Reserved
       </div>
 
       <!-- Submenu -->
-      <TabDetail
-        {tabDatas}
-        on:tabChange={(e) => (tabDatas.selected = e.detail)}
-      />
+      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
       {#if tabDatas.selected === "Information"}
         <div class="flex flex-col gap-4 pt-8">
           <!-- general information -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("generalInformation")}
               </P>
             </div>
@@ -506,9 +465,7 @@ All Rights Reserved
           <!-- product detail -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("productDetail")}
               </P>
             </div>
@@ -539,8 +496,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle disabled={!onEdit} bind:checked={data.is_active}
-                  ></Toggle>
+                  <Toggle disabled={!onEdit} bind:checked={data.is_active}></Toggle>
                 </div>
               </div>
             </div>
@@ -549,9 +505,7 @@ All Rights Reserved
       {:else if tabDatas.selected === "Resource"}
         <div class="flex gap-6 pt-8">
           <div class="w-60 space-y-2">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("resources")}
             </P>
             {#if onEdit}
@@ -569,10 +523,8 @@ All Rights Reserved
                         >{resource.id}</P
                       >
                     </div>
-                    <Button
-                      on:click={() => deleteResource(resource.id)}
-                      color="light"
-                      class="w-max">{$_("delete")}</Button
+                    <Button on:click={() => deleteResource(resource.id)} color="light" class="w-max"
+                      >{$_("delete")}</Button
                     >
                   </div>
                 </div>
@@ -643,8 +595,7 @@ All Rights Reserved
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >{$_("active")}</P
                   >
-                  <Toggle disabled={!onEdit} bind:checked={resource.is_active}
-                  ></Toggle>
+                  <Toggle disabled={!onEdit} bind:checked={resource.is_active}></Toggle>
                 </div>
               </div>
             {/each}
@@ -662,9 +613,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteProduct} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
-    >
+    <Button onclick={deleteProduct} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
