@@ -755,18 +755,15 @@ func GetCountDocumentsPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 	}
 
 	status, contract, err := Strapi.Find("document-collection-table", U.Dict{
-		"filters[$and][0]": U.Dict{
+		"filters": U.Dict{
 			"updatedAt": U.Dict{
 				"$gte": earlyDate,
 				"$lte": lastDate,
 			},
 		},
-		"filters[$and][1]": U.Dict{
-			"status": U.Dict{
-				"$eq": "Ready",
-			},
-		},
 	})
+
+	fmt.Println(contract)
 
 	if err != nil {
 		fmt.Println(err)
