@@ -268,9 +268,9 @@ All Rights Reserved
 
       console.log(response);
       addDocumentsModal = false;
-      getDocuments();
+      getDocuments(pagination.page);
 
-      triggerToast("success");
+      triggerToast("created");
     }
   }
 
