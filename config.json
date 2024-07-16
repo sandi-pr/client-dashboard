@@ -1882,6 +1882,35 @@
             }
         },
         {
+            "name": "create-job-position",
+            "path": "/create-job-position",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateJobPosition"
+            },
+            "params": [
+                {
+                    "name": "job_position",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-job-position",
+            "path": "/get-job-position",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetJobPosition"
+            }
+        },
+        {
             "name": "create-recruitment",
             "path": "/create-recruitment",
             "method": "POST",
@@ -2699,6 +2728,9 @@
                     },
                     "company_job_level": {
                         "type": "json"
+                    },
+                    "company_job_position": {
+                        "type": "json"
                     }
                 }
             },
@@ -2895,6 +2927,9 @@
                     "date_of_birth": {
                         "type": "date"
                     },
+                    "job_level": {
+                        "type": "string"
+                    },
                     "job_position": {
                         "type": "string"
                     },
@@ -2949,6 +2984,9 @@
                         "type": "text"
                     },
                     "job_position": {
+                        "type": "string"
+                    },
+                    "job_level": {
                         "type": "string"
                     },
                     "education_history": {
