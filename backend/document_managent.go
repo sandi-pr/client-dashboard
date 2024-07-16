@@ -734,6 +734,46 @@ func GetCountDocumentsPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 		return ctx.Error(500, "Internal Server Error")
 	}
 
+	data, _ := document.GetList("data")
+
+	collectionStatusMap := make(map[int]bool)
+
+	for i := 0; i < len(data); i++ {
+		attributes, ok := data[i].(U.Dict).GetDict("attributes")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		collectionID, ok := attributes.GetFloat64("collection_id")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		status, _ := attributes.GetString("status")
+
+		fmt.Println(collectionID)
+
+		if _, exists := collectionStatusMap[int(collectionID)]; !exists {
+			collectionStatusMap[int(collectionID)] = true
+		}
+
+		// Set the map entry to false if any document is not "Ready"
+		if status != "Ready" {
+			collectionStatusMap[int(collectionID)] = false
+		}
+	}
+	// Collect all collection IDs that are fully "Ready"
+	readyCollectionIDs := []int{}
+	for collectionID, allReady := range collectionStatusMap {
+		if allReady {
+			readyCollectionIDs = append(readyCollectionIDs, collectionID)
+		}
+	}
+
+	fmt.Println("Collection IDs with all documents 'Ready':", readyCollectionIDs)
+
 	status, general, err := Strapi.Find("document-collection-table", U.Dict{
 		"filters": U.Dict{
 			"updatedAt": U.Dict{
@@ -760,10 +800,13 @@ func GetCountDocumentsPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 				"$gte": earlyDate,
 				"$lte": lastDate,
 			},
+			"id": U.Dict{
+				"$in": readyCollectionIDs,
+			},
 		},
 	})
 
-	fmt.Println(contract)
+	fmt.Println("contract :", contract)
 
 	if err != nil {
 		fmt.Println(err)
