@@ -184,7 +184,7 @@
             name="checkAll"
             checked={allChecked}
             on:click={() => {
-              handleCheckAll();
+              handleCheckAll(allChecked);
             }}
             class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
           />

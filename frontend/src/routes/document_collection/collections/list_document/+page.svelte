@@ -365,9 +365,9 @@ All Rights Reserved
     getDocuments(pagination.page - 1);
   }
 
-  async function handleCheckAll() {
+  async function handleCheckAll(allChecked) {
     datasChecked = datasChecked.map((data) => {
-      return { id: data.id, checked: !data.checked };
+      return { id: data.id, checked: allChecked ? false : true };
     });
   }
 

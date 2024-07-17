@@ -135,39 +135,34 @@
             "file_path": "template/document/contract/detail.html"
         },
         {
+            "name": "document-collection-overview",
+            "path": "/document_collection",
+            "file_path": "template/document_collection.html"
+        },
+        {
             "name": "document-collection",
-            "path": "/document/document_collection",
-            "file_path": "template/document/document_collection.html"
+            "path": "/document_collection/collections",
+            "file_path": "template/document_collection/collections.html"
         },
         {
-            "name": "document-collection-create",
-            "path": "/document/document_collection/create_collection",
-            "file_path": "template/document/document_collection/create_collection.html"
-        },
-        {
-            "name": "document-management-create",
-            "path": "/document/document_collection/create",
-            "file_path": "template/document/document_collection/create.html"
-        },
-        {
-            "name": "document-collection-list",
-            "path": "/document/document_collection/list",
-            "file_path": "template/document/document_collection/list.html"
+            "name": "document-collection-list-document",
+            "path": "/document_collection/collections/list_document",
+            "file_path": "template/document_collection/collections/list_document.html"
         },
         {
             "name": "document-collection-detail",
-            "path": "/document/document_collection/detail",
-            "file_path": "template/document/document_collection/detail.html"
+            "path": "/document_collection/collections/detail",
+            "file_path": "template/document_collection/collections/detail.html"
         },
         {
             "name": "document-collection-chat",
-            "path": "/document/document_collection/chat",
-            "file_path": "template/document/document_collection/chat.html"
+            "path": "/document_collection/collections/chat",
+            "file_path": "template/document_collection/collections/chat.html"
         },
         {
             "name": "document-finetuning",
-            "path": "/document/finetuning",
-            "file_path": "template/document/finetuning.html"
+            "path": "/document_collection/finetuning",
+            "file_path": "template/document_collection/finetuning.html"
         },
         {
             "name": "hr-overview",

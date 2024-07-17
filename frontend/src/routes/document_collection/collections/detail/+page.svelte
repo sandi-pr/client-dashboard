@@ -262,7 +262,7 @@ All Rights Reserved
           triggerToast("deleted");
           // setTimeout(async () => {
           goto(
-            (await call.getPage("client-dashboard", "document-collection-list")) +
+            (await call.getPage("client-dashboard", "document-collection-list-document")) +
               "?collectionId=" +
               collectionId,
           );

@@ -121,7 +121,7 @@ All Rights Reserved
 
       addCollectionsModal = false;
       getCollections();
-      goto(await call.getPage("client-dashboard", "document-collection"));
+      // goto(await call.getPage("client-dashboard", "document-collection"));
     }
   }
 
@@ -215,7 +215,10 @@ All Rights Reserved
         }
       }
 
-      let collectionList = await call.getPage("client-dashboard", "document-collection-list");
+      let collectionList = await call.getPage(
+        "client-dashboard",
+        "document-collection-list-document",
+      );
 
       datas = collections.map((collection) => {
         const filteredDocuments = documents.filter(
@@ -253,6 +256,7 @@ All Rights Reserved
           collectionId: collection.id,
           activationTime: format(collection.attributes.createdAt, "dd-MM-yyyy HH:mm"),
           collectionName: collection.attributes.collection_name,
+          description: collection.attributes.description,
           totalDocuments: totalDocuments,
           status: collectionStatus,
           href: `${collectionList}?collectionId=${collection.id}`,
@@ -607,7 +611,7 @@ All Rights Reserved
 
   async function getDocumentCollectionDetail(id) {
     return (
-      `${await call.getPage("client-dashboard", "document-collection-list")}` +
+      `${await call.getPage("client-dashboard", "document-collection-list-document")}` +
       "?collectionId=" +
       id
     );
@@ -796,9 +800,15 @@ All Rights Reserved
 </Modal>
 
 <Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
-  <div class="text-center gap-4">
-    <Input bind:value={tmpCollectionName} placeholder={$_("enterCollectionName")} />
-    <Input bind:value={tmpDescription} placeholder={$_("enterCollectionDescription")} />
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
+    </div>
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={editCollectionName} class="me-2">{$_("save")}</Button>

@@ -656,7 +656,8 @@
               <div class="flex flex-col gap-2 mt-1">
                 <P
                   class="text-sm font-medium leading-tight text-hc-graylight-700 dark:text-hc-graydark-300"
-                >{$_("totalPage")}</P>
+                  >{$_("totalPage")}</P
+                >
                 <Input readonly value={document.attributes.total_page} />
               </div>
             </div>
@@ -775,7 +776,7 @@
                             signerData.find(
                               (item) =>
                                 item[recipient.identity.data.attributes.address] &&
-                                item[recipient.identity.data.attributes.address].approved === false
+                                item[recipient.identity.data.attributes.address].approved === false,
                             )
                               ? "bg-hc-warning-50 dark:bg-hc-warning-950 text-hc-warning-700 dark:text-hc-warning-300 border border-hc-warning-200 dark:border-hc-warning-800 hover:bg-hc-warning-50 dark:hover:bg-hc-warning-950"
                               : ""
@@ -784,7 +785,7 @@
                             signerData.find(
                               (item) =>
                                 item[recipient.identity.data.attributes.address] &&
-                                item[recipient.identity.data.attributes.address].approved === true
+                                item[recipient.identity.data.attributes.address].approved === true,
                             )
                               ? "bg-hc-success-50 dark:bg-hc-success-950 text-hc-success-700 dark:text-hc-success-300 border border-hc-success-200 dark:border-hc-success-800 hover:bg-hc-success-50 dark:hover:bg-hc-success-950"
                               : ""
@@ -795,7 +796,7 @@
                       {signerData.find(
                         (item) =>
                           item[recipient.identity.data.attributes.address] &&
-                          item[recipient.identity.data.attributes.address].approved === false
+                          item[recipient.identity.data.attributes.address].approved === false,
                       )
                         ? $_("needSigning")
                         : $_("signed")}
@@ -870,12 +871,8 @@
     </ButtonGroup>
   </div>
   <div class="w-full">
-    <Button
-      class="w-full"
-      disabled={searchInput.length === 0}
-      on:click={() => {
-        // handleAddSignerReviewers(modalType);
-      }}>{$_("delegate")} {modalType}</Button
+    <Button class="w-full" disabled={searchInput.length === 0} on:click={console.log(searchInput)}
+      >{$_("delegate")} {modalType}</Button
     >
   </div>
 </Modal>
