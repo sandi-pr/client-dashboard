@@ -656,6 +656,7 @@ All Rights Reserved
       if (response.status !== 200) {
         console.log(response);
         triggerToast("error");
+        triggerLoading(false);
         return;
       }
 
@@ -675,6 +676,7 @@ All Rights Reserved
       if (response2.status !== 200) {
         console.log(response2);
         triggerToast("error");
+        triggerLoading(false);
         return;
       }
 
@@ -693,7 +695,8 @@ All Rights Reserved
         });
 
         if (response3.status !== 200) {
-          // triggerToast("error");
+          triggerToast("error");
+          triggerLoading(false);
           console.log(response3);
           return;
         }
@@ -716,7 +719,8 @@ All Rights Reserved
           });
 
           if (response4.status !== 200) {
-            // triggerToast("error");
+            triggerToast("error");
+            triggerLoading(false);
             console.log(response4);
             return;
           }
