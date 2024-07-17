@@ -61,8 +61,8 @@ All Rights Reserved
 
   let files = $state([]);
   let tmpDocumentType = $state("");
-  let selectedTypeCollection = $state("");
-  let acceptedFileTypes = $state("");
+  let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
+  let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
   let addDocumentsModal = $state(false);
   let dropdownOpen = $state(false);
 
@@ -273,36 +273,13 @@ All Rights Reserved
 
       console.log(response2);
 
-      for (let i = 0; i < files.length; i++) {
-        let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            image: files[i].base64,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response3.status !== 200) {
-          triggerToast("error");
-          triggerLoading(false);
-          console.log(response3);
-          return;
-        }
-
-        console.log("trocr-predict", response3);
-
-        if (response3?.result?.text !== null) {
-          const response4 = await call.call("client-dashboard", "update-document", {
+      if (tmpDocumentType === "handwriting") {
+        for (let i = 0; i < files.length; i++) {
+          let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
             URLQuery: {},
-            URLParams: {
-              id: response.result.data[i].toString(),
-            },
+            URLParams: {},
             Params: {
-              detected_text: response3.result.text,
-              result_trocr: JSON.stringify(response3.result),
+              image: files[i].base64,
             },
             Headers: {
               Authorization: "Bearer " + token,
@@ -312,11 +289,36 @@ All Rights Reserved
           if (response3.status !== 200) {
             triggerToast("error");
             triggerLoading(false);
-            console.log(response4);
+            console.log(response3);
             return;
           }
 
-          console.log("ayam", response4);
+          console.log("trocr-predict", response3);
+
+          if (response3?.result?.text !== null) {
+            const response4 = await call.call("client-dashboard", "update-document", {
+              URLQuery: {},
+              URLParams: {
+                id: response.result.data[i].id.toString(),
+              },
+              Params: {
+                detected_text: response3.result.text,
+                result_trocr: JSON.stringify(response3.result),
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
+
+            if (response3.status !== 200) {
+              triggerToast("error");
+              triggerLoading(false);
+              console.log(response4);
+              return;
+            }
+
+            console.log("ayam", response4);
+          }
         }
       }
 
