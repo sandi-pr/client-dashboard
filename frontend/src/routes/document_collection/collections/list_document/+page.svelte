@@ -304,6 +304,7 @@ All Rights Reserved
               Params: {
                 detected_text: response3.result.text,
                 result_trocr: JSON.stringify(response3.result),
+                edited: false,
               },
               Headers: {
                 Authorization: "Bearer " + token,

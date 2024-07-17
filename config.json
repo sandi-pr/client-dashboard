@@ -1555,6 +1555,11 @@
                     "name": "result_trocr",
                     "type": "string",
                     "required": true
+                },
+                {
+                    "name": "edited",
+                    "type": "boolean",
+                    "required": true
                 }
             ]
         },

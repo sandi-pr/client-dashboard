@@ -163,6 +163,7 @@ All Rights Reserved
                   Params: {
                     detected_text: response2.result.text,
                     result_trocr: JSON.stringify(response2.result),
+                    edited: false,
                   },
                   Headers: {
                     Authorization: "Bearer " + token,
@@ -196,6 +197,7 @@ All Rights Reserved
               : documentData.attributes.document_type === "Handwriting"
                 ? response2.result.slices
                 : "",
+            result_trocr: documentData.attributes.result_trocr,
             // description: documentData.attributes.description,
             // document_type: documentData.attributes.document_type,
             // person_client: documentData.attributes.person.data?.id,
@@ -387,6 +389,31 @@ All Rights Reserved
 
   async function editDetectedText() {
     onEdit = false;
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "update-document", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          document_id: documentId.toString(),
+          data: {
+            detected_text: data.detected_text,
+            result_trocr: JSON.stringify(data.result_trocr),
+            edited: true,
+          },
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log(response);
+      getDocument();
+    }
   }
 
   onMount(() => {

@@ -609,6 +609,11 @@ func UpdateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters result_trocr")
 	}
 
+	edited, ok := ctx.Params.GetBool("edited")
+	if !ok {
+		return ctx.Error(400, "invalid parameters edited")
+	}
+
 	var result_trocr_json interface{}
 	err = json.Unmarshal([]byte(result_trocr), &result_trocr_json)
 
@@ -620,6 +625,7 @@ func UpdateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
 		"detected_text": detected_text,
 		"result_trocr":  result_trocr_json,
+		"edited":        edited,
 	})
 	if err != nil {
 		fmt.Println(err)
