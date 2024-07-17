@@ -212,18 +212,18 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "hr-recruitment"),
             name: "recruitment",
           },
-          {
-            href: isFrontend
-              ? "/hr/job_level"
-              : await call.getPage("client-dashboard", "hr-joblevel"),
-            name: "jobLevel",
-          },
-          {
-            href: isFrontend
-              ? "/hr/job_position"
-              : await call.getPage("client-dashboard", "hr-jobposition"),
-            name: "jobPosition",
-          },
+          // {
+          //   href: isFrontend
+          //     ? "/hr/job_level"
+          //     : await call.getPage("client-dashboard", "hr-joblevel"),
+          //   name: "jobLevel",
+          // },
+          // {
+          //   href: isFrontend
+          //     ? "/hr/job_position"
+          //     : await call.getPage("client-dashboard", "hr-jobposition"),
+          //   name: "jobPosition",
+          // },
         ],
       },
     ];

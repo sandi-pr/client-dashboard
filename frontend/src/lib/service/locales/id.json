@@ -260,8 +260,8 @@
   "clickToUpload": "Klik untuk mengunggah",
   "orDragAndDrop": "atau seret dan lepas",
   "selectDocumentType": "Pilih Tipe Dokumen",
-  "jobLevel": "Level Pekerja",
-  "newJobLevel": "Level Pekerja baru",
+  "jobLevel": "Tingkat Pekerja",
+  "newJobLevel": "Tingkat Pekerja baru",
   "adjust&MoveOrderByDragging": "Tetapkan dan pindahkan dengan seret dan lepas",
   "successfullyUpdated": "Berhasil diperbarui.",
   "notAvailable": "Tidak tersedia",
@@ -358,5 +358,13 @@
   "correctHere": "Perbaiki di sini",
   "correctHandwriting": "Teks yang terdeteksi salah? Perbaiki di sini",
   "listDocument": "Daftar Dokumen",
-  "detail": "Detail"
+  "detail": "Detail",
+  "jobManagement": "Manajemen Pekerjaan",
+  "jobPositionsList": "Daftar Posisi Pekerjaan",
+  "addNewPosition": "Tambahkan Posisi baru",
+  "selectJobLevel": "Pilih Tingkat Pekerja",
+  "positionName": "Nama Posisi Pekerjaan",
+  "placeholderPositionName": "Masukkan Nama Posisi Pekerjaan",
+  "job": "Pekerjaan",
+  "manage": "Manajemen"
 }

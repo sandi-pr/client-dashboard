@@ -1,0 +1,466 @@
+<!--
+CR3 Client Dashboard
+Package: gitlab.hexacode.org/cr3/client-dashboard
+Maintainer: 
+  - Azzis Arswendo <azzis@hexacode.org>
+  - Dean Ramhan <dean@hexacode.org>
+  - Taqie Fadlillah <taqief@hexacode.org>
+  - Sandi Permana <sandy@hexacode.org>
+Copyright (C) 2024 Hexacode Teknologi Indonesia
+All Rights Reserved
+-->
+<script>
+  import { P, Heading, Input, Button, Alert, Modal } from "flowbite-svelte";
+  import {
+    ChevronDownOutline,
+  } from "flowbite-svelte-icons";
+  import { ToastContainer, triggerToast, StateCard, Typography } from "$lib";
+  import { fly } from "svelte/transition";
+  import { _ } from "svelte-i18n";
+  import { onMount } from "svelte";
+  import { dndzone, TRIGGERS } from "svelte-dnd-action";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import DotsGridIcon from "$lib/icon/dots-grid.svelte";
+  import TabDetail from "$lib/components/TabDetail.svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
+  import { CR3Call } from "hexacomponents-svelte";
+
+  const call = new CR3Call(globalThis.location.origin);
+
+  let tmpJobLevel = $state("");
+  let tmpJobPosition = $state("");
+
+  let jobLevels = $state([]);
+
+  let datas = $state([]);
+  let configs = $state({});
+
+  let pagination = $state({ page: 1, pageSize: 5, pageCount: 1, total: 0 });
+
+  let addPositionsModal = $state(false);
+  let dropdownOpen = $state(false);
+
+  let selectedJobLevel = $state("");
+
+  let tabDatas = $state({
+    selected: "JobLevel",
+    data: [
+      {
+        name: "JobLevel",
+      },
+      {
+        name: "JobPosition",
+      },
+    ],
+  });
+
+  function addJobLevel() {
+    if (tmpJobLevel === "") {
+      return;
+    }
+    const newJobLevel = {
+      // dummy id
+      id: Date.now(),
+      title: tmpJobLevel,
+    };
+    jobLevels = [...jobLevels, newJobLevel];
+
+    tmpJobLevel = "";
+  }
+
+  function deleteJobLevel(id) {
+    jobLevels = jobLevels.filter((jobLevel) => jobLevel.id !== id);
+  }
+
+  function handleDndConsider(e) {
+    const {
+      items: newItems,
+      info: { trigger },
+    } = e.detail;
+    if (trigger === TRIGGERS.DRAG_STARTED) {
+      // Optional: Handle logic when drag starts
+    }
+    jobLevels = newItems;
+  }
+
+  function handleDndFinalize(e) {
+    const { items: newItems } = e.detail;
+    jobLevels = newItems;
+  }
+
+  async function saveJobLevels() {
+    if (jobLevels.length === 0) {
+      triggerToast("error");
+      return;
+    } else {
+      let token = sessionStorage.getItem("token");
+      if (token) {
+        try {
+          const response = await call.call("client-dashboard", "create-job-level", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              job_level: JSON.stringify(jobLevels),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          })
+
+          console.log(response);
+
+          if (response.status === 200) {
+            triggerToast("created");
+          }
+        } catch (error) {
+          console.log(error);
+          triggerToast("error");
+        }
+      }
+    }
+  }
+
+  async function getJobLevels() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-level", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          jobLevels = response.result.job_level;
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
+  function addJobPosition() {}
+
+  async function getPositions(page) {
+    // if (page > pagination.pageCount) return;
+    // let token = sessionStorage.getItem("token");
+    // if (token !== null) {
+    //   let response = await call.call("client-dashboard", "get-positions", {
+    //     URLQuery: {},
+    //     URLParams: {},
+    //     Params: {
+    //       page: page,
+    //       page_size: pagination.pageSize,
+    //     },
+    //     Headers: {
+    //       Authorization: "Bearer " + token,
+    //     },
+    //   });
+
+    //   if (response.status !== 200) {
+    //     console.log(response);
+    //     return;
+    //   }
+
+    //   if (response.result.data.length > 0) {
+    //     pagination = response.result.meta.pagination;
+    //     configs = {
+    //       search: true,
+    //       pagination: response.result.meta.pagination,
+    //     };
+    //     let promises2 = response.result.data.map(async (position, index) => {
+    //       return {
+    //         id: position.id,
+    //         join_date: position.attributes.start_date,
+    //         employee_name: position.attributes.employee_name,
+    //         email: position.attributes.email,
+    //         job_position: position.attributes.job_position,
+    //         job_level: position.attributes.job_level,
+    //         actions: {
+    //           objects: [
+    //             {
+    //               href:
+    //                 `${await call.getPage("client-dashboard", "hr-position-detail")}` +
+    //                 `?employeeId=${position.id}&edit=false`,
+    //               name: "View",
+    //             },
+    //             {
+    //               href:
+    //                 `${await call.getPage("client-dashboard", "hr-position-detail")}` +
+    //                 "?employeeId=" +
+    //                 position.id +
+    //                 "&edit=true",
+    //               name: "Edit",
+    //             },
+    //           ],
+    //         },
+    //       };
+    //     });
+
+    //     datas = await Promise.all(promises2);
+    //   }
+    // }
+    datas = [
+      {
+        id: 1,
+        position_id: 1,
+        job_position: "Software Engineer",
+        job_level: "Junior",
+        actions: {
+          objects: [
+            {
+              href: `localhost:3000/hr/job_position/detail?positionId=1&edit=false`,
+              name: "View",
+            },
+            {
+              href: `localhost:3000/hr/job_position/detail?positionId=1&edit=true`,
+              name: "Edit",
+            },
+          ],
+        },
+      },
+      {
+        id: 2,
+        position_id: 2,
+        job_position: "Software Engineer",
+        job_level: "Senior",
+        actions: {
+          objects: [
+            {
+              href: `localhost:3000/hr/job_position/detail?positionId=2&edit=false`,
+              name: "View",
+            },
+            {
+              href: `localhost:3000/hr/job_position/detail?positionId=2&edit=true`,
+              name: "Edit",
+            },
+          ],
+        },
+      },
+      {
+        id: 3,
+        position_id: 3,
+        job_position: "Marketing Manager",
+        job_level: "Manager",
+        actions: {
+          objects: [
+            {
+              href: `localhost:3000/hr/job_position/detail?positionId=3&edit=false`,
+              name: "View",
+            },
+            {
+              href: `localhost:3000/hr/job_position/detail?positionId=3&edit=true`,
+              name: "Edit",
+            },
+          ],
+        },
+      },
+      {
+        id: 4,
+        position_id: 4,
+        job_position: "Marketing Manager",
+        job_level: "Manager",
+        actions: {
+          objects: [
+            {
+              href: `localhost:3000/hr/job_position/detail?positionId=4&edit=false`,
+              name: "View",
+            },
+            {
+              href: `localhost:3000/hr/job_position/detail?positionId=4&edit=true`,
+              name: "Edit",
+            },
+          ],
+        },
+      },
+    ];
+  }
+
+  async function next() {
+    getPositions(pagination.page + 1);
+  }
+
+  async function previous() {
+    getPositions(pagination.page - 1);
+  }
+
+  let buttonDisable = $state(false);
+  let buttonDisabled = $state(false);
+
+  $effect(() => {
+    buttonDisable = jobLevels.length < 1;
+    buttonDisabled = selectedJobLevel < 1 || tmpJobPosition < 1;
+  });
+
+  onMount(async () => {
+    getJobLevels();
+    getPositions(pagination.page);
+  });
+</script>
+
+<div class="flex dark:bg-hc-graydark-950">
+  <div class="w-full pb-10">
+    <div class="flex flex-col m-4">
+      <!-- Header -->
+      <div
+        class="flex items-center pb-4"
+      >
+        <div class="flex flex-col gap-2 grow">
+          <!-- Header -->
+          <div class="gap-2">
+            <Heading
+              tag="h3"
+              class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
+            >
+              {$_("jobManagement")}
+            </Heading>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <Button class="px-3 focus-within:!ring-1" disabled={buttonDisable} on:click={saveJobLevels}>{$_("save")}</Button>
+          <!-- <Button class="px-3 focus-within:!ring-1">{$_("importCsv")}</Button> -->
+        </div>
+      </div>
+
+      <!-- Submenu -->
+      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+
+      {#if tabDatas.selected === "JobLevel"}
+      <div class="flex gap-6 pt-8">
+        <div class="w-60 space-y-2">
+          <div>
+            <P
+              class="font-semibold text-secondary-light dark:text-secondary-dark"
+            >
+              {$_("newJobLevel")}
+            </P>
+            <P class="text-secondary-light dark:text-secondary-dark">
+              {$_("adjust&MoveOrderByDragging")}
+            </P>
+          </div>
+          <Input
+            bind:value={tmpJobLevel}
+            class="bg-primary-light dark:bg-secondary-dark"
+          />
+          <Button color="light" on:click={addJobLevel}>{$_("add")}</Button>
+        </div>
+        <div class="flex flex-col grow gap-6">
+          {#if jobLevels.length > 0}
+            <div
+              class="bg-secondary-light dark:bg-secondary-dark rounded-lg py-10 pl-4"
+            >
+              <div
+                use:dndzone={{ items: jobLevels, flipDurationMs: 150 }}
+                onconsider={handleDndConsider}
+                onfinalize={handleDndFinalize}
+                class="flex flex-col gap-4"
+              >
+                {#each jobLevels as job (job.id)}
+                  <div
+                    class="px-4 py-2 bg-white dark:bg-tertiary-dark rounded-lg backdrop-blur-[26px] justify-between items-center flex w-2/5"
+                  >
+                    <div
+                      class="min-w-[172px] self-stretch items-center gap-4 flex"
+                    >
+                      <DotsGridIcon
+                        class="w-6 h-6 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                      />
+                      <P size="lg" weight="semibold">{job.title}</P>
+                    </div>
+                    <Button
+                      on:click={() => deleteJobLevel(job.id)}
+                      color="light"
+                      class="w-max">{$_("delete")}</Button
+                    >
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {:else}
+            <div class="pt-8">
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
+            </div>
+          {/if}
+        </div>
+      </div>
+      {:else if tabDatas.selected === "JobPosition"}
+      <div class="pt-6">
+        {#if datas.length > 0}
+          <div>
+            <div class="flex justify-between">
+              <Heading
+                tag="h6"
+                class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
+                >{$_("jobPositionsList")}</Heading
+              >
+              <Button
+                class="w-max"
+                on:click={() => (addPositionsModal = true)}
+                color="light"
+              >
+                {$_("addNewPosition")}
+              </Button>
+            </div>
+            <DataTable bind:datas bind:configs bind:next bind:previous />
+          </div>
+        {:else}
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+        {/if}
+      </div>
+      {/if}
+    </div>
+  </div>
+  <ToastContainer />
+</div>
+
+<Modal title={$_("addNewPosition")} bind:open={addPositionsModal} size="xs">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5 relative">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("jobLevel")}*`} />
+      <Button
+        color="light"
+        class="flex justify-between"
+        on:click={() => (dropdownOpen = !dropdownOpen)}
+      >
+        {`${selectedJobLevel ? selectedJobLevel : $_("selectJobLevel")}`}
+        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
+      </Button>
+      <div
+        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+      >
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+          {#if jobLevels.length > 0}
+            {#each jobLevels as job (job.id)}
+            <button
+              class="flex p-2"
+              onclick={() => {
+                selectedJobLevel = job.title;
+              }}>{job.title}</button
+            >
+            {/each}
+            {:else}
+            <Alert color="yellow">
+              {$_("pleaseAddJobLevelsFirst")}
+            </Alert>
+          {/if}
+        </ul>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("positionName")}*`} />
+      <Input bind:value={tmpJobPosition} placeholder={$_("placeholderPositionName")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={addJobPosition} disabled={buttonDisabled} class="w-full"
+      >{$_("addNewPosition")}</Button
+    >
+  </svelte:fragment>
+</Modal>

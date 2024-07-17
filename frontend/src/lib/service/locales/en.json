@@ -361,5 +361,13 @@
   "correctHere": "correct here",
   "correctHandwriting": "Wrong detected text? Correct here",
   "listDocument": "List Document",
-  "detail": "Detail"
+  "detail": "Detail",
+  "jobManagement": "Job Management",
+  "jobPositionsList": "Job Positions List",
+  "addNewPosition": "Add new position",
+  "selectJobLevel": "Select Job Level",
+  "positionName": "Position Name",
+  "placeholderPositionName": "Enter position name",
+  "job": "Job",
+  "manage": "Manage"
 }

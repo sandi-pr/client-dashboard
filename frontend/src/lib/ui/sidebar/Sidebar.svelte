@@ -29,7 +29,7 @@
     name = $bindable("Hexapod"),
     email = $bindable(""),
     brand = $bindable(""),
-    isFrontend = $bindable(true),
+    isFrontend = $bindable(false),
     innerWidth = 0,
     logout,
   }: {

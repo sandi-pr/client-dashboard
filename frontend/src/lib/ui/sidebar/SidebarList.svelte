@@ -22,6 +22,7 @@
     SidebarGroup,
     SidebarWrapper,
     SidebarDropdownWrapper,
+    SidebarDropdownItem,
   } from "flowbite-svelte";
   import {
     CogOutline,
@@ -55,8 +56,12 @@
 
   let sidebarItems = $state([]);
   let dropdownUser = $state(false);
+  let dropdownManage = $state(false);
   let isOpen = $state({});
   let isOpenOld = $state({});
+
+  let hrefUser = $state("");
+  let hrefJobLevels = $state("");
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -84,6 +89,10 @@
 
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
+    
+    hrefUser = isFrontend ? "/users" : await call.getPage("client-dashboard", "users");
+    hrefJobLevels = isFrontend ? "/job_management" : await call.getPage("client-dashboard", "job_management");
+    
     let home = await call.getPage("client-dashboard", "home-page");
     sidebarItems = [
       { name: "home", href: home, icon: "home", children: [] },
@@ -192,7 +201,7 @@
           class={`z-10 ${dropdownUser ? "absolute" : "hidden"} bottom-full w-full p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
         >
           <ul
-            class="text-sm text-gray-700 dark:text-gray-200"
+            class="static space-y-1.5 text-sm text-gray-700 dark:text-gray-200"
             aria-labelledby="dropdownDefaultButton"
           >
             <div class="flex pb-3 justify-between rounded-lg border-b">
@@ -223,23 +232,22 @@
                 />
               </Button>
             </div>
-            <button
-              onclick={async () => {
-                if (!isFrontend)
-                  goto(await call.getPage("client-dashboard", "users"));
-                else goto("/crm/users");
-              }}
-              class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
-            >
-              <UsersOutline
-                class="size-8 mr-4 text-secondary-light dark:text-secondary-dark"
+            <SidebarDropdownWrapper ulClass="py-0 space-y-0" spanClass="flex-1 ms-0 text-left whitespace-nowrap" label={$_("manage")}>
+              <svelte:fragment slot="icon">
+                <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
+              </svelte:fragment>
+              <SidebarDropdownItem 
+                href={hrefUser}
+                class="!ps-14"
+                label={$_("users")} 
+                
               />
-              <Typography
-                preset="Text lg/Semibold"
-                text="Manage User"
-                color="secondary"
+              <SidebarDropdownItem 
+                href={hrefJobLevels}
+                class="!ps-14"
+                label={$_("job")} 
               />
-            </button>
+            </SidebarDropdownWrapper>
             <button
               onclick={async () => {
                 if (!isFrontend)
@@ -249,12 +257,13 @@
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
               <CogOutline
-                class="size-8 mr-4 text-secondary-light dark:text-secondary-dark"
+                class="size-6 mr-4 text-secondary-light dark:text-secondary-dark"
               />
               <Typography
-                preset="Text lg/Semibold"
-                text="Settings"
-                color="secondary"
+                preset="Text md/Regular"
+                propClass="text-base font-normal"
+                text={$_("settings")}
+                color="primary"
               />
             </button>
           </ul>
