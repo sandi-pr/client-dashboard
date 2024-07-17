@@ -144,7 +144,7 @@ All Rights Reserved
         children: [
           {
             href: isFrontend
-              ? "/document"
+              ? "/document_collection"
               : await call.getPage("client-dashboard", "document-collection-overview"),
             name: "overview",
           },
@@ -156,7 +156,7 @@ All Rights Reserved
           // },
           {
             href: isFrontend
-              ? "/document/document_collection"
+              ? "/document_collection/collections"
               : await call.getPage("client-dashboard", "document-collection"),
             name: "collections",
           },

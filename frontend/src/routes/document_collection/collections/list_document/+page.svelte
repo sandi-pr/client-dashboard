@@ -438,7 +438,7 @@ All Rights Reserved
               {$_("createOn")}{` ${collection.createdAt}`}
             </P>
           </div>
-          <Button onclick={addDocument} icon={PlusIcon}
+          <Button disabled={datas.length === 0} onclick={addDocument} icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
             {$_("startReading")}</Button
           >
@@ -465,6 +465,8 @@ All Rights Reserved
               <StateCard
                 illustration={IllustrationEmpty}
                 description={$_("youDontHaveAnyDataYet")}
+                actionText={$_("addNewDocument")}
+                funcButton={() => addDocumentsModal = true}
               />
             </div>
           {/if}
