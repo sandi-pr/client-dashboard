@@ -493,6 +493,11 @@ All Rights Reserved
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     let token = sessionStorage.getItem("token");
+
+    let tmpMonthlyPersonsCounts = [];
+    let tmpMonthlyActivePersonsCounts = [];
+    let tmpMonthlyInactivePersonsCounts = [];
+
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
         let response = await call.call("client-dashboard", "get-count-persons-per-month", {
@@ -517,9 +522,9 @@ All Rights Reserved
         //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
         // );
 
-        monthlyPersonsCounts.push(response.result.persons.meta.pagination.total);
-        monthlyActivePersonsCounts.push(response.result.activePersons.meta.pagination.total);
-        monthlyInactivePersonsCounts.push(response.result.inactivePersons.meta.pagination.total);
+        tmpMonthlyPersonsCounts.push(response.result.persons.meta.pagination.total);
+        tmpMonthlyActivePersonsCounts.push(response.result.activePersons.meta.pagination.total);
+        tmpMonthlyInactivePersonsCounts.push(response.result.inactivePersons.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -533,9 +538,13 @@ All Rights Reserved
         );
       }
 
-      monthlyPersonsCounts.reverse();
-      monthlyActivePersonsCounts.reverse();
-      monthlyInactivePersonsCounts.reverse();
+      tmpMonthlyPersonsCounts.reverse();
+      tmpMonthlyActivePersonsCounts.reverse();
+      tmpMonthlyInactivePersonsCounts.reverse();
+
+      monthlyPersonsCounts = tmpMonthlyPersonsCounts;
+      monthlyActivePersonsCounts = tmpMonthlyActivePersonsCounts;
+      monthlyInactivePersonsCounts = tmpMonthlyInactivePersonsCounts;
 
       let totalPersons = groupingDataChart(monthlyPersonsCounts);
       let activePersons = groupingDataChart(monthlyActivePersonsCounts);
@@ -565,7 +574,11 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    getChartAction({ total: 0, change: 0, changeType: "-" }, { total: 0, change: 0, changeType: "-" }, { total: 0, change: 0, changeType: "-" });
+    getChartAction(
+      { total: 0, change: 0, changeType: "-" },
+      { total: 0, change: 0, changeType: "-" },
+      { total: 0, change: 0, changeType: "-" },
+    );
     getCountPersonsPerMonth();
     generateChartData();
     getActionItems();
@@ -616,12 +629,16 @@ All Rights Reserved
             {#each chartAction as { href, dataName, value, change, changeType }, index}
               <ChartCard
                 {href}
-                dataName = {$_(toCamelCase(dataName))}
+                dataName={$_(toCamelCase(dataName))}
                 {value}
                 {change}
                 {changeType}
                 {index}
-                chartList={[dataChartTotalPersons, dataChartActivePersons, dataChartInactivePersons]}
+                chartList={[
+                  dataChartTotalPersons,
+                  dataChartActivePersons,
+                  dataChartInactivePersons,
+                ]}
               />
             {/each}
           </div>

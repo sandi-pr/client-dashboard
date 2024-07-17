@@ -2867,6 +2867,9 @@
                     },
                     "result_trocr": {
                         "type": "json"
+                    },
+                    "edited": {
+                        "type": "boolean"
                     }
                 }
             },

@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input } from "flowbite-svelte";
+  import { Modal, Button, Input, P } from "flowbite-svelte";
   import {
     StateCard,
     Typography,
@@ -22,10 +22,9 @@ All Rights Reserved
     triggerToast,
   } from "$lib";
   import { _ } from "svelte-i18n";
-  import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
-  import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
-  import Chart from "$lib/components/Chart.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
+  import PlusIcon from "$lib/icon/plus.svg";
+  import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
+  import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { CR3Call } from "hexacomponents-svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -38,9 +37,7 @@ All Rights Reserved
 
   let documents = $state([]);
   let collections = $state([]);
-  let configs = $state({});
-  let documentsReady = $state(false);
-  let personsIsEmpty = $state(true);
+  let files = $state([]);
   // let documentsNeed = [];
   // let documentsComplete = [];
   // let allUrls = [];
@@ -63,6 +60,8 @@ All Rights Reserved
   let editModal = $state(false);
   let deleteModal = $state(false);
   let dropdownOpen = $state(false);
+  let acceptedFileTypes = $state("");
+  let selectedTypeCollection = $state("");
   let timer;
 
   async function getActionItems() {
@@ -756,6 +755,10 @@ All Rights Reserved
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     let token = sessionStorage.getItem("token");
+
+    let tmpMonthlyCollectionsCounts = [];
+    let tmpMonthlyCollectionReadyCounts = [];
+    let tmpMonthlyCollectingDataCounts = [];
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
         let response = await call.call("client-dashboard", "get-count-documents-per-month", {
@@ -780,11 +783,11 @@ All Rights Reserved
         //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
         // );
 
-        monthlyCollectionsCounts.push(response.result.document.meta.pagination.total);
+        tmpMonthlyCollectionsCounts.push(response.result.document.meta.pagination.total);
         // TODO: adjust response to collection ready
-        monthlyCollectionReadyCounts.push(response.result.general.meta.pagination.total);
+        tmpMonthlyCollectionReadyCounts.push(response.result.general.meta.pagination.total);
         // TODO: adjust response to collecting data
-        monthlyCollectingDataCounts.push(response.result.contract.meta.pagination.total);
+        tmpMonthlyCollectingDataCounts.push(response.result.contract.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -798,9 +801,13 @@ All Rights Reserved
         );
       }
 
-      monthlyCollectionsCounts.reverse();
-      monthlyCollectionReadyCounts.reverse();
-      monthlyCollectingDataCounts.reverse();
+      tmpMonthlyCollectionsCounts.reverse();
+      tmpMonthlyCollectionReadyCounts.reverse();
+      tmpMonthlyCollectingDataCounts.reverse();
+
+      monthlyCollectionsCounts = tmpMonthlyCollectionsCounts;
+      monthlyCollectionReadyCounts = tmpMonthlyCollectionReadyCounts;
+      monthlyCollectingDataCounts = tmpMonthlyCollectingDataCounts;
 
       let totalCollections = groupingDataChart(monthlyCollectionsCounts);
       let readyCollection = groupingDataChart(monthlyCollectionReadyCounts);
