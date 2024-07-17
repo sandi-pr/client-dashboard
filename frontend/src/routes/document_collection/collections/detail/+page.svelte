@@ -393,14 +393,13 @@ All Rights Reserved
     if (token !== null) {
       let response = await call.call("client-dashboard", "update-document", {
         URLQuery: {},
-        URLParams: {},
-        Params: {
+        URLParams: {
           id: documentId.toString(),
-          data: {
-            detected_text: data.detected_text,
-            result_trocr: JSON.stringify(data.result_trocr),
-            edited: true,
-          },
+        },
+        Params: {
+          detected_text: data.detected_text,
+          result_trocr: JSON.stringify(data.result_trocr),
+          edited: true,
         },
         Headers: {
           Authorization: "Bearer " + token,
