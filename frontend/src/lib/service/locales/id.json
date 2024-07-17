@@ -332,7 +332,7 @@
   "upload": "Unggah",
   "startTraining": "Mulai Training",
   "positionList": "Daftar Posisi",
-  "positionInformation": "Informasi Posisi"  ,
+  "positionInformation": "Informasi Posisi",
   "documentCollectionOverview": "Koleksi Dokumen",
   "createNewCollection": "Buat Koleksi baru",
   "addNewCollection": "Tambahkan Koleksi baru",
@@ -356,5 +356,7 @@
   "viewer": "Pratinjau",
   "wrongDetectedText": "Teks yang terdeteksi salah?",
   "correctHere": "Perbaiki di sini",
-  "correctHandwriting": "Teks yang terdeteksi salah? Perbaiki di sini"
+  "correctHandwriting": "Teks yang terdeteksi salah? Perbaiki di sini",
+  "listDocument": "Daftar Dokumen",
+  "detail": "Detail"
 }

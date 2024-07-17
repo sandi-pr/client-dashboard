@@ -158,33 +158,6 @@ All Rights Reserved
         }
       }
 
-      // let page2 = 1;
-      // while (true) {
-      //   let response2 = await call.call("client-dashboard", "get-documents", {
-      //     URLQuery: {},
-      //     URLParams: {},
-      //     Params: {
-      //       page: page2,
-      //       page_size: 25,
-      //     },
-      //     Headers: {
-      //       Authorization: "Bearer " + token,
-      //     },
-      //   });
-
-      //   if (response2.status !== 200) {
-      //     console.log(response2);
-      //     return;
-      //   }
-
-      //   if (response2.result.data.length > 0) {
-      //     documents = documents.concat(response2.result.data);
-      //     page2++;
-      //   } else {
-      //     break;
-      //   }
-      // }
-
       for (const collection of collections) {
         let page = 1;
         while (true) {

@@ -140,7 +140,7 @@ All Rights Reserved
       },
       {
         icon: "fileShield",
-        name: "document",
+        name: "documentCollection",
         children: [
           {
             href: isFrontend

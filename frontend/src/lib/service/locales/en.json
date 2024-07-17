@@ -359,5 +359,7 @@
   "viewer": "Viewer",
   "wrongDetectedText": "Wrong detected text?",
   "correctHere": "correct here",
-  "correctHandwriting": "Wrong detected text? Correct here"
+  "correctHandwriting": "Wrong detected text? Correct here",
+  "listDocument": "List Document",
+  "detail": "Detail"
 }
