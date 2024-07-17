@@ -397,7 +397,7 @@ All Rights Reserved
           id: documentId.toString(),
         },
         Params: {
-          detected_text: data.detected_text,
+          detected_text: data.detectedText,
           result_trocr: JSON.stringify(data.result_trocr),
           edited: true,
         },
@@ -411,6 +411,7 @@ All Rights Reserved
       }
 
       console.log(response);
+      triggerToast("updated");
       getDocument();
     }
   }
