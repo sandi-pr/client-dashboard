@@ -395,7 +395,7 @@ All Rights Reserved
         URLQuery: {},
         URLParams: {},
         Params: {
-          document_id: documentId.toString(),
+          id: documentId.toString(),
           data: {
             detected_text: data.detected_text,
             result_trocr: JSON.stringify(data.result_trocr),
