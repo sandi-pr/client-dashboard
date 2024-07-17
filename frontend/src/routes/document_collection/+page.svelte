@@ -20,6 +20,7 @@ All Rights Reserved
     ChartCard,
     CollectionCard,
     triggerToast,
+    LoadingContainer,
   } from "$lib";
   import { _ } from "svelte-i18n";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -1171,3 +1172,5 @@ All Rights Reserved
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>
+
+<LoadingContainer />

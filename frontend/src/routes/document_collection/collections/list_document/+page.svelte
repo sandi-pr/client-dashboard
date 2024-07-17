@@ -14,7 +14,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
-  import { StateCard, InputRw, TextareaRw, triggerToast } from "$lib";
+  import { StateCard, InputRw, TextareaRw, triggerToast, LoadingContainer } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format, formatDistanceToNow } from "date-fns";
@@ -651,3 +651,5 @@ All Rights Reserved
     >
   </svelte:fragment>
 </Modal>
+
+<LoadingContainer />
