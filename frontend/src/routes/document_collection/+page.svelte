@@ -381,7 +381,7 @@ All Rights Reserved
       tmpCollectionName = "";
       tmpDescription = "";
 
-      triggerToast("success");
+      triggerToast("created");
 
       addCollectionsModal = false;
       getCollections();

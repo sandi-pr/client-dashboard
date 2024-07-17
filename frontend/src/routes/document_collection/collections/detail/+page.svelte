@@ -188,14 +188,10 @@ All Rights Reserved
             ext: documentData.attributes.document.data.attributes.ext,
             detectedText: documentData.attributes.detected_text
               ? documentData.attributes.detected_text
-              : documentData.attributes.document_type === "Handwriting"
-                ? response2.result.text
-                : "",
+              : "",
             slices: documentData.attributes.result_trocr
               ? documentData.attributes.result_trocr.slices
-              : documentData.attributes.document_type === "Handwriting"
-                ? response2.result.slices
-                : "",
+              : "",
             // description: documentData.attributes.description,
             // document_type: documentData.attributes.document_type,
             // person_client: documentData.attributes.person.data?.id,

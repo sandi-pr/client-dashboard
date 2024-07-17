@@ -277,7 +277,7 @@ All Rights Reserved
           URLQuery: {},
           URLParams: {},
           Params: {
-            image: file[i].base64,
+            image: files[i].base64,
           },
           Headers: {
             Authorization: "Bearer " + token,
