@@ -13,14 +13,7 @@ All Rights Reserved
   import { onMount, onDestroy } from "svelte";
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
-  import {
-    StateCard,
-    Typography,
-    CollectionCard,
-    triggerToast,
-    ToastContainer,
-    LoadingContainer,
-  } from "$lib";
+  import { StateCard, Typography, CollectionCard, triggerToast, ToastContainer } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
   import { Button, Modal, Input, P, Indicator, Tooltip } from "flowbite-svelte";
@@ -34,6 +27,7 @@ All Rights Reserved
     triggerSelectDropdown,
     triggerLoading,
   } from "$lib";
+  import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
   import { goto } from "$app/navigation";
 

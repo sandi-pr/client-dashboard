@@ -20,7 +20,6 @@ All Rights Reserved
     ChartCard,
     CollectionCard,
     triggerToast,
-    LoadingContainer,
   } from "$lib";
   import { _ } from "svelte-i18n";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -38,6 +37,7 @@ All Rights Reserved
     triggerSelectDropdown,
     triggerLoading,
   } from "$lib";
+  import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
