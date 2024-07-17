@@ -683,8 +683,7 @@ All Rights Reserved
 
       console.log(response2);
 
-      // if Handwriting
-      if (tmpDocumentType === "handwriting") {
+      if (tmpDocumentType === "Handwriting") {
         for (let i = 0; i < files.length; i++) {
           let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
             URLQuery: {},
