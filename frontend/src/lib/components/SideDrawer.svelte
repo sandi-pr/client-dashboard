@@ -31,8 +31,14 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
 
   import { CR3Call } from "hexacomponents-svelte";
-    import CollectionsAi from "./CollectionsAI.svelte";
-    import Ocr from "./OCR.svelte";
+  import CollectionsAi from "./CollectionsAI.svelte";
+  import Ocr from "./OCR.svelte";
+  import {
+    triggerSelectCollection,
+    selectedCollection,
+    selectedDropdown,
+    triggerSelectDropdown,
+  } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -47,8 +53,7 @@ All Rights Reserved
 
   let dropdownOpen = $state(false);
   let modalOpen = $state(false);
-  let selectedDropdown = $state("general");
-  let selectedCollection = $state(null);
+  // let selectedCollection = $state(null);
   let tmpSelectedCollection = $state(null);
   let disableButton = $state(false);
   let disableConfigButton = $state(false);
@@ -80,21 +85,17 @@ All Rights Reserved
       let page = 1;
       initCollections = [];
       while (true) {
-        let response = await call.call(
-          "client-dashboard",
-          "get-document-collections",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              page: page,
-              page_size: 25,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let response = await call.call("client-dashboard", "get-document-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 25,
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         if (response.status !== 200) {
           console.log(response);
@@ -216,7 +217,7 @@ All Rights Reserved
 
   const selectDropdown = (item) => {
     dropdownOpen = false;
-    selectedDropdown = item;
+    triggerSelectDropdown(item);
   };
 
   const selectCollection = (item) => {
@@ -226,27 +227,23 @@ All Rights Reserved
   async function callColection() {
     let token = sessionStorage.getItem("token");
 
-    let response2 = await call.call(
-      "hexa-ai-rag",
-      "add-document-by-collection-id",
-      {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: tmpSelectedCollection.id.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
+    let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {
+        collection_id: tmpSelectedCollection.id.toString(),
       },
-    );
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
 
     if (response2.status !== 200) {
       console.log(response2);
       return;
     }
 
-    selectedCollection = tmpSelectedCollection;
+    triggerSelectCollection(tmpSelectedCollection);
     console.log(response2);
   }
 
@@ -257,7 +254,8 @@ All Rights Reserved
 
   $effect(() => {
     disableButton = tmpSelectedCollection === null ? true : false;
-    disableConfigButton = selectedDropdown === "general" ? true : selectedDropdown === "ocr" ? true : false;
+    disableConfigButton =
+      $selectedDropdown === "general" ? true : $selectedDropdown === "ocr" ? true : false;
   });
 
   onMount(() => {
@@ -266,13 +264,8 @@ All Rights Reserved
   });
 </script>
 
-<Pane
-  size={innerWidth > 1024 ? 40 : 100}
-  minSize={innerWidth > 1024 ? 40 : 100}
->
-  <div
-    class="h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800"
-  >
+<Pane size={innerWidth > 1024 ? 40 : 100} minSize={innerWidth > 1024 ? 40 : 100}>
+  <div class="h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800">
     <div class="sticky top-0 z-10">
       <div class="flex items-center">
         <div
@@ -290,16 +283,8 @@ All Rights Reserved
             </div>
             &nbsp;
             <div>
-              <Typography
-                preset="Text xl/Semibold"
-                text="Latest Activity"
-                color="primary"
-              />
-              <Typography
-                preset="Text sm/Regular"
-                text="Your latest activity"
-                color="tertiary"
-              />
+              <Typography preset="Text xl/Semibold" text="Latest Activity" color="primary" />
+              <Typography preset="Text sm/Regular" text="Your latest activity" color="tertiary" />
             </div>
           {:else if tabDatas.selected === "Hexa AI"}
             <div class="flex flex-col grow">
@@ -316,11 +301,7 @@ All Rights Reserved
                     />
                   </div>
                   <div>
-                    <Typography
-                      preset="Text xl/Semibold"
-                      text="Hexa AI"
-                      color="primary"
-                    />
+                    <Typography preset="Text xl/Semibold" text="Hexa AI" color="primary" />
                     <!-- <Typography
                     preset="Text sm/Regular"
                     text={`Status RAG: ${statusRAG}`}
@@ -340,7 +321,7 @@ All Rights Reserved
                   color="light"
                   class={`w-max mt-4 !pr-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex justify-start`}
                 >
-                  <P>{$_(selectedDropdown)}</P>
+                  <P>{$_($selectedDropdown)}</P>
                   <ChevronRightOutline
                     class="text-fg-secondary-light dark:text-fg-secondary-dark"
                   />
@@ -423,30 +404,21 @@ All Rights Reserved
               {/each}
             {/each}
           {:else}
-            <Typography
-              preset="Text sm/Medium"
-              text="No Activity"
-              color="primary"
-            />
+            <Typography preset="Text sm/Medium" text="No Activity" color="primary" />
           {/if}
         </div>
       {:else if tabDatas.selected === "Hexa AI"}
-       {#if selectedDropdown === "general"}
-        <HexaAIChat/>
-       {:else if selectedDropdown === "collections"}
-        <CollectionsAi bind:selectedCollection />
-       <!-- {:else if selectedDropdown === "ocr"}
+        {#if $selectedDropdown === "general"}
+          <HexaAIChat />
+        {:else if $selectedDropdown === "collections"}
+          <CollectionsAi />
+          <!-- {:else if selectedDropdown === "ocr"}
         <Ocr /> -->
-       {/if}
+        {/if}
       {/if}
     </div>
   </div>
-  <Modal
-    title={$_("chooseSource")}
-    bind:open={modalOpen}
-    autoclose
-    outsideclose
-  >
+  <Modal title={$_("chooseSource")} bind:open={modalOpen} autoclose outsideclose>
     <div class="flex flex-col justify-center gap-4">
       <Input
         id="collection"
@@ -456,15 +428,11 @@ All Rights Reserved
         type="text"
         placeholder={$_("search")}
       >
-        <SearchOutline
-          slot="left"
-          class="w-5 h-5 text-gray-500 dark:text-gray-400"
-        />
+        <SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
       </Input>
       <div class="flex flex-col justify-center mt-3 gap-3">
         <div class="flex text-start">
-          <P
-            class="text-tertiary-light dark:text-tertiary-dark text-base font-normal"
+          <P class="text-tertiary-light dark:text-tertiary-dark text-base font-normal"
             >{$_("recentCollections")}</P
           >
         </div>

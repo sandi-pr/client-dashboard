@@ -551,6 +551,7 @@ All Rights Reserved
       let inactivePersons = groupingDataChart(monthlyInactivePersonsCounts);
 
       getChartAction(totalPersons, activePersons, inactivePersons);
+      generateChartData();
     } else {
       console.log("no token");
     }
@@ -574,13 +575,13 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    getChartAction(
-      { total: 0, change: 0, changeType: "-" },
-      { total: 0, change: 0, changeType: "-" },
-      { total: 0, change: 0, changeType: "-" },
-    );
+    // getChartAction(
+    //   { total: 0, change: 0, changeType: "-" },
+    //   { total: 0, change: 0, changeType: "-" },
+    //   { total: 0, change: 0, changeType: "-" },
+    // );
     getCountPersonsPerMonth();
-    generateChartData();
+    // generateChartData();
     getActionItems();
     getPerson();
     getProducts();

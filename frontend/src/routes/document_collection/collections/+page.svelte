@@ -21,6 +21,12 @@ All Rights Reserved
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import upload from "$lib/icon/upload-cloud-02.svg";
+  import {
+    triggerSelectCollection,
+    triggerShowAI,
+    triggerSelectDropdown,
+    triggerLoading,
+  } from "$lib";
 
   import { goto } from "$app/navigation";
 
@@ -356,6 +362,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
+      triggerLoading(true);
       let response = await call.call("client-dashboard", "create-document", {
         URLQuery: {},
         URLParams: {},
@@ -396,8 +403,54 @@ All Rights Reserved
 
       console.log(response2);
 
+      for (let i = 0; i < files.length; i++) {
+        let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            image: files[i].base64,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response3.status !== 200) {
+          // triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        console.log("trocr-predict", response3);
+
+        if (response3?.result?.text !== null) {
+          const response4 = await call.call("client-dashboard", "update-document", {
+            URLQuery: {},
+            URLParams: {
+              id: response.result.data[i].toString(),
+            },
+            Params: {
+              detected_text: response3.result.text,
+              result_trocr: JSON.stringify(response3.result),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response4.status !== 200) {
+            // triggerToast("error");
+            console.log(response4);
+            return;
+          }
+
+          console.log("ayam", response4);
+        }
+      }
+
       tmpCollectionId = "";
       getCollections();
+      triggerLoading(false);
       addDocumentsModal = false;
 
       triggerToast("created");
@@ -537,27 +590,10 @@ All Rights Reserved
     timer = setTimeout(getStatusRag, 3000);
   }
 
-  async function addDocument(id) {
-    let token = sessionStorage.getItem("token");
-    if (id) {
-      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: id.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response2.status !== 200) {
-        console.log(response2);
-        return;
-      }
-
-      console.log(response2);
-    }
+  async function selectCollection(collection) {
+    triggerShowAI(true);
+    triggerSelectDropdown("collections");
+    triggerSelectCollection(collection);
   }
 
   let buttonDisabled = $state(false);
@@ -629,7 +665,12 @@ All Rights Reserved
                   totalDocuments={document.totalDocuments}
                   status={document.status}
                   functButton={() => {
-                    addDocument(document.collectionId);
+                    selectCollection({
+                      id: document.collectionId,
+                      name: document.collectionName,
+                      description: document.description,
+                      totalDocuments: document.totalDocuments,
+                    });
                   }}
                   functAddDocuments={() => {
                     tmpCollectionId = document.collectionId;

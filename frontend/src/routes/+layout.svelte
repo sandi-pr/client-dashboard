@@ -20,12 +20,13 @@ All Rights Reserved
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+  import { triggerShowAI, showAI } from "$lib";
   // import { set_pdfjs_context } from '$lib/utils/vite.ts';
 
   // set_pdfjs_context();
 
   let innerWidth = $state(0);
-  let { showAI = false } = $props();
+  // let { showAI = false } = $props();
   let isShowAI = $state(false);
   let activities = $state([]);
   // let isActiveUrl = $state($page.url.pathname);
@@ -91,9 +92,10 @@ All Rights Reserved
   };
 
   const changeShowAI = () => {
-    showAI = !showAI;
-    isShowAI = !isShowAI;
-    localStorage.setItem("showAI", showAI);
+    triggerShowAI(!$showAI);
+    console.log($showAI);
+    // isShowAI = !isShowAI;
+    localStorage.setItem("showAI", `${!$showAI}`);
   };
 
   const getModules = async () => {
@@ -328,7 +330,7 @@ All Rights Reserved
 
   let winInnerWidth = $derived(innerWidth);
   if (typeof localStorage !== "undefined") {
-    showAI = localStorage.getItem("showAI") === "true" ? true : false;
+    triggerShowAI(localStorage.getItem("showAI") === "true" ? true : false);
   } else {
     console.log("localstorage is undefined");
   }
@@ -362,7 +364,7 @@ All Rights Reserved
           <Pane minSize={innerWidth > 1024 ? 80 : 0}>
             <div class="relative transition-all duration-300 h-screen">
               <div class="absolute w-full top-0 z-10">
-                <Navbar {activeUrl} {showAI} {changeShowAI} {appUrl} {reset_database} />
+                <Navbar {activeUrl} {$showAI} {changeShowAI} {appUrl} {reset_database} />
               </div>
               <div class="h-screen pt-20">
                 {#if hideScroll()}
@@ -379,7 +381,7 @@ All Rights Reserved
             </div>
           </Pane>
           <!-- Hexabot Sidebar -->
-          {#if showAI}
+          {#if $showAI}
             <SideDrawer innerWidth={winInnerWidth} {changeShowAI} />
           {/if}
         </Splitpanes>

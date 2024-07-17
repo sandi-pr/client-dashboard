@@ -23,6 +23,7 @@ All Rights Reserved
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
   import upload from "$lib/icon/upload-cloud-02.svg";
+  import { triggerLoading } from "$lib";
 
   import { goto } from "$app/navigation";
 
@@ -230,6 +231,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
+      triggerLoading(true);
       let response = await call.call("client-dashboard", "create-document", {
         URLQuery: {},
         URLParams: {},
@@ -268,9 +270,55 @@ All Rights Reserved
 
       console.log(response2);
 
+      for (let i = 0; i < files.length; i++) {
+        let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            image: file[i].base64,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response3.status !== 200) {
+          // triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        console.log("trocr-predict", response3);
+
+        if (response3?.result?.text !== null) {
+          const response4 = await call.call("client-dashboard", "update-document", {
+            URLQuery: {},
+            URLParams: {
+              id: response.result.data[i].toString(),
+            },
+            Params: {
+              detected_text: response3.result.text,
+              result_trocr: JSON.stringify(response3.result),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response3.status !== 200) {
+            // triggerToast("error");
+            console.log(response4);
+            return;
+          }
+
+          console.log("ayam", response4);
+        }
+      }
+
       console.log(response);
       addDocumentsModal = false;
       getDocuments(pagination.page);
+      triggerLoading(false);
 
       triggerToast("created");
     }
@@ -466,7 +514,7 @@ All Rights Reserved
                 illustration={IllustrationEmpty}
                 description={$_("youDontHaveAnyDataYet")}
                 actionText={$_("addNewDocument")}
-                funcButton={() => addDocumentsModal = true}
+                funcButton={() => (addDocumentsModal = true)}
               />
             </div>
           {/if}

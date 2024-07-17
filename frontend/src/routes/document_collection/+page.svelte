@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input, P } from "flowbite-svelte";
+  import { Modal, Button, Input, P, Indicator, Tooltip } from "flowbite-svelte";
   import {
     StateCard,
     Typography,
@@ -25,11 +25,18 @@ All Rights Reserved
   import PlusIcon from "$lib/icon/plus.svg";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
+  import upload from "$lib/icon/upload-cloud-02.svg";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { CR3Call } from "hexacomponents-svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
+  import {
+    triggerSelectCollection,
+    triggerShowAI,
+    triggerSelectDropdown,
+    triggerLoading,
+  } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -38,13 +45,12 @@ All Rights Reserved
   let documents = $state([]);
   let collections = $state([]);
   let files = $state([]);
-  // let documentsNeed = [];
-  // let documentsComplete = [];
-  // let allUrls = [];
-  // let chart = true;
   let monthlyCollectionsCounts = $state([]);
   let monthlyCollectionReadyCounts = $state([]);
   let monthlyCollectingDataCounts = $state([]);
+  let tmpMonthlyCollectionsCounts = $state([]);
+  let tmpMonthlyCollectionReadyCounts = $state([]);
+  let tmpMonthlyCollectingDataCounts = $state([]);
   let dataChartAll = $state({});
   let dataChartReady = $state({});
   let dataChartCollecting = $state({});
@@ -467,7 +473,10 @@ All Rights Reserved
         }
       }
 
-      let collectionList = await call.getPage("client-dashboard", "document-collection-list");
+      let collectionList = await call.getPage(
+        "client-dashboard",
+        "document-collection-list-document",
+      );
 
       latestDocumentCollection = collections.map((collection) => {
         const filteredDocuments = documents.filter(
@@ -630,6 +639,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
+      triggerLoading(true);
       let response = await call.call("client-dashboard", "create-document", {
         URLQuery: {},
         URLParams: {},
@@ -670,8 +680,54 @@ All Rights Reserved
 
       console.log(response2);
 
+      for (let i = 0; i < files.length; i++) {
+        let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            image: files[i].base64,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response3.status !== 200) {
+          // triggerToast("error");
+          console.log(response3);
+          return;
+        }
+
+        console.log("trocr-predict", response3);
+
+        if (response3?.result?.text !== null) {
+          const response4 = await call.call("client-dashboard", "update-document", {
+            URLQuery: {},
+            URLParams: {
+              id: response.result.data[i].toString(),
+            },
+            Params: {
+              detected_text: response3.result.text,
+              result_trocr: JSON.stringify(response3.result),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response4.status !== 200) {
+            // triggerToast("error");
+            console.log(response4);
+            return;
+          }
+
+          console.log("ayam", response4);
+        }
+      }
+
       tmpCollectionId = "";
       getCollections();
+      triggerLoading(false);
       addDocumentsModal = false;
 
       triggerToast("created");
@@ -756,9 +812,6 @@ All Rights Reserved
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     let token = sessionStorage.getItem("token");
 
-    let tmpMonthlyCollectionsCounts = [];
-    let tmpMonthlyCollectionReadyCounts = [];
-    let tmpMonthlyCollectingDataCounts = [];
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
         let response = await call.call("client-dashboard", "get-count-documents-per-month", {
@@ -814,6 +867,7 @@ All Rights Reserved
       let dataCollecting = groupingDataChart(monthlyCollectingDataCounts);
 
       getChartAction(totalCollections, readyCollection, dataCollecting);
+      generateChartData();
     } else {
       console.log("no token");
     }
@@ -836,15 +890,21 @@ All Rights Reserved
     };
   }
 
+  async function selectCollection(collection) {
+    triggerShowAI(true);
+    triggerSelectDropdown("collections");
+    triggerSelectCollection(collection);
+  }
+
   onMount(async () => {
-    getChartAction(
-      { total: 0, change: 0, changeType: "-" },
-      { total: 0, change: 0, changeType: "-" },
-      { total: 0, change: 0, changeType: "-" },
-    );
+    // getChartAction(
+    //   { total: 0, change: 0, changeType: "-" },
+    //   { total: 0, change: 0, changeType: "-" },
+    //   { total: 0, change: 0, changeType: "-" },
+    // );
     getCollections();
     getCountDocumentsPerMonth();
-    generateChartData();
+    // generateChartData();
     getActionItems();
   });
 
@@ -852,6 +912,12 @@ All Rights Reserved
     if (timer) {
       clearTimeout(timer);
     }
+  });
+
+  let buttonDisabled = $state(false);
+
+  $effect(() => {
+    buttonDisabled = files.length === 0;
   });
 </script>
 
@@ -917,7 +983,12 @@ All Rights Reserved
                     totalDocuments={document.totalDocuments}
                     status={document.status}
                     functButton={() => {
-                      addDocument(document.collectionId);
+                      selectCollection({
+                        id: document.collectionId,
+                        name: document.collectionName,
+                        description: document.description,
+                        totalDocuments: document.totalDocuments,
+                      });
                     }}
                     functAddDocuments={() => {
                       tmpCollectionId = document.collectionId;

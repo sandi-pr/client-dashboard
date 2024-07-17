@@ -41,3 +41,5 @@ export { default as getIcons } from "$lib/utils/getIcons";
 export { default as triggerToast } from "$lib/utils/toast";
 export { default as triggerLoading } from "$lib/utils/loading";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
+export { triggerSelectCollection, selectedCollection, selectedDropdown, triggerSelectDropdown } from "$lib/utils/selectCollection";
+export { triggerShowAI, showAI } from "$lib/utils/showAI";

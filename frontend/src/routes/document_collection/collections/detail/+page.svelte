@@ -129,56 +129,56 @@ All Rights Reserved
           fileUrl = URL.createObjectURL(blob);
           console.log(fileUrl);
 
-          let response2;
-          if (documentData.attributes.document_type === "Handwriting") {
-            if (
-              documentData.attributes.detected_text === null ||
-              documentData.attributes.result_trocr === null
-            ) {
-              response2 = await call.call("hexa-ai-rag", "trocr-predict", {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  image: base64,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
+          // let response2;
+          // if (documentData.attributes.document_type === "Handwriting") {
+          //   if (
+          //     documentData.attributes.detected_text === null ||
+          //     documentData.attributes.result_trocr === null
+          //   ) {
+          //     response2 = await call.call("hexa-ai-rag", "trocr-predict", {
+          //       URLQuery: {},
+          //       URLParams: {},
+          //       Params: {
+          //         image: base64,
+          //       },
+          //       Headers: {
+          //         Authorization: "Bearer " + token,
+          //       },
+          //     });
 
-              if (response2.status !== 200) {
-                // triggerToast("error");
-                console.log(response);
-                return;
-              }
+          //     if (response2.status !== 200) {
+          //       // triggerToast("error");
+          //       console.log(response);
+          //       return;
+          //     }
 
-              console.log("trocr-predict", response2);
+          //     console.log("trocr-predict", response2);
 
-              if (response2?.result?.text !== null) {
-                const response3 = await call.call("client-dashboard", "update-document", {
-                  URLQuery: {},
-                  URLParams: {
-                    id: documentId.toString(),
-                  },
-                  Params: {
-                    detected_text: response2.result.text,
-                    result_trocr: JSON.stringify(response2.result),
-                  },
-                  Headers: {
-                    Authorization: "Bearer " + token,
-                  },
-                });
+          //     if (response2?.result?.text !== null) {
+          //       const response3 = await call.call("client-dashboard", "update-document", {
+          //         URLQuery: {},
+          //         URLParams: {
+          //           id: documentId.toString(),
+          //         },
+          //         Params: {
+          //           detected_text: response2.result.text,
+          //           result_trocr: JSON.stringify(response2.result),
+          //         },
+          //         Headers: {
+          //           Authorization: "Bearer " + token,
+          //         },
+          //       });
 
-                if (response3.status !== 200) {
-                  // triggerToast("error");
-                  console.log(response);
-                  return;
-                }
+          //       if (response3.status !== 200) {
+          //         // triggerToast("error");
+          //         console.log(response);
+          //         return;
+          //       }
 
-                console.log("ayam", response3);
-              }
-            }
-          }
+          //       console.log("ayam", response3);
+          //     }
+          //   }
+          // }
 
           data = {
             id: documentData.id,

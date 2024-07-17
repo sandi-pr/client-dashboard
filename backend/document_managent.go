@@ -120,6 +120,8 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters documents")
 	}
 
+	datas := []U.Dict{}
+
 	for _, document := range documents.([]interface{}) {
 
 		documentBase64, ok := document.(map[string]interface{})["base64"].(string)
@@ -171,7 +173,7 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		status, document, err := Strapi.Create("document-management-table", U.Dict{
+		status, documents, err := Strapi.Create("document-management-table", U.Dict{
 			"document_title": documentName,
 			"description":    "-",
 			"document_type":  document_type,
@@ -179,9 +181,10 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			"collection_id":  collection_id,
 			"upload_by":      upload_by,
 			"file_size":      file_size,
+			"edited":         false,
 		})
 
-		fmt.Println("document", document)
+		fmt.Println("document", documents)
 
 		if err != nil {
 			return ctx.Error(500, "Internal Server Error")
@@ -197,9 +200,16 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 				"Authorization": bearer,
 			},
 		}, false)
+
+		result, ok := documents.GetDict("data")
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		datas = append(datas, result)
 	}
 
-	return 200, U.Dict{}, nil
+	return 200, U.Dict{"data": datas}, nil
 
 	// document, err := base64.StdEncoding.DecodeString(string(documentBase64))
 	// if err != nil {

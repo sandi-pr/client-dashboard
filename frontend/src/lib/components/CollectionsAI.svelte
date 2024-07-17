@@ -15,13 +15,12 @@
   import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
-  import { triggerToast } from "$lib";
+  import { triggerToast, selectedCollection } from "$lib";
 
   const plugins = [gfmPlugin()];
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let { selectedCollection = $bindable() } = $props();
   let selectedCollectionOld = $state("");
 
   let statusRAG = $state("");
@@ -140,14 +139,14 @@
       messageInput = "";
 
       let conversationIdCollection = sessionStorage.getItem(
-        "conversationIdCollection-" + selectedCollection.id.toString(),
+        "conversationIdCollection-" + $selectedCollection.id.toString(),
       );
 
       try {
         let chat = await call.call("hexa-ai-rag", "chat", {
           URLQuery: {},
           URLParams: {
-            collection_id: selectedCollection.id.toString(),
+            collection_id: $selectedCollection.id.toString(),
             conversation_id: conversationIdCollection,
           },
           Params: {
@@ -189,7 +188,7 @@
     }
 
     let conversationIdCollection = sessionStorage.getItem(
-      "conversationIdCollection-" + selectedCollection.id.toString(),
+      "conversationIdCollection-" + $selectedCollection.id.toString(),
     );
 
     let token = sessionStorage.getItem("token");
@@ -198,7 +197,7 @@
       URLQuery: {},
       URLParams: {},
       Params: {
-        collection_id: selectedCollection.id.toString(),
+        collection_id: $selectedCollection.id.toString(),
       },
       Headers: {
         Authorization: "Bearer " + token,
@@ -217,7 +216,7 @@
         let chat = await call.call("hexa-ai-rag", "get-messages", {
           URLQuery: {},
           URLParams: {
-            collection_id: selectedCollection.id.toString(),
+            collection_id: $selectedCollection.id.toString(),
             conversation_id: conversationIdCollection,
           },
           Params: {},
@@ -245,7 +244,7 @@
           URLQuery: {},
           URLParams: {},
           Params: {
-            collection_id: parseInt(selectedCollection.id.toString()),
+            collection_id: parseInt($selectedCollection.id.toString()),
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -257,7 +256,7 @@
         if (createConversationResponse.status === 200) {
           conversationIdCollection = createConversationResponse.result.conversation_id;
           sessionStorage.setItem(
-            "conversationIdCollection-" + selectedCollection.id.toString(),
+            "conversationIdCollection-" + $selectedCollection.id.toString(),
             conversationIdCollection,
           );
 
@@ -438,10 +437,10 @@
   // });
 
   $effect(() => {
-    if (selectedCollection) {
-      if (selectedCollection !== selectedCollectionOld || selectedCollectionOld === "") {
-        if (selectedCollection !== null) {
-          selectedCollectionOld = selectedCollection;
+    if ($selectedCollection) {
+      if ($selectedCollection !== selectedCollectionOld || selectedCollectionOld === "") {
+        if ($selectedCollection !== null) {
+          selectedCollectionOld = $selectedCollection;
           getMessage();
         }
       }
