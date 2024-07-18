@@ -213,6 +213,16 @@
             "name": "hexabot-overview",
             "path": "/hexabot",
             "file_path": "template/hexabot.html"
+        },
+        {
+            "name": "job-management",
+            "path": "/job_management",
+            "file_path": "template/job_management.html"
+        },
+        {
+            "name": "job-management-position-detail",
+            "path": "/job_management/position/detail",
+            "file_path": "template/job_management/position/detail.html"
         }
     ],
     "apis": [

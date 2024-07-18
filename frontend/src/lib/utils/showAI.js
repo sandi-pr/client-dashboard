@@ -12,8 +12,8 @@ import { writable } from 'svelte/store';
 
 export const showAI = writable(false);
 
-export function triggerShowAI(loading) {
-  if (loading) {
+export function triggerShowAI(show) {
+  if (show) {
     showAI.set(true);
   } else {
     showAI.set(false);

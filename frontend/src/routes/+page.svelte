@@ -38,7 +38,7 @@ All Rights Reserved
       icon: "fileShield",
       title: "documentCollection",
       description: "documentCollection",
-      page: "document-collection",
+      page: "document-collection-overview",
     },
     {
       icon: "userSquare",

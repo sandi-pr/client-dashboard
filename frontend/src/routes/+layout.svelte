@@ -95,7 +95,7 @@ All Rights Reserved
     triggerShowAI(!$showAI);
     console.log($showAI);
     // isShowAI = !isShowAI;
-    localStorage.setItem("showAI", `${!$showAI}`);
+    localStorage.setItem("showAI", $showAI ? "true" : "false");
   };
 
   const getModules = async () => {

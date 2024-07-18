@@ -11,9 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Alert, Modal } from "flowbite-svelte";
-  import {
-    ChevronDownOutline,
-  } from "flowbite-svelte-icons";
+  import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { ToastContainer, triggerToast, StateCard, Typography } from "$lib";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
@@ -105,7 +103,7 @@ All Rights Reserved
             Headers: {
               Authorization: "Bearer " + token,
             },
-          })
+          });
 
           console.log(response);
 
@@ -306,9 +304,7 @@ All Rights Reserved
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- Header -->
-      <div
-        class="flex items-center pb-4"
-      >
+      <div class="flex items-center pb-4">
         <div class="flex flex-col gap-2 grow">
           <!-- Header -->
           <div class="gap-2">
@@ -321,7 +317,11 @@ All Rights Reserved
           </div>
         </div>
         <div class="flex gap-2">
-          <Button class="px-3 focus-within:!ring-1" disabled={buttonDisable} on:click={saveJobLevels}>{$_("save")}</Button>
+          <Button
+            class="px-3 focus-within:!ring-1"
+            disabled={buttonDisable}
+            on:click={saveJobLevels}>{$_("save")}</Button
+          >
           <!-- <Button class="px-3 focus-within:!ring-1">{$_("importCsv")}</Button> -->
         </div>
       </div>
@@ -330,90 +330,75 @@ All Rights Reserved
       <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
       {#if tabDatas.selected === "JobLevel"}
-      <div class="flex gap-6 pt-8">
-        <div class="w-60 space-y-2">
-          <div>
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
-              {$_("newJobLevel")}
-            </P>
-            <P class="text-secondary-light dark:text-secondary-dark">
-              {$_("adjust&MoveOrderByDragging")}
-            </P>
+        <div class="flex gap-6 pt-8">
+          <div class="w-60 space-y-2">
+            <div>
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                {$_("newJobLevel")}
+              </P>
+              <P class="text-secondary-light dark:text-secondary-dark">
+                {$_("adjust&MoveOrderByDragging")}
+              </P>
+            </div>
+            <Input bind:value={tmpJobLevel} class="bg-primary-light dark:bg-secondary-dark" />
+            <Button color="light" on:click={addJobLevel}>{$_("add")}</Button>
           </div>
-          <Input
-            bind:value={tmpJobLevel}
-            class="bg-primary-light dark:bg-secondary-dark"
-          />
-          <Button color="light" on:click={addJobLevel}>{$_("add")}</Button>
-        </div>
-        <div class="flex flex-col grow gap-6">
-          {#if jobLevels.length > 0}
-            <div
-              class="bg-secondary-light dark:bg-secondary-dark rounded-lg py-10 pl-4"
-            >
-              <div
-                use:dndzone={{ items: jobLevels, flipDurationMs: 150 }}
-                onconsider={handleDndConsider}
-                onfinalize={handleDndFinalize}
-                class="flex flex-col gap-4"
-              >
-                {#each jobLevels as job (job.id)}
-                  <div
-                    class="px-4 py-2 bg-white dark:bg-tertiary-dark rounded-lg backdrop-blur-[26px] justify-between items-center flex w-2/5"
-                  >
+          <div class="flex flex-col grow gap-6">
+            {#if jobLevels.length > 0}
+              <div class="bg-secondary-light dark:bg-secondary-dark rounded-lg py-10 pl-4">
+                <div
+                  use:dndzone={{ items: jobLevels, flipDurationMs: 150 }}
+                  onconsider={handleDndConsider}
+                  onfinalize={handleDndFinalize}
+                  class="flex flex-col gap-4"
+                >
+                  {#each jobLevels as job (job.id)}
                     <div
-                      class="min-w-[172px] self-stretch items-center gap-4 flex"
+                      class="px-4 py-2 bg-white dark:bg-tertiary-dark rounded-lg backdrop-blur-[26px] justify-between items-center flex w-2/5"
                     >
-                      <DotsGridIcon
-                        class="w-6 h-6 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-                      />
-                      <P size="lg" weight="semibold">{job.title}</P>
+                      <div class="min-w-[172px] self-stretch items-center gap-4 flex">
+                        <DotsGridIcon
+                          class="w-6 h-6 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                        />
+                        <P size="lg" weight="semibold">{job.title}</P>
+                      </div>
+                      <Button on:click={() => deleteJobLevel(job.id)} color="light" class="w-max"
+                        >{$_("delete")}</Button
+                      >
                     </div>
-                    <Button
-                      on:click={() => deleteJobLevel(job.id)}
-                      color="light"
-                      class="w-max">{$_("delete")}</Button
-                    >
-                  </div>
-                {/each}
+                  {/each}
+                </div>
               </div>
+            {:else}
+              <div class="pt-8">
+                <StateCard
+                  illustration={IllustrationEmpty}
+                  description={$_("youDontHaveAnyDataYet")}
+                />
+              </div>
+            {/if}
+          </div>
+        </div>
+      {:else if tabDatas.selected === "JobPosition"}
+        <div class="pt-6">
+          {#if datas.length > 0}
+            <div>
+              <div class="flex justify-between">
+                <Heading
+                  tag="h6"
+                  class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
+                  >{$_("jobPositionsList")}</Heading
+                >
+                <Button class="w-max" on:click={() => (addPositionsModal = true)} color="light">
+                  {$_("addNewPosition")}
+                </Button>
+              </div>
+              <DataTable bind:datas bind:configs bind:next bind:previous />
             </div>
           {:else}
-            <div class="pt-8">
-              <StateCard
-                illustration={IllustrationEmpty}
-                description={$_("youDontHaveAnyDataYet")}
-              />
-            </div>
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}
         </div>
-      </div>
-      {:else if tabDatas.selected === "JobPosition"}
-      <div class="pt-6">
-        {#if datas.length > 0}
-          <div>
-            <div class="flex justify-between">
-              <Heading
-                tag="h6"
-                class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-                >{$_("jobPositionsList")}</Heading
-              >
-              <Button
-                class="w-max"
-                on:click={() => (addPositionsModal = true)}
-                color="light"
-              >
-                {$_("addNewPosition")}
-              </Button>
-            </div>
-            <DataTable bind:datas bind:configs bind:next bind:previous />
-          </div>
-        {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-        {/if}
-      </div>
       {/if}
     </div>
   </div>
@@ -438,14 +423,14 @@ All Rights Reserved
         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
           {#if jobLevels.length > 0}
             {#each jobLevels as job (job.id)}
-            <button
-              class="flex p-2"
-              onclick={() => {
-                selectedJobLevel = job.title;
-              }}>{job.title}</button
-            >
+              <button
+                class="flex p-2"
+                onclick={() => {
+                  selectedJobLevel = job.title;
+                }}>{job.title}</button
+              >
             {/each}
-            {:else}
+          {:else}
             <Alert color="yellow">
               {$_("pleaseAddJobLevelsFirst")}
             </Alert>
