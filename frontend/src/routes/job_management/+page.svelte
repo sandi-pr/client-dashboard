@@ -163,7 +163,7 @@ All Rights Reserved
 
       console.log("response", response);
 
-      if (response.result.data.length > 0) {
+      if (response.result.data !== null) {
         configs = {
           search: true,
         };
