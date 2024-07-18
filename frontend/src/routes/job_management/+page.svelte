@@ -205,14 +205,13 @@ All Rights Reserved
   async function createJobPosition() {
     let token = sessionStorage.getItem("token");
     if (token) {
+      datas.push({ id: Date.now(), job_position: tmpJobPosition, job_level: selectedJobLevel });
       try {
         const response = await call.call("client-dashboard", "save-job-position", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            job_position: JSON.stringify([
-              { id: Date.now(), job_position: tmpJobPosition, job_level: selectedJobLevel },
-            ]),
+            job_position: JSON.stringify(datas),
           },
           Headers: {
             Authorization: "Bearer " + token,
