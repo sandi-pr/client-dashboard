@@ -18,7 +18,7 @@ All Rights Reserved
   import { fly } from "svelte/transition";
   import { createEventDispatcher, onMount } from "svelte";
   import { goto } from "$app/navigation";
- 
+
   const dispatch = createEventDispatcher();
 
   import { CR3Call } from "hexacomponents-svelte";
@@ -36,6 +36,7 @@ All Rights Reserved
     state: "",
     zip_code: "",
     is_active: "Yes",
+    job_level: "",
     job_position: "",
     branch: "",
     employment_status: "",
@@ -48,6 +49,8 @@ All Rights Reserved
   let buttonDisable = $state(true);
 
   let jobLevels = $state([]);
+  let tmpJobPositions = $state([]);
+  let jobPositions = $state([]);
 
   function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -79,6 +82,7 @@ All Rights Reserved
           state: data.state,
           zip_code: data.zip_code.toString(),
           is_active: data.is_active,
+          job_level: data.job_level,
           job_position: data.job_position,
           branch: data.branch,
           employment_status: data.employment_status,
@@ -94,7 +98,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("created");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "hr-employee"));
+        goto(await call.getPage("client-dashboard", "hr-employee"));
         // }, 3000);
         return;
       } else {
@@ -138,9 +142,36 @@ All Rights Reserved
     }
   }
 
+  async function getJobPositions() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-position", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          let promise = response.result.data.map((job) => {
+            return { name: job.job_position, value: job.job_position };
+          });
+          tmpJobPositions = await Promise.all(promise);
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
   onMount(async () => {
     getJobLevels();
-  })
+    getJobPositions();
+  });
 
   $effect(() => {
     buttonDisable =
@@ -153,12 +184,19 @@ All Rights Reserved
       data.city.length < 1 ||
       data.state.length < 1 ||
       data.zip_code.length < 1 ||
+      data.job_level.length < 1 ||
       data.job_position.length < 1 ||
       data.branch.length < 1 ||
       data.employment_status.length < 1 ||
       data.start_date.length < 1 ||
       data.end_date.length < 1 ||
       emailValid === false;
+  });
+
+  $effect(() => {
+    if (data.job_level !== "") {
+      jobPositions = tmpJobPositions.filter((job) => job.job_level === data.job_level);
+    }
   });
 
   // let dropdownOpen = false;
@@ -209,7 +247,10 @@ All Rights Reserved
                 >
                   {$_("employeeName")}*
                 </P>
-                <Input bind:value={data.employee_name} class="bg-primary-light dark:bg-secondary-dark" />
+                <Input
+                  bind:value={data.employee_name}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
               </div>
               <!-- <div class="flex flex-col gap-2">
                 <P
@@ -321,13 +362,24 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("jobLevel")}*</P
+                >
+                <Select
+                  class="bg-primary-light dark:bg-secondary-dark"
+                  items={jobLevels}
+                  bind:value={data.job_level}
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("jobPosition")}*</P
                 >
                 <Select
-                    class="bg-primary-light dark:bg-secondary-dark"
-                    items={jobLevels}
-                    bind:value={data.job_position}
-                  />
+                  class="bg-primary-light dark:bg-secondary-dark"
+                  items={jobPositions}
+                  bind:value={data.job_position}
+                />
               </div>
               <div class="flex flex-col gap-2">
                 <P
@@ -341,7 +393,10 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("employmentStatus")}*</P
                 >
-                <Input bind:value={data.employment_status} class="bg-primary-light dark:bg-secondary-dark" />
+                <Input
+                  bind:value={data.employment_status}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-5">

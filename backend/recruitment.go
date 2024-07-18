@@ -66,6 +66,11 @@ func CreateRecruitment(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 		return ctx.Error(400, "invalid parameters address")
 	}
 
+	job_level, ok := ctx.Params.GetString("job_level")
+	if !ok {
+		return ctx.Error(400, "invalid parameters job_level")
+	}
+
 	job_position, ok := ctx.Params.GetString("job_position")
 	if !ok {
 		return ctx.Error(400, "invalid parameters job_position")
@@ -138,6 +143,7 @@ func CreateRecruitment(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 		"email":             email,
 		"phone":             phone,
 		"address":           address,
+		"job_level":         job_level,
 		"job_position":      job_position,
 		"education_history": education_history,
 		"skills":            skills,
@@ -444,6 +450,11 @@ func UpdateRecruitment(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 		return ctx.Error(400, "invalid parameters address")
 	}
 
+	job_level, ok := ctx.Params.GetString("job_level")
+	if !ok {
+		return ctx.Error(400, "invalid parameters job_level")
+	}
+
 	job_position, ok := ctx.Params.GetString("job_position")
 	if !ok {
 		return ctx.Error(400, "invalid parameters job_position")
@@ -469,6 +480,7 @@ func UpdateRecruitment(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 		"email":             email,
 		"phone":             phone,
 		"address":           address,
+		"job_level":         job_level,
 		"job_position":      job_position,
 		"education_history": education_history,
 		"skills":            skills,

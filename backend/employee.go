@@ -96,6 +96,12 @@ func CreateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters date_of_birth")
 	}
 
+	job_level, ok := ctx.Params.GetString("job_level")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters job_level")
+	}
+
 	job_position, ok := ctx.Params.GetString("job_position")
 
 	if !ok {
@@ -136,6 +142,7 @@ func CreateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		"zip_code":          zip_code,
 		"country":           country,
 		"date_of_birth":     date_of_birth,
+		"job_level":         job_level,
 		"job_position":      job_position,
 		"branch":            branch,
 		"employment_status": employment_status,
@@ -459,6 +466,12 @@ func UpdateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	job_level, ok := ctx.Params.GetString("job_level")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
 	job_position, ok := ctx.Params.GetString("job_position")
 
 	if !ok {
@@ -505,6 +518,7 @@ func UpdateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		"country":           country,
 		"date_of_birth":     date_of_birth,
 		"zip_code":          zip_code,
+		"job_level":         job_level,
 		"job_position":      job_position,
 		"branch":            branch,
 		"employment_status": employment_status,

@@ -1666,6 +1666,11 @@
                     "required": true
                 },
                 {
+                    "name": "job_level",
+                    "type": "text",
+                    "required": true
+                },
+                {
                     "name": "job_position",
                     "type": "text",
                     "required": true
@@ -1822,6 +1827,11 @@
                     "required": true
                 },
                 {
+                    "name": "job_level",
+                    "type": "text",
+                    "required": true
+                },
+                {
                     "name": "job_position",
                     "type": "text",
                     "required": true
@@ -1947,6 +1957,11 @@
                     "required": true
                 },
                 {
+                    "name": "job_level",
+                    "type": "string",
+                    "required": true
+                },
+                {
                     "name": "job_position",
                     "type": "string",
                     "required": true
@@ -2052,6 +2067,11 @@
                 },
                 {
                     "name": "address",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "job_level",
                     "type": "string",
                     "required": true
                 },
