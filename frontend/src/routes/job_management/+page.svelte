@@ -22,6 +22,7 @@ All Rights Reserved
   import TabDetail from "$lib/components/TabDetail.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { CR3Call } from "hexacomponents-svelte";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -39,6 +40,7 @@ All Rights Reserved
   let addPositionsModal = $state(false);
   let editPositionModal = $state(false);
   let dropdownOpen = $state(false);
+  let deleteModal = $state(false);
 
   let selectedJobLevel = $state("");
 
@@ -185,7 +187,8 @@ All Rights Reserved
                 },
                 {
                   onclick: () => {
-                    console.log("delete");
+                    deleteModal = true;
+                    tmpIdPosition = position.id;
                   },
                   name: "Delete",
                 },
@@ -219,6 +222,7 @@ All Rights Reserved
         if (response.status === 200) {
           tmpJobPosition = "";
           selectedJobLevel = "";
+          addPositionsModal = false;
           getPositions();
           triggerToast("created");
           return;
@@ -247,7 +251,7 @@ All Rights Reserved
       try {
         const response = await call.call("client-dashboard", "save-job-position", {
           URLQuery: {},
-          URLParams: { id: positionId },
+          URLParams: {},
           Params: {
             job_position: JSON.stringify(datas),
           },
@@ -260,8 +264,41 @@ All Rights Reserved
           tmpIdPosition = "";
           tmpJobPosition = "";
           selectedJobLevel = "";
+          editPositionModal = false;
           getPositions();
           triggerToast("updated");
+          return;
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
+  async function deleteJobPosition() {
+    datas = datas.filter((data) => data.id !== tmpIdPosition);
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "save-job-position", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            job_position: JSON.stringify(datas),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          tmpIdPosition = "";
+          tmpJobPosition = "";
+          selectedJobLevel = "";
+          deleteModal = false;
+          getPositions();
+          triggerToast("deleted");
           return;
         }
       } catch (error) {
@@ -425,6 +462,7 @@ All Rights Reserved
                 class="flex p-2"
                 onclick={() => {
                   selectedJobLevel = job.title;
+                  dropdownOpen = false;
                 }}>{job.title}</button
               >
             {/each}
@@ -470,6 +508,7 @@ All Rights Reserved
                 class="flex p-2"
                 onclick={() => {
                   selectedJobLevel = job.title;
+                  dropdownOpen = false;
                 }}>{job.title}</button
               >
             {/each}
@@ -491,4 +530,15 @@ All Rights Reserved
       >{$_("editPosition")}</Button
     >
   </svelte:fragment>
+</Modal>
+
+<Modal bind:open={deleteModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteJobPosition} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
+  </div>
 </Modal>

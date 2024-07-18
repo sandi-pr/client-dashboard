@@ -334,7 +334,8 @@ All Rights Reserved
         return;
       }
 
-      console.log(response);
+      files = [];
+
       addDocumentsModal = false;
       getDocuments(pagination.page);
       triggerLoading(false);

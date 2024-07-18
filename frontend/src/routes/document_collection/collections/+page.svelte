@@ -462,6 +462,8 @@ All Rights Reserved
         console.log(error);
       }
 
+      files = [];
+
       tmpCollectionId = "";
       getCollections();
       triggerLoading(false);
