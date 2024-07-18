@@ -20,7 +20,7 @@ import (
 	"gitlab.hexacode.org/go-libs/strapi"
 )
 
-func CreateJobPosition(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+func SaveJobPosition(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
 	if !bearer_ok {
@@ -122,7 +122,7 @@ func GetJobPosition(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 	fmt.Println(company)
 
-	company_job_Position := company["data"].(U.Dict)["attributes"].(U.Dict)["company_job_position"].(U.List)
+	company_job_Position := company["data"].(U.Dict)["attributes"].(U.Dict)["company_job_position"]
 
-	return 200, U.Dict{"job_position": company_job_Position}, nil
+	return 200, U.Dict{"data": company_job_Position}, nil
 }

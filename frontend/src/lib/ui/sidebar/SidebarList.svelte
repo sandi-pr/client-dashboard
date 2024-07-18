@@ -89,15 +89,14 @@
 
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
-    
+
     hrefUser = isFrontend ? "/users" : await call.getPage("client-dashboard", "users");
-    hrefJobLevels = isFrontend ? "/job_management" : await call.getPage("client-dashboard", "job_management");
-    
+    hrefJobLevels = isFrontend
+      ? "/job_management"
+      : await call.getPage("client-dashboard", "job-management");
+
     let home = await call.getPage("client-dashboard", "home-page");
-    sidebarItems = [
-      { name: "home", href: home, icon: "home", children: [] },
-      ...sidebarAddition,
-    ];
+    sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
 
     // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
     let isOpenSession = JSON.parse(sessionStorage.getItem("isOpen"));
@@ -136,10 +135,7 @@
           <!-- <CloseButton on:click={funcButton} class="dark:text-white" /> -->
         {/if}
       </div>
-      <Search
-        placeholder={$_("search")}
-        class="bg-white dark:bg-primary-dark mb-6"
-      />
+      <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark mb-6" />
       <!-- TODO Search component belom kelar -->
       {#each sidebarItems as item}
         {#if item.children.length > 0}
@@ -205,21 +201,11 @@
             aria-labelledby="dropdownDefaultButton"
           >
             <div class="flex pb-3 justify-between rounded-lg border-b">
-              <div
-                class="flex w-full h-full space-x-4 items-center cursor-pointer"
-              >
+              <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
                 <Avatar />
                 <div class="grow">
-                  <Typography
-                    preset="Text md/Semibold"
-                    text={name}
-                    color="secondary"
-                  />
-                  <Typography
-                    preset="Text sm/Regular"
-                    text={email}
-                    color="tertiary"
-                  />
+                  <Typography preset="Text md/Semibold" text={name} color="secondary" />
+                  <Typography preset="Text sm/Regular" text={email} color="tertiary" />
                 </div>
               </div>
               <Button
@@ -232,33 +218,25 @@
                 />
               </Button>
             </div>
-            <SidebarDropdownWrapper ulClass="py-0 space-y-0" spanClass="flex-1 ms-0 text-left whitespace-nowrap" label={$_("manage")}>
+            <SidebarDropdownWrapper
+              ulClass="py-0 space-y-0"
+              spanClass="flex-1 ms-0 text-left whitespace-nowrap"
+              label={$_("manage")}
+            >
               <svelte:fragment slot="icon">
                 <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
               </svelte:fragment>
-              <SidebarDropdownItem 
-                href={hrefUser}
-                class="!ps-14"
-                label={$_("users")} 
-                
-              />
-              <SidebarDropdownItem 
-                href={hrefJobLevels}
-                class="!ps-14"
-                label={$_("job")} 
-              />
+              <SidebarDropdownItem href={hrefUser} class="!ps-14" label={$_("users")} />
+              <SidebarDropdownItem href={hrefJobLevels} class="!ps-14" label={$_("job")} />
             </SidebarDropdownWrapper>
             <button
               onclick={async () => {
-                if (!isFrontend)
-                  goto(await call.getPage("client-dashboard", "settings"));
+                if (!isFrontend) goto(await call.getPage("client-dashboard", "settings"));
                 else goto("/settings");
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
-              <CogOutline
-                class="size-6 mr-4 text-secondary-light dark:text-secondary-dark"
-              />
+              <CogOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
               <Typography
                 preset="Text md/Regular"
                 propClass="text-base font-normal"
@@ -276,21 +254,11 @@
               dropdownUser = !dropdownUser;
             }}
           >
-            <div
-              class="flex w-full h-full space-x-4 items-center cursor-pointer"
-            >
+            <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
               <Avatar />
               <div class="grow">
-                <Typography
-                  preset="Text md/Semibold"
-                  text={name}
-                  color="secondary"
-                />
-                <Typography
-                  preset="Text sm/Regular"
-                  text={email}
-                  color="tertiary"
-                />
+                <Typography preset="Text md/Semibold" text={name} color="secondary" />
+                <Typography preset="Text sm/Regular" text={email} color="tertiary" />
               </div>
             </div>
             <Button

@@ -25,6 +25,7 @@ All Rights Reserved
 
   const call = new CR3Call(globalThis.location.origin);
 
+  let tmpIdPosition = $state("");
   let tmpJobLevel = $state("");
   let tmpJobPosition = $state("");
 
@@ -36,6 +37,7 @@ All Rights Reserved
   let pagination = $state({ page: 1, pageSize: 5, pageCount: 1, total: 0 });
 
   let addPositionsModal = $state(false);
+  let editPositionModal = $state(false);
   let dropdownOpen = $state(false);
 
   let selectedJobLevel = $state("");
@@ -141,141 +143,132 @@ All Rights Reserved
     }
   }
 
-  function addJobPosition() {}
-
   async function getPositions(page) {
-    // if (page > pagination.pageCount) return;
-    // let token = sessionStorage.getItem("token");
-    // if (token !== null) {
-    //   let response = await call.call("client-dashboard", "get-positions", {
-    //     URLQuery: {},
-    //     URLParams: {},
-    //     Params: {
-    //       page: page,
-    //       page_size: pagination.pageSize,
-    //     },
-    //     Headers: {
-    //       Authorization: "Bearer " + token,
-    //     },
-    //   });
+    if (page > pagination.pageCount) return;
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await call.call("client-dashboard", "get-job-position", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-    //   if (response.status !== 200) {
-    //     console.log(response);
-    //     return;
-    //   }
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
 
-    //   if (response.result.data.length > 0) {
-    //     pagination = response.result.meta.pagination;
-    //     configs = {
-    //       search: true,
-    //       pagination: response.result.meta.pagination,
-    //     };
-    //     let promises2 = response.result.data.map(async (position, index) => {
-    //       return {
-    //         id: position.id,
-    //         join_date: position.attributes.start_date,
-    //         employee_name: position.attributes.employee_name,
-    //         email: position.attributes.email,
-    //         job_position: position.attributes.job_position,
-    //         job_level: position.attributes.job_level,
-    //         actions: {
-    //           objects: [
-    //             {
-    //               href:
-    //                 `${await call.getPage("client-dashboard", "hr-position-detail")}` +
-    //                 `?employeeId=${position.id}&edit=false`,
-    //               name: "View",
-    //             },
-    //             {
-    //               href:
-    //                 `${await call.getPage("client-dashboard", "hr-position-detail")}` +
-    //                 "?employeeId=" +
-    //                 position.id +
-    //                 "&edit=true",
-    //               name: "Edit",
-    //             },
-    //           ],
-    //         },
-    //       };
-    //     });
+      console.log("response", response);
 
-    //     datas = await Promise.all(promises2);
-    //   }
-    // }
-    datas = [
-      {
-        id: 1,
-        position_id: 1,
-        job_position: "Software Engineer",
-        job_level: "Junior",
-        actions: {
-          objects: [
-            {
-              href: `localhost:3000/hr/job_position/detail?positionId=1&edit=false`,
-              name: "View",
+      if (response.result.data.length > 0) {
+        configs = {
+          search: true,
+        };
+        let promises2 = response.result.data.map(async (position) => {
+          return {
+            id: position.id,
+            job_position: position.job_position,
+            job_level: position.job_level,
+            actions: {
+              objects: [
+                {
+                  onclick: () => {
+                    tmpIdPosition = position.id;
+                    selectedJobLevel = position.job_level;
+                    tmpJobPosition = position.job_position;
+                    editPositionModal = true;
+                  },
+                  name: "Edit",
+                },
+                {
+                  onclick: () => {
+                    console.log("delete");
+                  },
+                  name: "Delete",
+                },
+              ],
             },
-            {
-              href: `localhost:3000/hr/job_position/detail?positionId=1&edit=true`,
-              name: "Edit",
-            },
-          ],
-        },
-      },
-      {
-        id: 2,
-        position_id: 2,
-        job_position: "Software Engineer",
-        job_level: "Senior",
-        actions: {
-          objects: [
-            {
-              href: `localhost:3000/hr/job_position/detail?positionId=2&edit=false`,
-              name: "View",
-            },
-            {
-              href: `localhost:3000/hr/job_position/detail?positionId=2&edit=true`,
-              name: "Edit",
-            },
-          ],
-        },
-      },
-      {
-        id: 3,
-        position_id: 3,
-        job_position: "Marketing Manager",
-        job_level: "Manager",
-        actions: {
-          objects: [
-            {
-              href: `localhost:3000/hr/job_position/detail?positionId=3&edit=false`,
-              name: "View",
-            },
-            {
-              href: `localhost:3000/hr/job_position/detail?positionId=3&edit=true`,
-              name: "Edit",
-            },
-          ],
-        },
-      },
-      {
-        id: 4,
-        position_id: 4,
-        job_position: "Marketing Manager",
-        job_level: "Manager",
-        actions: {
-          objects: [
-            {
-              href: `localhost:3000/hr/job_position/detail?positionId=4&edit=false`,
-              name: "View",
-            },
-            {
-              href: `localhost:3000/hr/job_position/detail?positionId=4&edit=true`,
-              name: "Edit",
-            },
-          ],
-        },
-      },
-    ];
+          };
+        });
+
+        datas = await Promise.all(promises2);
+      }
+    }
+  }
+
+  async function createJobPosition() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "save-job-position", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            job_position: JSON.stringify([
+              { id: Date.now(), job_position: tmpJobPosition, job_level: selectedJobLevel },
+            ]),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          tmpJobPosition = "";
+          selectedJobLevel = "";
+          getPositions();
+          triggerToast("created");
+          return;
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
+  async function editJobPosition() {
+    datas = datas.map((data) => {
+      if (data.id === tmpIdPosition) {
+        return {
+          id: data.id,
+          job_position: tmpJobPosition,
+          job_level: selectedJobLevel,
+        };
+      } else {
+        return data;
+      }
+    });
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "save-job-position", {
+          URLQuery: {},
+          URLParams: { id: positionId },
+          Params: {
+            job_position: JSON.stringify(datas),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          tmpIdPosition = "";
+          tmpJobPosition = "";
+          selectedJobLevel = "";
+          getPositions();
+          triggerToast("updated");
+          return;
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
   }
 
   async function next() {
@@ -296,7 +289,7 @@ All Rights Reserved
 
   onMount(async () => {
     getJobLevels();
-    getPositions(pagination.page);
+    getPositions();
   });
 </script>
 
@@ -396,7 +389,12 @@ All Rights Reserved
               <DataTable bind:datas bind:configs bind:next bind:previous />
             </div>
           {:else}
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+              actionText={$_("addNewPosition")}
+              funcButton={() => (addPositionsModal = true)}
+            />
           {/if}
         </div>
       {/if}
@@ -444,8 +442,53 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={addJobPosition} disabled={buttonDisabled} class="w-full"
+    <Button onclick={createJobPosition} disabled={buttonDisabled} class="w-full"
       >{$_("addNewPosition")}</Button
+    >
+  </svelte:fragment>
+</Modal>
+
+<Modal title={$_("editPosition")} bind:open={editPositionModal} size="xs">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5 relative">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("jobLevel")}*`} />
+      <Button
+        color="light"
+        class="flex justify-between"
+        on:click={() => (dropdownOpen = !dropdownOpen)}
+      >
+        {`${selectedJobLevel ? selectedJobLevel : $_("selectJobLevel")}`}
+        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
+      </Button>
+      <div
+        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+      >
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+          {#if jobLevels.length > 0}
+            {#each jobLevels as job (job.id)}
+              <button
+                class="flex p-2"
+                onclick={() => {
+                  selectedJobLevel = job.title;
+                }}>{job.title}</button
+              >
+            {/each}
+          {:else}
+            <Alert color="yellow">
+              {$_("pleaseAddJobLevelsFirst")}
+            </Alert>
+          {/if}
+        </ul>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("positionName")}*`} />
+      <Input bind:value={tmpJobPosition} placeholder={$_("placeholderPositionName")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={editJobPosition} disabled={buttonDisabled} class="w-full"
+      >{$_("editPosition")}</Button
     >
   </svelte:fragment>
 </Modal>

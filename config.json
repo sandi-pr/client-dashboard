@@ -218,11 +218,6 @@
             "name": "job-management",
             "path": "/job_management",
             "file_path": "template/job_management.html"
-        },
-        {
-            "name": "job-management-position-detail",
-            "path": "/job_management/position/detail",
-            "file_path": "template/job_management/position/detail.html"
         }
     ],
     "apis": [
@@ -1892,14 +1887,14 @@
             }
         },
         {
-            "name": "create-job-position",
-            "path": "/create-job-position",
+            "name": "save-job-position",
+            "path": "/save-job-position",
             "method": "POST",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
                 "plugin": "plugin.so",
-                "function": "CreateJobPosition"
+                "function": "SaveJobPosition"
             },
             "params": [
                 {

@@ -202,29 +202,33 @@ All Rights Reserved
     // search collection using params collectionId here
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-collection-by-id", {
-        URLQuery: {},
-        URLParams: {
-          id: collectionId.toString(),
-        },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (response.status !== 200) {
-        console.log(response);
-        return;
-      }
+      try {
+        let response = await call.call("client-dashboard", "get-collection-by-id", {
+          URLQuery: {},
+          URLParams: {
+            id: collectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
 
-      collection = {
-        id: response.result.data.id,
-        name: response.result.data.attributes.collection_name,
-        createdAt: formatDistanceToNow(response.result.data.attributes.createdAt, {
-          addSuffix: true,
-        }),
-        description: response.result.data.attributes.description,
-      };
+        collection = {
+          id: response.result.data.id,
+          name: response.result.data.attributes.collection_name,
+          createdAt: formatDistanceToNow(response.result.data.attributes.createdAt, {
+            addSuffix: true,
+          }),
+          description: response.result.data.attributes.description,
+        };
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 
@@ -232,79 +236,55 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
-      triggerLoading(true);
-      let response = await call.call("client-dashboard", "create-document", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          documents: JSON.stringify(files),
-          collection_id: collectionId,
-          document_type: tmpDocumentType,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      try {
+        triggerLoading(true);
+        let response = await call.call("client-dashboard", "create-document", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            documents: JSON.stringify(files),
+            collection_id: collectionId,
+            document_type: tmpDocumentType,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      if (response.status !== 200) {
-        console.log(response);
-        triggerToast("error");
-        triggerLoading(false);
-        return;
-      }
+        if (response.status !== 200) {
+          console.log(response);
+          triggerToast("error");
+          triggerLoading(false);
+          return;
+        }
 
-      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: collectionId.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+        let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_id: collectionId.toString(),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      if (response2.status !== 200) {
+        if (response2.status !== 200) {
+          console.log(response2);
+          triggerToast("error");
+          triggerLoading(false);
+          return;
+        }
+
         console.log(response2);
-        triggerToast("error");
-        triggerLoading(false);
-        return;
-      }
 
-      console.log(response2);
-
-      if (tmpDocumentType === "Handwriting") {
-        for (let i = 0; i < files.length; i++) {
-          let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              image: files[i].base64,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response3.status !== 200) {
-            triggerToast("error");
-            triggerLoading(false);
-            console.log(response3);
-            return;
-          }
-
-          console.log("trocr-predict", response3);
-
-          if (response3?.result?.text !== null) {
-            const response4 = await call.call("client-dashboard", "update-document", {
+        if (tmpDocumentType === "Handwriting") {
+          for (let i = 0; i < files.length; i++) {
+            let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
               URLQuery: {},
-              URLParams: {
-                id: response.result.data[i].id.toString(),
-              },
+              URLParams: {},
               Params: {
-                detected_text: response3.result.text,
-                result_trocr: JSON.stringify(response3.result),
-                edited: false,
+                image: files[i].base64,
               },
               Headers: {
                 Authorization: "Bearer " + token,
@@ -314,13 +294,44 @@ All Rights Reserved
             if (response3.status !== 200) {
               triggerToast("error");
               triggerLoading(false);
-              console.log(response4);
+              console.log(response3);
               return;
             }
 
-            console.log("ayam", response4);
+            console.log("trocr-predict", response3);
+
+            if (response3?.result?.text !== null) {
+              const response4 = await call.call("client-dashboard", "update-document", {
+                URLQuery: {},
+                URLParams: {
+                  id: response.result.data[i].id.toString(),
+                },
+                Params: {
+                  detected_text: response3.result.text,
+                  result_trocr: JSON.stringify(response3.result),
+                  edited: false,
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              });
+
+              if (response3.status !== 200) {
+                triggerToast("error");
+                triggerLoading(false);
+                console.log(response4);
+                return;
+              }
+
+              console.log("ayam", response4);
+            }
           }
         }
+      } catch (error) {
+        console.log(error);
+        triggerToast("error");
+        triggerLoading(false);
+        return;
       }
 
       console.log(response);
