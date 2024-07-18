@@ -21,6 +21,7 @@ All Rights Reserved
   import SideDrawer from "$lib/components/SideDrawer.svelte";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import { triggerShowAI, showAI } from "$lib";
+  import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   // import { set_pdfjs_context } from '$lib/utils/vite.ts';
 
   // set_pdfjs_context();
@@ -378,6 +379,7 @@ All Rights Reserved
                 {/if}
                 <ToastContainer />
               </div>
+              <LoadingContainer />
             </div>
           </Pane>
           <!-- Hexabot Sidebar -->
