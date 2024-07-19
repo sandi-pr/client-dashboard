@@ -140,7 +140,7 @@ All Rights Reserved
               id: "delete",
               name: "Delete",
               icon: "trash",
-              type: "danger",
+              type: "error",
               onclick: () => {
                 if (datasChecked.find((data) => data.checked)) {
                   popupModal = true;
