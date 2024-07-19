@@ -45,6 +45,8 @@ All Rights Reserved
 
   let onEdit = $state(false);
 
+  let popupModal = $state(false);
+
   let datasChecked = $state([]);
 
   let collection = $state({});
@@ -134,6 +136,17 @@ All Rights Reserved
           headers: "File Uploaded",
           pagination: response.result.meta.pagination,
           actions: [
+            {
+              id: "delete",
+              name: "Delete",
+              icon: "trash",
+              type: "danger",
+              onclick: () => {
+                if (datasChecked.find((data) => data.checked)) {
+                  popupModal = true;
+                }
+              },
+            },
             {
               id: "add_new",
               name: "Add New",
@@ -348,6 +361,59 @@ All Rights Reserved
     }
   }
 
+  async function deleteDocument() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let ids = datasChecked.filter((data) => data.checked).map((data) => data.id);
+      try {
+        for (const id of ids) {
+          let response = await call.call("client-dashboard", "delete-document", {
+            URLQuery: {},
+            URLParams: {
+              id: id.toString(),
+            },
+            Headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          if (response.status === 200) {
+            let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                document_id: id.toString(),
+              },
+              Headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (response2.status !== 200) {
+              console.log(response2);
+              return;
+            }
+          } else {
+            triggerToast("error");
+            console.log(response);
+            return;
+          }
+        }
+
+        triggerToast("deleted");
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
   function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return "0 Bytes";
 
@@ -458,6 +524,12 @@ All Rights Reserved
     console.log("Titik tiga ", id);
   }
 
+  async function selectCollection(collection) {
+    triggerShowAI(true);
+    triggerSelectDropdown("collections");
+    triggerSelectCollection(collection);
+  }
+
   onMount(async () => {
     getDocuments(pagination.page);
     collectionId ? getCollection() : null;
@@ -466,12 +538,6 @@ All Rights Reserved
   onDestroy(() => {
     if (timer) clearTimeout(timer);
   });
-
-  async function selectCollection(collection) {
-    triggerShowAI(true);
-    triggerSelectDropdown("collections");
-    triggerSelectCollection(collection);
-  }
 
   async function addDocument() {
     if (collectionId) {
@@ -516,20 +582,24 @@ All Rights Reserved
               {$_("createOn")}{` ${collection.createdAt}`}
             </P>
           </div>
-          <Button
-            disabled={datas.length === 0}
-            onclick={() => {
-              selectCollection({
-                id: collectionId,
-                name: collection.name,
-                description: collection.description,
-                totalDocuments: datas.length,
-              });
-            }}
-            icon={PlusIcon}
-            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
-            {$_("startReading")}</Button
-          >
+          <div>
+            <div class="flex gap-2">
+              <Button
+                disabled={datas.length === 0}
+                onclick={() => {
+                  selectCollection({
+                    id: collectionId,
+                    name: collection.name,
+                    description: collection.description,
+                    totalDocuments: datas.length,
+                  });
+                }}
+                icon={PlusIcon}
+                ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
+                {$_("startReading")}</Button
+              >
+            </div>
+          </div>
         </div>
 
         <!-- Submenu -->
@@ -689,3 +759,13 @@ All Rights Reserved
 </Modal>
 
 <!-- <LoadingContainer /> -->
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteDocument} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>

@@ -238,6 +238,13 @@ All Rights Reserved
             Authorization: `Bearer ${token}`,
           },
         });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
         if (response.status === 200) {
           let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
             URLQuery: {},
