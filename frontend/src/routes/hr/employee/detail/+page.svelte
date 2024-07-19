@@ -44,6 +44,7 @@ All Rights Reserved
     state: "",
     zip_code: "",
     is_active: false,
+    job_level: "",
     job_position: "",
     branch: "",
     employment_status: "",
@@ -55,6 +56,8 @@ All Rights Reserved
 
   let popupModal = $state(false);
   let jobLevels = $state([]);
+  let tmpJobPositions = $state([]);
+  let jobPositions = $state([]);
 
   async function getJobLevels() {
     let token = sessionStorage.getItem("token");
@@ -74,6 +77,30 @@ All Rights Reserved
             return { name: job.title, value: job.title };
           });
           jobLevels = await Promise.all(promise);
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
+  async function getJobPositions() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-position", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          tmpJobPositions = response.result.data;
+          console.log("tmpJobPositions", tmpJobPositions);
         }
       } catch (error) {
         triggerToast("error");
@@ -122,6 +149,7 @@ All Rights Reserved
             addSuffix: true,
           }),
           is_active: response.result.data[0].attributes.is_active === "Yes" ? true : false,
+          job_level: response.result.data[0].attributes.job_level,
           job_position: response.result.data[0].attributes.job_position,
           branch: response.result.data[0].attributes.branch,
           employment_status: response.result.data[0].attributes.employment_status,
@@ -152,6 +180,7 @@ All Rights Reserved
           state: data.state,
           zip_code: data.zip_code.toString(),
           is_active: data.is_active === true ? "Yes" : "No",
+          job_level: data.job_level,
           job_position: data.job_position,
           branch: data.branch,
           employment_status: data.employment_status,
@@ -209,6 +238,17 @@ All Rights Reserved
     if (edit === "true") onEdit = true;
     getEmployee();
     getJobLevels();
+    getJobPositions();
+  });
+
+  $effect(async () => {
+    if (data.job_level !== "") {
+      let tmp = tmpJobPositions.filter((job) => job.job_level === data.job_level);
+      let promise = tmp.map((job) => {
+        return { name: job.job_position, value: job.job_position };
+      });
+      jobPositions = await Promise.all(promise);
+    }
   });
 
   // let dropdownOpen = false;
@@ -415,12 +455,24 @@ All Rights Reserved
               <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("jobPosition")}*</P
+                  >{$_("jobLevel")}*</P
                 >
                 <Select
                   disabled={!onEdit}
                   class="bg-primary-light dark:bg-secondary-dark"
                   items={jobLevels}
+                  bind:value={data.job_level}
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("jobPosition")}*</P
+                >
+                <Select
+                  disabled={!onEdit}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                  items={jobPositions}
                   bind:value={data.job_position}
                 />
               </div>

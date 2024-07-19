@@ -59,20 +59,16 @@
   async function getEmployeeAttendance() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call(
-        "client-dashboard",
-        "get-employee-attendances",
-        {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            date: selectedDate,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
+      let response = await call.call("client-dashboard", "get-employee-attendances", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          date: selectedDate,
         },
-      );
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
       if (response.status !== 200) {
         console.log(response);
@@ -187,9 +183,9 @@
               if (attendance[i].status === "Absent") {
                 console.log("absent");
                 datas[j].actions.objects[0].actionButton = {
-                  CheckIn: () => {
-                    checkin_time(datas[j].id);
-                  },
+                  // CheckIn: () => {
+                  //   checkin_time(datas[j].id);
+                  // },
                 };
               }
 
@@ -344,9 +340,9 @@
       if (datas2[i].id === id) {
         datas2[i].status = getStatus("Absent");
         datas2[i].actions.objects[0].actionButton = {
-          CheckIn: () => {
-            checkin_time(datas2[i].id);
-          },
+          // CheckIn: () => {
+          //   checkin_time(datas2[i].id);
+          // },
         };
       }
     }
@@ -449,10 +445,7 @@
           <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else}
           <div class="pt-8">
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-            />
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           </div>
         {/if}
       </div>

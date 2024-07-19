@@ -23,8 +23,12 @@ All Rights Reserved
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
   import upload from "$lib/icon/upload-cloud-02.svg";
-  import { triggerLoading } from "$lib";
-  import LoadingContainer from "$lib/components/LoadingContainer.svelte";
+  import {
+    triggerSelectCollection,
+    triggerShowAI,
+    triggerSelectDropdown,
+    triggerLoading,
+  } from "$lib";
 
   import { goto } from "$app/navigation";
 
@@ -463,6 +467,12 @@ All Rights Reserved
     if (timer) clearTimeout(timer);
   });
 
+  async function selectCollection(collection) {
+    triggerShowAI(true);
+    triggerSelectDropdown("collections");
+    triggerSelectCollection(collection);
+  }
+
   async function addDocument() {
     if (collectionId) {
       let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
@@ -506,7 +516,15 @@ All Rights Reserved
               {$_("createOn")}{` ${collection.createdAt}`}
             </P>
           </div>
-          <Button disabled={datas.length === 0} onclick={addDocument} icon={PlusIcon}
+          <Button
+            disabled={datas.length === 0}
+            onclick={selectCollection({
+              id: collectionId,
+              name: collection.name,
+              description: collection.description,
+              totalDocuments: datas.length,
+            })}
+            icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
             {$_("startReading")}</Button
           >

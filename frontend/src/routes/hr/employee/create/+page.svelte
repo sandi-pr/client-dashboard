@@ -156,10 +156,8 @@ All Rights Reserved
         });
 
         if (response.status === 200) {
-          let promise = response.result.data.map((job) => {
-            return { name: job.job_position, value: job.job_position };
-          });
-          tmpJobPositions = await Promise.all(promise);
+          tmpJobPositions = response.result.data;
+          console.log("tmpJobPositions", tmpJobPositions);
         }
       } catch (error) {
         triggerToast("error");
@@ -193,9 +191,13 @@ All Rights Reserved
       emailValid === false;
   });
 
-  $effect(() => {
+  $effect(async () => {
     if (data.job_level !== "") {
-      jobPositions = tmpJobPositions.filter((job) => job.job_level === data.job_level);
+      let tmp = tmpJobPositions.filter((job) => job.job_level === data.job_level);
+      let promise = tmp.map((job) => {
+        return { name: job.job_position, value: job.job_position };
+      });
+      jobPositions = await Promise.all(promise);
     }
   });
 

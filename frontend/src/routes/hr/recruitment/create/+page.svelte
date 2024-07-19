@@ -19,7 +19,7 @@ All Rights Reserved
     Button,
     MultiSelect,
     Select,
-    Helper
+    Helper,
   } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -41,6 +41,7 @@ All Rights Reserved
     phone: "",
     address: "",
     education_history: "",
+    job_level: "",
     job_position: "",
     skillsOrKeywords: "",
     experience: "",
@@ -70,6 +71,8 @@ All Rights Reserved
   ]);
 
   let jobLevels = $state([]);
+  let tmpJobPositions = $state([]);
+  let jobPositions = $state([]);
 
   function handleDragOver(event) {
     event.preventDefault();
@@ -164,31 +167,28 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        console.log(typeof data.phone)
-        console.log(typeof data.phone.toString())
-        let response = await call.call(
-          "client-dashboard",
-          "create-recruitment",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              fullname: data.fullname,
-              email: data.email,
-              phone: data.phone.toString(),
-              address: data.address,
-              job_position: data.job_position,
-              education_history: data.education_history,
-              skills: JSON.stringify(data.skillsOrKeywords),
-              experience: data.experience,
-              resume_name: fileTextName,
-              resume: base64Data,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        console.log(typeof data.phone);
+        console.log(typeof data.phone.toString());
+        let response = await call.call("client-dashboard", "create-recruitment", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            fullname: data.fullname,
+            email: data.email,
+            phone: data.phone.toString(),
+            address: data.address,
+            job_level: data.job_level,
+            job_position: data.job_position,
+            education_history: data.education_history,
+            skills: JSON.stringify(data.skillsOrKeywords),
+            experience: data.experience,
+            resume_name: fileTextName,
+            resume: base64Data,
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         console.log(response);
 
@@ -201,7 +201,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("created");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          goto(await call.getPage("client-dashboard", "hr-recruitment"));
           // }, 3000);
         }
       } catch (error) {
@@ -242,6 +242,30 @@ All Rights Reserved
     }
   }
 
+  async function getJobPositions() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-position", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          tmpJobPositions = response.result.data;
+          console.log("tmpJobPositions", tmpJobPositions);
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
   const dispatch = createEventDispatcher();
   let emailValid = $state(false);
 
@@ -259,6 +283,17 @@ All Rights Reserved
 
   onMount(() => {
     getJobLevels();
+    getJobPositions();
+  });
+
+  $effect(async () => {
+    if (data.job_level !== "") {
+      let tmp = tmpJobPositions.filter((job) => job.job_level === data.job_level);
+      let promise = tmp.map((job) => {
+        return { name: job.job_position, value: job.job_position };
+      });
+      jobPositions = await Promise.all(promise);
+    }
   });
 </script>
 
@@ -296,9 +331,7 @@ All Rights Reserved
           <!-- general information -->
           <div class="flex gap-6">
             <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("generalInformation")}
               </P>
             </div>
@@ -319,11 +352,23 @@ All Rights Reserved
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
-                    {$_("jobPosition")}*
+                    {$_("jobLevel")}*
                   </P>
                   <Select
                     class="bg-primary-light dark:bg-secondary-dark"
                     items={jobLevels}
+                    bind:value={data.job_level}
+                  />
+                </div>
+                <div class="flex flex-col grow gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("jobPosition")}*
+                  </P>
+                  <Select
+                    class="bg-primary-light dark:bg-secondary-dark"
+                    items={jobPositions}
                     bind:value={data.job_position}
                   />
                 </div>
@@ -389,9 +434,7 @@ All Rights Reserved
           <Divider />
           <div class="flex gap-6">
             <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("resume")}*
               </P>
             </div>
@@ -423,21 +466,15 @@ All Rights Reserved
                   <div
                     class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
                   >
-                    <img
-                      src={upload}
-                      alt="mail.svg"
-                      class="p-4 dark:invert pointer-events-none"
-                    />
+                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
                   </div>
                   <div class="flex space-x-1">
-                    <P class="text-hc-brand-700 pointer-events-none"
-                      >{$_("clickToUpload")}</P
-                    ><P class="pointer-events-none">{$_("orDragAndDrop")}</P>
+                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P><P
+                      class="pointer-events-none">{$_("orDragAndDrop")}</P
+                    >
                   </div>
                   <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none"
-                    >PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P
-                  >
+                  <P class="pointer-events-none">PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P>
                 {/if}
               </Button>
             </div>
@@ -445,9 +482,7 @@ All Rights Reserved
           <Divider />
           <div class="flex gap-6">
             <div class="w-60">
-              <P
-                class="font-semibold text-secondary-light dark:text-secondary-dark"
-              >
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("skillsOrKeywords")}*
               </P>
             </div>
@@ -457,10 +492,7 @@ All Rights Reserved
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("skillsOrKeywords")}*</P
                 >
-                <MultiSelect
-                  items={skillsOrKeywords}
-                  bind:value={data.skillsOrKeywords}
-                />
+                <MultiSelect items={skillsOrKeywords} bind:value={data.skillsOrKeywords} />
               </div>
               <div class="flex flex-col grow gap-2">
                 <P

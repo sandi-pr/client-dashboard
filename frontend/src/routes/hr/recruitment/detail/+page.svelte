@@ -80,6 +80,8 @@ All Rights Reserved
   ]);
 
   let jobLevels = $state([]);
+  let tmpJobPositions = $state([]);
+  let jobPositions = $state([]);
 
   let skillsOrKeywords = $state([
     {
@@ -135,6 +137,7 @@ All Rights Reserved
           phone: recruitmentData.attributes.phone,
           address: recruitmentData.attributes.address,
           education_history: recruitmentData.attributes.education_history,
+          job_level: recruitmentData.attributes.job_level,
           job_position: recruitmentData.attributes.job_position,
           experience: recruitmentData.attributes.experience,
           createdAt: formatDistanceToNow(new Date(recruitmentData.attributes.createdAt), {
@@ -176,6 +179,7 @@ All Rights Reserved
             address: data.address,
             education_history: data.education_history,
             skills: JSON.stringify(data.skillsOrKeywords),
+            job_level: data.job_level,
             job_position: data.job_position,
             experience: data.experience,
           },
@@ -292,6 +296,30 @@ All Rights Reserved
     }
   }
 
+  async function getJobPositions() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-job-position", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          tmpJobPositions = response.result.data;
+          console.log("tmpJobPositions", tmpJobPositions);
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
   let emailValid = $state(false);
 
   function validateEmail(email) {
@@ -311,6 +339,17 @@ All Rights Reserved
     console.log("id", recruitmentId);
     getRecruitment();
     getJobLevels();
+    getJobPositions();
+  });
+
+  $effect(async () => {
+    if (data.job_level !== "") {
+      let tmp = tmpJobPositions.filter((job) => job.job_level === data.job_level);
+      let promise = tmp.map((job) => {
+        return { name: job.job_position, value: job.job_position };
+      });
+      jobPositions = await Promise.all(promise);
+    }
   });
 </script>
 
@@ -446,12 +485,25 @@ All Rights Reserved
                     <P
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                     >
-                      {$_("jobPosition")}
+                      {$_("jobLevel")}
                     </P>
                     <Select
                       disabled={!onEdit}
                       class="bg-primary-light dark:bg-secondary-dark"
                       items={jobLevels}
+                      bind:value={data.job_level}
+                    />
+                  </div>
+                  <div class="flex flex-col grow gap-2">
+                    <P
+                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >
+                      {$_("jobPosition")}
+                    </P>
+                    <Select
+                      disabled={!onEdit}
+                      class="bg-primary-light dark:bg-secondary-dark"
+                      items={jobPositions}
                       bind:value={data.job_position}
                     />
                   </div>
