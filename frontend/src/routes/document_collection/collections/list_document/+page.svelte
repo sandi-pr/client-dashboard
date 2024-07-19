@@ -518,12 +518,14 @@ All Rights Reserved
           </div>
           <Button
             disabled={datas.length === 0}
-            onclick={selectCollection({
-              id: collectionId,
-              name: collection.name,
-              description: collection.description,
-              totalDocuments: datas.length,
-            })}
+            onclick={() => {
+              selectCollection({
+                id: collectionId,
+                name: collection.name,
+                description: collection.description,
+                totalDocuments: datas.length,
+              });
+            }}
             icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
             {$_("startReading")}</Button
