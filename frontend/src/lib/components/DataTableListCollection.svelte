@@ -69,8 +69,6 @@
   const classActionType = (type) => {
     if (type === "success") {
       return "bg-hc-success-50 border-hc-success-200 text-hc-success-700";
-    } else if (type === "error") {
-      return "bg-hc-error-50 border-hc-error-200 text-hc-error-700";
     } else if (type === "warning") {
       return "bg-hc-warning-50 border-hc-warning-200 text-hc-warning-700";
     } else if (type === "info") {
@@ -79,6 +77,8 @@
       return "text-white bg-hc-brand-600 dark:bg-hc-brand-600 hover:bg-hc-brand-700 dark:hover:bg-hc-brand-700 focus-within:ring-0 hover:no-underline";
     } else if (type === "brand-inverse") {
       return "text-hc-brand-600 dark:text-hc-brand-400 bg-white dark:bg-hc-graydark-900 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0 hover:no-underline";
+    } else if (type === "error") {
+      return "text-hc-error-600 dark:text-hc-error-400 bg-white dark:bg-hc-graydark-900 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0 hover:no-underline";
     }
   };
 
@@ -164,6 +164,9 @@
             {#if action?.icon}
               {#if action.icon === "plus"}
                 <Icon.PlusOutline class="w-5 h-5" />&nbsp;
+              {/if}
+              {#if action.icon === "trash"}
+                <Icon.TrashBinOutline class="w-5 h-5" />&nbsp;
               {/if}
             {/if}
             {action.name}
