@@ -1,27 +1,43 @@
 <script>
-  import { Button, P } from "flowbite-svelte";
+  import { Button, Modal } from "flowbite-svelte";
   import { FeaturedIcon, Typography, UploadFile } from "$lib";
+  import PdfViewer from "svelte-pdf";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
-  import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
 
   let dropdownIndustryOpen = $state(false);
+  let documentViewModal = $state(false);
   let selectedIndustry = $state("");
-  let files = $state([
-    // {
-    //   type: "DocumentGtc",
-    //   name: "Document GTC_PatraNiaga2024.PDF",
-    //   size: "200 KB",
-    //   base64: "",
-    // },
-  ]);
+  let files = $state([]);
+  let selectedFile = $state(null);
+  let requiredFileTypes = $state(["documentGtc", "tradeConfirmation", "dealDoneDocument"]);
+  let roles = $state(["buyer", "seller"]);
 
   let industries = $state([
     { name: "Oil & Gas", value: "oil-gas" },
     { name: "Other", value: "other" },
   ]);
+
+  let documentTypes = $state([
+    {
+      title: `${$_("documentGtc")}*`,
+      type: "documentGtc",
+    },
+    {
+      title: $_("gtcAmendment"),
+      type: "gtcAmendment"
+    },
+    {
+      title: `${$_("tradeConfirmation")}*`,
+      type: "tradeConfirmation"
+    },
+    {
+      title: `${$_("dealDoneDocument")}*`,
+      type: "dealDoneDocument"
+    },
+  ])
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
@@ -54,7 +70,7 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
 
-  const handleFileUploadWrapper = (type) => {
+  const handleFileUploadWrapper = (type, role) => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.accept = ".pdf, .doc, .docx";
@@ -66,6 +82,7 @@
         const base64Data = await readFileAsBase64(uploadedFile);
         files.push({
           type: type,
+          role: role,
           name: uploadedFile.name,
           size: formatBytes(uploadedFile.size),
           base64: base64Data,
@@ -78,13 +95,35 @@
     inputElement.click();
   };
 
-  function getFileByType(type) {
-    const index = files.findIndex((file) => file.type === type);
+  function getFileByType(type, role) {
+    const index = files.findIndex((file) => file.type === type && file.role === role);
     return index !== -1 ? files[index] : [];
   }
+
+  function deleteFileByType(type, role) {
+    const index = files.findIndex((file) => file.type === type && file.role === role);
+    if (index !== -1) {
+      files.splice(index, 1);
+    }
+  }
+
+  function areRequiredFilesPresent(files) {
+    return roles.every((role) =>
+      requiredFileTypes.every((type) =>
+        files.some((file) => file.type === type && file.role === role)
+      )
+    );
+  }
+
+  let allRequiredFilesPresent = $state(false);
+
+  $effect(() => {
+    allRequiredFilesPresent = areRequiredFilesPresent(files);
+  });
+
 </script>
 
-<div class="flex flex-col px-4 pt-6 gap-6">
+<div class="flex flex-col px-4 pt-6 gap-6 pb-12">
   <!-- section header -->
   <div class="flex justify-between">
     <div class="flex items-center gap-3">
@@ -104,7 +143,7 @@
     </div>
     <div class="flex gap-3">
       <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
-      <Button disabled={true} on:click={() => {}}>{$_("save")}</Button>
+      <Button disabled={!allRequiredFilesPresent} on:click={() => {}}>{$_("save")}</Button>
     </div>
   </div>
   <Divider />
@@ -148,10 +187,6 @@
   </div>
   {#if selectedIndustry === "Oil & Gas"}
     <Divider />
-    <div class="flex justify-end gap-3">
-      <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
-      <Button disabled on:click={() => {}}>{$_("save")}</Button>
-    </div>
     <!-- section form -->
     <div class="flex gap-3">
       <div class="w-60">
@@ -160,20 +195,58 @@
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-2 gap-4">
           <!-- form upload -->
-          <UploadFile
-            title={`${$_("documentGtc")}*`}
-            handleFileUploadWrapper={() => handleFileUploadWrapper("DocumentGtc")}
-            file={getFileByType("DocumentGtc")}
-            actionButton={true}
-          />
-          <UploadFile
-            title={$_("gtcAmendment")}
-            handleFileUploadWrapper={() => handleFileUploadWrapper("GtcAmendment")}
-            file={getFileByType("GtcAmendment")}
-            actionButton={true}
-          />
+          {#each documentTypes as docType}
+            <UploadFile
+              title={docType.title}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "buyer")}
+              file={getFileByType(docType.type, "buyer")}
+              actionButton={true}
+              actionView={() => ((documentViewModal = true), (selectedFile = getFileByType(docType.type, "buyer")))}
+              actionDelete={() => deleteFileByType(docType.type, "buyer")}
+            />
+          {/each}
         </div>
       </div>
     </div>
+    <Divider />
+    <!-- section form -->
+    <div class="flex gap-3">
+      <div class="w-60">
+        <Typography preset="Text md/Semibold" text={`${$_("documentAsSeller")}`} color="secondary" />
+      </div>
+      <div class="flex flex-col grow gap-6">
+        <div class="grid grid-cols-2 gap-4">
+          <!-- form upload -->
+          {#each documentTypes as docType}
+            <UploadFile
+              title={docType.title}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "seller")}
+              file={getFileByType(docType.type, "seller")}
+              actionButton={true}
+              actionView={() => ((documentViewModal = true), (selectedFile = getFileByType(docType.type, "seller")))}
+              actionDelete={() => deleteFileByType(docType.type, "seller")}
+            />
+          {/each}
+        </div>
+      </div>
+    </div>
+    <Divider />
+    <div class="flex justify-end gap-3">
+      <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
+      <Button disabled={files.length === 0} on:click={() => {}}>{$_("save")}</Button>
+    </div>
   {/if}
 </div>
+
+<Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
+  {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
+    <div class="flex justify-center">
+      <PdfViewer
+        showBorder={false}
+        showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+        scale={1}
+        data={atob(selectedFile.base64)}
+      />
+    </div>
+  {/if}
+</Modal>

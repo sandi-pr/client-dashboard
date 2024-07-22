@@ -380,5 +380,8 @@
   "industryType": "Tipe Industri",
   "documentAsBuyer": "Dokumen sebagai Pembeli",
   "documentGtc": "Dokumen GTC",
-  "gtcAmendment": "Perubahan GTC"
+  "gtcAmendment": "Perubahan GTC",
+  "tradeConfirmation": "Konfirmasi Trade",
+  "dealDoneDocument": "Dokumen Deal Done",
+  "documentViewer": "Pratinjau Dokumen"
 }

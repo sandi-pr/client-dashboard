@@ -380,5 +380,8 @@
   "industryType": "Industry Type",
   "documentAsBuyer": "Document as Buyer",
   "documentGtc": "Document GTC",
-  "gtcAmendment": "GTC Amendment"
+  "gtcAmendment": "GTC Amendment",
+  "tradeConfirmation": "Trade Confirmation",
+  "dealDoneDocument": "Deal Done Document",
+  "documentViewer": "Document Viewer"
 }
