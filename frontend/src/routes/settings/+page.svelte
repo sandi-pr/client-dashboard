@@ -12,7 +12,7 @@
 
 <script>
   import { onMount } from "svelte";
-  import { P, Input, Avatar, Button } from "flowbite-svelte";
+  import { P, Input, Avatar, Button, Select } from "flowbite-svelte";
   import { TabBar, InformationForm, Typography } from "$lib";
   import { SearchOutline } from "flowbite-svelte-icons";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -31,6 +31,12 @@
   let fileImageResult = null;
   let dropzoneActive = false;
   let currentPasswordMatch = false;
+  let selectedModelTrocr = "";
+  let options = [
+    { value: "1", name: "Model 1" },
+    { value: "2", name: "Model 2" },
+    { value: "3", name: "Model 3" },
+  ];
   let tabDatas = {
     selected: "My Profile",
     data: [
@@ -39,6 +45,9 @@
       },
       {
         name: "Password",
+      },
+      {
+        name: "Model TROCR",
       },
     ],
   };
@@ -287,8 +296,25 @@
     tabDatas.selected = name;
   };
 
+  async function getModels() {
+    const response = await call.call("hexa-ai-rag", "trocr-get-models", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {},
+      Headers: {},
+    });
+
+    console.log("trocr-get-models", response);
+
+    if (response.status !== 200) {
+      console.log(response);
+      return;
+    }
+  }
+
   onMount(() => {
     getUser();
+    getModels();
   });
 </script>
 
@@ -423,6 +449,13 @@
                 class="mt-2 bg-primary-light dark:bg-primary-dark"
               />
             </div>
+          </div>
+        </div>
+      {:else if tabDatas.selected === "Model TROCR"}
+        <div class="mx-4 mt-8">
+          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+            <Typography preset="Text lg/Semibold" text="Model TROCR" />
+            <Select items={options} class="display-block" bind:value{selectedModelTrocr} />
           </div>
         </div>
       {/if}
