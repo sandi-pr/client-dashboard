@@ -63,10 +63,7 @@
 
     const files = event.dataTransfer.files;
 
-    if (
-      files[0] &&
-      (files[0].type === "image/jpeg" || files[0].type === "image/png")
-    ) {
+    if (files[0] && (files[0].type === "image/jpeg" || files[0].type === "image/png")) {
       fileImageResult = await new Promise((resolve, reject) => {
         const reader = new FileReader();
 
@@ -164,23 +161,19 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       let me = JSON.parse(sessionStorage.getItem("user"));
-      const response = await call.call(
-        "client-dashboard",
-        "update-photo-user",
-        {
-          URLQuery: {},
-          URLParams: {
-            id: me.id.toString(),
-          },
-          Params: {
-            photo: fileImage,
-            filename: fileImageName,
-          },
-          Headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await call.call("client-dashboard", "update-photo-user", {
+        URLQuery: {},
+        URLParams: {
+          id: me.id.toString(),
         },
-      );
+        Params: {
+          photo: fileImage,
+          filename: fileImageName,
+        },
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.status !== 200) {
         console.log(response);
@@ -305,7 +298,8 @@
   <div class="m-4">
     <!-- Header -->
     <div class="mt-4 flex justify-between">
-      <P size="3xl" weight="bold">{isAdmin && "Super"} User Menu</P>
+      <P size="3xl" weight="bold">User Menu</P>
+      <!-- <P size="3xl" weight="bold">{isAdmin && "Super"} User Menu</P> -->
       <div class="relative">
         <!-- <Button
           class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
@@ -317,17 +311,10 @@
           disabled={JSON.stringify(user) === JSON.stringify(userCopy)}
           on:click={updatePhotoUser}>Save</Button
         > -->
-        <div
-          class="flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none"
-        >
-          <SearchOutline
-            class="w-4 h-4 text-primary-light dark:text-primary-dark"
-          />
+        <div class="flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none">
+          <SearchOutline class="w-4 h-4 text-primary-light dark:text-primary-dark" />
         </div>
-        <Input
-          class="ps-10 bg-primary-light dark:bg-primary-dark"
-          placeholder="Search"
-        />
+        <Input class="ps-10 bg-primary-light dark:bg-primary-dark" placeholder="Search" />
       </div>
     </div>
 
@@ -338,18 +325,14 @@
     {#if isAdmin}
       {#if tabDatas.selected === "My Profile"}
         <div class="mx-4 mt-8">
-          <div
-            class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark"
-          >
+          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text="Personal info" />
             <Typography
               preset="Text sm/Reguler"
               text="Update your photo and personal details here."
             />
           </div>
-          <div
-            class="py-8 border-b border-secondary-light dark:border-secondary-dark"
-          >
+          <div class="py-8 border-b border-secondary-light dark:border-secondary-dark">
             <InformationForm datas={user} {screenWidth} />
           </div>
           <div class="py-8">
@@ -358,10 +341,7 @@
                 <Typography preset="Text lg/Semibold" text="Your photo" />
               </div>
               <div class="col-span-3 flex w-full">
-                <Avatar
-                  class="size-16"
-                  src={fileImageName ? fileImageResult : ""}
-                />
+                <Avatar class="size-16" src={fileImageName ? fileImageResult : ""} />
                 <div class="w-full ml-8">
                   <Button
                     ondragover={handleDragOver}
@@ -381,13 +361,11 @@
                       />
                     </div>
                     <div class="flex space-x-1">
-                      <P class="text-hc-brand-700 pointer-events-none"
-                        >Click to upload</P
-                      ><P class="pointer-events-none">or drag and drop</P>
+                      <P class="text-hc-brand-700 pointer-events-none">Click to upload</P><P
+                        class="pointer-events-none">or drag and drop</P
+                      >
                     </div>
-                    <P class="pointer-events-none"
-                      >PNG, JPG file (max. 800x400px)</P
-                    >
+                    <P class="pointer-events-none">PNG, JPG file (max. 800x400px)</P>
                   </Button>
                 </div>
               </div>
@@ -397,9 +375,7 @@
       {:else if tabDatas.selected === "Password"}
         <div class="mx-4 mt-8">
           <!-- <DataTable {datas} {configs} /> -->
-          <div
-            class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark"
-          >
+          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text="Password" />
             <Typography
               preset="Text sm/Reguler"

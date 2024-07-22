@@ -188,16 +188,16 @@ All Rights Reserved
                   href: `${link}` + "?documentId=" + document.id + "&collectionId=" + collectionId,
                   name: "View",
                 },
-                {
-                  // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
-                  // `${await call.getPage("client-dashboard", "document-collection-detail")}` +
-                  // "?documentId=" +
-                  // document.id +
-                  // "&collectionId=" +
-                  // collectionId,
-                  function: handleTitikTiga,
-                  name: "Titik tiga",
-                },
+                // {
+                //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
+                //   // `${await call.getPage("client-dashboard", "document-collection-detail")}` +
+                //   // "?documentId=" +
+                //   // document.id +
+                //   // "&collectionId=" +
+                //   // collectionId,
+                //   function: handleTitikTiga,
+                //   name: "Titik tiga",
+                // },
               ],
             },
           };
@@ -254,6 +254,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
+        addDocumentsModal = false;
         triggerLoading(true);
         let response = await call.call("client-dashboard", "create-document", {
           URLQuery: {},
@@ -269,6 +270,7 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
+          addDocumentsModal = true;
           console.log(response);
           triggerToast("error");
           triggerLoading(false);
@@ -287,6 +289,7 @@ All Rights Reserved
         });
 
         if (response2.status !== 200) {
+          addDocumentsModal = true;
           console.log(response2);
           triggerToast("error");
           triggerLoading(false);
@@ -309,6 +312,7 @@ All Rights Reserved
             });
 
             if (response3.status !== 200) {
+              addDocumentsModal = true;
               triggerToast("error");
               triggerLoading(false);
               console.log(response3);
@@ -334,6 +338,7 @@ All Rights Reserved
               });
 
               if (response3.status !== 200) {
+                addDocumentsModal = true;
                 triggerToast("error");
                 triggerLoading(false);
                 console.log(response4);
@@ -345,6 +350,7 @@ All Rights Reserved
           }
         }
       } catch (error) {
+        addDocumentsModal = true;
         console.log(error);
         triggerToast("error");
         triggerLoading(false);
