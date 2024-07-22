@@ -13,7 +13,7 @@
 <script>
   import { onMount } from "svelte";
   import { P, Input, Avatar, Button, Select } from "flowbite-svelte";
-  import { TabBar, InformationForm, Typography } from "$lib";
+  import { TabBar, InformationForm, Typography, triggerToast } from "$lib";
   import { SearchOutline } from "flowbite-svelte-icons";
   import DataTable from "$lib/components/DataTable.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -182,8 +182,11 @@
 
       if (response.status !== 200) {
         console.log(response);
+        triggerToast("error");
         return;
       }
+
+      triggerToast("updated");
       console.log("ayam", response);
     }
   };
@@ -281,11 +284,14 @@
     console.log("telur", resp);
 
     if (resp.status !== 200) {
+      triggerToast("error");
       console.log(resp);
       return;
     }
 
     console.log("ayam", resp);
+
+    triggerToast("updated");
   };
 
   const changeTabbar = (name) => {
@@ -313,6 +319,8 @@
         name: model.name,
       };
     });
+
+    selectedModelTrocr = sessionStorage.getItem("model_trocr") || options[0].value;
   }
 
   async function updateModelTrocr() {
@@ -333,7 +341,7 @@
         console.log(response);
         return;
       }
-      console.log("ayam", response);
+      triggerToast("updated");
       sessionStorage.setItem("model_trocr", selectedModelTrocr);
     }
   }
