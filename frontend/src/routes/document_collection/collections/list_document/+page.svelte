@@ -18,7 +18,7 @@ All Rights Reserved
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format, formatDistanceToNow } from "date-fns";
-  import { Button, P, Modal, Tooltip, Indicator } from "flowbite-svelte";
+  import { Button, P, Modal, Tooltip, Indicator, Input } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -566,7 +566,8 @@ All Rights Reserved
 
         console.log(response);
         if (response === 200) {
-          triggerToast("success");
+          sessionStorage.setItem("model_trocr", `trocr:${newModelName}`);
+          triggerToast("created");
           triggerLoading(false);
         } else {
           trainingModelModal = true;
