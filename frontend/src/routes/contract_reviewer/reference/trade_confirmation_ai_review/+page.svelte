@@ -1,113 +1,279 @@
 <script>
   import { onMount } from "svelte";
   import { Button, Modal, P } from "flowbite-svelte";
-  import { FeaturedIcon, Typography, UploadFile } from "$lib";
+  import { Typography } from "$lib";
   import PdfViewer from "svelte-pdf";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
-  import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
   import FileDownloadIcon from "$lib/icon/file-download-03.svg";
   import { ChevronDownOutline, RefreshOutline } from "flowbite-svelte-icons";
   import templatePdf from "$lib/template.pdf";
-  console.log(templatePdf);
+  import DataTableAiReview from "$lib/components/DataTableAIReview.svelte";
 
-  let dropdownToggle = $state([true, false, false]);
+  let configs = $state({});
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
+  let dropdownToggle = $state([false, false, false]);
   let pdfData = $state(null);
-  let documentViewModal = $state(false);
-  let selectedIndustry = $state("");
-  let files = $state([]);
-  let selectedFile = $state(null);
-  let requiredFileTypes = $state(["documentGtc", "tradeConfirmation", "dealDoneDocument"]);
-  let roles = $state(["buyer", "seller"]);
-
-  let industries = $state([
-    { name: "Oil & Gas", value: "oil-gas" },
-    { name: "Other", value: "other" },
+  let datasGTC = $state([
+    {
+      id: 1,
+      no: 1,
+      parameter: "Parameter 1",
+      referenceDocumentGTC: "12345",
+      sellerGTC: "54321",
+      recommendation: "No Action Required",
+    },
+    {
+      id: 2,
+      no: 2,
+      parameter: "Parameter 2",
+      referenceDocumentGTC: "pertamina",
+      sellerGTC: "pertamina",
+      recommendation: "No Action Required",
+    },
+    {
+      id: 3,
+      no: 3,
+      parameter: "Parameter 3",
+      referenceDocumentGTC: "01-Aug-2021",
+      sellerGTC: "15-Aug-2021",
+      recommendation: "Adjust to match 01-Aug-2021",
+      actions: {
+        status: "Done",
+        result: "Changed",
+      },
+    },
+    {
+      id: 4,
+      no: 4,
+      parameter: "Parameter 4",
+      referenceDocumentGTC: "Net 30 Days",
+      sellerGTC: "Net 60 Days",
+      recommendation: "Adjust to match Net 30 Days",
+      actions: {
+        status: "Done",
+        result: "Rejected",
+      },
+    },
+    {
+      id: 5,
+      no: 5,
+      parameter: "Parameter 5",
+      referenceDocumentGTC: "100.000 Barrels",
+      sellerGTC: "200.000 Barrels",
+      recommendation: "Verify reason for change; update if acceptable",
+      actions: {
+        status: "Processing",
+        reject: () => handleReject(5),
+        change: () => handleChange(5),
+      },
+    },
+  ]);
+  let datasDealDone = $state([
+    {
+      id: 1,
+      no: 1,
+      parameter: "Parameter 1",
+      referenceDocumentGTC: "12345",
+      sellerGTC: "54321",
+      recommendation: "No Action Required",
+    },
+    {
+      id: 2,
+      no: 2,
+      parameter: "Parameter 2",
+      referenceDocumentGTC: "pertamina",
+      sellerGTC: "pertamina",
+      recommendation: "No Action Required",
+    },
+    {
+      id: 3,
+      no: 3,
+      parameter: "Parameter 3",
+      referenceDocumentGTC: "01-Aug-2021",
+      sellerGTC: "15-Aug-2021",
+      recommendation: "Adjust to match 01-Aug-2021",
+      actions: {
+        status: "Done",
+        result: "Changed",
+      },
+    },
+    {
+      id: 4,
+      no: 4,
+      parameter: "Parameter 4",
+      referenceDocumentGTC: "Net 30 Days",
+      sellerGTC: "Net 60 Days",
+      recommendation: "Adjust to match Net 30 Days",
+      actions: {
+        status: "Done",
+        result: "Rejected",
+      },
+    },
+    {
+      id: 5,
+      no: 5,
+      parameter: "Parameter 5",
+      referenceDocumentGTC: "100.000 Barrels",
+      sellerGTC: "200.000 Barrels",
+      recommendation: "Verify reason for change; update if acceptable",
+      actions: {
+        status: "Processing",
+        reject: () => handleReject(5),
+        change: () => handleChange(5),
+      },
+    },
   ]);
 
-  // const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-  //   if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-  //   dropdownToggle = false;
-  // };
-
-  async function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const base64Data = reader.result.split(",")[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-
-      reader.readAsDataURL(file);
-    });
+  async function getDocumentsGTC(page) {
+    datasGTC = [
+      {
+        id: 1,
+        no: 1,
+        parameter: "Parameter 1",
+        referenceDocumentGTC: "12345",
+        sellerGTC: "54321",
+        recommendation: "No Action Required",
+      },
+      {
+        id: 2,
+        no: 2,
+        parameter: "Parameter 2",
+        referenceDocumentGTC: "pertamina",
+        sellerGTC: "pertamina",
+        recommendation: "No Action Required",
+      },
+      {
+        id: 3,
+        no: 3,
+        parameter: "Parameter 3",
+        referenceDocumentGTC: "01-Aug-2021",
+        sellerGTC: "15-Aug-2021",
+        recommendation: "Adjust to match 01-Aug-2021",
+        actions: {
+          status: "Done",
+          result: "Changed",
+        },
+      },
+      {
+        id: 4,
+        no: 4,
+        parameter: "Parameter 4",
+        referenceDocumentGTC: "Net 30 Days",
+        sellerGTC: "Net 60 Days",
+        recommendation: "Adjust to match Net 30 Days",
+        actions: {
+          status: "Done",
+          result: "Rejected",
+        },
+      },
+      {
+        id: 5,
+        no: 5,
+        parameter: "Parameter 5",
+        referenceDocumentGTC: "100.000 Barrels",
+        sellerGTC: "200.000 Barrels",
+        recommendation: "Verify reason for change; update if acceptable",
+        actions: {
+          status: "Processing",
+          reject: () => handleReject(5),
+          change: () => handleChange(5),
+        },
+      },
+    ];
+    configs = {
+      pagination: pagination,
+    };
   }
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  async function getDocumentsDealDone(page) {
+    datasDealDone = [
+      {
+        id: 1,
+        no: 1,
+        parameter: "Parameter 1",
+        referenceDocumentGTC: "12345",
+        sellerGTC: "54321",
+        recommendation: "No Action Required",
+      },
+      {
+        id: 2,
+        no: 2,
+        parameter: "Parameter 2",
+        referenceDocumentGTC: "pertamina",
+        sellerGTC: "pertamina",
+        recommendation: "No Action Required",
+      },
+      {
+        id: 3,
+        no: 3,
+        parameter: "Parameter 3",
+        referenceDocumentGTC: "01-Aug-2021",
+        sellerGTC: "15-Aug-2021",
+        recommendation: "Adjust to match 01-Aug-2021",
+        actions: {
+          status: "Done",
+          result: "Changed",
+        },
+      },
+      {
+        id: 4,
+        no: 4,
+        parameter: "Parameter 4",
+        referenceDocumentGTC: "Net 30 Days",
+        sellerGTC: "Net 60 Days",
+        recommendation: "Adjust to match Net 30 Days",
+        actions: {
+          status: "Done",
+          result: "Rejected",
+        },
+      },
+      {
+        id: 5,
+        no: 5,
+        parameter: "Parameter 5",
+        referenceDocumentGTC: "100.000 Barrels",
+        sellerGTC: "200.000 Barrels",
+        recommendation: "Verify reason for change; update if acceptable",
+        actions: {
+          status: "Processing",
+          reject: () => handleReject(5),
+          change: () => handleChange(5),
+        },
+      },
+    ];
+    configs = {
+      pagination: pagination,
+    };
   }
 
-  const handleFileUploadWrapper = (type, role) => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.accept = ".pdf, .doc, .docx";
-
-    inputElement.addEventListener("change", async (event) => {
-      const uploadedFile = event.target.files[0];
-
-      if (uploadedFile) {
-        const base64Data = await readFileAsBase64(uploadedFile);
-        files.push({
-          type: type,
-          role: role,
-          name: uploadedFile.name,
-          size: formatBytes(uploadedFile.size),
-          base64: base64Data,
-        });
-      } else {
-        alert("Invalid file. Please select a valid file.");
-      }
-    });
-
-    inputElement.click();
-  };
-
-  function getFileByType(type, role) {
-    const index = files.findIndex((file) => file.type === type && file.role === role);
-    return index !== -1 ? files[index] : [];
+  async function handleReject(no) {
+    console.log("reject");
   }
 
-  function deleteFileByType(type, role) {
-    const index = files.findIndex((file) => file.type === type && file.role === role);
-    if (index !== -1) {
-      files.splice(index, 1);
-    }
+  async function handleChange(no) {
+    console.log("change");
   }
 
-  function areRequiredFilesPresent(files) {
-    return roles.every((role) =>
-      requiredFileTypes.every((type) =>
-        files.some((file) => file.type === type && file.role === role)
-      )
-    );
+  async function nextGTC() {
+    getDocumentsGTC(pagination.page + 1);
   }
 
-  let allRequiredFilesPresent = $state(false);
+  async function previousGTC() {
+    getDocumentsGTC(pagination.page - 1);
+  }
 
-  $effect(() => {
-    allRequiredFilesPresent = areRequiredFilesPresent(files);
-  });
+  async function nextDealDone() {
+    getDocumentsDealDone(pagination.page + 1);
+  }
+
+  async function previousDealDone() {
+    getDocumentsDealDone(pagination.page - 1);
+  }
 
   onMount(async () => {
+    await getDocumentsGTC(1);
+
     const response = await fetch(templatePdf);
     const blob = await response.blob();
     const reader = new FileReader();
@@ -218,14 +384,15 @@
               />
             {/if} -->
           </div>
+          <div class="mb-8">
+            <Divider />
+          </div>
         {/if}
-
-        <Divider />
 
         <!-- first table section -->
         <Button
           on:click={() => (dropdownToggle[1] = !dropdownToggle[1])}
-          class="flex justify-between border-primary-light dark:border-primary-dark bg-secondary-light dark:bg-secondary-dark mt-6"
+          class="flex justify-between border-primary-light dark:border-primary-dark bg-secondary-light dark:bg-secondary-dark"
           color="light"
         >
           <P class="text-lg font-semibold text-tertiary-light dark:text-tertiary-dark"
@@ -236,13 +403,12 @@
           />
         </Button>
         {#if dropdownToggle[1]}
-          <ul
-            style:visibility={dropdownToggle[1] ? "visible" : "hidden"}
-            class="py-2 flex flex-col items-center border border-secondary-light dark:border-secondary-dark rounded-lg text-sm text-primary-light dark:text-primary-dark"
-            aria-labelledby="dropdownDefaultButton"
-          >
-            hello
-          </ul>
+          <DataTableAiReview
+            bind:datas={datasGTC}
+            bind:configs
+            bind:next={nextGTC}
+            bind:previous={previousGTC}
+          />
         {/if}
 
         <!-- second table section -->
@@ -259,20 +425,19 @@
           />
         </Button>
         {#if dropdownToggle[2]}
-          <ul
-            style:visibility={dropdownToggle[2] ? "visible" : "hidden"}
-            class="py-2 flex flex-col items-center border border-secondary-light dark:border-secondary-dark rounded-lg text-sm text-primary-light dark:text-primary-dark"
-            aria-labelledby="dropdownDefaultButton"
-          >
-            hello
-          </ul>
+          <DataTableAiReview
+            bind:datas={datasDealDone}
+            bind:configs
+            bind:next={nextDealDone}
+            bind:previous={previousDealDone}
+          />
         {/if}
       </div>
     </div>
   </div>
 </div>
 
-<Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
+<!-- <Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
   {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
     <div class="flex justify-center">
       <PdfViewer
@@ -283,4 +448,4 @@
       />
     </div>
   {/if}
-</Modal>
+</Modal> -->
