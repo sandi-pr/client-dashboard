@@ -318,7 +318,6 @@
   async function updateModelTrocr() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      let me = JSON.parse(sessionStorage.getItem("user"));
       const response = await call.call("client-dashboard", "update-user", {
         URLQuery: {},
         URLParams: {},
@@ -510,9 +509,11 @@
           on:click={() => {
             if (tabDatas.selected === "My Profile") {
               updatePhotoUser();
-            } else if (tabDatas.selected === "Password") {
+            }
+            if (tabDatas.selected === "Password") {
               updatePassword();
-            } else if (tabDatas.selected === "Model TROCR") {
+            }
+            if (tabDatas.selected === "Model TROCR") {
               updateModelTrocr();
             }
           }}
