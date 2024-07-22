@@ -489,20 +489,22 @@
 
       <!-- action buttons -->
       <div class="flex w-full justify-end">
-        <Button
-          class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
-          on:click={() => {
-            if (tabDatas.selected === "My Profile") {
-              getUser();
-            } else if (tabDatas.selected === "Password") {
-              passwordObject = {
-                currentPassword: "",
-                newPassword: "",
-                confirmPassword: "",
-              };
-            }
-          }}>Cancel</Button
-        >
+        {#if tabDatas.selected !== "Model TROCR"}
+          <Button
+            class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
+            on:click={() => {
+              if (tabDatas.selected === "My Profile") {
+                getUser();
+              } else if (tabDatas.selected === "Password") {
+                passwordObject = {
+                  currentPassword: "",
+                  newPassword: "",
+                  confirmPassword: "",
+                };
+              }
+            }}>Cancel</Button
+          >
+        {/if}
         <Button
           class="bg-hc-brand-600 hover:bg-hc-brand-700"
           on:click={() => {

@@ -602,7 +602,7 @@ All Rights Reserved
           </div>
           <div>
             <div class="flex gap-2">
-              {#if collectionId === 29}
+              {#if collectionId === "29"}
                 <Button
                   disabled={datas.length === 0}
                   onclick={() => {
