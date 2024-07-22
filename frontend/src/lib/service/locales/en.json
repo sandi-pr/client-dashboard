@@ -383,5 +383,14 @@
   "gtcAmendment": "GTC Amendment",
   "tradeConfirmation": "Trade Confirmation",
   "dealDoneDocument": "Deal Done Document",
-  "documentViewer": "Document Viewer"
+  "documentViewer": "Document Viewer",
+  "aiReview": "AI Review",
+  "generateConfirmation": "Generate Trade Confirmation Docs",
+  "summaryOfFindingsDocumentDealDone": "Summary of Findings: Document Deal Done",
+  "summaryOfFindingsGtcDocument": "Summary of Findings: GTC Document",
+  "documentViewerEditor": "Document Viewer / Editor",
+  "referenceDocumentGTC": "Reference Document GTC",
+  "sellerGTC": "Seller's GTC",
+  "referenceDocumentDealDone": "Reference Document Deal Done",
+  "documentDealDone": "Document Deal Done"
 }

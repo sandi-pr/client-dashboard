@@ -383,5 +383,14 @@
   "gtcAmendment": "Perubahan GTC",
   "tradeConfirmation": "Konfirmasi Trade",
   "dealDoneDocument": "Dokumen Deal Done",
-  "documentViewer": "Pratinjau Dokumen"
+  "documentViewer": "Pratinjau Dokumen",
+  "aiReview": "Review AI",
+  "generateConfirmation": "Buat Dokumen Konfirmasi",
+  "summaryOfFindingsDocumentDealDone": "Ringkasan Temuan: Dokumen Deal Done",
+  "summaryOfFindingsGtcDocument": "Ringkasan Temuan: Dokumen GTC",
+  "documentViewerEditor": "Editor / Pratinjau Dokumen",
+  "referenceDocumentGTC": "Dokumen Referensi GTC",
+  "sellerGTC": "GTC Penjual",
+  "referenceDocumentDealDone": "Dokumen Referensi Deal Done",
+  "documentDealDone": "Dokumen Deal Done"
 }
