@@ -566,7 +566,8 @@ All Rights Reserved
 
         console.log(response);
         if (response.status === 200) {
-          sessionStorage.setItem("model_trocr", `trocr:${newModelName}`);
+          sessionStorage.setItem("model_trocr", `trocr:latest`);
+          // sessionStorage.setItem("model_trocr", `trocr:${newModelName}`);
           triggerToast("created");
           triggerLoading(false);
         } else {
