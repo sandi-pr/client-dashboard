@@ -320,7 +320,7 @@
       };
     });
 
-    selectedModelTrocr = sessionStorage.getItem("model_trocr") || options[0].value;
+    selectedModelTrocr = sessionStorage.getItem("model_trocr") || "trocr:latest";
   }
 
   async function updateModelTrocr() {
