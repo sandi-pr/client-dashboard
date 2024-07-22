@@ -32,11 +32,7 @@
   let dropzoneActive = false;
   let currentPasswordMatch = false;
   let selectedModelTrocr = "";
-  let options = [
-    { value: "1", name: "Model 1" },
-    { value: "2", name: "Model 2" },
-    { value: "3", name: "Model 3" },
-  ];
+  let options = [];
   let tabDatas = {
     selected: "My Profile",
     data: [
@@ -310,6 +306,37 @@
       console.log(response);
       return;
     }
+
+    options = response.result.models.map((model) => {
+      return {
+        value: model.name,
+        name: model.name,
+      };
+    });
+  }
+
+  async function updateModelTrocr() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      let me = JSON.parse(sessionStorage.getItem("user"));
+      const response = await call.call("client-dashboard", "update-user", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          model_trocr: selectedModelTrocr,
+        },
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+      console.log("ayam", response);
+      sessionStorage.setItem("model_trocr", selectedModelTrocr);
+    }
   }
 
   onMount(() => {
@@ -483,10 +510,12 @@
               updatePhotoUser();
             } else if (tabDatas.selected === "Password") {
               updatePassword();
+            } else if (tabDatas.selected === "Model TROCR") {
+              updateModelTrocr();
             }
           }}
         >
-          {#if tabDatas.selected === "My Profile"}
+          {#if tabDatas.selected === "My Profile" || tabDatas.selected === "Model TROCR"}
             Save
           {:else if tabDatas.selected === "Password"}
             Update Password

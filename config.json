@@ -860,6 +860,36 @@
             ]
         },
         {
+            "name": "get-model-trocr",
+            "path": "/get-model-trocr",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetModelTrocr"
+            },
+            "params": []
+        },
+        {
+            "name": "update-model-trocr",
+            "path": "/update-model-trocr",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateModelTrocr"
+            },
+            "params": [
+                {
+                    "name": "model_trocr",
+                    "type": "text",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-categories",
             "path": "/get-categories",
             "method": "POST",
@@ -2761,6 +2791,9 @@
                     },
                     "company_job_position": {
                         "type": "json"
+                    },
+                    "model_trocr": {
+                        "type": "string"
                     }
                 }
             },

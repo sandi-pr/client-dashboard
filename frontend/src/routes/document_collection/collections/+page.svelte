@@ -414,7 +414,7 @@ All Rights Reserved
               URLParams: {},
               Params: {
                 image: files[i].base64,
-                model: sessionStorage.getItem("model"),
+                model: sessionStorage.getItem("model_trocr"),
               },
               Headers: {
                 Authorization: "Bearer " + token,
