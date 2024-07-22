@@ -318,7 +318,7 @@
   async function updateModelTrocr() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await call.call("client-dashboard", "update-user", {
+      const response = await call.call("client-dashboard", "update-model-trocr", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -509,11 +509,9 @@
           on:click={() => {
             if (tabDatas.selected === "My Profile") {
               updatePhotoUser();
-            }
-            if (tabDatas.selected === "Password") {
+            } else if (tabDatas.selected === "Password") {
               updatePassword();
-            }
-            if (tabDatas.selected === "Model TROCR") {
+            } else if (tabDatas.selected === "Model TROCR") {
               updateModelTrocr();
             }
           }}
