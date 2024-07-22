@@ -455,7 +455,7 @@
         <div class="mx-4 mt-8">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text="Model TROCR" />
-            <Select items={options} class="display-block" bind:value{selectedModelTrocr} />
+            <Select items={options} class="display-block" bind:value={selectedModelTrocr} />
           </div>
         </div>
       {/if}
