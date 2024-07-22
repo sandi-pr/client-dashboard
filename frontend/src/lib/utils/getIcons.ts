@@ -15,6 +15,7 @@ import PackagePlusIcon from "../icon/package-plus.svelte";
 import PackageSearchIcon from "../icon/package-search.svelte";
 import FolderPlusIcon from "../icon/folder-plus.svelte";
 import FilePlusIcon from "../icon/file-plus-02.svelte";
+import BoxIcon from "../icon/box.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -52,6 +53,8 @@ let getIcons = (presetIcon: String) => {
       return FolderPlusIcon;
     case "filePlus":
       return FilePlusIcon;
+    case "box":
+      return BoxIcon;
     default:
       return "";
   }

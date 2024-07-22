@@ -142,7 +142,7 @@ All Rights Reserved
         ],
       },
       {
-        icon: "fileShield",
+        icon: "box",
         name: "documentCollection",
         children: [
           {
@@ -227,6 +227,24 @@ All Rights Reserved
           //     : await call.getPage("client-dashboard", "hr-jobposition"),
           //   name: "jobPosition",
           // },
+        ],
+      },
+      {
+        icon: "fileShield",
+        name: "contractReviewer",
+        children: [
+          {
+            href: isFrontend
+              ? "/contract_reviewer"
+              : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+            name: "overview",
+          },
+          {
+            href: isFrontend
+              ? "/contract_reviewer/project"
+              : await call.getPage("client-dashboard", "contract-reviewer-project"),
+            name: "project",
+          },
         ],
       },
     ];

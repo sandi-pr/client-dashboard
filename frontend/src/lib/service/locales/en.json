@@ -369,5 +369,16 @@
   "positionName": "Position Name",
   "placeholderPositionName": "Enter position name",
   "job": "Job",
-  "manage": "Manage"
+  "manage": "Manage",
+  "contractReviewer": "Contract Reviewer",
+  "contractReviewerOverview": "Contract Reviewer Overview",
+  "setYourReferencedDocument": "Set your referenced document",
+  "descSetYourReferencedDocument": "This document will be used as reference for AI to make comparison",
+  "addNewProject": "Add new project",
+  "descAddNewProject": "To use contract reviewer, you need to add a project first",
+  "industry": "Industry",
+  "industryType": "Industry Type",
+  "documentAsBuyer": "Document as Buyer",
+  "documentGtc": "Document GTC",
+  "gtcAmendment": "GTC Amendment"
 }

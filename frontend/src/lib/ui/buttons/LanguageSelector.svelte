@@ -14,6 +14,11 @@
     dropdownOpen = false;
   };
 
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return 
+    dropdownOpen = false
+  }
+
   // const handleChangeLanguage = (evt: any, lang: string) => {
   //   evt.preventDefault();
   //   changeLanguage(lang);
@@ -22,7 +27,7 @@
   // };
 </script>
 
-<div>
+<div onfocusout={handleDropdownFocusLoss}>
   <Button color="light" on:click={() => (dropdownOpen = !dropdownOpen)} id="dropdownDefaultButton">
     {#if $locale === "id"}
       <Avatar src={ID} alt="id" size="xs" class="mr-2" />

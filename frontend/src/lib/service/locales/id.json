@@ -1,5 +1,7 @@
 {
   "welcome": "Selamat datang di Crossroads!",
+  "apps": "Apps",
+  "documentsSigning": "Tanda Tangan Dokumen",
   "productWizardHelperText": "Selamat datang di Crossroads! Kami membutuhkan Anda untuk menjawab beberapa pertanyaan (~5-15 menit) untuk produk yang tepat.",
   "companyemail": "Email perusahaan",
   "documentManagement": "Manajemen Dokumen",
@@ -204,6 +206,7 @@
   "contractEndPeriod": "Periode Akhir Kontrak",
   "personsOrClient": "Individu atau Pelanggan",
   "order&Invoice": "Pesanan & Faktur",
+  "orderInvoice": "Pesanan & Faktur",
   "personsList": "Daftar Individu",
   "addNew": "Tambahkan baru",
   "emailNotValid": "Email tidak valid",
@@ -366,5 +369,16 @@
   "positionName": "Nama Posisi Pekerjaan",
   "placeholderPositionName": "Masukkan Nama Posisi Pekerjaan",
   "job": "Pekerjaan",
-  "manage": "Manajemen"
+  "manage": "Manajemen",
+  "contractReviewer": "Reviewer Kontrak",
+  "contractReviewerOverview": "Reviewer Kontrak",
+  "setYourReferencedDocument": "Atur dokumen yang direferensikan",
+  "descSetYourReferencedDocument": "Dokumen ini akan digunakan sebagai referensi AI untuk membuat perbandingan",
+  "addNewProject": "Tambahkan proyek baru",
+  "descAddNewProject": "Untuk menggunakan reviewer kontrak, Anda harus menambahkan proyek baru",
+  "industry": "Industri",
+  "industryType": "Tipe Industri",
+  "documentAsBuyer": "Dokumen sebagai Pembeli",
+  "documentGtc": "Dokumen GTC",
+  "gtcAmendment": "Perubahan GTC"
 }
