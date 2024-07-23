@@ -129,7 +129,6 @@
 
   async function saveReferences() {
     if (allRequiredFilesPresent) {
-      console.log(files);
       let token = sessionStorage.getItem("token");
       try {
         const response = await call.call("client-dashboard", "set-references", {
@@ -153,6 +152,39 @@
       }
     }
   }
+
+  async function getReferences() {
+    let token = sessionStorage.getItem("token");
+    try {
+      const response = await call.call("client-dashboard", "get-references", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          industry_type: selectedIndustry,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log(response);
+      if (response.status === 200) {
+        if (response.result.files !== null) {
+          files = response.result.files;
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  $effect(() => {
+    if (selectedIndustry) {
+      if (selectedIndustry !== "") {
+        getReferences();
+      }
+    }
+  });
 </script>
 
 <div class="flex flex-col px-4 pt-6 gap-6 pb-12">

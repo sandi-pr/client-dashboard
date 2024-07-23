@@ -14,6 +14,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"strings"
 
 	U "gitlab.hexacode.org/go-libs/hctypes"
@@ -44,7 +46,7 @@ func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 	fmt.Println(me)
 
-	industry_type, ok := me.GetString("industry_type")
+	industry_type, ok := ctx.Params.GetString("industry_type")
 	if !ok {
 		return ctx.Error(400, "invalid parameters industry_type")
 	}
@@ -93,6 +95,11 @@ func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
+		docType, ok := document.(map[string]interface{})["type"].(string)
+		if !ok {
+			return ctx.Error(400, "invalid parameters documents")
+		}
+
 		status, upload, err := Strapi.Upload(documentName, documentFile)
 
 		fmt.Println("upload", upload)
@@ -122,8 +129,8 @@ func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 		status, documents, err := Strapi.Create("reference-contract-table", U.Dict{
 			"industry_type": industry_type,
-			"document_as":   documentName,
-			"document_type": role,
+			"document_as":   role,
+			"document_type": docType,
 			"document":      id,
 			"file_size":     file_size,
 		})
@@ -154,4 +161,97 @@ func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	}
 
 	return 200, U.Dict{"data": datas}, nil
+}
+
+func GetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	industry_type, ok := ctx.Params.GetString("industry_type")
+	if !ok {
+		return ctx.Error(400, "invalid parameters industry_type")
+	}
+
+	status, documents, err := Strapi.Find("reference-contract-table", U.Dict{
+		"filters": U.Dict{
+			"industry_type": U.Dict{
+				"$eq": industry_type,
+			},
+		},
+		"populate": "*",
+		"sort":     "id:desc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := documents.GetList("data")
+	if len(list) == 0 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	var datas []U.Dict
+
+	for i := 0; i < len(list); i++ {
+		document_url := list[i].(U.Dict)["attributes"].(U.Dict)["document"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		document_url = U.String(strings.TrimPrefix(string(document_url), "/"))
+
+		resp, err := http.Get(STRAPI_URL + string(document_url))
+		if err != nil {
+			fmt.Printf("error saat mengunduh file: %v", err)
+		}
+		defer resp.Body.Close()
+
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Printf("error saat membaca isi file: %v", err)
+		}
+
+		base64Data := base64.StdEncoding.EncodeToString(data)
+
+		datas = append(datas, U.Dict{
+			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_type"].(U.String),
+			"role":   list[i].(U.Dict)["attributes"].(U.Dict)["document_as"].(U.String),
+			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
+			"size":   list[i].(U.Dict)["attributes"].(U.Dict)["file_size"].(U.String),
+			"base64": base64Data,
+		})
+	}
+	// dict, ok := list.GetDict(0)
+
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
+
+	return 200, U.Dict{"files": datas}, nil
 }

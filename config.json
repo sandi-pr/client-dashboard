@@ -2405,6 +2405,23 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "get-references",
+            "path": "/get-references",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetReferences"
+            },
+            "params": [
+                {
+                    "name": "industry_type",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -3169,7 +3186,7 @@
                         "configurable": false
                     },
                     "file_size": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 }
             },
@@ -3212,7 +3229,7 @@
                         "configurable": false
                     },
                     "file_size": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 }
             }
