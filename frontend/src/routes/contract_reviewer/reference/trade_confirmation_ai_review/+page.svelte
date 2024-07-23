@@ -13,7 +13,7 @@
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let dropdownToggle = $state([false, false, false]);
-  let pdfData = $state(null);
+  let pdfData = $state([null, null, null, null]);
   let datasGTC = $state([
     {
       id: 1,
@@ -273,13 +273,18 @@
 
   onMount(async () => {
     await getDocumentsGTC(1);
+    await getDocumentsDealDone(1);
 
     const response = await fetch(templatePdf);
     const blob = await response.blob();
     const reader = new FileReader();
 
     reader.onloadend = () => {
-      pdfData = reader.result;
+      // Split the data URL at the comma and take the second part
+      pdfData[0] = reader.result.split(",")[1];
+      pdfData[1] = reader.result.split(",")[1];
+      pdfData[2] = reader.result.split(",")[1];
+      pdfData[3] = reader.result.split(",")[1];
     };
 
     reader.readAsDataURL(blob);
@@ -328,61 +333,101 @@
           />
         </Button>
         {#if dropdownToggle[0]}
-          <div class="grid grid-cols-2 gap-4 mb-32">
-            <div class="col-span-1 h-[50rem]">
+          <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="col-span-1">
               <P
                 class="font-bold py-4 text-brand-tertiary-alt-light dark:text-brand-tertiary-alt-dark"
                 >{$_("referenceDocumentGTC")}</P
               >
-              <embed
+              <!-- <embed
                 src={templatePdf + "#toolbar=0"}
                 type="application/pdf"
                 width="100%"
                 height="100%"
-              />
+              /> -->
+              {#if pdfData[0]}
+                <div class="[&>*]:!m-0 [&>*]:!p-0 [&>*>div>*>*>canvas]:mx-auto">
+                  <PdfViewer
+                    showBorder={false}
+                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+                    scale={1.8}
+                    data={atob(pdfData[0])}
+                  />
+                </div>
+              {:else}
+                <P>No Document</P>
+              {/if}
             </div>
-            <div class="col-span-1 h-[50rem]">
+            <div class="col-span-1">
               <P class="font-bold py-4 text-primary-light dark:text-primary-dark"
                 >{$_("sellerGTC")}</P
               >
-              <embed
+              <!-- <embed
                 src={templatePdf + "#toolbar=0"}
                 type="application/pdf"
                 width="100%"
                 height="100%"
-              />
+              /> -->
+              {#if pdfData[1]}
+                <div class="[&>*]:!m-0 [&>*]:!p-0 [&>*>div>*>*>canvas]:mx-auto">
+                  <PdfViewer
+                    showBorder={false}
+                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+                    scale={1.8}
+                    data={atob(pdfData[1])}
+                  />
+                </div>
+              {:else}
+                <P>No Document</P>
+              {/if}
             </div>
-            <div class="col-span-1 h-[50rem]">
+            <div class="col-span-1">
               <P
-                class="font-bold pt-16 pb-4 text-brand-tertiary-alt-light dark:text-brand-tertiary-alt-dark"
+                class="font-bold py-4 text-brand-tertiary-alt-light dark:text-brand-tertiary-alt-dark"
                 >{$_("referenceDocumentDealDone")}</P
               >
-              <embed
+              <!-- <embed
                 src={templatePdf + "#toolbar=0"}
                 type="application/pdf"
                 width="100%"
                 height="100%"
-              />
+              /> -->
+              {#if pdfData[2]}
+                <div class="[&>*]:!m-0 [&>*]:!p-0 [&>*>div>*>*>canvas]:mx-auto">
+                  <PdfViewer
+                    showBorder={false}
+                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+                    scale={1.8}
+                    data={atob(pdfData[2])}
+                  />
+                </div>
+              {:else}
+                <P>No Document</P>
+              {/if}
             </div>
-            <div class="col-span-1 h-[50rem]">
-              <P class="font-bold pt-16 pb-4 text-primary-light dark:text-primary-dark"
+            <div class="col-span-1">
+              <P class="font-bold py-4 text-primary-light dark:text-primary-dark"
                 >{$_("documentDealDone")}</P
               >
-              <embed
+              <!-- <embed
                 src={templatePdf + "#toolbar=0"}
                 type="application/pdf"
                 width="100%"
                 height="100%"
-              />
+              /> -->
+              {#if pdfData[3]}
+                <div class="[&>*]:!m-0 [&>*]:!p-0 [&>*>div>*>*>canvas]:mx-auto">
+                  <PdfViewer
+                    showBorder={false}
+                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+                    scale={1.8}
+                    data={atob(pdfData[3])}
+                  />
+                </div>
+              {:else}
+                <P>No Document</P>
+              {/if}
             </div>
-            <!-- {#if pdfData}
-              <PdfViewer
-                showBorder={false}
-                showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                scale={1}
-                data={pdfData}
-              />
-            {/if} -->
           </div>
           <div class="mb-8">
             <Divider />
@@ -436,16 +481,3 @@
     </div>
   </div>
 </div>
-
-<!-- <Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
-  {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
-    <div class="flex justify-center">
-      <PdfViewer
-        showBorder={false}
-        showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-        scale={1}
-        data={atob(selectedFile.base64)}
-      />
-    </div>
-  {/if}
-</Modal> -->
