@@ -2384,6 +2384,27 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "set-references",
+            "path": "/set-references",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "SetReferences"
+            },
+            "params": [
+                {
+                    "name": "references",
+                    "type": "string"
+                },
+                {
+                    "name": "industry_type",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -3146,6 +3167,9 @@
                     "document": {
                         "type": "media",
                         "configurable": false
+                    },
+                    "file_size": {
+                        "type": "integer"
                     }
                 }
             },
@@ -3186,6 +3210,9 @@
                     "document": {
                         "type": "media",
                         "configurable": false
+                    },
+                    "file_size": {
+                        "type": "integer"
                     }
                 }
             }

@@ -332,12 +332,15 @@ All Rights Reserved
   }
 
   async function getModelsTrocr() {
+    let token = sessionStorage.getItem("token");
     try {
       let resp = await call.call("client-dashboard", "get-model-trocr", {
         URLQuery: {},
         URLParams: {},
         Params: {},
-        Headers: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
       });
       if (resp.status === 200) {
         if (resp.result.model_trocr !== null) {

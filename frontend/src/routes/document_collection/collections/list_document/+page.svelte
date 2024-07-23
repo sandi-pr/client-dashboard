@@ -556,7 +556,7 @@ All Rights Reserved
           URLQuery: {},
           URLParams: {},
           Params: {
-            new_model_name: newModelName,
+            new_model_name: `trocr:${newModelName}`,
             collection_id: collectionId,
           },
           Headers: {
@@ -566,8 +566,8 @@ All Rights Reserved
 
         console.log(response);
         if (response.status === 200) {
-          sessionStorage.setItem("model_trocr", `trocr:latest`);
-          // sessionStorage.setItem("model_trocr", `trocr:${newModelName}`);
+          // sessionStorage.setItem("model_trocr", `trocr:latest`);
+          sessionStorage.setItem("model_trocr", `trocr:${newModelName}`);
           triggerToast("created");
           triggerLoading(false);
         } else {
@@ -604,7 +604,7 @@ All Rights Reserved
           </div>
           <div>
             <div class="flex gap-2">
-              {#if collectionId === "29"}
+              {#if collectionId === "30"}
                 <Button
                   disabled={datas.length === 0}
                   onclick={() => {

@@ -1,12 +1,15 @@
 <script>
   import { Button, Modal } from "flowbite-svelte";
-  import { FeaturedIcon, Typography, UploadFile } from "$lib";
+  import { FeaturedIcon, Typography, UploadFile, triggerToast } from "$lib";
   import PdfViewer from "svelte-pdf";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
+  import { CR3Call } from "hexacomponents-svelte";
+
+  const call = new CR3Call(globalThis.location.origin);
 
   let dropdownIndustryOpen = $state(false);
   let documentViewModal = $state(false);
@@ -28,17 +31,17 @@
     },
     {
       title: $_("gtcAmendment"),
-      type: "gtcAmendment"
+      type: "gtcAmendment",
     },
     {
       title: `${$_("tradeConfirmation")}*`,
-      type: "tradeConfirmation"
+      type: "tradeConfirmation",
     },
     {
       title: `${$_("dealDoneDocument")}*`,
-      type: "dealDoneDocument"
+      type: "dealDoneDocument",
     },
-  ])
+  ]);
 
   let otherDocType = $state([]);
 
@@ -113,8 +116,8 @@
   function areRequiredFilesPresent(files) {
     return roles.every((role) =>
       requiredFileTypes.every((type) =>
-        files.some((file) => file.type === type && file.role === role)
-      )
+        files.some((file) => file.type === type && file.role === role),
+      ),
     );
   }
 
@@ -124,6 +127,32 @@
     allRequiredFilesPresent = areRequiredFilesPresent(files);
   });
 
+  async function saveReferences() {
+    if (allRequiredFilesPresent) {
+      console.log(files);
+      let token = sessionStorage.getItem("token");
+      try {
+        const response = await call.call("client-dashboard", "set-references", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            references: JSON.stringify(files),
+            industry_type: selectedIndustry,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        console.log(response);
+
+        if (response.status === 200) {
+          triggerToast("updated");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 </script>
 
 <div class="flex flex-col px-4 pt-6 gap-6 pb-12">
@@ -146,7 +175,12 @@
     </div>
     <div class="flex gap-3">
       <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
-      <Button disabled={!allRequiredFilesPresent} on:click={() => {}}>{$_("save")}</Button>
+      <Button
+        disabled={!allRequiredFilesPresent}
+        on:click={() => {
+          saveReferences();
+        }}>{$_("save")}</Button
+      >
     </div>
   </div>
   <Divider />
@@ -166,23 +200,28 @@
             color="light"
           >
             {selectedIndustry ? selectedIndustry : "select industry"}
-            <ChevronDownOutline class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"/>
+            <ChevronDownOutline
+              class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+            />
           </Button>
           {#if dropdownIndustryOpen}
-          <ul
-            style:visibility={dropdownIndustryOpen ? "visible" : "hidden"}
-            class="py-2 flex flex-col items-center border border-secondary-light dark:border-secondary-dark rounded-lg text-sm text-primary-light dark:text-primary-dark"
-            aria-labelledby="dropdownDefaultButton"
-          >
-            {#each industries as industry}
-              <button
-                class="flex w-full py-2 px-4"
-                onclick={() => ((dropdownIndustryOpen = false), (selectedIndustry = industry.name))}
-              >
-                {industry.name}
-              </button>
-            {/each}
-          </ul>
+            <ul
+              style:visibility={dropdownIndustryOpen ? "visible" : "hidden"}
+              class="py-2 flex flex-col items-center border border-secondary-light dark:border-secondary-dark rounded-lg text-sm text-primary-light dark:text-primary-dark"
+              aria-labelledby="dropdownDefaultButton"
+            >
+              {#each industries as industry}
+                <button
+                  class="flex w-full py-2 px-4"
+                  onclick={() => {
+                    dropdownIndustryOpen = false;
+                    selectedIndustry = industry.name;
+                  }}
+                >
+                  {industry.name}
+                </button>
+              {/each}
+            </ul>
           {/if}
         </div>
       </div>
@@ -204,7 +243,9 @@
               handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "buyer")}
               file={getFileByType(docType.type, "buyer")}
               actionButton={true}
-              actionView={() => ((documentViewModal = true), (selectedFile = getFileByType(docType.type, "buyer")))}
+              actionView={() => (
+                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "buyer"))
+              )}
               actionDelete={() => deleteFileByType(docType.type, "buyer")}
             />
           {/each}
@@ -215,7 +256,11 @@
     <!-- section form -->
     <div class="flex gap-3">
       <div class="w-60">
-        <Typography preset="Text md/Semibold" text={`${$_("documentAsSeller")}`} color="secondary" />
+        <Typography
+          preset="Text md/Semibold"
+          text={`${$_("documentAsSeller")}`}
+          color="secondary"
+        />
       </div>
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-2 gap-4">
@@ -226,7 +271,9 @@
               handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "seller")}
               file={getFileByType(docType.type, "seller")}
               actionButton={true}
-              actionView={() => ((documentViewModal = true), (selectedFile = getFileByType(docType.type, "seller")))}
+              actionView={() => (
+                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "seller"))
+              )}
               actionDelete={() => deleteFileByType(docType.type, "seller")}
             />
           {/each}
@@ -237,7 +284,11 @@
     <!-- section form -->
     <div class="flex gap-3">
       <div class="w-60">
-        <Typography preset="Text md/Semibold" text={`${$_("otherComplianceDocument")}`} color="secondary" />
+        <Typography
+          preset="Text md/Semibold"
+          text={`${$_("otherComplianceDocument")}`}
+          color="secondary"
+        />
       </div>
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-2 gap-4">
@@ -248,13 +299,16 @@
               handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "seller")}
               file={getFileByType(docType.type, "seller")}
               actionButton={true}
-              actionView={() => ((documentViewModal = true), (selectedFile = getFileByType(docType.type, "seller")))}
+              actionView={() => (
+                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "seller"))
+              )}
               actionDelete={() => deleteFileByType(docType.type, "seller")}
             />
           {/each}
-          <Button 
-            class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark" 
-            on:click={() => {}} color="light"
+          <Button
+            class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
+            on:click={() => {}}
+            color="light"
           >
             <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
             {$_("addOtherComplianceDocs")}
