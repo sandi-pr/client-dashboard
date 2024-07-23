@@ -1,5 +1,5 @@
 <script>
-  import { Button, Modal } from "flowbite-svelte";
+  import { Button, Modal, Input } from "flowbite-svelte";
   import { FeaturedIcon, Typography, UploadFile, triggerToast } from "$lib";
   import PdfViewer from "svelte-pdf";
   import { _ } from "svelte-i18n";
@@ -13,6 +13,9 @@
 
   let dropdownIndustryOpen = $state(false);
   let documentViewModal = $state(false);
+  let addNewDocumentModal = $state(false);
+  let tmpDocumentName = $state("");
+  let tmpFile = $state([]);
   let selectedIndustry = $state("");
   let files = $state([]);
   let selectedFile = $state(null);
@@ -101,6 +104,21 @@
     inputElement.click();
   };
 
+  function addOtherDocument() {
+    if (tmpDocumentName) {
+      otherDocType.push({
+        title: tmpDocumentName,
+        type: tmpDocumentName,
+      });
+
+      files.push(tmpFile);
+
+      tmpFile = [];
+      tmpDocumentName = "";
+      addNewDocumentModal = false;
+    }
+  }
+
   function getFileByType(type, role) {
     const index = files.findIndex((file) => file.type === type && file.role === role);
     return index !== -1 ? files[index] : [];
@@ -110,6 +128,9 @@
     const index = files.findIndex((file) => file.type === type && file.role === role);
     if (index !== -1) {
       files.splice(index, 1);
+      if (role === "other") {
+        otherDocType = otherDocType.filter((doc) => doc.type !== type);
+      }
     }
   }
 
@@ -328,18 +349,18 @@
           {#each otherDocType as docType}
             <UploadFile
               title={docType.title}
-              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "seller")}
-              file={getFileByType(docType.type, "seller")}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "other")}
+              file={getFileByType(docType.type, "other")}
               actionButton={true}
               actionView={() => (
-                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "seller"))
+                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "other"))
               )}
-              actionDelete={() => deleteFileByType(docType.type, "seller")}
+              actionDelete={() => deleteFileByType(docType.type, "other")}
             />
           {/each}
           <Button
             class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
-            on:click={() => {}}
+            on:click={() => {addNewDocumentModal = true}}
             color="light"
           >
             <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
@@ -367,4 +388,23 @@
       />
     </div>
   {/if}
+</Modal>
+
+<Modal title={$_("addNewDocument")} bind:open={addNewDocumentModal}>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
+      <Input bind:value={tmpDocumentName} placeholder={$_("name")} />
+    </div>
+    <UploadFile
+      title={`${$_("uploadDocuments")}*`}
+      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "other")}
+      file={tmpFile}
+      actionButton={true}
+      actionDelete={() => (tmpFile = [])}
+    />
+  </div>
+  <svelte:fragment slot="footer">
+    <Button on:click={addOtherDocument}>{$_("add")}</Button>
+  </svelte:fragment>
 </Modal>

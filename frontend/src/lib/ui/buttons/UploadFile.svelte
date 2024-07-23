@@ -69,9 +69,11 @@ All Rights Reserved
       </div>
       {#if actionButton}
         <div class="flex gap-3">
+          {#if actionView && actionView}
           <Button class="w-full" color="light" on:click={actionView}>
             <Typography preset="Text sm/Semibold" text={$_("view")} color="secondary" />
           </Button>
+          {/if}
           <Button class="w-full border-0" color="light" on:click={actionDelete}>
             <Typography preset="Text sm/Semibold" text={$_("delete")} color="secondary" />
           </Button>
