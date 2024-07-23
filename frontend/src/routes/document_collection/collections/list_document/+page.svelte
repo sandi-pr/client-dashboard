@@ -18,7 +18,7 @@ All Rights Reserved
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format, formatDistanceToNow } from "date-fns";
-  import { Button, P, Modal, Tooltip, Indicator } from "flowbite-svelte";
+  import { Button, P, Modal, Tooltip, Indicator, Input } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -71,6 +71,8 @@ All Rights Reserved
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
   let addDocumentsModal = $state(false);
   let dropdownOpen = $state(false);
+  let newModelName = $state("");
+  let trainingModelModal = $state(false);
 
   let timer;
 
@@ -208,8 +210,6 @@ All Rights Reserved
           return { id: data.id, checked: false };
         });
       }
-
-      // timer = setTimeout(getDocuments(pagination.page), 2000);
     }
 
     documentsReady = true;
@@ -305,6 +305,7 @@ All Rights Reserved
               URLParams: {},
               Params: {
                 image: files[i].base64,
+                model: sessionStorage.getItem("model_trocr"),
               },
               Headers: {
                 Authorization: "Bearer " + token,
@@ -545,25 +546,38 @@ All Rights Reserved
     if (timer) clearTimeout(timer);
   });
 
-  async function addDocument() {
+  async function startTraining() {
     if (collectionId) {
-      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: collectionId.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      try {
+        trainingModelModal = false;
+        triggerLoading(true);
+        let token = sessionStorage.getItem("token");
+        const response = await call.call("hexa-ai-rag", "trocr-train", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            new_model_name: newModelName,
+            collection_id: collectionId,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      if (response2.status !== 200) {
-        console.log(response2);
-        return;
+        console.log(response);
+        if (response.status === 200) {
+          sessionStorage.setItem("model_trocr", `trocr:latest`);
+          // sessionStorage.setItem("model_trocr", `trocr:${newModelName}`);
+          triggerToast("created");
+          triggerLoading(false);
+        } else {
+          trainingModelModal = true;
+          triggerToast("error");
+        }
+      } catch (error) {
+        trainingModelModal = true;
+        console.log(error);
       }
-
-      console.log(response2);
     }
   }
 </script>
@@ -590,6 +604,17 @@ All Rights Reserved
           </div>
           <div>
             <div class="flex gap-2">
+              {#if collectionId === "29"}
+                <Button
+                  disabled={datas.length === 0}
+                  onclick={() => {
+                    trainingModelModal = true;
+                  }}
+                  icon={PlusIcon}
+                  ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
+                  {$_("trainingModel")}</Button
+                >
+              {/if}
               <Button
                 disabled={datas.length === 0}
                 onclick={() => {
@@ -774,4 +799,18 @@ All Rights Reserved
     <Button onclick={deleteDocument} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
+</Modal>
+
+<Modal title={$_("trainingModel")} bind:open={trainingModelModal} size="xs">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("newModelName")}*`} />
+      <Input bind:value={newModelName} placeholder={$_("whatIsYourNewModelName")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={startTraining} disabled={newModelName === ""} class="w-full"
+      >{$_("startTraining")}</Button
+    >
+  </svelte:fragment>
 </Modal>

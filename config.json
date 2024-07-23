@@ -218,6 +218,11 @@
             "name": "job-management",
             "path": "/job_management",
             "file_path": "template/job_management.html"
+        },
+        {
+            "name": "contract-reviewer-reference",
+            "path": "/contract_reviewer/reference",
+            "file_path": "template/contract_reviewer/reference.html"
         }
     ],
     "apis": [
@@ -850,6 +855,36 @@
                 {
                     "name": "id",
                     "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-model-trocr",
+            "path": "/get-model-trocr",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetModelTrocr"
+            },
+            "params": []
+        },
+        {
+            "name": "update-model-trocr",
+            "path": "/update-model-trocr",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateModelTrocr"
+            },
+            "params": [
+                {
+                    "name": "model_trocr",
+                    "type": "text",
                     "required": true
                 }
             ]
@@ -2756,6 +2791,9 @@
                     },
                     "company_job_position": {
                         "type": "json"
+                    },
+                    "model_trocr": {
+                        "type": "string"
                     }
                 }
             },
@@ -3089,6 +3127,65 @@
                     },
                     "source_text": {
                         "type": "string"
+                    }
+                }
+            },
+            {
+                "name": "reference-contract",
+                "label": "Reference Contract",
+                "fields": {
+                    "industry_type": {
+                        "type": "string"
+                    },
+                    "document_as": {
+                        "type": "string"
+                    },
+                    "document_type": {
+                        "type": "string"
+                    },
+                    "document": {
+                        "type": "media",
+                        "configurable": false
+                    }
+                }
+            },
+            {
+                "name": "project-contract",
+                "label": "Project Contract",
+                "fields": {
+                    "project_name": {
+                        "type": "string"
+                    },
+                    "industry_type": {
+                        "type": "string"
+                    },
+                    "project_as": {
+                        "type": "string"
+                    },
+                    "project_start_date": {
+                        "type": "date"
+                    },
+                    "project_end_date": {
+                        "type": "date"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                }
+            },
+            {
+                "name": "document-project",
+                "label": "Document Project",
+                "fields": {
+                    "id_project": {
+                        "type": "integer"
+                    },
+                    "document_type": {
+                        "type": "string"
+                    },
+                    "document": {
+                        "type": "media",
+                        "configurable": false
                     }
                 }
             }

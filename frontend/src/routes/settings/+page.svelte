@@ -12,8 +12,8 @@
 
 <script>
   import { onMount } from "svelte";
-  import { P, Input, Avatar, Button } from "flowbite-svelte";
-  import { TabBar, InformationForm, Typography } from "$lib";
+  import { P, Input, Avatar, Button, Select } from "flowbite-svelte";
+  import { TabBar, InformationForm, Typography, triggerToast } from "$lib";
   import { SearchOutline } from "flowbite-svelte-icons";
   import DataTable from "$lib/components/DataTable.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -31,6 +31,8 @@
   let fileImageResult = null;
   let dropzoneActive = false;
   let currentPasswordMatch = false;
+  let selectedModelTrocr = "";
+  let options = [];
   let tabDatas = {
     selected: "My Profile",
     data: [
@@ -39,6 +41,9 @@
       },
       {
         name: "Password",
+      },
+      {
+        name: "Model TROCR",
       },
     ],
   };
@@ -177,8 +182,11 @@
 
       if (response.status !== 200) {
         console.log(response);
+        triggerToast("error");
         return;
       }
+
+      triggerToast("updated");
       console.log("ayam", response);
     }
   };
@@ -276,19 +284,71 @@
     console.log("telur", resp);
 
     if (resp.status !== 200) {
+      triggerToast("error");
       console.log(resp);
       return;
     }
 
     console.log("ayam", resp);
+
+    triggerToast("updated");
   };
 
   const changeTabbar = (name) => {
     tabDatas.selected = name;
   };
 
+  async function getModels() {
+    const response = await call.call("hexa-ai-rag", "trocr-get-models", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {},
+      Headers: {},
+    });
+
+    console.log("trocr-get-models", response);
+
+    if (response.status !== 200) {
+      console.log(response);
+      return;
+    }
+
+    options = response.result.models.map((model) => {
+      return {
+        value: model.name,
+        name: model.name,
+      };
+    });
+
+    selectedModelTrocr = sessionStorage.getItem("model_trocr") || "trocr:latest";
+  }
+
+  async function updateModelTrocr() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "update-model-trocr", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          model_trocr: selectedModelTrocr,
+        },
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+      triggerToast("updated");
+      sessionStorage.setItem("model_trocr", selectedModelTrocr);
+    }
+  }
+
   onMount(() => {
     getUser();
+    getModels();
   });
 </script>
 
@@ -425,24 +485,33 @@
             </div>
           </div>
         </div>
+      {:else if tabDatas.selected === "Model TROCR"}
+        <div class="mx-4 mt-8">
+          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+            <Typography preset="Text lg/Semibold" text="Model TROCR" />
+            <Select items={options} class="display-block" bind:value={selectedModelTrocr} />
+          </div>
+        </div>
       {/if}
 
       <!-- action buttons -->
       <div class="flex w-full justify-end">
-        <Button
-          class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
-          on:click={() => {
-            if (tabDatas.selected === "My Profile") {
-              getUser();
-            } else if (tabDatas.selected === "Password") {
-              passwordObject = {
-                currentPassword: "",
-                newPassword: "",
-                confirmPassword: "",
-              };
-            }
-          }}>Cancel</Button
-        >
+        {#if tabDatas.selected !== "Model TROCR"}
+          <Button
+            class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
+            on:click={() => {
+              if (tabDatas.selected === "My Profile") {
+                getUser();
+              } else if (tabDatas.selected === "Password") {
+                passwordObject = {
+                  currentPassword: "",
+                  newPassword: "",
+                  confirmPassword: "",
+                };
+              }
+            }}>Cancel</Button
+          >
+        {/if}
         <Button
           class="bg-hc-brand-600 hover:bg-hc-brand-700"
           on:click={() => {
@@ -450,10 +519,12 @@
               updatePhotoUser();
             } else if (tabDatas.selected === "Password") {
               updatePassword();
+            } else if (tabDatas.selected === "Model TROCR") {
+              updateModelTrocr();
             }
           }}
         >
-          {#if tabDatas.selected === "My Profile"}
+          {#if tabDatas.selected === "My Profile" || tabDatas.selected === "Model TROCR"}
             Save
           {:else if tabDatas.selected === "Password"}
             Update Password

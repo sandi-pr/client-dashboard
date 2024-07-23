@@ -331,11 +331,33 @@ All Rights Reserved
     }
   }
 
+  async function getModelsTrocr() {
+    try {
+      let resp = await call.call("client-dashboard", "get-model-trocr", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {},
+      });
+      if (resp.status === 200) {
+        if (resp.result.model_trocr !== null) {
+          sessionStorage.setItem("model_trocr", response.result.model_trocr);
+        } else {
+          sessionStorage.setItem("model_trocr", "trocr:latest");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   onMount(() => {
     CheckSetup();
     if (localStorage.getItem("lang") !== null) {
       locale.set(localStorage.getItem("lang"));
     }
+
+    getModelsTrocr();
 
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;

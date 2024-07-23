@@ -398,5 +398,14 @@
   "placholderDescription": "Enter description",
   "as": "As",
   "buyer": "Buyer",
-  "seller": "Seller"
+  "seller": "Seller",
+  "aiReview": "AI Review",
+  "generateConfirmation": "Generate Trade Confirmation Docs",
+  "summaryOfFindingsDocumentDealDone": "Summary of Findings: Document Deal Done",
+  "summaryOfFindingsGtcDocument": "Summary of Findings: GTC Document",
+  "documentViewerEditor": "Document Viewer / Editor",
+  "referenceDocumentGTC": "Reference Document GTC",
+  "sellerGTC": "Seller's GTC",
+  "referenceDocumentDealDone": "Reference Document Deal Done",
+  "documentDealDone": "Document Deal Done"
 }
