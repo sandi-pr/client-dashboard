@@ -30,8 +30,6 @@ All Rights Reserved
     triggerLoading,
   } from "$lib";
 
-  import { goto } from "$app/navigation";
-
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");
 
