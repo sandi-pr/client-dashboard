@@ -6,6 +6,7 @@
   import Divider from "$lib/components/Divider.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import PlusCircleICon from "$lib/icon/plus-circle.svelte";
 
   let dropdownIndustryOpen = $state(false);
   let documentViewModal = $state(false);
@@ -38,6 +39,8 @@
       type: "dealDoneDocument"
     },
   ])
+
+  let otherDocType = $state([]);
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
@@ -227,6 +230,35 @@
               actionDelete={() => deleteFileByType(docType.type, "seller")}
             />
           {/each}
+        </div>
+      </div>
+    </div>
+    <Divider />
+    <!-- section form -->
+    <div class="flex gap-3">
+      <div class="w-60">
+        <Typography preset="Text md/Semibold" text={`${$_("otherComplianceDocument")}`} color="secondary" />
+      </div>
+      <div class="flex flex-col grow gap-6">
+        <div class="grid grid-cols-2 gap-4">
+          <!-- form upload -->
+          {#each otherDocType as docType}
+            <UploadFile
+              title={docType.title}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "seller")}
+              file={getFileByType(docType.type, "seller")}
+              actionButton={true}
+              actionView={() => ((documentViewModal = true), (selectedFile = getFileByType(docType.type, "seller")))}
+              actionDelete={() => deleteFileByType(docType.type, "seller")}
+            />
+          {/each}
+          <Button 
+            class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark" 
+            on:click={() => {}} color="light"
+          >
+            <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
+            {$_("addOtherComplianceDocs")}
+          </Button>
         </div>
       </div>
     </div>

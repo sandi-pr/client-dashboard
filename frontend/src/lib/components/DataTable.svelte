@@ -156,7 +156,7 @@
   <div class={`flex items-center justify-between mb-4 ${withSeperator(configs)}`}>
     {#if configs?.headers}
       <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-        >{configs.headers}</Heading
+        >{$_(configs.headers)}</Heading
       >
     {/if}
     <div>
@@ -168,7 +168,7 @@
                 <Icon.PlusOutline class="w-4 h-4" />&nbsp;
               {/if}
             {/if}
-            {action.name}
+            {$_(action.name)}
           </Button>
         {/each}
       {/if}

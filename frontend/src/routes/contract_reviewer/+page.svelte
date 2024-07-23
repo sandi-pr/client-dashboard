@@ -2,52 +2,93 @@
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
 Maintainer: 
-  - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
-  - Taqie Fadlillah <taqief@hexacode.org>
   - Sandi Permana <sandy@hexacode.org>
 Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input } from "flowbite-svelte";
-  import {
-    Typography,
-    SectionHeader,
-    Card,
-    triggerToast,
-  } from "$lib";
+  import { onMount } from "svelte";
+  import { Modal, Button, Input, Textarea } from "flowbite-svelte";
+  import { Typography, SectionHeader, Card, Dropdown } from "$lib";
+  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
+  import { DatePicker } from "@svelte-plugins/datepicker";
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { CR3Call } from "hexacomponents-svelte";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import { format } from "date-fns";
   import { goto } from "$app/navigation";
+  import { CR3Call } from "hexacomponents-svelte";
+  import { format } from "date-fns";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+    import { tr } from "date-fns/locale";
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let { showAI = false } = $props();
-
-  let documents = $state([]);
-  let collections = $state([]);
   let files = $state([]);
   let actionItems = $state([]);
-  let tmpCollectionName = $state("");
-  let tmpDescription = $state("");
-  let addCollectionsModal = $state(false);
-  let timer;
+  let tmpProjectName = $state("");
+  let tmpProjectDescription = $state("");
+  let selectedIndustry = $state("Oil & Gas");
+  let selectedRole = $state("Buyer");
+  let dropdownIndustryOpen = $state(false);
+  let dropdownRole = $state(false);
+  let addProjectModal = $state(false);
+  let isOpen = $state(false);
+  let startDate = $state(null);
+  let endDate = $state(null);
+  let dateFormat = $state("d MMM yyyy");
+  let formattedStartDate = $state("");
+  let formattedEndDate = $state("");
+
+  let industries = $state([
+    { name: "Oil & Gas", value: "oil-gas" },
+    { name: "Other", value: "other" },
+  ]);
+
+  let role = $state([
+    { name: "Buyer", value: "buyer" },
+    { name: "Seller", value: "seller" },
+  ]);
+
+  let configs = $state({
+    headers: "projectList",
+    actions: [
+      {
+        name: "viewAll",
+        href: "/contract_reviewer/project",
+        type: "info",
+      },
+    ],
+    seperator: true,
+  });
+
+  let datas = $state([
+    {
+      project_name: "Aramco - Gasoline 90 RON",
+      industry: "Oil & Gas",
+      start_date: "01/12/2024",
+      end_date: "22/05/2025",
+      actions: {
+        objects: [
+          {
+            href: `contract_reviewer/project` + `?projectId=1`,
+            name: "View",
+          },
+        ],
+      },
+    }
+  ]);
 
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "contract-reviewer-reference"),
+        href: "/contract_reviewer/reference",
         icon: "filePlus",
         actionName: "Set your referenced document",
         desc: "desc Set your referenced document",
       },
       {
-        href: await call.getPage("client-dashboard", "contract-reviewer-project-create"),
+        href: "#",
         icon: "packagePlus",
         actionName: "Add new project",
         desc: "desc Add new project",
@@ -55,214 +96,26 @@ All Rights Reserved
     ];
   }
 
-  let latestDocuments = $state([]);
-
-  let latestDocumentCollection = $state([]);
-
-  async function viewAll() {
-    goto(await call.getPage("client-dashboard", "document-collection"));
+  function createProject() {
+    addProjectModal = false;
   }
 
-  async function createCollection() {
-    console.log(files);
-    let token = sessionStorage.getItem("token");
-
-    if (token !== null) {
-      let response = await call.call("client-dashboard", "create-document-collection", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_name: tmpCollectionName,
-          description: tmpDescription,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        triggerToast("error");
-        return;
-      }
-
-      console.log(response);
-
-      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: response.result.data.id.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response2.status !== 200) {
-        console.log(response2);
-        triggerToast("error");
-        return;
-      }
-
-      console.log(response2);
-
-      tmpCollectionName = "";
-      tmpDescription = "";
-
-      triggerToast("created");
-
-      addCollectionsModal = false;
-      getCollections();
-      // goto(await call.getPage("client-dashboard", "document-collection"));
-    }
-  }
-
-  async function getCollections() {
-    let token = sessionStorage.getItem("token");
-
-    if (token !== null) {
-      collections = [];
-      documents = [];
-      let response = await call.call("client-dashboard", "get-document-collections", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: 1,
-          page_size: 5,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        return;
-      }
-
-      if (response.result.data.length > 0) {
-        collections = collections.concat(response.result.data);
-      }
-
-      // let page2 = 1;
-      // while (true) {
-      //   let response2 = await call.call("client-dashboard", "get-documents", {
-      //     URLQuery: {},
-      //     URLParams: {},
-      //     Params: {
-      //       page: page2,
-      //       page_size: 25,
-      //     },
-      //     Headers: {
-      //       Authorization: "Bearer " + token,
-      //     },
-      //   });
-
-      //   if (response2.status !== 200) {
-      //     console.log(response2);
-      //     return;
-      //   }
-
-      //   if (response2.result.data.length > 0) {
-      //     documents = documents.concat(response2.result.data);
-      //     page2++;
-      //   } else {
-      //     break;
-      //   }
-      // }
-
-      for (const collection of collections) {
-        let page = 1;
-        while (true) {
-          let response3 = await call.call("client-dashboard", "get-documents-by-collectionid", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_id: collection.id.toString(),
-              page: page,
-              page_size: 25,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response3.status !== 200) {
-            console.log(response3);
-            return;
-          }
-
-          if (response3.result.data.length > 0) {
-            documents = documents.concat(response3.result.data);
-            page++;
-          } else {
-            break;
-          }
-        }
-      }
-
-      let collectionList = await call.getPage(
-        "client-dashboard",
-        "document-collection-list-document",
-      );
-
-      latestDocumentCollection = collections.map((collection) => {
-        const filteredDocuments = documents.filter(
-          (document) => document.attributes.collection_id === collection.id,
-        );
-
-        // Hitung total dokumen
-        const totalDocuments = filteredDocuments.length;
-
-        // Hitung jumlah dokumen dengan status null
-        const nullDocuments = filteredDocuments.filter(
-          (document) => document.attributes.status === null,
-        ).length;
-
-        // Hitung jumlah dokumen dengan status angka
-        const numberDocuments = filteredDocuments.filter(
-          (document) => typeof document.attributes.status === "number",
-        ).length;
-
-        // Hitung total dokumen yang Ready
-        const readyDocuments = filteredDocuments.filter(
-          (document) => document.attributes.status === "Ready",
-        ).length;
-
-        // Tentukan status koleksi berdasarkan kondisi yang diberikan
-        let collectionStatus;
-        if (nullDocuments === totalDocuments) {
-          collectionStatus = null;
-        } else if (nullDocuments > 0 || numberDocuments > 0) {
-          collectionStatus = "reading";
-        } else if (numberDocuments === totalDocuments && readyDocuments === totalDocuments) {
-          collectionStatus = "ready";
-        }
-        return {
-          collectionId: collection.id,
-          activationTime: format(collection.attributes.createdAt, "dd-MM-yyyy HH:mm"),
-          collectionName: collection.attributes.collection_name,
-          description: collection.attributes.description,
-          totalDocuments: totalDocuments,
-          status: collectionStatus,
-          href: `${collectionList}?collectionId=${collection.id}`,
-        };
-      });
-    }
-  }
+  const toggleDatePicker = () => {
+    isOpen = !isOpen;
+  };
 
   onMount(async () => {
     getActionItems();
   });
 
-  onDestroy(() => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-  });
-
   let buttonDisabled = $state(false);
+
+  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
+
+  $effect(() => {
+    formattedStartDate = formatDate(startDate);
+    formattedEndDate = formatDate(endDate);
+  });
 
   $effect(() => {
     buttonDisabled = files.length === 0;
@@ -284,7 +137,7 @@ All Rights Reserved
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
             {#each actionItems as item}
               <Card
-                onclick={() => (addCollectionsModal = true)}
+                onclick={() => item.actionName === "Add new project" ? addProjectModal = true : goto (item.href)}
                 icon={item.icon}
                 title={$_(toCamelCase(item.actionName))}
                 description={$_(toCamelCase(item.desc))}
@@ -293,30 +146,78 @@ All Rights Reserved
           </div>
         </div>
 
+        <!-- table latest -->
+        {#if datas.length > 0}
+          <DataTable bind:datas bind:configs />
+        {:else}
+          <div class="pt-8">
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+            />
+          </div>
+        {/if}
       </div>
     </div>
   </div>
 </div>
 
-<Modal title={$_("createNewCollection")} bind:open={addCollectionsModal} size="xs" autoclose>
+<Modal title={$_("createNewProject")} bind:open={addProjectModal} size="lg">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography
-        preset="Text sm/medium"
-        color="seaddCollectionsModal
-      addCollectionsModalcondary"
-        text={`${$_("collectionName")}*`}
-      />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectName")}*`} />
+      <Input bind:value={tmpProjectName} placeholder={$_("whatIsYourProjectTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
+      <Dropdown dropdownOpen={dropdownIndustryOpen} selectedItem={selectedIndustry} items={industries} placeholder={$_("selectIndustry")} />
+    </div>
+    <div class="flex gap-4">
+      <div class="flex flex-col gap-1.5">
+        <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
+        <Dropdown width="w-min" dropdownOpen={dropdownRole} selectedItem={selectedRole} items={role} />
+      </div>
+      <div class="flex grow flex-col gap-1.5">
+        <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
+        <DatePicker
+          bind:isOpen
+          bind:startDate
+          bind:endDate
+          isRange
+          isMultipane
+          enableFutureDates
+        >
+          <button
+            onclick={toggleDatePicker}
+            class:open={isOpen}
+            class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+          >
+            <svelte:component
+              this={CalendarPlus02}
+              class="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400"
+            />
+            <div class="date">
+              {#if startDate != endDate}
+                {formattedStartDate} - {formattedEndDate}
+              {:else if startDate}
+                {formattedStartDate}
+              {:else}
+                {$_("pickADate")}
+              {/if}
+            </div>
+          </button>
+        </DatePicker>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
-      <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
+      <Textarea bind:value={tmpProjectDescription} placeholder={$_("placholderDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createCollection} disabled={!tmpCollectionName} class="w-full"
-      >{$_("addNewCollection")}</Button
+    <Button onclick={createProject} disabled={!tmpProjectName || !endDate} class="w-full"
+      >{$_("addNewProject")}</Button
     >
   </svelte:fragment>
 </Modal>

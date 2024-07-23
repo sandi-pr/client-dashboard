@@ -1,3 +1,11 @@
+<!--
+CR3 Client Dashboard
+Package: gitlab.hexacode.org/cr3/client-dashboard
+Maintainer: 
+  - Sandi Permana <sandy@hexacode.org>
+Copyright (C) 2024 Hexacode Teknologi Indonesia
+All Rights Reserved
+-->
 <script>
   import { _ } from "svelte-i18n";
   import { Button } from "flowbite-svelte";
