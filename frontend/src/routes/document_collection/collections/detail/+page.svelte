@@ -525,32 +525,22 @@ All Rights Reserved
                   <div class="flex flex-col gap-2">
                     <P
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                      >{$_("detectedText")}</P
+                      >{$_("Handwriting text")}</P
                     >
                     <TextareaRw {onEdit} bind:value={data.detectedText} />
-                    <P
+                    <!-- <P
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                       >{$_("Result slice image")}</P
                     >
                     {#each data.slices as slice}
                       <div class="relative">
                         <img src={slice.image} alt="Dynamic Image" class="w-full h-auto" />
-                        <!-- <div
-                        class="absolute bg-white bg-opacity-50 flex items-center justify-center text-black text-base"
-                        style="
-                      top: {slice.box[1]}px;
-                      left: {slice.box[0]}px;
-                      width: {slice.box[2]}px;
-                      height: {slice.box[3]}px;
-                    "
-                      > -->
                         <P
                           class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                           >{slice.text}</P
                         >
-                        <!-- </div> -->
                       </div>
-                    {/each}
+                    {/each} -->
                   </div>
                 </div>
               </div>

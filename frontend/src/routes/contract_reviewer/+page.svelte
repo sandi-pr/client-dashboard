@@ -10,7 +10,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { Modal, Button, Input, Textarea } from "flowbite-svelte";
-  import { Typography, SectionHeader, Card, Dropdown } from "$lib";
+  import { Typography, SectionHeader, Card, Dropdown, triggerToast, StateCard } from "$lib";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { DatePicker } from "@svelte-plugins/datepicker";
@@ -20,7 +20,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-    import { tr } from "date-fns/locale";
+  import { tr } from "date-fns/locale";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -62,22 +62,7 @@ All Rights Reserved
     seperator: true,
   });
 
-  let datas = $state([
-    {
-      project_name: "Aramco - Gasoline 90 RON",
-      industry: "Oil & Gas",
-      start_date: "01/12/2024",
-      end_date: "22/05/2025",
-      actions: {
-        objects: [
-          {
-            href: `contract_reviewer/project` + `?projectId=1`,
-            name: "View",
-          },
-        ],
-      },
-    }
-  ]);
+  let datas = $state([]);
 
   async function getActionItems() {
     actionItems = [
@@ -97,15 +82,85 @@ All Rights Reserved
   }
 
   function createProject() {
-    addProjectModal = false;
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = call.call("client-dashboard", "create-contract-project", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            project_name: tmpProjectName,
+            industry_type: selectedIndustry,
+            project_as: selectedRole,
+            project_start_date: format(new Date(startDate), "yyyy-MM-dd"),
+            project_end_date: format(new Date(endDate), "yyyy-MM-dd"),
+            project_description: tmpProjectDescription,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status === 200) {
+          triggerToast("created");
+          addProjectModal = false;
+        }
+      } catch (error) {
+        addProjectModal = false;
+        console.log(error);
+      }
+    }
   }
 
   const toggleDatePicker = () => {
     isOpen = !isOpen;
   };
 
+  async function getProjectsLatest() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = call.call("client-dashboard", "get-contract-projects", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: 1,
+            page_size: 5,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status === 200) {
+          let url = await call.getPage("client-dashboard", "project-contract-detail");
+          let promise = response.result.data.map((project) => {
+            return {
+              project_name: project.attributes.project_name,
+              industry: project.attributes.industry_type,
+              start_date: format(new Date(project.attributes.project_start_date), "dd/MM/yyyy"),
+              end_date: format(new Date(project.attributes.project_end_date), "dd/MM/yyyy"),
+              actions: {
+                objects: [
+                  {
+                    href: url + `?projectId=${project.id}`,
+                    name: "View",
+                  },
+                ],
+              },
+            };
+          });
+
+          datas = await Promise.all(promise);
+          console.log("datas", datas);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(async () => {
     getActionItems();
+    getProjectsLatest();
   });
 
   let buttonDisabled = $state(false);
@@ -137,7 +192,10 @@ All Rights Reserved
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
             {#each actionItems as item}
               <Card
-                onclick={() => item.actionName === "Add new project" ? addProjectModal = true : goto (item.href)}
+                onclick={() =>
+                  item.actionName === "Add new project"
+                    ? (addProjectModal = true)
+                    : goto(item.href)}
                 icon={item.icon}
                 title={$_(toCamelCase(item.actionName))}
                 description={$_(toCamelCase(item.desc))}
@@ -151,10 +209,7 @@ All Rights Reserved
           <DataTable bind:datas bind:configs />
         {:else}
           <div class="pt-8">
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-            />
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           </div>
         {/if}
       </div>
@@ -170,23 +225,26 @@ All Rights Reserved
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
-      <Dropdown dropdownOpen={dropdownIndustryOpen} selectedItem={selectedIndustry} items={industries} placeholder={$_("selectIndustry")} />
+      <Dropdown
+        dropdownOpen={dropdownIndustryOpen}
+        selectedItem={selectedIndustry}
+        items={industries}
+        placeholder={$_("selectIndustry")}
+      />
     </div>
     <div class="flex gap-4">
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
-        <Dropdown width="w-min" dropdownOpen={dropdownRole} selectedItem={selectedRole} items={role} />
+        <Dropdown
+          width="w-min"
+          dropdownOpen={dropdownRole}
+          selectedItem={selectedRole}
+          items={role}
+        />
       </div>
       <div class="flex grow flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
-        <DatePicker
-          bind:isOpen
-          bind:startDate
-          bind:endDate
-          isRange
-          isMultipane
-          enableFutureDates
-        >
+        <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates>
           <button
             onclick={toggleDatePicker}
             class:open={isOpen}

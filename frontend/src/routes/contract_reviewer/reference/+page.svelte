@@ -104,9 +104,8 @@
           name: uploadedFile.name,
           size: formatBytes(uploadedFile.size),
           base64: base64Data,
-        }
-      } 
-      else {
+        };
+      } else {
         alert("Invalid file. Please select a valid file.");
       }
     });
@@ -162,21 +161,34 @@
     if (allRequiredFilesPresent) {
       let token = sessionStorage.getItem("token");
       try {
-        const response = await call.call("client-dashboard", "set-references", {
+        const response = await call.call("client-dashboard", "delete-all-references", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            references: JSON.stringify(files),
             industry_type: selectedIndustry,
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
-        console.log(response);
 
         if (response.status === 200) {
-          triggerToast("updated");
+          const response2 = await call.call("client-dashboard", "set-references", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              references: JSON.stringify(files),
+              industry_type: selectedIndustry,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+          console.log(response2);
+
+          if (response2.status === 200) {
+            triggerToast("updated");
+          }
         }
       } catch (error) {
         console.log(error);
@@ -378,7 +390,9 @@
           {/each}
           <Button
             class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
-            on:click={() => {addNewDocumentModal = true}}
+            on:click={() => {
+              addNewDocumentModal = true;
+            }}
             color="light"
           >
             <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />

@@ -51,7 +51,25 @@ func GetModelTrocr(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	modelTrocr := company["data"].(U.Dict)["attributes"].(U.Dict)["model_trocr"].(U.List)
+	// modelTrocr := company["data"].(U.Dict)["attributes"].(U.Dict)["model_trocr"].(U.List)
+
+	data, ok := company.GetDict("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	attributes, ok := data.GetDict("attributes")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	modelTrocr, ok := attributes.GetString("model_trocr")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
 
 	return 200, U.Dict{"model_trocr": modelTrocr}, nil
 }

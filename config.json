@@ -223,6 +223,16 @@
             "name": "contract-reviewer-reference",
             "path": "/contract_reviewer/reference",
             "file_path": "template/contract_reviewer/reference.html"
+        },
+        {
+            "name": "contract-reviewer-overview",
+            "path": "/contract_reviewer",
+            "file_path": "template/contract_reviewer.html"
+        },
+        {
+            "name": "contract-project-detail",
+            "path": "/contract_reviewer/project/detail",
+            "file_path": "template/contract_reviewer/project/detail.html"
         }
     ],
     "apis": [
@@ -2420,6 +2430,81 @@
                 {
                     "name": "industry_type",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delete-all-references",
+            "path": "/delete-all-references",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteAllReferences"
+            },
+            "params": [
+                {
+                    "name": "industry_type",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "create-contract-project",
+            "path": "/create-contract-project",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateContractProject"
+            },
+            "params": [
+                {
+                    "name": "project_name",
+                    "type": "string"
+                },
+                {
+                    "name": "industry_type",
+                    "type": "string"
+                },
+                {
+                    "name": "project_as",
+                    "type": "string"
+                },
+                {
+                    "name": "project_start_date",
+                    "type": "date"
+                },
+                {
+                    "name": "project_end_date",
+                    "type": "date"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "get-contract-projects",
+            "path": "/get-contract-projects",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetContractProjects"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
                 }
             ]
         }

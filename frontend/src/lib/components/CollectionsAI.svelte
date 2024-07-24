@@ -21,7 +21,7 @@
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let selectedCollectionOld = $state("");
+  let selectedCollectionOld = $state({});
 
   let statusRAG = $state("");
 
@@ -438,7 +438,7 @@
 
   $effect(() => {
     if ($selectedCollection) {
-      if ($selectedCollection !== selectedCollectionOld || selectedCollectionOld === "") {
+      if ($selectedCollection !== selectedCollectionOld) {
         if ($selectedCollection !== null) {
           selectedCollectionOld = $selectedCollection;
           getMessage();

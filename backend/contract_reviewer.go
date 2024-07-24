@@ -255,3 +255,248 @@ func GetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 	return 200, U.Dict{"files": datas}, nil
 }
+
+func DeleteAllReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	industry_type, ok := ctx.Params.GetString("industry_type")
+	if !ok {
+		return ctx.Error(400, "invalid parameters industry_type")
+	}
+
+	status, documents, err := Strapi.Find("reference-contract-table", U.Dict{
+		"filters": U.Dict{
+			"industry_type": U.Dict{
+				"$eq": industry_type,
+			},
+		},
+		"populate": "*",
+		"sort":     "id:desc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := documents.GetList("data")
+	if len(list) == 0 {
+		return 200, U.Dict{}, nil
+	}
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	for i := 0; i < len(list); i++ {
+
+		dict, ok := list.GetDict(i)
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		id, ok := dict.GetFloat64("id")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		status, res, err := Strapi.Delete("reference-contract-table", int64(id))
+
+		fmt.Println(status, res)
+
+		if err != nil {
+			fmt.Println("ayam 3", list[i], res)
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println("ayam 4", list[i], res)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+	}
+
+	return 200, U.Dict{}, nil
+}
+
+func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	project_name, ok := ctx.Params.GetString("project_name")
+	if !ok {
+		return ctx.Error(400, "invalid parameters project_name")
+	}
+
+	industry_type, ok := ctx.Params.GetString("industry_type")
+	if !ok {
+		return ctx.Error(400, "invalid parameters industry_type")
+	}
+
+	project_as, ok := ctx.Params.GetString("project_as")
+	if !ok {
+		return ctx.Error(400, "invalid parameters project_as")
+	}
+
+	project_start_date, ok := ctx.Params.GetString("project_start_date")
+	if !ok {
+		return ctx.Error(400, "invalid parameters project_start_date")
+	}
+
+	project_end_date, ok := ctx.Params.GetString("project_end_date")
+	if !ok {
+		return ctx.Error(400, "invalid parameters project_end_date")
+	}
+
+	description, ok := ctx.Params.GetString("description")
+	if !ok {
+		description = ""
+	}
+
+	if description == "" {
+		status, res, err := Strapi.Create("project-contract-table", U.Dict{
+			"project_name":       project_name,
+			"industry_type":      industry_type,
+			"project_as":         project_as,
+			"project_start_date": project_start_date,
+			"project_end_date":   project_end_date,
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, res, nil
+	} else {
+		status, res, err := Strapi.Create("project-contract-table", U.Dict{
+			"project_name":       project_name,
+			"industry_type":      industry_type,
+			"project_as":         project_as,
+			"project_start_date": project_start_date,
+			"project_end_date":   project_end_date,
+			"description":        description,
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, res, nil
+	}
+}
+
+func GetContractProjects(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	page, ok := ctx.Params.GetFloat64("page")
+
+	if !ok {
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+
+	if !ok {
+		page_size = 10
+	}
+
+	status, projects, err := Strapi.Find("project-contract-table", U.Dict{
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": page_size,
+		},
+		"sort":     "id:desc",
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, projects, nil
+}
