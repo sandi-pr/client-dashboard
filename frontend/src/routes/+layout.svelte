@@ -20,7 +20,7 @@ All Rights Reserved
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
-  import { triggerShowAI, showAI } from "$lib";
+  import { triggerShowAI, showAI, triggerReload } from "$lib";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   // import { set_pdfjs_context } from '$lib/utils/vite.ts';
 
@@ -95,6 +95,9 @@ All Rights Reserved
   const changeShowAI = () => {
     triggerShowAI(!$showAI);
     console.log($showAI);
+    if (!$showAI) {
+      triggerReload(true);
+    }
     // isShowAI = !isShowAI;
     localStorage.setItem("showAI", $showAI ? "true" : "false");
   };

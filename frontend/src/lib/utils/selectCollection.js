@@ -12,7 +12,7 @@ import { writable } from 'svelte/store';
 
 export const selectedCollection = writable(null);
 export const selectedDropdown = writable("general");
-export const reload = writable(false);
+export const reload = writable(true);
 
 export function triggerSelectCollection(select) {
   selectedCollection.set(select);
