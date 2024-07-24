@@ -441,7 +441,7 @@
 
   $effect(() => {
     if ($selectedCollection) {
-      if ($reload === true) {
+      if ($reload !== false) {
         if ($selectedCollection !== selectedCollectionOld) {
           if ($selectedCollection !== null) {
             selectedCollectionOld = $selectedCollection;
