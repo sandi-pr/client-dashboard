@@ -407,5 +407,8 @@
   "referenceDocumentGTC": "Reference Document GTC",
   "sellerGTC": "Seller's GTC",
   "referenceDocumentDealDone": "Reference Document Deal Done",
-  "documentDealDone": "Document Deal Done"
+  "documentDealDone": "Document Deal Done",
+  "trainingModel": "Training Model",
+  "newModelName": "New Model Name",
+  "whatIsYourNewModelName": "What is your new model name?"
 }

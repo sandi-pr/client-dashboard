@@ -407,5 +407,8 @@
   "referenceDocumentGTC": "Dokumen Referensi GTC",
   "sellerGTC": "GTC Penjual",
   "referenceDocumentDealDone": "Dokumen Referensi Deal Done",
-  "documentDealDone": "Dokumen Deal Done"
+  "documentDealDone": "Dokumen Deal Done",
+  "trainingModel": "Latih Model",
+  "newModelName": "Nama Model baru",
+  "whatIsYourNewModelName": "Apa nama model baru Anda?"
 }
