@@ -37,6 +37,7 @@ All Rights Reserved
     triggerSelectCollection,
     selectedCollection,
     selectedDropdown,
+    triggerReload,
     triggerSelectDropdown,
   } from "$lib";
 
@@ -243,6 +244,7 @@ All Rights Reserved
       return;
     }
 
+    triggerReload(true);
     triggerSelectCollection(tmpSelectedCollection);
     console.log(response2);
   }
