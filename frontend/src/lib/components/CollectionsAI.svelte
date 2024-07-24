@@ -182,94 +182,96 @@
   }
 
   async function getMessage() {
-    if (dataConversatonLogs.length < 2) {
-      dataConversatonLogs.push({
-        role: "assistant",
-        message: "Collection is selected. Please wait while we prepare your assistant.",
-      });
-    }
-
-    let conversationIdCollection = sessionStorage.getItem(
-      "conversationIdCollection-" + $selectedCollection.id.toString(),
-    );
-
-    let token = sessionStorage.getItem("token");
-
-    let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
-      URLQuery: {},
-      URLParams: {},
-      Params: {
-        collection_id: $selectedCollection.id.toString(),
-      },
-      Headers: {
-        Authorization: "Bearer " + token,
-      },
-    });
-
-    if (response2.status !== 200) {
-      console.log(response2);
-      return;
-    }
-
-    console.log(response2);
-
-    if (conversationIdCollection) {
-      try {
-        let chat = await call.call("hexa-ai-rag", "get-messages", {
-          URLQuery: {},
-          URLParams: {
-            collection_id: $selectedCollection.id.toString(),
-            conversation_id: conversationIdCollection,
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
+    if ($reload !== false) {
+      if (dataConversatonLogs.length < 2) {
+        dataConversatonLogs.push({
+          role: "assistant",
+          message: "Collection is selected. Please wait while we prepare your assistant.",
         });
-
-        console.log("chat", chat);
-
-        if (chat.status === 200) {
-          if (chat.result.messages.length > 0) {
-            dataConversatonLogs = chat.result.messages;
-          }
-
-          getStatusRag();
-        }
-      } catch (error) {
-        triggerToast("error");
-        console.log(error);
       }
-    } else {
-      try {
-        let createConversationResponse = await call.call("hexa-ai-rag", "create-conversation", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_id: parseInt($selectedCollection.id.toString()),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
 
-        console.log("createConversationResponse", createConversationResponse);
+      let conversationIdCollection = sessionStorage.getItem(
+        "conversationIdCollection-" + $selectedCollection.id.toString(),
+      );
 
-        if (createConversationResponse.status === 200) {
-          conversationIdCollection = createConversationResponse.result.conversation_id;
-          sessionStorage.setItem(
-            "conversationIdCollection-" + $selectedCollection.id.toString(),
-            conversationIdCollection,
-          );
+      let token = sessionStorage.getItem("token");
 
-          getStatusRag();
-        } else {
+      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: $selectedCollection.id.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response2.status !== 200) {
+        console.log(response2);
+        return;
+      }
+
+      console.log(response2);
+
+      if (conversationIdCollection) {
+        try {
+          let chat = await call.call("hexa-ai-rag", "get-messages", {
+            URLQuery: {},
+            URLParams: {
+              collection_id: $selectedCollection.id.toString(),
+              conversation_id: conversationIdCollection,
+            },
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log("chat", chat);
+
+          if (chat.status === 200) {
+            if (chat.result.messages.length > 0) {
+              dataConversatonLogs = chat.result.messages;
+            }
+
+            getStatusRag();
+          }
+        } catch (error) {
           triggerToast("error");
-          console.log(createConversationResponse);
+          console.log(error);
         }
-      } catch (error) {
-        triggerToast("error");
-        console.log(error);
+      } else {
+        try {
+          let createConversationResponse = await call.call("hexa-ai-rag", "create-conversation", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_id: parseInt($selectedCollection.id.toString()),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log("createConversationResponse", createConversationResponse);
+
+          if (createConversationResponse.status === 200) {
+            conversationIdCollection = createConversationResponse.result.conversation_id;
+            sessionStorage.setItem(
+              "conversationIdCollection-" + $selectedCollection.id.toString(),
+              conversationIdCollection,
+            );
+
+            getStatusRag();
+          } else {
+            triggerToast("error");
+            console.log(createConversationResponse);
+          }
+        } catch (error) {
+          triggerToast("error");
+          console.log(error);
+        }
       }
     }
   }
