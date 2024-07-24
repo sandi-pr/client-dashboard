@@ -564,16 +564,32 @@ All Rights Reserved
 
         console.log(response);
         if (response.status === 200) {
-          // sessionStorage.setItem("model_trocr", `trocr:latest`);
+          const response2 = await call.call("client-dashboard", "update-model-trocr", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              model_trocr: `trocr:${newModelName}`,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status !== 200) {
+            console.log(response2);
+            return;
+          }
           sessionStorage.setItem("model_trocr", `trocr:${newModelName}`);
           triggerToast("created");
           triggerLoading(false);
         } else {
           trainingModelModal = true;
+          triggerLoading(false);
           triggerToast("error");
         }
       } catch (error) {
         trainingModelModal = true;
+        triggerLoading(false);
         console.log(error);
       }
     }
