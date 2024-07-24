@@ -87,7 +87,7 @@
     inputElement.addEventListener("change", async (event) => {
       const uploadedFile = event.target.files[0];
 
-      if (uploadedFile) {
+      if (uploadedFile && role !== "other") {
         const base64Data = await readFileAsBase64(uploadedFile);
         files.push({
           type: type,
@@ -96,7 +96,17 @@
           size: formatBytes(uploadedFile.size),
           base64: base64Data,
         });
-      } else {
+      } else if (role === "other") {
+        const base64Data = await readFileAsBase64(uploadedFile);
+        tmpFile = {
+          type: type,
+          role: role,
+          name: uploadedFile.name,
+          size: formatBytes(uploadedFile.size),
+          base64: base64Data,
+        }
+      } 
+      else {
         alert("Invalid file. Please select a valid file.");
       }
     });
@@ -192,6 +202,14 @@
       if (response.status === 200) {
         if (response.result.files !== null) {
           files = response.result.files;
+          files.forEach((file) => {
+            if (file.role === "other") {
+              otherDocType.push({
+                title: file.type,
+                type: file.type,
+              });
+            }
+          });
         }
       }
     } catch (error) {
