@@ -612,7 +612,7 @@ All Rights Reserved
     console.log("ayam collections");
     triggerShowAI(true);
     triggerSelectDropdown("collections");
-    // triggerReload(true);
+    triggerReload(true);
     triggerSelectCollection(collection);
     return;
   }
