@@ -25,6 +25,7 @@ All Rights Reserved
     triggerSelectCollection,
     triggerShowAI,
     triggerSelectDropdown,
+    triggerReload,
     triggerLoading,
   } from "$lib";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
@@ -608,8 +609,10 @@ All Rights Reserved
   }
 
   async function selectCollection(collection) {
+    console.log("ayam collections");
     triggerShowAI(true);
     triggerSelectDropdown("collections");
+    triggerShowCollection(true);
     triggerSelectCollection(collection);
     return;
   }

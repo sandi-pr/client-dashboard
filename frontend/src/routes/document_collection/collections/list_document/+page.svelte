@@ -28,6 +28,7 @@ All Rights Reserved
     triggerShowAI,
     triggerSelectDropdown,
     triggerLoading,
+    triggerReload,
   } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
@@ -530,8 +531,10 @@ All Rights Reserved
   }
 
   async function selectCollection(collection) {
+    console.log("ayam list");
     triggerShowAI(true);
     triggerSelectDropdown("collections");
+    triggerReload(true);
     triggerSelectCollection(collection);
     return;
   }

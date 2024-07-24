@@ -15,7 +15,7 @@
   import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
-  import { triggerToast, selectedCollection } from "$lib";
+  import { triggerToast, selectedCollection, reload, triggerReload } from "$lib";
 
   const plugins = [gfmPlugin()];
 
@@ -364,6 +364,7 @@
             )
           ) {
             console.log("Already");
+            triggerReload(false);
             clearTimeout(timer);
             return;
           } else {
@@ -440,11 +441,12 @@
 
   $effect(() => {
     if ($selectedCollection) {
-      if ($selectedCollection !== selectedCollectionOld) {
-        if ($selectedCollection !== null) {
-          selectedCollectionOld = $selectedCollection;
-          console.log("$selectedCollection");
-          // getMessage();
+      if ($reload === true) {
+        if ($selectedCollection !== selectedCollectionOld) {
+          if ($selectedCollection !== null) {
+            selectedCollectionOld = $selectedCollection;
+            getMessage();
+          }
         }
       }
     }
