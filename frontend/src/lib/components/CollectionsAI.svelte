@@ -42,6 +42,8 @@
   let disableInput = $state(false);
   let disableButton = $state(false);
 
+  let init = $state(false);
+
   let dataConversatonLogs = $state([
     {
       role: "assistant",
@@ -441,7 +443,8 @@
       if ($selectedCollection !== selectedCollectionOld) {
         if ($selectedCollection !== null) {
           selectedCollectionOld = $selectedCollection;
-          getMessage();
+          console.log("$selectedCollection");
+          // getMessage();
         }
       }
     }
