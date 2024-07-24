@@ -183,6 +183,7 @@
 
   async function getMessage() {
     if ($reload !== false) {
+      console.log("reload getMessage", $reload);
       if (dataConversatonLogs.length < 2) {
         dataConversatonLogs.push({
           role: "assistant",
@@ -235,6 +236,7 @@
               dataConversatonLogs = chat.result.messages;
             }
 
+            triggerReload(false);
             getStatusRag();
           }
         } catch (error) {
@@ -263,6 +265,7 @@
               conversationIdCollection,
             );
 
+            triggerReload(false);
             getStatusRag();
           } else {
             triggerToast("error");
@@ -366,7 +369,6 @@
             )
           ) {
             console.log("Already");
-            triggerReload(false);
             clearTimeout(timer);
             return;
           } else {
@@ -444,6 +446,7 @@
   $effect(() => {
     if ($selectedCollection) {
       if ($reload !== false) {
+        console.log("reload effect", $reload);
         if ($selectedCollection !== selectedCollectionOld) {
           if ($selectedCollection !== null) {
             selectedCollectionOld = $selectedCollection;
