@@ -682,14 +682,12 @@ All Rights Reserved
                   collectionName={document.collectionName}
                   totalDocuments={document.totalDocuments}
                   status={document.status}
-                  functButton={() => {
-                    selectCollection({
-                      id: document.collectionId,
-                      name: document.collectionName,
-                      description: document.description,
-                      totalDocuments: document.totalDocuments,
-                    });
-                  }}
+                  functButton={selectCollection({
+                    id: document.collectionId,
+                    name: document.collectionName,
+                    description: document.description,
+                    totalDocuments: document.totalDocuments,
+                  })}
                   functAddDocuments={() => {
                     tmpCollectionId = document.collectionId;
                     selectTypeCollection("Documents");
