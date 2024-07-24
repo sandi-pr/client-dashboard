@@ -9,7 +9,7 @@
   import { ChevronDownOutline, RefreshOutline } from "flowbite-svelte-icons";
   import templatePdf from "$lib/template.pdf";
   import DataTableAiReview from "$lib/components/DataTableAIReview.svelte";
-  import { Svroller, Svrollbar } from 'svrollbar';
+  // import { Svroller, Svrollbar } from 'svrollbar';
 
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });

@@ -533,6 +533,7 @@ All Rights Reserved
     triggerShowAI(true);
     triggerSelectDropdown("collections");
     triggerSelectCollection(collection);
+    return;
   }
 
   onMount(async () => {
