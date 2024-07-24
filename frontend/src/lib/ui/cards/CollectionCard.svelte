@@ -112,7 +112,7 @@
   <div class="flex justify-center border-t border-secondary-light dark:border-secondary-dark">
     <Button
       on:click={() => {
-        functButton;
+        functButton();
       }}
       disabled={status === "reading"}
       color="light"

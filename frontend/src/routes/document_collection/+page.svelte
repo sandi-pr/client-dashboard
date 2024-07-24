@@ -910,7 +910,7 @@ All Rights Reserved
     console.log("ayam overview");
     triggerShowAI(true);
     triggerSelectDropdown("collections");
-    // triggerReload(true);
+    triggerReload(true);
     triggerSelectCollection(collection);
   }
 
