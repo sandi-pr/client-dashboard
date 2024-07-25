@@ -413,6 +413,8 @@ All Rights Reserved
         }
 
         triggerToast("deleted");
+        getCollection();
+        getDocuments(pagination.page);
       } catch (error) {
         triggerToast("error");
         console.log(error);
