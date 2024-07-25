@@ -410,5 +410,6 @@
   "documentDealDone": "Dokumen Deal Done",
   "trainingModel": "Latih Model",
   "newModelName": "Nama Model baru",
-  "whatIsYourNewModelName": "Apa nama model baru Anda?"
+  "whatIsYourNewModelName": "Apa nama model baru Anda?",
+  "areYouSureYouWantToResetTheDatabase": "Apakah Anda yakin ingin mereset database?"
 }

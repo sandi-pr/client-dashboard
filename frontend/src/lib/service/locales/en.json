@@ -410,5 +410,6 @@
   "documentDealDone": "Document Deal Done",
   "trainingModel": "Training Model",
   "newModelName": "New Model Name",
-  "whatIsYourNewModelName": "What is your new model name?"
+  "whatIsYourNewModelName": "What is your new model name?",
+  "areYouSureYouWantToResetTheDatabase": "Are you sure you want to reset the database?"
 }
