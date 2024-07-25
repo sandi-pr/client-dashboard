@@ -347,7 +347,7 @@ All Rights Reserved
       });
       if (resp.status === 200) {
         if (resp.result.model_trocr !== null) {
-          sessionStorage.setItem("model_trocr", response.result.model_trocr);
+          sessionStorage.setItem("model_trocr", resp.result.model_trocr);
         } else {
           sessionStorage.setItem("model_trocr", "trocr:latest");
         }
