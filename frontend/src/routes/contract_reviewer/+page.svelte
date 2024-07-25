@@ -50,17 +50,7 @@ All Rights Reserved
     { name: "Seller", value: "seller" },
   ]);
 
-  let configs = $state({
-    headers: "projectList",
-    actions: [
-      {
-        name: "viewAll",
-        href: "/contract_reviewer/project",
-        type: "info",
-      },
-    ],
-    seperator: true,
-  });
+  let configs = $state({});
 
   let datas = $state([]);
 
@@ -119,7 +109,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = call.call("client-dashboard", "get-contract-projects", {
+        const response = await call.call("client-dashboard", "get-contract-projects", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -130,8 +120,20 @@ All Rights Reserved
             Authorization: "Bearer " + token,
           },
         });
+        console.log("response", response);
         if (response.status === 200) {
-          let url = await call.getPage("client-dashboard", "project-contract-detail");
+          configs = {
+            headers: "projectList",
+            actions: [
+              {
+                name: "viewAll",
+                href: await call.getPage("client-dashboard", "contract-project-list"),
+                type: "info",
+              },
+            ],
+            seperator: true,
+          };
+          let url = await call.getPage("client-dashboard", "contract-project-detail");
           let promise = response.result.data.map((project) => {
             return {
               project_name: project.attributes.project_name,
@@ -159,8 +161,8 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    getActionItems();
     getProjectsLatest();
+    getActionItems();
   });
 
   let buttonDisabled = $state(false);

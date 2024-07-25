@@ -500,3 +500,54 @@ func GetContractProjects(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 
 	return 200, projects, nil
 }
+
+func GetContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	id, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, project, err := Strapi.Find("project-contract-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": id,
+			},
+		},
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, project, nil
+}

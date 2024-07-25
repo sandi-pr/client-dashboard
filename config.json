@@ -230,6 +230,11 @@
             "file_path": "template/contract_reviewer.html"
         },
         {
+            "name": "contract-project-list",
+            "path": "/contract_reviewer/project",
+            "file_path": "template/contract_reviewer/project.html"
+        },
+        {
             "name": "contract-project-detail",
             "path": "/contract_reviewer/project/detail",
             "file_path": "template/contract_reviewer/project/detail.html"
@@ -2505,6 +2510,24 @@
                 {
                     "name": "page_size",
                     "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-contract-project",
+            "path": "/get-contract-project/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetContractProject"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
                 }
             ]
         }

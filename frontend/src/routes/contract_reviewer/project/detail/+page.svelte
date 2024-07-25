@@ -1,5 +1,5 @@
 <script>
-  import { Typography, InputRw, UploadFile } from "$lib";
+  import { Typography, InputRw, UploadFile, triggerToast } from "$lib";
   import { Button, Modal, Input } from "flowbite-svelte";
   import { DatePicker } from "@svelte-plugins/datepicker";
   import { _ } from "svelte-i18n";
@@ -8,18 +8,18 @@
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
-  import { formatDistanceToNow } from "date-fns";
+  import { formatDistanceToNow, format } from "date-fns";
   import PdfViewer from "svelte-pdf";
+  import { onMount } from "svelte";
+  import { CR3Call } from "hexacomponents-svelte";
+  import { goto } from "$app/navigation";
 
-  let data = {
-    name: "Aramco - Gasoline 90 RON",
-    created_at: "2023-07-02 08:51 PM",
-    industry: "Oil & Gas",
-    as: "Buyer",
-    start_date: "Jan 6, 2024",
-    end_date: "Jan 13, 2024",
-    description: "This is a project between our Procurement Division with Aramco",
-  }
+  const params = new URLSearchParams(window.location.search);
+  const projectId = params.get("projectId");
+
+  const call = new CR3Call(globalThis.location.origin);
+
+  let data = $state({});
 
   let documentViewModal = $state(false);
   let addNewDocumentModal = $state(false);
@@ -96,7 +96,7 @@
           name: uploadedFile.name,
           size: formatBytes(uploadedFile.size),
           base64: base64Data,
-        }
+        };
       } else {
         alert("Invalid file. Please select a valid file.");
       }
@@ -135,6 +135,69 @@
     }
   }
 
+  async function getProject() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-contract-project", {
+          URLQuery: {},
+          URLParams: {
+            id: projectId,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("response", response);
+        if (response.status === 200) {
+          if (response.result.data.length === 0) {
+            triggerToast("error");
+            setTimeout(async () => {
+              goto(await call.getPage("client-dashboard", "contract-project-list"));
+              return;
+            }, 2000);
+          }
+          data = {
+            name: response.result.data[0].attributes.project_name,
+            created_at: formatDistanceToNow(
+              new Date(response.result.data[0].attributes.createdAt),
+              {
+                addSuffix: true,
+              },
+            ),
+            createdAt: response.result.data[0].attributes.createdAt,
+            industry: response.result.data[0].attributes.industry_type,
+            as: response.result.data[0].attributes.project_as,
+            start_date: format(
+              new Date(response.result.data[0].attributes.project_start_date),
+              "d MMM yyyy",
+            ),
+            end_date: format(
+              new Date(response.result.data[0].attributes.project_end_date),
+              "d MMM yyyy",
+            ),
+            description: response.result.data[0].attributes.description,
+          };
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  onMount(async () => {
+    if (projectId === null) {
+      triggerToast("error");
+      setTimeout(async () => {
+        goto(await call.getPage("client-dashboard", "contract-project-list"));
+      }, 2000);
+    } else {
+      console.log("projectId", projectId);
+      getProject();
+    }
+  });
 </script>
 
 <div class="flex flex-col px-4 pt-6 gap-6 pb-12">
@@ -142,15 +205,11 @@
   <div class="flex justify-between">
     <div class="flex flex-col gap-2">
       <div class="flex flex-col">
-        <Typography
-          preset="Display sm/Semibold"
-          text={data.name}
-          color="primary"
-        />
+        <Typography preset="Display sm/Semibold" text={data.name} color="primary" />
       </div>
       <Typography
         preset="Text md/Medium"
-        text={`${$_("createOn")} - ${formatDistanceToNow(new Date(data.created_at), { addSuffix: true })}`}
+        text={`${$_("createOn")} - ${data.createdAt}`}
         color="quarterary"
       />
     </div>
@@ -189,7 +248,11 @@
         </div>
         <div class="flex w-min flex-col gap-1.5">
           <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
-          <Button on:click={() => {}} class="flex justify-between border-primary-light dark:border-primary-dark" color="light">
+          <Button
+            on:click={() => {}}
+            class="flex justify-between border-primary-light dark:border-primary-dark"
+            color="light"
+          >
             {data.as}
             <ChevronDownOutline
               class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
@@ -197,7 +260,11 @@
           </Button>
         </div>
         <div class="flex grow flex-col gap-1.5">
-          <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
+          <Typography
+            preset="Text sm/medium"
+            color="secondary"
+            text={`${$_("projectDuration")}*`}
+          />
           <DatePicker
             isOpen={false}
             startDate={data.start_date}
@@ -257,7 +324,9 @@
         {/each}
         <Button
           class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
-          on:click={() => {addNewDocumentModal = true}}
+          on:click={() => {
+            addNewDocumentModal = true;
+          }}
           color="light"
         >
           <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />

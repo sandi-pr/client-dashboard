@@ -17,6 +17,10 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { format } from "date-fns";
   import { DatePicker } from "@svelte-plugins/datepicker";
+  import { onMount } from "svelte";
+  import { CR3Call } from "hexacomponents-svelte";
+
+  const call = new CR3Call(globalThis.location.origin);
 
   let tmpProjectName = $state("");
   let tmpProjectDescription = $state("");
@@ -31,6 +35,12 @@ All Rights Reserved
   let dateFormat = $state("d MMM yyyy");
   let formattedStartDate = $state("");
   let formattedEndDate = $state("");
+  let pagination = $state({
+    page: 1,
+    pageSize: 10,
+    pageCount: 1,
+    total: 1,
+  });
 
   let industries = $state([
     { name: "Oil & Gas", value: "oil-gas" },
@@ -42,34 +52,70 @@ All Rights Reserved
     { name: "Seller", value: "seller" },
   ]);
 
-  let configs = $state({
-    search: true,
-    pagination: { page: 1, pageSize: 10, pageCount: 1, total: 1 },
-  });
+  let configs = $state({});
 
-  let datas = $state([
-    {
-      project_name: "Aramco - Gasoline 90 RON",
-      industry: "Oil & Gas",
-      start_date: "01/12/2024",
-      end_date: "22/05/2025",
-      actions: {
-        objects: [
-          {
-            href: `contract_reviewer/project` + `?projectId=1`,
-            name: "View",
+  let datas = $state([]);
+
+  async function getProjects() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-contract-projects", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: pagination.page,
+            page_size: pagination.pageSize,
           },
-        ],
-      },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        console.log("response", response);
+        if (response.status === 200) {
+          configs = {
+            search: true,
+            pagination: response.result.meta.pagination,
+          };
+          let url = await call.getPage("client-dashboard", "contract-project-detail");
+          let promise = response.result.data.map((project) => {
+            return {
+              project_name: project.attributes.project_name,
+              industry: project.attributes.industry_type,
+              start_date: format(new Date(project.attributes.project_start_date), "dd/MM/yyyy"),
+              end_date: format(new Date(project.attributes.project_end_date), "dd/MM/yyyy"),
+              actions: {
+                objects: [
+                  {
+                    href: url + `?projectId=${project.id}`,
+                    name: "View",
+                  },
+                ],
+              },
+            };
+          });
+
+          datas = await Promise.all(promise);
+          console.log("datas", datas);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
-  ]);
+  }
 
   function next() {
-    console.log("next");
+    if (pagination.page < pagination.pageCount) {
+      pagination.page = pagination.page + 1;
+      getProjects();
+    }
   }
 
   function previous() {
-    console.log("previous");
+    if (pagination.page > 1) {
+      pagination.page = pagination.page - 1;
+      getProjects();
+    }
   }
 
   function createProject() {
@@ -87,6 +133,9 @@ All Rights Reserved
     formattedEndDate = formatDate(endDate);
   });
 
+  onMount(async () => {
+    getProjects();
+  });
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -125,23 +174,26 @@ All Rights Reserved
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
-      <Dropdown dropdownOpen={dropdownIndustryOpen} selectedItem={selectedIndustry} items={industries} placeholder={$_("selectIndustry")} />
+      <Dropdown
+        dropdownOpen={dropdownIndustryOpen}
+        selectedItem={selectedIndustry}
+        items={industries}
+        placeholder={$_("selectIndustry")}
+      />
     </div>
     <div class="flex gap-4">
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
-        <Dropdown width="w-min" dropdownOpen={dropdownRole} selectedItem={selectedRole} items={role} />
+        <Dropdown
+          width="w-min"
+          dropdownOpen={dropdownRole}
+          selectedItem={selectedRole}
+          items={role}
+        />
       </div>
       <div class="flex grow flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
-        <DatePicker
-          bind:isOpen
-          bind:startDate
-          bind:endDate
-          isRange
-          isMultipane
-          enableFutureDates
-        >
+        <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates>
           <button
             onclick={toggleDatePicker}
             class:open={isOpen}
