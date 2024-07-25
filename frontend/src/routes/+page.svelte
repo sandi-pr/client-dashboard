@@ -28,24 +28,24 @@ All Rights Reserved
   let isFirstTime = $state(true);
 
   const cards = [
-    {
-      icon: "users",
-      title: "crmOverview",
-      description: "descCrm",
-      page: "crm-overview",
-    },
+    // {
+    //   icon: "users",
+    //   title: "crmOverview",
+    //   description: "descCrm",
+    //   page: "crm-overview",
+    // },
     {
       icon: "fileShield",
       title: "documentCollection",
       description: "documentCollection",
       page: "document-collection-overview",
     },
-    {
-      icon: "userSquare",
-      title: "HR",
-      description: "descHr",
-      page: "hr-overview",
-    },
+    // {
+    //   icon: "userSquare",
+    //   title: "HR",
+    //   description: "descHr",
+    //   page: "hr-overview",
+    // },
   ];
 
   function setFristTime() {
