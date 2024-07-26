@@ -138,7 +138,7 @@
     return index !== -1 ? files[index] : [];
   }
 
-  function deleteFileByType(type, role) {
+  async function deleteFileByType(type, role) {
     const index = files.findIndex((file) => file.type === type && file.role === role);
     if (index !== -1) {
       let token = sessionStorage.getItem("token");
