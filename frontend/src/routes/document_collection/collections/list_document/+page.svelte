@@ -251,6 +251,9 @@ All Rights Reserved
   }
 
   async function addDocumentByCollection() {
+    files[0].document_title = tmpDocumentTitle;
+    files[0].description = tmpDocumentDescription;
+
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {

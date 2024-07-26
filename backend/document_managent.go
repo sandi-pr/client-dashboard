@@ -146,6 +146,16 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
+		document_title, ok := document.(map[string]interface{})["document_title"].(string)
+		if !ok {
+			return ctx.Error(400, "invalid parameters documents")
+		}
+
+		description, ok := document.(map[string]interface{})["description"].(string)
+		if !ok {
+			description = ""
+		}
+
 		status, upload, err := Strapi.Upload(documentName, documentFile)
 
 		fmt.Println("upload", upload)
@@ -173,16 +183,30 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		status, documents, err := Strapi.Create("document-management-table", U.Dict{
-			"document_title": documentName,
-			"description":    "-",
-			"document_type":  document_type,
-			"document":       id,
-			"collection_id":  collection_id,
-			"upload_by":      upload_by,
-			"file_size":      file_size,
-			"edited":         false,
-		})
+		var documents U.Dict
+
+		if description == "" {
+			status, documents, err = Strapi.Create("document-management-table", U.Dict{
+				"document_title": document_title,
+				"document_type":  document_type,
+				"document":       id,
+				"collection_id":  collection_id,
+				"upload_by":      upload_by,
+				"file_size":      file_size,
+				"edited":         false,
+			})
+		} else {
+			status, documents, err = Strapi.Create("document-management-table", U.Dict{
+				"document_title": document_title,
+				"document_type":  document_type,
+				"document":       id,
+				"collection_id":  collection_id,
+				"upload_by":      upload_by,
+				"file_size":      file_size,
+				"edited":         false,
+				"description":    description,
+			})
+		}
 
 		fmt.Println("document", documents)
 
