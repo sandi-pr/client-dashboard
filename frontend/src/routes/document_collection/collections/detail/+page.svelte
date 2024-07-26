@@ -185,6 +185,7 @@ All Rights Reserved
             id: documentData.id,
             createdAt: formatDistanceToNow(documentData.attributes.createdAt, { addSuffix: true }),
             document_title: documentData.attributes.document_title,
+            description: documentData.attributes.description,
             document_type: documentData.attributes.document_type,
             ext: documentData.attributes.document.data.attributes.ext,
             detectedText: documentData.attributes.detected_text
@@ -470,12 +471,39 @@ All Rights Reserved
         </div>
 
         <div class="flex gap-2">
-          <Button
-            onclick={() => (popupModal = true)}
-            outline
-            color="red"
-            class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-          >
+          {#if onEdit}
+            <Button
+              onclick={() => {
+                onEdit = false;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+            >
+            <Button onclick={() => {}} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+          {:else}
+            <Button
+              onclick={async function () {
+                goto(await call.getPage("client-dashboard", "document-collection-list-document"));
+                return;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("back")}</Button
+            >
+            <Button
+              onclick={() => (popupModal = true)}
+              outline
+              color="red"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+            >
+            {#if data.document_type !== "Handwriting"}
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            {/if}
+          {/if}
         </div>
       </div>
 
@@ -556,6 +584,14 @@ All Rights Reserved
             <div
               class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
             >
+            <div class="flex flex-col gap-1.5">
+              <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
+              <InputRw {onEdit} bind:value={data.document_title} />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+              <InputRw {onEdit} bind:value={data.description} />
+            </div>
               {#if data.ext === ".pdf"}
                 <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
                 <div class="flex justify-center">
