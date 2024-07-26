@@ -80,6 +80,7 @@ All Rights Reserved
           let url = await call.getPage("client-dashboard", "contract-project-detail");
           let promise = response.result.data.map((project) => {
             return {
+              id: project.id,
               project_name: project.attributes.project_name,
               industry: project.attributes.industry_type,
               start_date: format(new Date(project.attributes.project_start_date), "dd/MM/yyyy"),
@@ -118,10 +119,6 @@ All Rights Reserved
     }
   }
 
-  function createProject() {
-    addProjectModal = false;
-  }
-
   const toggleDatePicker = () => {
     isOpen = !isOpen;
   };
@@ -132,6 +129,37 @@ All Rights Reserved
     formattedStartDate = formatDate(startDate);
     formattedEndDate = formatDate(endDate);
   });
+
+  function createProject() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = call.call("client-dashboard", "create-contract-project", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            project_name: tmpProjectName,
+            industry_type: selectedIndustry,
+            project_as: selectedRole,
+            project_start_date: format(new Date(startDate), "yyyy-MM-dd"),
+            project_end_date: format(new Date(endDate), "yyyy-MM-dd"),
+            project_description: tmpProjectDescription,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status === 200) {
+          triggerToast("created");
+          addProjectModal = false;
+        }
+      } catch (error) {
+        triggerToast("error");
+        addProjectModal = false;
+        console.log(error);
+      }
+    }
+  }
 
   onMount(async () => {
     getProjects();

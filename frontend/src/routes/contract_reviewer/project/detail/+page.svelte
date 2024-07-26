@@ -81,13 +81,41 @@
 
       if (uploadedFile && role !== "other") {
         const base64Data = await readFileAsBase64(uploadedFile);
-        files.push({
-          type: type,
-          role: role,
-          name: uploadedFile.name,
-          size: formatBytes(uploadedFile.size),
-          base64: base64Data,
-        });
+        let token = sessionStorage.getItem("token");
+        if (token) {
+          const response = await call.call("client-dashboard", "create-document-project", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              project_id: projectId,
+              document: JSON.stringify({
+                name: uploadedFile.name,
+                size: formatBytes(uploadedFile.size),
+                base64: base64Data,
+                type: type,
+              }),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log(response);
+
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          files.push({
+            id: response.result.data.id,
+            type: type,
+            role: role,
+            name: uploadedFile.name,
+            size: formatBytes(uploadedFile.size),
+            base64: base64Data,
+          });
+        }
       } else if (role === "other") {
         const base64Data = await readFileAsBase64(uploadedFile);
         tmpFile = {
@@ -113,9 +141,31 @@
   function deleteFileByType(type, role) {
     const index = files.findIndex((file) => file.type === type && file.role === role);
     if (index !== -1) {
-      files.splice(index, 1);
-      if (role === "other") {
-        otherDocType = otherDocType.filter((doc) => doc.type !== type);
+      let token = sessionStorage.getItem("token");
+      if (token) {
+        const response = await call.call("client-dashboard", "delete-document-project", {
+          URLQuery: {},
+          URLParams: {
+            id: files[index].id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        console.log(response);
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        triggerToast("deleted");
+        files.splice(index, 1);
+        if (role === "other") {
+          otherDocType = otherDocType.filter((doc) => doc.type !== type);
+        }
       }
     }
   }
@@ -159,15 +209,48 @@
               return;
             }, 2000);
           }
+
+          const response2 = await call.call("client-dashboard", "get-document-contract-project", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              project_id: projectId,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status === 200) {
+            if (response2.result.files !== null) {
+              response2.result.files.forEach((file) => {
+                if (
+                  file.type === "documentGtc" ||
+                  file.type === "tradeConfirmation" ||
+                  file.type === "dealDoneDocument"
+                ) {
+                  file.role = response.result.data[0].attributes.project_as;
+                } else {
+                  file.role = "other";
+                }
+              });
+              files = response2.result.files;
+              files.forEach((file) => {
+                if (file.role === "other") {
+                  otherDocType.push({
+                    title: file.type,
+                    type: file.type,
+                  });
+                }
+              });
+            }
+          }
+
           data = {
             name: response.result.data[0].attributes.project_name,
-            created_at: formatDistanceToNow(
-              new Date(response.result.data[0].attributes.createdAt),
-              {
-                addSuffix: true,
-              },
-            ),
-            createdAt: response.result.data[0].attributes.createdAt,
+            createdAt: formatDistanceToNow(new Date(response.result.data[0].attributes.createdAt), {
+              addSuffix: true,
+            }),
             industry: response.result.data[0].attributes.industry_type,
             as: response.result.data[0].attributes.project_as,
             start_date: format(
@@ -301,13 +384,13 @@
         {#each documentTypes as docType}
           <UploadFile
             title={docType.title}
-            handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "buyer")}
-            file={getFileByType(docType.type, "buyer")}
+            handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
+            file={getFileByType(docType.type, data.as)}
             actionButton={true}
             actionView={() => (
-              (documentViewModal = true), (selectedFile = getFileByType(docType.type, "buyer"))
+              (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
             )}
-            actionDelete={() => deleteFileByType(docType.type, "buyer")}
+            actionDelete={() => deleteFileByType(docType.type, data.as)}
           />
         {/each}
         {#each otherDocType as docType}

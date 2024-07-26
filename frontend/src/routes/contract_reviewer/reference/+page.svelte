@@ -173,22 +173,30 @@
         });
 
         if (response.status === 200) {
-          const response2 = await call.call("client-dashboard", "set-references", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              references: JSON.stringify(files),
-              industry_type: selectedIndustry,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-          console.log(response2);
+          let allSuccess = true;
+          for (let i = 0; i < files.length; i++) {
+            const response2 = await call.call("client-dashboard", "set-references", {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                references: JSON.stringify([files[i]]),
+                industry_type: selectedIndustry,
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
+            console.log(response2);
 
-          if (response2.status === 200) {
-            triggerToast("updated");
+            if (response2.status !== 200) {
+              allSuccess = false;
+              getReferences();
+              triggerToast("error");
+              break;
+            }
           }
+
+          triggerToast("updated");
         }
       } catch (error) {
         console.log(error);

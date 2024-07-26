@@ -57,7 +57,7 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: "/contract_reviewer/reference",
+        href: await call.getPage("client-dashboard", "contract-reviewer-reference"),
         icon: "filePlus",
         actionName: "Set your referenced document",
         desc: "desc Set your referenced document",
@@ -95,6 +95,7 @@ All Rights Reserved
           addProjectModal = false;
         }
       } catch (error) {
+        triggerToast("error");
         addProjectModal = false;
         console.log(error);
       }
@@ -136,6 +137,7 @@ All Rights Reserved
           let url = await call.getPage("client-dashboard", "contract-project-detail");
           let promise = response.result.data.map((project) => {
             return {
+              id: project.id,
               project_name: project.attributes.project_name,
               industry: project.attributes.industry_type,
               start_date: format(new Date(project.attributes.project_start_date), "dd/MM/yyyy"),

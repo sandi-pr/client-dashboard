@@ -2530,6 +2530,63 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "get-document-contract-project",
+            "path": "/get-document-contract-project",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDocumentContractProject"
+            },
+            "params": [
+                {
+                    "name": "project_id",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "create-document-project",
+            "path": "/create-document-project",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateDocumentContractProject"
+            },
+            "params": [
+                {
+                    "name": "project_id",
+                    "type": "string"
+                },
+                {
+                    "name": "document",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delete-document-project",
+            "path": "/delete-document-project/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteDocumentContractProject"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": []
         }
     ],
     "options": {
@@ -3326,7 +3383,7 @@
                 "name": "document-project",
                 "label": "Document Project",
                 "fields": {
-                    "id_project": {
+                    "project_id": {
                         "type": "integer"
                     },
                     "document_type": {
