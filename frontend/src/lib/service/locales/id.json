@@ -411,5 +411,8 @@
   "trainingModel": "Latih Model",
   "newModelName": "Nama Model baru",
   "whatIsYourNewModelName": "Apa nama model baru Anda?",
-  "areYouSureYouWantToResetTheDatabase": "Apakah Anda yakin ingin mereset database?"
+  "areYouSureYouWantToResetTheDatabase": "Apakah Anda yakin ingin mereset database?",
+  "remove": "Hapus",
+  "enterDocumentTitle": "Masukkan judul dokumen",
+  "enterDocumentDescription": "Masukkan deskripsi dokumen"
 }

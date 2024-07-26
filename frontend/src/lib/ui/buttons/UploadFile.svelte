@@ -22,7 +22,7 @@ All Rights Reserved
     type = "document", 
     file = [], 
     actionButton = false, 
-    actionView = () => {},
+    actionView = null,
     actionDelete = () => {},
   } = $props();
 
@@ -69,13 +69,13 @@ All Rights Reserved
       </div>
       {#if actionButton}
         <div class="flex gap-3">
-          {#if actionView && actionView}
+          {#if actionView}
           <Button class="w-full" color="light" on:click={actionView}>
             <Typography preset="Text sm/Semibold" text={$_("view")} color="secondary" />
           </Button>
           {/if}
           <Button class="w-full border-0" color="light" on:click={actionDelete}>
-            <Typography preset="Text sm/Semibold" text={$_("delete")} color="secondary" />
+            <Typography preset="Text sm/Semibold" text={$_("remove")} color="secondary" />
           </Button>
         </div>
       {/if}

@@ -20,6 +20,7 @@ All Rights Reserved
     ChartCard,
     CollectionCard,
     triggerToast,
+    UploadFile,
   } from "$lib";
   import { _ } from "svelte-i18n";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -63,6 +64,8 @@ All Rights Reserved
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
   let tmpDocumentType = $state("");
+  let tmpDocumentTitle = $state("");
+  let tmpDocumentDescription = $state("");
   let addCollectionsModal = $state(false);
   let addDocumentsModal = $state(false);
   let editModal = $state(false);
@@ -766,20 +769,20 @@ All Rights Reserved
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.accept = acceptedFileTypes;
-    inputElement.multiple = true;
+    inputElement.multiple = false;
 
     inputElement.addEventListener("change", async (event) => {
-      const uploadedFiles = event.target.files;
+      const file = event.target.files[0];
 
-      if (uploadedFiles.length > 0) {
-        for (const file of uploadedFiles) {
-          const base64Data = await readFileAsBase64(file);
-          files.push({
-            name: file.name,
-            size: formatBytes(file.size),
-            base64: base64Data,
-          });
-        }
+      if (file) {
+        const base64Data = await readFileAsBase64(file);
+        files.push({
+          name: file.name,
+          document_title: tmpDocumentTitle,
+          description: tmpDocumentDescription,
+          size: formatBytes(file.size),
+          base64: base64Data,
+        });
       } else {
         alert("Invalid file. Please select a valid file.");
       }
@@ -935,7 +938,7 @@ All Rights Reserved
   let buttonDisabled = $state(false);
 
   $effect(() => {
-    buttonDisabled = files.length === 0;
+    buttonDisabled = files.length === 0 || tmpDocumentTitle === "";
   });
 </script>
 
@@ -1105,52 +1108,20 @@ All Rights Reserved
       </div>
     </div>
     <div class="flex flex-col gap-1.5">
-      <P class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-        >{$_("uploadDocuments")}</P
-      >
-      {#if files.length === 0}
-        <Button
-          onclick={() => {
-            handleFileUploadWrapper();
-          }}
-          color="light"
-          class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-3 py-4 flex flex-col justify-start items-center`}
-        >
-          <div
-            class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex pointer-events-none"
-          >
-            <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
-          </div>
-          <div class="flex space-x-1">
-            <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
-            <P class="pointer-events-none">
-              <!-- {$_("orDragAndDrop")} -->
-            </P>
-          </div>
-          <!-- <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P> -->
-        </Button>
-      {:else}
-        <div class="flex items-center justify-center relative">
-          <div class="relative w-min">
-            <FileTypeIcon />
-            <Indicator
-              color="purple"
-              border
-              placement="center-right"
-              class="!w-8 !h-8 text-white text-xs font-semibold p-4">+{files.length}</Indicator
-            >
-          </div>
-          <div class="absolute bottom-0 right-0">
-            <Button on:click={handleFileUploadWrapper} pill={true} id="placement-1" class="!p-2"
-              ><img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
-            >
-            <Tooltip type="light" triggeredBy="#placement-1" placement="left">
-              {$_("addMoreFiles")}
-            </Tooltip>
-          </div>
-        </div>
-      {/if}
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
+      <Input bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
     </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Input bind:value={tmpDocumentDescription} placeholder={$_("enterDocumentDescription")} />
+    </div>
+    <UploadFile
+      title={`${$_("uploadDocuments")}*`}
+      handleFileUploadWrapper={() => handleFileUploadWrapper()}
+      file={files[0]}
+      actionButton={true}
+      actionDelete={() => (files = [])}
+    />
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"

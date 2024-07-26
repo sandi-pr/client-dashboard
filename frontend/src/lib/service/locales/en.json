@@ -411,5 +411,8 @@
   "trainingModel": "Training Model",
   "newModelName": "New Model Name",
   "whatIsYourNewModelName": "What is your new model name?",
-  "areYouSureYouWantToResetTheDatabase": "Are you sure you want to reset the database?"
+  "areYouSureYouWantToResetTheDatabase": "Are you sure you want to reset the database?",
+  "remove": "Remove",
+  "enterDocumentTitle": "Enter document title",
+  "enterDocumentDescription": "Enter document description"
 }
