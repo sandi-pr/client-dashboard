@@ -316,6 +316,8 @@ All Rights Reserved
               },
             });
 
+            console.log("trocr-predict", response3);
+
             if (response3.status !== 200) {
               addDocumentsModal = true;
               triggerToast("error");
@@ -324,10 +326,8 @@ All Rights Reserved
               return;
             }
 
-            console.log("trocr-predict", response3);
-
             if (response3?.result?.text !== null) {
-              const response4 = await call.call("client-dashboard", "update-document", {
+              const response4 = await call.call("client-dashboard", "update-document-handwriting", {
                 URLQuery: {},
                 URLParams: {
                   id: response.result.data[i].id.toString(),
@@ -336,6 +336,8 @@ All Rights Reserved
                   detected_text: response3.result.text,
                   result_trocr: JSON.stringify(response3.result),
                   edited: false,
+                  document_title: tmpDocumentTitle,
+                  description: tmpDocumentDescription,
                 },
                 Headers: {
                   Authorization: "Bearer " + token,
@@ -376,6 +378,8 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
+      popupModal = false;
+      triggerLoading(true);
       let ids = datasChecked.filter((data) => data.checked).map((data) => data.id);
       try {
         for (const id of ids) {
@@ -390,6 +394,9 @@ All Rights Reserved
           });
 
           if (response.status !== 200) {
+            triggerLoading(false);
+            triggerToast("error");
+            popupModal = true;
             console.log(response);
             return;
           }
@@ -407,10 +414,16 @@ All Rights Reserved
             });
 
             if (response2.status !== 200) {
+              triggerToast("error");
+              triggerLoading(false);
+              popupModal = true;
               console.log(response2);
               return;
             }
           } else {
+            triggerToast("error");
+            triggerLoading(false);
+            popupModal = true;
             triggerToast("error");
             console.log(response);
             return;

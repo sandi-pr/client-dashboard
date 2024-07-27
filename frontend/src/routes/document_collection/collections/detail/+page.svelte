@@ -391,32 +391,88 @@ All Rights Reserved
   //   }
   // });
 
-  async function editDetectedText() {
+  // async function editDetectedText() {
+  //   onEdit = false;
+  //   let token = sessionStorage.getItem("token");
+  //   if (token !== null) {
+  //     let response = await call.call("client-dashboard", "update-document", {
+  //       URLQuery: {},
+  //       URLParams: {
+  //         id: documentId.toString(),
+  //       },
+  //       Params: {
+  //         detected_text: data.detectedText,
+  //         result_trocr: JSON.stringify(data.result_trocr),
+  //         edited: true,
+  //       },
+  //       Headers: {
+  //         Authorization: "Bearer " + token,
+  //       },
+  //     });
+  //     if (response.status !== 200) {
+  //       console.log(response);
+  //       return;
+  //     }
+
+  //     console.log(response);
+  //     triggerToast("updated");
+  //     getDocument();
+  //   }
+  // }
+
+  async function updateDocument() {
     onEdit = false;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "update-document", {
-        URLQuery: {},
-        URLParams: {
-          id: documentId.toString(),
-        },
-        Params: {
-          detected_text: data.detectedText,
-          result_trocr: JSON.stringify(data.result_trocr),
-          edited: true,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (response.status !== 200) {
-        console.log(response);
-        return;
-      }
+      let response;
+      if (data.document_type === "Handwriting") {
+        response = await call.call("client-dashboard", "update-document-handwriting", {
+          URLQuery: {},
+          URLParams: {
+            id: documentId.toString(),
+          },
+          Params: {
+            detected_text: data.detectedText,
+            result_trocr: JSON.stringify(data.result_trocr),
+            edited: true,
+            document_title: data.document_title,
+            description: data.description,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
 
-      console.log(response);
-      triggerToast("updated");
-      getDocument();
+        console.log(response);
+        triggerToast("updated");
+        getDocument();
+      } else {
+        response = await call.call("client-dashboard", "update-document", {
+          URLQuery: {},
+          URLParams: {
+            id: documentId.toString(),
+          },
+          Params: {
+            document_title: data.document_title,
+            description: data.description,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        console.log(response);
+        triggerToast("updated");
+        getDocument();
+      }
     }
   }
 
@@ -479,11 +535,19 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={() => {}} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+            <Button
+              onclick={() => {
+                updateDocument();
+              }}
+              class="px-3 focus-within:!ring-1">{$_("save")}</Button
+            >
           {:else}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "document-collection-list-document"));
+                goto(
+                  (await call.getPage("client-dashboard", "document-collection-list-document")) +
+                    `?collectionId=${collectionId}`,
+                );
                 return;
               }}
               color="light"
@@ -495,14 +559,14 @@ All Rights Reserved
               color="red"
               class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
-            {#if data.document_type !== "Handwriting"}
-              <Button
-                onclick={() => {
-                  onEdit = true;
-                }}
-                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-              >
-            {/if}
+            <!-- {#if data.document_type !== "Handwriting"} -->
+            <Button
+              onclick={() => {
+                onEdit = true;
+              }}
+              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+            >
+            <!-- {/if} -->
           {/if}
         </div>
       </div>
@@ -514,13 +578,41 @@ All Rights Reserved
       <div class="flex flex-col gap-4 pt-6">
         {#if fileReady}
           <!-- general information -->
+          <div class="flex gap-6">
+            <div class="w-60">
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                {$_("generalInformation")}
+              </P>
+            </div>
+            <div
+              class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+            >
+              <div class="flex flex-col gap-1.5">
+                <Typography
+                  preset="Text sm/medium"
+                  color="secondary"
+                  text={`${$_("documentTitle")}*`}
+                />
+                <InputRw {onEdit} bind:value={data.document_title} />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <Typography
+                  preset="Text sm/medium"
+                  color="secondary"
+                  text={`${$_("description")}`}
+                />
+                <InputRw {onEdit} bind:value={data.description} />
+              </div>
+            </div>
+          </div>
+          <Divider />
           {#if data.document_type === "Handwriting"}
             <div class="flex gap-6">
               <div class="w-60">
                 <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                   {$_("handwritingInformation")}
                 </P>
-                <div class="pt-2">
+                <!-- <div class="pt-2">
                   {#if onEdit}
                     <div class="flex gap-2">
                       <button
@@ -546,7 +638,7 @@ All Rights Reserved
                       >{$_("correctHere")}</button
                     >
                   {/if}
-                </div>
+                </div> -->
               </div>
               <div class="flex flex-col grow gap-6">
                 <div class="grid grid-cols-1">
@@ -584,14 +676,6 @@ All Rights Reserved
             <div
               class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
             >
-            <div class="flex flex-col gap-1.5">
-              <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-              <InputRw {onEdit} bind:value={data.document_title} />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
-              <InputRw {onEdit} bind:value={data.description} />
-            </div>
               {#if data.ext === ".pdf"}
                 <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
                 <div class="flex justify-center">

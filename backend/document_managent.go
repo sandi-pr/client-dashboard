@@ -591,7 +591,7 @@ func GetDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 	return 200, U.Dict{"document": document, "base64": base64Data}, nil
 }
 
-func UpdateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+func UpdateDocumentHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
 	if !bearer_ok {
@@ -646,23 +646,134 @@ func UpdateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
-		"detected_text": detected_text,
-		"result_trocr":  result_trocr_json,
-		"edited":        edited,
-	})
+	document_title, ok := ctx.Params.GetString("document_title")
+	if !ok {
+		return ctx.Error(400, "invalid parameters document_title")
+	}
+
+	description, ok := ctx.Params.GetString("description")
+	if !ok {
+		description = ""
+	}
+
+	if description == "" {
+		status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
+			"detected_text":  detected_text,
+			"result_trocr":   result_trocr_json,
+			"edited":         edited,
+			"document_title": document_title,
+		})
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(document)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, document, nil
+	} else {
+		status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
+			"detected_text":  detected_text,
+			"result_trocr":   result_trocr_json,
+			"edited":         edited,
+			"document_title": document_title,
+			"description":    description,
+		})
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(document)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, document, nil
+	}
+}
+
+func UpdateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
 	if err != nil {
 		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	if status != 200 {
-		fmt.Println(document)
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, document, nil
+	fmt.Println(me)
+
+	idStr, ok := ctx.URLParams.GetString("id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	document_title, ok := ctx.Params.GetString("document_title")
+	if !ok {
+		return ctx.Error(400, "invalid parameters document_title")
+	}
+
+	description, ok := ctx.Params.GetString("description")
+	if !ok {
+		description = ""
+	}
+
+	if description == "" {
+		status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
+			"document_title": document_title,
+		})
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(document)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, document, nil
+	} else {
+		status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
+			"document_title": document_title,
+			"description":    description,
+		})
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(document)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, document, nil
+	}
 }
 
 func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

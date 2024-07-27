@@ -30,6 +30,12 @@
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import JpgIcon from "$lib/icon/jpg-icon.svelte";
+  import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
+  import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
+  import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
+  import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
+  import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
+  import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
   // import { toCamelCase } from "../utils/toCamelCase.js";
 
   export let datas;
@@ -240,6 +246,19 @@
                   {:else}
                     <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                       <div class="flex gap-2">
+                        <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG")}
+                          <img src={JPGSolidIcon} alt="" />
+                        {:else if data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
+                          <img src={JPEGSolidIcon} alt="" />
+                        {:else if data[key]?.type?.name?.includes(".png") || data[key]?.type?.name?.includes(".PNG")}
+                          <img src={PNGSolidIcon} alt="" />
+                        {:else if data[key]?.type?.name?.includes(".pdf") || data[key]?.type?.name?.includes(".PDF")}
+                          <img src={PDFSolidIcon} alt="" />
+                        {:else if data[key]?.type?.name?.includes(".doc") || data[key]?.type?.name?.includes(".DOC")}
+                          <img src={DOCSolidIcon} alt="" />
+                        {:else if data[key]?.type?.name?.includes(".docx") || data[key]?.type?.name?.includes(".DOCX")}
+                          <img src={DOCXSolidIcon} alt="" />
+                        {/if} -->
                         <JpgIcon />
                         <div class="flex flex-col">
                           <P>{data[key].name}</P>

@@ -715,7 +715,7 @@ All Rights Reserved
             console.log("trocr-predict", response3);
 
             if (response3?.result?.text !== null) {
-              const response4 = await call.call("client-dashboard", "update-document", {
+              const response4 = await call.call("client-dashboard", "update-document-handwriting", {
                 URLQuery: {},
                 URLParams: {
                   id: response.result.data[i].id.toString(),
@@ -724,6 +724,8 @@ All Rights Reserved
                   detected_text: response3.result.text,
                   result_trocr: JSON.stringify(response3.result),
                   edited: false,
+                  document_title: tmpDocumentTitle,
+                  description: tmpDocumentDescription,
                 },
                 Headers: {
                   Authorization: "Bearer " + token,
