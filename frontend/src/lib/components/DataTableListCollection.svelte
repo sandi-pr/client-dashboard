@@ -248,17 +248,17 @@
                   {:else}
                     <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                       <div class="flex gap-2">
-                        {#if data[key]?.name?.includes(".jpg") || data[key]?.name?.includes(".JPG")}
+                        {#if data[key]?.filename?.includes(".jpg") || data[key]?.filename?.includes(".JPG")}
                           <img src={JPGSolidIcon} alt="" />
-                        {:else if data[key]?.name?.includes(".jpeg") || data[key]?.name?.includes(".JPEG")}
+                        {:else if data[key]?.filename?.includes(".jpeg") || data[key]?.filename?.includes(".JPEG")}
                           <img src={JPEGSolidIcon} alt="" />
-                        {:else if data[key]?.name?.includes(".png") || data[key]?.name?.includes(".PNG")}
+                        {:else if data[key]?.filename?.includes(".png") || data[key]?.filename?.includes(".PNG")}
                           <img src={PNGSolidIcon} alt="" />
-                        {:else if data[key]?.name?.includes(".pdf") || data[key]?.name?.includes(".PDF")}
+                        {:else if data[key]?.filename?.includes(".pdf") || data[key]?.filename?.includes(".PDF")}
                           <img src={PDFSolidIcon} alt="" />
-                        {:else if data[key]?.name?.includes(".doc") || data[key]?.name?.includes(".DOC")}
+                        {:else if data[key]?.filename?.includes(".doc") || data[key]?.filename?.includes(".DOC")}
                           <img src={DOCSolidIcon} alt="" />
-                        {:else if data[key]?.name?.includes(".docx") || data[key]?.name?.includes(".DOCX")}
+                        {:else if data[key]?.filename?.includes(".docx") || data[key]?.filename?.includes(".DOCX")}
                           <img src={DOCXSolidIcon} alt="" />
                         {/if}
                         <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG") || data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
