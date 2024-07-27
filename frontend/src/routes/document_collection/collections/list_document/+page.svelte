@@ -354,6 +354,7 @@ All Rights Reserved
               }
 
               console.log("ayam", response4);
+              triggerLoading(false);
             }
           }
         }
