@@ -432,6 +432,7 @@ All Rights Reserved
           }
         }
 
+        triggerLoading(false);
         triggerToast("deleted");
         getCollection();
         getDocuments(pagination.page);

@@ -55,6 +55,7 @@ All Rights Reserved
   let contentFile = $state(null);
   let base64 = $state(null);
   let fileUrl = $state("null");
+  let pdfReady = $state(false);
 
   let tabDatas = $state({
     selected: "Documents",
@@ -111,6 +112,7 @@ All Rights Reserved
           let documentData = response.result.document.data[0];
 
           base64 = response.result.base64;
+          pdfReady = true;
 
           contentFile = atob(base64);
 
@@ -480,6 +482,8 @@ All Rights Reserved
     const unsubscribe = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
       collectionId = $page.url.searchParams.get("collectionId");
+      base64 = null;
+      pdfReady = false;
       getDocument();
     });
     return () => unsubscribe();
@@ -489,6 +493,8 @@ All Rights Reserved
     const unsubscribe = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
       collectionId = $page.url.searchParams.get("collectionId");
+      base64 = null;
+      pdfReady = false;
       getDocument();
     });
     onDestroy(() => unsubscribe());
@@ -679,12 +685,14 @@ All Rights Reserved
               {#if data.ext === ".pdf"}
                 <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
                 <div class="flex justify-center">
-                  <PdfViewer
-                    showBorder={false}
-                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                    scale={1}
-                    data={atob(base64)}
-                  />
+                  {#if pdfReady}
+                    <PdfViewer
+                      showBorder={false}
+                      showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+                      scale={1}
+                      data={atob(base64)}
+                    />
+                  {/if}
                 </div>
               {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
                 <div class="flex justify-center">
