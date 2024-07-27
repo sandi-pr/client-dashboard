@@ -30,6 +30,8 @@
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import JpgIcon from "$lib/icon/jpg-icon.svelte";
+  import PngIcon from "$lib/icon/png-icon.svelte";
+  import PdfIcon from "$lib/icon/pdf-icon.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
   import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
@@ -246,20 +248,27 @@
                   {:else}
                     <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                       <div class="flex gap-2">
-                        <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG")}
+                        {#if data[key]?.name?.includes(".jpg") || data[key]?.name?.includes(".JPG")}
                           <img src={JPGSolidIcon} alt="" />
-                        {:else if data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
+                        {:else if data[key]?.name?.includes(".jpeg") || data[key]?.name?.includes(".JPEG")}
                           <img src={JPEGSolidIcon} alt="" />
-                        {:else if data[key]?.type?.name?.includes(".png") || data[key]?.type?.name?.includes(".PNG")}
+                        {:else if data[key]?.name?.includes(".png") || data[key]?.name?.includes(".PNG")}
                           <img src={PNGSolidIcon} alt="" />
-                        {:else if data[key]?.type?.name?.includes(".pdf") || data[key]?.type?.name?.includes(".PDF")}
+                        {:else if data[key]?.name?.includes(".pdf") || data[key]?.name?.includes(".PDF")}
                           <img src={PDFSolidIcon} alt="" />
-                        {:else if data[key]?.type?.name?.includes(".doc") || data[key]?.type?.name?.includes(".DOC")}
+                        {:else if data[key]?.name?.includes(".doc") || data[key]?.name?.includes(".DOC")}
                           <img src={DOCSolidIcon} alt="" />
-                        {:else if data[key]?.type?.name?.includes(".docx") || data[key]?.type?.name?.includes(".DOCX")}
+                        {:else if data[key]?.name?.includes(".docx") || data[key]?.name?.includes(".DOCX")}
                           <img src={DOCXSolidIcon} alt="" />
+                        {/if}
+                        <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG") || data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
+                          <JpgIcon />
+                        {:else if data[key]?.type?.name?.includes(".png") || data[key]?.type?.name?.includes(".PNG")}
+                          <PngIcon />
+                        {:else if data[key]?.type?.name?.includes(".pdf") || data[key]?.type?.name?.includes(".PDF")}
+                          <PdfIcon />
                         {/if} -->
-                        <JpgIcon />
+                        <!-- <JpgIcon /> -->
                         <div class="flex flex-col">
                           <P>{data[key].name}</P>
                           <P size="sm" class="text-hc-graylight-500">{data[key].size}</P>

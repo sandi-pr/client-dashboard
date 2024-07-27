@@ -168,6 +168,7 @@ All Rights Reserved
             id: document.id,
             file_name: {
               name: document.attributes.document_title,
+              filename: document.attributes.document.data.attributes.name,
               type: "custom",
               size:
                 document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
