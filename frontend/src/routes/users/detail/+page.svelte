@@ -10,14 +10,15 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle, Modal } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
-  import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
+  import { triggerToast } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -26,6 +27,7 @@ All Rights Reserved
   const edit = params.get("edit");
   let onEdit = $state(false);
   let dropdownOpen = $state(false);
+  let popupModal = $state(false);
 
   let data = $state({
     fullname: "",
@@ -159,7 +161,8 @@ All Rights Reserved
         return;
       }
 
-      console.log("ayam", response);
+      triggerToast("deleted");
+      goto(await call.getPage("client-dashboard", "users"));
     } catch (error) {
       console.log(error);
     }
@@ -213,8 +216,12 @@ All Rights Reserved
             >
             <Button onclick={updateUser} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button onclick={deleteUser} color="light" class="px-3 focus-within:!ring-1"
-              >{$_("delete")}</Button
+            <Button
+              onclick={() => {
+                popupModal = true;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
             <!-- <Button
               onclick={() => {
@@ -290,7 +297,7 @@ All Rights Reserved
                 >
                   {$_("authority")}
                 </P>
-              <div class="my-auto">
+                <div class="my-auto">
                   <Button
                     color="light"
                     class="py-[9px] px-3"
@@ -334,7 +341,7 @@ All Rights Reserved
                     </ul>
                   </div>
                 </div>
-              <!-- <div class="my-auto">
+                <!-- <div class="my-auto">
                     <Badge text={data.authority} />
                   </div> -->
               </div>
@@ -354,3 +361,14 @@ All Rights Reserved
     </div>
   </div>
 </div>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteUser} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>

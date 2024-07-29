@@ -18,7 +18,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { writable } from "svelte/store";
+  import { triggerToast } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -66,6 +66,7 @@ All Rights Reserved
       });
       console.log("ayam", response);
       if (response.status === 200) {
+        triggerToast("created");
         goto(await call.getPage("client-dashboard", "users"));
         return;
       } else {
@@ -245,7 +246,7 @@ All Rights Reserved
                     </ul>
                   </div>
                 </div>
-                 <!-- <div class="my-auto">
+                <!-- <div class="my-auto">
                     <Badge text={data.authority} />
                   </div>  -->
               </div>
