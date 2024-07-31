@@ -414,5 +414,8 @@
   "areYouSureYouWantToResetTheDatabase": "Are you sure you want to reset the database?",
   "remove": "Remove",
   "enterDocumentTitle": "Enter document title",
-  "enterDocumentDescription": "Enter document description"
+  "enterDocumentDescription": "Enter document description",
+  "descDocumentCollection": "Manage your document collection here",
+  "webchat": "Webchat",
+  "talkToYourPrivateAiAssistantHere": "Talk to your private AI assistant here!"
 }

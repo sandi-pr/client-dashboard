@@ -35,9 +35,15 @@ All Rights Reserved
     //   page: "crm-overview",
     // },
     {
+      icon: "messageChat",
+      title: "webchat",
+      description: "talkToYourPrivateAiAssistantHere",
+      page: "bakrie-webchat",
+    },
+    {
       icon: "fileShield",
       title: "documentCollection",
-      description: "documentCollection",
+      description: "descDocumentCollection",
       page: "document-collection-overview",
     },
     // {
@@ -106,7 +112,11 @@ All Rights Reserved
   }
 
   const navigateToPage = async (page) => {
-    goto(await call.getPage("client-dashboard", page));
+    if (page === "bakrie-webchat") {
+      goto(await call.getPage("bakrie", "home-page"));
+    } else {
+      goto(await call.getPage("client-dashboard", page));
+    }
   };
 
   onMount(() => {
@@ -146,14 +156,16 @@ All Rights Reserved
     </div>
   {/if}
   <SectionHeader title={$_("availableModules")} />
-  {#each cards as card}
-    <Card
-      icon={card.icon}
-      title={$_(card.title)}
-      description={$_(card.description)}
-      onclick={() => navigateToPage(card.page)}
-    />
-  {/each}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {#each cards as card}
+      <Card
+        icon={card.icon}
+        title={$_(card.title)}
+        description={$_(card.description)}
+        onclick={() => navigateToPage(card.page)}
+      />
+    {/each}
+  </div>
 </div>
 
 <!-- <LoadingContainer /> -->

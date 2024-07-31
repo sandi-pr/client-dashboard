@@ -414,5 +414,8 @@
   "areYouSureYouWantToResetTheDatabase": "Apakah Anda yakin ingin mereset database?",
   "remove": "Hapus",
   "enterDocumentTitle": "Masukkan judul dokumen",
-  "enterDocumentDescription": "Masukkan deskripsi dokumen"
+  "enterDocumentDescription": "Masukkan deskripsi dokumen",
+  "descDocumentCollection": "Kelola koleksi dokumen Anda di sini",
+  "webchat": "Webchat",
+  "talkToYourPrivateAiAssistantHere": "Berbicara dengan AI privat Anda di sini!"
 }
