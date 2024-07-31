@@ -365,6 +365,61 @@ func GetCollectionById(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 	return 200, collection, nil
 }
 
+func GetCollectionByName(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	collection_name, ok := ctx.Params.GetString("collection_name")
+	if !ok {
+		return ctx.Error(400, "invalid parameters collection_name")
+	}
+
+	status, collection, err := Strapi.Find("document-collection-table", U.Dict{
+		"filters": U.Dict{
+			"collection_name": U.Dict{
+				"$eq": collection_name,
+			},
+		},
+		"populate": "*",
+	})
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+	}, false)
+
+	return 200, collection, nil
+}
+
 func GetDocuments(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
@@ -501,6 +556,117 @@ func GetDocumentsByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config
 	}, false)
 
 	return 200, documents, nil
+}
+
+func GetDocumentsByCollectionIdWithFile(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		page_size = 10
+	}
+
+	collection_id, ok := ctx.Params.GetString("collection_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters collection_id")
+	}
+
+	id, err := strconv.Atoi(string(collection_id))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, documents, err := Strapi.Find("document-management-table", U.Dict{
+		"filters": U.Dict{
+			"collection_id": U.Dict{
+				"$eq": id,
+			},
+		},
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": page_size,
+		},
+		"sort":     "id:desc",
+		"populate": "*",
+	})
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(documents)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := documents.GetList("data")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	listDoc := U.List{}
+
+	for i := 0; i < len(list); i++ {
+		document_url := list[i].(U.Dict)["attributes"].(U.Dict)["document"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		document_url = U.String(strings.TrimPrefix(string(document_url), "/"))
+
+		resp, err := http.Get(STRAPI_URL + string(document_url))
+		if err != nil {
+			fmt.Printf("error saat mengunduh file: %v", err)
+		}
+		defer resp.Body.Close()
+
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Printf("error saat membaca isi file: %v", err)
+		}
+
+		base64Data := base64.StdEncoding.EncodeToString(data)
+
+		fmt.Println(base64Data)
+
+		listDoc = append(listDoc, U.Dict{
+			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
+			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_type"].(U.String),
+			"size":   list[i].(U.Dict)["attributes"].(U.Dict)["file_size"].(U.String),
+			"base64": base64Data,
+		})
+	}
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+	}, false)
+
+	return 200, U.Dict{"data": listDoc}, nil
 }
 
 func GetDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

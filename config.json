@@ -1538,6 +1538,24 @@
             ]
         },
         {
+            "name": "get-collection-by-name",
+            "path": "/get-collection-by-name",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCollectionByName"
+            },
+            "params": [
+                {
+                    "name": "collection_name",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-documents-by-collectionid",
             "path": "/get-documents-by-collectionid",
             "method": "POST",
@@ -1546,6 +1564,34 @@
             "callback": {
                 "plugin": "plugin.so",
                 "function": "GetDocumentsByCollectionId"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number",
+                    "required": false
+                },
+                {
+                    "name": "page_size",
+                    "type": "number",
+                    "required": false
+                },
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "get-documents-by-collectionid-with-file",
+            "path": "/get-documents-by-collectionid-with-file",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDocumentsByCollectionIdWithFile"
             },
             "params": [
                 {
