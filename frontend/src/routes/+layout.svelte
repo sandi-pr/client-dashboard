@@ -325,7 +325,11 @@ All Rights Reserved
           }
         }
       } else {
-        await call.goToPage("client-login", "home-page");
+        goto(
+          (await call.getPage("client-login", "home-page")) +
+            "?redirect=" +
+            globalThis.location.href,
+        );
         return;
       }
     } catch (error) {
