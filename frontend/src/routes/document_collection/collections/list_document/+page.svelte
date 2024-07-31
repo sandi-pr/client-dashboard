@@ -385,41 +385,41 @@ All Rights Reserved
       let ids = datasChecked.filter((data) => data.checked).map((data) => data.id);
       try {
         for (const id of ids) {
-          let response = await call.call("client-dashboard", "delete-document", {
+          let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
             URLQuery: {},
-            URLParams: {
-              id: id.toString(),
+            URLParams: {},
+            Params: {
+              document_id: id.toString(),
             },
             Headers: {
               Authorization: `Bearer ${token}`,
             },
           });
 
-          if (response.status !== 200) {
-            triggerLoading(false);
+          if (response2.status !== 200) {
             triggerToast("error");
+            triggerLoading(false);
             popupModal = true;
-            console.log(response);
+            console.log(response2);
             return;
           }
 
-          if (response.status === 200) {
-            let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+          if (response2.status === 200) {
+            let response = await call.call("client-dashboard", "delete-document", {
               URLQuery: {},
-              URLParams: {},
-              Params: {
-                document_id: id.toString(),
+              URLParams: {
+                id: id.toString(),
               },
               Headers: {
                 Authorization: `Bearer ${token}`,
               },
             });
 
-            if (response2.status !== 200) {
-              triggerToast("error");
+            if (response.status !== 200) {
               triggerLoading(false);
+              triggerToast("error");
               popupModal = true;
-              console.log(response2);
+              console.log(response);
               return;
             }
           } else {

@@ -232,40 +232,40 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (documentId !== "" && documentId !== null && documentId !== undefined) {
       try {
-        let response = await call.call("client-dashboard", "delete-document", {
+        let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
           URLQuery: {},
-          URLParams: {
-            id: documentId.toString(),
+          URLParams: {},
+          Params: {
+            document_id: documentId.toString(),
           },
           Headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (response.status !== 200) {
-          triggerToast("error");
-          console.log(response);
+        if (response2.status !== 200) {
+          console.log(response2);
           return;
         }
 
-        if (response.status === 200) {
-          let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+        console.log(response2);
+
+        if (response2.status === 200) {
+          let response = await call.call("client-dashboard", "delete-document", {
             URLQuery: {},
-            URLParams: {},
-            Params: {
-              document_id: documentId.toString(),
+            URLParams: {
+              id: documentId.toString(),
             },
             Headers: {
               Authorization: `Bearer ${token}`,
             },
           });
 
-          if (response2.status !== 200) {
-            console.log(response2);
+          if (response.status !== 200) {
+            triggerToast("error");
+            console.log(response);
             return;
           }
-
-          console.log(response2);
 
           triggerToast("deleted");
           // setTimeout(async () => {
