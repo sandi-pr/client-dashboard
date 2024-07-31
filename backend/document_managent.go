@@ -94,6 +94,7 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 	documentsString, ok := ctx.Params.GetString("documents")
 	if !ok {
+		fmt.Println("cek 1")
 		return ctx.Error(400, "invalid parameters documents")
 	}
 
@@ -117,6 +118,7 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println("cek 2")
 		return ctx.Error(400, "invalid parameters documents")
 	}
 
@@ -126,6 +128,7 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 		documentBase64, ok := document.(map[string]interface{})["base64"].(string)
 		if !ok {
+			fmt.Println("cek 3")
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
@@ -133,21 +136,25 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 		if err != nil {
 			fmt.Println(err)
+			fmt.Println("cek 4")
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
 		documentName, ok := document.(map[string]interface{})["name"].(string)
 		if !ok {
+			fmt.Println("cek 5")
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
 		file_size, ok := document.(map[string]interface{})["size"].(string)
 		if !ok {
+			fmt.Println("cek 6")
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
 		document_title, ok := document.(map[string]interface{})["document_title"].(string)
 		if !ok {
+			fmt.Println("cek 7")
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
