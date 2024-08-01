@@ -654,6 +654,7 @@ func GetDocumentsByCollectionIdWithFile(ctx *config.ConfigContext) (int, U.Dict,
 		fmt.Println(base64Data)
 
 		listDoc = append(listDoc, U.Dict{
+			"id":     list[i].(U.Dict)["id"].(U.Float64),
 			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
 			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_type"].(U.String),
 			"size":   list[i].(U.Dict)["attributes"].(U.Dict)["file_size"].(U.String),
