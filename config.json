@@ -3225,6 +3225,9 @@
                     },
                     "edited": {
                         "type": "boolean"
+                    },
+                    "inserted": {
+                        "type": "boolean"
                     }
                 }
             },
