@@ -22,6 +22,7 @@ All Rights Reserved
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import { triggerShowAI, showAI, triggerReload } from "$lib";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
+  import { goto } from "$app/navigation";
   // import { set_pdfjs_context } from '$lib/utils/vite.ts';
 
   // set_pdfjs_context();
