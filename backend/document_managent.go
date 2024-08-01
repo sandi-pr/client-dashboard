@@ -194,6 +194,7 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 				"upload_by":      upload_by,
 				"file_size":      file_size,
 				"edited":         false,
+				"inserted":       false,
 			})
 		} else {
 			status, documents, err = Strapi.Create("document-management-table", U.Dict{
@@ -205,6 +206,7 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 				"file_size":      file_size,
 				"edited":         false,
 				"description":    description,
+				"inserted":       false,
 			})
 		}
 
