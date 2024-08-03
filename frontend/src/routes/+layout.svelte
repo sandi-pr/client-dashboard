@@ -246,7 +246,7 @@ All Rights Reserved
           {
             href: isFrontend
               ? "/contract_reviewer/project"
-              : await call.getPage("client-dashboard", "contract-reviewer-project"),
+              : await call.getPage("client-dashboard", "contract-project-list"),
             name: "project",
           },
         ],
