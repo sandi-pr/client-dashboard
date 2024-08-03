@@ -296,7 +296,12 @@
         color="quarterary"
       />
     </div>
-    <Button class="gap-1 h-min" on:click={() => {}}>
+    <Button
+      class="gap-1 h-min"
+      on:click={async () => {
+        goto(await call.getPage("client-dashboard", "contract-project-review"));
+      }}
+    >
       <Stars03Icon class="w-5 h-5 text-white" />
       {$_("AIReview")}
     </Button>

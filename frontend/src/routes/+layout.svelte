@@ -233,24 +233,24 @@ All Rights Reserved
       //     // },
       //   ],
       // },
-      // {
-      //   icon: "fileShield",
-      //   name: "contractReviewer",
-      //   children: [
-      //     {
-      //       href: isFrontend
-      //         ? "/contract_reviewer"
-      //         : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/contract_reviewer/project"
-      //         : await call.getPage("client-dashboard", "contract-reviewer-project"),
-      //       name: "project",
-      //     },
-      //   ],
-      // },
+      {
+        icon: "fileShield",
+        name: "contractReviewer",
+        children: [
+          {
+            href: isFrontend
+              ? "/contract_reviewer"
+              : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+            name: "overview",
+          },
+          {
+            href: isFrontend
+              ? "/contract_reviewer/project"
+              : await call.getPage("client-dashboard", "contract-reviewer-project"),
+            name: "project",
+          },
+        ],
+      },
     ];
   };
 
