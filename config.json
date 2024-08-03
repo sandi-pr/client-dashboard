@@ -238,6 +238,11 @@
             "name": "contract-project-detail",
             "path": "/contract_reviewer/project/detail",
             "file_path": "template/contract_reviewer/project/detail.html"
+        },
+        {
+            "name": "contract-project-review",
+            "path": "/contract_reviewer/project/review",
+            "file_path": "template/contract_reviewer/project/review.html"
         }
     ],
     "apis": [
