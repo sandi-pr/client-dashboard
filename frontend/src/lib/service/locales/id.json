@@ -417,5 +417,7 @@
   "enterDocumentDescription": "Masukkan deskripsi dokumen",
   "descDocumentCollection": "Kelola koleksi dokumen Anda di sini",
   "webchat": "Webchat",
-  "talkToYourPrivateAiAssistantHere": "Berbicara dengan AI privat Anda di sini!"
+  "talkToYourPrivateAiAssistantHere": "Berbicara dengan AI privat Anda di sini!",
+  "addNewDocumentAsBuyer": "Tambahkan dokumen sebagai pembeli",
+  "addNewDocumentAsSeller": "Tambahkan dokumen sebagai penjual"
 }

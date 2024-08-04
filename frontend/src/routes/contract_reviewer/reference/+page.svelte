@@ -14,9 +14,11 @@
   let dropdownIndustryOpen = $state(false);
   let documentViewModal = $state(false);
   let addNewDocumentModal = $state(false);
+  let addSellerDocumentModal = $state(false);
+  let addBuyerDocumentModal = $state(false);
   let tmpDocumentName = $state("");
   let tmpFile = $state([]);
-  let selectedIndustry = $state("");
+  let selectedIndustry = $state("Oil & Gas");
   let files = $state([]);
   let selectedFile = $state(null);
   let requiredFileTypes = $state(["documentGtc", "tradeConfirmation", "dealDoneDocument"]);
@@ -32,17 +34,31 @@
       title: `${$_("documentGtc")}*`,
       type: "documentGtc",
     },
+    // {
+    //   title: $_("gtcAmendment"),
+    //   type: "gtcAmendment",
+    // },
+    // {
+    //   title: `${$_("tradeConfirmation")}*`,
+    //   type: "tradeConfirmation",
+    // },
+    // {
+    //   title: `${$_("dealDoneDocument")}*`,
+    //   type: "dealDoneDocument",
+    // },
+  ]);
+
+  let sellerDocuments = $state([
     {
-      title: $_("gtcAmendment"),
-      type: "gtcAmendment",
+      title: `${$_("documentGtc")}*`,
+      type: "documentGtc",
     },
+  ]);
+
+  let buyerDocuments = $state([
     {
-      title: `${$_("tradeConfirmation")}*`,
-      type: "tradeConfirmation",
-    },
-    {
-      title: `${$_("dealDoneDocument")}*`,
-      type: "dealDoneDocument",
+      title: `${$_("documentGtc")}*`,
+      type: "documentGtc",
     },
   ]);
 
@@ -87,7 +103,7 @@
     inputElement.addEventListener("change", async (event) => {
       const uploadedFile = event.target.files[0];
 
-      if (uploadedFile && role !== "other") {
+      if (uploadedFile && type === "documentGtc") {
         const base64Data = await readFileAsBase64(uploadedFile);
         files.push({
           type: type,
@@ -96,16 +112,17 @@
           size: formatBytes(uploadedFile.size),
           base64: base64Data,
         });
-      } else if (role === "other") {
-        const base64Data = await readFileAsBase64(uploadedFile);
-        tmpFile = {
-          type: type,
-          role: role,
-          name: uploadedFile.name,
-          size: formatBytes(uploadedFile.size),
-          base64: base64Data,
-        };
-      } else {
+      } else if (uploadedFile && type !== "documentGtc") {
+          const base64Data = await readFileAsBase64(uploadedFile);
+          tmpFile = {
+            type: type,
+            role: role,
+            name: uploadedFile.name,
+            size: formatBytes(uploadedFile.size),
+            base64: base64Data,
+          };
+          console.log(tmpFile);
+        } else {
         alert("Invalid file. Please select a valid file.");
       }
     });
@@ -113,18 +130,33 @@
     inputElement.click();
   };
 
-  function addOtherDocument() {
-    if (tmpDocumentName) {
-      otherDocType.push({
+  function addOtherDocument(role) {
+    if (role === "seller") {
+      sellerDocuments.push({
         title: tmpDocumentName,
         type: tmpDocumentName,
       });
+
+      tmpFile.type = tmpDocumentName;
 
       files.push(tmpFile);
 
       tmpFile = [];
       tmpDocumentName = "";
-      addNewDocumentModal = false;
+      addSellerDocumentModal = false;
+    } else if (role === "buyer") {
+      buyerDocuments.push({
+        title: tmpDocumentName,
+        type: tmpDocumentName,
+      });
+
+      tmpFile.type = tmpDocumentName;
+
+      files.push(tmpFile);
+
+      tmpFile = [];
+      tmpDocumentName = "";
+      addBuyerDocumentModal = false;
     }
   }
 
@@ -137,8 +169,10 @@
     const index = files.findIndex((file) => file.type === type && file.role === role);
     if (index !== -1) {
       files.splice(index, 1);
-      if (role === "other") {
-        otherDocType = otherDocType.filter((doc) => doc.type !== type);
+      if (role === "seller" && type !== "documentGtc") {
+        sellerDocuments = sellerDocuments.filter((doc) => doc.type !== type);
+      } else if (role === "buyer" && type !== "documentGtc") {
+        buyerDocuments = buyerDocuments.filter((doc) => doc.type !== type);
       }
     }
   }
@@ -223,8 +257,13 @@
         if (response.result.files !== null) {
           files = response.result.files;
           files.forEach((file) => {
-            if (file.role === "other") {
-              otherDocType.push({
+            if (file.role === "seller" && file.type !== "documentGtc") {
+              sellerDocuments.push({
+                title: file.type,
+                type: file.type,
+              });
+            } else if (file.role === "buyer" && file.type !== "documentGtc") {
+              buyerDocuments.push({
                 title: file.type,
                 type: file.type,
               });
@@ -326,9 +365,9 @@
         <Typography preset="Text md/Semibold" text={`${$_("documentAsBuyer")}`} color="secondary" />
       </div>
       <div class="flex flex-col grow gap-6">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- form upload -->
-          {#each documentTypes as docType}
+          {#each buyerDocuments as docType}
             <UploadFile
               title={docType.title}
               handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "buyer")}
@@ -340,6 +379,16 @@
               actionDelete={() => deleteFileByType(docType.type, "buyer")}
             />
           {/each}
+          <Button
+            class="w-full min-h-32 md:mt-6 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
+            on:click={() => {
+              addBuyerDocumentModal = true;
+            }}
+            color="light"
+          >
+            <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
+            {$_("addOtherComplianceDocs")}
+          </Button>
         </div>
       </div>
     </div>
@@ -354,9 +403,9 @@
         />
       </div>
       <div class="flex flex-col grow gap-6">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- form upload -->
-          {#each documentTypes as docType}
+          {#each sellerDocuments as docType}
             <UploadFile
               title={docType.title}
               handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "seller")}
@@ -368,12 +417,22 @@
               actionDelete={() => deleteFileByType(docType.type, "seller")}
             />
           {/each}
+          <Button
+            class="w-full min-h-32 md:mt-6 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
+            on:click={() => {
+              addSellerDocumentModal = true;
+            }}
+            color="light"
+          >
+            <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
+            {$_("addOtherComplianceDocs")}
+          </Button>
         </div>
       </div>
     </div>
     <Divider />
     <!-- section form -->
-    <div class="flex gap-3">
+    <!-- <div class="flex gap-3">
       <div class="w-60">
         <Typography
           preset="Text md/Semibold"
@@ -383,7 +442,6 @@
       </div>
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-2 gap-4">
-          <!-- form upload -->
           {#each otherDocType as docType}
             <UploadFile
               title={docType.title}
@@ -408,12 +466,12 @@
           </Button>
         </div>
       </div>
-    </div>
-    <Divider />
+    </div> -->
+    <!-- <Divider />
     <div class="flex justify-end gap-3">
       <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
       <Button disabled={files.length === 0} on:click={() => {}}>{$_("save")}</Button>
-    </div>
+    </div> -->
   {/if}
 </div>
 
@@ -430,7 +488,7 @@
   {/if}
 </Modal>
 
-<Modal title={$_("addNewDocument")} bind:open={addNewDocumentModal}>
+<Modal title={$_("addNewDocumentAsBuyer")} bind:open={addBuyerDocumentModal}>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
@@ -438,13 +496,32 @@
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "other")}
+      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "buyer")}
       file={tmpFile}
       actionButton={true}
       actionDelete={() => (tmpFile = [])}
     />
   </div>
   <svelte:fragment slot="footer">
-    <Button on:click={addOtherDocument}>{$_("add")}</Button>
+    <Button on:click={() => {addOtherDocument("buyer");}} disabled={tmpFile.length === 0 || !tmpDocumentName}>{$_("add")}</Button>
+  </svelte:fragment>
+</Modal>
+
+<Modal title={$_("addNewDocumentAsSeller")} bind:open={addSellerDocumentModal}>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
+      <Input bind:value={tmpDocumentName} placeholder={$_("name")} />
+    </div>
+    <UploadFile
+      title={`${$_("uploadDocuments")}*`}
+      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "seller")}
+      file={tmpFile}
+      actionButton={true}
+      actionDelete={() => (tmpFile = [])}
+    />
+  </div>
+  <svelte:fragment slot="footer">
+    <Button on:click={() => {addOtherDocument("seller");}} disabled={!tmpFile && !tmpDocumentName}>{$_("add")}</Button>
   </svelte:fragment>
 </Modal>

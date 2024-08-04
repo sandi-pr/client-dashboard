@@ -417,5 +417,7 @@
   "enterDocumentDescription": "Enter document description",
   "descDocumentCollection": "Manage your document collection here",
   "webchat": "Webchat",
-  "talkToYourPrivateAiAssistantHere": "Talk to your private AI assistant here!"
+  "talkToYourPrivateAiAssistantHere": "Talk to your private AI assistant here!",
+  "addNewDocumentAsBuyer": "Add new document as buyer",
+  "addNewDocumentAsSeller": "Add new document as seller"
 }
