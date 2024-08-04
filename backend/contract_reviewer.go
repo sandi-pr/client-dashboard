@@ -24,7 +24,7 @@ import (
 	"gitlab.hexacode.org/go-libs/strapi"
 )
 
-func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+func CreateReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
@@ -47,9 +47,14 @@ func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 	fmt.Println(me)
 
-	industry_type, ok := ctx.Params.GetString("industry_type")
+	creator_id, ok := me.GetFloat64("id")
 	if !ok {
-		return ctx.Error(400, "invalid parameters industry_type")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	industry_id, ok := ctx.Params.GetFloat64("industry_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters industry_id")
 	}
 
 	referencesString, ok := ctx.Params.GetString("references")
@@ -86,10 +91,10 @@ func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 			return ctx.Error(400, "invalid parameters documents")
 		}
 
-		file_size, ok := document.(map[string]interface{})["size"].(string)
-		if !ok {
-			return ctx.Error(400, "invalid parameters documents")
-		}
+		// file_size, ok := document.(map[string]interface{})["size"].(string)
+		// if !ok {
+		// 	return ctx.Error(400, "invalid parameters documents")
+		// }
 
 		role, ok := document.(map[string]interface{})["role"].(string)
 		if !ok {
@@ -128,12 +133,14 @@ func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		status, documents, err := Strapi.Create("reference-contract-table", U.Dict{
-			"industry_type": industry_type,
-			"document_as":   role,
-			"document_type": docType,
-			"document":      id,
-			"file_size":     file_size,
+		status, documents, err := Strapi.Create("references-document-table", U.Dict{
+			"industry_id":        industry_id,
+			"document_for":       role,
+			"document_title":     docType,
+			"document_name":      documentName,
+			"document_file_name": documentName,
+			"document_media_id":  id,
+			"creator_id":         creator_id,
 		})
 
 		fmt.Println("document", documents)
@@ -164,7 +171,7 @@ func SetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	return 200, U.Dict{"data": datas}, nil
 }
 
-func GetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
@@ -187,16 +194,30 @@ func GetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 	fmt.Println(me)
 
-	industry_type, ok := ctx.Params.GetString("industry_type")
+	industry_id, ok := ctx.Params.GetFloat64("industry_id")
 	if !ok {
-		return ctx.Error(400, "invalid parameters industry_type")
+		return ctx.Error(400, "invalid parameters industry_id")
 	}
 
-	status, documents, err := Strapi.Find("reference-contract-table", U.Dict{
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		return ctx.Error(400, "invalid parameters page")
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		return ctx.Error(400, "invalid parameters page_size")
+	}
+
+	status, documents, err := Strapi.Find("references-document-table", U.Dict{
 		"filters": U.Dict{
-			"industry_type": U.Dict{
-				"$eq": industry_type,
+			"industry_id": U.Dict{
+				"$eq": int64(industry_id),
 			},
+		},
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": page_size,
 		},
 		"populate": "*",
 		"sort":     "id:desc",
@@ -208,13 +229,14 @@ func GetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	}
 
 	if status != 200 {
+		fmt.Println(documents)
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	list, ok := documents.GetList("data")
 	if len(list) == 0 {
-		return ctx.Error(500, "Internal Server Error")
+		return 200, U.Dict{"files": []U.Dict{}}, nil
 	}
 
 	if !ok {
@@ -224,7 +246,7 @@ func GetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	var datas []U.Dict
 
 	for i := 0; i < len(list); i++ {
-		document_url := list[i].(U.Dict)["attributes"].(U.Dict)["document"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		document_url := list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
 		document_url = U.String(strings.TrimPrefix(string(document_url), "/"))
 
 		resp, err := http.Get(STRAPI_URL + string(document_url))
@@ -241,10 +263,11 @@ func GetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		base64Data := base64.StdEncoding.EncodeToString(data)
 
 		datas = append(datas, U.Dict{
-			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_type"].(U.String),
-			"role":   list[i].(U.Dict)["attributes"].(U.Dict)["document_as"].(U.String),
-			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
-			"size":   list[i].(U.Dict)["attributes"].(U.Dict)["file_size"].(U.String),
+			"id":     list[i].(U.Dict)["id"].(U.Float64),
+			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
+			"role":   list[i].(U.Dict)["attributes"].(U.Dict)["document_for"].(U.String),
+			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
+			"size":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["size"].(U.Float64),
 			"base64": base64Data,
 		})
 	}
@@ -257,7 +280,7 @@ func GetReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	return 200, U.Dict{"files": datas}, nil
 }
 
-func DeleteAllReferences(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+func DeleteReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
@@ -280,20 +303,19 @@ func DeleteAllReferences(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 
 	fmt.Println(me)
 
-	industry_type, ok := ctx.Params.GetString("industry_type")
+	idString, ok := ctx.URLParams.GetString("id")
+
 	if !ok {
-		return ctx.Error(400, "invalid parameters industry_type")
+		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, documents, err := Strapi.Find("reference-contract-table", U.Dict{
-		"filters": U.Dict{
-			"industry_type": U.Dict{
-				"$eq": industry_type,
-			},
-		},
-		"populate": "*",
-		"sort":     "id:desc",
-	})
+	id, err := strconv.Atoi(string(idString))
+
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, _, err = Strapi.Delete("references-document-table", int64(id))
 
 	if err != nil {
 		fmt.Println(err)
@@ -303,46 +325,6 @@ func DeleteAllReferences(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 	if status != 200 {
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
-	}
-
-	list, ok := documents.GetList("data")
-	if len(list) == 0 {
-		return 200, U.Dict{}, nil
-	}
-
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	for i := 0; i < len(list); i++ {
-
-		dict, ok := list.GetDict(i)
-
-		if !ok {
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		id, ok := dict.GetFloat64("id")
-
-		if !ok {
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		status, res, err := Strapi.Delete("reference-contract-table", int64(id))
-
-		fmt.Println(status, res)
-
-		if err != nil {
-			fmt.Println("ayam 3", list[i], res)
-			fmt.Println(err)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		if status != 200 {
-			fmt.Println("ayam 4", list[i], res)
-			fmt.Println(status)
-			return ctx.Error(500, "Internal Server Error")
-		}
 	}
 
 	return 200, U.Dict{}, nil

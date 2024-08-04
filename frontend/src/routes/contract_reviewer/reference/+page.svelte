@@ -8,6 +8,7 @@
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
   import { CR3Call } from "hexacomponents-svelte";
+  import { onMount } from "svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -18,16 +19,15 @@
   let addBuyerDocumentModal = $state(false);
   let tmpDocumentName = $state("");
   let tmpFile = $state([]);
-  let selectedIndustry = $state("Oil & Gas");
+  let selectedIndustry = $state("");
   let files = $state([]);
   let selectedFile = $state(null);
-  let requiredFileTypes = $state(["documentGtc", "tradeConfirmation", "dealDoneDocument"]);
-  let roles = $state(["buyer", "seller"]);
+  let requiredFileTypes = $state(["documentGtc"]);
+  let roles = $state(["Buyer", "Seller"]);
+  let idUploaded = $state([]);
+  let tmpIdDeleted = $state([]);
 
-  let industries = $state([
-    { name: "Oil & Gas", value: "oil-gas" },
-    { name: "Other", value: "other" },
-  ]);
+  let industries = $state([]);
 
   let documentTypes = $state([
     {
@@ -106,6 +106,7 @@
       if (uploadedFile && type === "documentGtc") {
         const base64Data = await readFileAsBase64(uploadedFile);
         files.push({
+          id: 0,
           type: type,
           role: role,
           name: uploadedFile.name,
@@ -113,16 +114,17 @@
           base64: base64Data,
         });
       } else if (uploadedFile && type !== "documentGtc") {
-          const base64Data = await readFileAsBase64(uploadedFile);
-          tmpFile = {
-            type: type,
-            role: role,
-            name: uploadedFile.name,
-            size: formatBytes(uploadedFile.size),
-            base64: base64Data,
-          };
-          console.log(tmpFile);
-        } else {
+        const base64Data = await readFileAsBase64(uploadedFile);
+        tmpFile = {
+          id: 0,
+          type: type,
+          role: role,
+          name: uploadedFile.name,
+          size: formatBytes(uploadedFile.size),
+          base64: base64Data,
+        };
+        console.log(tmpFile);
+      } else {
         alert("Invalid file. Please select a valid file.");
       }
     });
@@ -131,7 +133,7 @@
   };
 
   function addOtherDocument(role) {
-    if (role === "seller") {
+    if (role === "Seller") {
       sellerDocuments.push({
         title: tmpDocumentName,
         type: tmpDocumentName,
@@ -144,7 +146,7 @@
       tmpFile = [];
       tmpDocumentName = "";
       addSellerDocumentModal = false;
-    } else if (role === "buyer") {
+    } else if (role === "Buyer") {
       buyerDocuments.push({
         title: tmpDocumentName,
         type: tmpDocumentName,
@@ -167,22 +169,26 @@
 
   function deleteFileByType(type, role) {
     const index = files.findIndex((file) => file.type === type && file.role === role);
+
     if (index !== -1) {
+      if (files[index].id !== 0) tmpIdDeleted.push(files[index].id);
       files.splice(index, 1);
-      if (role === "seller" && type !== "documentGtc") {
+      if (role === "Seller" && type !== "documentGtc") {
         sellerDocuments = sellerDocuments.filter((doc) => doc.type !== type);
-      } else if (role === "buyer" && type !== "documentGtc") {
+      } else if (role === "Buyer" && type !== "documentGtc") {
         buyerDocuments = buyerDocuments.filter((doc) => doc.type !== type);
       }
     }
   }
 
   function areRequiredFilesPresent(files) {
-    return roles.every((role) =>
-      requiredFileTypes.every((type) =>
-        files.some((file) => file.type === type && file.role === role),
-      ),
-    );
+    // return roles.every((role) =>
+    //   requiredFileTypes.every((type) =>
+    //     files.some((file) => file.type === type && file.role === role),
+    //   ),
+    // );
+
+    return requiredFileTypes.every((type) => files.some((file) => file.type === type));
   }
 
   let allRequiredFilesPresent = $state(false);
@@ -195,26 +201,39 @@
     if (allRequiredFilesPresent) {
       let token = sessionStorage.getItem("token");
       try {
-        const response = await call.call("client-dashboard", "delete-all-references", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            industry_type: selectedIndustry,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        if (tmpIdDeleted.length > 0) {
+          for (let i = 0; i < tmpIdDeleted.length; i++) {
+            if (tmpIdDeleted[i] !== 0) {
+              const response = await call.call("client-dashboard", "delete-references-document", {
+                URLQuery: {},
+                URLParams: {
+                  id: tmpIdDeleted[i].toString(),
+                },
+                Params: {},
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              });
 
-        if (response.status === 200) {
-          let allSuccess = true;
-          for (let i = 0; i < files.length; i++) {
-            const response2 = await call.call("client-dashboard", "set-references", {
+              if (response.status !== 200) {
+                triggerToast("error");
+                break;
+              }
+
+              tmpIdDeleted.filter((id) => id !== tmpIdDeleted[i]);
+              files = files.filter((file) => file.id !== tmpIdDeleted[i]);
+            }
+          }
+        }
+
+        for (let i = 0; i < files.length; i++) {
+          if (files[i].id === 0) {
+            const response2 = await call.call("client-dashboard", "create-references-document", {
               URLQuery: {},
               URLParams: {},
               Params: {
                 references: JSON.stringify([files[i]]),
-                industry_type: selectedIndustry,
+                industry_id: selectedIndustry,
               },
               Headers: {
                 Authorization: "Bearer " + token,
@@ -223,15 +242,14 @@
             console.log(response2);
 
             if (response2.status !== 200) {
-              allSuccess = false;
-              getReferences();
               triggerToast("error");
               break;
             }
-          }
 
-          triggerToast("updated");
+            files[i].id = response2.result.data[0].id;
+          }
         }
+        triggerToast("updated");
       } catch (error) {
         console.log(error);
       }
@@ -241,40 +259,102 @@
   async function getReferences() {
     let token = sessionStorage.getItem("token");
     try {
-      const response = await call.call("client-dashboard", "get-references", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          industry_type: selectedIndustry,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      let page = 1;
+      idUploaded = [];
+      files = [];
 
-      console.log(response);
-      if (response.status === 200) {
-        if (response.result.files !== null) {
-          files = response.result.files;
-          files.forEach((file) => {
-            if (file.role === "seller" && file.type !== "documentGtc") {
-              sellerDocuments.push({
-                title: file.type,
-                type: file.type,
-              });
-            } else if (file.role === "buyer" && file.type !== "documentGtc") {
-              buyerDocuments.push({
-                title: file.type,
-                type: file.type,
-              });
-            }
-          });
+      while (true) {
+        const response = await call.call("client-dashboard", "get-references-document", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            industry_id: selectedIndustry,
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
         }
+
+        if (response.result.files.length === 0) {
+          break;
+        }
+
+        files = files.concat(response.result.files);
+        page++;
+      }
+
+      if (files.length > 0) {
+        files.forEach((file) => {
+          idUploaded.push(file.id);
+          if (file.role === "Seller" && file.type !== "documentGtc") {
+            sellerDocuments.push({
+              title: file.type,
+              type: file.type,
+            });
+          } else if (file.role === "Buyer" && file.type !== "documentGtc") {
+            buyerDocuments.push({
+              title: file.type,
+              type: file.type,
+            });
+          }
+        });
       }
     } catch (error) {
       console.log(error);
     }
   }
+
+  async function getIndustries() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let page = 1;
+      let tmpIndustries = [];
+      while (true) {
+        const response = await call.call("client-dashboard", "get-industries", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            industry_id: selectedIndustry,
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          if (response.result.data.length === 0) {
+            break;
+          } else {
+            tmpIndustries = tmpIndustries.concat(response.result.data);
+            page++;
+          }
+        }
+      }
+
+      let promise = tmpIndustries.map((industry) => {
+        return {
+          value: industry.id,
+          name: industry.attributes.industry_name,
+        };
+      });
+
+      industries = await Promise.all(promise);
+    }
+  }
+
+  onMount(() => {
+    getIndustries();
+  });
 
   $effect(() => {
     if (selectedIndustry) {
@@ -329,7 +409,9 @@
             class="flex justify-between border-primary-light dark:border-primary-dark"
             color="light"
           >
-            {selectedIndustry ? selectedIndustry : "select industry"}
+            {selectedIndustry
+              ? industries.find((industry) => industry.value === selectedIndustry).name
+              : "select industry"}
             <ChevronDownOutline
               class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
             />
@@ -345,7 +427,7 @@
                   class="flex w-full py-2 px-4"
                   onclick={() => {
                     dropdownIndustryOpen = false;
-                    selectedIndustry = industry.name;
+                    selectedIndustry = industry.value;
                   }}
                 >
                   {industry.name}
@@ -357,7 +439,7 @@
       </div>
     </div>
   </div>
-  {#if selectedIndustry === "Oil & Gas"}
+  {#if selectedIndustry !== ""}
     <Divider />
     <!-- section form -->
     <div class="flex gap-3">
@@ -370,13 +452,13 @@
           {#each buyerDocuments as docType}
             <UploadFile
               title={docType.title}
-              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "buyer")}
-              file={getFileByType(docType.type, "buyer")}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "Buyer")}
+              file={getFileByType(docType.type, "Buyer")}
               actionButton={true}
               actionView={() => (
-                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "buyer"))
+                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "Buyer"))
               )}
-              actionDelete={() => deleteFileByType(docType.type, "buyer")}
+              actionDelete={() => deleteFileByType(docType.type, "Buyer")}
             />
           {/each}
           <Button
@@ -408,13 +490,13 @@
           {#each sellerDocuments as docType}
             <UploadFile
               title={docType.title}
-              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "seller")}
-              file={getFileByType(docType.type, "seller")}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "Seller")}
+              file={getFileByType(docType.type, "Seller")}
               actionButton={true}
               actionView={() => (
-                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "seller"))
+                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "Seller"))
               )}
-              actionDelete={() => deleteFileByType(docType.type, "seller")}
+              actionDelete={() => deleteFileByType(docType.type, "Seller")}
             />
           {/each}
           <Button
@@ -496,14 +578,19 @@
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "buyer")}
+      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "Buyer")}
       file={tmpFile}
       actionButton={true}
       actionDelete={() => (tmpFile = [])}
     />
   </div>
   <svelte:fragment slot="footer">
-    <Button on:click={() => {addOtherDocument("buyer");}} disabled={tmpFile.length === 0 || !tmpDocumentName}>{$_("add")}</Button>
+    <Button
+      on:click={() => {
+        addOtherDocument("Buyer");
+      }}
+      disabled={tmpFile.length === 0 || !tmpDocumentName}>{$_("add")}</Button
+    >
   </svelte:fragment>
 </Modal>
 
@@ -515,13 +602,18 @@
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "seller")}
+      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "Seller")}
       file={tmpFile}
       actionButton={true}
       actionDelete={() => (tmpFile = [])}
     />
   </div>
   <svelte:fragment slot="footer">
-    <Button on:click={() => {addOtherDocument("seller");}} disabled={!tmpFile && !tmpDocumentName}>{$_("add")}</Button>
+    <Button
+      on:click={() => {
+        addOtherDocument("Seller");
+      }}
+      disabled={!tmpFile && !tmpDocumentName}>{$_("add")}</Button
+    >
   </svelte:fragment>
 </Modal>

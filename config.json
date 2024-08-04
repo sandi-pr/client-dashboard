@@ -2581,6 +2581,66 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "get-references-document",
+            "path": "/get-references-document",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetReferencesDocument"
+            },
+            "params": [
+                {
+                    "name": "industry_id",
+                    "type": "number"
+                },
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "delete-references-document",
+            "path": "/delete-references-document/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteReferencesDocument"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "create-references-document",
+            "path": "/create-references-document",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateReferencesDocument"
+            },
+            "params": [
+                {
+                    "name": "industry_id",
+                    "type": "number"
+                }
+            ]
         }
     ],
     "options": {
@@ -3335,7 +3395,7 @@
                 "label": "References Document",
                 "fields": {
                     "industry_id": {
-                        "type": "number"
+                        "type": "integer"
                     },
                     "document_for": {
                         "type": "enumeration",
