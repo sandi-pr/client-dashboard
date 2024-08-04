@@ -243,6 +243,11 @@
             "name": "contract-project-review",
             "path": "/contract_reviewer/project/review",
             "file_path": "template/contract_reviewer/project/review.html"
+        },
+        {
+            "name": "contract-industries",
+            "path": "/contract_reviewer/industries",
+            "file_path": "template/contract_reviewer/industries.html"
         }
     ],
     "apis": [
@@ -2490,106 +2495,35 @@
             ]
         },
         {
-            "name": "set-references",
-            "path": "/set-references",
+            "name": "create-industry",
+            "path": "/create-industry",
             "method": "POST",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
                 "plugin": "plugin.so",
-                "function": "SetReferences"
+                "function": "CreateIndustry"
             },
             "params": [
                 {
-                    "name": "references",
+                    "name": "industry_name",
                     "type": "string"
                 },
                 {
-                    "name": "industry_type",
+                    "name": "industry_description",
                     "type": "string"
                 }
             ]
         },
         {
-            "name": "get-references",
-            "path": "/get-references",
+            "name": "get-industries",
+            "path": "/get-industries",
             "method": "POST",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
                 "plugin": "plugin.so",
-                "function": "GetReferences"
-            },
-            "params": [
-                {
-                    "name": "industry_type",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "delete-all-references",
-            "path": "/delete-all-references",
-            "method": "POST",
-            "content_type": "application/json",
-            "response_type": "application/json",
-            "callback": {
-                "plugin": "plugin.so",
-                "function": "DeleteAllReferences"
-            },
-            "params": [
-                {
-                    "name": "industry_type",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "create-contract-project",
-            "path": "/create-contract-project",
-            "method": "POST",
-            "content_type": "application/json",
-            "response_type": "application/json",
-            "callback": {
-                "plugin": "plugin.so",
-                "function": "CreateContractProject"
-            },
-            "params": [
-                {
-                    "name": "project_name",
-                    "type": "string"
-                },
-                {
-                    "name": "industry_type",
-                    "type": "string"
-                },
-                {
-                    "name": "project_as",
-                    "type": "string"
-                },
-                {
-                    "name": "project_start_date",
-                    "type": "date"
-                },
-                {
-                    "name": "project_end_date",
-                    "type": "date"
-                },
-                {
-                    "name": "description",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "get-contract-projects",
-            "path": "/get-contract-projects",
-            "method": "POST",
-            "content_type": "application/json",
-            "response_type": "application/json",
-            "callback": {
-                "plugin": "plugin.so",
-                "function": "GetContractProjects"
+                "function": "GetIndustries"
             },
             "params": [
                 {
@@ -2603,14 +2537,14 @@
             ]
         },
         {
-            "name": "get-contract-project",
-            "path": "/get-contract-project/:id",
-            "method": "GET",
+            "name": "delete-industry",
+            "path": "/delete-industry/:id",
+            "method": "DELETE",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
                 "plugin": "plugin.so",
-                "function": "GetContractProject"
+                "function": "DeleteIndustry"
             },
             "url_params": [
                 {
@@ -2621,52 +2555,14 @@
             ]
         },
         {
-            "name": "get-document-contract-project",
-            "path": "/get-document-contract-project",
-            "method": "POST",
+            "name": "update-industry",
+            "path": "/update-industry/:id",
+            "method": "PUT",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
                 "plugin": "plugin.so",
-                "function": "GetDocumentContractProject"
-            },
-            "params": [
-                {
-                    "name": "project_id",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "create-document-project",
-            "path": "/create-document-project",
-            "method": "POST",
-            "content_type": "application/json",
-            "response_type": "application/json",
-            "callback": {
-                "plugin": "plugin.so",
-                "function": "CreateDocumentContractProject"
-            },
-            "params": [
-                {
-                    "name": "project_id",
-                    "type": "string"
-                },
-                {
-                    "name": "document",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "delete-document-project",
-            "path": "/delete-document-project/:id",
-            "method": "POST",
-            "content_type": "application/json",
-            "response_type": "application/json",
-            "callback": {
-                "plugin": "plugin.so",
-                "function": "DeleteDocumentContractProject"
+                "function": "UpdateIndustry"
             },
             "url_params": [
                 {
@@ -2675,7 +2571,16 @@
                     "required": true
                 }
             ],
-            "params": []
+            "params": [
+                {
+                    "name": "industry_name",
+                    "type": "string"
+                },
+                {
+                    "name": "industry_description",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -3433,7 +3338,7 @@
                         "type": "number"
                     },
                     "document_for": {
-                        "type": "enum",
+                        "type": "enumeration",
                         "enum": [
                             "Buyer",
                             "Seller",
@@ -3458,8 +3363,8 @@
                 }
             },
             {
-                "name": "indusries",
-                "label": "Indusries",
+                "name": "industries",
+                "label": "Industries",
                 "fields": {
                     "industry_name": {
                         "type": "string"
@@ -3516,7 +3421,7 @@
                         "type": "number"
                     },
                     "project_as": {
-                        "type": "enum",
+                        "type": "enumeration",
                         "enum": [
                             "Buyer",
                             "Seller",
