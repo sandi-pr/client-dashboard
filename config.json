@@ -3426,67 +3426,171 @@
                 }
             },
             {
-                "name": "reference-contract",
-                "label": "Reference Contract",
+                "name": "references-document",
+                "label": "References Document",
                 "fields": {
-                    "industry_type": {
+                    "industry_id": {
+                        "type": "number"
+                    },
+                    "document_for": {
+                        "type": "enum",
+                        "enum": [
+                            "Buyer",
+                            "Seller",
+                            "Other"
+                        ]
+                    },
+                    "document_title": {
                         "type": "string"
                     },
-                    "document_as": {
+                    "document_name": {
                         "type": "string"
                     },
-                    "document_type": {
+                    "document_file_name": {
                         "type": "string"
                     },
-                    "document": {
-                        "type": "media",
-                        "configurable": false
+                    "document_media_id": {
+                        "type": "media"
                     },
-                    "file_size": {
-                        "type": "string"
+                    "creator_id": {
+                        "type": "number"
                     }
                 }
             },
             {
-                "name": "project-contract",
-                "label": "Project Contract",
+                "name": "indusries",
+                "label": "Indusries",
+                "fields": {
+                    "industry_name": {
+                        "type": "string"
+                    },
+                    "industry_description": {
+                        "type": "string"
+                    },
+                    "creator_id": {
+                        "type": "number"
+                    }
+                }
+            },
+            {
+                "name": "contract-rules",
+                "label": "Contract Rules",
+                "fields": {
+                    "rule_name": {
+                        "type": "string"
+                    },
+                    "creator_id": {
+                        "type": "number"
+                    }
+                }
+            },
+            {
+                "name": "contract-rule-sections",
+                "label": "Contract Rule Sections",
+                "fields": {
+                    "section_title": {
+                        "type": "string"
+                    },
+                    "section_prompt": {
+                        "type": "string"
+                    },
+                    "section_sample": {
+                        "type": "string"
+                    },
+                    "contract_rule_id": {
+                        "type": "number"
+                    },
+                    "creator_id": {
+                        "type": "number"
+                    }
+                }
+            },
+            {
+                "name": "projects",
+                "label": "Projects",
                 "fields": {
                     "project_name": {
                         "type": "string"
                     },
-                    "industry_type": {
-                        "type": "string"
+                    "industry_id": {
+                        "type": "number"
                     },
                     "project_as": {
-                        "type": "string"
+                        "type": "enum",
+                        "enum": [
+                            "Buyer",
+                            "Seller",
+                            "Other"
+                        ]
                     },
-                    "project_start_date": {
+                    "duration_start": {
                         "type": "date"
                     },
-                    "project_end_date": {
+                    "duration_end": {
                         "type": "date"
                     },
                     "description": {
+                        "type": "text"
+                    },
+                    "references_document_id": {
+                        "type": "number"
+                    },
+                    "contract_rule_id": {
+                        "type": "number"
+                    },
+                    "status": {
                         "type": "string"
+                    },
+                    "creator_id": {
+                        "type": "number"
                     }
                 }
             },
             {
-                "name": "document-project",
-                "label": "Document Project",
+                "name": "project-documents",
+                "label": "Project Documents",
+                "fields": {
+                    "document_title": {
+                        "type": "string"
+                    },
+                    "document_name": {
+                        "type": "string"
+                    },
+                    "document_file_name": {
+                        "type": "string"
+                    },
+                    "document_media_id": {
+                        "type": "media"
+                    },
+                    "project_id": {
+                        "type": "number"
+                    },
+                    "creator_id": {
+                        "type": "number"
+                    }
+                }
+            },
+            {
+                "name": "project-results",
+                "label": "Project Results",
                 "fields": {
                     "project_id": {
-                        "type": "integer"
+                        "type": "number"
                     },
-                    "document_type": {
+                    "contract_rule_id": {
+                        "type": "number"
+                    },
+                    "result": {
                         "type": "string"
                     },
-                    "document": {
-                        "type": "media",
-                        "configurable": false
+                    "generated_at": {
+                        "type": "datetime"
                     },
-                    "file_size": {
+                    "status": {
                         "type": "string"
+                    },
+                    "creator_id": {
+                        "type": "number"
                     }
                 }
             }
