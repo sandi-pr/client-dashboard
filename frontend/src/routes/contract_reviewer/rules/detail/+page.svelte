@@ -9,7 +9,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { Modal, Button, Input, Textarea, Heading, P } from "flowbite-svelte";
   import { Typography, Dropdown, triggerToast, StateCard } from "$lib";
   import * as Icon from "flowbite-svelte-icons";
@@ -18,161 +18,136 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import { page } from "$app/stores";
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let files = $state([]);
   let formData = $state({ title: "", prompt: "", sample: "" });
-  let tmpRulesName = $state("");
-  let tmpRulesDescription = $state("");
-  let selectedIndustry = $state("Oil & Gas");
-  let selectedRole = $state("Buyer");
   let addRulesSectionsModal = $state(false);
-  let startDate = $state(null);
-  let endDate = $state(null);
-  let dateFormat = $state("d MMM yyyy");
-  let formattedStartDate = $state("");
-  let formattedEndDate = $state("");
+
+  let ruleId = $state(null);
 
   let datas = $state({});
 
-  function createRules() {
+  async function getRulesSections() {
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = call.call("client-dashboard", "create-contract-project", {
+        const response = await call.call("client-dashboard", "get-contract-rule", {
+          URLQuery: {},
+          URLParams: {
+            id: ruleId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        const response2 = await call.call("client-dashboard", "get-contract-rule-section", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            project_name: tmpRulesName,
-            industry_type: selectedIndustry,
-            project_as: selectedRole,
-            project_start_date: format(new Date(startDate), "yyyy-MM-dd"),
-            project_end_date: format(new Date(endDate), "yyyy-MM-dd"),
-            project_description: tmpRulesDescription,
+            contract_rule_id: ruleId.toString(),
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
-        if (response.status === 200) {
-          triggerToast("created");
-          addRulesSectionsModal = false;
+
+        if (response2.status !== 200) {
+          triggerToast("error");
+          console.log(response2);
+          return;
         }
+
+        datas = {
+          title: response.result.data[0].attributes.rule_name,
+          createdAt: format(
+            response.result.data[0].attributes.createdAt,
+            "yyyy-MM-dd HH:mm:ss zzz",
+          ),
+          data:
+            response2.result.data.length < 1
+              ? []
+              : response2.result.data.map((item) => {
+                  return {
+                    id: item.id,
+                    title: item.attributes.section_title,
+                    prompt: item.attributes.section_prompt,
+                    sample: item.attributes.section_sample,
+                    createdAt: format(item.attributes.createdAt, "yyyy-MM-dd"),
+                  };
+                }),
+        };
       } catch (error) {
-        triggerToast("error");
-        addRulesSectionsModal = false;
         console.log(error);
       }
     }
   }
 
-  async function getRulesSections() {
-    // let token = sessionStorage.getItem("token");
-    let token = true;
+  async function createRulesSections() {
+    let token = sessionStorage.getItem("token");
     if (token) {
-      // try {
-      //   const response = await call.call("client-dashboard", "get-contract-projects", {
-      //     URLQuery: {},
-      //     URLParams: {},
-      //     Params: {
-      //       page: 1,
-      //       page_size: 5,
-      //     },
-      //     Headers: {
-      //       Authorization: "Bearer " + token,
-      //     },
-      //   });
-      //   console.log("response", response);
-      //   if (response.status === 200) {
-      //     configs = {
-      //       headers: "projectList",
-      //       actions: [
-      //         {
-      //           name: "viewAll",
-      //           href: await call.getPage("client-dashboard", "contract-project-list"),
-      //           type: "info",
-      //         },
-      //       ],
-      //       seperator: true,
-      //     };
-      //     let url = await call.getPage("client-dashboard", "contract-project-detail");
-      //     let promise = response.result.pageData.map((project) => {
-      //       return {
-      //         id: project.id,
-      //         project_name: project.attributes.project_name,
-      //         industry: project.attributes.industry_type,
-      //         start_date: format(new Date(project.attributes.project_start_date), "dd/MM/yyyy"),
-      //         end_date: format(new Date(project.attributes.project_end_date), "dd/MM/yyyy"),
-      //         actions: {
-      //           objects: [
-      //             {
-      //               href: url + `?projectId=${project.id}`,
-      //               name: "View",
-      //             },
-      //           ],
-      //         },
-      //       };
-      //     });
+      try {
+        const response = await call.call("client-dashboard", "create-contract-rule-section", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            contract_rule_id: ruleId.toString(),
+            section_title: formData.title,
+            section_prompt: formData.prompt,
+            section_sample: formData.sample,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      //     datas = await Promise.all(promise);
-      //     console.log("datas", datas);
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
-      datas = {
-        title: "Document Title",
-        createdAt: "2024-01-01",
-        data: [
-          {
-            id: 1,
-            title: "buyer A",
-            prompt: "Who is the buyer?",
-            sample: "the buyer is {name}",
-            createdAt: "2024-01-01",
-          },
-          {
-            id: 2,
-            title: "seller A",
-            prompt: "Who is the seller?",
-            sample: "the seller is {name}",
-            createdAt: "2024-01-01",
-          },
-          {
-            id: 3,
-            title: "buyer B",
-            prompt: "Who is the buyer?",
-            sample: "the buyer is {name}",
-            createdAt: "2024-01-01",
-          },
-          {
-            id: 4,
-            title: "seller B",
-            prompt: "Who is the seller?",
-            sample: "the seller is {name}",
-            createdAt: "2024-01-01",
-          },
-        ],
-      };
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        formData = { title: "", prompt: "", sample: "" };
+        triggerToast("created");
+        addRulesSectionsModal = false;
+        getRulesSections();
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 
-  onMount(async () => {
-    getRulesSections();
+  onMount(() => {
+    const unsubscribe = page.subscribe(async ($page) => {
+      ruleId = $page.url.searchParams.get("ruleId");
+      if (ruleId !== null) {
+        getRulesSections();
+      } else {
+        goto(await call.getPage("client-dashboard", "contract-rules"));
+      }
+    });
+    return () => unsubscribe();
   });
 
-  let buttonDisabled = $state(false);
-
-  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
-
-  $effect(() => {
-    formattedStartDate = formatDate(startDate);
-    formattedEndDate = formatDate(endDate);
-  });
-
-  $effect(() => {
-    buttonDisabled = files.length === 0;
+  $effect(async () => {
+    const unsubscribe = page.subscribe(async ($page) => {
+      ruleId = $page.url.searchParams.get("ruleId");
+      if (ruleId !== null) {
+        getRulesSections();
+      } else {
+        goto(await call.getPage("client-dashboard", "contract-rules"));
+      }
+    });
+    onDestroy(() => unsubscribe());
   });
 </script>
 
@@ -274,6 +249,6 @@ All Rights Reserved
     <Input bind:value={formData.sample} placeholder={$_("whatIsYourRulesSectionsSample")} />
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createRules} class="w-full">{$_("addNewRulesSection")}</Button>
+    <Button onclick={createRulesSections} class="w-full">{$_("addNewRulesSection")}</Button>
   </svelte:fragment>
 </Modal>

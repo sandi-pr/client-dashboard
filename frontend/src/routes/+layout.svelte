@@ -249,6 +249,12 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "contract-project-list"),
             name: "project",
           },
+          {
+            href: isFrontend
+              ? "/contract_reviewer/rules"
+              : await call.getPage("client-dashboard", "contract-rules"),
+            name: "rules",
+          },
         ],
       },
     ];
@@ -329,7 +335,7 @@ All Rights Reserved
         goto(
           (await call.getPage("client-login", "home-page")) +
             "?redirect=" +
-            globalThis.location.href
+            globalThis.location.href,
         );
         return;
       }

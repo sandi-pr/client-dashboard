@@ -22,47 +22,43 @@ All Rights Reserved
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let files = $state([]);
-  let formData = $state({ name: "" });
   let tmpRulesName = $state("");
-  let tmpRulesDescription = $state("");
-  let selectedIndustry = $state("Oil & Gas");
-  let selectedRole = $state("Buyer");
   let addRulesModal = $state(false);
-  let isOpen = $state(false);
-  let startDate = $state(null);
-  let endDate = $state(null);
-  let dateFormat = $state("d MMM yyyy");
-  let formattedStartDate = $state("");
-  let formattedEndDate = $state("");
 
   let configs = $state({});
 
   let datas = $state([]);
 
-  function createRules() {
+  async function createRules() {
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = call.call("client-dashboard", "create-contract-project", {
+        const response = await call.call("client-dashboard", "create-contract-rules", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            project_name: tmpRulesName,
-            industry_type: selectedIndustry,
-            project_as: selectedRole,
-            project_start_date: format(new Date(startDate), "yyyy-MM-dd"),
-            project_end_date: format(new Date(endDate), "yyyy-MM-dd"),
-            project_description: tmpRulesDescription,
+            rule_name: tmpRulesName,
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
-        if (response.status === 200) {
-          triggerToast("created");
-          addRulesModal = false;
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
         }
+
+        triggerToast("created");
+        addRulesModal = false;
+        tmpRulesName = "";
+        getRules();
+        goto(
+          (await call.getPage("client-dashboard", "contract-rule-detail")) +
+            "?ruleId=" +
+            response.result.id,
+        );
       } catch (error) {
         triggerToast("error");
         addRulesModal = false;
@@ -71,130 +67,62 @@ All Rights Reserved
     }
   }
 
-  const toggleDatePicker = () => {
-    isOpen = !isOpen;
-  };
-
   const handleSearch = (evt) => {
     console.log(evt.target.value);
   };
 
   async function getRules() {
-    // let token = sessionStorage.getItem("token");
-    let token = true;
+    let token = sessionStorage.getItem("token");
     if (token) {
-      // try {
-      //   const response = await call.call("client-dashboard", "get-contract-projects", {
-      //     URLQuery: {},
-      //     URLParams: {},
-      //     Params: {
-      //       page: 1,
-      //       page_size: 5,
-      //     },
-      //     Headers: {
-      //       Authorization: "Bearer " + token,
-      //     },
-      //   });
-      //   console.log("response", response);
-      //   if (response.status === 200) {
-      //     configs = {
-      //       headers: "projectList",
-      //       actions: [
-      //         {
-      //           name: "viewAll",
-      //           href: await call.getPage("client-dashboard", "contract-project-list"),
-      //           type: "info",
-      //         },
-      //       ],
-      //       seperator: true,
-      //     };
-      //     let url = await call.getPage("client-dashboard", "contract-project-detail");
-      //     let promise = response.result.data.map((project) => {
-      //       return {
-      //         id: project.id,
-      //         project_name: project.attributes.project_name,
-      //         industry: project.attributes.industry_type,
-      //         start_date: format(new Date(project.attributes.project_start_date), "dd/MM/yyyy"),
-      //         end_date: format(new Date(project.attributes.project_end_date), "dd/MM/yyyy"),
-      //         actions: {
-      //           objects: [
-      //             {
-      //               href: url + `?projectId=${project.id}`,
-      //               name: "View",
-      //             },
-      //           ],
-      //         },
-      //       };
-      //     });
+      let rules = [];
+      let page = 1;
+      try {
+        while (true) {
+          const response = await call.call("client-dashboard", "get-contract-rules", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
 
-      //     datas = await Promise.all(promise);
-      //     console.log("datas", datas);
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
-      datas = [
-        {
-          id: 1,
-          project_name: "Project 1",
-          actions: {
-            objects: [
-              {
-                href: "#",
-                name: "View",
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          if (response.result.data.length === 0) {
+            break;
+          }
+          rules = rules.concat(response.result.data);
+          page++;
+        }
+
+        if (rules.length > 0) {
+          let link = await call.getPage("client-dashboard", "contract-rule-detail");
+          let promise = rules.map((rule) => {
+            return {
+              id: rule.id,
+              rule_name: rule.attributes.rule_name,
+              actions: {
+                objects: [
+                  {
+                    href: link + "?ruleId=" + rule.id,
+                    name: "View",
+                  },
+                ],
               },
-            ],
-          },
-        },
-        {
-          id: 2,
-          project_name: "Project 2",
-          actions: {
-            objects: [
-              {
-                href: "#",
-                name: "View",
-              },
-            ],
-          },
-        },
-        {
-          id: 3,
-          project_name: "Project 3",
-          actions: {
-            objects: [
-              {
-                href: "#",
-                name: "View",
-              },
-            ],
-          },
-        },
-        {
-          id: 4,
-          project_name: "Project 4",
-          actions: {
-            objects: [
-              {
-                href: "#",
-                name: "View",
-              },
-            ],
-          },
-        },
-        {
-          id: 5,
-          project_name: "Project 5",
-          actions: {
-            objects: [
-              {
-                href: "#",
-                name: "View",
-              },
-            ],
-          },
-        },
-      ];
+            };
+          });
+          datas = await Promise.all(promise);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 
@@ -204,15 +132,8 @@ All Rights Reserved
 
   let buttonDisabled = $state(false);
 
-  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
-
   $effect(() => {
-    formattedStartDate = formatDate(startDate);
-    formattedEndDate = formatDate(endDate);
-  });
-
-  $effect(() => {
-    buttonDisabled = files.length === 0;
+    buttonDisabled = tmpRulesName.length === 0;
   });
 </script>
 
@@ -264,10 +185,12 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesName")}*`} />
-      <Input bind:value={formData.name} placeholder={$_("whatIsYourRulesName")} />
+      <Input bind:value={tmpRulesName} placeholder={$_("whatIsYourRulesName")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createRules} class="w-full">{$_("addNewRules")}</Button>
+    <Button onclick={createRules} class="w-full" disabled={buttonDisabled}
+      >{$_("addNewRules")}</Button
+    >
   </svelte:fragment>
 </Modal>
