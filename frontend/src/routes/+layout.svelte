@@ -329,7 +329,7 @@ All Rights Reserved
         goto(
           (await call.getPage("client-login", "home-page")) +
             "?redirect=" +
-            globalThis.location.href,
+            globalThis.location.href
         );
         return;
       }

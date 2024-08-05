@@ -419,5 +419,21 @@
   "webchat": "Webchat",
   "talkToYourPrivateAiAssistantHere": "Berbicara dengan AI privat Anda di sini!",
   "addNewDocumentAsBuyer": "Tambahkan dokumen sebagai pembeli",
-  "addNewDocumentAsSeller": "Tambahkan dokumen sebagai penjual"
+  "addNewDocumentAsSeller": "Tambahkan dokumen sebagai penjual",
+  "addNewRules": "Tambahkan aturan baru",
+  "descAddNewRules": "Gunakan untuk menambahkan aturan baru",
+  "createNewRules": "Buat aturan baru",
+  "rulesOverview": "Pratinjau Aturan",
+  "rules list": "Daftar Aturan",
+  "addNewSection": "Tambahkan bagian baru",
+  "rulesName": "Nama Aturan",
+  "whatIsYourRulesName": "Apa nama aturan Anda?",
+  "rulesSectionTitle": "Judul Bagian Aturan",
+  "whatIsYourRulesSectionsTitle": "Apa judul bagian aturan Anda?",
+  "createNewRulesSection": "Buat bagian aturan baru",
+  "addNewRulesSection": "Tambahkan bagian aturan baru",
+  "rulesSectionPrompt": "Petunjuk Bagian Aturan",
+  "whatIsYourRulesSectionsPrompt": "Apa petunjuk bagian aturan Anda?",
+  "rulesSectionSample": "Contoh Bagian Aturan",
+  "whatIsYourRulesSectionsSample": "Apa contoh bagian aturan Anda?"
 }

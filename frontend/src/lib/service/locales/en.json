@@ -419,5 +419,21 @@
   "webchat": "Webchat",
   "talkToYourPrivateAiAssistantHere": "Talk to your private AI assistant here!",
   "addNewDocumentAsBuyer": "Add new document as buyer",
-  "addNewDocumentAsSeller": "Add new document as seller"
+  "addNewDocumentAsSeller": "Add new document as seller",
+  "addNewRules": "Add new rules",
+  "descAddNewRules": "Used to add a new rules",
+  "createNewRules": "Create new rules",
+  "rulesOverview": "Rules Overview",
+  "rulesList": "Rules List",
+  "addNewSection": "Add new section",
+  "rulesName": "Rules Name",
+  "whatIsYourRulesName": "What is your rules name?",
+  "rulesSectionTitle": "Rules Section Title",
+  "whatIsYourRulesSectionsTitle": "What is your rules sections title?",
+  "createNewRulesSection": "Create new rules section",
+  "addNewRulesSection": "Add new rules section",
+  "rulesSectionPrompt": "Rules Section Prompt",
+  "whatIsYourRulesSectionsPrompt": "What is your rules sections prompt?",
+  "rulesSectionSample": "Rules Section Sample",
+  "whatIsYourRulesSectionsSample": "What is your rules sections sample?"
 }
