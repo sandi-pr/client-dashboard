@@ -65,7 +65,7 @@ All Rights Reserved
   });
 
   let files = $state([]);
-  let tmpDocumentType = $state("");
+  let tmpDocumentType = $state("Documents");
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
   let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
