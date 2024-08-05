@@ -28,7 +28,7 @@ All Rights Reserved
   let actionItems = $state([]);
   let tmpProjectName = $state("");
   let tmpProjectDescription = $state("");
-  let selectedIndustry = $state("Oil & Gas");
+  let selectedIndustry = $state("");
   let selectedRole = $state("Buyer");
   let dropdownIndustryOpen = $state(false);
   let dropdownRole = $state(false);
@@ -40,10 +40,7 @@ All Rights Reserved
   let formattedStartDate = $state("");
   let formattedEndDate = $state("");
 
-  let industries = $state([
-    { name: "Oil & Gas", value: "oil-gas" },
-    { name: "Other", value: "other" },
-  ]);
+  let industries = $state([]);
 
   let role = $state([
     { name: "Buyer", value: "buyer" },
@@ -162,9 +159,52 @@ All Rights Reserved
     }
   }
 
+  async function getIndustries() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let page = 1;
+      let tmpIndustries = [];
+      while (true) {
+        const response = await call.call("client-dashboard", "get-industries", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            industry_id: selectedIndustry,
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          if (response.result.data.length === 0) {
+            break;
+          } else {
+            tmpIndustries = tmpIndustries.concat(response.result.data);
+            page++;
+          }
+        }
+      }
+
+      let promise = tmpIndustries.map((industry) => {
+        return {
+          value: industry.id,
+          name: industry.attributes.industry_name,
+          description: industry.attributes.industry_description,
+        };
+      });
+
+      industries = await Promise.all(promise);
+    }
+  }
+
   onMount(async () => {
     getProjectsLatest();
     getActionItems();
+    getIndustries();
   });
 
   let buttonDisabled = $state(false);
@@ -225,7 +265,7 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectName")}*`} />
-      <Input bind:value={tmpProjectName} placeholder={$_("whatIsYourProjectTitle")} />
+      <Input bind:value={tmpProjectName} placeholder={$_("whatIsYourProjectTitle")} class="bg-primary-light dark:bg-secondary-dark" />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
@@ -234,6 +274,7 @@ All Rights Reserved
         selectedItem={selectedIndustry}
         items={industries}
         placeholder={$_("selectIndustry")}
+        isOverlay={true}
       />
     </div>
     <div class="flex gap-4">
@@ -244,6 +285,7 @@ All Rights Reserved
           dropdownOpen={dropdownRole}
           selectedItem={selectedRole}
           items={role}
+          isOverlay={true}
         />
       </div>
       <div class="flex grow flex-col gap-1.5">

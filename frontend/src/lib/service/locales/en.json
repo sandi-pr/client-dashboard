@@ -435,5 +435,16 @@
   "rulesSectionPrompt": "Rules Section Prompt",
   "whatIsYourRulesSectionsPrompt": "What is your rules sections prompt?",
   "rulesSectionSample": "Rules Section Sample",
-  "whatIsYourRulesSectionsSample": "What is your rules sections sample?"
+  "whatIsYourRulesSectionsSample": "What is your rules sections sample?",
+  "projectTitle": "Project Title",
+  "oil&Gas": "Oil & Gas",
+  "Industry": "Industry",
+  "documentUploads": "Document Uploads",
+  "setRules": "Set Rules",
+  "manageIndustries": "Manage Industries",
+  "createNewIndustry": "Create new industry",
+  "industryName": "Industry Name",
+  "whatIsYourIndustryName": "What is your industry name?",
+  "updateIndustry": "Update Industry",
+  "addNewIndustry": "Add new industry"
 }

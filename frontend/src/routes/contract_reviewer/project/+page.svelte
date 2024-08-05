@@ -24,7 +24,7 @@ All Rights Reserved
 
   let tmpProjectName = $state("");
   let tmpProjectDescription = $state("");
-  let selectedIndustry = $state("Oil & Gas");
+  let selectedIndustry = $state("");
   let selectedRole = $state("Buyer");
   let dropdownIndustryOpen = $state(false);
   let dropdownRole = $state(false);
@@ -42,10 +42,7 @@ All Rights Reserved
     total: 1,
   });
 
-  let industries = $state([
-    { name: "Oil & Gas", value: "oil-gas" },
-    { name: "Other", value: "other" },
-  ]);
+  let industries = $state([]);
 
   let role = $state([
     { name: "Buyer", value: "buyer" },
@@ -102,6 +99,48 @@ All Rights Reserved
       } catch (error) {
         console.log(error);
       }
+    }
+  }
+
+  async function getIndustries() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let page = 1;
+      let tmpIndustries = [];
+      while (true) {
+        const response = await call.call("client-dashboard", "get-industries", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            industry_id: selectedIndustry,
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          if (response.result.data.length === 0) {
+            break;
+          } else {
+            tmpIndustries = tmpIndustries.concat(response.result.data);
+            page++;
+          }
+        }
+      }
+
+      let promise = tmpIndustries.map((industry) => {
+        return {
+          value: industry.id,
+          name: industry.attributes.industry_name,
+          description: industry.attributes.industry_description,
+        };
+      });
+
+      industries = await Promise.all(promise);
     }
   }
 
@@ -163,6 +202,7 @@ All Rights Reserved
 
   onMount(async () => {
     getProjects();
+    getIndustries();
   });
 </script>
 
@@ -207,6 +247,7 @@ All Rights Reserved
         selectedItem={selectedIndustry}
         items={industries}
         placeholder={$_("selectIndustry")}
+        isOverlay={true}
       />
     </div>
     <div class="flex gap-4">
@@ -217,6 +258,7 @@ All Rights Reserved
           dropdownOpen={dropdownRole}
           selectedItem={selectedRole}
           items={role}
+          isOverlay={true}
         />
       </div>
       <div class="flex grow flex-col gap-1.5">

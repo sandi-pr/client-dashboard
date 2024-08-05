@@ -1,6 +1,6 @@
 <script>
   import { Button, Modal, Input } from "flowbite-svelte";
-  import { FeaturedIcon, Typography, UploadFile, triggerToast } from "$lib";
+  import { FeaturedIcon, Typography, UploadFile, triggerToast, SelectedCard, Dropdown } from "$lib";
   import PdfViewer from "svelte-pdf";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
@@ -224,6 +224,7 @@
               files = files.filter((file) => file.id !== tmpIdDeleted[i]);
             }
           }
+          tmpIdDeleted = [];
         }
 
         for (let i = 0; i < files.length; i++) {
@@ -345,6 +346,7 @@
         return {
           value: industry.id,
           name: industry.attributes.industry_name,
+          description: industry.attributes.industry_description,
         };
       });
 
@@ -395,47 +397,22 @@
   </div>
   <Divider />
   <!-- section form -->
-  <div class="flex gap-3">
+  <div class="flex gap-3 w-full">
     <div class="w-60">
       <Typography preset="Text md/Semibold" text={`${$_("industry")}*`} color="secondary" />
     </div>
-    <div class="flex flex-col grow gap-6">
+    <div class="flex grow gap-6">
       <!-- form dropdown -->
-      <div class="relative flex flex-col gap-1.5">
+      <div class="relative flex flex-col gap-1.5 w-full">
         <Typography preset="Text sm/Medium" text={`${$_("industryType")}*`} color="secondary" />
-        <div onfocusout={handleDropdownFocusLoss} class="flex flex-col gap-1 w-72">
-          <Button
-            on:click={() => (dropdownIndustryOpen = !dropdownIndustryOpen)}
-            class="flex justify-between border-primary-light dark:border-primary-dark"
-            color="light"
-          >
-            {selectedIndustry
-              ? industries.find((industry) => industry.value === selectedIndustry).name
-              : "select industry"}
-            <ChevronDownOutline
-              class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-            />
-          </Button>
-          {#if dropdownIndustryOpen}
-            <ul
-              style:visibility={dropdownIndustryOpen ? "visible" : "hidden"}
-              class="py-2 flex flex-col items-center border border-secondary-light dark:border-secondary-dark rounded-lg text-sm text-primary-light dark:text-primary-dark"
-              aria-labelledby="dropdownDefaultButton"
-            >
-              {#each industries as industry}
-                <button
-                  class="flex w-full py-2 px-4"
-                  onclick={() => {
-                    dropdownIndustryOpen = false;
-                    selectedIndustry = industry.value;
-                  }}
-                >
-                  {industry.name}
-                </button>
-              {/each}
-            </ul>
-          {/if}
-        </div>
+        <!-- <SelectedCard selectionData={industries} numGrid={3} /> -->
+        <Dropdown
+          dropdownOpen={dropdownIndustryOpen}
+          selectedItem={selectedIndustry}
+          items={industries}
+          placeholder={$_("selectIndustry")}
+          isOverlay={true}
+        />
       </div>
     </div>
   </div>

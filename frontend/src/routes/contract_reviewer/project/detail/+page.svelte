@@ -1,5 +1,5 @@
 <script>
-  import { Typography, InputRw, UploadFile, triggerToast } from "$lib";
+  import { Typography, InputRw, UploadFile, triggerToast, Dropdown, DocumentProject } from "$lib";
   import { Button, Modal, Input } from "flowbite-svelte";
   import { DatePicker } from "@svelte-plugins/datepicker";
   import { _ } from "svelte-i18n";
@@ -28,20 +28,18 @@
   let tmpDocumentName = $state("");
   let selectedFile = $state(null);
 
-  let documentTypes = $state([
-    {
-      title: `${$_("documentGtc")}*`,
-      type: "documentGtc",
-    },
-    {
-      title: `${$_("tradeConfirmation")}*`,
-      type: "tradeConfirmation",
-    },
-    {
-      title: `${$_("dealDoneDocument")}*`,
-      type: "dealDoneDocument",
-    },
+  let documentUploads = $state([
+    // {
+    //   title: "Trade Confirmation",
+    //   type: "tradeConfirmation",
+    // },
   ]);
+
+  let rules = $state([
+    // {
+    //   name: "Patra Niaga POC",
+    // },
+  ])
 
   let otherDocType = $state([]);
 
@@ -172,7 +170,7 @@
 
   function addOtherDocument() {
     if (tmpDocumentName) {
-      otherDocType.push({
+      documentUploads.push({
         title: tmpDocumentName,
         type: tmpDocumentName,
       });
@@ -321,31 +319,21 @@
       <div class="flex gap-3">
         <div class="flex grow flex-col gap-1.5">
           <Typography preset="Text sm/Medium" text={`${$_("industryType")}*`} color="secondary" />
-          <div class="flex flex-col gap-1">
-            <Button
-              on:click={() => {}}
-              class="flex justify-between border-primary-light dark:border-primary-dark"
-              color="light"
-            >
-              {data.industry}
-              <ChevronDownOutline
-                class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-              />
-            </Button>
-          </div>
+          <Dropdown
+            dropdownOpen={false}
+            selectedItem={data.industry}
+            items={[]}
+            isOverlay={true}
+          />
         </div>
-        <div class="flex w-min flex-col gap-1.5">
+        <div class="flex w-max flex-col gap-1.5">
           <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
-          <Button
-            on:click={() => {}}
-            class="flex justify-between border-primary-light dark:border-primary-dark"
-            color="light"
-          >
-            {data.as}
-            <ChevronDownOutline
-              class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-            />
-          </Button>
+          <Dropdown
+            dropdownOpen={false}
+            selectedItem={data.as}
+            items={[]}
+            isOverlay={true}
+          />
         </div>
         <div class="flex grow flex-col gap-1.5">
           <Typography
@@ -384,21 +372,24 @@
       <Typography preset="Text md/Semibold" text={`${$_("documentUploads")}`} color="secondary" />
     </div>
     <div class="flex flex-col grow gap-6">
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- form upload -->
-        {#each documentTypes as docType}
-          <UploadFile
+        {#each documentUploads as docType}
+          <DocumentProject
             title={docType.title}
             handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
             file={getFileByType(docType.type, data.as)}
+            rules={rules}
+            placeholderDropdown={$_("setRules")}
             actionButton={true}
             actionView={() => (
               (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
             )}
             actionDelete={() => deleteFileByType(docType.type, data.as)}
+            actionGenerate={() => {}}
           />
         {/each}
-        {#each otherDocType as docType}
+        <!-- {#each otherDocType as docType}
           <UploadFile
             title={docType.title}
             handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "other")}
@@ -409,7 +400,7 @@
             )}
             actionDelete={() => deleteFileByType(docType.type, "other")}
           />
-        {/each}
+        {/each} -->
         <Button
           class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
           on:click={() => {
@@ -442,7 +433,7 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
-      <Input bind:value={tmpDocumentName} placeholder={$_("name")} />
+      <Input bind:value={tmpDocumentName} placeholder={$_("name")} class="bg-primary-light dark:bg-primary-dark" />
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
@@ -453,6 +444,6 @@
     />
   </div>
   <svelte:fragment slot="footer">
-    <Button on:click={addOtherDocument}>{$_("add")}</Button>
+    <Button on:click={addOtherDocument} disabled={tmpFile.length === 0 || !tmpDocumentName}>{$_("add")}</Button>
   </svelte:fragment>
 </Modal>
