@@ -408,7 +408,7 @@
         <!-- <SelectedCard selectionData={industries} numGrid={3} /> -->
         <Dropdown
           dropdownOpen={dropdownIndustryOpen}
-          selectedItem={selectedIndustry}
+          bind:selectedItem={selectedIndustry}
           items={industries}
           placeholder={$_("selectIndustry")}
           isOverlay={true}

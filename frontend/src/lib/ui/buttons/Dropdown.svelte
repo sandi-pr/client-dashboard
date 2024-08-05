@@ -12,7 +12,14 @@ All Rights Reserved
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { _ } from "svelte-i18n";
 
-  let { dropdownOpen, selectedItem = "", items = [], width = "w-full", placeholder = "select item", isOverlay = false } = $props();
+  let {
+    dropdownOpen,
+    selectedItem = $bindable(""),
+    items = [],
+    width = "w-full",
+    placeholder = "select item",
+    isOverlay = false,
+  } = $props();
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
@@ -26,23 +33,31 @@ All Rights Reserved
     class="flex justify-between border-primary-light dark:border-primary-dark"
     color="light"
   >
-    {selectedItem ? selectedItem : placeholder}
-    <ChevronDownOutline class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"/>
+    {selectedItem ? items.find((item) => item.value === selectedItem).name : placeholder}
+    <ChevronDownOutline
+      class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+    />
   </Button>
   {#if dropdownOpen && items.length > 0}
     {#if isOverlay}
-    <div id="dropdown" class={`z-10 ${dropdownOpen ? "absolute top-12 px-2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
-      <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-        {#each items as item}
-          <button
-            class="flex w-full py-2 px-4"
-            onclick={() => ((dropdownOpen = false), (selectedItem = item.name))}
-          >
-            {item.name}
-          </button>
-        {/each}
-      </ul>
-    </div>
+      <div
+        id="dropdown"
+        class={`z-10 ${dropdownOpen ? "absolute top-12 px-2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+      >
+        <ul
+          class="py-2 text-sm text-gray-700 dark:text-gray-200"
+          aria-labelledby="dropdownDefaultButton"
+        >
+          {#each items as item}
+            <button
+              class="flex w-full py-2 px-4"
+              onclick={() => ((dropdownOpen = false), (selectedItem = item.value))}
+            >
+              {item.name}
+            </button>
+          {/each}
+        </ul>
+      </div>
     {:else}
       <ul
         style:visibility={dropdownOpen ? "visible" : "hidden"}
