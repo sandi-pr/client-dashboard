@@ -255,6 +255,12 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "contract-rules"),
             name: "rules",
           },
+          {
+            href: isFrontend
+              ? "/contract_reviewer/industries"
+              : await call.getPage("client-dashboard", "contract-industries"),
+            name: "industries",
+          },
         ],
       },
     ];

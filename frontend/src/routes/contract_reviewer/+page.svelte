@@ -60,7 +60,7 @@ All Rights Reserved
         desc: "desc Add new project",
       },
       {
-        href: "#",
+        href: await call.getPage("client-dashboard", "contract-industries"),
         icon: "building",
         actionName: "Manage industry",
         desc: "desc Manage industry",
@@ -72,7 +72,7 @@ All Rights Reserved
         desc: "desc Set your referenced document",
       },
       {
-        href: "#",
+        href: await call.getPage("client-dashboard", "contract-rules"),
         icon: "distributeVert",
         actionName: "Manage rules",
         desc: "desc Manage rules",
@@ -248,10 +248,11 @@ All Rights Reserved
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
             {#each actionItems as item}
               <Card
-                onclick={() =>
+                onclick={() => {
                   item.actionName === "Add new project"
                     ? (addProjectModal = true)
-                    : goto(item.href)}
+                    : goto(item.href);
+                }}
                 icon={item.icon}
                 title={$_(toCamelCase(item.actionName))}
                 description={$_(toCamelCase(item.desc))}
@@ -277,7 +278,11 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectName")}*`} />
-      <Input bind:value={tmpProjectName} placeholder={$_("whatIsYourProjectTitle")} class="bg-primary-light dark:bg-secondary-dark" />
+      <Input
+        bind:value={tmpProjectName}
+        placeholder={$_("whatIsYourProjectTitle")}
+        class="bg-primary-light dark:bg-secondary-dark"
+      />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />

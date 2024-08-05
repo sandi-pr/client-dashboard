@@ -452,5 +452,7 @@
   "manageIndustry": "Manage Industry",
   "descManageIndustry": "Register new industry data to the database",
   "manageRules": "Manage Rules",
-  "descManageRules": "This rules will be used to configure how the AI reads document"
+  "descManageRules": "This rules will be used to configure how the AI reads document",
+  "rules": "Rules",
+  "industries": "Industries"
 }
