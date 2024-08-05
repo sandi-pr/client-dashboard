@@ -73,10 +73,7 @@ All Rights Reserved
 
         datas = {
           title: response.result.data[0].attributes.rule_name,
-          createdAt: format(
-            response.result.data[0].attributes.createdAt,
-            "yyyy-MM-dd HH:mm:ss zzz",
-          ),
+          createdAt: format(response.result.data[0].attributes.createdAt, "yyyy-MM-dd HH:mm:ss"),
           data:
             response2.result.data.length < 1
               ? []
