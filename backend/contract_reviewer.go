@@ -635,6 +635,128 @@ func CreateContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.
 	return 200, rule, nil
 }
 
+func DeleteContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idString, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idString))
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, section, err := Strapi.Delete("contract-rule-sections-table", int64(id))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, section, nil
+}
+
+func UpdateContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idString, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idString))
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	section_title, ok := ctx.Params.GetString("section_title")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters section_title")
+	}
+
+	section_prompt, ok := ctx.Params.GetString("section_prompt")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters section_prompt")
+	}
+
+	section_sample, ok := ctx.Params.GetString("section_sample")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters section_sample")
+	}
+
+	status, section, err := Strapi.Update("contract-rule-sections-table", int64(id), U.Dict{
+		"section_title":  section_title,
+		"section_prompt": section_prompt,
+		"section_sample": section_sample,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, section, nil
+}
+
 func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")

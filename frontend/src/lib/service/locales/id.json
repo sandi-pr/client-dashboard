@@ -446,5 +446,7 @@
   "industryName": "Nama Industri",
   "whatIsYourIndustryName": "Apa nama industri Anda?",
   "updateIndustry": "Perbarui Industri",
-  "addNewIndustry": "Tambahkan industri baru"
+  "addNewIndustry": "Tambahkan industri baru",
+  "editRulesSection": "Edit bagian aturan",
+  "saveChanges": "Simpan Perubahan"
 }

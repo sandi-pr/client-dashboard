@@ -2753,6 +2753,56 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "delete-contract-rule-section",
+            "path": "/delete-contract-rule-section/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteContractRuleSection"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-contract-rule-section",
+            "path": "/update-contract-rule-section/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateContractRuleSection"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "section_title",
+                    "type": "string"
+                },
+                {
+                    "name": "section_prompt",
+                    "type": "string"
+                },
+                {
+                    "name": "section_sample",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {

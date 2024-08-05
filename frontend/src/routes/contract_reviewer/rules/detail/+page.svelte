@@ -24,8 +24,12 @@ All Rights Reserved
 
   let formData = $state({ title: "", prompt: "", sample: "" });
   let addRulesSectionsModal = $state(false);
+  let deleteModal = $state(false);
+  let edit = $state(false);
 
   let ruleId = $state(null);
+
+  let tmpSectionId = $state(null);
 
   let datas = $state({});
 
@@ -126,6 +130,72 @@ All Rights Reserved
     }
   }
 
+  async function deleteSection() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "delete-contract-rule-section", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpSectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        triggerToast("deleted");
+        deleteModal = false;
+        getRulesSections();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function editSection() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "update-contract-rule-section", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpSectionId.toString(),
+          },
+          Params: {
+            section_title: formData.title,
+            section_prompt: formData.prompt,
+            section_sample: formData.sample,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        triggerToast("updated");
+        addRulesSectionsModal = false;
+        formData = { title: "", prompt: "", sample: "" };
+        edit = false;
+        getRulesSections();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
       ruleId = $page.url.searchParams.get("ruleId");
@@ -187,6 +257,28 @@ All Rights Reserved
             <div class="grid grid-cols-12 gap-4">
               <div class="col-span-3">
                 <P class="font-semibold text-tertiary-light">Section {index + 1}</P>
+                <div class="flex">
+                  <button
+                    class="text-primary-light dark:text-primary-dark mr-4"
+                    onclick={() => {
+                      tmpSectionId = data.id;
+                      deleteModal = true;
+                    }}>Delete</button
+                  >
+                  <button
+                    class="text-brand-secondary-light dark:text-brand-secondary-dark"
+                    onclick={() => {
+                      edit = true;
+                      tmpSectionId = data.id;
+                      formData = {
+                        title: data.title,
+                        prompt: data.prompt,
+                        sample: data.sample,
+                      };
+                      addRulesSectionsModal = true;
+                    }}>Edit</button
+                  >
+                </div>
               </div>
               <div class="col-span-1 text-tertiary-light"><P>Order</P></div>
               <div class="col-span-8 text-tertiary-light"><P>Name</P></div>
@@ -219,7 +311,11 @@ All Rights Reserved
           <Button
             class="self-center"
             color="primary"
-            on:click={() => (addRulesSectionsModal = true)}
+            on:click={() => {
+              formData = { title: "", prompt: "", sample: "" };
+              edit = false;
+              addRulesSectionsModal = true;
+            }}
             ><Icon.PlusOutline class="w-5 h-5" />
             {$_("addNewSection")}</Button
           >
@@ -233,7 +329,11 @@ All Rights Reserved
   </div>
 </div>
 
-<Modal title={$_("createNewRulesSection")} bind:open={addRulesSectionsModal} size="lg">
+<Modal
+  title={edit ? $_("editRulesSection") : $_("createNewRulesSection")}
+  bind:open={addRulesSectionsModal}
+  size="lg"
+>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesSectionTitle")}*`} />
@@ -249,6 +349,25 @@ All Rights Reserved
     <Input bind:value={formData.sample} placeholder={$_("whatIsYourRulesSectionsSample")} />
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createRulesSections} class="w-full">{$_("addNewRulesSection")}</Button>
+    <Button onclick={edit ? editSection : createRulesSections} class="w-full"
+      >{edit ? $_("saveChanges") : $_("addNewRulesSection")}</Button
+    >
   </svelte:fragment>
+</Modal>
+
+<Modal bind:open={deleteModal} size="xs" autoclose>
+  <div class="text-center">
+    <Icon.ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteSection} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button
+      color="alternative"
+      onclick={() => {
+        deleteModal = false;
+        tmpSectionId = null;
+      }}>{$_("noCancel")}</Button
+    >
+  </div>
 </Modal>

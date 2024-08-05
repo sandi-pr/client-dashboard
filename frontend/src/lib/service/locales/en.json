@@ -446,5 +446,7 @@
   "industryName": "Industry Name",
   "whatIsYourIndustryName": "What is your industry name?",
   "updateIndustry": "Update Industry",
-  "addNewIndustry": "Add new industry"
+  "addNewIndustry": "Add new industry",
+  "editRulesSection": "Edit Rules Section",
+  "saveChanges": "Save Changes"
 }
