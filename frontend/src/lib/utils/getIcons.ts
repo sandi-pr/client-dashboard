@@ -16,6 +16,9 @@ import PackageSearchIcon from "../icon/package-search.svelte";
 import FolderPlusIcon from "../icon/folder-plus.svelte";
 import FilePlusIcon from "../icon/file-plus-02.svelte";
 import BoxIcon from "../icon/box.svelte";
+import BuildingIcon from "../icon/building-08.svelte";
+import BookOpenIcon from "../icon/book-open-02.svelte";
+import DistributeVertIcon from "../icon/distribute-spacing-vertical.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -55,6 +58,12 @@ let getIcons = (presetIcon: String) => {
       return FilePlusIcon;
     case "box":
       return BoxIcon;
+    case "building":
+      return BuildingIcon;
+    case "bookOpen":
+      return BookOpenIcon;
+    case "distributeVert":
+      return DistributeVertIcon;
     default:
       return "";
   }

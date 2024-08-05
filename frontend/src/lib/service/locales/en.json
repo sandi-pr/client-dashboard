@@ -448,5 +448,9 @@
   "updateIndustry": "Update Industry",
   "addNewIndustry": "Add new industry",
   "editRulesSection": "Edit Rules Section",
-  "saveChanges": "Save Changes"
+  "saveChanges": "Save Changes",
+  "manageIndustry": "Manage Industry",
+  "descManageIndustry": "Register new industry data to the database",
+  "manageRules": "Manage Rules",
+  "descManageRules": "This rules will be used to configure how the AI reads document"
 }

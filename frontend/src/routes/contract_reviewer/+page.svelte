@@ -54,16 +54,28 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
+        href: "#",
+        icon: "packagePlus",
+        actionName: "Add new project",
+        desc: "desc Add new project",
+      },
+      {
+        href: "#",
+        icon: "building",
+        actionName: "Manage industry",
+        desc: "desc Manage industry",
+      },
+      {
         href: await call.getPage("client-dashboard", "contract-reviewer-reference"),
-        icon: "filePlus",
+        icon: "bookOpen",
         actionName: "Set your referenced document",
         desc: "desc Set your referenced document",
       },
       {
         href: "#",
-        icon: "packagePlus",
-        actionName: "Add new project",
-        desc: "desc Add new project",
+        icon: "distributeVert",
+        actionName: "Manage rules",
+        desc: "desc Manage rules",
       },
     ];
   }
