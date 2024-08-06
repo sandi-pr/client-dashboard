@@ -576,7 +576,7 @@
   {/if}
 </Modal>
 
-<Modal title={$_("addNewDocumentAsBuyer")} bind:open={addBuyerDocumentModal}>
+<Modal title={$_("addNewDocument")} bind:open={addBuyerDocumentModal}>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
@@ -601,7 +601,7 @@
   </svelte:fragment>
 </Modal>
 
-<Modal title={$_("addNewDocumentAsSeller")} bind:open={addSellerDocumentModal}>
+<Modal title={$_("addNewDocument")} bind:open={addSellerDocumentModal}>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
