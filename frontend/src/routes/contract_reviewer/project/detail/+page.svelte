@@ -31,6 +31,7 @@
 
   let documentViewModal = $state(false);
   let addNewDocumentModal = $state(false);
+  let deleteModal = $state(false);
   let files = $state([]);
   let tmpFile = $state([]);
   let tmpDocumentName = $state("");
