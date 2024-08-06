@@ -199,7 +199,7 @@
           Params: {
             document_base64: tmpFile.base64,
             document_id: response.result.data.id.toString(),
-            document_name: tmpDocumentName,
+            document_name: tmpFile.name,
             document_type: "project",
           },
           Headers: {
