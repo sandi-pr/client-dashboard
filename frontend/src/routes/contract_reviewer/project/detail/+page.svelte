@@ -505,7 +505,8 @@
           });
         }
 
-        let projectDocumentId = files.findIndex((file) => file.type === type).id;
+        let indexDoc = files.findIndex((file) => file.type === type);
+        let projectDocumentId = files[indexDoc].id;
 
         let response4 = await call.call("client-dashboard", "create-project-results", {
           URLQuery: {},
