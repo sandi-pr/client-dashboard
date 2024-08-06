@@ -23,6 +23,7 @@ All Rights Reserved
     handleFileUploadWrapper,
     multiple = false,
     type = "document",
+    status = $bindable(""),
     file = [],
     actionButton = false,
     actionView = null,
@@ -77,6 +78,9 @@ All Rights Reserved
         <div class="flex flex-col justify-center">
           <Typography preset="Text sm/Semibold" text={file.name} color="secondary" />
           <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
+          {#if status !== ""}
+            <Typography preset="Text sm/Regular" text={`status: ${status}`} color="secondary" />
+          {/if}
         </div>
       </div>
       {#if actionButton}

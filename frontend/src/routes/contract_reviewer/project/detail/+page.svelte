@@ -503,7 +503,7 @@
           }
         }
 
-        if ((generated.length = files.length)) {
+        if (generated.length === files.length) {
           console.log("finish");
         }
       } catch (error) {
