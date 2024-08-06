@@ -367,8 +367,12 @@ All Rights Reserved
     <Input bind:value={formData.sample} placeholder={$_("whatIsYourRulesSectionsSample")} />
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={edit ? editSection : createRulesSections} class="w-full"
-      >{edit ? $_("saveChanges") : $_("addNewRulesSection")}</Button
+    <Button
+      onclick={edit ? editSection : createRulesSections}
+      class="w-full"
+      disabled={formData.title.length < 1 &&
+        formData.prompt.length < 1 &&
+        formData.sample.length < 1}>{edit ? $_("saveChanges") : $_("addNewRulesSection")}</Button
     >
   </svelte:fragment>
 </Modal>
