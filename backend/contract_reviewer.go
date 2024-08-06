@@ -340,12 +340,18 @@ func GetDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config
 			ragID = string(val)
 		}
 
+		status := ""
+		if val, ok := list[i].(U.Dict)["attributes"].(U.Dict)["status"].(U.String); ok {
+			status = string(val)
+		}
+
 		datas = append(datas, U.Dict{
 			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
 			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
 			"base64": base64Data,
 			"id":     list[i].(U.Dict)["id"].(U.Float64),
 			"rag_id": ragID,
+			"status": status,
 		})
 	}
 
