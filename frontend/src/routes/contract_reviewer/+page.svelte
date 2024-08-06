@@ -306,7 +306,7 @@ All Rights Reserved
       <Input
         bind:value={tmpProjectName}
         placeholder={$_("whatIsYourProjectTitle")}
-        class="bg-primary-light dark:bg-secondary-dark"
+        class="bg-primary-light dark:bg-gray-800"
       />
     </div>
     <div class="flex flex-col gap-1.5">
@@ -332,7 +332,7 @@ All Rights Reserved
       </div>
       <div class="flex grow flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
-        <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates>
+        <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates theme="custom-datepicker">
           <button
             onclick={toggleDatePicker}
             class:open={isOpen}
@@ -369,3 +369,9 @@ All Rights Reserved
 </Modal>
 
 <!-- <LoadingContainer /> -->
+
+<!-- <style>
+  :global(.datepicker[data-picker-theme="custom-datepicker"]) {
+    --datepicker-container-background: #fff;
+  }
+</style> -->

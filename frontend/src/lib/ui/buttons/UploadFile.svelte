@@ -44,7 +44,7 @@ All Rights Reserved
     <Button
       on:click={handleFileUploadWrapper}
       color="light"
-      class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-3 py-4 flex flex-col justify-start items-center`}
+      class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-gray-800 gap-3 py-4 flex flex-col justify-start items-center`}
     >
       <div
         class="rounded-xl p-2.5 shadow border border-primary-light dark:border-primary-dark justify-center items-center"

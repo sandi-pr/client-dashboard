@@ -486,7 +486,7 @@
     <!-- section form -->
     <div class="flex gap-3">
       <div class="w-60">
-        <Typography preset="Text md/Semibold" text={`${$_("documentAsBuyer")}`} color="secondary" />
+        <Typography preset="Text md/Semibold" text={`${$_("documents")}`} color="secondary" />
       </div>
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -520,8 +520,7 @@
         </div>
       </div>
     </div>
-    <Divider />
-    <!-- section form -->
+    <!-- <Divider />
     <div class="flex gap-3">
       <div class="w-60">
         <Typography
@@ -532,7 +531,6 @@
       </div>
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- form upload -->
           {#each sellerDocuments as docType}
             <UploadFile
               title={docType.title}
@@ -561,7 +559,7 @@
           </Button>
         </div>
       </div>
-    </div>
+    </div> -->
   {/if}
 </div>
 
@@ -582,7 +580,7 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
-      <Input bind:value={tmpDocumentName} placeholder={$_("name")} />
+      <Input bind:value={tmpDocumentName} placeholder={$_("name")} class="bg-primary-light dark:bg-gray-800" />
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}

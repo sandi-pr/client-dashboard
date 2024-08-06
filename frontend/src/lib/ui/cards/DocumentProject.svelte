@@ -28,7 +28,7 @@ All Rights Reserved
     type = "document",
     file = [],
     rules = [],
-    selectedItem = "",
+    selectedItem = $bindable(""),
     placeholderDropdown = "selectItem",
     dropdownOpen = false,
     actionButton = false,
@@ -92,7 +92,7 @@ All Rights Reserved
         <div class="flex gap-3">
           <Dropdown
             dropdownOpen={dropdownOpen}
-            selectedItem={selectedItem}
+            bind:selectedItem={selectedItem}
             items={rules}
             placeholder={$_(placeholderDropdown)}
             isOverlay={true}
