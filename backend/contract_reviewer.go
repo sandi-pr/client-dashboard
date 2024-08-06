@@ -729,8 +729,8 @@ func CreateProjectResults(ctx *config.ConfigContext) (int, U.Dict, *config.Retur
 	}
 
 	status, project_result, err := Strapi.Create("project-results-table", U.Dict{
-		"project_id":          project_id,
-		"project_document_id": project_document_id,
+		"project_id":          int64(project_id),
+		"project_document_id": int64(project_document_id),
 		"result":              result,
 		"contract_rule_id":    contract_rule_id,
 		"generated_at":        generated_at,
