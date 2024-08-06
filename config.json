@@ -2910,7 +2910,7 @@
             "params": [
                 {
                     "name": "project_id",
-                    "type": "number"
+                    "type": "string"
                 },
                 {
                     "name": "document",

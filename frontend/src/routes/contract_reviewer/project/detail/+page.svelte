@@ -13,7 +13,7 @@
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
-  import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import * as Icon from "flowbite-svelte-icons";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
   import { formatDistanceToNow, format } from "date-fns";
@@ -170,7 +170,7 @@
           URLQuery: {},
           URLParams: {},
           Params: {
-            project_id: projectId,
+            project_id: projectId.toString(),
             document: JSON.stringify(tmpFile),
           },
           Headers: {
@@ -238,6 +238,52 @@
     }
   }
 
+  async function getRules() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      let rulesTmp = [];
+      let page = 1;
+      try {
+        while (true) {
+          const response = await call.call("client-dashboard", "get-contract-rules", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          if (response.result.data.length === 0) {
+            break;
+          }
+          rulesTmp = rulesTmp.concat(response.result.data);
+          page++;
+        }
+
+        if (rulesTmp.length > 0) {
+          let promise = rulesTmp.map((rule) => {
+            return {
+              value: rule.id,
+              name: rule.attributes.rule_name,
+            };
+          });
+          rules = await Promise.all(promise);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   async function getProject() {
     triggerLoading(true);
     let token = sessionStorage.getItem("token");
@@ -289,26 +335,18 @@
           }
 
           if (response2.status === 200) {
+            files = [];
+            documentUploads = [];
             if (response2.result.files !== null) {
               response2.result.files.forEach((file) => {
-                if (
-                  file.type === "documentGtc" ||
-                  file.type === "tradeConfirmation" ||
-                  file.type === "dealDoneDocument"
-                ) {
-                  file.role = response.result.data[0].attributes.project_as;
-                } else {
-                  file.role = "other";
-                }
+                file.role = response.result.data[0].attributes.project_as;
               });
               files = response2.result.files;
               files.forEach((file) => {
-                if (file.role === "other") {
-                  otherDocType.push({
-                    title: file.type,
-                    type: file.type,
-                  });
-                }
+                documentUploads.push({
+                  title: file.type,
+                  type: file.type,
+                });
               });
             }
           }
@@ -316,6 +354,7 @@
           selectedIndustry = response.result.data[0].attributes.industry_id;
 
           await getIndustries();
+          await getRules();
 
           data = {
             name: response.result.data[0].attributes.project_name,
@@ -384,15 +423,6 @@
         color="quarterary"
       />
     </div>
-    <Button
-      class="gap-1 h-min"
-      on:click={async () => {
-        goto(await call.getPage("client-dashboard", "contract-project-review"));
-      }}
-    >
-      <Stars03Icon class="w-5 h-5 text-white" />
-      {$_("AIReview")}
-    </Button>
   </div>
   <Divider />
   <!-- section form -->
@@ -477,7 +507,11 @@
             actionView={() => (
               (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
             )}
-            actionDelete={() => deleteFileByType(docType.type, data.as)}
+            actionDelete={() => {
+              typeTmp = docType.type;
+              asTmp = data.as;
+              deleteModal = true;
+            }}
             actionGenerate={() => {}}
           />
         {/each}
@@ -544,4 +578,23 @@
       >{$_("add")}</Button
     >
   </svelte:fragment>
+</Modal>
+
+<Modal bind:open={deleteModal} size="xs" autoclose>
+  <div class="text-center">
+    <Icon.ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteFileByType(typeTmp, asTmp)} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
+    <Button
+      color="alternative"
+      onclick={() => {
+        deleteModal = false;
+        tmpSectionId = null;
+      }}>{$_("noCancel")}</Button
+    >
+  </div>
 </Modal>

@@ -368,9 +368,15 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	project_id, ok := ctx.Params.GetString("project_id")
+	project_idStr, ok := ctx.Params.GetString("project_id")
 
 	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	project_id, err := strconv.Atoi(string(project_idStr))
+
+	if err != nil {
 		return ctx.Error(400, "invalid parameters")
 	}
 
@@ -442,7 +448,7 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		"document_title":     document_type,
 		"document_name":      documentName,
 		"document_file_name": documentName,
-		"document":           docId,
+		"document_media_id":  docId,
 		"creator_id":         id,
 	})
 
