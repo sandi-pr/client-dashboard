@@ -410,6 +410,7 @@
         URLParams: {},
         Params: {
           rag_ids_reference: response.result.ids_reference,
+          rag_ids_project: projectId.toString(),
         },
         Headers: {
           Authorization: "Bearer " + token,
