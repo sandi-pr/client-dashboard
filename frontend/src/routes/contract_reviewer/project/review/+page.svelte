@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { Button, Modal, P } from "flowbite-svelte";
   import { Typography } from "$lib";
   import PdfViewer from "svelte-pdf";
@@ -13,7 +13,11 @@
   import DataTable from "$lib/components/DataTable.svelte";
   import DataTableAiReview from "$lib/components/DataTableAIReview.svelte";
   // import { Svroller, Svrollbar } from 'svrollbar';
+  import { CR3Call } from "hexacomponents-svelte";
 
+  const call = new CR3Call(globalThis.location.origin);
+
+  let projectDocumentId;
   let projectName = $state("Project Name");
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
@@ -27,7 +31,7 @@
     {
       section: "Section 1",
       result: "Result 1",
-    }
+    },
   ]);
   let dummyDatas = $state([
     {
@@ -203,18 +207,54 @@
     return blob;
   }
 
-  async function createPdfUrl(file) {
-    const response = await fetch(templatePdf);
-    const blob = await response.blob();
-    base64Data = await readFileAsBase64(blob);
+  // async function createPdfUrl(file) {
+  //   const response = await fetch(templatePdf);
+  //   const blob = await response.blob();
+  //   base64Data = await readFileAsBase64(blob);
 
-    const pdfBlob = base64toBlob(base64Data, blob.type);
-    fileUrl = URL.createObjectURL(pdfBlob);
+  //   const pdfBlob = base64toBlob(base64Data, blob.type);
+  //   fileUrl = URL.createObjectURL(pdfBlob);
+  // }
+
+  // onMount(async () => {
+  //   // await getDocument(1);
+  //   await createPdfUrl();
+  // });
+
+  async function getProjectResult() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await call.call("client-dashboard", "get-contract-project-result", {});
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }
 
-  onMount(async () => {
-    // await getDocument(1);
-    await createPdfUrl();
+  onMount(() => {
+    const unsubscribe = page.subscribe(async ($page) => {
+      projectId = $page.url.searchParams.get("projectId");
+      if (projectId !== null) {
+        getProjectResult();
+      } else {
+        triggerToast("error");
+        goto(await call.getPage("client-dashboard", "contract-project-list"));
+      }
+    });
+    return () => unsubscribe();
+  });
+
+  $effect(async () => {
+    const unsubscribe = page.subscribe(async ($page) => {
+      projectId = $page.url.searchParams.get("projectId");
+      if (projectId !== null) {
+        getProjectResult();
+      } else {
+        goto(await call.getPage("client-dashboard", "contract-project-list"));
+      }
+    });
+    onDestroy(() => unsubscribe());
   });
 </script>
 
