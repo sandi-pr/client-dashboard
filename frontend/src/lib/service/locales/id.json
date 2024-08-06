@@ -456,5 +456,8 @@
   "industries": "Industri",
   "generatedDocument": "Dokumen Hasil Generate",
   "summaryOfFindings": "Ringkasan Temuan",
-  "addComplianceDocs": "Tambahkan dokumen"
+  "addComplianceDocs": "Tambahkan dokumen",
+  "generateNewDocs": "Generate Dokumen Baru",
+  "download": "Unduh",
+  "seeReferencedDoc": "Lihat dokumen referensi"
 }

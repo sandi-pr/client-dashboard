@@ -456,5 +456,8 @@
   "industries": "Industries",
   "generatedDocument": "Generated Document",
   "summaryOfFindings": "Summary of Findings",
-  "addComplianceDocs": "Add docs"
+  "addComplianceDocs": "Add docs",
+  "generateNewDocs": "Generate New Docs",
+  "download": "Download",
+  "seeReferencedDoc": "See referenced docs"
 }
