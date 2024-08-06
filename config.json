@@ -2990,7 +2990,7 @@
                     "type": "string"
                 }
             ]
-        }
+        },
         {
             "name": "delete-document-project",
             "path": "/delete-document-project/:id",

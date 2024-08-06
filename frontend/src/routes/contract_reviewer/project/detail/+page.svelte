@@ -238,6 +238,7 @@
 
         triggerLoading(false);
         files.push(tmpFile);
+        getProject();
         triggerToast("created");
       }
 
