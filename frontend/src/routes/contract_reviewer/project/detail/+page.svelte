@@ -95,39 +95,13 @@
 
       if (uploadedFile && role !== "other") {
         const base64Data = await readFileAsBase64(uploadedFile);
-        let token = sessionStorage.getItem("token");
-        if (token) {
-          const response = await call.call("client-dashboard", "create-document-project", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              project_id: projectId,
-              document: JSON.stringify({
-                name: uploadedFile.name,
-                size: formatBytes(uploadedFile.size),
-                base64: base64Data,
-                type: type,
-              }),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response.status !== 200) {
-            console.log(response);
-            return;
-          }
-
-          files.push({
-            id: response.result.data.id,
-            type: type,
-            role: role,
-            name: uploadedFile.name,
-            size: formatBytes(uploadedFile.size),
-            base64: base64Data,
-          });
-        }
+        tmpFile = {
+          type: type,
+          role: role,
+          name: uploadedFile.name,
+          size: formatBytes(uploadedFile.size),
+          base64: base64Data,
+        };
       } else if (role === "other") {
         const base64Data = await readFileAsBase64(uploadedFile);
         tmpFile = {
@@ -181,18 +155,44 @@
     }
   }
 
-  function addOtherDocument() {
+  async function addOtherDocument() {
+    addNewDocumentModal = false;
+    triggerLoading(true);
     if (tmpDocumentName) {
       documentUploads.push({
         title: tmpDocumentName,
         type: tmpDocumentName,
       });
 
-      files.push(tmpFile);
+      let token = sessionStorage.getItem("token");
+      if (token) {
+        const response = await call.call("client-dashboard", "create-document-project", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            project_id: projectId,
+            document: JSON.stringify(tmpFile),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          addNewDocumentModal = true;
+          console.log(response);
+          return;
+        }
+
+        triggerLoading(false);
+        files.push(tmpFile);
+        triggerToast("created");
+      }
 
       tmpFile = [];
       tmpDocumentName = "";
-      addNewDocumentModal = false;
     }
   }
 
@@ -533,7 +533,7 @@
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, "other")}
+      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, data.as)}
       file={tmpFile}
       actionButton={true}
       actionDelete={() => (tmpFile = [])}
