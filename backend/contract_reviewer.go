@@ -713,8 +713,13 @@ func CreateProjectResults(ctx *config.ConfigContext) (int, U.Dict, *config.Retur
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	contract_rule_id, ok := ctx.Params.GetFloat64("contract_rule_id")
+	contract_rule_idStr, ok := ctx.Params.GetString("contract_rule_id")
 	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	contract_rule_id, err := strconv.Atoi(string(contract_rule_idStr))
+	if err != nil {
 		return ctx.Error(400, "invalid parameters")
 	}
 
@@ -732,10 +737,10 @@ func CreateProjectResults(ctx *config.ConfigContext) (int, U.Dict, *config.Retur
 		"project_id":          int64(project_id),
 		"project_document_id": int64(project_document_id),
 		"result":              result,
-		"contract_rule_id":    contract_rule_id,
+		"contract_rule_id":    int64(contract_rule_id),
 		"generated_at":        generated_at,
 		"status":              statusString,
-		"creator_id":          id,
+		"creator_id":          int64(id),
 	})
 
 	if err != nil {

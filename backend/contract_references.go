@@ -283,14 +283,13 @@ func GetIdsReference(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTP
 
 	var ids []string
 	for i := 0; i < len(list); i++ {
-		id, ok := list[i].(U.Dict).GetFloat64("id")
+		id, ok := list[i].(U.Dict)["attributes"].(U.Dict)["rag_id"].(string)
 
 		if !ok {
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		idStr := fmt.Sprintf("%f", id)
-		ids = append(ids, idStr)
+		ids = append(ids, id)
 	}
 
 	return 200, U.Dict{"ids_reference": ids}, nil

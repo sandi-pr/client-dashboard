@@ -3034,7 +3034,7 @@
                 },
                 {
                     "name": "contract_rule_id",
-                    "type": "number"
+                    "type": "string"
                 },
                 {
                     "name": "generated_at",
@@ -3968,6 +3968,9 @@
                 "label": "Project Results",
                 "fields": {
                     "project_id": {
+                        "type": "integer"
+                    },
+                    "project_document_id": {
                         "type": "integer"
                     },
                     "contract_rule_id": {
