@@ -152,6 +152,7 @@
           return;
         }
 
+        documentUploads = documentUploads.filter((doc) => doc.type !== type);
         triggerToast("deleted");
         files.splice(index, 1);
         if (role === "other") {
