@@ -484,7 +484,7 @@
       try {
         let generated = [];
         for (let i = 0; i < files.length; i++) {
-          if (files[i].status === "generated") {
+          if (files[i].status === "finish") {
             generated.push(files[i].id);
             continue;
           } else {

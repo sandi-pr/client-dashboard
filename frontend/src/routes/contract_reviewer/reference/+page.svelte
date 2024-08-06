@@ -38,6 +38,7 @@
   let idUploaded = $state([]);
   let tmpIdDeleted = $state([]);
   let timer;
+  let init = $state(true);
 
   let industries = $state([]);
 
@@ -438,14 +439,15 @@
           }
         }
 
-        if (generated.length = files.length) {
+        if ((generated.length = files.length)) {
           console.log("finish");
           return;
-        } 
+        }
       } catch (error) {
         console.log(error);
       }
     }
+  }
 
   onMount(() => {
     getIndustries();
@@ -461,7 +463,7 @@
 
   onDestroy(() => {
     clearTimeout(timer);
-  })
+  });
 </script>
 
 <div class="flex flex-col px-4 pt-6 gap-6 pb-12">
