@@ -370,8 +370,8 @@ All Rights Reserved
     <Button
       onclick={edit ? editSection : createRulesSections}
       class="w-full"
-      disabled={formData.title.length < 1 &&
-        formData.prompt.length < 1 &&
+      disabled={formData.title.length < 1 ||
+        formData.prompt.length < 1 ||
         formData.sample.length < 1}>{edit ? $_("saveChanges") : $_("addNewRulesSection")}</Button
     >
   </svelte:fragment>
