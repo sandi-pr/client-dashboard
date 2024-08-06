@@ -217,7 +217,7 @@
         const response3 = await call.call("client-dashboard", "update-project-document", {
           URLQuery: {},
           URLParams: {
-            id: response.result.data[0].id.toString(),
+            id: response.result.data.id.toString(),
           },
           Params: {
             rag_id: response2.result.rag_id,
