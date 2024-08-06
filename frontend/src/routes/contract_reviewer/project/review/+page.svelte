@@ -14,6 +14,7 @@
   import DataTableAiReview from "$lib/components/DataTableAIReview.svelte";
   // import { Svroller, Svrollbar } from 'svrollbar';
   import { CR3Call } from "hexacomponents-svelte";
+  import { page } from "$app/stores";
 
   const call = new CR3Call(globalThis.location.origin);
 
