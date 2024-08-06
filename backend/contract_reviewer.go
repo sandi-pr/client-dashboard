@@ -333,6 +333,7 @@ func GetDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config
 			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
 			"base64": base64Data,
 			"id":     list[i].(U.Dict)["id"].(U.Float64),
+			"rag_id": list[i].(U.Dict)["attributes"].(U.Dict)["rag_id"].(U.String),
 		})
 	}
 
@@ -511,4 +512,173 @@ func DeleteDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 	}
 
 	return 200, U.Dict{}, nil
+}
+
+func GetIdsProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	industry_id, ok := ctx.Params.GetFloat64("industry_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters industry_id")
+	}
+
+	status, data, err := Strapi.Find("project-documents-table", U.Dict{
+		"filters": U.Dict{
+			"industry_id": U.Dict{
+				"$eq": industry_id,
+			},
+		},
+		"populate": "*",
+		"sort":     "id:desc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(data)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := data.GetList("data")
+	if !ok {
+		return 200, U.Dict{"data": []U.Dict{}}, nil
+	}
+
+	var ids []string
+	for i := 0; i < len(list); i++ {
+		id, ok := list[i].(U.Dict).GetFloat64("id")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		idStr := fmt.Sprintf("%f", id)
+		ids = append(ids, idStr)
+	}
+
+	return 200, U.Dict{"ids_reference": ids}, nil
+}
+
+func CreateProjectResults(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	id, ok := me.GetFloat64("id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	project_idStr, ok := ctx.Params.GetString("project_id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	project_id, err := strconv.Atoi(string(project_idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	project_document_idStr, ok := ctx.Params.GetString("project_document_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	project_document_id, err := strconv.Atoi(string(project_document_idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	resultString, ok := ctx.Params.GetString("results")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var result interface{}
+	err = json.Unmarshal([]byte(resultString), &result)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	contract_rule_id, ok := ctx.Params.GetFloat64("contract_rule_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	generated_at, ok := ctx.Params.GetString("generated_at")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	statusString, ok := ctx.Params.GetString("status")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, project_result, err := Strapi.Create("project-results-table", U.Dict{
+		"project_id":          project_id,
+		"project_document_id": project_document_id,
+		"result":              result,
+		"contract_rule_id":    contract_rule_id,
+		"generated_at":        generated_at,
+		"status":              statusString,
+		"creator_id":          id,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(project_result)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, project_result, nil
 }

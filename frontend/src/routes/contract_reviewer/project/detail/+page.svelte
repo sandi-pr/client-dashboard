@@ -34,6 +34,9 @@
   let deleteModal = $state(false);
   let files = $state([]);
   let tmpFile = $state([]);
+  let typeTmp = $state("");
+  let asTmp = $state("");
+  let rulesTmp = $state([]);
   let tmpDocumentName = $state("");
   let selectedFile = $state(null);
 
@@ -44,6 +47,7 @@
   ]);
 
   let selectedIndustry = $state("");
+  let selectedRule = $state([]);
 
   let documentUploads = $state([
     // {
@@ -163,6 +167,7 @@
       documentUploads.push({
         title: tmpDocumentName,
         type: tmpDocumentName,
+        rule: null,
       });
 
       let token = sessionStorage.getItem("token");
@@ -285,7 +290,7 @@
   async function getRules() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      let rulesTmp = [];
+      rulesTmp = [];
       let page = 1;
       try {
         while (true) {
@@ -390,6 +395,7 @@
                 documentUploads.push({
                   title: file.type,
                   type: file.type,
+                  rule: null,
                 });
               });
             }
@@ -428,7 +434,7 @@
     }
   }
 
-  async function generatedAI() {
+  async function generatedAI(file, ruleId, type) {
     let token = sessionStorage.getItem("token");
     if (token) {
       const response = await call.call("client-dashboard", "get-ids-reference", {
@@ -448,25 +454,83 @@
         return;
       }
 
-      const response2 = await call.call("hexa-ai-contract-review", "generate", {
+      const response2 = await call.call("client-dashboard", "get-contract-rule-section", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          rag_ids_reference: response.result.ids_reference,
-          rag_ids_project: projectId.toString(),
+          contract_rule_id: ruleId.toString(),
         },
         Headers: {
           Authorization: "Bearer " + token,
         },
       });
 
-      console.log("generate", response2);
+      let result = [];
 
-      if (response2.status !== 200) {
+      for (let i = 0; i < response2.result.data.length; i++) {
+        const section_title = response2.result.data[i].attributes.section_title;
+        const section_prompt = response2.result.data[i].attributes.section_prompt;
+        const section_sample = response2.result.data[i].attributes.section_sample;
+
+        const response3 = await call.call("hexa-ai-contract-review", "generate", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            rag_ids_reference: response.result.ids_reference,
+            rag_ids_project: [file.rag_id.toString()],
+            section_title: section_title,
+            section_prompt: section_prompt,
+            section_sample: section_sample,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("generate", response2);
+
+        if (response2.status !== 200) {
+          triggerToast("error");
+          console.log(response2);
+          return;
+        }
+
+        result.push({
+          section: section_title,
+          result: response3.result.text,
+        });
+      }
+
+      let projectDocumentId = files.findIndex((file) => file.type === type).id;
+
+      let response4 = await call.call("client-dashboard", "create-project-results", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          project_id: projectId.toString(),
+          project_document_id: projectDocumentId.toString(),
+          results: JSON.stringify(result),
+          contract_rule_id: ruleId.toString(),
+          generated_at: new Date().toISOString(),
+          status: "Generated",
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        },
+      });
+
+      if (response4.status !== 200) {
         triggerToast("error");
-        console.log(response2);
+        console.log(response4);
         return;
       }
+
+      triggerToast("created");
+      goto(
+        (await call.getPage("client-dashboard", "contract-project-review")) +
+          "?projectDocumentId=" +
+          projectDocumentId,
+      );
     }
 
     return;
@@ -529,7 +593,7 @@
           <Typography preset="Text sm/Medium" text={`${$_("industryType")}*`} color="secondary" />
           <Dropdown
             dropdownOpen={false}
-            selectedItem={data.industry}
+            bind:selectedItem={data.industry}
             items={industries}
             isOverlay={true}
             disabled={true}
@@ -539,7 +603,7 @@
           <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
           <Dropdown
             dropdownOpen={false}
-            selectedItem={data.as}
+            bind:selectedItem={data.as}
             items={role}
             isOverlay={true}
             disabled={true}
@@ -584,12 +648,13 @@
     <div class="flex flex-col grow gap-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- form upload -->
-        {#each documentUploads as docType}
+        {#each documentUploads as docType, index}
           <DocumentProject
             title={docType.title}
             handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
             file={getFileByType(docType.type, data.as)}
             {rules}
+            bind:selectedItem={docType.rule}
             placeholderDropdown={$_("setRules")}
             actionButton={true}
             actionView={() => (
@@ -601,7 +666,8 @@
               deleteModal = true;
             }}
             actionGenerate={() => {
-              generatedAI();
+              const index = files.findIndex((file) => file.type === type && file.role === role);
+              generatedAI(files[index], docType.rule, docType.type);
             }}
           />
         {/each}
