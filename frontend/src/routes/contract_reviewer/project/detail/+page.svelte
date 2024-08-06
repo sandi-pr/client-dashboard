@@ -753,8 +753,12 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteFileByType(typeTmp, asTmp)} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
+    <Button
+      onclick={() => {
+        deleteFileByType(typeTmp, asTmp);
+      }}
+      color="red"
+      class="me-2">{$_("yesImSure")}</Button
     >
     <Button
       color="alternative"
