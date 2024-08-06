@@ -369,40 +369,7 @@
             }, 2000);
           }
 
-          const response2 = await call.call("client-dashboard", "get-document-contract-project", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              project_id: projectId.toString(),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response2.status !== 200) {
-            if (init) triggerLoading(false);
-            triggerToast("error");
-            console.log(response2);
-            return;
-          }
-
-          if (response2.status === 200) {
-            files = [];
-            documentUploads = [];
-            if (response2.result.files !== null) {
-              response2.result.files.forEach((file) => {
-                file.role = response.result.data[0].attributes.project_as;
-              });
-              files = response2.result.files;
-              files.forEach((file) => {
-                documentUploads.push({
-                  title: file.type,
-                  type: file.type,
-                });
-              });
-            }
-          }
+          await getDocumentContractProject();
 
           selectedIndustry = response.result.data[0].attributes.industry_id;
 
@@ -478,6 +445,48 @@
     return;
   }
 
+  async function getDocumentContractProject() {
+    let token = sessionStorage.getItem("token");
+    try {
+      const response2 = await call.call("client-dashboard", "get-document-contract-project", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          project_id: projectId.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response2.status !== 200) {
+        if (init) triggerLoading(false);
+        triggerToast("error");
+        console.log(response2);
+        return;
+      }
+
+      if (response2.status === 200) {
+        files = [];
+        documentUploads = [];
+        if (response2.result.files !== null) {
+          response2.result.files.forEach((file) => {
+            file.role = "Buyer";
+          });
+          files = response2.result.files;
+          files.forEach((file) => {
+            documentUploads.push({
+              title: file.type,
+              type: file.type,
+            });
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async function getStatusGenerated() {
     let token = sessionStorage.getItem("token");
     if (token) {
@@ -489,7 +498,7 @@
             continue;
           } else {
             init = false;
-            timer = setTimeout(getProject, 2000);
+            timer = setTimeout(getDocumentContractProject, 2000);
             break;
           }
         }
