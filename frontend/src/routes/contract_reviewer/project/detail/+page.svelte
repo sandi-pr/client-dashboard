@@ -413,9 +413,9 @@
             }),
             industry: response.result.data[0].attributes.industry_id,
             contract_rule_id:
-              response.result.data[0].attributes.contract_rule_id === null
-                ? rules[0].value
-                : response.result.data[0].attributes.contract_rule_id,
+              response.result.data[0].attributes.contract_rule_id !== null
+                ? response.result.data[0].attributes.contract_rule_id
+                : rules[0].value,
             as: response.result.data[0].attributes.project_as,
             start_date: format(
               new Date(response.result.data[0].attributes.duration_start),

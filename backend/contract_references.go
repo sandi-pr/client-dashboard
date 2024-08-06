@@ -265,6 +265,8 @@ func GetIdsReference(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTP
 		"sort":     "id:desc",
 	})
 
+	fmt.Println("data", data)
+
 	if err != nil {
 		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")
@@ -278,18 +280,24 @@ func GetIdsReference(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTP
 
 	list, ok := data.GetList("data")
 	if !ok {
-		return 200, U.Dict{"data": []U.Dict{}}, nil
+		return 200, U.Dict{"ids_reference": []U.Dict{}}, nil
 	}
 
 	var ids []string
 	for i := 0; i < len(list); i++ {
-		id, ok := list[i].(U.Dict)["attributes"].(U.Dict)["rag_id"].(string)
-
+		attributes, ok := list[i].(U.Dict).GetDict("attributes")
 		if !ok {
-			return ctx.Error(500, "Internal Server Error")
+			fmt.Println("attributes", list[i])
+			return 500, U.Dict{"ids_reference": []U.Dict{}}, nil
 		}
 
-		ids = append(ids, id)
+		rag_id, ok := attributes.GetString("rag_id")
+		if !ok {
+			fmt.Println("rag_id", attributes)
+			return 500, U.Dict{"ids_reference": []U.Dict{}}, nil
+		}
+
+		ids = append(ids, string(rag_id))
 	}
 
 	return 200, U.Dict{"ids_reference": ids}, nil
