@@ -3958,6 +3958,9 @@
                     "rag_id": {
                         "type": "string"
                     },
+                    "status": {
+                        "type": "string"
+                    },
                     "creator_id": {
                         "type": "integer"
                     }
