@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { Button, Modal, P } from "flowbite-svelte";
-  import { Typography } from "$lib";
+  import { Typography, triggerToast } from "$lib";
   import PdfViewer from "svelte-pdf";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
@@ -15,8 +15,12 @@
   // import { Svroller, Svrollbar } from 'svrollbar';
   import { CR3Call } from "hexacomponents-svelte";
   import { page } from "$app/stores";
+  import Markdown from "svelte-exmarkdown";
+  import { gfmPlugin } from "svelte-exmarkdown/gfm";
 
   const call = new CR3Call(globalThis.location.origin);
+
+  const plugins = [gfmPlugin()];
 
   let projectDocumentId;
   let projectName = $state("Project Name");
@@ -29,6 +33,51 @@
   let base64Data = $state();
   let fileUrl = $state(null);
   let datas = $state([]);
+  let markdown = $state("");
+  let markdownDummy = $state(`
+
+  Jakarta, 15 June 2023  
+  Number: R-021/PNC400000/2023-S3  
+  Enclosure: 1 (one) set of files  
+  Subject: **Confirmation of Gasoline 90 RON for July-December 2023 (Term) – Aramco (DAP/CFR)**
+
+  Mr/Mrs/Ms  
+  Kelvin Lee / Joseph Lim  
+  Aramco Trading Singapore Pte. Ltd.
+
+  With reference to our email correspondences dated 11-30 May 2023 captioned OFFER: Competitive Negotiation of Gasoline 90 RON Supply for H2 2023 Delivery CFR/DAP (Term) - REVISE 2 and email correspondences dated 31 May-9 June 2023 captioned Recap: Competitive Negotiation of Gasoline 90 RON Supply for H2 2023 Delivery CFR/DAP (Term) (PTP23SS00012), we hereby accept and confirm your proposal with Deal Confirmation as follows:
+
+  | Kolom 1   | Kolom 2   |
+  |-----------|-----------|
+  | Data 1    | Data 2    |
+  | Data 3    | Data 4    |
+  | Data 5    | Data 6    |
+
+  The provisions in this Deal Confirmation shall govern the transaction between the Buyer and the
+  Seller until execution of an Agreement is confirmed or signed by an authorized person from each
+  Party. In the event of conflict between provision(s) in such Deal Confirmation and provision(s) in
+  the non-confirmed Agreement, then the provision(s) in such Deal Confirmation shall prevail.
+
+  For the avoidance of doubt to the validity of the Deal Confirmation, any typographical error in the
+  Deal Confirmation, for the sake of operability of the deal, may be amended by the Buyer in writing.
+
+  In the event of the Seller would like to have additional provision(s) under the Agreement which
+  this GTC does not confirm, the Buyer has the right to counter, defend, or reject such provision(s).
+  In the absence of stating counter, defense, or rejection to such provision(s) shall not be construed
+  as acceptance to all or part of provision(s) written in the Seller's Agreement.
+
+  Please be acknowledged.
+
+  VP Trading Operations
+
+  **Maya Kusmaya**
+
+  Carbon copy:
+  1. Manager Product Operation
+    PT Pertamina Patra Niaga
+  2. Manager Contract & Settlement
+    PT Pertamina Patra Niaga
+`);
   let dummyDatas = $state([
     {
       id: 1,
@@ -241,6 +290,13 @@
 
         let index = 0;
 
+        markdown =
+          response.result.data[0].attributes.markdown === null
+            ? markdownDummy
+            : response.result.data[0].attributes.markdown;
+
+        dropdownToggle[0] = true;
+
         let promise = response.result.data[0].attributes.result.map((data) => {
           index++;
           return {
@@ -365,6 +421,13 @@
             class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
           />
         </Button> -->
+        {#if dropdownToggle[0]}
+          <div
+            class="flex justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
+          >
+            <Markdown md={markdown} {plugins} />
+          </div>
+        {/if}
         {#if dropdownToggle[1]}
           <!-- <DataTableAiReview
             bind:datas

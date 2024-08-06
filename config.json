@@ -3063,6 +3063,23 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "get-contract-project-result-with-document-id",
+            "path": "/get-contract-project-result-with-document-id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetContractProjectResultWithDocumentId"
+            },
+            "params": [
+                {
+                    "name": "document_id",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -3981,6 +3998,9 @@
                     },
                     "result": {
                         "type": "json"
+                    },
+                    "result_markdown": {
+                        "type": "text"
                     },
                     "generated_at": {
                         "type": "datetime"

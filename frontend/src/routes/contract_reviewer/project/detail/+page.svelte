@@ -40,6 +40,7 @@
   let rulesTmp = $state([]);
   let tmpDocumentName = $state("");
   let selectedFile = $state(null);
+  let init = $state(true);
 
   let industries = $state([]);
   let role = $state([
@@ -335,7 +336,8 @@
   }
 
   async function getProject() {
-    triggerLoading(true);
+    if (init) triggerLoading(true);
+
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -351,7 +353,7 @@
         });
 
         if (response.status !== 200) {
-          triggerLoading(false);
+          if (init) triggerLoading(false);
           triggerToast("error");
           console.log(response);
           return;
@@ -378,7 +380,7 @@
           });
 
           if (response2.status !== 200) {
-            triggerLoading(false);
+            if (init) triggerLoading(false);
             triggerToast("error");
             console.log(response2);
             return;
@@ -430,7 +432,8 @@
 
           ready = true;
 
-          triggerLoading(false);
+          if (init) triggerLoading(false);
+          getStatusGenerated();
         }
       } catch (error) {
         triggerLoading(false);
@@ -445,112 +448,128 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-ids-reference", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            industry_id: data.industry,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
-
-        const response2 = await call.call("client-dashboard", "get-contract-rule-section", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            contract_rule_id: data.contract_rule_id.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        let result = [];
-
-        const idsReferenceString = response.result.ids_reference.join(", ");
-
-        for (let i = 0; i < response2.result.data.length; i++) {
-          const section_title = response2.result.data[i].attributes.section_title;
-          const section_prompt = response2.result.data[i].attributes.section_prompt;
-          const section_sample = response2.result.data[i].attributes.section_sample;
-
-          const response3 = await call.call("hexa-ai-contract-review", "generate", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              rag_ids_reference: idsReferenceString,
-              rag_ids_project: file.rag_id.toString(),
-              section_title: section_title,
-              section_prompt: section_prompt,
-              section_sample: section_sample,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          console.log("generate", response2);
-
-          if (response2.status !== 200) {
-            triggerLoading(false);
-            triggerToast("error");
-            console.log(response2);
-            return;
-          }
-
-          result.push({
-            section: section_title,
-            result: response3.result.text,
-          });
-        }
-
-        let response4 = await call.call("client-dashboard", "create-project-results", {
+        const response2 = await call.call("client-dashboard", "get-document-contract-project", {
           URLQuery: {},
           URLParams: {},
           Params: {
             project_id: projectId.toString(),
-            project_document_id: file.id.toString(),
-            results: JSON.stringify(result),
-            contract_rule_id: data.contract_rule_id.toString(),
-            generated_at: new Date().toISOString(),
-            status: "Generated",
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
 
-        if (response4.status !== 200) {
+        if (response2.status !== 200) {
           triggerLoading(false);
           triggerToast("error");
-          console.log(response4);
+          console.log(response2);
           return;
         }
 
-        triggerLoading(false);
-        triggerToast("created");
-        goto(
-          (await call.getPage("client-dashboard", "contract-project-review")) +
-            "?projectDocumentId=" +
-            response4.result.data.id.toString(),
-        );
+        if (response2.status === 200) {
+          files = [];
+          documentUploads = [];
+          let generated = [];
+          if (response2.result.files !== null) {
+            response2.result.files.forEach((file) => {
+              file.role = response.result.data[0].attributes.project_as;
+            });
+            files = response2.result.files;
+            files.forEach((file) => {
+              documentUploads.push({
+                title: file.type,
+                type: file.type,
+              });
+            });
+
+            for (let i = 0; i < files.length; i++) {
+              if (files[i].status === "generated") {
+                generated.push(files[i].id);
+                continue;
+              } else if (files[i].status === "processing") {
+                break;
+              } else {
+                generated.push(files[i].id);
+                continue;
+              }
+            }
+
+            if (generated.length < files.length) {
+              setTimeout(getStatusGenerated, 2000);
+            } else {
+              console.log("finish");
+            }
+          }
+        }
       } catch (error) {
-        triggerLoading(false);
-        triggerToast("error");
         console.log(error);
       }
     }
 
     return;
+  }
+
+  async function getStatusGenerated() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        let generated = [];
+        for (let i = 0; i < files.length; i++) {
+          if (files[i].status === "generated") {
+            generated.push(files[i].id);
+            continue;
+          } else {
+            init = false;
+            getProject();
+            break;
+          }
+        }
+
+        if (generated.length < files.length) {
+          setTimeout(getStatusGenerated, 2000);
+        } else {
+          console.log("finish");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function goResultPage(id) {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call(
+          "client-dashboard",
+          "get-contract-project-result-with-document-id",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              project_document_id: id.toString(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        goto(
+          (await call.getPage("client-dashboard", "contract-project-review")) +
+            "?projectDocumentId=" +
+            response.result.data[0].id,
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }
 
   onMount(() => {
@@ -689,7 +708,14 @@
               }}
               actionGenerate={() => {
                 const index = files.findIndex((file) => file.type === docType.type);
-                generatedAI(files[index]);
+                if (files[index].status === "generated") {
+                  goResultPage(files[index].id);
+                } else if (files[index].status === "pending") {
+                  console.log("pending");
+                  alert("Please wait for the file to be generated");
+                } else {
+                  generatedAI(files[index]);
+                }
               }}
             />
           {/each}
