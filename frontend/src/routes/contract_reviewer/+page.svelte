@@ -37,8 +37,10 @@ All Rights Reserved
   let tmpProjectName = $state("");
   let tmpProjectDescription = $state("");
   let selectedIndustry = $state("");
+  let selectedRules = $state("");
   let selectedRole = $state("Buyer");
   let dropdownIndustryOpen = $state(false);
+  let dropdownRulesOpen = $state(false);
   let dropdownRole = $state(false);
   let addProjectModal = $state(false);
   let isOpen = $state(false);
@@ -58,6 +60,7 @@ All Rights Reserved
   let configs = $state({});
 
   let datas = $state([]);
+  let rules = $state([]);
 
   async function getActionItems() {
     actionItems = [
@@ -129,6 +132,52 @@ All Rights Reserved
         triggerLoading(false);
         triggerToast("error");
         addProjectModal = true;
+        console.log(error);
+      }
+    }
+  }
+
+  async function getRules() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      rulesTmp = [];
+      let page = 1;
+      try {
+        while (true) {
+          const response = await call.call("client-dashboard", "get-contract-rules", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          if (response.result.data.length === 0) {
+            break;
+          }
+          rulesTmp = rulesTmp.concat(response.result.data);
+          page++;
+        }
+
+        if (rulesTmp.length > 0) {
+          let promise = rulesTmp.map((rule) => {
+            return {
+              value: rule.id,
+              name: rule.attributes.rule_name,
+            };
+          });
+          rules = await Promise.all(promise);
+        }
+      } catch (error) {
         console.log(error);
       }
     }
@@ -243,6 +292,7 @@ All Rights Reserved
   onMount(async () => {
     getActionItems();
     getProjectsLatest();
+    await getRules();
   });
 
   let buttonDisabled = $state(false);
@@ -309,15 +359,27 @@ All Rights Reserved
         class="bg-primary-light dark:bg-gray-800"
       />
     </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
-      <Dropdown
-        dropdownOpen={dropdownIndustryOpen}
-        bind:selectedItem={selectedIndustry}
-        items={industries}
-        placeholder={$_("selectIndustry")}
-        isOverlay={true}
-      />
+    <div class="flex gap-4">
+      <div class="flex flex-col grow gap-1.5">
+        <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
+        <Dropdown
+          dropdownOpen={dropdownIndustryOpen}
+          bind:selectedItem={selectedIndustry}
+          items={industries}
+          placeholder={$_("selectIndustry")}
+          isOverlay={true}
+        />
+      </div>
+      <div class="flex flex-col grow gap-1.5">
+        <Typography preset="Text sm/medium" color="secondary" text={`${$_("rules")}*`} />
+        <Dropdown
+          dropdownOpen={dropdownRulesOpen}
+          bind:selectedItem={selectedRules}
+          items={rules}
+          placeholder={$_("selectRules")}
+          isOverlay={true}
+        />
+      </div>
     </div>
     <div class="flex gap-4">
       <div class="flex flex-col gap-1.5">

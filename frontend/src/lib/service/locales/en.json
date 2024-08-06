@@ -460,5 +460,6 @@
   "generateNewDocs": "Generate New Docs",
   "download": "Download",
   "seeReferencedDoc": "See referenced docs",
-  "addReferenceDocs": "Add reference docs"
+  "addReferenceDocs": "Add reference docs",
+  "selectRules": "Select Rules"
 }

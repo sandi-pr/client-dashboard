@@ -460,5 +460,6 @@
   "generateNewDocs": "Generate Dokumen Baru",
   "download": "Unduh",
   "seeReferencedDoc": "Lihat dokumen referensi",
-  "addReferenceDocs": "Tambahkan dokumen referensi"
+  "addReferenceDocs": "Tambahkan dokumen referensi",
+  "selectRules": "Pilih Aturan"
 }

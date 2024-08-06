@@ -90,20 +90,22 @@ All Rights Reserved
       </div>
       {#if actionButton}
         <div class="flex gap-3">
-          <Dropdown
+          <!-- <Dropdown
             dropdownOpen={dropdownOpen}
             bind:selectedItem={selectedItem}
             items={rules}
             placeholder={$_(placeholderDropdown)}
             isOverlay={true}
-          />
+          /> -->
           {#if actionView}
-            <Button class="p-2" color="light" on:click={actionView}>
+            <Button class="p-2 w-full gap-1.5" color="light" on:click={actionView}>
               <EyeIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+              <Typography preset="Text sm/Semibold" text={$_("view")} color="secondary" />
             </Button>
           {/if}
-          <Button class="p-2" color="light" on:click={actionDelete}>
+          <Button class="p-2 w-full gap-1.5" color="light" on:click={actionDelete}>
             <TrashIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+            <Typography preset="Text sm/Semibold" text={$_("remove")} color="secondary" />
           </Button>
         </div>
       {/if}
