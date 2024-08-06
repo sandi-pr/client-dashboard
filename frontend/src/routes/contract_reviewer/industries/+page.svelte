@@ -216,6 +216,7 @@ All Rights Reserved
           <Typography preset="Display sm/Semibold" color="primary" text={$_("manageIndustries")} />
           <Button
             onclick={() => {
+              update = false;
               industryModal = true;
             }}
             icon={PlusIcon}
