@@ -551,21 +551,21 @@
 {#if configs?.pagination && Object.keys(configs.pagination).length > 0}
   <div class="flex justify-between">
     <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-      {"showing"}
+      {$_("showing")}
       <span
         >{configs.pagination.page === 1
           ? 1
           : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
       >
-      {"to"}
+      {$_("to")}
       <span
         >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
           ? configs.pagination.total
           : configs.pagination.page * configs.pagination.pageSize}</span
       >
-      {"of"}
+      {$_("of")}
       <span>{configs.pagination.total}</span>
-      {"entries"}
+      {$_("entries")}
     </div>
 
     <div class="m-4">
@@ -575,8 +575,8 @@
         on:previous={previous}
         activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
       >
-        <span slot="prev">{"previous"}</span>
-        <span slot="next">{"next"}</span>
+        <span slot="prev">{$_("previous")}</span>
+        <span slot="next">{$_("next")}</span>
       </Pagination>
     </div>
   </div>

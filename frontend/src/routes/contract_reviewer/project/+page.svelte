@@ -343,7 +343,7 @@ All Rights Reserved
       </div>
     </div>
     <div class="flex gap-4">
-      <div class="flex flex-col gap-1.5">
+      <!-- <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
         <Dropdown
           width="w-min"
@@ -352,7 +352,7 @@ All Rights Reserved
           items={role}
           isOverlay={true}
         />
-      </div>
+      </div> -->
       <div class="flex grow flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
         <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates>

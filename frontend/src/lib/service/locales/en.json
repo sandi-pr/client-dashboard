@@ -461,5 +461,6 @@
   "download": "Download",
   "seeReferencedDoc": "See referenced docs",
   "addReferenceDocs": "Add reference docs",
-  "selectRules": "Select Rules"
+  "selectRules": "Select Rules",
+  "startDate": "Start Date"
 }

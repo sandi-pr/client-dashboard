@@ -594,7 +594,7 @@
     <!-- section form -->
     <div class="flex gap-3">
       <div class="w-60">
-        <Typography preset="Text md/Semibold" text={`${$_("industry")}*`} color="secondary" />
+        <Typography preset="Text md/Semibold" text={`${$_("industry")}`} color="secondary" />
       </div>
       <div class="flex flex-col grow gap-3">
         <!-- form dropdown -->
@@ -604,7 +604,7 @@
         </div>
         <div class="flex gap-3">
           <div class="flex grow flex-col gap-1.5">
-            <Typography preset="Text sm/Medium" text={`${$_("industryType")}*`} color="secondary" />
+            <Typography preset="Text sm/Medium" text={`${$_("industryType")}`} color="secondary" />
             <Dropdown
               dropdownOpen={false}
               bind:selectedItem={data.industry}
@@ -613,7 +613,7 @@
               disabled={true}
             />
           </div>
-          <div class="flex w-max flex-col gap-1.5">
+          <!-- <div class="flex w-max flex-col gap-1.5">
             <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
             <Dropdown
               dropdownOpen={false}
@@ -622,35 +622,45 @@
               isOverlay={true}
               disabled={true}
             />
-          </div>
+          </div> -->
           <div class="flex grow flex-col gap-1.5">
-            <Typography
-              preset="Text sm/medium"
-              color="secondary"
-              text={`${$_("projectDuration")}*`}
+            <Typography preset="Text sm/medium" color="secondary" text={$_("rules")} />
+            <Dropdown
+              dropdownOpen={false}
+              bind:selectedItem={selectedRule}
+              items={rules}
+              isOverlay={true}
+              disabled={true}
             />
-            <DatePicker
-              isOpen={false}
-              startDate={data.start_date}
-              endDate={data.end_date}
-              isRange
-              isMultipane
-              enableFutureDates
-            >
-              <button
-                onclick={() => {}}
-                class="flex w-full p-2 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
-              >
-                <svelte:component
-                  this={CalendarPlus02}
-                  class="w-2 h-2 ms-2 text-gray-700 dark:text-gray-400"
-                />
-                <div class="date">
-                  {data.start_date} - {data.end_date}
-                </div>
-              </button>
-            </DatePicker>
           </div>
+        </div> 
+        <div class="flex grow flex-col gap-1.5">
+          <Typography
+            preset="Text sm/medium"
+            color="secondary"
+            text={`${$_("projectDuration")}`}
+          />
+          <DatePicker
+            isOpen={false}
+            startDate={data.start_date}
+            endDate={data.end_date}
+            isRange
+            isMultipane
+            enableFutureDates
+          >
+            <button
+              onclick={() => {}}
+              class="flex w-full p-2 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+            >
+              <svelte:component
+                this={CalendarPlus02}
+                class="w-2 h-2 ms-2 text-gray-700 dark:text-gray-400"
+              />
+              <div class="date">
+                {data.start_date} - {data.end_date}
+              </div>
+            </button>
+          </DatePicker>
         </div>
       </div>
     </div>
