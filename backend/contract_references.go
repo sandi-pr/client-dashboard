@@ -199,7 +199,7 @@ func UpdateReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		return ctx.Error(400, "invalid parameters id")
 	}
 
-	id, err := strconv.ParseInt(idString, 64)
+	id, err := strconv.Atoi(string(idString))
 
 	if err != nil {
 		return ctx.Error(400, "invalid parameters id")
