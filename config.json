@@ -3856,6 +3856,9 @@
                     "document_media_id": {
                         "type": "media"
                     },
+                    "status": {
+                        "type": "string"
+                    },
                     "rag_id": {
                         "type": "string"
                     },

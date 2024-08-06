@@ -394,6 +394,11 @@ func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 		base64Data := base64.StdEncoding.EncodeToString(data)
 
+		status := ""
+		if val, ok := list[i].(U.Dict)["attributes"].(U.Dict)["status"].(U.String); ok {
+			status = string(val)
+		}
+
 		datas = append(datas, U.Dict{
 			"id":     list[i].(U.Dict)["id"].(U.Float64),
 			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
@@ -401,6 +406,7 @@ func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
 			"size":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["size"].(U.Float64),
 			"base64": base64Data,
+			"status": status,
 		})
 	}
 	// dict, ok := list.GetDict(0)

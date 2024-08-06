@@ -41,6 +41,7 @@
   let tmpDocumentName = $state("");
   let selectedFile = $state(null);
   let init = $state(true);
+  let timer;
 
   let industries = $state([]);
   let role = $state([
@@ -448,11 +449,11 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response2 = await call.call("client-dashboard", "get-document-contract-project", {
+        const response2 = await call.call("client-dashboard", "generate", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            project_id: projectId.toString(),
+            document_id: file.id.toString(),
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -488,14 +489,12 @@
             continue;
           } else {
             init = false;
-            getProject();
+            timer = setTimeout(getProject, 2000);
             break;
           }
         }
 
-        if (generated.length < files.length) {
-          setTimeout(getStatusGenerated, 2000);
-        } else {
+        if ((generated.length = files.length)) {
           console.log("finish");
         }
       } catch (error) {
@@ -563,6 +562,10 @@
       }
     });
     onDestroy(() => unsubscribe());
+  });
+
+  onDestroy(() => {
+    clearTimeout(timer);
   });
 </script>
 

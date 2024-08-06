@@ -16,7 +16,7 @@
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
   import { CR3Call } from "hexacomponents-svelte";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -37,6 +37,7 @@
   let roles = $state(["Buyer", "Seller"]);
   let idUploaded = $state([]);
   let tmpIdDeleted = $state([]);
+  let timer;
 
   let industries = $state([]);
 
@@ -371,6 +372,8 @@
             });
           }
         });
+
+        getStatusRag();
       }
     } catch (error) {
       console.log(error);
@@ -419,6 +422,31 @@
     }
   }
 
+  async function getStatusRag() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        let generated = [];
+        for (let i = 0; i < files.length; i++) {
+          if (files[i].status === "finish") {
+            generated.push(files[i].id);
+            continue;
+          } else {
+            init = false;
+            timer = setTimeout(getReferences, 2000);
+            break;
+          }
+        }
+
+        if (generated.length = files.length) {
+          console.log("finish");
+          return;
+        } 
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
   onMount(() => {
     getIndustries();
   });
@@ -430,6 +458,10 @@
       }
     }
   });
+
+  onDestroy(() => {
+    clearTimeout(timer);
+  })
 </script>
 
 <div class="flex flex-col px-4 pt-6 gap-6 pb-12">
