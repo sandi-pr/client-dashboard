@@ -32,6 +32,7 @@
   let documentViewModal = $state(false);
   let addNewDocumentModal = $state(false);
   let deleteModal = $state(false);
+  let ready = $state(false);
   let files = $state([]);
   let tmpFile = $state([]);
   let typeTmp = $state("");
@@ -424,6 +425,8 @@
             description: response.result.data[0].attributes.description,
           };
 
+          ready = true;
+
           triggerLoading(false);
         }
       } catch (error) {
@@ -574,116 +577,115 @@
   });
 </script>
 
-<div class="flex flex-col px-4 pt-6 gap-6 pb-12">
-  <!-- section header -->
-  <div class="flex justify-between">
-    <div class="flex flex-col gap-2">
-      <div class="flex flex-col">
-        <Typography preset="Display sm/Semibold" text={data.name} color="primary" />
-      </div>
-      <Typography
-        preset="Text md/Medium"
-        text={`${$_("createOn")} - ${data.createdAt}`}
-        color="quarterary"
-      />
-    </div>
-  </div>
-  <Divider />
-  <!-- section form -->
-  <div class="flex gap-3">
-    <div class="w-60">
-      <Typography preset="Text md/Semibold" text={`${$_("industry")}*`} color="secondary" />
-    </div>
-    <div class="flex flex-col grow gap-3">
-      <!-- form dropdown -->
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={$_("projectTitle")} />
-        <InputRw onEdit={false} bind:value={data.name} />
-      </div>
-      <div class="flex gap-3">
-        <div class="flex grow flex-col gap-1.5">
-          <Typography preset="Text sm/Medium" text={`${$_("industryType")}*`} color="secondary" />
-          <Dropdown
-            dropdownOpen={false}
-            bind:selectedItem={data.industry}
-            items={industries}
-            isOverlay={true}
-            disabled={true}
-          />
+{#if ready}
+  <div class="flex flex-col px-4 pt-6 gap-6 pb-12">
+    <!-- section header -->
+    <div class="flex justify-between">
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-col">
+          <Typography preset="Display sm/Semibold" text={data.name} color="primary" />
         </div>
-        <div class="flex w-max flex-col gap-1.5">
-          <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
-          <Dropdown
-            dropdownOpen={false}
-            bind:selectedItem={data.as}
-            items={role}
-            isOverlay={true}
-            disabled={true}
-          />
+        <Typography
+          preset="Text md/Medium"
+          text={`${$_("createOn")} - ${data.createdAt}`}
+          color="quarterary"
+        />
+      </div>
+    </div>
+    <Divider />
+    <!-- section form -->
+    <div class="flex gap-3">
+      <div class="w-60">
+        <Typography preset="Text md/Semibold" text={`${$_("industry")}*`} color="secondary" />
+      </div>
+      <div class="flex flex-col grow gap-3">
+        <!-- form dropdown -->
+        <div class="flex flex-col gap-1.5">
+          <Typography preset="Text sm/medium" color="secondary" text={$_("projectTitle")} />
+          <InputRw onEdit={false} bind:value={data.name} />
         </div>
-        <div class="flex grow flex-col gap-1.5">
-          <Typography
-            preset="Text sm/medium"
-            color="secondary"
-            text={`${$_("projectDuration")}*`}
-          />
-          <DatePicker
-            isOpen={false}
-            startDate={data.start_date}
-            endDate={data.end_date}
-            isRange
-            isMultipane
-            enableFutureDates
-          >
-            <button
-              onclick={() => {}}
-              class="flex w-full p-2 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+        <div class="flex gap-3">
+          <div class="flex grow flex-col gap-1.5">
+            <Typography preset="Text sm/Medium" text={`${$_("industryType")}*`} color="secondary" />
+            <Dropdown
+              dropdownOpen={false}
+              bind:selectedItem={data.industry}
+              items={industries}
+              isOverlay={true}
+              disabled={true}
+            />
+          </div>
+          <div class="flex w-max flex-col gap-1.5">
+            <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
+            <Dropdown
+              dropdownOpen={false}
+              bind:selectedItem={data.as}
+              items={role}
+              isOverlay={true}
+              disabled={true}
+            />
+          </div>
+          <div class="flex grow flex-col gap-1.5">
+            <Typography
+              preset="Text sm/medium"
+              color="secondary"
+              text={`${$_("projectDuration")}*`}
+            />
+            <DatePicker
+              isOpen={false}
+              startDate={data.start_date}
+              endDate={data.end_date}
+              isRange
+              isMultipane
+              enableFutureDates
             >
-              <svelte:component
-                this={CalendarPlus02}
-                class="w-2 h-2 ms-2 text-gray-700 dark:text-gray-400"
-              />
-              <div class="date">
-                {data.start_date} - {data.end_date}
-              </div>
-            </button>
-          </DatePicker>
+              <button
+                onclick={() => {}}
+                class="flex w-full p-2 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+              >
+                <svelte:component
+                  this={CalendarPlus02}
+                  class="w-2 h-2 ms-2 text-gray-700 dark:text-gray-400"
+                />
+                <div class="date">
+                  {data.start_date} - {data.end_date}
+                </div>
+              </button>
+            </DatePicker>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <Divider />
-  <div class="flex gap-3">
-    <div class="w-60">
-      <Typography preset="Text md/Semibold" text={`${$_("documentUploads")}`} color="secondary" />
-    </div>
-    <div class="flex flex-col grow gap-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- form upload -->
-        {#each documentUploads as docType, index}
-          <DocumentProject
-            title={docType.title}
-            handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
-            file={getFileByType(docType.type, data.as)}
-            {rules}
-            bind:selectedItem={docType.rule}
-            placeholderDropdown={$_("setRules")}
-            actionButton={true}
-            actionView={() => (
-              (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
-            )}
-            actionDelete={() => {
-              typeTmp = docType.type;
-              asTmp = data.as;
-              deleteModal = true;
-            }}
-            actionGenerate={() => {
-              const index = files.findIndex((file) => file.type === type && file.role === role);
-              generatedAI(files[index], docType.rule, docType.type);
-            }}
-          />
-        {/each}
-        <!-- {#each otherDocType as docType}
+    <Divider />
+    <div class="flex gap-3">
+      <div class="w-60">
+        <Typography preset="Text md/Semibold" text={`${$_("documentUploads")}`} color="secondary" />
+      </div>
+      <div class="flex flex-col grow gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- form upload -->
+          {#each documentUploads as docType, index}
+            <DocumentProject
+              title={docType.title}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
+              file={getFileByType(docType.type, data.as)}
+              placeholderDropdown={$_("setRules")}
+              actionButton={true}
+              actionView={() => (
+                (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
+              )}
+              actionDelete={() => {
+                typeTmp = docType.type;
+                asTmp = data.as;
+                deleteModal = true;
+              }}
+              actionGenerate={() => {
+                const index = files.findIndex((file) => file.type === type && file.role === role);
+                generatedAI(files[index], docType.rule, docType.type);
+              }}
+            />
+          {/each}
+          <!-- {#each otherDocType as docType}
           <UploadFile
             title={docType.title}
             handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "other")}
@@ -695,20 +697,21 @@
             actionDelete={() => deleteFileByType(docType.type, "other")}
           />
         {/each} -->
-        <Button
-          class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
-          on:click={() => {
-            addNewDocumentModal = true;
-          }}
-          color="light"
-        >
-          <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-          {$_("addComplianceDocs")}
-        </Button>
+          <Button
+            class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
+            on:click={() => {
+              addNewDocumentModal = true;
+            }}
+            color="light"
+          >
+            <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
+            {$_("addComplianceDocs")}
+          </Button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+{/if}
 
 <Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
   {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
