@@ -48,7 +48,6 @@
   ]);
 
   let selectedIndustry = $state("");
-  let selectedRule = $state([]);
 
   let documentUploads = $state([
     // {
@@ -413,7 +412,10 @@
               addSuffix: true,
             }),
             industry: response.result.data[0].attributes.industry_id,
-            contract_rule_id: response.result.data[0].attributes.contract_rule_id,
+            contract_rule_id:
+              response.result.data[0].attributes.contract_rule_id === null
+                ? rules[0].value
+                : response.result.data[0].attributes.contract_rule_id,
             as: response.result.data[0].attributes.project_as,
             start_date: format(
               new Date(response.result.data[0].attributes.duration_start),
@@ -629,7 +631,7 @@
             <Typography preset="Text sm/medium" color="secondary" text={$_("rules")} />
             <Dropdown
               dropdownOpen={false}
-              bind:selectedItem={selectedRule}
+              bind:selectedItem={data.contract_rule_id}
               items={rules}
               isOverlay={true}
               disabled={true}
