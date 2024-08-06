@@ -168,7 +168,6 @@
       documentUploads.push({
         title: tmpDocumentName,
         type: tmpDocumentName,
-        rule: "",
       });
 
       let token = sessionStorage.getItem("token");
@@ -396,7 +395,6 @@
                 documentUploads.push({
                   title: file.type,
                   type: file.type,
-                  rule: "",
                 });
               });
             }
