@@ -467,39 +467,7 @@
         }
 
         if (response2.status === 200) {
-          files = [];
-          documentUploads = [];
-          let generated = [];
-          if (response2.result.files !== null) {
-            response2.result.files.forEach((file) => {
-              file.role = response.result.data[0].attributes.project_as;
-            });
-            files = response2.result.files;
-            files.forEach((file) => {
-              documentUploads.push({
-                title: file.type,
-                type: file.type,
-              });
-            });
-
-            for (let i = 0; i < files.length; i++) {
-              if (files[i].status === "generated") {
-                generated.push(files[i].id);
-                continue;
-              } else if (files[i].status === "processing") {
-                break;
-              } else {
-                generated.push(files[i].id);
-                continue;
-              }
-            }
-
-            if (generated.length < files.length) {
-              setTimeout(getStatusGenerated, 2000);
-            } else {
-              console.log("finish");
-            }
-          }
+          triggerLoading(false);
         }
       } catch (error) {
         console.log(error);
