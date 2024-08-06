@@ -384,7 +384,6 @@
   "addOtherComplianceDocs": "Tambahkan Dokumen Lainnya",
   "documentGtc": "Dokumen GTC",
   "gtcAmendment": "Perubahan GTC",
-  "tradeConfirmation": "Konfirmasi Trade",
   "dealDoneDocument": "Dokumen Deal Done",
   "documentViewer": "Pratinjau Dokumen",
   "projectList": "Daftar Proyek",
@@ -454,5 +453,7 @@
   "manageRules": "Kelola Aturan",
   "descManageRules": "Aturan ini akan digunakan untuk konfigurasi bagaimana AI membaca dokumen",
   "rules": "Aturan",
-  "industries": "Industri"
+  "industries": "Industri",
+  "generatedDocument": "Dokumen Hasil Generate",
+  "summaryOfFindings": "Ringkasan Temuan"
 }

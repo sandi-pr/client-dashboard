@@ -8,6 +8,7 @@
   import FileDownloadIcon from "$lib/icon/file-download-03.svg";
   import { ChevronDownOutline, RefreshOutline } from "flowbite-svelte-icons";
   import templatePdf from "$lib/template.pdf";
+  // import PdfViewer from 'svelte-pdf-scrollable';
   import DataTableAiReview from "$lib/components/DataTableAIReview.svelte";
   // import { Svroller, Svrollbar } from 'svrollbar';
 
@@ -15,30 +16,32 @@
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let dropdownToggle = $state([false, false, false]);
   let pdfData = $state([null, null, null, null]);
-  let datasGTC = $state([
+  let base64Data = $state();
+  let fileUrl = $state(null);
+  let datas = $state([
     {
       id: 1,
       no: 1,
       parameter: "Parameter 1",
-      referenceDocumentGTC: "12345",
-      sellerGTC: "54321",
-      recommendation: "No Action Required",
+      referenceDocument: "12345",
+      tradeConfirmation: "54321",
+      aiChanges: "No Action Required",
     },
     {
       id: 2,
       no: 2,
       parameter: "Parameter 2",
-      referenceDocumentGTC: "pertamina",
-      sellerGTC: "pertamina",
-      recommendation: "No Action Required",
+      referenceDocument: "pertamina",
+      tradeConfirmation: "pertamina",
+      aiChanges: "No Action Required",
     },
     {
       id: 3,
       no: 3,
       parameter: "Parameter 3",
-      referenceDocumentGTC: "01-Aug-2021",
-      sellerGTC: "15-Aug-2021",
-      recommendation: "Adjust to match 01-Aug-2021",
+      referenceDocument: "01-Aug-2021",
+      tradeConfirmation: "15-Aug-2021",
+      aiChanges: "Adjust to match 01-Aug-2021",
       actions: {
         status: "Done",
         result: "Changed",
@@ -48,9 +51,9 @@
       id: 4,
       no: 4,
       parameter: "Parameter 4",
-      referenceDocumentGTC: "Net 30 Days",
-      sellerGTC: "Net 60 Days",
-      recommendation: "Adjust to match Net 30 Days",
+      referenceDocument: "Net 30 Days",
+      tradeConfirmation: "Net 60 Days",
+      aiChanges: "Adjust to match Net 30 Days",
       actions: {
         status: "Done",
         result: "Rejected",
@@ -60,64 +63,9 @@
       id: 5,
       no: 5,
       parameter: "Parameter 5",
-      referenceDocumentGTC: "100.000 Barrels",
-      sellerGTC: "200.000 Barrels",
-      recommendation: "Verify reason for change; update if acceptable",
-      actions: {
-        status: "Processing",
-        reject: () => handleReject(5),
-        change: () => handleChange(5),
-      },
-    },
-  ]);
-  let datasDealDone = $state([
-    {
-      id: 1,
-      no: 1,
-      parameter: "Parameter 1",
-      referenceDocumentGTC: "12345",
-      sellerGTC: "54321",
-      recommendation: "No Action Required",
-    },
-    {
-      id: 2,
-      no: 2,
-      parameter: "Parameter 2",
-      referenceDocumentGTC: "pertamina",
-      sellerGTC: "pertamina",
-      recommendation: "No Action Required",
-    },
-    {
-      id: 3,
-      no: 3,
-      parameter: "Parameter 3",
-      referenceDocumentGTC: "01-Aug-2021",
-      sellerGTC: "15-Aug-2021",
-      recommendation: "Adjust to match 01-Aug-2021",
-      actions: {
-        status: "Done",
-        result: "Changed",
-      },
-    },
-    {
-      id: 4,
-      no: 4,
-      parameter: "Parameter 4",
-      referenceDocumentGTC: "Net 30 Days",
-      sellerGTC: "Net 60 Days",
-      recommendation: "Adjust to match Net 30 Days",
-      actions: {
-        status: "Done",
-        result: "Rejected",
-      },
-    },
-    {
-      id: 5,
-      no: 5,
-      parameter: "Parameter 5",
-      referenceDocumentGTC: "100.000 Barrels",
-      sellerGTC: "200.000 Barrels",
-      recommendation: "Verify reason for change; update if acceptable",
+      referenceDocument: "100.000 Barrels",
+      tradeConfirmation: "200.000 Barrels",
+      aiChanges: "Verify reason for change; update if acceptable",
       actions: {
         status: "Processing",
         reject: () => handleReject(5),
@@ -126,31 +74,31 @@
     },
   ]);
 
-  async function getDocumentsGTC(page) {
-    datasGTC = [
+  async function getDocument(page) {
+    datas = [
       {
         id: 1,
         no: 1,
         parameter: "Parameter 1",
-        referenceDocumentGTC: "12345",
-        sellerGTC: "54321",
-        recommendation: "No Action Required",
+        referenceDocument: "12345",
+        tradeConfirmation: "54321",
+        aiChanges: "No Action Required",
       },
       {
         id: 2,
         no: 2,
         parameter: "Parameter 2",
-        referenceDocumentGTC: "pertamina",
-        sellerGTC: "pertamina",
-        recommendation: "No Action Required",
+        referenceDocument: "pertamina",
+        tradeConfirmation: "pertamina",
+        aiChanges: "No Action Required",
       },
       {
         id: 3,
         no: 3,
         parameter: "Parameter 3",
-        referenceDocumentGTC: "01-Aug-2021",
-        sellerGTC: "15-Aug-2021",
-        recommendation: "Adjust to match 01-Aug-2021",
+        referenceDocument: "01-Aug-2021",
+        tradeConfirmation: "15-Aug-2021",
+        aiChanges: "Adjust to match 01-Aug-2021",
         actions: {
           status: "Done",
           result: "Changed",
@@ -160,9 +108,9 @@
         id: 4,
         no: 4,
         parameter: "Parameter 4",
-        referenceDocumentGTC: "Net 30 Days",
-        sellerGTC: "Net 60 Days",
-        recommendation: "Adjust to match Net 30 Days",
+        referenceDocument: "Net 30 Days",
+        tradeConfirmation: "Net 60 Days",
+        aiChanges: "Adjust to match Net 30 Days",
         actions: {
           status: "Done",
           result: "Rejected",
@@ -172,70 +120,9 @@
         id: 5,
         no: 5,
         parameter: "Parameter 5",
-        referenceDocumentGTC: "100.000 Barrels",
-        sellerGTC: "200.000 Barrels",
-        recommendation: "Verify reason for change; update if acceptable",
-        actions: {
-          status: "Processing",
-          reject: () => handleReject(5),
-          change: () => handleChange(5),
-        },
-      },
-    ];
-    configs = {
-      pagination: pagination,
-    };
-  }
-
-  async function getDocumentsDealDone(page) {
-    datasDealDone = [
-      {
-        id: 1,
-        no: 1,
-        parameter: "Parameter 1",
-        referenceDocumentGTC: "12345",
-        sellerGTC: "54321",
-        recommendation: "No Action Required",
-      },
-      {
-        id: 2,
-        no: 2,
-        parameter: "Parameter 2",
-        referenceDocumentGTC: "pertamina",
-        sellerGTC: "pertamina",
-        recommendation: "No Action Required",
-      },
-      {
-        id: 3,
-        no: 3,
-        parameter: "Parameter 3",
-        referenceDocumentGTC: "01-Aug-2021",
-        sellerGTC: "15-Aug-2021",
-        recommendation: "Adjust to match 01-Aug-2021",
-        actions: {
-          status: "Done",
-          result: "Changed",
-        },
-      },
-      {
-        id: 4,
-        no: 4,
-        parameter: "Parameter 4",
-        referenceDocumentGTC: "Net 30 Days",
-        sellerGTC: "Net 60 Days",
-        recommendation: "Adjust to match Net 30 Days",
-        actions: {
-          status: "Done",
-          result: "Rejected",
-        },
-      },
-      {
-        id: 5,
-        no: 5,
-        parameter: "Parameter 5",
-        referenceDocumentGTC: "100.000 Barrels",
-        sellerGTC: "200.000 Barrels",
-        recommendation: "Verify reason for change; update if acceptable",
+        referenceDocument: "100.000 Barrels",
+        tradeConfirmation: "200.000 Barrels",
+        aiChanges: "Verify reason for change; update if acceptable",
         actions: {
           status: "Processing",
           reject: () => handleReject(5),
@@ -257,11 +144,11 @@
   }
 
   async function nextGTC() {
-    getDocumentsGTC(pagination.page + 1);
+    getDocument(pagination.page + 1);
   }
 
   async function previousGTC() {
-    getDocumentsGTC(pagination.page - 1);
+    getDocument(pagination.page - 1);
   }
 
   async function nextDealDone() {
@@ -272,23 +159,51 @@
     getDocumentsDealDone(pagination.page - 1);
   }
 
-  onMount(async () => {
-    await getDocumentsGTC(1);
-    await getDocumentsDealDone(1);
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  }
+
+  async function createPdfUrl(file) {
     const response = await fetch(templatePdf);
     const blob = await response.blob();
-    const reader = new FileReader();
+    base64Data = await readFileAsBase64(blob);
 
-    reader.onloadend = () => {
-      // Split the data URL at the comma and take the second part
-      pdfData[0] = reader.result.split(",")[1];
-      pdfData[1] = reader.result.split(",")[1];
-      pdfData[2] = reader.result.split(",")[1];
-      pdfData[3] = reader.result.split(",")[1];
-    };
+    const pdfBlob = base64toBlob(base64Data, blob.type);
+    fileUrl =  URL.createObjectURL(pdfBlob);
+  }
 
-    reader.readAsDataURL(blob);
+  onMount(async () => {
+    await getDocument(1);
+    pdfUrl = await createPdfUrl();
   });
 </script>
 
@@ -327,107 +242,21 @@
           color="light"
         >
           <P class="text-lg font-semibold text-tertiary-light dark:text-tertiary-dark"
-            >{$_("documentViewerEditor")}</P
+            >{$_("generatedDocument")}</P
           >
           <ChevronDownOutline
             class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
           />
         </Button>
         {#if dropdownToggle[0]}
-          <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="col-span-1">
-              <P
-                class="font-bold py-4 text-brand-tertiary-alt-light dark:text-brand-tertiary-alt-dark"
-                >{$_("referenceDocumentGTC")}</P
-              >
-              <!-- <embed
-                src={templatePdf + "#toolbar=0"}
-                type="application/pdf"
-                width="100%"
-                height="100%"
-              /> -->
-              {#if pdfData[0]}
-                <div class="[&>*]:!m-0 [&>*]:!p-0 [&>*>div>*>*>canvas]:mx-auto">
-                  <PdfViewer
-                    showBorder={false}
-                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                    scale={1}
-                    data={atob(pdfData[0])}
-                  />
-                </div>
-              {:else}
-                <P>No Document</P>
-              {/if}
-            </div>
-            <div class="col-span-1">
-              <P class="font-bold py-4 text-primary-light dark:text-primary-dark"
-                >{$_("sellerGTC")}</P
-              >
-              <!-- <embed
-                src={templatePdf + "#toolbar=0"}
-                type="application/pdf"
-                width="100%"
-                height="100%"
-              /> -->
-              {#if pdfData[1]}
-                <div class="[&>*]:!m-0 [&>*]:!p-0 [&>*>div>*>*>canvas]:mx-auto">
-                  <PdfViewer
-                    showBorder={false}
-                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                    scale={1}
-                    data={atob(pdfData[1])}
-                  />
-                </div>
-              {:else}
-                <P>No Document</P>
-              {/if}
-            </div>
-            <div class="col-span-1">
-              <P
-                class="font-bold py-4 text-brand-tertiary-alt-light dark:text-brand-tertiary-alt-dark"
-                >{$_("referenceDocumentDealDone")}</P
-              >
-              <!-- <embed
-                src={templatePdf + "#toolbar=0"}
-                type="application/pdf"
-                width="100%"
-                height="100%"
-              /> -->
-              {#if pdfData[2]}
-                <div class="[&>*]:!m-0 [&>*]:!p-0 [&>*>div>*>*>canvas]:mx-auto">
-                  <PdfViewer
-                    showBorder={false}
-                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                    scale={1}
-                    data={atob(pdfData[2])}
-                  />
-                </div>
-              {:else}
-                <P>No Document</P>
-              {/if}
-            </div>
-            <div class="col-span-1">
-              <P class="font-bold py-4 text-primary-light dark:text-primary-dark"
-                >{$_("documentDealDone")}</P
-              >
-              <!-- <embed
-                src={templatePdf + "#toolbar=0"}
-                type="application/pdf"
-                width="100%"
-                height="100%"
-              /> -->
-              {#if pdfData[3]}
-                <div class="[&>*]:!m-0 [&>*]:!p-0 [&>*>div>*>*>canvas]:mx-auto">
-                  <PdfViewer
-                    showBorder={false}
-                    showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                    scale={1}
-                    data={atob(pdfData[3])}
-                  />
-                </div>
-              {:else}
-                <P>No Document</P>
-              {/if}
+          <div class="flex justify-center my-6">
+            <div class="bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4">
+              <PdfViewer
+                showBorder={false}
+                showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+                scale={1}
+                data={atob(base64Data)}
+              />
             </div>
           </div>
           <div class="mb-8">
@@ -442,7 +271,7 @@
           color="light"
         >
           <P class="text-lg font-semibold text-tertiary-light dark:text-tertiary-dark"
-            >{$_("summaryOfFindingsGtcDocument")}</P
+            >{$_("summaryOfFindings")}</P
           >
           <ChevronDownOutline
             class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
@@ -450,32 +279,10 @@
         </Button>
         {#if dropdownToggle[1]}
           <DataTableAiReview
-            bind:datas={datasGTC}
+            bind:datas={datas}
             bind:configs
             bind:next={nextGTC}
             bind:previous={previousGTC}
-          />
-        {/if}
-
-        <!-- second table section -->
-        <Button
-          on:click={() => (dropdownToggle[2] = !dropdownToggle[2])}
-          class="flex justify-between border-primary-light dark:border-primary-dark bg-secondary-light dark:bg-secondary-dark"
-          color="light"
-        >
-          <P class="text-lg font-semibold text-tertiary-light dark:text-tertiary-dark"
-            >{$_("summaryOfFindingsDocumentDealDone")}</P
-          >
-          <ChevronDownOutline
-            class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-          />
-        </Button>
-        {#if dropdownToggle[2]}
-          <DataTableAiReview
-            bind:datas={datasDealDone}
-            bind:configs
-            bind:next={nextDealDone}
-            bind:previous={previousDealDone}
           />
         {/if}
       </div>

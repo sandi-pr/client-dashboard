@@ -125,7 +125,7 @@
         {#if datas.length > 0}
           {#each Object.keys(datas[0]) as key}
             {#if key !== "actions" && key !== "id"}
-              {#if key === "recommendation"}
+              {#if key === "aiChanges"}
                 <TableHeadCell
                   class="bg-brand-solid-light dark:bg-brand-solid-dark text-primary-onbrand-light dark:text-primary-onbrand-dark"
                   >{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell
