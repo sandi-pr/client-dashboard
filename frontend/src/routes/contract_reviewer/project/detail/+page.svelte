@@ -435,102 +435,113 @@
   }
 
   async function generatedAI(file, ruleId, type) {
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await call.call("client-dashboard", "get-ids-reference", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          industry_id: data.industry,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        triggerToast("error");
-        console.log(response);
-        return;
-      }
-
-      const response2 = await call.call("client-dashboard", "get-contract-rule-section", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          contract_rule_id: ruleId.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      let result = [];
-
-      for (let i = 0; i < response2.result.data.length; i++) {
-        const section_title = response2.result.data[i].attributes.section_title;
-        const section_prompt = response2.result.data[i].attributes.section_prompt;
-        const section_sample = response2.result.data[i].attributes.section_sample;
-
-        const response3 = await call.call("hexa-ai-contract-review", "generate", {
+      try {
+        const response = await call.call("client-dashboard", "get-ids-reference", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            rag_ids_reference: response.result.ids_reference,
-            rag_ids_project: [file.rag_id.toString()],
-            section_title: section_title,
-            section_prompt: section_prompt,
-            section_sample: section_sample,
+            industry_id: data.industry,
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
 
-        console.log("generate", response2);
-
-        if (response2.status !== 200) {
+        if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
-          console.log(response2);
+          console.log(response);
           return;
         }
 
-        result.push({
-          section: section_title,
-          result: response3.result.text,
-        });
-      }
-
-      let projectDocumentId = files.findIndex((file) => file.type === type).id;
-
-      let response4 = await call.call("client-dashboard", "create-project-results", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          project_id: projectId.toString(),
-          project_document_id: projectDocumentId.toString(),
-          results: JSON.stringify(result),
-          contract_rule_id: ruleId.toString(),
-          generated_at: new Date().toISOString(),
-          status: "Generated",
+        const response2 = await call.call("client-dashboard", "get-contract-rule-section", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            contract_rule_id: ruleId.toString(),
+          },
           Headers: {
             Authorization: "Bearer " + token,
           },
-        },
-      });
+        });
 
-      if (response4.status !== 200) {
+        let result = [];
+
+        for (let i = 0; i < response2.result.data.length; i++) {
+          const section_title = response2.result.data[i].attributes.section_title;
+          const section_prompt = response2.result.data[i].attributes.section_prompt;
+          const section_sample = response2.result.data[i].attributes.section_sample;
+
+          const response3 = await call.call("hexa-ai-contract-review", "generate", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              rag_ids_reference: response.result.ids_reference,
+              rag_ids_project: [file.rag_id.toString()],
+              section_title: section_title,
+              section_prompt: section_prompt,
+              section_sample: section_sample,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log("generate", response2);
+
+          if (response2.status !== 200) {
+            triggerLoading(false);
+            triggerToast("error");
+            console.log(response2);
+            return;
+          }
+
+          result.push({
+            section: section_title,
+            result: response3.result.text,
+          });
+        }
+
+        let projectDocumentId = files.findIndex((file) => file.type === type).id;
+
+        let response4 = await call.call("client-dashboard", "create-project-results", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            project_id: projectId.toString(),
+            project_document_id: projectDocumentId.toString(),
+            results: JSON.stringify(result),
+            contract_rule_id: ruleId.toString(),
+            generated_at: new Date().toISOString(),
+            status: "Generated",
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        });
+
+        if (response4.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response4);
+          return;
+        }
+
+        triggerLoading(false);
+        triggerToast("created");
+        goto(
+          (await call.getPage("client-dashboard", "contract-project-review")) +
+            "?projectDocumentId=" +
+            projectDocumentId,
+        );
+      } catch (error) {
+        triggerLoading(false);
         triggerToast("error");
-        console.log(response4);
-        return;
+        console.log(error);
       }
-
-      triggerToast("created");
-      goto(
-        (await call.getPage("client-dashboard", "contract-project-review")) +
-          "?projectDocumentId=" +
-          projectDocumentId,
-      );
     }
 
     return;
