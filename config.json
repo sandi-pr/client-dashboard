@@ -2869,6 +2869,10 @@
                     "type": "number"
                 },
                 {
+                    "name": "contract_rule_id",
+                    "type": "number"
+                },
+                {
                     "name": "project_as",
                     "type": "string"
                 },

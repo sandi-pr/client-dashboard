@@ -104,6 +104,7 @@ All Rights Reserved
             project_name: tmpProjectName,
             industry_id: selectedIndustry,
             project_as: selectedRole,
+            contract_rule_id: selectedRules,
             duration_start: format(new Date(startDate), "yyyy-MM-dd"),
             duration_end: format(new Date(endDate), "yyyy-MM-dd"),
             description: tmpProjectDescription,
@@ -394,7 +395,15 @@ All Rights Reserved
       </div>
       <div class="flex grow flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
-        <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates theme="custom-datepicker">
+        <DatePicker
+          bind:isOpen
+          bind:startDate
+          bind:endDate
+          isRange
+          isMultipane
+          enableFutureDates
+          theme="custom-datepicker"
+        >
           <button
             onclick={toggleDatePicker}
             class:open={isOpen}

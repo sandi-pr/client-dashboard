@@ -413,6 +413,7 @@
               addSuffix: true,
             }),
             industry: response.result.data[0].attributes.industry_id,
+            contract_rule_id: response.result.data[0].attributes.contract_rule_id,
             as: response.result.data[0].attributes.project_as,
             start_date: format(
               new Date(response.result.data[0].attributes.duration_start),
@@ -437,7 +438,7 @@
     }
   }
 
-  async function generatedAI(file, ruleId, type) {
+  async function generatedAI(file) {
     triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
@@ -464,7 +465,7 @@
           URLQuery: {},
           URLParams: {},
           Params: {
-            contract_rule_id: ruleId.toString(),
+            contract_rule_id: data.contract_rule_id.toString(),
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -518,7 +519,7 @@
             project_id: projectId.toString(),
             project_document_id: projectDocumentId.toString(),
             results: JSON.stringify(result),
-            contract_rule_id: ruleId.toString(),
+            contract_rule_id: data.contract_rule_id.toString(),
             generated_at: new Date().toISOString(),
             status: "Generated",
             Headers: {
@@ -536,11 +537,11 @@
 
         triggerLoading(false);
         triggerToast("created");
-        goto(
-          (await call.getPage("client-dashboard", "contract-project-review")) +
-            "?projectDocumentId=" +
-            projectDocumentId,
-        );
+        // goto(
+        //   (await call.getPage("client-dashboard", "contract-project-review")) +
+        //     "?projectDocumentId=" +
+        //     projectDocumentId,
+        // );
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");
@@ -681,7 +682,7 @@
               }}
               actionGenerate={() => {
                 const index = files.findIndex((file) => file.type === type && file.role === role);
-                generatedAI(files[index], docType.rule, docType.type);
+                generatedAI(files[index]);
               }}
             />
           {/each}

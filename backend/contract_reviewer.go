@@ -62,6 +62,11 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		return ctx.Error(400, "invalid parameters industry_id")
 	}
 
+	contract_rule_id, ok := ctx.Params.GetFloat64("contract_rule_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters contract_rule_id")
+	}
+
 	project_as, ok := ctx.Params.GetString("project_as")
 	if !ok {
 		return ctx.Error(400, "invalid parameters project_as")
@@ -84,12 +89,13 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 	if description == "" {
 		status, res, err := Strapi.Create("projects-table", U.Dict{
-			"project_name":   project_name,
-			"industry_id":    industry_id,
-			"project_as":     project_as,
-			"duration_start": duration_start,
-			"duration_end":   duration_end,
-			"creator_id":     id,
+			"project_name":     project_name,
+			"industry_id":      industry_id,
+			"contract_rule_id": contract_rule_id,
+			"project_as":       project_as,
+			"duration_start":   duration_start,
+			"duration_end":     duration_end,
+			"creator_id":       id,
 		})
 
 		if err != nil {
@@ -105,13 +111,14 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		return 200, res, nil
 	} else {
 		status, res, err := Strapi.Create("projects-table", U.Dict{
-			"project_name":   project_name,
-			"industry_id":    industry_id,
-			"project_as":     project_as,
-			"duration_start": duration_start,
-			"duration_end":   duration_end,
-			"creator_id":     id,
-			"description":    description,
+			"project_name":     project_name,
+			"industry_id":      industry_id,
+			"contract_rule_id": contract_rule_id,
+			"project_as":       project_as,
+			"duration_start":   duration_start,
+			"duration_end":     duration_end,
+			"creator_id":       id,
+			"description":      description,
 		})
 
 		if err != nil {
@@ -328,12 +335,17 @@ func GetDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config
 
 		base64Data := base64.StdEncoding.EncodeToString(data)
 
+		ragID := ""
+		if val, ok := list[i].(U.Dict)["attributes"].(U.Dict)["rag_id"].(U.String); ok {
+			ragID = string(val)
+		}
+
 		datas = append(datas, U.Dict{
 			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
 			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
 			"base64": base64Data,
 			"id":     list[i].(U.Dict)["id"].(U.Float64),
-			"rag_id": list[i].(U.Dict)["attributes"].(U.Dict)["rag_id"].(U.String),
+			"rag_id": ragID,
 		})
 	}
 
