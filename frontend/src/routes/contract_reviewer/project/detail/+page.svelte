@@ -513,7 +513,9 @@
               asTmp = data.as;
               deleteModal = true;
             }}
-            actionGenerate={() => {}}
+            actionGenerate={async () => {
+              goto(await call.getPage("client-dashboard", "contract-project-review"));
+            }}
           />
         {/each}
         <!-- {#each otherDocType as docType}

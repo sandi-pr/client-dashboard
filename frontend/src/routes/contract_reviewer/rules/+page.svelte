@@ -19,6 +19,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -57,11 +58,12 @@ All Rights Reserved
         triggerLoading(false);
         triggerToast("created");
         tmpRulesName = "";
+        addRulesModal = false;
         getRules();
         goto(
           (await call.getPage("client-dashboard", "contract-rule-detail")) +
             "?ruleId=" +
-            response.result.id,
+            response.result.data.id,
         );
       } catch (error) {
         triggerLoading(false);
