@@ -575,8 +575,7 @@ func GetIdsProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		idStr := fmt.Sprintf("%f", id)
-		ids = append(ids, idStr)
+		ids = append(ids, strconv.Itoa(int(id)))
 	}
 
 	return 200, U.Dict{"ids_reference": ids}, nil
