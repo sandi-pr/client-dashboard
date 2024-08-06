@@ -1,11 +1,19 @@
 <script>
   import { Button, Modal, Input } from "flowbite-svelte";
-  import { FeaturedIcon, Typography, UploadFile, triggerToast, SelectedCard, Dropdown } from "$lib";
+  import {
+    FeaturedIcon,
+    Typography,
+    UploadFile,
+    triggerToast,
+    SelectedCard,
+    Dropdown,
+    triggerLoading,
+  } from "$lib";
   import PdfViewer from "svelte-pdf";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
-  import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { onMount } from "svelte";
@@ -17,7 +25,10 @@
   let addNewDocumentModal = $state(false);
   let addSellerDocumentModal = $state(false);
   let addBuyerDocumentModal = $state(false);
+  let deleteModal = $state(false);
   let tmpDocumentName = $state("");
+  let tmpType = $state("");
+  let tmpRole = $state("");
   let tmpFile = $state([]);
   let selectedIndustry = $state("");
   let files = $state([]);
@@ -48,19 +59,9 @@
     // },
   ]);
 
-  let sellerDocuments = $state([
-    {
-      title: `${$_("documentGtc")}*`,
-      type: "documentGtc",
-    },
-  ]);
+  let sellerDocuments = $state([]);
 
-  let buyerDocuments = $state([
-    {
-      title: `${$_("documentGtc")}*`,
-      type: "documentGtc",
-    },
-  ]);
+  let buyerDocuments = $state([]);
 
   let otherDocType = $state([]);
 
@@ -132,33 +133,63 @@
     inputElement.click();
   };
 
-  function addOtherDocument(role) {
-    if (role === "Seller") {
-      sellerDocuments.push({
-        title: tmpDocumentName,
-        type: tmpDocumentName,
-      });
-
+  async function addOtherDocument(role) {
+    addBuyerDocumentModal = false;
+    addSellerDocumentModal = false;
+    triggerLoading(true);
+    let token = sessionStorage.getItem("token");
+    try {
       tmpFile.type = tmpDocumentName;
-
       files.push(tmpFile);
+
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].id === 0) {
+          const response2 = await call.call("client-dashboard", "create-references-document", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              references: JSON.stringify([files[i]]),
+              industry_id: selectedIndustry,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+          console.log(response2);
+
+          if (response2.status !== 200) {
+            triggerLoading(false);
+            if (role === "Seller") {
+              addSellerDocumentModal = true;
+            } else if (role === "Buyer") {
+              addBuyerDocumentModal = true;
+            }
+            triggerToast("error");
+            break;
+          }
+
+          if (role === "Seller") {
+            sellerDocuments.push({
+              title: tmpDocumentName,
+              type: tmpDocumentName,
+            });
+          } else if (role === "Buyer") {
+            buyerDocuments.push({
+              title: tmpDocumentName,
+              type: tmpDocumentName,
+            });
+          }
+
+          files[i].id = response2.result.data[0].id;
+        }
+      }
 
       tmpFile = [];
       tmpDocumentName = "";
-      addSellerDocumentModal = false;
-    } else if (role === "Buyer") {
-      buyerDocuments.push({
-        title: tmpDocumentName,
-        type: tmpDocumentName,
-      });
-
-      tmpFile.type = tmpDocumentName;
-
-      files.push(tmpFile);
-
-      tmpFile = [];
-      tmpDocumentName = "";
-      addBuyerDocumentModal = false;
+      triggerLoading(false);
+      triggerToast("updated");
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -167,17 +198,54 @@
     return index !== -1 ? files[index] : [];
   }
 
-  function deleteFileByType(type, role) {
-    const index = files.findIndex((file) => file.type === type && file.role === role);
+  async function deleteFileByType(type, role) {
+    deleteModal = false;
+    triggerLoading(true);
 
+    const index = files.findIndex((file) => file.type === type && file.role === role);
     if (index !== -1) {
       if (files[index].id !== 0) tmpIdDeleted.push(files[index].id);
+    }
+
+    let token = sessionStorage.getItem("token");
+
+    if (tmpIdDeleted.length > 0) {
+      for (let i = 0; i < tmpIdDeleted.length; i++) {
+        if (tmpIdDeleted[i] !== 0) {
+          const response = await call.call("client-dashboard", "delete-references-document", {
+            URLQuery: {},
+            URLParams: {
+              id: tmpIdDeleted[i].toString(),
+            },
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status !== 200) {
+            triggerLoading(false);
+            triggerToast("error");
+            deleteModal = true;
+            break;
+          }
+
+          tmpIdDeleted.filter((id) => id !== tmpIdDeleted[i]);
+          files = files.filter((file) => file.id !== tmpIdDeleted[i]);
+        }
+      }
+      tmpIdDeleted = [];
+
       files.splice(index, 1);
       if (role === "Seller" && type !== "documentGtc") {
         sellerDocuments = sellerDocuments.filter((doc) => doc.type !== type);
       } else if (role === "Buyer" && type !== "documentGtc") {
         buyerDocuments = buyerDocuments.filter((doc) => doc.type !== type);
       }
+
+      triggerLoading(false);
+      triggerToast("deleted");
+      deleteModal = false;
     }
   }
 
@@ -199,61 +267,7 @@
 
   async function saveReferences() {
     if (allRequiredFilesPresent) {
-      let token = sessionStorage.getItem("token");
-      try {
-        if (tmpIdDeleted.length > 0) {
-          for (let i = 0; i < tmpIdDeleted.length; i++) {
-            if (tmpIdDeleted[i] !== 0) {
-              const response = await call.call("client-dashboard", "delete-references-document", {
-                URLQuery: {},
-                URLParams: {
-                  id: tmpIdDeleted[i].toString(),
-                },
-                Params: {},
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
-
-              if (response.status !== 200) {
-                triggerToast("error");
-                break;
-              }
-
-              tmpIdDeleted.filter((id) => id !== tmpIdDeleted[i]);
-              files = files.filter((file) => file.id !== tmpIdDeleted[i]);
-            }
-          }
-          tmpIdDeleted = [];
-        }
-
-        for (let i = 0; i < files.length; i++) {
-          if (files[i].id === 0) {
-            const response2 = await call.call("client-dashboard", "create-references-document", {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                references: JSON.stringify([files[i]]),
-                industry_id: selectedIndustry,
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-            console.log(response2);
-
-            if (response2.status !== 200) {
-              triggerToast("error");
-              break;
-            }
-
-            files[i].id = response2.result.data[0].id;
-          }
-        }
-        triggerToast("updated");
-      } catch (error) {
-        console.log(error);
-      }
+      return;
     }
   }
 
@@ -386,13 +400,13 @@
       </div>
     </div>
     <div class="flex gap-3">
-      <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
+      <!-- <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
       <Button
         disabled={!allRequiredFilesPresent}
         on:click={() => {
           saveReferences();
         }}>{$_("save")}</Button
-      >
+      > -->
     </div>
   </div>
   <Divider />
@@ -435,7 +449,11 @@
               actionView={() => (
                 (documentViewModal = true), (selectedFile = getFileByType(docType.type, "Buyer"))
               )}
-              actionDelete={() => deleteFileByType(docType.type, "Buyer")}
+              actionDelete={() => {
+                tmpRole = "Buyer";
+                tmpType = docType.type;
+                deleteModal = true;
+              }}
             />
           {/each}
           <Button
@@ -446,7 +464,7 @@
             color="light"
           >
             <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-            {$_("addOtherComplianceDocs")}
+            {$_("addComplianceDocs")}
           </Button>
         </div>
       </div>
@@ -473,7 +491,11 @@
               actionView={() => (
                 (documentViewModal = true), (selectedFile = getFileByType(docType.type, "Seller"))
               )}
-              actionDelete={() => deleteFileByType(docType.type, "Seller")}
+              actionDelete={() => {
+                tmpRole = "Seller";
+                tmpType = docType.type;
+                deleteModal = true;
+              }}
             />
           {/each}
           <Button
@@ -484,53 +506,11 @@
             color="light"
           >
             <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-            {$_("addOtherComplianceDocs")}
+            {$_("addComplianceDocs")}
           </Button>
         </div>
       </div>
     </div>
-    <Divider />
-    <!-- section form -->
-    <!-- <div class="flex gap-3">
-      <div class="w-60">
-        <Typography
-          preset="Text md/Semibold"
-          text={`${$_("otherComplianceDocument")}`}
-          color="secondary"
-        />
-      </div>
-      <div class="flex flex-col grow gap-6">
-        <div class="grid grid-cols-2 gap-4">
-          {#each otherDocType as docType}
-            <UploadFile
-              title={docType.title}
-              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "other")}
-              file={getFileByType(docType.type, "other")}
-              actionButton={true}
-              actionView={() => (
-                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "other"))
-              )}
-              actionDelete={() => deleteFileByType(docType.type, "other")}
-            />
-          {/each}
-          <Button
-            class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
-            on:click={() => {
-              addNewDocumentModal = true;
-            }}
-            color="light"
-          >
-            <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-            {$_("addOtherComplianceDocs")}
-          </Button>
-        </div>
-      </div>
-    </div> -->
-    <!-- <Divider />
-    <div class="flex justify-end gap-3">
-      <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
-      <Button disabled={files.length === 0} on:click={() => {}}>{$_("save")}</Button>
-    </div> -->
   {/if}
 </div>
 
@@ -559,6 +539,7 @@
       file={tmpFile}
       actionButton={true}
       actionDelete={() => (tmpFile = [])}
+      actionView={() => ((documentViewModal = true), (selectedFile = tmpFile))}
     />
   </div>
   <svelte:fragment slot="footer">
@@ -583,6 +564,7 @@
       file={tmpFile}
       actionButton={true}
       actionDelete={() => (tmpFile = [])}
+      actionView={() => ((documentViewModal = true), (selectedFile = tmpFile))}
     />
   </div>
   <svelte:fragment slot="footer">
@@ -593,4 +575,24 @@
       disabled={!tmpFile && !tmpDocumentName}>{$_("add")}</Button
     >
   </svelte:fragment>
+</Modal>
+
+<Modal bind:open={deleteModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={() => deleteFileByType(tmpType, tmpRole)} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
+    <Button
+      color="alternative"
+      onclick={() => {
+        deleteModal = false;
+        tmpRole = "";
+        tmpType = "";
+      }}>{$_("noCancel")}</Button
+    >
+  </div>
 </Modal>

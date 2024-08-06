@@ -43,7 +43,7 @@ All Rights Reserved
     {#if isOverlay}
       <div
         id="dropdown"
-        class={`z-10 ${dropdownOpen ? "absolute top-12 px-2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+        class={`z-10 ${dropdownOpen ? "absolute top-12 px-2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow ${width} dark:bg-gray-700`}
       >
         <ul
           class="py-2 text-sm text-gray-700 dark:text-gray-200"

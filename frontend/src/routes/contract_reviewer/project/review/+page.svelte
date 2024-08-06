@@ -198,7 +198,7 @@
     base64Data = await readFileAsBase64(blob);
 
     const pdfBlob = base64toBlob(base64Data, blob.type);
-    fileUrl =  URL.createObjectURL(pdfBlob);
+    fileUrl = URL.createObjectURL(pdfBlob);
   }
 
   onMount(async () => {
@@ -279,7 +279,7 @@
         </Button>
         {#if dropdownToggle[1]}
           <DataTableAiReview
-            bind:datas={datas}
+            bind:datas
             bind:configs
             bind:next={nextGTC}
             bind:previous={previousGTC}

@@ -455,5 +455,6 @@
   "rules": "Rules",
   "industries": "Industries",
   "generatedDocument": "Generated Document",
-  "summaryOfFindings": "Summary of Findings"
+  "summaryOfFindings": "Summary of Findings",
+  "addComplianceDocs": "Add docs"
 }

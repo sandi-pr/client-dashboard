@@ -455,5 +455,6 @@
   "rules": "Aturan",
   "industries": "Industri",
   "generatedDocument": "Dokumen Hasil Generate",
-  "summaryOfFindings": "Ringkasan Temuan"
+  "summaryOfFindings": "Ringkasan Temuan",
+  "addComplianceDocs": "Tambahkan dokumen"
 }
