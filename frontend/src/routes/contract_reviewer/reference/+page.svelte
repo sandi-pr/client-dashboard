@@ -534,7 +534,6 @@
               title={docType.title}
               handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "Buyer")}
               file={getFileByType(docType.type, "Buyer")}
-              bind:status={files[files.findIndex((file) => file.type === docType.type)]?.status}
               actionButton={true}
               actionView={() => (
                 (documentViewModal = true), (selectedFile = getFileByType(docType.type, "Buyer"))
