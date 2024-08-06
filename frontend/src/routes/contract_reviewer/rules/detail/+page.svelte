@@ -11,7 +11,8 @@ All Rights Reserved
 <script>
   import { onMount, onDestroy } from "svelte";
   import { Modal, Button, Input, Textarea, Heading, P } from "flowbite-svelte";
-  import { Typography, Dropdown, triggerToast, StateCard, triggerLoading } from "$lib";
+  import { Typography, Dropdown, triggerToast, StateCard, triggerLoading, InputRw, TextareaRw } from "$lib";
+  import Divider from "$lib/components/Divider.svelte";
   import * as Icon from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { _ } from "svelte-i18n";
@@ -246,42 +247,47 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <div class="flex flex-col grow">
+        <div class="flex">
           <!-- Header -->
-          <div class="gap-2">
+          <div class="grow gap-2">
             <Heading
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{datas.title}<Button
-                outline
-                color="red"
-                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
-              >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-              </Button></Heading
+              >{datas.title}</Heading
+            >
+            <P
+              class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
+              >{$_("createOn")}{` ${datas.createdAt}`}</P
             >
           </div>
-          <P
-            class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-            >{$_("createOn")}{` ${datas.createdAt}`}</P
+          <Button
+            class="self-center"
+            color="primary"
+            on:click={() => {
+              formData = { title: "", prompt: "", sample: "" };
+              edit = false;
+              addRulesSectionsModal = true;
+            }}
+            ><Icon.PlusOutline class="w-5 h-5" />
+            {$_("addNewSection")}</Button
           >
         </div>
 
-        <div class="w-full border-t"></div>
+        <Divider />
 
         <!-- table latest -->
         {#if Object.keys(datas).length > 0}
           {#each datas.data as data, index}
-            <div class="grid grid-cols-12 gap-4">
-              <div class="col-span-3">
-                <P class="font-semibold text-tertiary-light">Section {index + 1}</P>
-                <div class="flex">
+            <div class="flex gap-4">
+              <div class="flex flex-col w-60 gap-2">
+                <Typography preset="Text md/Semibold" text={$_("section") + " " + (index + 1)} color="secondary" />
+                <div class="flex gap-2">
                   <button
-                    class="text-primary-light dark:text-primary-dark mr-4"
+                    class="text-error-primary-light dark:text-error-primary-dark"
                     onclick={() => {
                       tmpSectionId = data.id;
                       deleteModal = true;
-                    }}>Delete</button
+                    }}>{$_("delete")}</button
                   >
                   <button
                     class="text-brand-secondary-light dark:text-brand-secondary-dark"
@@ -294,52 +300,42 @@ All Rights Reserved
                         sample: data.sample,
                       };
                       addRulesSectionsModal = true;
-                    }}>Edit</button
+                    }}>{$_("edit")}</button
                   >
                 </div>
               </div>
-              <div class="col-span-1 text-tertiary-light"><P>Order</P></div>
-              <div class="col-span-8 text-tertiary-light"><P>Name</P></div>
-              <div class="col-span-3"></div>
-              <div class="col-span-1">
-                <Input value={"#" + (index + 1)} readonly />
-              </div>
-              <div class="col-span-8">
-                <Input value={data.title} readonly />
-              </div>
-              <div class="col-span-3"></div>
-              <div class="col-span-9">
-                <P class="text-tertiary-light">Extract Data Prompt</P>
-              </div>
-              <div class="col-span-3"></div>
-              <div class="col-span-9">
-                <Textarea value={data.prompt} readonly />
-              </div>
-              <div class="col-span-3"></div>
-              <div class="col-span-9">
-                <P class="text-tertiary-light">Extract Output Prompt</P>
-              </div>
-              <div class="col-span-3"></div>
-              <div class="col-span-9">
-                <Textarea value={data.sample} readonly />
+              <div class="flex flex-col grow gap-3">
+                <div class="flex gap-3">
+                  <div class="flex flex-col gap-1.5">
+                    <!-- <P>Order</P> -->
+                    <Typography preset="Text sm/Medium" text={$_("order")} color="secondary" />
+                    <InputRw value={"#" + (index + 1)} readonly={edit} />
+                  </div>
+                  <div class="flex flex-col grow gap-1.5">
+                    <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
+                    <InputRw value={data.title} readonly={edit} />
+                  </div>
+                </div>
+                <div class="flex flex-col grow gap-1.5">
+                  <Typography preset="Text sm/Medium" text={$_("extractDataPrompt")} color="secondary" />
+                  <TextareaRw value={data.prompt} readonly={edit} />
+                </div>
               </div>
             </div>
-            <div class="w-full border-t"></div>
+            <Divider />
           {/each}
-          <Button
-            class="self-center"
-            color="primary"
-            on:click={() => {
-              formData = { title: "", prompt: "", sample: "" };
-              edit = false;
-              addRulesSectionsModal = true;
-            }}
-            ><Icon.PlusOutline class="w-5 h-5" />
-            {$_("addNewSection")}</Button
-          >
         {:else}
           <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+            <StateCard 
+              illustration={IllustrationEmpty} 
+              actionText={$_("addNewSection")} 
+              funcButton={() => {
+                formData = { title: "", prompt: "", sample: "" };
+                edit = false;
+                addRulesSectionsModal = true;
+              }}
+              description={$_("youDontHaveAnyDataYet")} 
+            />
           </div>
         {/if}
       </div>
@@ -355,7 +351,7 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesSectionTitle")}*`} />
-      <Input bind:value={formData.title} placeholder={$_("whatIsYourRulesSectionsTitle")} />
+      <Input bind:value={formData.title} placeholder={$_("whatIsYourRulesSectionsTitle")} class="bg-primary-light dark:bg-gray-800" />
     </div>
   </div>
   <div class="flex flex-col gap-1.5">

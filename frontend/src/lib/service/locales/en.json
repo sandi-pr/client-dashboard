@@ -462,5 +462,6 @@
   "seeReferencedDoc": "See referenced docs",
   "addReferenceDocs": "Add reference docs",
   "selectRules": "Select Rules",
-  "startDate": "Start Date"
+  "startDate": "Start Date",
+  "extractDataPrompt": "Extract data Prompt"
 }

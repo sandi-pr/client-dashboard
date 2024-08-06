@@ -181,7 +181,7 @@
   "productInformation": "Informasi Produk",
   "addressInformation": "Informasi Alamat",
   "orders": "Pesanan",
-  "order": "Pesanan",
+  "order": "Urutan",
   "invoices": "Faktur",
   "bookingDate": "Tgl. Pemesanan",
   "customerName": "Nama Pelanggan",
@@ -462,5 +462,6 @@
   "seeReferencedDoc": "Lihat dokumen referensi",
   "addReferenceDocs": "Tambahkan dokumen referensi",
   "selectRules": "Pilih Aturan",
-  "startDate": "Tgl. Mulai"
+  "startDate": "Tgl. Mulai",
+  "extractDataPrompt": "Extract Data Prompt"
 }
