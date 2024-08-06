@@ -47,14 +47,19 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 	fmt.Println(me)
 
+	id, ok := me.GetFloat64("id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	project_name, ok := ctx.Params.GetString("project_name")
 	if !ok {
 		return ctx.Error(400, "invalid parameters project_name")
 	}
 
-	industry_type, ok := ctx.Params.GetString("industry_type")
+	industry_id, ok := ctx.Params.GetFloat64("industry_id")
 	if !ok {
-		return ctx.Error(400, "invalid parameters industry_type")
+		return ctx.Error(400, "invalid parameters industry_id")
 	}
 
 	project_as, ok := ctx.Params.GetString("project_as")
@@ -62,14 +67,14 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		return ctx.Error(400, "invalid parameters project_as")
 	}
 
-	project_start_date, ok := ctx.Params.GetString("project_start_date")
+	duration_start, ok := ctx.Params.GetString("duration_start")
 	if !ok {
-		return ctx.Error(400, "invalid parameters project_start_date")
+		return ctx.Error(400, "invalid parameters duration_start")
 	}
 
-	project_end_date, ok := ctx.Params.GetString("project_end_date")
+	duration_end, ok := ctx.Params.GetString("duration_end")
 	if !ok {
-		return ctx.Error(400, "invalid parameters project_end_date")
+		return ctx.Error(400, "invalid parameters duration_end")
 	}
 
 	description, ok := ctx.Params.GetString("description")
@@ -78,12 +83,13 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	}
 
 	if description == "" {
-		status, res, err := Strapi.Create("project-contract-table", U.Dict{
-			"project_name":       project_name,
-			"industry_type":      industry_type,
-			"project_as":         project_as,
-			"project_start_date": project_start_date,
-			"project_end_date":   project_end_date,
+		status, res, err := Strapi.Create("projects-table", U.Dict{
+			"project_name":   project_name,
+			"industry_id":    industry_id,
+			"project_as":     project_as,
+			"duration_start": duration_start,
+			"duration_end":   duration_end,
+			"creator_id":     id,
 		})
 
 		if err != nil {
@@ -98,13 +104,14 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 		return 200, res, nil
 	} else {
-		status, res, err := Strapi.Create("project-contract-table", U.Dict{
-			"project_name":       project_name,
-			"industry_type":      industry_type,
-			"project_as":         project_as,
-			"project_start_date": project_start_date,
-			"project_end_date":   project_end_date,
-			"description":        description,
+		status, res, err := Strapi.Create("projects-table", U.Dict{
+			"project_name":   project_name,
+			"industry_id":    industry_id,
+			"project_as":     project_as,
+			"duration_start": duration_start,
+			"duration_end":   duration_end,
+			"creator_id":     id,
+			"description":    description,
 		})
 
 		if err != nil {
@@ -156,7 +163,7 @@ func GetContractProjects(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 		page_size = 10
 	}
 
-	status, projects, err := Strapi.Find("project-contract-table", U.Dict{
+	status, projects, err := Strapi.Find("projects-table", U.Dict{
 		"pagination": U.Dict{
 			"page":     page,
 			"pageSize": page_size,
@@ -201,13 +208,18 @@ func GetContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 
 	fmt.Println(me)
 
-	id, ok := ctx.URLParams.GetString("id")
+	idString, ok := ctx.URLParams.GetString("id")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, project, err := Strapi.Find("project-contract-table", U.Dict{
+	id, err := strconv.Atoi(string(idString))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, project, err := Strapi.Find("projects-table", U.Dict{
 		"filters": U.Dict{
 			"id": U.Dict{
 				"$eq": id,
@@ -252,13 +264,19 @@ func GetDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config
 
 	fmt.Println(me)
 
-	project_id, ok := ctx.Params.GetString("project_id")
+	project_idStr, ok := ctx.Params.GetString("project_id")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, documents, err := Strapi.Find("document-project-table", U.Dict{
+	project_id, err := strconv.Atoi(string(project_idStr))
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, documents, err := Strapi.Find("project-documents-table", U.Dict{
 		"filters": U.Dict{
 			"project_id": U.Dict{
 				"$eq": project_id,
@@ -288,13 +306,13 @@ func GetDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config
 	}
 
 	if len(list) == 0 {
-		return ctx.Error(500, "Internal Server Error")
+		return 200, U.Dict{"files": []U.Dict{}}, nil
 	}
 
 	var datas []U.Dict
 
 	for i := 0; i < len(list); i++ {
-		document_url := list[i].(U.Dict)["attributes"].(U.Dict)["document"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		document_url := list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
 		document_url = U.String(strings.TrimPrefix(string(document_url), "/"))
 
 		resp, err := http.Get(STRAPI_URL + string(document_url))
@@ -311,9 +329,8 @@ func GetDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config
 		base64Data := base64.StdEncoding.EncodeToString(data)
 
 		datas = append(datas, U.Dict{
-			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_type"].(U.String),
-			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
-			"size":   list[i].(U.Dict)["attributes"].(U.Dict)["file_size"].(U.String),
+			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
+			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
 			"base64": base64Data,
 			"id":     list[i].(U.Dict)["id"].(U.Float64),
 		})
@@ -344,6 +361,12 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 	}
 
 	fmt.Println(me)
+
+	id, ok := me.GetFloat64("id")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
 
 	project_id, ok := ctx.Params.GetString("project_id")
 
@@ -387,11 +410,6 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		return ctx.Error(400, "invalid parameters documents")
 	}
 
-	file_size, ok := document.(map[string]interface{})["size"].(string)
-	if !ok {
-		return ctx.Error(400, "invalid parameters documents")
-	}
-
 	status, upload, err := Strapi.Upload(documentName, documentFile)
 
 	fmt.Println("upload", upload)
@@ -413,17 +431,19 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	id, ok := data.GetFloat64("id")
+	docId, ok := data.GetFloat64("id")
 	if !ok {
 		fmt.Println("failed to get id")
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, documentProject, err := Strapi.Create("document-project-table", U.Dict{
-		"project_id":    project_id,
-		"document_type": document_type,
-		"document":      id,
-		"file_size":     file_size,
+	status, documentProject, err := Strapi.Create("project-documents-table", U.Dict{
+		"project_id":         project_id,
+		"document_title":     document_type,
+		"document_name":      documentName,
+		"document_file_name": documentName,
+		"document":           docId,
+		"creator_id":         id,
 	})
 
 	if err != nil {
@@ -473,7 +493,7 @@ func DeleteDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, _, err = Strapi.Delete("document-project-table", int64(id))
+	status, _, err = Strapi.Delete("project-documents-table", int64(id))
 	if err != nil {
 		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")

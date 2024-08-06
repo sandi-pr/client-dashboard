@@ -2803,6 +2803,138 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "create-contract-project",
+            "path": "/create-contract-project",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateContractProject"
+            },
+            "params": [
+                {
+                    "name": "project_name",
+                    "type": "string"
+                },
+                {
+                    "name": "industry_id",
+                    "type": "number"
+                },
+                {
+                    "name": "project_as",
+                    "type": "string"
+                },
+                {
+                    "name": "duration_start",
+                    "type": "date"
+                },
+                {
+                    "name": "duration_end",
+                    "type": "date"
+                },
+                {
+                    "name": "description",
+                    "type": "text"
+                }
+            ]
+        },
+        {
+            "name": "get-contract-projects",
+            "path": "/get-contract-projects",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetContractProjects"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-contract-project",
+            "path": "/get-contract-project/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetContractProject"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-document-contract-project",
+            "path": "/get-document-contract-project",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDocumentContractProject"
+            },
+            "params": [
+                {
+                    "name": "project_id",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "create-document-project",
+            "path": "/create-document-project",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateDocumentContractProject"
+            },
+            "params": [
+                {
+                    "name": "project_id",
+                    "type": "number"
+                },
+                {
+                    "name": "document",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delete-document-project",
+            "path": "/delete-document-project/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteDocumentContractProject"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {

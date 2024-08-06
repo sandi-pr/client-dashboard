@@ -19,6 +19,7 @@ All Rights Reserved
     width = "w-full",
     placeholder = "select item",
     isOverlay = false,
+    disabled = false,
   } = $props();
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
@@ -33,12 +34,12 @@ All Rights Reserved
     class="flex justify-between border-primary-light dark:border-primary-dark"
     color="light"
   >
-    {selectedItem ? items.find((item) => item.value === selectedItem).name : placeholder}
+    {selectedItem === "" ? placeholder : items.find((item) => item.value === selectedItem)?.name}
     <ChevronDownOutline
       class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
     />
   </Button>
-  {#if dropdownOpen && items.length > 0}
+  {#if dropdownOpen && items.length > 0 && !disabled}
     {#if isOverlay}
       <div
         id="dropdown"

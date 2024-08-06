@@ -1,5 +1,13 @@
 <script>
-  import { Typography, InputRw, UploadFile, triggerToast, Dropdown, DocumentProject } from "$lib";
+  import {
+    Typography,
+    InputRw,
+    UploadFile,
+    triggerToast,
+    Dropdown,
+    DocumentProject,
+    triggerLoading,
+  } from "$lib";
   import { Button, Modal, Input } from "flowbite-svelte";
   import { DatePicker } from "@svelte-plugins/datepicker";
   import { _ } from "svelte-i18n";
@@ -10,14 +18,14 @@
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
   import { formatDistanceToNow, format } from "date-fns";
   import PdfViewer from "svelte-pdf";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
-
-  const params = new URLSearchParams(window.location.search);
-  const projectId = params.get("projectId");
+  import { page } from "$app/stores";
 
   const call = new CR3Call(globalThis.location.origin);
+
+  let projectId = $state(null);
 
   let data = $state({});
 
@@ -27,6 +35,14 @@
   let tmpFile = $state([]);
   let tmpDocumentName = $state("");
   let selectedFile = $state(null);
+
+  let industries = $state([]);
+  let role = $state([
+    { name: "Buyer", value: "Buyer" },
+    { name: "Seller", value: "Seller" },
+  ]);
+
+  let selectedIndustry = $state("");
 
   let documentUploads = $state([
     // {
@@ -39,7 +55,7 @@
     // {
     //   name: "Patra Niaga POC",
     // },
-  ])
+  ]);
 
   let otherDocType = $state([]);
 
@@ -98,8 +114,6 @@
             },
           });
 
-          console.log(response);
-
           if (response.status !== 200) {
             console.log(response);
             return;
@@ -151,7 +165,6 @@
             Authorization: "Bearer " + token,
           },
         });
-        console.log(response);
 
         if (response.status !== 200) {
           triggerToast("error");
@@ -183,14 +196,57 @@
     }
   }
 
+  async function getIndustries() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let page = 1;
+      let tmpIndustries = [];
+      while (true) {
+        const response = await call.call("client-dashboard", "get-industries", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            industry_id: selectedIndustry,
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          if (response.result.data.length === 0) {
+            break;
+          } else {
+            tmpIndustries = tmpIndustries.concat(response.result.data);
+            page++;
+          }
+        }
+      }
+
+      let promise = tmpIndustries.map((industry) => {
+        return {
+          value: industry.id,
+          name: industry.attributes.industry_name,
+          description: industry.attributes.industry_description,
+        };
+      });
+
+      industries = await Promise.all(promise);
+    }
+  }
+
   async function getProject() {
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
         const response = await call.call("client-dashboard", "get-contract-project", {
           URLQuery: {},
           URLParams: {
-            id: projectId,
+            id: projectId.toString(),
           },
           Params: {},
           Headers: {
@@ -198,7 +254,13 @@
           },
         });
 
-        console.log("response", response);
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
         if (response.status === 200) {
           if (response.result.data.length === 0) {
             triggerToast("error");
@@ -212,12 +274,19 @@
             URLQuery: {},
             URLParams: {},
             Params: {
-              project_id: projectId,
+              project_id: projectId.toString(),
             },
             Headers: {
               Authorization: "Bearer " + token,
             },
           });
+
+          if (response2.status !== 200) {
+            triggerLoading(false);
+            triggerToast("error");
+            console.log(response2);
+            return;
+          }
 
           if (response2.status === 200) {
             if (response2.result.files !== null) {
@@ -244,40 +313,61 @@
             }
           }
 
+          selectedIndustry = response.result.data[0].attributes.industry_id;
+
+          await getIndustries();
+
           data = {
             name: response.result.data[0].attributes.project_name,
             createdAt: formatDistanceToNow(new Date(response.result.data[0].attributes.createdAt), {
               addSuffix: true,
             }),
-            industry: response.result.data[0].attributes.industry_type,
+            industry: response.result.data[0].attributes.industry_id,
             as: response.result.data[0].attributes.project_as,
             start_date: format(
-              new Date(response.result.data[0].attributes.project_start_date),
+              new Date(response.result.data[0].attributes.duration_start),
               "d MMM yyyy",
             ),
             end_date: format(
-              new Date(response.result.data[0].attributes.project_end_date),
+              new Date(response.result.data[0].attributes.duration_end),
               "d MMM yyyy",
             ),
             description: response.result.data[0].attributes.description,
           };
+
+          triggerLoading(false);
         }
       } catch (error) {
+        triggerLoading(false);
+        triggerToast("error");
         console.log(error);
       }
     }
   }
 
-  onMount(async () => {
-    if (projectId === null) {
-      triggerToast("error");
-      setTimeout(async () => {
+  onMount(() => {
+    const unsubscribe = page.subscribe(async ($page) => {
+      projectId = $page.url.searchParams.get("projectId");
+      if (projectId !== null) {
+        getProject();
+      } else {
+        triggerToast("error");
         goto(await call.getPage("client-dashboard", "contract-project-list"));
-      }, 2000);
-    } else {
-      console.log("projectId", projectId);
-      getProject();
-    }
+      }
+    });
+    return () => unsubscribe();
+  });
+
+  $effect(async () => {
+    const unsubscribe = page.subscribe(async ($page) => {
+      projectId = $page.url.searchParams.get("projectId");
+      if (projectId !== null) {
+        getProject();
+      } else {
+        goto(await call.getPage("client-dashboard", "contract-project-list"));
+      }
+    });
+    onDestroy(() => unsubscribe());
   });
 </script>
 
@@ -322,8 +412,9 @@
           <Dropdown
             dropdownOpen={false}
             selectedItem={data.industry}
-            items={[]}
+            items={industries}
             isOverlay={true}
+            disabled={true}
           />
         </div>
         <div class="flex w-max flex-col gap-1.5">
@@ -331,8 +422,9 @@
           <Dropdown
             dropdownOpen={false}
             selectedItem={data.as}
-            items={[]}
+            items={role}
             isOverlay={true}
+            disabled={true}
           />
         </div>
         <div class="flex grow flex-col gap-1.5">
@@ -379,7 +471,7 @@
             title={docType.title}
             handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
             file={getFileByType(docType.type, data.as)}
-            rules={rules}
+            {rules}
             placeholderDropdown={$_("setRules")}
             actionButton={true}
             actionView={() => (
@@ -433,7 +525,11 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
-      <Input bind:value={tmpDocumentName} placeholder={$_("name")} class="bg-primary-light dark:bg-primary-dark" />
+      <Input
+        bind:value={tmpDocumentName}
+        placeholder={$_("name")}
+        class="bg-primary-light dark:bg-primary-dark"
+      />
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
@@ -444,6 +540,8 @@
     />
   </div>
   <svelte:fragment slot="footer">
-    <Button on:click={addOtherDocument} disabled={tmpFile.length === 0 || !tmpDocumentName}>{$_("add")}</Button>
+    <Button on:click={addOtherDocument} disabled={tmpFile.length === 0 || !tmpDocumentName}
+      >{$_("add")}</Button
+    >
   </svelte:fragment>
 </Modal>

@@ -11,7 +11,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { Modal, Button, Input } from "flowbite-svelte";
-  import { Typography, triggerToast, StateCard } from "$lib";
+  import { Typography, triggerToast, StateCard, triggerLoading } from "$lib";
   import * as Icon from "flowbite-svelte-icons";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -30,6 +30,8 @@ All Rights Reserved
   let datas = $state([]);
 
   async function createRules() {
+    addRulesModal = false;
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -45,13 +47,15 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
+          addRulesModal = true;
           triggerToast("error");
           console.log(response);
           return;
         }
 
+        triggerLoading(false);
         triggerToast("created");
-        addRulesModal = false;
         tmpRulesName = "";
         getRules();
         goto(
@@ -60,8 +64,9 @@ All Rights Reserved
             response.result.id,
         );
       } catch (error) {
+        triggerLoading(false);
         triggerToast("error");
-        addRulesModal = false;
+        addRulesModal = true;
         console.log(error);
       }
     }

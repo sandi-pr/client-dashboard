@@ -8,7 +8,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { Typography, StateCard, Dropdown } from "$lib";
+  import { Typography, StateCard, Dropdown, triggerToast, triggerLoading } from "$lib";
   import { Button, Modal, Input, Textarea } from "flowbite-svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -45,8 +45,8 @@ All Rights Reserved
   let industries = $state([]);
 
   let role = $state([
-    { name: "Buyer", value: "buyer" },
-    { name: "Seller", value: "seller" },
+    { name: "Buyer", value: "Buyer" },
+    { name: "Seller", value: "Seller" },
   ]);
 
   let configs = $state({});
@@ -54,6 +54,9 @@ All Rights Reserved
   let datas = $state([]);
 
   async function getProjects() {
+    triggerLoading(true);
+    await getIndustries();
+
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -68,10 +71,15 @@ All Rights Reserved
             Authorization: "Bearer " + token,
           },
         });
-        console.log("response", response);
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
         if (response.status === 200) {
           configs = {
-            search: true,
             pagination: response.result.meta.pagination,
           };
           let url = await call.getPage("client-dashboard", "contract-project-detail");
@@ -79,9 +87,11 @@ All Rights Reserved
             return {
               id: project.id,
               project_name: project.attributes.project_name,
-              industry: project.attributes.industry_type,
-              start_date: format(new Date(project.attributes.project_start_date), "dd/MM/yyyy"),
-              end_date: format(new Date(project.attributes.project_end_date), "dd/MM/yyyy"),
+              industry:
+                industries.find((industry) => industry.value === project.attributes.industry_id)
+                  ?.name || project.attributes.industry_id,
+              start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
+              end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
               actions: {
                 objects: [
                   {
@@ -95,8 +105,12 @@ All Rights Reserved
 
           datas = await Promise.all(promise);
           console.log("datas", datas);
+
+          triggerLoading(false);
         }
       } catch (error) {
+        triggerLoading(false);
+        triggerToast("error");
         console.log(error);
       }
     }
@@ -169,30 +183,45 @@ All Rights Reserved
     formattedEndDate = formatDate(endDate);
   });
 
-  function createProject() {
+  async function createProject() {
+    addProjectModal = false;
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = call.call("client-dashboard", "create-contract-project", {
+        const response = await call.call("client-dashboard", "create-contract-project", {
           URLQuery: {},
           URLParams: {},
           Params: {
             project_name: tmpProjectName,
-            industry_type: selectedIndustry,
+            industry_id: selectedIndustry,
             project_as: selectedRole,
-            project_start_date: format(new Date(startDate), "yyyy-MM-dd"),
-            project_end_date: format(new Date(endDate), "yyyy-MM-dd"),
-            project_description: tmpProjectDescription,
+            duration_start: format(new Date(startDate), "yyyy-MM-dd"),
+            duration_end: format(new Date(endDate), "yyyy-MM-dd"),
+            description: tmpProjectDescription,
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
-        if (response.status === 200) {
-          triggerToast("created");
-          addProjectModal = false;
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          addProjectModal = true;
         }
+
+        triggerLoading(false);
+        tmpProjectName = "";
+        tmpProjectDescription = "";
+        selectedIndustry = "";
+        selectedRole = "Buyer";
+        startDate = null;
+        endDate = null;
+        triggerToast("created");
+        getProjects();
       } catch (error) {
+        triggerLoading(false);
         triggerToast("error");
         addProjectModal = false;
         console.log(error);
@@ -202,7 +231,6 @@ All Rights Reserved
 
   onMount(async () => {
     getProjects();
-    getIndustries();
   });
 </script>
 
@@ -244,7 +272,7 @@ All Rights Reserved
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
       <Dropdown
         dropdownOpen={dropdownIndustryOpen}
-        selectedItem={selectedIndustry}
+        bind:selectedItem={selectedIndustry}
         items={industries}
         placeholder={$_("selectIndustry")}
         isOverlay={true}
@@ -256,7 +284,7 @@ All Rights Reserved
         <Dropdown
           width="w-min"
           dropdownOpen={dropdownRole}
-          selectedItem={selectedRole}
+          bind:selectedItem={selectedRole}
           items={role}
           isOverlay={true}
         />

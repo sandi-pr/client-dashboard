@@ -11,7 +11,7 @@ All Rights Reserved
 <script>
   import { onMount, onDestroy } from "svelte";
   import { Modal, Button, Input, Textarea, Heading, P } from "flowbite-svelte";
-  import { Typography, Dropdown, triggerToast, StateCard } from "$lib";
+  import { Typography, Dropdown, triggerToast, StateCard, triggerLoading } from "$lib";
   import * as Icon from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { _ } from "svelte-i18n";
@@ -34,6 +34,7 @@ All Rights Reserved
   let datas = $state({});
 
   async function getRulesSections() {
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -49,6 +50,7 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
           console.log(response);
           return;
@@ -66,6 +68,7 @@ All Rights Reserved
         });
 
         if (response2.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
           console.log(response2);
           return;
@@ -87,13 +90,19 @@ All Rights Reserved
                   };
                 }),
         };
+
+        triggerLoading(false);
       } catch (error) {
+        triggerLoading(false);
+        triggerToast("error");
         console.log(error);
       }
     }
   }
 
   async function createRulesSections() {
+    addRulesSectionsModal = false;
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -112,22 +121,29 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
+          addRulesSectionsModal = true;
           console.log(response);
           return;
         }
 
+        triggerLoading(false);
         formData = { title: "", prompt: "", sample: "" };
         triggerToast("created");
         addRulesSectionsModal = false;
         getRulesSections();
       } catch (error) {
+        triggerLoading(false);
+        triggerToast("error");
         console.log(error);
       }
     }
   }
 
   async function deleteSection() {
+    deleteModal = false;
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -143,13 +159,14 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
           console.log(response);
           return;
         }
 
+        triggerLoading(false);
         triggerToast("deleted");
-        deleteModal = false;
         getRulesSections();
       } catch (error) {
         console.log(error);
@@ -158,6 +175,8 @@ All Rights Reserved
   }
 
   async function editSection() {
+    addRulesSectionsModal = false;
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -177,13 +196,15 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
+          addRulesSectionsModal = true;
           console.log(response);
           return;
         }
 
+        triggerLoading(false);
         triggerToast("updated");
-        addRulesSectionsModal = false;
         formData = { title: "", prompt: "", sample: "" };
         edit = false;
         getRulesSections();
