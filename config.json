@@ -2681,6 +2681,23 @@
             ]
         },
         {
+            "name": "get-ids-reference",
+            "path": "/get-ids-reference",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetIdsReference"
+            },
+            "params": [
+                {
+                    "name": "industry_id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
             "name": "create-contract-rules",
             "path": "/create-contract-rules",
             "method": "POST",

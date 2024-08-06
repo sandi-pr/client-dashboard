@@ -385,6 +385,49 @@
     }
   }
 
+  async function generatedAI() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "get-ids-reference", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          industry_id: data.industry,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        triggerToast("error");
+        console.log(response);
+        return;
+      }
+
+      const response2 = await call.call("hexa-ai-contract-review", "generate", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          rag_ids_reference: response.result.ids_reference,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("generate", response2);
+
+      if (response2.status !== 200) {
+        triggerToast("error");
+        console.log(response2);
+        return;
+      }
+    }
+
+    return;
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
       projectId = $page.url.searchParams.get("projectId");
@@ -513,8 +556,8 @@
               asTmp = data.as;
               deleteModal = true;
             }}
-            actionGenerate={async () => {
-              goto(await call.getPage("client-dashboard", "contract-project-review"));
+            actionGenerate={() => {
+              generatedAI();
             }}
           />
         {/each}

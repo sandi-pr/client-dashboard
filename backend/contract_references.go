@@ -228,6 +228,73 @@ func UpdateReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.R
 	return 200, U.Dict{"data": update}, nil
 }
 
+func GetIdsReference(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	industry_id, ok := ctx.Params.GetFloat64("industry_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters industry_id")
+	}
+
+	status, data, err := Strapi.Find("references-document-table", U.Dict{
+		"filters": U.Dict{
+			"industry_id": U.Dict{
+				"$eq": industry_id,
+			},
+		},
+		"populate": "*",
+		"sort":     "id:desc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(data)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := data.GetList("data")
+	if !ok {
+		return 200, U.Dict{"data": []U.Dict{}}, nil
+	}
+
+	var ids []int
+	for i := 0; i < len(list); i++ {
+		id, ok := list[i].(U.Dict).GetFloat64("id")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		ids = append(ids, int(id))
+	}
+
+	return 200, U.Dict{"ids_reference": ids}, nil
+}
+
 func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
