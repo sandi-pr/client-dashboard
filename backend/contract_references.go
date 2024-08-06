@@ -171,6 +171,63 @@ func CreateReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.R
 	return 200, U.Dict{"data": datas}, nil
 }
 
+func UpdateReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idString, ok := ctx.URLParams.GetString("id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.ParseInt(idString, 64)
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	rag_id, ok := ctx.Params.GetString("rag_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters rag_id")
+	}
+
+	status, update, err := Strapi.Update("references-document-table", id, U.Dict{
+		"rag_id": rag_id,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(update)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{"data": update}, nil
+}
+
 func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")

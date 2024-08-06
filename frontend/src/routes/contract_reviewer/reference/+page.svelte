@@ -144,7 +144,7 @@
 
       for (let i = 0; i < files.length; i++) {
         if (files[i].id === 0) {
-          const response2 = await call.call("client-dashboard", "create-references-document", {
+          const response = await call.call("client-dashboard", "create-references-document", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -155,9 +155,62 @@
               Authorization: "Bearer " + token,
             },
           });
-          console.log(response2);
+          console.log(response);
+
+          if (response.status !== 200) {
+            triggerLoading(false);
+            if (role === "Seller") {
+              addSellerDocumentModal = true;
+            } else if (role === "Buyer") {
+              addBuyerDocumentModal = true;
+            }
+            triggerToast("error");
+            break;
+          }
+
+          files[i].id = response.result.data[0].id;
+
+          const response2 = await call.call("hexa-ai-contract-review", "storing-to-rag", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              document_base64: files[i].base64,
+              document_id: response.result.data[0].id,
+              document_name: tmpDocumentName,
+              document_type: "reference",
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log("storing", response2);
 
           if (response2.status !== 200) {
+            triggerLoading(false);
+            if (role === "Seller") {
+              addSellerDocumentModal = true;
+            } else if (role === "Buyer") {
+              addBuyerDocumentModal = true;
+            }
+            triggerToast("error");
+            break;
+          }
+
+          const response3 = await call.call("client-dashboard", "update-references-document", {
+            URLQuery: {},
+            URLParams: {
+              id: files[i].id.toString(),
+            },
+            Params: {
+              rag_id: response2.result.rag_id,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response3.status !== 200) {
             triggerLoading(false);
             if (role === "Seller") {
               addSellerDocumentModal = true;
@@ -179,8 +232,6 @@
               type: tmpDocumentName,
             });
           }
-
-          files[i].id = response2.result.data[0].id;
         }
       }
 

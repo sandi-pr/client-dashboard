@@ -2649,6 +2649,34 @@
                 {
                     "name": "industry_id",
                     "type": "number"
+                },
+                {
+                    "name": "references",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-references-document",
+            "path": "/update-references-document/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateReferencesDocument"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "rag_id",
+                    "type": "string"
                 }
             ]
         },
@@ -3710,6 +3738,9 @@
                     },
                     "document_media_id": {
                         "type": "media"
+                    },
+                    "rag_id": {
+                        "type": "string"
                     },
                     "creator_id": {
                         "type": "integer"
