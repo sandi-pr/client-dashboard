@@ -281,7 +281,7 @@ func GetIdsReference(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTP
 		return 200, U.Dict{"data": []U.Dict{}}, nil
 	}
 
-	var ids []int
+	var ids []string
 	for i := 0; i < len(list); i++ {
 		id, ok := list[i].(U.Dict).GetFloat64("id")
 
@@ -289,7 +289,8 @@ func GetIdsReference(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTP
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		ids = append(ids, int(id))
+		idStr := fmt.Sprintf("%f", id)
+		ids = append(ids, idStr)
 	}
 
 	return 200, U.Dict{"ids_reference": ids}, nil
