@@ -526,6 +526,64 @@ func DeleteDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 	return 200, U.Dict{}, nil
 }
 
+func UpdateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idString, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(idString))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	rag_id, ok := ctx.Params.GetString("rag_id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, document, err := Strapi.Update("project-documents-table", int64(id), U.Dict{
+		"rag_id": rag_id,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(document)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, document, nil
+}
+
 func GetIdsProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
