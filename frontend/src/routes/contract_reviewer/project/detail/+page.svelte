@@ -474,6 +474,8 @@
 
         let result = [];
 
+        const idsReferenceString = response.result.ids_reference.join(", ");
+
         for (let i = 0; i < response2.result.data.length; i++) {
           const section_title = response2.result.data[i].attributes.section_title;
           const section_prompt = response2.result.data[i].attributes.section_prompt;
@@ -483,8 +485,8 @@
             URLQuery: {},
             URLParams: {},
             Params: {
-              rag_ids_reference: response.result.ids_reference,
-              rag_ids_project: [file.rag_id.toString()],
+              rag_ids_reference: idsReferenceString,
+              rag_ids_project: file.rag_id.toString(),
               section_title: section_title,
               section_prompt: section_prompt,
               section_sample: section_sample,
@@ -633,13 +635,9 @@
               disabled={true}
             />
           </div>
-        </div> 
+        </div>
         <div class="flex grow flex-col gap-1.5">
-          <Typography
-            preset="Text sm/medium"
-            color="secondary"
-            text={`${$_("projectDuration")}`}
-          />
+          <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}`} />
           <DatePicker
             isOpen={false}
             startDate={data.start_date}
