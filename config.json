@@ -3045,6 +3045,24 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "get-contract-project-result",
+            "path": "/get-contract-project-result/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetContractProjectResult"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {

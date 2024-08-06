@@ -27,12 +27,7 @@
   let pdfData = $state([null, null, null, null]);
   let base64Data = $state();
   let fileUrl = $state(null);
-  let datas = $state([
-    {
-      section: "Section 1",
-      result: "Result 1",
-    },
-  ]);
+  let datas = $state([]);
   let dummyDatas = $state([
     {
       id: 1,
@@ -222,10 +217,39 @@
   // });
 
   async function getProjectResult() {
+    datas = [];
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-contract-project-result", {});
+        let response = await call.call("client-dashboard", "get-contract-project-result", {
+          URLQuery: {},
+          URLParams: {
+            id: projectDocumentId,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        let index = 0;
+
+        let promise = response.result.data[0].attributes.result.map((data) => {
+          index++;
+          return {
+            id: index,
+            section: data.section,
+            result: data.result,
+          };
+        });
+
+        datas = await Promise.all(promise);
       } catch (error) {
         console.log(error);
       }
@@ -234,8 +258,8 @@
 
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
-      projectId = $page.url.searchParams.get("projectId");
-      if (projectId !== null) {
+      projectDocumentId = $page.url.searchParams.get("projectDocumentId");
+      if (projectDocumentId !== null) {
         getProjectResult();
       } else {
         triggerToast("error");
@@ -247,8 +271,8 @@
 
   $effect(async () => {
     const unsubscribe = page.subscribe(async ($page) => {
-      projectId = $page.url.searchParams.get("projectId");
-      if (projectId !== null) {
+      projectDocumentId = $page.url.searchParams.get("projectDocumentId");
+      if (projectDocumentId !== null) {
         getProjectResult();
       } else {
         goto(await call.getPage("client-dashboard", "contract-project-list"));

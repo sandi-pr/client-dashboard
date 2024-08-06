@@ -539,7 +539,7 @@
         // goto(
         //   (await call.getPage("client-dashboard", "contract-project-review")) +
         //     "?projectDocumentId=" +
-        //     projectDocumentId,
+        //     rsponse4.result.data.id.toString(),
         // );
       } catch (error) {
         triggerLoading(false);
