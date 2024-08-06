@@ -10,6 +10,7 @@
   import { ChevronDownOutline, RefreshOutline } from "flowbite-svelte-icons";
   import templatePdf from "$lib/template.pdf";
   // import PdfViewer from 'svelte-pdf-scrollable';
+  import DataTable from "$lib/components/DataTable.svelte";
   import DataTableAiReview from "$lib/components/DataTableAIReview.svelte";
   // import { Svroller, Svrollbar } from 'svrollbar';
 
@@ -23,6 +24,12 @@
   let base64Data = $state();
   let fileUrl = $state(null);
   let datas = $state([
+    {
+      section: "Section 1",
+      result: "Result 1",
+    }
+  ]);
+  let dummyDatas = $state([
     {
       id: 1,
       no: 1,
@@ -206,7 +213,7 @@
   }
 
   onMount(async () => {
-    await getDocument(1);
+    // await getDocument(1);
     await createPdfUrl();
   });
 </script>
@@ -228,7 +235,7 @@
         &nbsp;
         {$_("seeReferencedDoc")}
       </Button> -->
-      <Button outline on:click={() => {}} color="light" class="h-max">
+      <!-- <Button outline on:click={() => {}} color="light" class="h-max">
         <FileDownloadIcon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
         &nbsp;
         {$_("generateNewDocs")}
@@ -237,7 +244,7 @@
         <DownloadIcon svgClass="w-5 h-5 text-white" />
         &nbsp;
         {$_("download")}</Button
-      >
+      > -->
     </div>
   </div>
   <Divider />
@@ -246,7 +253,7 @@
       <!-- <div onfocusout={handleDropdownFocusLoss} class="flex flex-col gap-1 w-full"> -->
       <div class="flex flex-col gap-6 w-full">
         <!-- document section -->
-        <Button
+        <!-- <Button
           on:click={() => (dropdownToggle[0] = !dropdownToggle[0])}
           class="flex justify-between border-primary-light dark:border-primary-dark bg-secondary-light dark:bg-secondary-dark"
           color="light"
@@ -278,10 +285,10 @@
           </div>
         {/if}
 
-        <Divider />
+        <Divider /> -->
 
         <!-- first table section -->
-        <Button
+        <!-- <Button
           on:click={() => (dropdownToggle[1] = !dropdownToggle[1])}
           class="flex justify-between border-primary-light dark:border-primary-dark bg-secondary-light dark:bg-secondary-dark"
           color="light"
@@ -292,14 +299,15 @@
           <ChevronDownOutline
             class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
           />
-        </Button>
+        </Button> -->
         {#if dropdownToggle[1]}
-          <DataTableAiReview
+          <!-- <DataTableAiReview
             bind:datas
             bind:configs
             bind:next={nextGTC}
             bind:previous={previousGTC}
-          />
+          /> -->
+          <DataTable bind:datas />
         {/if}
       </div>
     </div>
