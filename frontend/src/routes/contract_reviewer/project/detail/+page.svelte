@@ -507,15 +507,12 @@
           });
         }
 
-        let indexDoc = files.findIndex((file) => file.type === type);
-        let projectDocumentId = files[indexDoc].id;
-
         let response4 = await call.call("client-dashboard", "create-project-results", {
           URLQuery: {},
           URLParams: {},
           Params: {
             project_id: projectId.toString(),
-            project_document_id: projectDocumentId.toString(),
+            project_document_id: file.id.toString(),
             results: JSON.stringify(result),
             contract_rule_id: data.contract_rule_id.toString(),
             generated_at: new Date().toISOString(),
@@ -679,7 +676,7 @@
                 deleteModal = true;
               }}
               actionGenerate={() => {
-                const index = files.findIndex((file) => file.type === type && file.role === role);
+                const index = files.findIndex((file) => file.type === docType.type);
                 generatedAI(files[index]);
               }}
             />
