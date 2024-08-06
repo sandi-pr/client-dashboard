@@ -2659,7 +2659,7 @@
         {
             "name": "update-references-document",
             "path": "/update-references-document/:id",
-            "method": "PUT",
+            "method": "POST",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
@@ -2967,6 +2967,30 @@
                 }
             ]
         },
+        {
+            "name": "update-project-document",
+            "path": "/update-project-document/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateDocumentContractProject"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "rag_id",
+                    "type": "string"
+                }
+            ]
+        }
         {
             "name": "delete-document-project",
             "path": "/delete-document-project/:id",

@@ -176,7 +176,7 @@
             Params: {
               document_base64: files[i].base64,
               document_id: response.result.data[0].id.toString(),
-              document_name: tmpDocumentName,
+              document_name: files[i].name,
               document_type: "reference",
             },
             Headers: {
@@ -580,7 +580,11 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
-      <Input bind:value={tmpDocumentName} placeholder={$_("name")} class="bg-primary-light dark:bg-gray-800" />
+      <Input
+        bind:value={tmpDocumentName}
+        placeholder={$_("name")}
+        class="bg-primary-light dark:bg-gray-800"
+      />
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
