@@ -49,6 +49,7 @@ All Rights Reserved
   let dateFormat = $state("d MMM yyyy");
   let formattedStartDate = $state("");
   let formattedEndDate = $state("");
+  let rulesTmp = $state([]);
 
   let industries = $state([]);
 

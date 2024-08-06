@@ -37,6 +37,7 @@ All Rights Reserved
   let dateFormat = $state("d MMM yyyy");
   let formattedStartDate = $state("");
   let formattedEndDate = $state("");
+  let rulesTmp = $state([]);
   let pagination = $state({
     page: 1,
     pageSize: 10,
