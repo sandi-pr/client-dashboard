@@ -360,11 +360,11 @@ All Rights Reserved
   </div>
   <div class="flex flex-col gap-1.5">
     <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesSectionPrompt")}*`} />
-    <Input bind:value={formData.prompt} placeholder={$_("whatIsYourRulesSectionsPrompt")} />
+    <Textarea bind:value={formData.prompt} placeholder={$_("whatIsYourRulesSectionsPrompt")} />
   </div>
   <div class="flex flex-col gap-1.5">
     <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesSectionSample")}*`} />
-    <Input bind:value={formData.sample} placeholder={$_("whatIsYourRulesSectionsSample")} />
+    <Textarea bind:value={formData.sample} placeholder={$_("whatIsYourRulesSectionsSample")} />
   </div>
   <svelte:fragment slot="footer">
     <Button
