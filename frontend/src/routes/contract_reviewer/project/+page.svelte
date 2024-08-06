@@ -245,6 +245,7 @@ All Rights Reserved
           Params: {
             project_name: tmpProjectName,
             industry_id: selectedIndustry,
+            contract_rule_id: selectedRules,
             project_as: selectedRole,
             duration_start: format(new Date(startDate), "yyyy-MM-dd"),
             duration_end: format(new Date(endDate), "yyyy-MM-dd"),
