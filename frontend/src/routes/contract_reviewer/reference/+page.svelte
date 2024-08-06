@@ -515,7 +515,7 @@
             color="light"
           >
             <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-            {$_("addComplianceDocs")}
+            {$_("addReferenceDocs")}
           </Button>
         </div>
       </div>
@@ -557,7 +557,7 @@
             color="light"
           >
             <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-            {$_("addComplianceDocs")}
+            {$_("addReferenceDocs")}
           </Button>
         </div>
       </div>

@@ -187,6 +187,49 @@
           return;
         }
 
+        const response2 = await call.call("hexa-ai-contract-review", "storing-to-rag", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            document_base64: tmpFile.base64,
+            document_id: response.result.data[0].id.toString(),
+            document_name: tmpDocumentName,
+            document_type: "project",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          addNewDocumentModal = true;
+          console.log(response2);
+          return;
+        }
+
+        const response3 = await call.call("client-dashboard", "update-project-document", {
+          URLQuery: {},
+          URLParams: {
+            id: response.result.data[0].id.toString(),
+          },
+          Params: {
+            rag_id: response2.result.rag_id,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response3.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          addNewDocumentModal = true;
+          console.log(response3);
+          return;
+        }
+
         triggerLoading(false);
         files.push(tmpFile);
         triggerToast("created");

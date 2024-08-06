@@ -459,5 +459,6 @@
   "addComplianceDocs": "Tambahkan dokumen",
   "generateNewDocs": "Generate Dokumen Baru",
   "download": "Unduh",
-  "seeReferencedDoc": "Lihat dokumen referensi"
+  "seeReferencedDoc": "Lihat dokumen referensi",
+  "addReferenceDocs": "Tambahkan dokumen referensi"
 }
