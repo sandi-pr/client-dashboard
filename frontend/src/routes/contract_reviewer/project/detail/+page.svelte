@@ -523,9 +523,9 @@
             contract_rule_id: data.contract_rule_id.toString(),
             generated_at: new Date().toISOString(),
             status: "Generated",
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
           },
         });
 
