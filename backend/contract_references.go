@@ -210,7 +210,7 @@ func UpdateReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		return ctx.Error(400, "invalid parameters rag_id")
 	}
 
-	status, update, err := Strapi.Update("references-document-table", id, U.Dict{
+	status, update, err := Strapi.Update("references-document-table", int64(id), U.Dict{
 		"rag_id": rag_id,
 	})
 
