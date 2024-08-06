@@ -538,11 +538,11 @@
 
         triggerLoading(false);
         triggerToast("created");
-        // goto(
-        //   (await call.getPage("client-dashboard", "contract-project-review")) +
-        //     "?projectDocumentId=" +
-        //     rsponse4.result.data.id.toString(),
-        // );
+        goto(
+          (await call.getPage("client-dashboard", "contract-project-review")) +
+            "?projectDocumentId=" +
+            response4.result.data.id.toString(),
+        );
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");
