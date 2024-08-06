@@ -384,7 +384,6 @@
   "addOtherComplianceDocs": "Add other compliance docs",
   "documentGtc": "Document GTC",
   "gtcAmendment": "GTC Amendment",
-  "tradeConfirmation": "Trade Confirmation",
   "dealDoneDocument": "Deal Done Document",
   "documentViewer": "Document Viewer",
   "projectList": "Project List",
@@ -454,5 +453,7 @@
   "manageRules": "Manage Rules",
   "descManageRules": "This rules will be used to configure how the AI reads document",
   "rules": "Rules",
-  "industries": "Industries"
+  "industries": "Industries",
+  "generatedDocument": "Generated Document",
+  "summaryOfFindings": "Summary of Findings"
 }
