@@ -172,56 +172,56 @@
 
           files[i].id = response.result.data[0].id;
 
-          const response2 = await call.call("hexa-ai-contract-review", "storing-to-rag", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              document_base64: files[i].base64,
-              document_id: response.result.data[0].id.toString(),
-              document_name: files[i].name,
-              document_type: "reference",
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          // const response2 = await call.call("hexa-ai-contract-review", "storing-to-rag", {
+          //   URLQuery: {},
+          //   URLParams: {},
+          //   Params: {
+          //     document_base64: files[i].base64,
+          //     document_id: response.result.data[0].id.toString(),
+          //     document_name: files[i].name,
+          //     document_type: "reference",
+          //   },
+          //   Headers: {
+          //     Authorization: "Bearer " + token,
+          //   },
+          // });
 
-          console.log("storing", response2);
+          // console.log("storing", response2);
 
-          if (response2.status !== 200) {
-            triggerLoading(false);
-            if (role === "Seller") {
-              addSellerDocumentModal = true;
-            } else if (role === "Buyer") {
-              addBuyerDocumentModal = true;
-            }
-            triggerToast("error");
-            break;
-          }
+          // if (response2.status !== 200) {
+          //   triggerLoading(false);
+          //   if (role === "Seller") {
+          //     addSellerDocumentModal = true;
+          //   } else if (role === "Buyer") {
+          //     addBuyerDocumentModal = true;
+          //   }
+          //   triggerToast("error");
+          //   break;
+          // }
 
-          const response3 = await call.call("client-dashboard", "update-references-document", {
-            URLQuery: {},
-            URLParams: {
-              id: files[i].id.toString(),
-            },
-            Params: {
-              rag_id: response2.result.rag_id,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          // const response3 = await call.call("client-dashboard", "update-references-document", {
+          //   URLQuery: {},
+          //   URLParams: {
+          //     id: files[i].id.toString(),
+          //   },
+          //   Params: {
+          //     rag_id: response2.result.rag_id,
+          //   },
+          //   Headers: {
+          //     Authorization: "Bearer " + token,
+          //   },
+          // });
 
-          if (response3.status !== 200) {
-            triggerLoading(false);
-            if (role === "Seller") {
-              addSellerDocumentModal = true;
-            } else if (role === "Buyer") {
-              addBuyerDocumentModal = true;
-            }
-            triggerToast("error");
-            break;
-          }
+          // if (response3.status !== 200) {
+          //   triggerLoading(false);
+          //   if (role === "Seller") {
+          //     addSellerDocumentModal = true;
+          //   } else if (role === "Buyer") {
+          //     addBuyerDocumentModal = true;
+          //   }
+          //   triggerToast("error");
+          //   break;
+          // }
 
           if (role === "Seller") {
             sellerDocuments.push({
