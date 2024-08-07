@@ -295,8 +295,8 @@
           index++;
           return {
             id: index,
-            section: data.section,
-            result: data.result,
+            section: data.title,
+            result: data.text,
           };
         });
 

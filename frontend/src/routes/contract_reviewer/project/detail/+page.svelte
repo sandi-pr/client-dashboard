@@ -427,9 +427,7 @@
 
           if (response2.status !== 200) {
             triggerLoading(false);
-            triggerToast("error");
             console.log(response2);
-            return;
           }
 
           if (response2.result.ready === true) {
@@ -453,8 +451,10 @@
             }
 
             if (response3.status === 200) {
+              triggerToast("created");
               triggerLoading(false);
-              goResultPage(file.id);
+              getStatusGenerated();
+              // goResultPage(file.id);
             }
           } else {
             triggerLoading(false);
@@ -513,9 +513,7 @@
 
         if (response3.status !== 200) {
           triggerLoading(false);
-          triggerToast("error");
           console.log(response3);
-          return;
         }
 
         files = [];
@@ -595,11 +593,11 @@
         }
 
         triggerLoading(false);
-        goto(
-          (await call.getPage("client-dashboard", "contract-project-review")) +
-            "?projectDocumentId=" +
-            response.result.data[0].id,
-        );
+        // goto(
+        //   (await call.getPage("client-dashboard", "contract-project-review")) +
+        //     "?projectDocumentId=" +
+        //     response.result.data[0].id,
+        // );
       } catch (error) {
         console.log(error);
       }

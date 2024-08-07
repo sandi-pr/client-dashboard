@@ -3968,6 +3968,9 @@
                     "status": {
                         "type": "string"
                     },
+                    "generated_status": {
+                        "type": "string"
+                    },
                     "creator_id": {
                         "type": "integer"
                     }
