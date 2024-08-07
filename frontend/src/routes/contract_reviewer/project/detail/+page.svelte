@@ -388,24 +388,34 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "check-reference-rag", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            industry_id: selectedIndustry,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if ((response.result.ready = true)) {
-          const response2 = await call.call("hexa-ai-contract-review", "generate-review", {
+        const response = await call.call(
+          "client-dashboard",
+          "get-contract-project-result-with-document-id",
+          {
             URLQuery: {},
             URLParams: {},
             Params: {
-              project_id: projectId.toString(),
               project_document_id: file.id.toString(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          triggerLoading(false);
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length === 0) {
+          const response2 = await call.call("client-dashboard", "check-reference-rag", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              industry_id: selectedIndustry,
             },
             Headers: {
               Authorization: "Bearer " + token,
@@ -419,13 +429,40 @@
             return;
           }
 
-          if (response2.status === 200) {
+          if (response2.result.ready === true) {
+            const response3 = await call.call("hexa-ai-contract-review", "generate-review", {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                project_id: projectId.toString(),
+                project_document_id: file.id.toString(),
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
+
+            if (response3.status !== 200) {
+              triggerLoading(false);
+              triggerToast("error");
+              console.log(response3);
+              return;
+            }
+
+            if (response3.status === 200) {
+              triggerLoading(false);
+              goResultPage(file.id);
+            }
+          } else {
             triggerLoading(false);
-            goResultPage(file.id);
+            alert("Please wait for the file to be generated");
           }
         } else {
-          triggerLoading(false);
-          alert("Please wait for the file to be generated");
+          goto(
+            (await call.getPage("client-dashboard", "contract-project-review")) +
+              "?projectDocumentId=" +
+              response.result.data[0].id,
+          );
         }
       } catch (error) {
         console.log(error);
