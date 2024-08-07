@@ -70,7 +70,8 @@
       key !== "recipients" &&
       key !== "category" &&
       key !== "authority" &&
-      key !== "attendance"
+      key !== "attendance" &&
+      key !== "result"
     );
   };
 
@@ -257,6 +258,9 @@
         {#if datas[0]?.country}
           <TableHeadCell>{$_("country")}</TableHeadCell>
         {/if}
+        {#if datas[0]?.result}
+          <TableHeadCell>{$_("result")}</TableHeadCell>
+        {/if}
         {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
           <TableHeadCell></TableHeadCell>
         {/if}
@@ -377,6 +381,17 @@
                       >
                     {/if}
                   </div>
+                </TableBodyCell>
+              {/if}
+            {/each}
+          {/if}
+          {#if datas[0]?.result}
+            {#each Object.keys(datas[0]) as key}
+              {#if key === "result"}
+                <TableBodyCell
+                  class="flex items-center text-hc-graylight-600 dark:text-hc-graydark-400"
+                >
+                  <P size="sm">{data.result}</P>
                 </TableBodyCell>
               {/if}
             {/each}

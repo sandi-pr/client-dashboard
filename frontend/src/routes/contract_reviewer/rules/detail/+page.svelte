@@ -320,6 +320,10 @@ All Rights Reserved
                   <Typography preset="Text sm/Medium" text={$_("extractDataPrompt")} color="secondary" />
                   <TextareaRw value={data.prompt} readonly={edit} />
                 </div>
+                <div class="flex flex-col grow gap-1.5">
+                  <Typography preset="Text sm/Medium" text={$_("sampleOutputPrompt")} color="secondary" />
+                  <TextareaRw value={data.sample} readonly={edit} />
+                </div>
               </div>
             </div>
             <Divider />

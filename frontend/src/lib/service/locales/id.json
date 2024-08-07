@@ -465,5 +465,6 @@
   "startDate": "Tgl. Mulai",
   "extractDataPrompt": "Extract Data Prompt",
   "editResults": "Edit Hasil",
-  "whatIsYourChangeResult": "Apa hasil akhir perubahan Anda?"
+  "whatIsYourChangeResult": "Apa hasil akhir perubahan Anda?",
+  "sampleOutputPrompt": "Contoh Output Prompt"
 }
