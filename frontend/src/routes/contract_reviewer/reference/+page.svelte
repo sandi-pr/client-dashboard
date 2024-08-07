@@ -430,7 +430,7 @@
       try {
         let generated = [];
         for (let i = 0; i < files.length; i++) {
-          if (files[i].status === "finish") {
+          if (files[i].status === "FINISH") {
             generated.push(files[i].id);
             continue;
           } else {
@@ -440,7 +440,7 @@
         }
 
         if (generated.length === files.length) {
-          console.log("finish");
+          console.log("FINISH");
           return;
         } else {
           getReferences();
