@@ -3097,6 +3097,30 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "update-contract-project-result",
+            "path": "/update-contract-project-result/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateContractProjectResult"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "result",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
