@@ -132,6 +132,8 @@
   }
 
   async function deleteFileByType(type, role) {
+    deleteModal = false;
+    triggerLoading(true);
     const index = files.findIndex((file) => file.type === type && file.role === role);
     if (index !== -1) {
       let token = sessionStorage.getItem("token");
@@ -148,6 +150,7 @@
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
           console.log(response);
           return;
@@ -155,6 +158,7 @@
 
         documentUploads = documentUploads.filter((doc) => doc.type !== type);
         triggerToast("deleted");
+        triggerLoading(false);
         files.splice(index, 1);
         if (role === "other") {
           otherDocType = otherDocType.filter((doc) => doc.type !== type);
@@ -208,7 +212,6 @@
         if (response2.status !== 200) {
           triggerLoading(false);
           triggerToast("error");
-          addNewDocumentModal = true;
           console.log(response2);
           return;
         }
