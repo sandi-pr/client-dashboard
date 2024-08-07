@@ -194,14 +194,11 @@
           return;
         }
 
-        const response2 = await call.call("hexa-ai-contract-review", "storing-to-rag", {
+        const response2 = await call.call("hexa-ai-contract-review", "process-to-rag", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            document_base64: tmpFile.base64,
-            document_id: response.result.data.id.toString(),
-            document_name: tmpFile.name,
-            document_type: "project",
+            project_id: projectId.toString(),
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -213,27 +210,6 @@
           triggerToast("error");
           addNewDocumentModal = true;
           console.log(response2);
-          return;
-        }
-
-        const response3 = await call.call("client-dashboard", "update-project-document", {
-          URLQuery: {},
-          URLParams: {
-            id: response.result.data.id.toString(),
-          },
-          Params: {
-            rag_id: response2.result.rag_id,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response3.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          addNewDocumentModal = true;
-          console.log(response3);
           return;
         }
 
@@ -382,10 +358,7 @@
               addSuffix: true,
             }),
             industry: response.result.data[0].attributes.industry_id,
-            contract_rule_id:
-              response.result.data[0].attributes.contract_rule_id !== null
-                ? response.result.data[0].attributes.contract_rule_id
-                : rules[0].value,
+            contract_rule_id: response.result.data[0].attributes.contract_rule_id,
             as: response.result.data[0].attributes.project_as,
             start_date: format(
               new Date(response.result.data[0].attributes.duration_start),
@@ -401,7 +374,24 @@
           ready = true;
 
           if (init) triggerLoading(false);
-          getStatusGenerated();
+
+          const response2 = await call.call("hexa-ai-contract-review", "process-to-rag", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              project_id: projectId.toString(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status !== 200) {
+            triggerLoading(false);
+            triggerToast("error");
+            console.log(response2);
+            return;
+          }
         }
       } catch (error) {
         triggerLoading(false);
@@ -416,26 +406,44 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response2 = await call.call("client-dashboard", "generate", {
+        const response = await call.call("client-dashboard", "check-reference-rag", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            document_id: file.id.toString(),
+            industry_id: selectedIndustry,
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
 
-        if (response2.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response2);
-          return;
-        }
+        if ((response.result.ready = true)) {
+          const response2 = await call.call("hexa-ai-contract-review", "generate-review", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              project_id: projectId.toString(),
+              project_document_id: file.id.toString(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
 
-        if (response2.status === 200) {
+          if (response2.status !== 200) {
+            triggerLoading(false);
+            triggerToast("error");
+            console.log(response2);
+            return;
+          }
+
+          if (response2.status === 200) {
+            triggerLoading(false);
+            goResultPage(file.id);
+          }
+        } else {
           triggerLoading(false);
+          alert("Please wait for the file to be generated");
         }
       } catch (error) {
         console.log(error);
@@ -498,13 +506,14 @@
             continue;
           } else {
             init = false;
-            timer = setTimeout(getDocumentContractProject, 2000);
             break;
           }
         }
 
         if (generated.length === files.length) {
           console.log("finish");
+        } else {
+          getDocumentContractProject();
         }
       } catch (error) {
         console.log(error);
@@ -667,6 +676,11 @@
     <div class="flex gap-3">
       <div class="w-60">
         <Typography preset="Text md/Semibold" text={`${$_("documentUploads")}`} color="secondary" />
+        <button
+          onclick={() => {
+            getStatusGenerated();
+          }}>{$_("checkStatus")}</button
+        >
       </div>
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -688,13 +702,12 @@
               }}
               actionGenerate={() => {
                 const index = files.findIndex((file) => file.type === docType.type);
-                if (files[index].status === "generated") {
-                  goResultPage(files[index].id);
-                } else if (files[index].status === "pending") {
-                  console.log("pending");
-                  alert("Please wait for the file to be generated");
-                } else {
+                console.log(files[index]);
+                if (files[index].status === "finish") {
                   generatedAI(files[index]);
+                } else {
+                  console.log("reading");
+                  alert("Please wait for the file to be generated");
                 }
               }}
             />

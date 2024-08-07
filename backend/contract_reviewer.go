@@ -786,7 +786,7 @@ func GetContractProjectResultWithDocumentId(ctx *config.ConfigContext) (int, U.D
 
 	fmt.Println(me)
 
-	documentIdString, ok := ctx.Params.GetString("document_id")
+	documentIdString, ok := ctx.Params.GetString("project_document_id")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters")

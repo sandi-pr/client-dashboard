@@ -2698,6 +2698,23 @@
             ]
         },
         {
+            "name": "check-reference-rag",
+            "path": "/check-reference-rag",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CheckReferenceRag"
+            },
+            "params": [
+                {
+                    "name": "industry_id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
             "name": "create-contract-rules",
             "path": "/create-contract-rules",
             "method": "POST",
@@ -3076,7 +3093,7 @@
             },
             "params": [
                 {
-                    "name": "document_id",
+                    "name": "project_document_id",
                     "type": "string"
                 }
             ]

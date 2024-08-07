@@ -376,8 +376,6 @@
             });
           }
         });
-
-        getStatusRag();
       }
     } catch (error) {
       console.log(error);
@@ -437,15 +435,15 @@
             continue;
           } else {
             init = false;
-            timer = setTimeout(getReferences, 2000);
             break;
           }
         }
 
         if (generated.length === files.length) {
           console.log("finish");
-          clearTimeout(timer);
           return;
+        } else {
+          getReferences();
         }
       } catch (error) {
         console.log(error);
@@ -525,6 +523,11 @@
     <div class="flex gap-3">
       <div class="w-60">
         <Typography preset="Text md/Semibold" text={`${$_("documents")}`} color="secondary" />
+        <button
+          onclick={() => {
+            getStatusRag();
+          }}>{$_("checkStatus")}</button
+        >
       </div>
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
