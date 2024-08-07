@@ -499,10 +499,29 @@
       }
 
       if (response2.status === 200) {
+        const response3 = await call.call("client-dashboard", "check-reference-rag", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            industry_id: selectedIndustry,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response3.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response3);
+          return;
+        }
+
         files = [];
         documentUploads = [];
         if (response2.result.files !== null) {
           response2.result.files.forEach((file) => {
+            file.status = response3.result.ready === true ? file.status : "PROCESSING";
             file.role = "Buyer";
           });
           files = response2.result.files;

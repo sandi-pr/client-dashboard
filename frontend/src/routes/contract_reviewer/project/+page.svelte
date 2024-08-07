@@ -70,7 +70,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             page: pagination.page,
-            page_size: pagination.pageSize,
+            page_size: 15,
           },
           Headers: {
             Authorization: "Bearer " + token,
