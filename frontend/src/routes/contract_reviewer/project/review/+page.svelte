@@ -304,18 +304,18 @@
             id: index,
             section: data.title,
             result: data.text,
-            actions: {
-              objects: [
-                {
-                  onclick: () => {
-                    tmpTitle = data.title;
-                    tmpText = data.text;
-                    editModal = true;
-                  },
-                  name: "Edit",
-                },
-              ],
-            },
+            // actions: {
+            //   objects: [
+            //     {
+            //       onclick: () => {
+            //         tmpTitle = data.title;
+            //         tmpText = data.text;
+            //         editModal = true;
+            //       },
+            //       name: "Edit",
+            //     },
+            //   ],
+            // },
           };
         });
 

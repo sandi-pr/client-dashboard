@@ -349,8 +349,6 @@
             }, 2000);
           }
 
-          contractReady = await getDocumentContractProject();
-
           selectedIndustry = response.result.data[0].attributes.industry_id;
 
           await getIndustries();
@@ -611,7 +609,8 @@
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
       projectId = $page.url.searchParams.get("projectId");
-      if (projectId !== null) {
+      contractReady = await getDocumentContractProject();
+      if (projectId !== null && contractReady) {
         getProject();
       } else {
         triggerToast("error");
@@ -624,7 +623,8 @@
   $effect(async () => {
     const unsubscribe = page.subscribe(async ($page) => {
       projectId = $page.url.searchParams.get("projectId");
-      if (projectId !== null) {
+      contractReady = await getDocumentContractProject();
+      if (projectId !== null && contractReady) {
         getProject();
       } else {
         goto(await call.getPage("client-dashboard", "contract-project-list"));
