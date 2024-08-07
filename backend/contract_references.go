@@ -359,6 +359,14 @@ func CheckReferenceRag(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 		return 200, U.Dict{"ready": false}, nil
 	}
 
+	if len(list) < 2 {
+		return 200, U.Dict{"ready": false}, nil
+	}
+
+	if len(list) > 2 {
+		return 200, U.Dict{"ready": false}, nil
+	}
+
 	for i := 0; i < len(list); i++ {
 		attributes, ok := list[i].(U.Dict).GetDict("attributes")
 		if !ok {

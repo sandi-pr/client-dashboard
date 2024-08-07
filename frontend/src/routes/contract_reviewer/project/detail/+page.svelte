@@ -523,7 +523,7 @@
       try {
         let generated = [];
         for (let i = 0; i < files.length; i++) {
-          if (files[i].status === "finish") {
+          if (files[i].status === "FINISH") {
             generated.push(files[i].id);
             continue;
           } else {
@@ -533,7 +533,7 @@
         }
 
         if (generated.length === files.length) {
-          console.log("finish");
+          console.log("FINISH");
         } else {
           getDocumentContractProject();
         }
@@ -725,11 +725,14 @@
               actionGenerate={() => {
                 const index = files.findIndex((file) => file.type === docType.type);
                 console.log(files[index]);
-                if (files[index].status === "finish") {
+                if (files[index].status === "FINISH") {
                   generatedAI(files[index]);
-                } else {
-                  console.log("reading");
+                } else if (files[index].status === "PROCESSING") {
+                  console.log("PROCESSING");
                   alert("Please wait for the file to be generated");
+                } else if (files[index].status === "INTERNAL ERROR") {
+                  triggerToast("error");
+                  console.log("INTERNAL ERROR");
                 }
               }}
             />
