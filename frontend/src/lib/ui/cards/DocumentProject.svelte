@@ -131,11 +131,7 @@ All Rights Reserved
         on:click={actionGenerate}
         class="gap-1.5 border-brand-light dark:border-primary-dark"
       >
-        <Typography
-          preset="Text sm/Semibold"
-          text={status === "" ? "AI-Generate" : "See Result Generated"}
-          color="brand-secondary"
-        />
+        <Typography preset="Text sm/Semibold" text={"AI-Generate"} color="brand-secondary" />
         <StarsIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
       </Button>
     </div>
