@@ -329,6 +329,8 @@
     try {
       let page = 1;
       idUploaded = [];
+      sellerDocuments = [];
+      buyerDocuments = [];
       files = [];
 
       while (true) {
