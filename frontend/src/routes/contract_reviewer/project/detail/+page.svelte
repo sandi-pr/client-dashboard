@@ -459,7 +459,7 @@
           } else {
             triggerLoading(false);
             alert(
-              "Please wait for the file to be processed or check document reference only needed 2",
+              "Please wait for the file to be processed or check the document references for industry type usage, there must be 2 documents.",
             );
           }
         } else {
