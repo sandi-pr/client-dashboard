@@ -458,7 +458,9 @@
             }
           } else {
             triggerLoading(false);
-            alert("Please wait for the file to be generated");
+            alert(
+              "Please wait for the file to be processed or check document reference only needed 2",
+            );
           }
         } else {
           goto(
