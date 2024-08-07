@@ -26,7 +26,7 @@
   let projectName = $state("Project Name");
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
-  let dropdownToggle = $state([true, true, false]);
+  let dropdownToggle = $state([true, false, false]);
   let documentViewModal = $state(false);
   let editModal = $state(false);
   let tmpResult = $state([]);
@@ -479,13 +479,14 @@
           />
         </Button> -->
         {#if dropdownToggle[0]}
-          {#if markdown !== null}
-            <div
-              class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
-            >
-              <Markdown md={markdown} {plugins} />
-            </div>
-          {/if}
+          <div
+            class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
+          >
+            {#each datas as data, index}
+              <P class="flex">{`${index + 1}. `}&nbsp<Markdown md={data.result} {plugins} /></P>
+              {#if index < datas.length - 1}<br />{/if}
+            {/each}
+          </div>
         {/if}
         {#if dropdownToggle[1]}
           <!-- <DataTableAiReview
