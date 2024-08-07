@@ -290,7 +290,7 @@
 
         let index = 0;
 
-        markdown = response.result.data[0].attributes.markdown;
+        markdown = response.result.data[0].attributes.result_markdown;
         let promise = response.result.data[0].attributes.result.map((data) => {
           index++;
           return {
@@ -416,11 +416,13 @@
           />
         </Button> -->
         {#if dropdownToggle[0]}
-          <div
-            class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
-          >
-            <Markdown md={markdown} {plugins} />
-          </div>
+          {#if markdown !== null}
+            <div
+              class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
+            >
+              <Markdown md={markdown} {plugins} />
+            </div>
+          {/if}
         {/if}
         {#if dropdownToggle[1]}
           <!-- <DataTableAiReview
