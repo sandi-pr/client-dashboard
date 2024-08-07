@@ -463,5 +463,7 @@
   "addReferenceDocs": "Tambahkan dokumen referensi",
   "selectRules": "Pilih Aturan",
   "startDate": "Tgl. Mulai",
-  "extractDataPrompt": "Extract Data Prompt"
+  "extractDataPrompt": "Extract Data Prompt",
+  "editResults": "Edit Hasil",
+  "whatIsYourChangeResult": "Apa hasil akhir perubahan Anda?"
 }

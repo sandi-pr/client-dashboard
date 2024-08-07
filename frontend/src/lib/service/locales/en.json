@@ -463,5 +463,7 @@
   "addReferenceDocs": "Add reference docs",
   "selectRules": "Select Rules",
   "startDate": "Start Date",
-  "extractDataPrompt": "Extract data Prompt"
+  "extractDataPrompt": "Extract data Prompt",
+  "editResults": "Edit Results",
+  "whatIsYourChangeResult": "What is your change result?"
 }

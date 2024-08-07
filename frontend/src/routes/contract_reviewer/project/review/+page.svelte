@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { Button, Modal, P } from "flowbite-svelte";
-  import { Typography, triggerToast } from "$lib";
+  import { Typography, triggerToast, triggerLoading } from "$lib";
   import PdfViewer from "svelte-pdf";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
@@ -28,6 +28,10 @@
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let dropdownToggle = $state([true, true, false]);
   let documentViewModal = $state(false);
+  let editModal = $state(false);
+  let tmpResult = $state([]);
+  let tmpTitle = $state("");
+  let tmpText = $state("");
   let selectedFile = $state(null);
   let pdfData = $state([null, null, null, null]);
   let base64Data = $state();
@@ -267,6 +271,7 @@
   // });
 
   async function getProjectResult() {
+    triggerLoading(true);
     datas = [];
     let token = sessionStorage.getItem("token");
     if (token !== null) {
@@ -283,6 +288,7 @@
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
           console.log(response);
           return;
@@ -291,16 +297,73 @@
         let index = 0;
 
         markdown = response.result.data[0].attributes.result_markdown;
+        tmpResult = response.result.data[0].attributes.result;
         let promise = response.result.data[0].attributes.result.map((data) => {
           index++;
           return {
             id: index,
             section: data.title,
             result: data.text,
+            actions: {
+              objects: [
+                {
+                  onclick: () => {
+                    tmpTitle = data.title;
+                    tmpText = data.text;
+                    editModal = true;
+                  },
+                  name: "Edit",
+                },
+              ],
+            },
           };
         });
 
         datas = await Promise.all(promise);
+        triggerLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function updateResult() {
+    editModal = false;
+    triggerLoading(true);
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let index = tmpResult.findIndex((data) => data.title === tmpTitle);
+      if (index !== -1) {
+        tmpResult[index].text = tmpText;
+      }
+
+      try {
+        let response = await call.call("client-dashboard", "update-contract-project-result", {
+          URLQuery: {},
+          URLParams: {
+            id: projectDocumentId,
+          },
+          Params: {
+            result: JSON.stringify(tmpResult),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          editModal = true;
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        editModal = false;
+        await getProjectResult();
+
+        triggerToast("updated");
+        triggerLoading(false);
       } catch (error) {
         console.log(error);
       }
@@ -449,4 +512,22 @@
       />
     </div>
   {/if}
+</Modal>
+
+<Modal title={$_("editResult")} bind:open={editModal} size="lg">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={tmpTitle} />
+      <Input bind:value={tmpText} placeholder={$_("whatIsYourChangeResult")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button
+      onclick={() => {
+        updateResult();
+      }}
+      class="w-full"
+      disabled={buttonDisabled}>{$_("change")}</Button
+    >
+  </svelte:fragment>
 </Modal>
