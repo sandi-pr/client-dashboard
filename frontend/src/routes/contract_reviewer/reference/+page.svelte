@@ -223,9 +223,6 @@
           //   break;
           // }
 
-          triggerLoading(false);
-          triggerToast("created");
-
           if (role === "Seller") {
             sellerDocuments.push({
               title: tmpDocumentName,
