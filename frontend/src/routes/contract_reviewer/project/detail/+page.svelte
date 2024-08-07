@@ -511,6 +511,8 @@
             });
           });
         }
+
+        triggerToast("updated");
       }
     } catch (error) {
       console.log(error);
@@ -533,6 +535,7 @@
         }
 
         if (generated.length === files.length) {
+          triggerToast("updated");
           console.log("FINISH");
         } else {
           getDocumentContractProject();
