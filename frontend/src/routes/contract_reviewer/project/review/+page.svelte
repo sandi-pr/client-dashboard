@@ -26,7 +26,7 @@
   let projectName = $state("Project Name");
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
-  let dropdownToggle = $state([true, false, false]);
+  let dropdownToggle = $state([false, true, false]);
   let documentViewModal = $state(false);
   let editModal = $state(false);
   let tmpResult = $state([]);

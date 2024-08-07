@@ -37,6 +37,10 @@
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   // import { toCamelCase } from "../utils/toCamelCase.js";
+  import Markdown from "svelte-exmarkdown";
+  import { gfmPlugin } from "svelte-exmarkdown/gfm";
+
+  const plugins = [gfmPlugin()];
 
   export let datas;
   export let configs;
@@ -391,7 +395,7 @@
                 <TableBodyCell
                   class="flex items-center text-hc-graylight-600 dark:text-hc-graydark-400"
                 >
-                  <P size="sm">{data.result}</P>
+                  <P size="sm"><Markdown md={data.result} {plugins}></Markdown></P>
                 </TableBodyCell>
               {/if}
             {/each}
