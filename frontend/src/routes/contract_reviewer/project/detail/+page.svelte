@@ -41,6 +41,7 @@
   let tmpDocumentName = $state("");
   let selectedFile = $state(null);
   let init = $state(true);
+  let contractReady = $state(false);
   let timer;
 
   let industries = $state([]);
@@ -348,7 +349,7 @@
             }, 2000);
           }
 
-          await getDocumentContractProject();
+          contractReady = await getDocumentContractProject();
 
           selectedIndustry = response.result.data[0].attributes.industry_id;
 
@@ -533,10 +534,13 @@
         }
 
         triggerToast("updated");
+        return true;
       }
     } catch (error) {
+      triggerToast("error");
       console.log(error);
     }
+    return false;
   }
 
   async function getStatusGenerated() {
@@ -558,7 +562,7 @@
           triggerToast("updated");
           console.log("FINISH");
         } else {
-          getDocumentContractProject();
+          await getDocumentContractProject();
         }
       } catch (error) {
         console.log(error);
@@ -734,37 +738,39 @@
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- form upload -->
-          {#each documentUploads as docType, index}
-            <DocumentProject
-              title={docType.title}
-              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
-              file={getFileByType(docType.type, data.as)}
-              placeholderDropdown={$_("setRules")}
-              status={files.find((file) => file.type === docType.type)?.status}
-              actionButton={true}
-              actionView={() => (
-                (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
-              )}
-              actionDelete={() => {
-                typeTmp = docType.type;
-                asTmp = data.as;
-                deleteModal = true;
-              }}
-              actionGenerate={() => {
-                const index = files.findIndex((file) => file.type === docType.type);
-                console.log(files[index]);
-                if (files[index].status === "FINISH") {
-                  generatedAI(files[index]);
-                } else if (files[index].status === "PROCESSING") {
-                  console.log("PROCESSING");
-                  alert("Please wait for the file to be generated");
-                } else if (files[index].status === "INTERNAL ERROR") {
-                  triggerToast("error");
-                  console.log("INTERNAL ERROR");
-                }
-              }}
-            />
-          {/each}
+          {#if contractReady}
+            {#each documentUploads as docType, index}
+              <DocumentProject
+                title={docType.title}
+                handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
+                file={getFileByType(docType.type, data.as)}
+                placeholderDropdown={$_("setRules")}
+                status={files.find((file) => file.type === docType.type)?.status}
+                actionButton={true}
+                actionView={() => (
+                  (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
+                )}
+                actionDelete={() => {
+                  typeTmp = docType.type;
+                  asTmp = data.as;
+                  deleteModal = true;
+                }}
+                actionGenerate={() => {
+                  const index = files.findIndex((file) => file.type === docType.type);
+                  console.log(files[index]);
+                  if (files[index].status === "FINISH") {
+                    generatedAI(files[index]);
+                  } else if (files[index].status === "PROCESSING") {
+                    console.log("PROCESSING");
+                    alert("Please wait for the file to be generated");
+                  } else if (files[index].status === "INTERNAL ERROR") {
+                    triggerToast("error");
+                    console.log("INTERNAL ERROR");
+                  }
+                }}
+              />
+            {/each}
+          {/if}
           <!-- {#each otherDocType as docType}
           <UploadFile
             title={docType.title}
