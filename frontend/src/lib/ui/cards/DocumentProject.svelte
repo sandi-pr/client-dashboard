@@ -30,6 +30,7 @@ All Rights Reserved
     rules = [],
     selectedItem = $bindable(""),
     placeholderDropdown = "selectItem",
+    status = "",
     dropdownOpen = false,
     actionButton = false,
     actionView = null,
@@ -53,7 +54,12 @@ All Rights Reserved
       color="light"
       class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-3 py-4 flex flex-col justify-start items-center`}
     >
-      <Typography preset="Text md/Semibold" text={title} color="primary" propClass="w-full text-start" />
+      <Typography
+        preset="Text md/Semibold"
+        text={title}
+        color="primary"
+        propClass="w-full text-start"
+      />
       <div
         class="rounded-xl p-2.5 shadow border border-primary-light dark:border-primary-dark justify-center items-center"
       >
@@ -68,7 +74,12 @@ All Rights Reserved
     <div
       class="flex flex-col gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark"
     >
-      <Typography preset="Text md/Semibold" text={title} color="primary" propClass="w-full text-start" />
+      <Typography
+        preset="Text md/Semibold"
+        text={title}
+        color="primary"
+        propClass="w-full text-start"
+      />
       <div class="flex items-center justify-start gap-3">
         {#if file.name.includes(".pdf") || file.name.includes(".PDF")}
           <img src={PDFSolidIcon} alt="" />
@@ -84,8 +95,14 @@ All Rights Reserved
           <img src={PNGSolidIcon} alt="" />
         {/if}
         <div class="flex flex-col justify-center w-full pe-12">
-          <Typography preset="Text sm/Semibold" text={file.name} color="secondary" propClass="truncate" />
+          <Typography
+            preset="Text sm/Semibold"
+            text={file.name}
+            color="secondary"
+            propClass="truncate"
+          />
           <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
+          <Typography preset="Text sm/Regular" text={"status : " + status} color="tertiary" />
         </div>
       </div>
       {#if actionButton}
@@ -109,7 +126,11 @@ All Rights Reserved
           </Button>
         </div>
       {/if}
-      <Button color="light" on:click={actionGenerate} class="gap-1.5 border-brand-light dark:border-primary-dark">
+      <Button
+        color="light"
+        on:click={actionGenerate}
+        class="gap-1.5 border-brand-light dark:border-primary-dark"
+      >
         <Typography preset="Text sm/Semibold" text={"AI-Generate"} color="brand-secondary" />
         <StarsIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
       </Button>

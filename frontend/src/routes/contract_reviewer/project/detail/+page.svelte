@@ -739,6 +739,7 @@
               handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
               file={getFileByType(docType.type, data.as)}
               placeholderDropdown={$_("setRules")}
+              status={files.find((file) => file.type === docType.type)?.status}
               actionButton={true}
               actionView={() => (
                 (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
