@@ -701,7 +701,9 @@
         <button
           onclick={() => {
             getStatusGenerated();
-          }}>{$_("checkStatus")}</button
+          }}
+          class="text-brand-secondary-light dark:text-brand-secondary-dark"
+          >{$_("checkStatus")}</button
         >
       </div>
       <div class="flex flex-col grow gap-6">
