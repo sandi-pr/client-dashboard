@@ -423,9 +423,9 @@
         </Button> -->
         {#if dropdownToggle[0]}
           <div
-            class="flex justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
+            class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
           >
-            <Markdown md={markdown} {plugins} />
+            <Markdown md={markdownDummy} {plugins} />
           </div>
         {/if}
         {#if dropdownToggle[1]}
