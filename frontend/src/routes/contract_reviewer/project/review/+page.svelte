@@ -26,7 +26,7 @@
   let projectName = $state("Project Name");
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
-  let dropdownToggle = $state([false, true, false]);
+  let dropdownToggle = $state([true, true, false]);
   let documentViewModal = $state(false);
   let selectedFile = $state(null);
   let pdfData = $state([null, null, null, null]);
@@ -290,13 +290,7 @@
 
         let index = 0;
 
-        markdown =
-          response.result.data[0].attributes.markdown === null
-            ? markdownDummy
-            : response.result.data[0].attributes.markdown;
-
-        dropdownToggle[0] = true;
-
+        markdown = response.result.data[0].attributes.markdown;
         let promise = response.result.data[0].attributes.result.map((data) => {
           index++;
           return {
@@ -425,7 +419,7 @@
           <div
             class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
           >
-            <Markdown md={markdownDummy} {plugins} />
+            <Markdown md={markdown} {plugins} />
           </div>
         {/if}
         {#if dropdownToggle[1]}

@@ -463,6 +463,7 @@
             );
           }
         } else {
+          triggerLoading(false);
           goto(
             (await call.getPage("client-dashboard", "contract-project-review")) +
               "?projectDocumentId=" +
@@ -587,11 +588,13 @@
         );
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
           console.log(response);
           return;
         }
 
+        triggerLoading(false);
         goto(
           (await call.getPage("client-dashboard", "contract-project-review")) +
             "?projectDocumentId=" +
