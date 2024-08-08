@@ -127,11 +127,12 @@ All Rights Reserved
           return;
         }
 
-        if (response.result.data.length < 1) {
+        editRules = [];
+        if (response2.result.data.length < 1) {
           init = true;
+          editRules.push(true);
         }
 
-        editRules = [];
         for (let i = 0; i < response2.result.data.length; i++) {
           editRules.push(false);
         }
@@ -141,7 +142,7 @@ All Rights Reserved
           createdAt: format(response.result.data[0].attributes.createdAt, "yyyy-MM-dd HH:mm:ss"),
           data:
             response2.result.data.length < 1
-              ? []
+              ? datas.data
               : response2.result.data.map((item) => {
                   return {
                     id: item.id,
