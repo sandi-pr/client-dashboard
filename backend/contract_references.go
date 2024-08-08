@@ -57,6 +57,11 @@ func CreateReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.R
 		return ctx.Error(400, "invalid parameters industry_id")
 	}
 
+	contract_rule_id, ok := ctx.Params.GetFloat64("contract_rule_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters contract_rule_id")
+	}
+
 	referencesString, ok := ctx.Params.GetString("references")
 	if !ok {
 		return ctx.Error(400, "invalid parameters references")
@@ -135,6 +140,7 @@ func CreateReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.R
 
 		status, documents, err := Strapi.Create("references-document-table", U.Dict{
 			"industry_id":        industry_id,
+			"contract_rule_id":   contract_rule_id,
 			"document_for":       role,
 			"document_title":     docType,
 			"document_name":      documentName,
@@ -412,6 +418,11 @@ func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		return ctx.Error(400, "invalid parameters industry_id")
 	}
 
+	contract_rule_id, ok := ctx.Params.GetFloat64("contract_rule_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters contract_rule_id")
+	}
+
 	page, ok := ctx.Params.GetFloat64("page")
 	if !ok {
 		return ctx.Error(400, "invalid parameters page")
@@ -426,6 +437,9 @@ func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		"filters": U.Dict{
 			"industry_id": U.Dict{
 				"$eq": int64(industry_id),
+			},
+			"contract_rule_id": U.Dict{
+				"$eq": int64(contract_rule_id),
 			},
 		},
 		"pagination": U.Dict{

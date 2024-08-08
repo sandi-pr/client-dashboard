@@ -2608,6 +2608,10 @@
                     "type": "number"
                 },
                 {
+                    "name": "contract_rule_id",
+                    "type": "number"
+                },
+                {
                     "name": "page",
                     "type": "number"
                 },
@@ -2648,6 +2652,10 @@
             "params": [
                 {
                     "name": "industry_id",
+                    "type": "number"
+                },
+                {
+                    "name": "contract_rule_id",
                     "type": "number"
                 },
                 {

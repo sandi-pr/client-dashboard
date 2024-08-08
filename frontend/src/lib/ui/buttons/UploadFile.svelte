@@ -25,7 +25,7 @@ All Rights Reserved
     multiple = false,
     type = "document",
     status = $bindable(""),
-    file = [],
+    file = null,
     actionButton = false,
     actionView = null,
     actionDelete = () => {},
@@ -42,7 +42,7 @@ All Rights Reserved
 
 <div class="relative flex flex-col gap-1.5">
   <Typography preset="Text sm/Medium" text={title} color="secondary" />
-  {#if file.length === 0}
+  {#if file === null}
     <Button
       on:click={handleFileUploadWrapper}
       color="light"

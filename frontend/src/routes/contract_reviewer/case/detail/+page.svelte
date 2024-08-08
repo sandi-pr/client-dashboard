@@ -11,7 +11,15 @@ All Rights Reserved
 <script>
   import { onMount, onDestroy } from "svelte";
   import { Modal, Button, Input, Textarea, Heading, P } from "flowbite-svelte";
-  import { Typography, UploadFile, triggerToast, StateCard, triggerLoading, InputRw, TextareaRw } from "$lib";
+  import {
+    Typography,
+    UploadFile,
+    triggerToast,
+    StateCard,
+    triggerLoading,
+    InputRw,
+    TextareaRw,
+  } from "$lib";
   import Divider from "$lib/components/Divider.svelte";
   import { PlusOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -23,6 +31,7 @@ All Rights Reserved
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
   import PdfViewer from "svelte-pdf";
   import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -31,7 +40,8 @@ All Rights Reserved
   let addRefDocModal = $state(false);
   let documentViewModal = $state(false);
   let deleteModal = $state(false);
-  let deleteDocModal = $state(false);
+  let editRules = $state([]);
+  let init = $state(false);
   let edit = $state(false);
   let formData = $state({ title: "", prompt: "", sample: "" });
   let files = $state([
@@ -44,7 +54,7 @@ All Rights Reserved
     //   base64: "",
     // }
   ]);
-  let tmpFile = $state([]);
+  let tmpFile = $state(null);
   let selectedFile = $state(null);
   let tmpId = $state(null);
   let tmpDocumentName = $state(null);
@@ -63,17 +73,17 @@ All Rights Reserved
   });
 
   let datas = $state({
-    // title: "Test",
-    // createdAt: "2022-01-01",
-    // data: [
-    //   {
-    //     id: 1,
-    //     title: "Test",
-    //     prompt: "Tes",
-    //     sample: "Testing",
-    //     createdAt: "2022-01-01",
-    //   }
-    // ],
+    title: "",
+    createdAt: "",
+    data: [
+      {
+        id: 0,
+        title: "",
+        prompt: "",
+        sample: "",
+        createdAt: "",
+      },
+    ],
   });
 
   async function getRulesSections() {
@@ -117,6 +127,15 @@ All Rights Reserved
           return;
         }
 
+        if (response.result.data.length < 1) {
+          init = true;
+        }
+
+        editRules = [];
+        for (let i = 0; i < response2.result.data.length; i++) {
+          editRules.push(false);
+        }
+
         datas = {
           title: response.result.data[0].attributes.rule_name,
           createdAt: format(response.result.data[0].attributes.createdAt, "yyyy-MM-dd HH:mm:ss"),
@@ -143,8 +162,7 @@ All Rights Reserved
     }
   }
 
-  async function createRulesSections() {
-    addRulesSectionsModal = false;
+  async function createRulesSections(data) {
     triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
@@ -154,9 +172,9 @@ All Rights Reserved
           URLParams: {},
           Params: {
             contract_rule_id: ruleId.toString(),
-            section_title: formData.title,
-            section_prompt: formData.prompt,
-            section_sample: formData.sample,
+            section_title: data.title,
+            section_prompt: data.prompt,
+            section_sample: data.sample,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -166,15 +184,12 @@ All Rights Reserved
         if (response.status !== 200) {
           triggerLoading(false);
           triggerToast("error");
-          addRulesSectionsModal = true;
           console.log(response);
           return;
         }
 
         triggerLoading(false);
-        formData = { title: "", prompt: "", sample: "" };
         triggerToast("created");
-        addRulesSectionsModal = false;
         getRulesSections();
       } catch (error) {
         triggerLoading(false);
@@ -204,6 +219,7 @@ All Rights Reserved
         if (response.status !== 200) {
           triggerLoading(false);
           triggerToast("error");
+          deleteModal = true;
           console.log(response);
           return;
         }
@@ -218,20 +234,21 @@ All Rights Reserved
   }
 
   async function editSection() {
-    addRulesSectionsModal = false;
     triggerLoading(true);
+    init = false;
     let token = sessionStorage.getItem("token");
+    let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
     if (token) {
       try {
         const response = await call.call("client-dashboard", "update-contract-rule-section", {
           URLQuery: {},
           URLParams: {
-            id: tmpSectionId.toString(),
+            id: tmpSection.id.toString(),
           },
           Params: {
-            section_title: formData.title,
-            section_prompt: formData.prompt,
-            section_sample: formData.sample,
+            section_title: tmpSection.title,
+            section_prompt: tmpSection.prompt,
+            section_sample: tmpSection.sample,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -241,15 +258,12 @@ All Rights Reserved
         if (response.status !== 200) {
           triggerLoading(false);
           triggerToast("error");
-          addRulesSectionsModal = true;
           console.log(response);
           return;
         }
 
         triggerLoading(false);
         triggerToast("updated");
-        formData = { title: "", prompt: "", sample: "" };
-        edit = false;
         getRulesSections();
       } catch (error) {
         console.log(error);
@@ -257,36 +271,181 @@ All Rights Reserved
     }
   }
 
+  async function getReferences() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let page = 1;
+      files = [];
+
+      while (true) {
+        const response = await call.call("client-dashboard", "get-references-document", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            // id dummy
+            industry_id: 6,
+            contract_rule_id: parseInt(ruleId),
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.files.length === 0) {
+          break;
+        }
+
+        files = files.concat(response.result.files);
+        page++;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const handleFileUploadWrapper = (type) => {
-    // TODO
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = ".pdf, .doc, .docx";
+
+    inputElement.addEventListener("change", async (event) => {
+      const uploadedFile = event.target.files[0];
+
+      const base64Data = await readFileAsBase64(uploadedFile);
+      tmpFile = {
+        id: 0,
+        type: type,
+        role: "Buyer",
+        name: uploadedFile.name,
+        size: formatBytes(uploadedFile.size),
+        base64: base64Data,
+      };
+      console.log(tmpFile);
+    });
+
+    inputElement.click();
   };
 
-  async function addOtherDocument(params) {
-    // TODO
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
+
+  async function addOtherDocument() {
+    addRefDocModal = false;
+    triggerLoading(true);
+    let token = sessionStorage.getItem("token");
+    try {
+      tmpFile.type = tmpDocumentName;
+
+      const response = await call.call("client-dashboard", "create-references-document", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          references: JSON.stringify([tmpFile]),
+          //dummy industry
+          contract_rule_id: parseInt(ruleId),
+          industry_id: 6,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      console.log(response);
+
+      if (response.status !== 200) {
+        triggerLoading(false);
+        addRefDocModal = true;
+        triggerToast("error");
+      }
+
+      tmpFile.id = response.result.data[0].id;
+
+      files.push(tmpFile);
+
+      tmpFile = null;
+      tmpDocumentName = "";
+      triggerLoading(false);
+      triggerToast("updated");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function deleteDocument() {
+    deleteModal = false;
+    triggerLoading(true);
+
+    let token = sessionStorage.getItem("token");
+
+    if (tmpId !== 0) {
+      const response = await call.call("client-dashboard", "delete-references-document", {
+        URLQuery: {},
+        URLParams: {
+          id: tmpId.toString(),
+        },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        triggerLoading(false);
+        triggerToast("error");
+        deleteModal = true;
+      }
+
+      files = files.filter((file) => file.id !== tmpId);
+      triggerLoading(false);
+      triggerToast("deleted");
+    }
   }
 
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
-      ruleId = $page.url.searchParams.get("ruleId");
+      ruleId = $page.url.searchParams.get("caseId");
+      triggerLoading(true);
       if (ruleId !== null) {
+        getReferences();
         getRulesSections();
       } else {
-        goto(await call.getPage("client-dashboard", "contract-rules"));
+        triggerToast("error");
+        setTimeout(async () => {
+          triggerLoading(false);
+          goto(await call.getPage("client-dashboard", "contract-case"));
+        }, 2000);
       }
     });
     return () => unsubscribe();
-  });
-
-  $effect(async () => {
-    const unsubscribe = page.subscribe(async ($page) => {
-      ruleId = $page.url.searchParams.get("ruleId");
-      if (ruleId !== null) {
-        getRulesSections();
-      } else {
-        goto(await call.getPage("client-dashboard", "contract-rules"));
-      }
-    });
-    onDestroy(() => unsubscribe());
   });
 </script>
 
@@ -316,136 +475,204 @@ All Rights Reserved
         <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
         {#if tabDatas.selected === "Referenced Documents"}
-        <div>
-          <!-- header -->
-          <div class="flex justify-between pt-3 pb-6">
-            <div class="flex flex-col">
-              <Typography preset="Text lg/Semibold" color="primary" text={$_("setYourReferencedDocument")} />
-              <Typography preset="Text sm/Regular" color="tertiary" text={$_("descSetYourReferencedDocument")} />
+          <div>
+            <!-- header -->
+            <div class="flex justify-between pt-3 pb-6">
+              <div class="flex flex-col">
+                <Typography
+                  preset="Text lg/Semibold"
+                  color="primary"
+                  text={$_("setYourReferencedDocument")}
+                />
+                <Typography
+                  preset="Text sm/Regular"
+                  color="tertiary"
+                  text={$_("descSetYourReferencedDocument")}
+                />
+              </div>
             </div>
-          </div>
-          <!-- reference document -->
-          <div class="flex gap-3">
-            <div class="w-60">
-              <Typography preset="Text md/Semibold" text={`${$_("documents")}`} color="secondary" />
-            </div>
-            <div class="flex flex-col grow gap-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- form upload -->
-                {#each files as doc, index}
-                  <UploadFile
-                    title={doc.type}
-                    handleFileUploadWrapper={() => {}}
-                    file={files[index]}
-                    actionButton={true}
-                    actionView={() => {}}
-                    actionDelete={() => {
-                      tmpId = files[index].id;
-                      deleteDocModal = true;
-                    }}
-                  />
-                {/each}
-                <Button
-                  class="w-full min-h-32 md:mt-6 flex gap-2.5 rounded-xl text-tertiary-light dark:text-tertiary-dark border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
-                  on:click={() => (addRefDocModal = true)}
-                  color="light"
-                >
-                  <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-                  {$_("addReferenceDocs")}
-                </Button>
+            <!-- reference document -->
+            <div class="flex gap-3">
+              <div class="w-60">
+                <Typography
+                  preset="Text md/Semibold"
+                  text={`${$_("documents")}`}
+                  color="secondary"
+                />
+              </div>
+              <div class="flex flex-col grow gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- form upload -->
+                  {#each files as doc, index}
+                    <UploadFile
+                      title={doc.type}
+                      handleFileUploadWrapper={() => {
+                        addRefDocModal = true;
+                      }}
+                      file={doc}
+                      actionButton={true}
+                      actionView={() => {
+                        selectedFile = doc;
+                        documentViewModal = true;
+                      }}
+                      actionDelete={() => {
+                        tmpId = doc.id;
+                        deleteModal = true;
+                      }}
+                    />
+                  {/each}
+                  <Button
+                    class="w-full min-h-32 md:mt-6 flex gap-2.5 rounded-xl text-tertiary-light dark:text-tertiary-dark border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
+                    on:click={() => (addRefDocModal = true)}
+                    color="light"
+                  >
+                    <PlusCircleICon
+                      svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark"
+                    />
+                    {$_("addReferenceDocs")}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
         {:else if tabDatas.selected === "Rules"}
-        <div>
-          <!-- header -->
-          <div class="flex justify-between pt-3 pb-6">
-            <div class="flex flex-col">
-              <Typography preset="Text lg/Semibold" color="primary" text={$_("setRules")} />
-              <Typography preset="Text sm/Regular" color="tertiary" text={$_("descSetRules")} />
+          <div>
+            <!-- header -->
+            <div class="flex justify-between pt-3 pb-6">
+              <div class="flex flex-col">
+                <Typography preset="Text lg/Semibold" color="primary" text={$_("setRules")} />
+                <Typography preset="Text sm/Regular" color="tertiary" text={$_("descSetRules")} />
+              </div>
+              <Button
+                class="self-center gap-1"
+                color="primary"
+                on:click={() => {
+                  datas.data.push({
+                    id: 0,
+                    title: "",
+                    prompt: "",
+                    sample: "",
+                    createdAt: "",
+                  });
+                  editRules = [...editRules, true];
+                }}
+                ><PlusOutline class="w-4 h-4" />
+                {$_("addNewSection")}</Button
+              >
             </div>
-            <Button
-              class="self-center gap-1"
-              color="primary"
-              on:click={() => {
-                formData = { title: "", prompt: "", sample: "" };
-                edit = false;
-                addRulesSectionsModal = true;
-              }}
-              ><PlusOutline class="w-4 h-4" />
-              {$_("addNewSection")}</Button
-            >
-          </div>
-          <!-- table latest -->
-          {#if Object.keys(datas).length > 0}
-            <div class="flex flex-col gap-6">
-              {#each datas.data as data, index}
-                <div class="flex gap-4">
-                  <div class="flex flex-col w-60 gap-2">
-                    <Typography preset="Text md/Semibold" text={$_("section") + " " + (index + 1)} color="secondary" />
-                    <div class="flex gap-2">
-                      <button
-                        class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
-                        onclick={() => {
-                          tmpSectionId = data.id;
-                          deleteModal = true;
-                        }}>{$_("delete")}</button
-                      >
-                      <button
-                        class="text-sm text-brand-secondary-light dark:text-brand-secondary-dark"
-                        onclick={() => {
-                          edit = true;
-                          tmpSectionId = data.id;
-                          formData = {
-                            title: data.title,
-                            prompt: data.prompt,
-                            sample: data.sample,
-                          };
-                          addRulesSectionsModal = true;
-                        }}>{$_("edit")}</button
-                      >
+            <!-- table latest -->
+            {#if Object.keys(datas).length > 0}
+              <div class="flex flex-col gap-6">
+                {#each datas.data as data, index}
+                  <div class="flex gap-4">
+                    <div class="flex flex-col w-60 gap-2">
+                      <Typography
+                        preset="Text md/Semibold"
+                        text={$_("section") + " " + (index + 1)}
+                        color="secondary"
+                      />
+                      <div class="flex gap-2">
+                        {#if !editRules[index]}
+                          {#if index !== 0}
+                            <button
+                              class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
+                              onclick={() => {
+                                if (data.id === 0) {
+                                  datas.data.splice(index, 1);
+                                  editRules.splice(index, 1);
+                                } else {
+                                  tmpSectionId = data.id;
+                                  deleteModal = true;
+                                }
+                              }}>{$_("delete")}</button
+                            >
+                          {/if}
+                          <button
+                            class="text-sm text-brand-secondary-light dark:text-brand-secondary-dark"
+                            onclick={() => {
+                              editRules[index] = true;
+                            }}>{$_("edit")}</button
+                          >
+                        {:else}
+                          {#if !init}
+                            <button
+                              class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
+                              onclick={() => {
+                                if (data.id === 0) {
+                                  datas.data.splice(index, 1);
+                                  editRules.splice(index, 1);
+                                } else {
+                                  editRules[index] = false;
+                                }
+                              }}>{$_("cancel")}</button
+                            >
+                          {/if}
+                          <button
+                            class="text-sm text-brand-secondary-light dark:text-brand-secondary-dark"
+                            onclick={() => {
+                              editRules[index] = false;
+                              if (data.id === 0) {
+                                createRulesSections(data);
+                              } else {
+                                tmpSectionId = data.id;
+                                editSection();
+                              }
+                            }}>{$_("save")}</button
+                          >
+                        {/if}
+                      </div>
                     </div>
-                  </div>
-                  <div class="flex flex-col grow gap-3">
-                    <div class="flex gap-3">
-                      <div class="flex flex-col gap-1.5">
-                        <Typography preset="Text sm/Medium" text={$_("order")} color="secondary" />
-                        <InputRw value={"#" + (index + 1)} readonly={edit} />
+                    <div class="flex flex-col grow gap-3">
+                      <div class="flex gap-3">
+                        <div class="flex flex-col gap-1.5">
+                          <Typography
+                            preset="Text sm/Medium"
+                            text={$_("order")}
+                            color="secondary"
+                          />
+                          <InputRw value={"#" + (index + 1)} onEdit={edit} />
+                        </div>
+                        <div class="flex flex-col grow gap-1.5">
+                          <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
+                          <InputRw bind:value={data.title} onEdit={editRules[index]} />
+                        </div>
                       </div>
                       <div class="flex flex-col grow gap-1.5">
-                        <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
-                        <InputRw value={data.title} readonly={edit} />
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("extractDataPrompt")}
+                          color="secondary"
+                        />
+                        <TextareaRw bind:value={data.prompt} onEdit={editRules[index]} />
+                      </div>
+                      <div class="flex flex-col grow gap-1.5">
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("sampleOutputPrompt")}
+                          color="secondary"
+                        />
+                        <TextareaRw bind:value={data.sample} onEdit={editRules[index]} />
                       </div>
                     </div>
-                    <div class="flex flex-col grow gap-1.5">
-                      <Typography preset="Text sm/Medium" text={$_("extractDataPrompt")} color="secondary" />
-                      <TextareaRw value={data.prompt} readonly={edit} />
-                    </div>
-                    <div class="flex flex-col grow gap-1.5">
-                      <Typography preset="Text sm/Medium" text={$_("sampleOutputPrompt")} color="secondary" />
-                      <TextareaRw value={data.sample} readonly={edit} />
-                    </div>
                   </div>
-                </div>
-                <Divider />
-              {/each}
-            </div>
-          {:else}
-            <div class="pt-8">
-              <StateCard 
-                illustration={IllustrationEmpty} 
-                actionText={$_("addNewSection")} 
-                funcButton={() => {
-                  formData = { title: "", prompt: "", sample: "" };
-                  edit = false;
-                  addRulesSectionsModal = true;
-                }}
-                description={$_("youDontHaveAnyDataYet")} 
-              />
-            </div>
-          {/if}
-        </div>
+                  <Divider />
+                {/each}
+              </div>
+            {:else}
+              <div class="pt-8">
+                <StateCard
+                  illustration={IllustrationEmpty}
+                  actionText={$_("addNewSection")}
+                  funcButton={() => {
+                    formData = { title: "", prompt: "", sample: "" };
+                    edit = false;
+                    addRulesSectionsModal = true;
+                  }}
+                  description={$_("youDontHaveAnyDataYet")}
+                />
+              </div>
+            {/if}
+          </div>
         {/if}
       </div>
     </div>
@@ -467,7 +694,7 @@ All Rights Reserved
       handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName)}
       file={tmpFile}
       actionButton={true}
-      actionDelete={() => (tmpFile = [])}
+      actionDelete={() => (tmpFile = null)}
       actionView={() => ((documentViewModal = true), (selectedFile = tmpFile))}
     />
   </div>
@@ -476,7 +703,7 @@ All Rights Reserved
       on:click={() => {
         addOtherDocument();
       }}
-      disabled={tmpFile.length === 0 || !tmpDocumentName}>{$_("add")}</Button
+      disabled={tmpFile === null || !tmpDocumentName}>{$_("add")}</Button
     >
   </svelte:fragment>
 </Modal>
@@ -494,7 +721,7 @@ All Rights Reserved
   {/if}
 </Modal>
 
-<Modal
+<!-- <Modal
   title={edit ? $_("editRulesSection") : $_("createNewRulesSection")}
   bind:open={addRulesSectionsModal}
   size="lg"
@@ -502,7 +729,11 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesSectionTitle")}*`} />
-      <Input bind:value={formData.title} placeholder={$_("whatIsYourRulesSectionsTitle")} class="bg-primary-light dark:bg-gray-800" />
+      <Input
+        bind:value={formData.title}
+        placeholder={$_("whatIsYourRulesSectionsTitle")}
+        class="bg-primary-light dark:bg-gray-800"
+      />
     </div>
   </div>
   <div class="flex flex-col gap-1.5">
@@ -522,9 +753,9 @@ All Rights Reserved
         formData.sample.length < 1}>{edit ? $_("saveChanges") : $_("addNewRulesSection")}</Button
     >
   </svelte:fragment>
-</Modal>
+</Modal> -->
 
-<Modal bind:open={deleteModal} size="xs" autoclose>
+<!-- <Modal bind:open={deleteModal} size="xs" autoclose>
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
@@ -539,21 +770,29 @@ All Rights Reserved
       }}>{$_("noCancel")}</Button
     >
   </div>
-</Modal>
+</Modal> -->
 
-<Modal bind:open={deleteDocModal} size="xs" autoclose>
+<Modal bind:open={deleteModal} size="xs" autoclose>
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={() => {}} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
+    <Button
+      onclick={() => {
+        if (tabDatas.selected === "Rules") {
+          deleteSection();
+        } else {
+          deleteDocument();
+        }
+      }}
+      color="red"
+      class="me-2">{$_("yesImSure")}</Button
     >
     <Button
       color="alternative"
       onclick={() => {
-        deleteDocModal = false;
+        deleteModal = false;
       }}>{$_("noCancel")}</Button
     >
   </div>
