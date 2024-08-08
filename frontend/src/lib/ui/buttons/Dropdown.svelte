@@ -31,7 +31,7 @@ All Rights Reserved
 <div onfocusout={handleDropdownFocusLoss} class={`flex flex-col relative gap-1 ${width}`}>
   <Button
     on:click={() => (dropdownOpen = !dropdownOpen)}
-    class="flex justify-between border-primary-light dark:border-primary-dark dark:bg-gray-800"
+    class={`flex justify-between border-primary-light dark:border-primary-dark dark:bg-gray-800 ${disabled ? "focus:ring-0 hover:cursor-default hover:bg-white dark:hover:bg-slate-800" : ""}`}
     color="light"
   >
     {selectedItem === "" ? placeholder : items.find((item) => item.value === selectedItem)?.name}

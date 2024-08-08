@@ -476,5 +476,7 @@
   "createNewCases": "Create new Cases",
   "caseName": "Case name",
   "whatIsYourCaseTitle": "What is your case title?",
-  "addNewCase": "Add new case"
+  "addNewCase": "Add new case",
+  "aiIsReadingTheDocuments": "AI is reading the documents",
+  "manageCases": "Manage Cases"
 }

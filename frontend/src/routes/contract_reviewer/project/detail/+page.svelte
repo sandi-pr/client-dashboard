@@ -2,6 +2,7 @@
   import {
     Typography,
     InputRw,
+    TextareaRw,
     UploadFile,
     triggerToast,
     Dropdown,
@@ -56,14 +57,11 @@
     // {
     //   title: "Trade Confirmation",
     //   type: "tradeConfirmation",
+    //   isLoading: false,
     // },
   ]);
 
-  let rules = $state([
-    // {
-    //   name: "Patra Niaga POC",
-    // },
-  ]);
+  let rules = $state([]);
 
   let otherDocType = $state([]);
 
@@ -667,26 +665,6 @@
         </div>
         <div class="flex gap-3">
           <div class="flex grow flex-col gap-1.5">
-            <Typography preset="Text sm/Medium" text={`${$_("industryType")}`} color="secondary" />
-            <Dropdown
-              dropdownOpen={false}
-              bind:selectedItem={data.industry}
-              items={industries}
-              isOverlay={true}
-              disabled={true}
-            />
-          </div>
-          <!-- <div class="flex w-max flex-col gap-1.5">
-            <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
-            <Dropdown
-              dropdownOpen={false}
-              bind:selectedItem={data.as}
-              items={role}
-              isOverlay={true}
-              disabled={true}
-            />
-          </div> -->
-          <div class="flex grow flex-col gap-1.5">
             <Typography preset="Text sm/medium" color="secondary" text={$_("rules")} />
             <Dropdown
               dropdownOpen={false}
@@ -696,30 +674,34 @@
               disabled={true}
             />
           </div>
-        </div>
-        <div class="flex grow flex-col gap-1.5">
-          <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}`} />
-          <DatePicker
-            isOpen={false}
-            startDate={data.start_date}
-            endDate={data.end_date}
-            isRange
-            isMultipane
-            enableFutureDates
-          >
-            <button
-              onclick={() => {}}
-              class="flex w-full p-2 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+          <div class="flex grow flex-col gap-1.5">
+            <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}`} />
+            <DatePicker
+              isOpen={false}
+              startDate={data.start_date}
+              endDate={data.end_date}
+              isRange
+              isMultipane
+              enableFutureDates
             >
-              <svelte:component
-                this={CalendarPlus02}
-                class="w-2 h-2 ms-2 text-gray-700 dark:text-gray-400"
-              />
-              <div class="date">
-                {data.start_date} - {data.end_date}
-              </div>
-            </button>
-          </DatePicker>
+              <button
+                onclick={() => {}}
+                class="flex w-full p-2 border rounded-lg bg-primary-light dark:bg-gray-800 border-primary-light dark:border-primary-dark gap-2 justify-center items-center hover:cursor-default"
+              >
+                <svelte:component
+                  this={CalendarPlus02}
+                  svgClass="w-4 h-4 ms-2 text-secondary-light dark:text-secondary-dark"
+                />
+                <div class="date text-secondary-light dark:text-secondary-dark">
+                  {data.start_date} - {data.end_date}
+                </div>
+              </button>
+            </DatePicker>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+          <TextareaRw onEdit={false} bind:value={data.description} />
         </div>
       </div>
     </div>
@@ -727,13 +709,13 @@
     <div class="flex gap-3">
       <div class="w-60">
         <Typography preset="Text md/Semibold" text={`${$_("documentUploads")}`} color="secondary" />
-        <button
+        <!-- <button
           onclick={() => {
             getStatusGenerated();
           }}
           class="text-brand-secondary-light dark:text-brand-secondary-dark"
           >{$_("checkStatus")}</button
-        >
+        > -->
       </div>
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -747,6 +729,7 @@
                 placeholderDropdown={$_("setRules")}
                 status={files.find((file) => file.type === docType.type)?.status}
                 actionButton={true}
+                isLoading={docType.isLoading}
                 actionView={() => (
                   (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
                 )}

@@ -72,22 +72,10 @@ All Rights Reserved
         desc: "desc Add new project",
       },
       {
-        href: await call.getPage("client-dashboard", "contract-industries"),
-        icon: "building",
-        actionName: "Manage industry",
-        desc: "desc Manage industry",
-      },
-      {
         href: await call.getPage("client-dashboard", "contract-reviewer-reference"),
         icon: "bookOpen",
-        actionName: "Set your referenced document",
+        actionName: "Manage cases",
         desc: "desc Set your referenced document",
-      },
-      {
-        href: await call.getPage("client-dashboard", "contract-rules"),
-        icon: "distributeVert",
-        actionName: "Manage rules",
-        desc: "desc Manage rules",
       },
     ];
   }

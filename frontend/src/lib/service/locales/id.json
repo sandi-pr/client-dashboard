@@ -476,5 +476,7 @@
   "createNewCases": "Buat Case baru",
   "caseName": "Judul case",
   "whatIsYourCaseTitle": "Apa judul case Anda?",
-  "addNewCase": "Tambahkan case baru"
+  "addNewCase": "Tambahkan case baru",
+  "aiIsReadingTheDocuments": "AI sedang membaca dokumen",
+  "manageCases": "Kelola Case"
 }

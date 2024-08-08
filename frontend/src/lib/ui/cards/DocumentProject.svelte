@@ -10,6 +10,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { Button } from "flowbite-svelte";
   import { Typography, Dropdown } from "$lib";
+  import LaodingLottie from "$lib/components/LaodingLottie.svelte";
   import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
@@ -33,6 +34,7 @@ All Rights Reserved
     status = "",
     dropdownOpen = false,
     actionButton = false,
+    isLoading = false,
     actionView = null,
     actionDelete = () => {},
     actionGenerate = () => {},
@@ -48,7 +50,7 @@ All Rights Reserved
 </script>
 
 <div class="relative flex flex-col gap-1.5">
-  {#if file.length === 0}
+  {#if file.length === 0 && isLoading === false}
     <Button
       on:click={handleFileUploadWrapper}
       color="light"
@@ -70,10 +72,27 @@ All Rights Reserved
         <Typography preset="Text xs/Regular" text={textFileType(type)} color="tertiary" />
       </div>
     </Button>
+  {:else if isLoading === true}
+    <div
+      class="flex flex-col h-full gap-3 rounded-xl border border-primary-light dark:border-primary-dark"
+    >
+      <div class="h-full rounded-xl z-50 py-4 flex flex-col gap-2 items-center justify-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark">
+        <LaodingLottie />
+        <div class="flex flex-col gap-2 items-center">
+          <Typography
+            preset="Text sm/Semibold"
+            color="primary-onbrand"
+            text={`${$_("aiIsReadingTheDocuments")}...`}
+            propClass="text-center"
+          />
+        </div>
+      </div>
+    </div>
   {:else}
     <div
       class="flex flex-col gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark"
     >
+    <LaodingLottie />
       <Typography
         preset="Text md/Semibold"
         text={title}
