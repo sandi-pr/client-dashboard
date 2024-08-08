@@ -19,6 +19,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import PlusIcon from "$lib/icon/plus.svg";
   import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
@@ -152,7 +153,7 @@ All Rights Reserved
       <div class="flex flex-col gap-8">
         <!-- User Information -->
         <div class="flex justify-between">
-          <Typography preset="Display sm/Semibold" text={$_("rulesList")} />
+          <Typography preset="Display sm/Semibold" text={$_("caseList")} />
           <Button
             onclick={() => (addRulesModal = true)}
             class="flex gap-2 items-center"
@@ -160,23 +161,22 @@ All Rights Reserved
             variant="contained"
             size="sm"
           >
-            <svelte:component this={CalendarPlus02} class="w-4 h-4" />
-            {$_("addNewRules")}
+            <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" />
+            {$_("addNew")}
           </Button>
         </div>
 
-        <Input
-          id="search"
-          type="search"
-          class="bg-white dark:bg-hc-graydark-950 py-3"
-          placeholder={$_("search")}
-          on:input={handleSearch}
-        >
-          <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-        </Input>
-
         <!-- table latest -->
         {#if datas.length > 0}
+          <Input
+            id="search"
+            type="search"
+            class="bg-white dark:bg-hc-graydark-950 py-3"
+            placeholder={$_("search")}
+            on:input={handleSearch}
+          >
+            <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          </Input>
           <DataTable bind:datas bind:configs />
         {:else}
           <div class="pt-8">

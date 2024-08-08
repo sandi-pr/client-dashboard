@@ -466,5 +466,6 @@
   "extractDataPrompt": "Extract Data Prompt",
   "editResults": "Edit Hasil",
   "whatIsYourChangeResult": "Apa hasil akhir perubahan Anda?",
-  "sampleOutputPrompt": "Contoh Output Prompt"
+  "sampleOutputPrompt": "Contoh Output Prompt",
+  "caseList": "Daftar Case"
 }

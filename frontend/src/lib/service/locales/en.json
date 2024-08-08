@@ -466,5 +466,6 @@
   "extractDataPrompt": "Extract data Prompt",
   "editResults": "Edit Results",
   "whatIsYourChangeResult": "What is your change result?",
-  "sampleOutputPrompt": "Sample Output Prompt"
+  "sampleOutputPrompt": "Sample Output Prompt",
+  "caseList": "Case List"
 }

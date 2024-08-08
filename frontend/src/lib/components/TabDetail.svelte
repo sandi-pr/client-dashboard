@@ -26,6 +26,7 @@
 
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import Divider from "./Divider.svelte";
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "../utils/toCamelCase.js";
   export let tabDatas: any;
@@ -60,4 +61,4 @@
   {/each}
 </div>
 
-<div class="mx-4 sm:mx-0 border-t-[1px] border-hc-graylight-300 dark:border-hc-graydark-700"></div>
+<Divider />
