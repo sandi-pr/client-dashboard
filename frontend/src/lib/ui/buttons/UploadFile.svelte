@@ -17,6 +17,7 @@ All Rights Reserved
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import TrashIcon from "$lib/icon/trash-03.svelte";
 
   let {
     title,
@@ -87,11 +88,11 @@ All Rights Reserved
         <div class="flex gap-3">
           {#if actionView}
             <Button class="w-full" color="light" on:click={actionView}>
-              <Typography preset="Text sm/Semibold" text={$_("view")} color="secondary" />
+              <Typography preset="Text sm/Semibold" text={$_("viewDocument")} color="secondary" />
             </Button>
           {/if}
-          <Button class="w-full border-0" color="light" on:click={actionDelete}>
-            <Typography preset="Text sm/Semibold" text={$_("remove")} color="secondary" />
+          <Button class="w-max p-2" color="light" on:click={actionDelete}>
+            <TrashIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
           </Button>
         </div>
       {/if}

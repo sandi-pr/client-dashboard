@@ -53,9 +53,9 @@
     <button
       name={submenu.name}
       on:click={() => handleTabClick(submenu.name)}
-      class={`p-2 px-4 font-semibold text-hc-graylight-500 dark:text-white hover:bg-hc-graylight-100 hover:dark:bg-hc-brand-600 ${
+      class={`p-2 px-4 font-semibold text-quarterary-light dark:text-quarterary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark ${
         tabDatas.selected === submenu.name &&
-        "border-b-2 border-hc-brand-600 !text-hc-brand-600 focus:bg-transparent dark:focus:bg-transparent dark:!text-hc-brand-600 hover:bg-hc-brand-100 hover:dark:bg-white"
+        "border-b-2 border-fg-brand-primary-light dark:border-fg-brand-primary-dark !text-brand-secondary-light dark:!text-brand-secondary-dark"
       }`}>{capitalizeFirstLetter($_(toCamelCase(submenu.name)))}</button
     >
   {/each}

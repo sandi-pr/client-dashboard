@@ -11,28 +11,70 @@ All Rights Reserved
 <script>
   import { onMount, onDestroy } from "svelte";
   import { Modal, Button, Input, Textarea, Heading, P } from "flowbite-svelte";
-  import { Typography, Dropdown, triggerToast, StateCard, triggerLoading, InputRw, TextareaRw } from "$lib";
+  import { Typography, UploadFile, triggerToast, StateCard, triggerLoading, InputRw, TextareaRw } from "$lib";
   import Divider from "$lib/components/Divider.svelte";
-  import * as Icon from "flowbite-svelte-icons";
+  import { PlusOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
+  import TabDetail from "$lib/components/TabDetail.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import PlusCircleICon from "$lib/icon/plus-circle.svelte";
+  import PdfViewer from "svelte-pdf";
   import { page } from "$app/stores";
 
   const call = new CR3Call(globalThis.location.origin);
 
-  let formData = $state({ title: "", prompt: "", sample: "" });
-  let addRulesSectionsModal = $state(false);
-  let deleteModal = $state(false);
-  let edit = $state(false);
-
   let ruleId = $state(null);
-
+  let addRulesSectionsModal = $state(false);
+  let addRefDocModal = $state(false);
+  let documentViewModal = $state(false);
+  let deleteModal = $state(false);
+  let deleteDocModal = $state(false);
+  let edit = $state(false);
+  let formData = $state({ title: "", prompt: "", sample: "" });
+  let files = $state([
+    // {
+    //   id: 1,
+    //   type: "Testing",
+    //   role: "buyer",
+    //   name: "test.pdf",
+    //   size: "1.2 MB",
+    //   base64: "",
+    // }
+  ]);
+  let tmpFile = $state([]);
+  let selectedFile = $state(null);
+  let tmpId = $state(null);
+  let tmpDocumentName = $state(null);
   let tmpSectionId = $state(null);
 
-  let datas = $state({});
+  let tabDatas = $state({
+    selected: "Referenced Documents",
+    data: [
+      {
+        name: "Referenced Documents",
+      },
+      {
+        name: "Rules",
+      },
+    ],
+  });
+
+  let datas = $state({
+    // title: "Test",
+    // createdAt: "2022-01-01",
+    // data: [
+    //   {
+    //     id: 1,
+    //     title: "Test",
+    //     prompt: "Tes",
+    //     sample: "Testing",
+    //     createdAt: "2022-01-01",
+    //   }
+    // ],
+  });
 
   async function getRulesSections() {
     triggerLoading(true);
@@ -215,6 +257,14 @@ All Rights Reserved
     }
   }
 
+  const handleFileUploadWrapper = (type) => {
+    // TODO
+  };
+
+  async function addOtherDocument(params) {
+    // TODO
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
       ruleId = $page.url.searchParams.get("ruleId");
@@ -245,7 +295,7 @@ All Rights Reserved
     <div class="flex flex-col m-4">
       <!-- <Navbar /> -->
 
-      <div class="flex flex-col gap-8">
+      <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex">
           <!-- Header -->
@@ -260,92 +310,189 @@ All Rights Reserved
               >{$_("createOn")}{` ${datas.createdAt}`}</P
             >
           </div>
-          <Button
-            class="self-center"
-            color="primary"
-            on:click={() => {
-              formData = { title: "", prompt: "", sample: "" };
-              edit = false;
-              addRulesSectionsModal = true;
-            }}
-            ><Icon.PlusOutline class="w-5 h-5" />
-            {$_("addNewSection")}</Button
-          >
         </div>
 
-        <Divider />
+        <!-- Tab Bar -->
+        <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
-        <!-- table latest -->
-        {#if Object.keys(datas).length > 0}
-          {#each datas.data as data, index}
-            <div class="flex gap-4">
-              <div class="flex flex-col w-60 gap-2">
-                <Typography preset="Text md/Semibold" text={$_("section") + " " + (index + 1)} color="secondary" />
-                <div class="flex gap-2">
-                  <button
-                    class="text-error-primary-light dark:text-error-primary-dark"
-                    onclick={() => {
-                      tmpSectionId = data.id;
-                      deleteModal = true;
-                    }}>{$_("delete")}</button
-                  >
-                  <button
-                    class="text-brand-secondary-light dark:text-brand-secondary-dark"
-                    onclick={() => {
-                      edit = true;
-                      tmpSectionId = data.id;
-                      formData = {
-                        title: data.title,
-                        prompt: data.prompt,
-                        sample: data.sample,
-                      };
-                      addRulesSectionsModal = true;
-                    }}>{$_("edit")}</button
-                  >
-                </div>
-              </div>
-              <div class="flex flex-col grow gap-3">
-                <div class="flex gap-3">
-                  <div class="flex flex-col gap-1.5">
-                    <!-- <P>Order</P> -->
-                    <Typography preset="Text sm/Medium" text={$_("order")} color="secondary" />
-                    <InputRw value={"#" + (index + 1)} readonly={edit} />
-                  </div>
-                  <div class="flex flex-col grow gap-1.5">
-                    <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
-                    <InputRw value={data.title} readonly={edit} />
-                  </div>
-                </div>
-                <div class="flex flex-col grow gap-1.5">
-                  <Typography preset="Text sm/Medium" text={$_("extractDataPrompt")} color="secondary" />
-                  <TextareaRw value={data.prompt} readonly={edit} />
-                </div>
-                <div class="flex flex-col grow gap-1.5">
-                  <Typography preset="Text sm/Medium" text={$_("sampleOutputPrompt")} color="secondary" />
-                  <TextareaRw value={data.sample} readonly={edit} />
-                </div>
+        {#if tabDatas.selected === "Referenced Documents"}
+        <div>
+          <!-- header -->
+          <div class="flex justify-between pt-3 pb-6">
+            <div class="flex flex-col">
+              <Typography preset="Text lg/Semibold" color="primary" text={$_("setYourReferencedDocument")} />
+              <Typography preset="Text sm/Regular" color="tertiary" text={$_("descSetYourReferencedDocument")} />
+            </div>
+          </div>
+          <!-- reference document -->
+          <div class="flex gap-3">
+            <div class="w-60">
+              <Typography preset="Text md/Semibold" text={`${$_("documents")}`} color="secondary" />
+            </div>
+            <div class="flex flex-col grow gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- form upload -->
+                {#each files as doc, index}
+                  <UploadFile
+                    title={doc.type}
+                    handleFileUploadWrapper={() => {}}
+                    file={files[index]}
+                    actionButton={true}
+                    actionView={() => {}}
+                    actionDelete={() => {
+                      tmpId = files[index].id;
+                      deleteDocModal = true;
+                    }}
+                  />
+                {/each}
+                <Button
+                  class="w-full min-h-32 md:mt-6 flex gap-2.5 rounded-xl text-tertiary-light dark:text-tertiary-dark border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
+                  on:click={() => (addRefDocModal = true)}
+                  color="light"
+                >
+                  <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
+                  {$_("addReferenceDocs")}
+                </Button>
               </div>
             </div>
-            <Divider />
-          {/each}
-        {:else}
-          <div class="pt-8">
-            <StateCard 
-              illustration={IllustrationEmpty} 
-              actionText={$_("addNewSection")} 
-              funcButton={() => {
+          </div>
+        </div>
+        {:else if tabDatas.selected === "Rules"}
+        <div>
+          <!-- header -->
+          <div class="flex justify-between pt-3 pb-6">
+            <div class="flex flex-col">
+              <Typography preset="Text lg/Semibold" color="primary" text={$_("setRules")} />
+              <Typography preset="Text sm/Regular" color="tertiary" text={$_("descSetRules")} />
+            </div>
+            <Button
+              class="self-center gap-1"
+              color="primary"
+              on:click={() => {
                 formData = { title: "", prompt: "", sample: "" };
                 edit = false;
                 addRulesSectionsModal = true;
               }}
-              description={$_("youDontHaveAnyDataYet")} 
-            />
+              ><PlusOutline class="w-4 h-4" />
+              {$_("addNewSection")}</Button
+            >
           </div>
+          <!-- table latest -->
+          {#if Object.keys(datas).length > 0}
+            <div class="flex flex-col gap-6">
+              {#each datas.data as data, index}
+                <div class="flex gap-4">
+                  <div class="flex flex-col w-60 gap-2">
+                    <Typography preset="Text md/Semibold" text={$_("section") + " " + (index + 1)} color="secondary" />
+                    <div class="flex gap-2">
+                      <button
+                        class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
+                        onclick={() => {
+                          tmpSectionId = data.id;
+                          deleteModal = true;
+                        }}>{$_("delete")}</button
+                      >
+                      <button
+                        class="text-sm text-brand-secondary-light dark:text-brand-secondary-dark"
+                        onclick={() => {
+                          edit = true;
+                          tmpSectionId = data.id;
+                          formData = {
+                            title: data.title,
+                            prompt: data.prompt,
+                            sample: data.sample,
+                          };
+                          addRulesSectionsModal = true;
+                        }}>{$_("edit")}</button
+                      >
+                    </div>
+                  </div>
+                  <div class="flex flex-col grow gap-3">
+                    <div class="flex gap-3">
+                      <div class="flex flex-col gap-1.5">
+                        <Typography preset="Text sm/Medium" text={$_("order")} color="secondary" />
+                        <InputRw value={"#" + (index + 1)} readonly={edit} />
+                      </div>
+                      <div class="flex flex-col grow gap-1.5">
+                        <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
+                        <InputRw value={data.title} readonly={edit} />
+                      </div>
+                    </div>
+                    <div class="flex flex-col grow gap-1.5">
+                      <Typography preset="Text sm/Medium" text={$_("extractDataPrompt")} color="secondary" />
+                      <TextareaRw value={data.prompt} readonly={edit} />
+                    </div>
+                    <div class="flex flex-col grow gap-1.5">
+                      <Typography preset="Text sm/Medium" text={$_("sampleOutputPrompt")} color="secondary" />
+                      <TextareaRw value={data.sample} readonly={edit} />
+                    </div>
+                  </div>
+                </div>
+                <Divider />
+              {/each}
+            </div>
+          {:else}
+            <div class="pt-8">
+              <StateCard 
+                illustration={IllustrationEmpty} 
+                actionText={$_("addNewSection")} 
+                funcButton={() => {
+                  formData = { title: "", prompt: "", sample: "" };
+                  edit = false;
+                  addRulesSectionsModal = true;
+                }}
+                description={$_("youDontHaveAnyDataYet")} 
+              />
+            </div>
+          {/if}
+        </div>
         {/if}
       </div>
     </div>
   </div>
 </div>
+
+<Modal title={$_("addNewReferenceDocument")} bind:open={addRefDocModal}>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
+      <Input
+        bind:value={tmpDocumentName}
+        placeholder={$_("name")}
+        class="bg-primary-light dark:bg-gray-800"
+      />
+    </div>
+    <UploadFile
+      title={`${$_("uploadDocuments")}*`}
+      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName)}
+      file={tmpFile}
+      actionButton={true}
+      actionDelete={() => (tmpFile = [])}
+      actionView={() => ((documentViewModal = true), (selectedFile = tmpFile))}
+    />
+  </div>
+  <svelte:fragment slot="footer">
+    <Button
+      on:click={() => {
+        addOtherDocument();
+      }}
+      disabled={tmpFile.length === 0 || !tmpDocumentName}>{$_("add")}</Button
+    >
+  </svelte:fragment>
+</Modal>
+
+<Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
+  {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
+    <div class="flex justify-center">
+      <PdfViewer
+        showBorder={false}
+        showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+        scale={1}
+        data={atob(selectedFile.base64)}
+      />
+    </div>
+  {/if}
+</Modal>
 
 <Modal
   title={edit ? $_("editRulesSection") : $_("createNewRulesSection")}
@@ -379,7 +526,7 @@ All Rights Reserved
 
 <Modal bind:open={deleteModal} size="xs" autoclose>
   <div class="text-center">
-    <Icon.ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
@@ -389,6 +536,24 @@ All Rights Reserved
       onclick={() => {
         deleteModal = false;
         tmpSectionId = null;
+      }}>{$_("noCancel")}</Button
+    >
+  </div>
+</Modal>
+
+<Modal bind:open={deleteDocModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={() => {}} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
+    <Button
+      color="alternative"
+      onclick={() => {
+        deleteDocModal = false;
       }}>{$_("noCancel")}</Button
     >
   </div>

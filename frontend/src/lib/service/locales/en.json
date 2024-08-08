@@ -467,5 +467,10 @@
   "editResults": "Edit Results",
   "whatIsYourChangeResult": "What is your change result?",
   "sampleOutputPrompt": "Sample Output Prompt",
-  "caseList": "Case List"
+  "caseList": "Case List",
+  "descSetRules": "This rules will be used to configure how the AI reads document",
+  "referencedDocuments": "Referenced Documents",
+  "referenceDocuments": "Reference Documents",
+  "viewDocument": "View document",
+  "addNewReferenceDocument": "Add new reference document"
 }
