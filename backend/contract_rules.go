@@ -93,38 +93,72 @@ func GetContractRules(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 
 	fmt.Println(me)
 
+	search, ok := ctx.Params.GetString("search")
+
+	if !ok {
+		search = ""
+	}
+
 	page, ok := ctx.Params.GetFloat64("page")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters page")
+		page = 1
 	}
 
 	page_size, ok := ctx.Params.GetFloat64("page_size")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters page_size")
+		page_size = 10
 	}
 
-	status, rules, err := Strapi.Find("contract-rules-table", U.Dict{
-		"pagination": U.Dict{
-			"pageSize": page_size,
-			"page":     page,
-		},
-		"populate": "*",
-		"sort":     "id:desc",
-	})
+	if search == "" {
+		status, rules, err := Strapi.Find("contract-rules-table", U.Dict{
+			"pagination": U.Dict{
+				"pageSize": page_size,
+				"page":     page,
+			},
+			"populate": "*",
+			"sort":     "id:desc",
+		})
 
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, rules, nil
+	} else {
+		status, rules, err := Strapi.Find("contract-rules-table", U.Dict{
+			"filters": U.Dict{
+				"rule_name": U.Dict{
+					"$containsi": search,
+				},
+			},
+			"pagination": U.Dict{
+				"pageSize": page_size,
+				"page":     page,
+			},
+			"populate": "*",
+			"sort":     "id:desc",
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, rules, nil
 	}
-
-	if status != 200 {
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	return 200, rules, nil
 }
 
 func GetContractRule(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

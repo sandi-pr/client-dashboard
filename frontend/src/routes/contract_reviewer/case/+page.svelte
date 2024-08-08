@@ -10,7 +10,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { Modal, Button, Input } from "flowbite-svelte";
+  import { Modal, Button, Input, Pagination } from "flowbite-svelte";
   import { Typography, triggerToast, StateCard, triggerLoading } from "$lib";
   import * as Icon from "flowbite-svelte-icons";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
@@ -30,6 +30,10 @@ All Rights Reserved
   let configs = $state({});
 
   let datas = $state([]);
+
+  let page = $state(1);
+  let pageCount = $state(1);
+  let searchTerm = $state("");
 
   async function createRules() {
     addRulesModal = false;
@@ -61,65 +65,70 @@ All Rights Reserved
         tmpRulesName = "";
         addRulesModal = false;
         getRules();
-        goto(
-          (await call.getPage("client-dashboard", "contract-rule-detail")) +
-            "?ruleId=" +
-            response.result.data.id,
-        );
+        // goto(
+        //   (await call.getPage("client-dashboard", "contract-case-detail")) +
+        //     "?caseId=" +
+        //     response.result.data.id,
+        // );
       } catch (error) {
         triggerLoading(false);
-        triggerToast("error");
         addRulesModal = true;
+        triggerToast("error");
         console.log(error);
       }
     }
   }
 
-  const handleSearch = (evt) => {
-    console.log(evt.target.value);
+  const handleSearch = async (value) => {
+    page = 1;
+    searchTerm = value;
+
+    await getRules();
   };
 
   async function getRules() {
+    triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
       let rules = [];
-      let page = 1;
       try {
-        while (true) {
-          const response = await call.call("client-dashboard", "get-contract-rules", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              page: page,
-              page_size: 25,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+        const response = await call.call("client-dashboard", "get-contract-rules", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            search: searchTerm,
+            page: page,
+            page_size: 10,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-          if (response.status !== 200) {
-            console.log(response);
-            return;
-          }
-
-          if (response.result.data.length === 0) {
-            break;
-          }
-          rules = rules.concat(response.result.data);
-          page++;
+        if (response.status !== 200) {
+          triggerLoading(false);
+          console.log(response);
+          return;
         }
 
+        rules = response.result.data;
+
         if (rules.length > 0) {
-          let link = await call.getPage("client-dashboard", "contract-rule-detail");
+          pageCount = response.result.meta.pagination.pageCount;
+          configs = {
+            pagination: response.result.meta.pagination,
+            search: true,
+            searchHandler: handleSearch,
+          };
+          let link = await call.getPage("client-dashboard", "contract-case-detail");
           let promise = rules.map((rule) => {
             return {
               id: rule.id,
-              rule_name: rule.attributes.rule_name,
+              case_name: rule.attributes.rule_name,
               actions: {
                 objects: [
                   {
-                    href: link + "?ruleId=" + rule.id,
+                    href: link + "?caseId=" + rule.id,
                     name: "View",
                   },
                 ],
@@ -127,11 +136,25 @@ All Rights Reserved
             };
           });
           datas = await Promise.all(promise);
+          triggerLoading(false);
         }
+        triggerLoading(false);
       } catch (error) {
         console.log(error);
       }
     }
+  }
+
+  async function nextPage() {
+    if (page >= pageCount) return;
+    page++;
+    await getRules();
+  }
+
+  async function prevPage() {
+    if (page <= 1) return;
+    page--;
+    await getRules();
   }
 
   onMount(async () => {
@@ -177,7 +200,7 @@ All Rights Reserved
           >
             <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
           </Input>
-          <DataTable bind:datas bind:configs />
+          <DataTable bind:datas bind:configs next={nextPage} prev={prevPage} />
         {:else}
           <div class="pt-8">
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />

@@ -134,20 +134,20 @@
   //   }
   // });
 
-  $: filteredItems = datas.filter((data) => {
-    if (searchTerm === "") return true;
-    if (data) {
-      return Object.values(data).some((value) => {
-        if (typeof value === "string") {
-          return value.toLowerCase().includes(searchTerm.toLowerCase());
-        }
-        return false;
-      });
-    }
-  });
+  // $: filteredItems = datas.filter((data) => {
+  //   if (searchTerm === "") return true;
+  //   if (data) {
+  //     return Object.values(data).some((value) => {
+  //       if (typeof value === "string") {
+  //         return value.toLowerCase().includes(searchTerm.toLowerCase());
+  //       }
+  //       return false;
+  //     });
+  //   }
+  // });
 
   const handleSearch = (event) => {
-    searchTerm = event.target.value;
+    configs?.searchHandler(event.target.value);
   };
 
   // onMount(() => {
@@ -271,7 +271,7 @@
       {/if}
     </TableHead>
     <TableBody>
-      {#each configs?.search ? filteredItems : datas as data, index (data.id)}
+      {#each datas as data, index (data.id)}
         <TableBodyRow
           class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
         >
@@ -589,7 +589,6 @@
 
     <div class="m-4">
       <Pagination
-        bind:pages
         on:next={next}
         on:previous={previous}
         activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"

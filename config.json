@@ -250,14 +250,14 @@
             "file_path": "template/contract_reviewer/industries.html"
         },
         {
-            "name": "contract-rules",
-            "path": "/contract_reviewer/rules",
-            "file_path": "template/contract_reviewer/rules.html"
+            "name": "contract-case",
+            "path": "/contract_reviewer/case",
+            "file_path": "template/contract_reviewer/case.html"
         },
         {
-            "name": "contract-rule-detail",
-            "path": "/contract_reviewer/rules/detail",
-            "file_path": "template/contract_reviewer/rules/detail.html"
+            "name": "contract-case-detail",
+            "path": "/contract_reviewer/case/detail",
+            "file_path": "template/contract_reviewer/case/detail.html"
         }
     ],
     "apis": [
@@ -2743,6 +2743,10 @@
             },
             "params": [
                 {
+                    "name": "search",
+                    "type": "text"
+                },
+                {
                     "name": "page",
                     "type": "number"
                 },
@@ -3875,6 +3879,9 @@
                 "label": "References Document",
                 "fields": {
                     "industry_id": {
+                        "type": "integer"
+                    },
+                    "contract_rule_id": {
                         "type": "integer"
                     },
                     "document_for": {
