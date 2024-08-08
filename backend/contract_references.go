@@ -447,7 +447,7 @@ func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 			"pageSize": page_size,
 		},
 		"populate": "*",
-		"sort":     "id:desc",
+		"sort":     "id:asc",
 	})
 
 	if err != nil {

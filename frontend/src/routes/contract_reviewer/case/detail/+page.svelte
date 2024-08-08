@@ -273,6 +273,7 @@ All Rights Reserved
 
   async function getReferences() {
     let token = sessionStorage.getItem("token");
+    console.log("user", sessionStorage.getItem("user"));
     try {
       let page = 1;
       files = [];
