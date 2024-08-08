@@ -619,7 +619,9 @@ All Rights Reserved
                                 tmpSectionId = data.id;
                                 editSection();
                               }
-                            }}>{$_("save")}</button
+                            }}
+                            disabled={data.title === "" || data.prompt === "" || data.sample === ""}
+                            >{$_("save")}</button
                           >
                         {/if}
                       </div>
