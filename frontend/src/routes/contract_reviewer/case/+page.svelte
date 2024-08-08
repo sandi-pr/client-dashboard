@@ -173,7 +173,7 @@ All Rights Reserved
     <div class="flex flex-col m-4">
       <!-- <Navbar /> -->
 
-      <div class="flex flex-col gap-8">
+      <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex justify-between">
           <Typography preset="Display sm/Semibold" text={$_("caseList")} />
@@ -191,15 +191,6 @@ All Rights Reserved
 
         <!-- table latest -->
         {#if datas.length > 0}
-          <Input
-            id="search"
-            type="search"
-            class="bg-white dark:bg-hc-graydark-950 py-3"
-            placeholder={$_("search")}
-            on:input={handleSearch}
-          >
-            <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          </Input>
           <DataTable bind:datas bind:configs next={nextPage} prev={prevPage} />
         {:else}
           <div class="pt-8">
@@ -211,16 +202,16 @@ All Rights Reserved
   </div>
 </div>
 
-<Modal title={$_("createNewRules")} bind:open={addRulesModal} size="lg">
+<Modal title={$_("createNewCases")} bind:open={addRulesModal}>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesName")}*`} />
-      <Input bind:value={tmpRulesName} placeholder={$_("whatIsYourRulesName")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("caseName")}*`} />
+      <Input bind:value={tmpRulesName} placeholder={$_("whatIsYourCaseTitle")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={createRules} class="w-full" disabled={buttonDisabled}
-      >{$_("addNewRules")}</Button
+      >{$_("addNewCase")}</Button
     >
   </svelte:fragment>
 </Modal>

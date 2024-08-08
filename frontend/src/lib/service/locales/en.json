@@ -472,5 +472,9 @@
   "referencedDocuments": "Referenced Documents",
   "referenceDocuments": "Reference Documents",
   "viewDocument": "View document",
-  "addNewReferenceDocument": "Add new reference document"
+  "addNewReferenceDocument": "Add new reference document",
+  "createNewCases": "Create new Cases",
+  "caseName": "Case name",
+  "whatIsYourCaseTitle": "What is your case title?",
+  "addNewCase": "Add new case"
 }

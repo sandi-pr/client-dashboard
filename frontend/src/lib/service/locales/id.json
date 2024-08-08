@@ -472,5 +472,9 @@
   "referencedDocuments": "Dokumen Referensi",
   "referenceDocuments": "Dokumen Referensi",
   "viewDocument": "Lihat dokumen",
-  "addNewReferenceDocument": "Tambahkan dokumen referensi baru"
+  "addNewReferenceDocument": "Tambahkan dokumen referensi baru",
+  "createNewCases": "Buat Case baru",
+  "caseName": "Judul case",
+  "whatIsYourCaseTitle": "Apa judul case Anda?",
+  "addNewCase": "Tambahkan case baru"
 }
