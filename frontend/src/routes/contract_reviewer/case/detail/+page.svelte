@@ -191,7 +191,6 @@ All Rights Reserved
 
         triggerLoading(false);
         triggerToast("created");
-        getRulesSections();
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");
@@ -265,7 +264,6 @@ All Rights Reserved
 
         triggerLoading(false);
         triggerToast("updated");
-        getRulesSections();
       } catch (error) {
         console.log(error);
       }
