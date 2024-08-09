@@ -478,5 +478,8 @@
   "whatIsYourCaseTitle": "What is your case title?",
   "addNewCase": "Add new case",
   "aiIsReadingTheDocuments": "AI is reading the documents",
-  "manageCases": "Manage Cases"
+  "manageCases": "Manage Cases",
+  "myProfile": "My Profile",
+  "companyType": "Company Type",
+  "modelTrocr": "Model TROCR"
 }

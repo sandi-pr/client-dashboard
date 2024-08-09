@@ -13,10 +13,19 @@
 <script>
   import { onMount } from "svelte";
   import { P, Input, Avatar, Button, Select } from "flowbite-svelte";
-  import { TabBar, InformationForm, Typography, triggerToast } from "$lib";
+  import { SelectedCard, InformationForm, Typography, triggerToast } from "$lib";
+  import TabDetail from "$lib/components/TabDetail.svelte";
+  import Divider from "$lib/components/Divider.svelte";
   import { SearchOutline } from "flowbite-svelte-icons";
   import DataTable from "$lib/components/DataTable.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
+  import MarketIcon from "$lib/icon/building-02.svelte";
+  import OfficeIcon from "$lib/icon/building-06.svelte";
+  import BankIcon from "$lib/icon/bank.svelte";
+  import UserIcon from "$lib/icon/user-03.svelte";
+  import SignalIcon from "$lib/icon/signal-01.svelte";
+  import OilGas from "$lib/icon/oil-gas.svelte";
+  import SlidersIcon from "$lib/icon/sliders-04.svelte";
   import { datas, informationFormDatas, configs } from "./dummy";
   import { CR3Call } from "hexacomponents-svelte";
 
@@ -33,6 +42,8 @@
   let currentPasswordMatch = false;
   let selectedModelTrocr = "";
   let options = [];
+  let selectedCompanyType = "selectedData_0";
+  let selectedIndustryType = "selectedData_1";
   let tabDatas = {
     selected: "My Profile",
     data: [
@@ -43,10 +54,52 @@
         name: "Password",
       },
       {
+        name: "Company Type",
+      },
+      {
         name: "Model TROCR",
       },
     ],
   };
+
+  let companyTypes = [
+    {
+      icon: MarketIcon,
+      name: "Start-ups and Small Businesses (1-50 employees)",
+      desc: "Gain a competitive edge with tools that help you manage your growing business efficiently",
+    },
+    {
+      icon: OfficeIcon,
+      name: "Medium Businesses (51-500 employees)",
+      desc: "Enhance coordination and productivity across various departments and teams.",
+    },
+    {
+      icon: BankIcon,
+      name: "Large Enterprises  (>500 employees)",
+      desc: "Maximize your impact with streamlined operations and resource management.",
+    },
+    {
+      icon: UserIcon,
+      name: "Freelancers and Consultants",
+      desc: "Organize your projects, finances, and client interactions effectively in one place.",
+    },
+  ];
+
+  let industryType = [
+    {
+      icon: SignalIcon,
+      name: "Tech",
+    },
+    {
+      icon: OilGas,
+      name: "Oil & Gas",
+    },
+    {
+      icon: SlidersIcon,
+      name: "Other",
+    }
+  ]
+
   let passwordObject = {
     currentPassword: "",
     newPassword: "",
@@ -379,12 +432,12 @@
     </div>
 
     <!-- Submenu -->
-    <TabBar {tabDatas} {changeTabbar} />
+    <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
     <!-- Content -->
     {#if isAdmin}
       {#if tabDatas.selected === "My Profile"}
-        <div class="mx-4 mt-8">
+        <div class="mx-4 mt-4">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text="Personal info" />
             <Typography
@@ -433,7 +486,7 @@
           </div>
         </div>
       {:else if tabDatas.selected === "Password"}
-        <div class="mx-4 mt-8">
+        <div class="mx-4 mt-4">
           <!-- <DataTable {datas} {configs} /> -->
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text="Password" />
@@ -485,8 +538,31 @@
             </div>
           </div>
         </div>
+      {:else if tabDatas.selected === "Company Type"}
+        <div class="mx-4 mt-4">
+          <div class="pt-4 pb-5 border-b border-secondary-light dark:border-secondary-dark">
+            <Typography preset="Text lg/Semibold" text="Company Size" />
+            <Typography
+              preset="Text sm/Reguler"
+              text="Please select your companies current size"
+            />
+          </div>
+          <Divider />
+          <div class="pb-4"></div>
+          <SelectedCard selectionData={companyTypes} bind:selectedData={selectedCompanyType} numGrid={2} isRadio />
+          <div class="pt-8 pb-5 border-b border-secondary-light dark:border-secondary-dark">
+            <Typography preset="Text lg/Semibold" text="Industry" />
+            <Typography
+              preset="Text sm/Reguler"
+              text="Please select your companies current industry"
+            />
+          </div>
+          <Divider />
+          <div class="pb-4"></div>
+            <SelectedCard selectionData={industryType} bind:selectedData={selectedIndustryType} isFlex isRadio widthFlex="w-max" />
+          </div>
       {:else if tabDatas.selected === "Model TROCR"}
-        <div class="mx-4 mt-8">
+        <div class="mx-4 mt-4">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text="Model TROCR" />
             <Select items={options} class="display-block" bind:value={selectedModelTrocr} />

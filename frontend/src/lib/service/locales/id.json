@@ -478,5 +478,8 @@
   "whatIsYourCaseTitle": "Apa judul case Anda?",
   "addNewCase": "Tambahkan case baru",
   "aiIsReadingTheDocuments": "AI sedang membaca dokumen",
-  "manageCases": "Kelola Case"
+  "manageCases": "Kelola Case",
+  "myProfile": "My Profile",
+  "companyType": "Company Type",
+  "modelTrocr": "Model TROCR"
 }
