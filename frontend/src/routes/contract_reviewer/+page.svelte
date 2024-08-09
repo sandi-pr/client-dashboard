@@ -72,7 +72,7 @@ All Rights Reserved
         desc: "desc Add new project",
       },
       {
-        href: await call.getPage("client-dashboard", "contract-reviewer-reference"),
+        href: await call.getPage("client-dashboard", "contract-case"),
         icon: "bookOpen",
         actionName: "Manage cases",
         desc: "desc Set your referenced document",
