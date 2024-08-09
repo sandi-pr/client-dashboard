@@ -321,7 +321,7 @@ All Rights Reserved
       <Input bind:value={tmpProjectName} placeholder={$_("whatIsYourProjectTitle")} />
     </div>
     <div class="flex gap-4">
-      <div class="flex flex-col grow gap-1.5">
+      <!-- <div class="flex flex-col grow gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
         <Dropdown
           dropdownOpen={dropdownIndustryOpen}
@@ -330,14 +330,14 @@ All Rights Reserved
           placeholder={$_("selectIndustry")}
           isOverlay={true}
         />
-      </div>
+      </div> -->
       <div class="flex flex-col grow gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("rules")}*`} />
+        <Typography preset="Text sm/medium" color="secondary" text={`${$_("case")}*`} />
         <Dropdown
           dropdownOpen={dropdownRulesOpen}
           bind:selectedItem={selectedRules}
           items={rules}
-          placeholder={$_("selectRules")}
+          placeholder={$_("chooseCase")}
           isOverlay={true}
         />
       </div>

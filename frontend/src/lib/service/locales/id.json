@@ -484,5 +484,7 @@
   "modelTrocr": "Model TROCR",
   "documentInformation": "Informasi Dokumen",
   "contentDate": "Tgl. Konten",
-  "selectDate": "Pilih tgl."
+  "selectDate": "Pilih tgl.",
+  "case": "Case",
+  "chooseCase": "Pilih Case"
 }

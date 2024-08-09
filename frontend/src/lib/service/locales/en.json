@@ -484,5 +484,7 @@
   "modelTrocr": "Model TROCR",
   "documentInformation": "Document Information",
   "contentDate": "Content Date",
-  "selectDate": "Select dates"
+  "selectDate": "Select dates",
+  "case": "Case",
+  "chooseCase": "Choose Case"
 }

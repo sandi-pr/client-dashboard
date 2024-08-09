@@ -626,14 +626,14 @@ All Rights Reserved
                     </div>
                     <div class="flex flex-col grow gap-3">
                       <div class="flex gap-3">
-                        <div class="flex flex-col gap-1.5">
+                        <!-- <div class="flex flex-col gap-1.5">
                           <Typography
                             preset="Text sm/Medium"
                             text={$_("order")}
                             color="secondary"
                           />
                           <InputRw value={"#" + (index + 1)} onEdit={edit} />
-                        </div>
+                        </div> -->
                         <div class="flex flex-col grow gap-1.5">
                           <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
                           <InputRw bind:value={data.title} onEdit={editRules[index]} />
