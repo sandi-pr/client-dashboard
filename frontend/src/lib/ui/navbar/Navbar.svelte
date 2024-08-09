@@ -18,10 +18,15 @@
   import StarsIcon from "$lib/icon/stars-01.svg";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
-  
+
   let deleteModal = $state(false);
 
-  let { activeUrl = "/", changeShowAI = () => {}, appUrl = "/", reset_database = () => {} } = $props();
+  let {
+    activeUrl = "/",
+    changeShowAI = () => {},
+    appUrl = "/",
+    reset_database = () => {},
+  } = $props();
 </script>
 
 <div>
@@ -29,7 +34,13 @@
     <Breadcrumb {activeUrl} {appUrl} />
     <div class="flex space-x-4">
       <LanguageSelector />
-      <Button color="light" icon={RefreshCwIcon} text="" spaceY="mt-0" funcButton={() => (deleteModal = true)} />
+      <Button
+        color="light"
+        icon={RefreshCwIcon}
+        text=""
+        spaceY="mt-0"
+        funcButton={() => (deleteModal = true)}
+      />
       <DarkMode
         btnClass="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600 focus-within:ring-4 focus-within:outline-none focus-within:ring-gray-200 dark:focus-within:ring-gray-700"
       />
@@ -53,8 +64,21 @@
       {$_("areYouSureYouWantToResetTheDatabase")}
     </h3>
     <div class="flex justify-center space-x-4">
-      <Button text={$_("yesImSure")} funcButton={() => { reset_database(); }} color="red" spaceY="mt-0" class="me-2"></Button>
-      <Button text={$_("noCancel")} color="alternative" funcButton={() => (deleteModal = false)} spaceY="mt-0"></Button>
+      <Button
+        text={$_("yesImSure")}
+        funcButton={() => {
+          reset_database();
+        }}
+        color="red"
+        spaceY="mt-0"
+        class="me-2"
+      ></Button>
+      <Button
+        text={$_("noCancel")}
+        color="alternative"
+        funcButton={() => (deleteModal = false)}
+        spaceY="mt-0"
+      ></Button>
     </div>
   </div>
 </Modal>
