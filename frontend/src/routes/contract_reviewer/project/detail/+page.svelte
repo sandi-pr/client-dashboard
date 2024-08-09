@@ -23,6 +23,7 @@
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { breadcrumbLastName } from "$lib/stores/breadcrumbLastName.js";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -364,14 +365,16 @@
             as: response.result.data[0].attributes.project_as,
             start_date: format(
               new Date(response.result.data[0].attributes.duration_start),
-              "d MMM yyyy",
+              "d MMM yyyy"
             ),
             end_date: format(
               new Date(response.result.data[0].attributes.duration_end),
-              "d MMM yyyy",
+              "d MMM yyyy"
             ),
             description: response.result.data[0].attributes.description,
           };
+
+          breadcrumbLastName.set(data.name);
 
           ready = true;
 
@@ -383,6 +386,7 @@
         console.log(error);
       }
     }
+    // breadcrumbLastName.set("Bruh");
   }
 
   async function generatedAI(file) {
@@ -402,7 +406,7 @@
             Headers: {
               Authorization: "Bearer " + token,
             },
-          },
+          }
         );
 
         if (response.status !== 200) {
@@ -458,7 +462,7 @@
           } else {
             triggerLoading(false);
             alert(
-              "Please wait for the file to be processed or check the document references for industry type usage, there must be 2 documents.",
+              "Please wait for the file to be processed or check the document references for industry type usage, there must be 2 documents."
             );
           }
         } else {
@@ -466,7 +470,7 @@
           goto(
             (await call.getPage("client-dashboard", "contract-project-review")) +
               "?projectDocumentId=" +
-              response.result.data[0].id,
+              response.result.data[0].id
           );
         }
       } catch (error) {
@@ -584,7 +588,7 @@
             Headers: {
               Authorization: "Bearer " + token,
             },
-          },
+          }
         );
 
         if (response.status !== 200) {
@@ -624,6 +628,7 @@
       projectId = $page.url.searchParams.get("projectId");
       if (projectId !== null) {
         getProject();
+        triggerLoading(false);
       } else {
         goto(await call.getPage("client-dashboard", "contract-project-list"));
       }
@@ -675,7 +680,11 @@
             />
           </div>
           <div class="flex grow flex-col gap-1.5">
-            <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}`} />
+            <Typography
+              preset="Text sm/medium"
+              color="secondary"
+              text={`${$_("projectDuration")}`}
+            />
             <DatePicker
               isOpen={false}
               startDate={data.start_date}
