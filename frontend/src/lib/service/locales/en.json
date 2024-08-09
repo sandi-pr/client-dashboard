@@ -481,5 +481,8 @@
   "manageCases": "Manage Cases",
   "myProfile": "My Profile",
   "companyType": "Company Type",
-  "modelTrocr": "Model TROCR"
+  "modelTrocr": "Model TROCR",
+  "documentInformation": "Document Information",
+  "contentDate": "Content Date",
+  "selectDate": "Select dates"
 }

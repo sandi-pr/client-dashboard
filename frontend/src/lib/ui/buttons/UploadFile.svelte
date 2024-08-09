@@ -29,6 +29,7 @@ All Rights Reserved
     actionButton = false,
     actionView = null,
     actionDelete = () => {},
+    isFlex = false,
   } = $props();
 
   const textFileType = (type) => {
@@ -60,7 +61,7 @@ All Rights Reserved
     </Button>
   {:else}
     <div
-      class="flex flex-col gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark"
+      class={`flex ${isFlex ? "flex-row justify-between" : "flex-col"} gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark`}
     >
       <div class="flex items-center justify-start gap-3">
         {#if file.name.includes(".pdf") || file.name.includes(".PDF")}

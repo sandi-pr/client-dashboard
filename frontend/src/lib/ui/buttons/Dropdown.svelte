@@ -20,6 +20,7 @@ All Rights Reserved
     placeholder = "select item",
     isOverlay = false,
     disabled = false,
+    onClick = null,
   } = $props();
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
@@ -52,7 +53,10 @@ All Rights Reserved
           {#each items as item}
             <button
               class="flex w-full py-2 px-4"
-              onclick={() => ((dropdownOpen = false), (selectedItem = item.value))}
+              onclick={onClick === null ? 
+              () => ((dropdownOpen = false), (selectedItem = item.value)) : 
+              () => ((dropdownOpen = false), (selectedItem = item.value), onClick(item.value))
+              }
             >
               {item.name}
             </button>

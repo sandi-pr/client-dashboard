@@ -479,7 +479,10 @@
   "addNewCase": "Tambahkan case baru",
   "aiIsReadingTheDocuments": "AI sedang membaca dokumen",
   "manageCases": "Kelola Case",
-  "myProfile": "My Profile",
-  "companyType": "Company Type",
-  "modelTrocr": "Model TROCR"
+  "myProfile": "Profil Saya",
+  "companyType": "Tipe Perusahaan",
+  "modelTrocr": "Model TROCR",
+  "documentInformation": "Informasi Dokumen",
+  "contentDate": "Tgl. Konten",
+  "selectDate": "Pilih tgl."
 }
