@@ -4004,6 +4004,9 @@
                     "section_prompt": {
                         "type": "string"
                     },
+                    "reference_prompt": {
+                        "type": "string"
+                    },
                     "section_sample": {
                         "type": "string"
                     },
