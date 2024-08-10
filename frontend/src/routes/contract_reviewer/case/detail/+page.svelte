@@ -582,7 +582,7 @@ All Rights Reserved
                     <div class="flex flex-col w-60 gap-2">
                       <Typography
                         preset="Text md/Semibold"
-                        text={$_("section") + " " + (index + 1)}
+                        text={$_("section") + " " + (data.id === 0 ? "" : index + 1)}
                         color="secondary"
                       />
                       <div class="flex gap-2">
@@ -642,14 +642,16 @@ All Rights Reserved
                     </div>
                     <div class="flex flex-col grow gap-3">
                       <div class="flex gap-3">
-                        <!-- <div class="flex flex-col gap-1.5">
-                          <Typography
-                            preset="Text sm/Medium"
-                            text={$_("order")}
-                            color="secondary"
-                          />
-                          <InputRw value={"#" + (index + 1)} onEdit={edit} />
-                        </div> -->
+                        {#if data.id !== 0}
+                          <div class="flex flex-col gap-1.5">
+                            <Typography
+                              preset="Text sm/Medium"
+                              text={$_("order")}
+                              color="secondary"
+                            />
+                            <InputRw value={"#" + (index + 1)} onEdit={edit} />
+                          </div>
+                        {/if}
                         <div class="flex flex-col grow gap-1.5">
                           <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
                           <InputRw bind:value={data.title} onEdit={editRules[index]} />
