@@ -302,8 +302,8 @@
           index++;
           return {
             id: index,
-            section: data.title,
-            result: data.text,
+            section: data.section,
+            result: data.result,
             // actions: {
             //   objects: [
             //     {
