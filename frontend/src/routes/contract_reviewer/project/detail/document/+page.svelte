@@ -247,6 +247,7 @@
           document_name: response.result.document.data[0].attributes.document_name,
           content_date: response.result.document.data[0].attributes.content_date,
           description: response.result.document.data[0].attributes.description,
+          ext: response.result.document.data[0].attributes.document_media_id.data.attributes.ext,
         };
 
         startDate = new Date(response.result.document.data[0].attributes.content_date);

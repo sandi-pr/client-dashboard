@@ -46,6 +46,7 @@
   let interval = $state(false);
   let ragStatus = $state(false);
   let countSection = $state(0);
+  let idResults = $state([]);
 
   let rules = $state([]);
 
@@ -492,11 +493,15 @@
                   break;
                 }
 
-                files[i] = {
-                  ...files[i],
-                  status_generated: "FINISH",
-                  result_id: response.result.data[0].id,
-                };
+                files[i].status_generated = "FINISH";
+                files[i].result_id = response.result.data[0].id;
+
+                let id = response.result.data[0].id;
+
+                idResults.push({
+                  idDocument: files[i].id,
+                  idResult: id,
+                });
               }
             }
           }
@@ -662,11 +667,21 @@
                 if (file.status_generated !== "FINISH") {
                   generatedAI(file);
                 } else {
-                  goto(
-                    (await call.getPage("client-dashboard", "contract-project-review")) +
-                      "?projectDocumentId=" +
-                      file.result_id,
-                  );
+                  if (file.result_id !== undefined) {
+                    goto(
+                      (await call.getPage("client-dashboard", "contract-project-review")) +
+                        "?projectDocumentId=" +
+                        file.result_id,
+                    );
+                  } else {
+                    console.log("gamasuk");
+                    let idResult = idResults.find((file) => file.idDocument === file.id);
+                    goto(
+                      (await call.getPage("client-dashboard", "contract-project-review")) +
+                        "?projectDocumentId=" +
+                        idResult,
+                    );
+                  }
                 }
               }}
             />
