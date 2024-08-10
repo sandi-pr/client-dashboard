@@ -309,6 +309,7 @@
         }
 
         setIntervalGetDocument();
+        getStatusGenerated();
       } catch (error) {
         triggerToast("error");
         console.log(error);
@@ -442,7 +443,8 @@
     if (token) {
       try {
         for (let i = 0; i < files.length; i++) {
-          if (files[i].status_generated !== "START") continue;
+          if (files[i].status_generated !== "START" && files[i].status_generated !== "FINISH")
+            continue;
           else {
             const response = await call.call(
               "client-dashboard",
@@ -467,40 +469,42 @@
             }
 
             if (response.result.data.length > 0) {
-              console.log(response.result.data[0].attributes.result.length, countSection);
               if (response.result.data[0].attributes.result.length === countSection) {
-                const response2 = await call.call(
-                  "client-dashboard",
-                  "update-project-document-status-generated",
-                  {
-                    URLQuery: {},
-                    URLParams: {
-                      id: files[i].id.toString(),
+                if (files[i].status_generated === "START") {
+                  const response2 = await call.call(
+                    "client-dashboard",
+                    "update-project-document-status-generated",
+                    {
+                      URLQuery: {},
+                      URLParams: {
+                        id: files[i].id.toString(),
+                      },
+                      Params: {
+                        status_generated: "FINISH",
+                      },
+                      Headers: {
+                        Authorization: "Bearer " + token,
+                      },
                     },
-                    Params: {
-                      status_generated: "FINISH",
-                    },
-                    Headers: {
-                      Authorization: "Bearer " + token,
-                    },
-                  },
-                );
+                  );
 
-                if (response2.status !== 200) {
-                  triggerLoading(false);
-                  triggerToast("error");
-                  console.log(response2);
-                  break;
+                  if (response2.status !== 200) {
+                    triggerLoading(false);
+                    triggerToast("error");
+                    console.log(response2);
+                    break;
+                  }
+
+                  files[i].status_generated = "FINISH";
                 }
 
-                files[i].status_generated = "FINISH";
-                files[i].result_id = response.result.data.id;
+                let id = response.result.data[0].id;
 
-                let id = response.result.data.id;
+                console.log("id", id);
 
                 idResults.push({
-                  idDocument: files[i].id,
-                  idResult: id,
+                  id_doc: files[i].id,
+                  id: id,
                 });
               }
             }
@@ -675,11 +679,14 @@
                     );
                   } else {
                     console.log("gamasuk");
-                    let index = idResults.findIndex((result) => result.idDocument === file.id);
+                    console.log(idResults);
+                    let index = idResults.findIndex((result) => result.id_doc === file.id);
+                    console.log(index);
+                    console.log(idResults[index]);
                     goto(
                       (await call.getPage("client-dashboard", "contract-project-review")) +
                         "?projectDocumentId=" +
-                        idResults[index].idResult,
+                        idResults[index].id,
                     );
                   }
                 }
