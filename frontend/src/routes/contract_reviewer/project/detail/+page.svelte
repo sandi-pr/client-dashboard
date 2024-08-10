@@ -362,25 +362,25 @@
             return;
           }
 
-          if (initRAG) {
-            const response3 = await call.call("hexa-ai-contract-review", "process-to-rag", {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                project_id: projectId.toString(),
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
+          // if (initRAG) {
+          //   const response3 = await call.call("hexa-ai-contract-review", "process-to-rag", {
+          //     URLQuery: {},
+          //     URLParams: {},
+          //     Params: {
+          //       project_id: projectId.toString(),
+          //     },
+          //     Headers: {
+          //       Authorization: "Bearer " + token,
+          //     },
+          //   });
 
-            if (response3.status !== 200) {
-              triggerLoading(false);
-              triggerToast("error");
-              console.log(response3);
-              return;
-            }
-          }
+          //   if (response3.status !== 200) {
+          //     triggerLoading(false);
+          //     triggerToast("error");
+          //     console.log(response3);
+          //     return;
+          //   }
+          // }
         }
 
         initRAG = false;
