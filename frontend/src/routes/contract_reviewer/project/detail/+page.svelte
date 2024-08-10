@@ -494,9 +494,9 @@
                 }
 
                 files[i].status_generated = "FINISH";
-                files[i].result_id = response.result.data[0].id;
+                files[i].result_id = response.result.data.id;
 
-                let id = response.result.data[0].id;
+                let id = response.result.data.id;
 
                 idResults.push({
                   idDocument: files[i].id,
