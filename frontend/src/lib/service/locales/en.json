@@ -487,5 +487,7 @@
   "selectDate": "Select dates",
   "case": "Case",
   "chooseCase": "Choose Case",
-  "referencePrompt": "Reference Prompt"
+  "referencePrompt": "Reference Prompt",
+  "aiSuggestion": "AI Suggestion",
+  "section": "Section"
 }
