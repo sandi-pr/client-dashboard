@@ -675,11 +675,11 @@
                     );
                   } else {
                     console.log("gamasuk");
-                    let idResult = idResults.find((file) => file.idDocument === file.id).idResult;
+                    let index = idResults.findIndex((result) => result.idDocument === file.id);
                     goto(
                       (await call.getPage("client-dashboard", "contract-project-review")) +
                         "?projectDocumentId=" +
-                        idResult,
+                        idResults[index].idResult,
                     );
                   }
                 }
