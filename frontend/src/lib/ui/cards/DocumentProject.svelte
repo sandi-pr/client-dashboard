@@ -32,10 +32,10 @@ All Rights Reserved
     rules = [],
     selectedItem = $bindable(""),
     placeholderDropdown = "selectItem",
-    status = "",
+    status = $bindable(""),
     dropdownOpen = false,
     actionButton = false,
-    isLoading = false,
+    isLoading = $bindable(false),
     actionView = null,
     actionDelete = () => {},
     actionGenerate = () => {},
@@ -77,7 +77,9 @@ All Rights Reserved
     <div
       class="flex flex-col h-full gap-3 rounded-xl border border-primary-light dark:border-primary-dark"
     >
-      <div class="h-full rounded-xl z-50 py-4 flex flex-col gap-2 items-center justify-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark">
+      <div
+        class="h-full rounded-xl z-50 py-4 flex flex-col gap-2 items-center justify-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"
+      >
         <LaodingLottie />
         <div class="flex flex-col gap-2 items-center">
           <Typography
@@ -93,7 +95,6 @@ All Rights Reserved
     <div
       class="flex flex-col gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark"
     >
-    <LaodingLottie />
       <Typography
         preset="Text md/Semibold"
         text={title}
@@ -122,7 +123,6 @@ All Rights Reserved
             propClass="truncate"
           />
           <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
-          <Typography preset="Text sm/Regular" text={"status : " + status} color="tertiary" />
         </div>
       </div>
       {#if actionButton}
@@ -137,20 +137,31 @@ All Rights Reserved
           <Button
             color="light"
             on:click={actionGenerate}
+            disabled={status === "START"}
             class="gap-1.5 grow border-brand-light dark:border-primary-dark"
           >
-            <Typography preset="Text sm/Semibold" text={"AI-Generate"} color="brand-secondary" />
-            <StarsIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
+            {#if status === "START"}
+              <Spinner color="purple" />
+            {/if}
+
+            <Typography
+              preset="Text sm/Semibold"
+              text={status !== "FINISH" ? "Generate Suggestion" : "AI Suggestion"}
+              color="brand-secondary"
+            />
+            <StarsIcon
+              svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+            />
           </Button>
           {#if actionView}
             <Button class="p-2 w-max gap-1.5" color="light" on:click={actionView}>
               <InfoCircle class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-              <Typography preset="Text sm/Semibold" text={$_("view")} color="secondary" />
+              <!-- <Typography preset="Text sm/Semibold" text={$_("view")} color="secondary" /> -->
             </Button>
           {/if}
           <Button class="p-2 w-max gap-1.5" color="light" on:click={actionDelete}>
             <TrashIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-            <Typography preset="Text sm/Semibold" text={$_("remove")} color="secondary" />
+            <!-- <Typography preset="Text sm/Semibold" text={$_("remove")} color="secondary" /> -->
           </Button>
         </div>
       {/if}

@@ -255,11 +255,27 @@ func GetContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 		return ctx.Error(400, "invalid parameters contract_rule_id")
 	}
 
+	page, ok := ctx.Params.GetFloat64("page")
+
+	if !ok {
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+
+	if !ok {
+		page_size = 10
+	}
+
 	status, section, err := Strapi.Find("contract-rule-sections-table", U.Dict{
 		"filters": U.Dict{
 			"contract_rule_id": U.Dict{
 				"$eq": contract_rule_id,
 			},
+		},
+		"pagination": U.Dict{
+			"pageSize": page_size,
+			"page":     page,
 		},
 		"populate": "*",
 		"sort":     "id:asc",
@@ -463,6 +479,12 @@ func UpdateContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.
 		return ctx.Error(400, "invalid parameters section_prompt")
 	}
 
+	reference_prompt, ok := ctx.Params.GetString("reference_prompt")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters reference_prompt")
+	}
+
 	section_sample, ok := ctx.Params.GetString("section_sample")
 
 	if !ok {
@@ -470,9 +492,10 @@ func UpdateContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.
 	}
 
 	status, section, err := Strapi.Update("contract-rule-sections-table", int64(id), U.Dict{
-		"section_title":  section_title,
-		"section_prompt": section_prompt,
-		"section_sample": section_sample,
+		"section_title":    section_title,
+		"section_prompt":   section_prompt,
+		"reference_prompt": reference_prompt,
+		"section_sample":   section_sample,
 	})
 
 	if err != nil {

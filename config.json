@@ -2757,7 +2757,7 @@
             },
             "params": [
                 {
-                    "name": "industry_id",
+                    "name": "contract_rule_id",
                     "type": "number"
                 }
             ]
@@ -2836,6 +2836,14 @@
                 {
                     "name": "contract_rule_id",
                     "type": "string"
+                },
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
                 }
             ]
         },
@@ -2914,6 +2922,10 @@
                 },
                 {
                     "name": "section_prompt",
+                    "type": "string"
+                },
+                {
+                    "name": "reference_prompt",
                     "type": "string"
                 },
                 {
@@ -3064,6 +3076,30 @@
             "params": [
                 {
                     "name": "rag_id",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-project-document-status-generated",
+            "path": "/update-project-document-status-generated/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateDocumentContractProjectStatusGenerated"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "status_generated",
                     "type": "string"
                 }
             ]
@@ -4092,6 +4128,9 @@
                         "type": "string"
                     },
                     "status": {
+                        "type": "string"
+                    },
+                    "status_generated": {
                         "type": "string"
                     },
                     "creator_id": {

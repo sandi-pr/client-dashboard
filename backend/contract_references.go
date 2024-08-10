@@ -332,15 +332,15 @@ func CheckReferenceRag(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 
 	fmt.Println(me)
 
-	industry_id, ok := ctx.Params.GetFloat64("industry_id")
+	contract_rule_id, ok := ctx.Params.GetFloat64("contract_rule_id")
 	if !ok {
-		return ctx.Error(400, "invalid parameters industry_id")
+		return ctx.Error(400, "invalid parameters contract_rule_id")
 	}
 
 	status, data, err := Strapi.Find("references-document-table", U.Dict{
 		"filters": U.Dict{
-			"industry_id": U.Dict{
-				"$eq": industry_id,
+			"contract_rule_id": U.Dict{
+				"$eq": contract_rule_id,
 			},
 		},
 		"populate": "*",
@@ -365,14 +365,6 @@ func CheckReferenceRag(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 		return 200, U.Dict{"ready": false}, nil
 	}
 
-	if len(list) < 2 {
-		return 200, U.Dict{"ready": false}, nil
-	}
-
-	if len(list) > 2 {
-		return 200, U.Dict{"ready": false}, nil
-	}
-
 	for i := 0; i < len(list); i++ {
 		attributes, ok := list[i].(U.Dict).GetDict("attributes")
 		if !ok {
@@ -383,7 +375,7 @@ func CheckReferenceRag(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 		rag_id, ok := attributes.GetString("rag_id")
 		if !ok {
 			fmt.Println("rag_id", rag_id)
-			return 500, U.Dict{"ready": false}, nil
+			return 200, U.Dict{"ready": false}, nil
 		}
 	}
 

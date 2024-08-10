@@ -345,13 +345,19 @@ func GetDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config
 			status = string(val)
 		}
 
+		status_generated := ""
+		if val, ok := list[i].(U.Dict)["attributes"].(U.Dict)["status_generated"].(U.String); ok {
+			status_generated = string(val)
+		}
+
 		datas = append(datas, U.Dict{
-			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
-			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
-			"base64": base64Data,
-			"id":     list[i].(U.Dict)["id"].(U.Float64),
-			"rag_id": ragID,
-			"status": status,
+			"type":             list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
+			"name":             list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
+			"base64":           base64Data,
+			"id":               list[i].(U.Dict)["id"].(U.Float64),
+			"rag_id":           ragID,
+			"status":           status,
+			"status_generated": status_generated,
 		})
 	}
 
@@ -582,6 +588,64 @@ func UpdateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 
 	status, document, err := Strapi.Update("project-documents-table", int64(id), U.Dict{
 		"rag_id": rag_id,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(document)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, document, nil
+}
+
+func UpdateDocumentContractProjectStatusGenerated(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idString, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(idString))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status_generated, ok := ctx.Params.GetString("status_generated")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, document, err := Strapi.Update("project-documents-table", int64(id), U.Dict{
+		"status_generated": status_generated,
 	})
 
 	if err != nil {

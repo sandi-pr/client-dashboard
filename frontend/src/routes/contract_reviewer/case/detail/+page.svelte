@@ -110,31 +110,45 @@ All Rights Reserved
           return;
         }
 
-        const response2 = await call.call("client-dashboard", "get-contract-rule-section", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            contract_rule_id: ruleId.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        let sectionsTmp = [];
+        let page = 1;
 
-        if (response2.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response2);
-          return;
+        while (true) {
+          const response2 = await call.call("client-dashboard", "get-contract-rule-section", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              contract_rule_id: ruleId.toString(),
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status !== 200) {
+            triggerLoading(false);
+            triggerToast("error");
+            console.log(response2);
+            return;
+          }
+
+          if (response2.result.data.length < 1) {
+            break;
+          }
+
+          page += 1;
+          sectionsTmp = sectionsTmp.concat(response2.result.data);
         }
 
         editRules = [];
-        if (response2.result.data.length < 1) {
+        if (sectionsTmp.length < 1) {
           init = true;
           editRules.push(true);
         }
 
-        for (let i = 0; i < response2.result.data.length; i++) {
+        for (let i = 0; i < sectionsTmp.length; i++) {
           editRules.push(false);
         }
 
@@ -142,9 +156,9 @@ All Rights Reserved
           title: response.result.data[0].attributes.rule_name,
           createdAt: format(response.result.data[0].attributes.createdAt, "yyyy-MM-dd HH:mm:ss"),
           data:
-            response2.result.data.length < 1
+            sectionsTmp.length < 1
               ? datas.data
-              : response2.result.data.map((item) => {
+              : sectionsTmp.map((item) => {
                   return {
                     id: item.id,
                     title: item.attributes.section_title,

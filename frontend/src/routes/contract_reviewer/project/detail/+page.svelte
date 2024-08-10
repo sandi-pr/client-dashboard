@@ -41,6 +41,11 @@
   let init = $state(true);
   let contractReady = $state(false);
   let timer;
+  let timer2;
+  let timer3;
+  let interval = $state(false);
+  let ragStatus = $state(false);
+  let countSection = $state(0);
 
   let rules = $state([]);
 
@@ -117,11 +122,12 @@
             return;
           }
 
-          if (response.result.data.length === 0) {
+          if (response.result.data.length < 1) {
             break;
           }
+
           rulesTmp = rulesTmp.concat(response.result.data);
-          page++;
+          page += 1;
         }
 
         if (rulesTmp.length > 0) {
@@ -172,8 +178,6 @@
             }, 2000);
           }
 
-          contractReady = await getDocumentContractProject();
-
           await getRules();
 
           data = {
@@ -196,6 +200,12 @@
             description: response.result.data[0].attributes.description,
           };
 
+          await getCountSection();
+          await getDocumentContractProject();
+
+          getStatusReference();
+          getStatusGenerated();
+
           // breadcrumbLastName.set(data.name);
 
           ready = true;
@@ -211,12 +221,98 @@
     // breadcrumbLastName.set("Bruh");
   }
 
+  async function getCountSection() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        let tmpCount = 0;
+        let page = 1;
+        while (true) {
+          const response = await call.call("client-dashboard", "get-contract-rule-section", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              contract_rule_id: data.contract_rule_id.toString(),
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          if (response.result.data.length === 0) {
+            break;
+          }
+
+          page += 1;
+          tmpCount += response.result.data.length;
+        }
+
+        countSection = tmpCount;
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
   async function generatedAI(file) {
-    goto(
-      (await call.getPage("client-dashboard", "contract-project-review")) +
-        "?projectDocumentId=" +
-        file.result_id,
-    );
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("hexa-ai-contract-review", "generate-review", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            project_id: projectId.toString(),
+            project_document_id: file.id,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        const response2 = await call.call(
+          "client-dashboard",
+          "update-project-document-status-generated",
+          {
+            URLQuery: {},
+            URLParams: {
+              id: file.id.toString(),
+            },
+            Params: {
+              status_generated: "START",
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response2.status !== 200) {
+          triggerToast("error");
+          console.log(response2);
+          return;
+        }
+
+        setIntervalGetDocument();
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
   }
 
   async function getDocumentContractProject() {
@@ -241,32 +337,104 @@
       }
 
       if (response2.status === 200) {
-        files = [];
-        if (response2.result.files !== null) {
-          response2.result.files.forEach((file) => {
-            file = {
+        if (response2.result.files.length > 0) {
+          let promise = response2.result.files.map((file) => {
+            return {
               type: file.type,
               name: file.name,
               base64: file.base64,
               id: file.id,
-              status: file.status,
+              status: ragStatus ? file.status : "PROCESSING",
+              status_generated: file.status_generated,
               role: "Buyer",
               rag_id: file.rag_id,
-              generated: false,
               result_id: 0,
             };
           });
-          files = response2.result.files;
+
+          files = await Promise.all(promise);
+
+          if (files.length < 1) {
+            interval = false;
+            clearInterval(timer3);
+            return;
+          }
         }
 
-        getStatusGenerated();
-        return true;
+        let allReady = true;
+
+        for (let i = 0; i < files.length; i++) {
+          if (files[i].status !== "FINISH") {
+            allReady = false;
+            break;
+          }
+        }
+
+        if (allReady) {
+          let prosess = false;
+          for (let i = 0; i < files.length; i++) {
+            if (files[i].status_generated === "START") {
+              prosess = true;
+              break;
+            }
+          }
+
+          if (prosess) {
+            return;
+          } else {
+            interval = false;
+            clearInterval(timer3);
+          }
+        }
       }
     } catch (error) {
       triggerToast("error");
       console.log(error);
     }
-    return false;
+  }
+
+  function setIntervalGetDocument() {
+    if (interval) {
+      return;
+    } else {
+      interval = true;
+      timer3 = setInterval(() => getDocumentContractProject(), 3000);
+    }
+  }
+
+  async function getStatusReference() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "check-reference-rag", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            contract_rule_id: data.contract_rule_id,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log("status reference", response);
+          return;
+        }
+
+        ragStatus = response.result.ready;
+
+        if (ragStatus) {
+          setIntervalGetDocument();
+          clearTimeout(timer2);
+        } else {
+          timer2 = setTimeout(() => getStatusReference(), 3000);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }
 
   async function getStatusGenerated() {
@@ -274,7 +442,7 @@
     if (token) {
       try {
         for (let i = 0; i < files.length; i++) {
-          if (files[i].generated) continue;
+          if (files[i].status_generated !== "START") continue;
           else {
             const response = await call.call(
               "client-dashboard",
@@ -301,16 +469,55 @@
               }
 
               if (response.result.data.length > 0) {
-                files[i].generated = true;
-                files[i].result_id = response.result.data[0].id;
+                if (response.result.data[0].attributes.result.length === countSection) {
+                  const response2 = await call.call(
+                    "client-dashboard",
+                    "update-project-document-status-generated",
+                    {
+                      URLQuery: {},
+                      URLParams: {
+                        id: files[i].id.toString(),
+                      },
+                      Params: {
+                        status_generated: "FINISH",
+                      },
+                      Headers: {
+                        Authorization: "Bearer " + token,
+                      },
+                    },
+                  );
+
+                  if (response2.status !== 200) {
+                    triggerLoading(false);
+                    triggerToast("error");
+                    console.log(response2);
+                    break;
+                  }
+
+                  files[i].status_generated = "FINISH";
+                  files[i].result_id = response.result.data[0].id;
+                }
               }
             }
           }
         }
 
-        timer = setTimeout(() => {
-          getStatusGenerated();
-        }, 3000);
+        let allGenerated = true;
+
+        for (let i = 0; i < files.length; i++) {
+          if (files[i].status_generated !== "FINISH") {
+            allGenerated = false;
+            break;
+          }
+        }
+
+        if (allGenerated) {
+          clearTimeout(timer);
+        } else {
+          timer = setTimeout(() => {
+            getStatusGenerated();
+          }, 3000);
+        }
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");
@@ -333,7 +540,9 @@
   });
 
   onDestroy(() => {
-    clearInterval(timer);
+    clearTimeout(timer);
+    clearTimeout(timer2);
+    clearInterval(timer3);
   });
 </script>
 
@@ -429,29 +638,34 @@
       <div class="flex flex-col grow gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- form upload -->
-          {#if contractReady}
-            {#each files as file}
-              <DocumentProject
-                title={file.type}
-                handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
-                file={getFileByType(file.type)}
-                placeholderDropdown={$_("setRules")}
-                status={file.status}
-                actionButton={true}
-                isLoading={!file.generated}
-                actionView={() => (
-                  (documentViewModal = true), (selectedFile = getFileByType(file.type))
-                )}
-                actionDelete={() => {
-                  typeTmp = file.type;
-                  deleteModal = true;
-                }}
-                actionGenerate={() => {
+          {#each files as file}
+            <DocumentProject
+              title={file.type}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
+              file={getFileByType(file.type)}
+              bind:status={file.status_generated}
+              actionButton={true}
+              bind:isLoading={file.status !== "FINISH"}
+              actionView={() => (
+                (documentViewModal = true), (selectedFile = getFileByType(file.type))
+              )}
+              actionDelete={() => {
+                typeTmp = file.type;
+                deleteModal = true;
+              }}
+              actionGenerate={async () => {
+                if (file.status_generated !== "FINISH") {
                   generatedAI(file);
-                }}
-              />
-            {/each}
-          {/if}
+                } else {
+                  goto(
+                    (await call.getPage("client-dashboard", "contract-project-review")) +
+                      "?projectDocumentId=" +
+                      file.result_id,
+                  );
+                }
+              }}
+            />
+          {/each}
           <!-- {#each otherDocType as docType}
           <UploadFile
             title={docType.title}
