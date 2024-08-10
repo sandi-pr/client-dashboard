@@ -240,9 +240,6 @@ All Rights Reserved
             return {
               id: project.id,
               project_name: project.attributes.project_name,
-              industry:
-                industries.find((industry) => industry.value === project.attributes.industry_id)
-                  ?.name || project.attributes.industry_id,
               start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
               end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
               actions: {
