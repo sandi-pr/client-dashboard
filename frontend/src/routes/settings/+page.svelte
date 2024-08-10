@@ -395,7 +395,7 @@
         return;
       }
 
-      sessionStorage.setItem("industry_id", selectedIndustryType + "");
+      sessionStorage.setItem("industry_id", selectedIndustryType);
 
       triggerToast("updated");
     }
