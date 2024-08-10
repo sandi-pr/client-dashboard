@@ -17,6 +17,7 @@
   import { page } from "$app/stores";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
+  import { goto } from "$app/navigation";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -85,118 +86,19 @@
   let dummyDatas = $state([
     {
       id: 1,
-      no: 1,
-      parameter: "Parameter 1",
-      referenceDocument: "12345",
-      tradeConfirmation: "54321",
-      aiChanges: "No Action Required",
-    },
-    {
-      id: 2,
-      no: 2,
-      parameter: "Parameter 2",
-      referenceDocument: "pertamina",
-      tradeConfirmation: "pertamina",
-      aiChanges: "No Action Required",
-    },
-    {
-      id: 3,
-      no: 3,
-      parameter: "Parameter 3",
-      referenceDocument: "01-Aug-2021",
-      tradeConfirmation: "15-Aug-2021",
-      aiChanges: "Adjust to match 01-Aug-2021",
-      actions: {
-        status: "Done",
-        result: "Changed",
+      section: "Buyer",
+      reference_documents: {
+        id: 3,
+        name: "GTC_version_feb2024.pdf",
+        url: "/document/document_collection/3",
       },
-    },
-    {
-      id: 4,
-      no: 4,
-      parameter: "Parameter 4",
-      referenceDocument: "Net 30 Days",
-      tradeConfirmation: "Net 60 Days",
-      aiChanges: "Adjust to match Net 30 Days",
-      actions: {
-        status: "Done",
-        result: "Rejected",
-      },
-    },
-    {
-      id: 5,
-      no: 5,
-      parameter: "Parameter 5",
-      referenceDocument: "100.000 Barrels",
-      tradeConfirmation: "200.000 Barrels",
-      aiChanges: "Verify reason for change; update if acceptable",
-      actions: {
-        status: "Processing",
-        reject: () => handleReject(5),
-        change: () => handleChange(5),
-      },
+      ai_review: "\n**Buyer** : PT Pertamina Patra Niaga Jakarta, Indonesia\n",
+      ai_suggestion: "Based on the provided contract, here are some answers to questions related to it:\n\n\n1. How many days before vessel arrival at discharging port, whichever is earlier, except for loading port with less than twenty-four (24) hours sea days to discharge port must Seller submit documents in good order and/or in conformance with delivered quantity and/or within the time limit?\n\n\n**Answer:** 3 days\n\n\n2. If the Seller fails to submit such documents as per point above, who shall be entirely on the account for all costs relating to custom clearance charges and/or custom fine and including but not limited to demurrage incurred by late custom clearance?\n\n\n**Answer:** Seller's account\n\n\n3. For CFR or DAP basis, in the event of quantity discrepancy at discharging port, who shall not be liable for all customs fines and penalties caused by any excess or shortage related to discharging custom tolerance regulation?\n\n\n**Answer:** Buyer\n\n\n4. The parties agreed that CFR, DAP, and FOB terms should have their meanings given to those terms as per Incoterms (or subsequent amendment) modified by the terms and conditions of GTC and/or Agreement; if there's inconsistency between this GTC and Incoterms, which one shall prevail?\n\n\n**Answer:** This GTC",
     },
   ]);
 
   async function getDocument(page) {
-    datas = [
-      {
-        id: 1,
-        no: 1,
-        parameter: "Parameter 1",
-        referenceDocument: "12345",
-        tradeConfirmation: "54321",
-        aiChanges: "No Action Required",
-      },
-      {
-        id: 2,
-        no: 2,
-        parameter: "Parameter 2",
-        referenceDocument: "pertamina",
-        tradeConfirmation: "pertamina",
-        aiChanges: "No Action Required",
-      },
-      {
-        id: 3,
-        no: 3,
-        parameter: "Parameter 3",
-        referenceDocument: "01-Aug-2021",
-        tradeConfirmation: "15-Aug-2021",
-        aiChanges: "Adjust to match 01-Aug-2021",
-        actions: {
-          status: "Done",
-          result: "Changed",
-        },
-      },
-      {
-        id: 4,
-        no: 4,
-        parameter: "Parameter 4",
-        referenceDocument: "Net 30 Days",
-        tradeConfirmation: "Net 60 Days",
-        aiChanges: "Adjust to match Net 30 Days",
-        actions: {
-          status: "Done",
-          result: "Rejected",
-        },
-      },
-      {
-        id: 5,
-        no: 5,
-        parameter: "Parameter 5",
-        referenceDocument: "100.000 Barrels",
-        tradeConfirmation: "200.000 Barrels",
-        aiChanges: "Verify reason for change; update if acceptable",
-        actions: {
-          status: "Processing",
-          reject: () => handleReject(5),
-          change: () => handleChange(5),
-        },
-      },
-    ];
-    configs = {
-      pagination: pagination,
-    };
+    // TODO
   }
 
   async function handleReject(no) {
@@ -489,13 +391,13 @@
           </div>
         {/if}
         {#if dropdownToggle[1]}
-          <!-- <DataTableAiReview
-            bind:datas
+          <DataTableAiReview
+            bind:datas={dummyDatas}
             bind:configs
             bind:next={nextGTC}
             bind:previous={previousGTC}
-          /> -->
-          <DataTable bind:datas />
+          />
+          <!-- <DataTable bind:datas /> -->
         {/if}
       </div>
     </div>

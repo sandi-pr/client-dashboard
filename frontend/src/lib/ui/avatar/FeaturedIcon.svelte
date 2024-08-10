@@ -13,7 +13,7 @@
   let { classesSvg }: { classesSvg: any } = $props();
 </script>
 
-<Avatar size="sm" border class="!ring-0 bg-brand-secondary-light dark:bg-brand-secondary-dark !p-2 !h-10 !w-10">
+<Avatar size="sm" border class="!ring-0 !m-0 bg-brand-secondary-light dark:bg-brand-secondary-dark !p-2 !h-10 !w-10">
   <svelte:component this={classesSvg} svgClass="w-5 h-5 text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark" />
 </Avatar>
 

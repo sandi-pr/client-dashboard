@@ -23,19 +23,35 @@
     TableBodyRow,
     TableBodyCell,
     TableHeadCell,
+    Modal,
   } from "flowbite-svelte";
+  import { FeaturedIcon } from "$lib";
   import * as Icon from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
+  import PDFOutlineIcon from "$lib/icon/PDFOutline.svg";
   import JpgIcon from "$lib/icon/jpg-icon.svelte";
+  import InfoCircle from "$lib/icon/info-circle.svelte";
+  import Stars01 from "$lib/icon/stars-01.svelte";
+    import { Typography } from "hexacomponents-svelte";
   // import { toCamelCase } from "../utils/toCamelCase.js";
+  import Markdown from "svelte-exmarkdown";
+  import { gfmPlugin } from "svelte-exmarkdown/gfm";
+  import { goto } from "$app/navigation";
+
+  const plugins = [gfmPlugin()];
 
   export let datas;
   export let configs;
   export let next = () => {};
   export let previous = () => {};
   // export let divider = false;
+
+  let reviewModal = false;
+  let suggestionModal = false;
+  let reviewData = "";
+  let suggestionData = "";
 
   let allChecked = false;
 
@@ -125,7 +141,7 @@
         {#if datas.length > 0}
           {#each Object.keys(datas[0]) as key}
             {#if key !== "actions" && key !== "id"}
-              {#if key === "aiChanges"}
+              {#if key === "ai_suggestion"}
                 <TableHeadCell
                   class="bg-brand-solid-light dark:bg-brand-solid-dark text-primary-onbrand-light dark:text-primary-onbrand-dark"
                   >{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell
@@ -148,17 +164,54 @@
             {#each Object.keys(data) as key}
               {#if key !== "actions" && key !== "id"}
                 {#if typeof data[key] === "string" || typeof data[key] === "number"}
-                  {#if key === "recommendation"}
+                  {#if key === "ai_suggestion"}
                     <TableBodyCell
-                      class="text-hc-graylight-600 dark:text-hc-graydark-400 bg-hc-brand-100"
+                      class="w-2/5 bg-brand-primary-light dark:bg-brand-primary-dark"
                     >
-                      {data[key]}
+                    <button 
+                      on:click={() => {
+                        suggestionData = [];
+                        suggestionModal = true;
+                        suggestionData = data[key];
+                      }}
+                    >
+                      <P size="sm" class="underline line-clamp-2 text-brand-primary-light dark:text-brand-primary-dark">
+                        <Markdown md={data[key]} {plugins} />
+                      </P>
+                    </button>
+                    </TableBodyCell>
+                  {:else if key === "ai_review"}
+                    <TableBodyCell>
+                      <button 
+                        on:click={() => {
+                          suggestionData = [];
+                          reviewModal = true;
+                          reviewData = data[key];
+                        }}
+                      >
+                        <P size="sm" class="text-tertiary-light dark:text-tertiary-dark underline line-clamp-2">
+                          <Markdown md={data[key]} {plugins} />
+                        </P>
+                      </button>
                     </TableBodyCell>
                   {:else}
                     <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                       {data[key]}
                     </TableBodyCell>
                   {/if}
+                {:else if typeof data[key] === "object" && key === "reference_documents"}
+                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                    <div class="flex items-center justify-start gap-3">
+                      {#if data[key].name.includes(".pdf") || data[key].name.includes(".PDF")}
+                        <img src={PDFOutlineIcon} alt="" />
+                      {/if}
+                      <div class="flex flex-col justify-center">
+                        <button on:click={() => goto(data[key].url)} class="underline">
+                          <Typography preset="Text sm/Regular" text={data[key].name} color="secondary" />
+                        </button>
+                      </div>
+                    </div>
+                  </TableBodyCell>
                 {:else if typeof data[key] === "object"}
                   {#if data[key]?.type !== "custom"}
                     <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
@@ -254,3 +307,23 @@
     </div>
   </div>
 {/if}
+
+<Modal bind:open={reviewModal} autoclose outsideclose>
+  <div class="flex flex-col gap-4">
+    <FeaturedIcon classesSvg={InfoCircle} />
+    <div class="flex flex-col gap-1">
+      <Typography preset="Text lg/Semibold" text={$_("aiReview")} />
+      <Markdown md={reviewData} {plugins}></Markdown>
+    </div>
+  </div>
+</Modal>
+
+<Modal bind:open={suggestionModal} autoclose outsideclose>
+  <div class="flex flex-col gap-4">
+    <FeaturedIcon classesSvg={Stars01} />
+    <div class="flex flex-col gap-1">
+      <Typography preset="Text lg/Semibold" text={$_("aiSuggestion")} />
+      <Markdown md={suggestionData} {plugins}></Markdown>
+    </div>
+  </div>
+</Modal>
