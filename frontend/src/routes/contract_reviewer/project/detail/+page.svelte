@@ -39,6 +39,7 @@
   let asTmp = $state("");
   let rulesTmp = $state([]);
   let init = $state(true);
+  let initRAG = $state(true);
   let contractReady = $state(false);
   let timer;
   let timer2;
@@ -361,24 +362,28 @@
             return;
           }
 
-          const response2 = await call.call("hexa-ai-contract-review", "process-to-rag", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              project_id: projectId.toString(),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          if (initRAG) {
+            const response3 = await call.call("hexa-ai-contract-review", "process-to-rag", {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                project_id: projectId.toString(),
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
 
-          if (response2.status !== 200) {
-            triggerLoading(false);
-            triggerToast("error");
-            console.log(response2);
-            return;
+            if (response3.status !== 200) {
+              triggerLoading(false);
+              triggerToast("error");
+              console.log(response3);
+              return;
+            }
           }
         }
+
+        initRAG = false;
 
         let allReady = true;
 
