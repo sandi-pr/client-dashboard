@@ -273,7 +273,7 @@
           URLParams: {},
           Params: {
             project_id: projectId.toString(),
-            project_document_id: file.id,
+            project_document_id: file.id.toString(),
           },
           Headers: {
             Authorization: "Bearer " + token,
