@@ -492,43 +492,47 @@
             }
 
             if (response.result.data.length > 0) {
-              if (response.result.data[0].attributes.result.length === countSection) {
-                if (files[i].status_generated === "START") {
-                  const response2 = await call.call(
-                    "client-dashboard",
-                    "update-project-document-status-generated",
-                    {
-                      URLQuery: {},
-                      URLParams: {
-                        id: files[i].id.toString(),
+              for (let j = 0; j < response.result.data.length; j++) {
+                if (response.result.data[j].attributes.status === "GENERATED") {
+                  if (files[i].status_generated === "START") {
+                    const response2 = await call.call(
+                      "client-dashboard",
+                      "update-project-document-status-generated",
+                      {
+                        URLQuery: {},
+                        URLParams: {
+                          id: files[i].id.toString(),
+                        },
+                        Params: {
+                          status_generated: "FINISH",
+                        },
+                        Headers: {
+                          Authorization: "Bearer " + token,
+                        },
                       },
-                      Params: {
-                        status_generated: "FINISH",
-                      },
-                      Headers: {
-                        Authorization: "Bearer " + token,
-                      },
-                    },
-                  );
+                    );
 
-                  if (response2.status !== 200) {
-                    triggerLoading(false);
-                    triggerToast("error");
-                    console.log(response2);
-                    break;
+                    if (response2.status !== 200) {
+                      triggerLoading(false);
+                      triggerToast("error");
+                      console.log(response2);
+                      break;
+                    }
+
+                    files[i].status_generated = "FINISH";
                   }
 
-                  files[i].status_generated = "FINISH";
+                  let id = response.result.data[j].id;
+
+                  console.log("id", id);
+
+                  idResults.push({
+                    id_doc: files[i].id,
+                    id: id,
+                  });
+
+                  break;
                 }
-
-                let id = response.result.data[0].id;
-
-                console.log("id", id);
-
-                idResults.push({
-                  id_doc: files[i].id,
-                  id: id,
-                });
               }
             }
           }
