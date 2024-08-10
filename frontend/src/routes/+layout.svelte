@@ -251,15 +251,9 @@ All Rights Reserved
           },
           {
             href: isFrontend
-              ? "/contract_reviewer/rules"
-              : await call.getPage("client-dashboard", "contract-rules"),
-            name: "rules",
-          },
-          {
-            href: isFrontend
-              ? "/contract_reviewer/industries"
-              : await call.getPage("client-dashboard", "contract-industries"),
-            name: "industries",
+              ? "/contract_reviewer/case"
+              : await call.getPage("client-dashboard", "contract-case"),
+            name: "case",
           },
         ],
       },
@@ -341,7 +335,7 @@ All Rights Reserved
         goto(
           (await call.getPage("client-login", "home-page")) +
             "?redirect=" +
-            globalThis.location.href
+            globalThis.location.href,
         );
         return;
       }
@@ -374,6 +368,33 @@ All Rights Reserved
     }
   }
 
+  async function getIndustryId() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "get-company-type", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.result.data.length === 0) {
+        return;
+      }
+      sessionStorage.setItem(
+        "industry_id",
+        parseInt(response.result.data[0].attributes.company_industry),
+      );
+    }
+  }
+
   onMount(() => {
     CheckSetup();
     if (localStorage.getItem("lang") !== null) {
@@ -381,6 +402,7 @@ All Rights Reserved
     }
 
     getModelsTrocr();
+    getIndustryId();
 
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;

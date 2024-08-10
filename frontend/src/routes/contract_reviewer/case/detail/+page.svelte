@@ -272,7 +272,12 @@ All Rights Reserved
 
   async function getReferences() {
     let token = sessionStorage.getItem("token");
-    console.log("user", sessionStorage.getItem("user"));
+    let industry_id = sessionStorage.getItem("industry_id");
+    if (industry_id === null) {
+      triggerLoading(false);
+      alert("Please select an industry first");
+      return;
+    }
     try {
       let page = 1;
       files = [];
@@ -282,8 +287,7 @@ All Rights Reserved
           URLQuery: {},
           URLParams: {},
           Params: {
-            // id dummy
-            industry_id: 6,
+            industry_id: parseInt(industry_id),
             contract_rule_id: parseInt(ruleId),
             page: page,
             page_size: 25,
@@ -363,6 +367,12 @@ All Rights Reserved
     addRefDocModal = false;
     triggerLoading(true);
     let token = sessionStorage.getItem("token");
+    let industry_id = sessionStorage.getItem("industry_id");
+    if (industry_id === null) {
+      triggerLoading(false);
+      alert("Please select an industry first");
+      return;
+    }
     try {
       tmpFile.type = tmpDocumentName;
 
@@ -371,9 +381,8 @@ All Rights Reserved
         URLParams: {},
         Params: {
           references: JSON.stringify([tmpFile]),
-          //dummy industry
           contract_rule_id: parseInt(ruleId),
-          industry_id: 6,
+          industry_id: parseInt(industry_id),
         },
         Headers: {
           Authorization: "Bearer " + token,

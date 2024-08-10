@@ -399,6 +399,12 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	content_date, ok := ctx.Params.GetString("content_date")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
 	documentString, ok := ctx.Params.GetString("document")
 
 	if !ok {
@@ -464,6 +470,7 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 
 	status, documentProject, err := Strapi.Create("project-documents-table", U.Dict{
 		"project_id":         project_id,
+		"content_date":       content_date,
 		"document_title":     document_type,
 		"document_name":      documentName,
 		"document_file_name": documentName,
@@ -477,6 +484,7 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 	}
 
 	if status != 200 {
+		fmt.Println(documentProject)
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}
@@ -805,7 +813,7 @@ func GetContractProjectResultWithDocumentId(ctx *config.ConfigContext) (int, U.D
 			},
 		},
 		"populate": "*",
-		"sort":     "id:desc",
+		"sort":     "id:asc",
 	})
 
 	if err != nil {

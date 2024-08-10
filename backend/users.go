@@ -469,3 +469,112 @@ func DeleteUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 
 	return 200, user, nil
 }
+
+func GetCompanyType(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	companyId, ok := me.GetFloat64("company")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, company, err := Strapi.Find("company-profile-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": companyId,
+			},
+		},
+		"populate": "*",
+		"sort":     "id:asc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, company, nil
+}
+
+func UpdateCompanyType(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	companyId, ok := me.GetFloat64("company")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	company_size, ok := ctx.Params.GetString("company_size")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	company_industry, ok := ctx.Params.GetString("company_industry")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, company, err := Strapi.Update("company-profile-table", int64(companyId), U.Dict{
+		"company_size":     company_size,
+		"company_industry": company_industry,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, company, nil
+}

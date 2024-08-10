@@ -36,7 +36,6 @@ All Rights Reserved
   let actionItems = $state([]);
   let tmpProjectName = $state("");
   let tmpProjectDescription = $state("");
-  let selectedIndustry = $state("");
   let selectedRules = $state("");
   let selectedRole = $state("Buyer");
   let dropdownIndustryOpen = $state(false);
@@ -80,10 +79,42 @@ All Rights Reserved
     ];
   }
 
+  async function getCompanyType() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "get-company-type", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return 0;
+        }
+
+        return parseInt(response.result.data[0].attributes.company_industry);
+      } catch (error) {
+        console.log(error);
+        return 0;
+      }
+    }
+  }
+
   async function createProject() {
     addProjectModal = false;
     triggerLoading(true);
     let token = sessionStorage.getItem("token");
+    let industry_id = sessionStorage.getItem("industry_id");
+    if (industry_id === null) {
+      triggerLoading(false);
+      alert("Please select an industry first");
+      return;
+    }
     if (token) {
       try {
         const response = await call.call("client-dashboard", "create-contract-project", {
@@ -91,7 +122,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             project_name: tmpProjectName,
-            industry_id: selectedIndustry,
+            industry_id: parseInt(industry_id),
             project_as: selectedRole,
             contract_rule_id: selectedRules,
             duration_start: format(new Date(startDate), "yyyy-MM-dd"),
@@ -112,7 +143,6 @@ All Rights Reserved
         triggerLoading(false);
         tmpProjectName = "";
         tmpProjectDescription = "";
-        selectedIndustry = "";
         selectedRole = "Buyer";
         startDate = null;
         endDate = null;
@@ -178,8 +208,6 @@ All Rights Reserved
   };
 
   async function getProjectsLatest() {
-    await getIndustries();
-
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -234,48 +262,6 @@ All Rights Reserved
       } catch (error) {
         console.log(error);
       }
-    }
-  }
-
-  async function getIndustries() {
-    let token = sessionStorage.getItem("token");
-
-    if (token !== null) {
-      let page = 1;
-      let tmpIndustries = [];
-      while (true) {
-        const response = await call.call("client-dashboard", "get-industries", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            industry_id: selectedIndustry,
-            page: page,
-            page_size: 25,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status === 200) {
-          if (response.result.data.length === 0) {
-            break;
-          } else {
-            tmpIndustries = tmpIndustries.concat(response.result.data);
-            page++;
-          }
-        }
-      }
-
-      let promise = tmpIndustries.map((industry) => {
-        return {
-          value: industry.id,
-          name: industry.attributes.industry_name,
-          description: industry.attributes.industry_description,
-        };
-      });
-
-      industries = await Promise.all(promise);
     }
   }
 

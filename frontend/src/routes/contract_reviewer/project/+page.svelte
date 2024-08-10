@@ -24,7 +24,6 @@ All Rights Reserved
 
   let tmpProjectName = $state("");
   let tmpProjectDescription = $state("");
-  let selectedIndustry = $state("");
   let selectedRules = $state("");
   let selectedRole = $state("Buyer");
   let dropdownIndustryOpen = $state(false);
@@ -38,12 +37,8 @@ All Rights Reserved
   let formattedStartDate = $state("");
   let formattedEndDate = $state("");
   let rulesTmp = $state([]);
-  let pagination = $state({
-    page: 1,
-    pageSize: 10,
-    pageCount: 1,
-    total: 1,
-  });
+  let page = $state(1);
+  let pageCount = $state(1);
 
   let industries = $state([]);
   let rules = $state([]);
@@ -59,7 +54,6 @@ All Rights Reserved
 
   async function getProjects() {
     triggerLoading(true);
-    await getIndustries();
     await getRules();
 
     let token = sessionStorage.getItem("token");
@@ -69,8 +63,8 @@ All Rights Reserved
           URLQuery: {},
           URLParams: {},
           Params: {
-            page: pagination.page,
-            page_size: 15,
+            page: page,
+            page_size: 10,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -84,6 +78,7 @@ All Rights Reserved
         }
 
         if (response.status === 200) {
+          pageCount = response.result.meta.pagination.pageCount;
           configs = {
             pagination: response.result.meta.pagination,
           };
@@ -92,9 +87,6 @@ All Rights Reserved
             return {
               id: project.id,
               project_name: project.attributes.project_name,
-              industry:
-                industries.find((industry) => industry.value === project.attributes.industry_id)
-                  ?.name || project.attributes.industry_id,
               start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
               end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
               actions: {
@@ -118,48 +110,6 @@ All Rights Reserved
         triggerToast("error");
         console.log(error);
       }
-    }
-  }
-
-  async function getIndustries() {
-    let token = sessionStorage.getItem("token");
-
-    if (token !== null) {
-      let page = 1;
-      let tmpIndustries = [];
-      while (true) {
-        const response = await call.call("client-dashboard", "get-industries", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            industry_id: selectedIndustry,
-            page: page,
-            page_size: 25,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status === 200) {
-          if (response.result.data.length === 0) {
-            break;
-          } else {
-            tmpIndustries = tmpIndustries.concat(response.result.data);
-            page++;
-          }
-        }
-      }
-
-      let promise = tmpIndustries.map((industry) => {
-        return {
-          value: industry.id,
-          name: industry.attributes.industry_name,
-          description: industry.attributes.industry_description,
-        };
-      });
-
-      industries = await Promise.all(promise);
     }
   }
 
@@ -209,18 +159,16 @@ All Rights Reserved
     }
   }
 
-  function next() {
-    if (pagination.page < pagination.pageCount) {
-      pagination.page = pagination.page + 1;
-      getProjects();
-    }
+  function nextPage() {
+    if (page >= pageCount) return;
+    page++;
+    getProjects();
   }
 
-  function previous() {
-    if (pagination.page > 1) {
-      pagination.page = pagination.page - 1;
-      getProjects();
-    }
+  function previousPage() {
+    if (page <= 1) return;
+    page--;
+    getProjects();
   }
 
   const toggleDatePicker = () => {
@@ -238,6 +186,12 @@ All Rights Reserved
     addProjectModal = false;
     triggerLoading(true);
     let token = sessionStorage.getItem("token");
+    let industry_id = sessionStorage.getItem("industry_id");
+    if (industry_id === null) {
+      triggerLoading(false);
+      alert("Please select an industry first");
+      return;
+    }
     if (token) {
       try {
         const response = await call.call("client-dashboard", "create-contract-project", {
@@ -245,7 +199,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             project_name: tmpProjectName,
-            industry_id: selectedIndustry,
+            industry_id: parseInt(industry_id),
             contract_rule_id: selectedRules,
             project_as: selectedRole,
             duration_start: format(new Date(startDate), "yyyy-MM-dd"),
@@ -266,7 +220,6 @@ All Rights Reserved
         triggerLoading(false);
         tmpProjectName = "";
         tmpProjectDescription = "";
-        selectedIndustry = "";
         selectedRole = "Buyer";
         startDate = null;
         endDate = null;
@@ -303,7 +256,7 @@ All Rights Reserved
 
         <!-- Document Table Data -->
         {#if datas.length > 0}
-          <DataTable bind:datas bind:configs bind:next bind:previous />
+          <DataTable bind:datas bind:configs bind:next={nextPage} bind:previous={previousPage} />
         {:else}
           <div class="pt-8">
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />

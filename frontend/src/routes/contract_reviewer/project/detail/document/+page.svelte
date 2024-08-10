@@ -1,5 +1,14 @@
 <script>
-  import { Typography, FeaturedIcon, InputRw, TextareaRw, UploadFile, Dropdown } from "$lib";
+  import {
+    Typography,
+    FeaturedIcon,
+    InputRw,
+    TextareaRw,
+    UploadFile,
+    Dropdown,
+    triggerLoading,
+    triggerToast,
+  } from "$lib";
   import { Button, P } from "flowbite-svelte";
   import Divider from "$lib/components/Divider.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
@@ -8,6 +17,15 @@
   import PdfViewer from "svelte-pdf";
   import { format } from "date-fns";
   import { _ } from "svelte-i18n";
+  import { onMount, onDestroy } from "svelte";
+  import { CR3Call } from "hexacomponents-svelte";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
+
+  const call = new CR3Call(globalThis.location.origin);
+
+  let projectId;
+  let docId;
 
   let onEdit = $state(true);
   let onView = $state(false);
@@ -18,14 +36,13 @@
   let endDate = $state(null);
   let file = $state(null);
   let dateFormat = $state("d MMM yyyy");
-  let formattedStartDate = $state("");
+  let formattedStartDate = $state();
   let formattedEndDate = $state("");
-  let tmpDocumentType = $state("");
+  let tmpDocumentType = $state("Documents");
   let tmpSelected = $state("Documents");
   let selectedTypeCollection = $state("Documents");
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
   let fileUrl = $state("");
-  let contentFile = $state(null);
   let documentTypes = $state([
     {
       name: "Documents (TXT, PDF, DOC, DOCX)",
@@ -42,10 +59,10 @@
   ]);
 
   let data = $state({
-    document_name: "Trade Confirmation",
+    document_name: "",
     content_date: "",
     description: "",
-  })
+  });
 
   const selectTypeCollection = (type) => {
     tmpDocumentType = type;
@@ -104,6 +121,8 @@
       if (uploadedFile) {
         const base64Data = await readFileAsBase64(uploadedFile);
         file = {
+          type: data.document_name,
+          role: tmpDocumentType,
           name: uploadedFile.name,
           size: formatBytes(uploadedFile.size),
           base64: base64Data,
@@ -127,6 +146,91 @@
     formattedEndDate = formatDate(endDate);
   });
 
+  async function createDocument() {
+    triggerLoading(true);
+
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "create-document-project", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          project_id: projectId.toString(),
+          content_date: format(formattedStartDate, "yyyy-MM-dd"),
+          document: JSON.stringify(file),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        triggerLoading(false);
+        triggerToast("error");
+        console.log(response);
+        return;
+      }
+
+      // const response2 = await call.call("hexa-ai-contract-review", "process-to-rag", {
+      //   URLQuery: {},
+      //   URLParams: {},
+      //   Params: {
+      //     project_id: projectId.toString(),
+      //   },
+      //   Headers: {
+      //     Authorization: "Bearer " + token,
+      //   },
+      // });
+
+      // if (response2.status !== 200) {
+      //   triggerLoading(false);
+      //   triggerToast("error");
+      //   console.log(response2);
+      //   return;
+      // }
+
+      // TODO: save to collection
+
+      triggerToast("created");
+      data = {
+        document_name: "",
+        content_date: "",
+        description: "",
+      };
+
+      selectedTypeCollection = "Documents";
+      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
+      file = null;
+
+      setTimeout(async () => {
+        triggerLoading(false);
+        goto(
+          (await call.getPage("client-dashboard", "contract-project-detail")) +
+            "?projectId=" +
+            projectId,
+        );
+      }, 2000);
+    }
+  }
+
+  onMount(() => {
+    formattedStartDate = formatDate(new Date());
+    const unsubscribe = page.subscribe(async ($page) => {
+      projectId = $page.url.searchParams.get("projectId");
+      docId = $page.url.searchParams.get("docId");
+      if (projectId !== null) {
+        if (docId !== null) {
+          onEdit = false;
+          onView = true;
+          getDocument();
+        }
+      } else {
+        triggerToast("error");
+        goto(await call.getPage("client-dashboard", "contract-project-list"));
+      }
+    });
+    onDestroy(() => unsubscribe());
+  });
 </script>
 
 <div class="flex flex-col px-4 pt-6 gap-6 pb-12">
@@ -136,32 +240,17 @@
       <div class="flex items-center gap-3">
         <FeaturedIcon classesSvg={FilePlusIcon} />
         <div class="flex flex-col">
-          <Typography
-            preset="Text lg/Semibold"
-            text={$_("addNewDocument")}
-            color="primary"
-          />
-          <Typography
-            preset="Text sm/Regular"
-            text={$_("descAddNewDocument")}
-            color="tertiary"
-          />
+          <Typography preset="Text lg/Semibold" text={$_("addNewDocument")} color="primary" />
+          <Typography preset="Text sm/Regular" text={$_("descAddNewDocument")} color="tertiary" />
         </div>
       </div>
       <div class="flex gap-3">
         <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
-        <Button
-          disabled={file === null}
-          on:click={() => {}}>{$_("add")}</Button
-        >
+        <Button disabled={file === null} on:click={() => {}}>{$_("add")}</Button>
       </div>
     {:else}
       <div class="flex items-center gap-3">
-        <Typography
-          preset="Display sm/Semibold"
-          text={data.document_name}
-          color="primary"
-        />
+        <Typography preset="Display sm/Semibold" text={data.document_name} color="primary" />
       </div>
     {/if}
   </div>
@@ -178,8 +267,12 @@
           <InputRw {onEdit} bind:value={data.document_name} />
         </div>
         <div class="flex grow flex-col gap-1.5">
-          <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
-          <DatePicker bind:isOpen bind:startDate bind:endDate isRange enableFutureDates>
+          <Typography
+            preset="Text sm/medium"
+            color="secondary"
+            text={`${$_("projectDuration")}*`}
+          />
+          <DatePicker bind:isOpen bind:startDate enableFutureDates>
             <button
               onclick={toggleDatePicker}
               class:open={isOpen}
@@ -190,9 +283,7 @@
                 svgClass="w-4 h-4 ms-2 text-secondary-light dark:text-secondary-dark"
               />
               <div class="date text-secondary-light dark:text-secondary-dark">
-                {#if startDate != endDate}
-                  {formattedStartDate} - {formattedEndDate}
-                {:else if startDate}
+                {#if startDate}
                   {formattedStartDate}
                 {:else}
                   {$_("selectDate")}
@@ -209,7 +300,7 @@
       <UploadFile
         title={`${$_("documentUpload")}*`}
         handleFileUploadWrapper={() => handleFileUploadWrapper()}
-        file={file}
+        {file}
         actionButton={true}
         actionDelete={() => (file = null)}
         isFlex
@@ -229,7 +320,7 @@
           dropdownOpen={docTypeOpen}
           bind:selectedItem={selectedTypeCollection}
           items={documentTypes}
-          placeholder={$_("selectIndustry")}
+          placeholder={$_("selectDocumentType")}
           isOverlay={true}
           onClick={selectTypeCollection}
         />
@@ -239,10 +330,22 @@
   <Divider />
   {#if !onView}
     <div class="flex justify-end gap-3">
-      <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
+      <Button
+        outline
+        on:click={async () => {
+          goto(
+            (await call.getPage("client-dashboard", "contract-project-detail")) +
+              "?projectId=" +
+              projectId,
+          );
+        }}
+        color="light">{$_("cancel")}</Button
+      >
       <Button
         disabled={file === null}
-        on:click={() => {}}>{$_("add")}</Button
+        on:click={() => {
+          createDocument();
+        }}>{$_("add")}</Button
       >
     </div>
   {/if}
@@ -253,26 +356,24 @@
           {$_("viewer")}
         </P>
       </div>
-      <div
-        class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
-      >
+      <div class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark">
         {#if data.ext === ".pdf"}
           <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
           <div class="flex justify-center">
             <!-- {#if pdfReady} -->
-              <PdfViewer
-                showBorder={false}
-                showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                scale={1}
-                data={atob(file.base64)}
-              />
+            <PdfViewer
+              showBorder={false}
+              showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
+              scale={1}
+              data={atob(file.base64)}
+            />
             <!-- {/if} -->
           </div>
         {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
           <div class="flex justify-center">
             <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
           </div>
-        <!-- {:else}
+          <!-- {:else}
           {#each contentFile.split("\n") as paragraphs, i}
             <p class="dark:text-white">{paragraphs}</p>
           {/each} -->

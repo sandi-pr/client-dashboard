@@ -240,6 +240,11 @@
             "file_path": "template/contract_reviewer/project/detail.html"
         },
         {
+            "name": "contract-project-detail-document",
+            "path": "/contract_reviewer/project/detail/document",
+            "file_path": "template/contract_reviewer/project/detail/document.html"
+        },
+        {
             "name": "contract-project-review",
             "path": "/contract_reviewer/project/review",
             "file_path": "template/contract_reviewer/project/review.html"
@@ -890,6 +895,41 @@
                 {
                     "name": "id",
                     "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-company-type",
+            "path": "/get-company-type",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCompanyType"
+            },
+            "params": []
+        },
+        {
+            "name": "update-company-type",
+            "path": "/update-company-type",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateCompanyType"
+            },
+            "params": [
+                {
+                    "name": "company_size",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "company_industry",
+                    "type": "text",
                     "required": true
                 }
             ]
@@ -2991,6 +3031,10 @@
                     "type": "string"
                 },
                 {
+                    "name": "content_date",
+                    "type": "string"
+                },
+                {
                     "name": "document",
                     "type": "string"
                 }
@@ -4030,6 +4074,9 @@
                     },
                     "document_media_id": {
                         "type": "media"
+                    },
+                    "content_date": {
+                        "type": "date"
                     },
                     "project_id": {
                         "type": "integer"

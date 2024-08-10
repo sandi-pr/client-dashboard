@@ -42,8 +42,8 @@
   let currentPasswordMatch = false;
   let selectedModelTrocr = "";
   let options = [];
-  let selectedCompanyType = "selectedData_0";
-  let selectedIndustryType = "selectedData_1";
+  let selectedCompanyType = null;
+  let selectedIndustryType = null;
   let tabDatas = {
     selected: "My Profile",
     data: [
@@ -64,21 +64,25 @@
 
   let companyTypes = [
     {
+      id: 1,
       icon: MarketIcon,
       name: "Start-ups and Small Businesses (1-50 employees)",
       desc: "Gain a competitive edge with tools that help you manage your growing business efficiently",
     },
     {
+      id: 2,
       icon: OfficeIcon,
       name: "Medium Businesses (51-500 employees)",
       desc: "Enhance coordination and productivity across various departments and teams.",
     },
     {
+      id: 3,
       icon: BankIcon,
       name: "Large Enterprises  (>500 employees)",
       desc: "Maximize your impact with streamlined operations and resource management.",
     },
     {
+      id: 4,
       icon: UserIcon,
       name: "Freelancers and Consultants",
       desc: "Organize your projects, finances, and client interactions effectively in one place.",
@@ -87,18 +91,21 @@
 
   let industryType = [
     {
+      id: 1,
       icon: SignalIcon,
       name: "Tech",
     },
     {
+      id: 2,
       icon: OilGas,
       name: "Oil & Gas",
     },
     {
+      id: 3,
       icon: SlidersIcon,
       name: "Other",
-    }
-  ]
+    },
+  ];
 
   let passwordObject = {
     currentPassword: "",
@@ -347,9 +354,50 @@
     triggerToast("updated");
   };
 
-  const changeTabbar = (name) => {
-    tabDatas.selected = name;
-  };
+  async function getCompanyType() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "get-company-type", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      selectedCompanyType = parseInt(response.result.data[0].attributes.company_size);
+      selectedIndustryType = parseInt(response.result.data[0].attributes.company_industry);
+    }
+  }
+
+  async function updateCompanyType() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "update-company-type", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          company_size: selectedCompanyType + "",
+          company_industry: selectedIndustryType + "",
+        },
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      triggerToast("updated");
+    }
+  }
 
   async function getModels() {
     const response = await call.call("hexa-ai-rag", "trocr-get-models", {
@@ -401,6 +449,7 @@
 
   onMount(() => {
     getUser();
+    getCompanyType();
     getModels();
   });
 </script>
@@ -542,14 +591,16 @@
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-5 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text="Company Size" />
-            <Typography
-              preset="Text sm/Reguler"
-              text="Please select your companies current size"
-            />
+            <Typography preset="Text sm/Reguler" text="Please select your companies current size" />
           </div>
           <Divider />
           <div class="pb-4"></div>
-          <SelectedCard selectionData={companyTypes} bind:selectedData={selectedCompanyType} numGrid={2} isRadio />
+          <SelectedCard
+            selectionData={companyTypes}
+            bind:selectedData={selectedCompanyType}
+            numGrid={2}
+            isRadio
+          />
           <div class="pt-8 pb-5 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text="Industry" />
             <Typography
@@ -559,8 +610,14 @@
           </div>
           <Divider />
           <div class="pb-4"></div>
-            <SelectedCard selectionData={industryType} bind:selectedData={selectedIndustryType} isFlex isRadio widthFlex="w-max" />
-          </div>
+          <SelectedCard
+            selectionData={industryType}
+            bind:selectedData={selectedIndustryType}
+            isFlex
+            isRadio
+            widthFlex="w-max"
+          />
+        </div>
       {:else if tabDatas.selected === "Model TROCR"}
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
@@ -595,12 +652,14 @@
               updatePhotoUser();
             } else if (tabDatas.selected === "Password") {
               updatePassword();
+            } else if (tabDatas.selected === "Company Type") {
+              updateCompanyType();
             } else if (tabDatas.selected === "Model TROCR") {
               updateModelTrocr();
             }
           }}
         >
-          {#if tabDatas.selected === "My Profile" || tabDatas.selected === "Model TROCR"}
+          {#if tabDatas.selected === "My Profile" || tabDatas.selected === "Company Type" || tabDatas.selected === "Model TROCR"}
             Save
           {:else if tabDatas.selected === "Password"}
             Update Password

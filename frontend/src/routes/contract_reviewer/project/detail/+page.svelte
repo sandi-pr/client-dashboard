@@ -31,8 +31,6 @@
 
   let data = $state({});
 
-  let documentViewModal = $state(false);
-  let addNewDocumentModal = $state(false);
   let deleteModal = $state(false);
   let ready = $state(false);
   let files = $state([]);
@@ -40,45 +38,11 @@
   let typeTmp = $state("");
   let asTmp = $state("");
   let rulesTmp = $state([]);
-  let tmpDocumentName = $state("");
-  let selectedFile = $state(null);
   let init = $state(true);
   let contractReady = $state(false);
   let timer;
 
-  let industries = $state([]);
-  let role = $state([
-    { name: "Buyer", value: "Buyer" },
-    { name: "Seller", value: "Seller" },
-  ]);
-
-  let selectedIndustry = $state("");
-
-  let documentUploads = $state([
-    // {
-    //   title: "Trade Confirmation",
-    //   type: "tradeConfirmation",
-    //   isLoading: false,
-    // },
-  ]);
-
   let rules = $state([]);
-
-  let otherDocType = $state([]);
-
-  async function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const base64Data = reader.result.split(",")[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-
-      reader.readAsDataURL(file);
-    });
-  }
 
   function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return "0 Bytes";
@@ -92,49 +56,15 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
 
-  const handleFileUploadWrapper = (type, role) => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.accept = ".pdf, .doc, .docx";
-
-    inputElement.addEventListener("change", async (event) => {
-      const uploadedFile = event.target.files[0];
-
-      if (uploadedFile && role !== "other") {
-        const base64Data = await readFileAsBase64(uploadedFile);
-        tmpFile = {
-          type: type,
-          role: role,
-          name: uploadedFile.name,
-          size: formatBytes(uploadedFile.size),
-          base64: base64Data,
-        };
-      } else if (role === "other") {
-        const base64Data = await readFileAsBase64(uploadedFile);
-        tmpFile = {
-          type: type,
-          role: role,
-          name: uploadedFile.name,
-          size: formatBytes(uploadedFile.size),
-          base64: base64Data,
-        };
-      } else {
-        alert("Invalid file. Please select a valid file.");
-      }
-    });
-
-    inputElement.click();
-  };
-
-  function getFileByType(type, role) {
-    const index = files.findIndex((file) => file.type === type && file.role === role);
+  function getFileByType(type) {
+    const index = files.findIndex((file) => file.type === type);
     return index !== -1 ? files[index] : [];
   }
 
-  async function deleteFileByType(type, role) {
+  async function deleteFileByType(type) {
     deleteModal = false;
     triggerLoading(true);
-    const index = files.findIndex((file) => file.type === type && file.role === role);
+    const index = files.findIndex((file) => file.type === type);
     if (index !== -1) {
       let token = sessionStorage.getItem("token");
       if (token) {
@@ -156,116 +86,10 @@
           return;
         }
 
-        documentUploads = documentUploads.filter((doc) => doc.type !== type);
         triggerToast("deleted");
         triggerLoading(false);
         files.splice(index, 1);
-        if (role === "other") {
-          otherDocType = otherDocType.filter((doc) => doc.type !== type);
-        }
       }
-    }
-  }
-
-  async function addOtherDocument() {
-    addNewDocumentModal = false;
-    triggerLoading(true);
-    if (tmpDocumentName) {
-      documentUploads.push({
-        title: tmpDocumentName,
-        type: tmpDocumentName,
-      });
-
-      let token = sessionStorage.getItem("token");
-      if (token) {
-        const response = await call.call("client-dashboard", "create-document-project", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            project_id: projectId.toString(),
-            document: JSON.stringify(tmpFile),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          addNewDocumentModal = true;
-          console.log(response);
-          return;
-        }
-
-        const response2 = await call.call("hexa-ai-contract-review", "process-to-rag", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            project_id: projectId.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response2.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response2);
-          return;
-        }
-
-        triggerLoading(false);
-        files.push(tmpFile);
-        getProject();
-        triggerToast("created");
-      }
-
-      tmpFile = [];
-      tmpDocumentName = "";
-    }
-  }
-
-  async function getIndustries() {
-    let token = sessionStorage.getItem("token");
-
-    if (token !== null) {
-      let page = 1;
-      let tmpIndustries = [];
-      while (true) {
-        const response = await call.call("client-dashboard", "get-industries", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            industry_id: selectedIndustry,
-            page: page,
-            page_size: 25,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status === 200) {
-          if (response.result.data.length === 0) {
-            break;
-          } else {
-            tmpIndustries = tmpIndustries.concat(response.result.data);
-            page++;
-          }
-        }
-      }
-
-      let promise = tmpIndustries.map((industry) => {
-        return {
-          value: industry.id,
-          name: industry.attributes.industry_name,
-          description: industry.attributes.industry_description,
-        };
-      });
-
-      industries = await Promise.all(promise);
     }
   }
 
@@ -350,12 +174,10 @@
 
           contractReady = await getDocumentContractProject();
 
-          selectedIndustry = response.result.data[0].attributes.industry_id;
-
-          await getIndustries();
           await getRules();
 
           data = {
+            id: response.result.data[0].id,
             name: response.result.data[0].attributes.project_name,
             createdAt: formatDistanceToNow(new Date(response.result.data[0].attributes.createdAt), {
               addSuffix: true,
@@ -365,16 +187,16 @@
             as: response.result.data[0].attributes.project_as,
             start_date: format(
               new Date(response.result.data[0].attributes.duration_start),
-              "d MMM yyyy"
+              "d MMM yyyy",
             ),
             end_date: format(
               new Date(response.result.data[0].attributes.duration_end),
-              "d MMM yyyy"
+              "d MMM yyyy",
             ),
             description: response.result.data[0].attributes.description,
           };
 
-          breadcrumbLastName.set(data.name);
+          // breadcrumbLastName.set(data.name);
 
           ready = true;
 
@@ -390,95 +212,11 @@
   }
 
   async function generatedAI(file) {
-    triggerLoading(true);
-    let token = sessionStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await call.call(
-          "client-dashboard",
-          "get-contract-project-result-with-document-id",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              project_document_id: file.id.toString(),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          triggerToast("error");
-          triggerLoading(false);
-          console.log(response);
-          return;
-        }
-
-        if (response.result.data.length === 0) {
-          const response2 = await call.call("client-dashboard", "check-reference-rag", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              industry_id: selectedIndustry,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response2.status !== 200) {
-            triggerLoading(false);
-            console.log(response2);
-          }
-
-          if (response2.result.ready === true) {
-            const response3 = await call.call("hexa-ai-contract-review", "generate-review", {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                project_id: projectId.toString(),
-                project_document_id: file.id.toString(),
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-
-            if (response3.status !== 200) {
-              triggerLoading(false);
-              triggerToast("error");
-              console.log(response3);
-              return;
-            }
-
-            if (response3.status === 200) {
-              triggerToast("created");
-              triggerLoading(false);
-              getStatusGenerated();
-              // goResultPage(file.id);
-            }
-          } else {
-            triggerLoading(false);
-            alert(
-              "Please wait for the file to be processed or check the document references for industry type usage, there must be 2 documents."
-            );
-          }
-        } else {
-          triggerLoading(false);
-          goto(
-            (await call.getPage("client-dashboard", "contract-project-review")) +
-              "?projectDocumentId=" +
-              response.result.data[0].id
-          );
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    return;
+    goto(
+      (await call.getPage("client-dashboard", "contract-project-review")) +
+        "?projectDocumentId=" +
+        file.result_id,
+    );
   }
 
   async function getDocumentContractProject() {
@@ -503,39 +241,25 @@
       }
 
       if (response2.status === 200) {
-        const response3 = await call.call("client-dashboard", "check-reference-rag", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            industry_id: selectedIndustry,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response3.status !== 200) {
-          triggerLoading(false);
-          console.log(response3);
-        }
-
         files = [];
-        documentUploads = [];
         if (response2.result.files !== null) {
           response2.result.files.forEach((file) => {
-            file.status = response3.result.ready === true ? file.status : "PROCESSING";
-            file.role = "Buyer";
+            file = {
+              type: file.type,
+              name: file.name,
+              base64: file.base64,
+              id: file.id,
+              status: file.status,
+              role: "Buyer",
+              rag_id: file.rag_id,
+              generated: false,
+              result_id: 0,
+            };
           });
           files = response2.result.files;
-          files.forEach((file) => {
-            documentUploads.push({
-              title: file.type,
-              type: file.type,
-            });
-          });
         }
 
-        triggerToast("updated");
+        getStatusGenerated();
         return true;
       }
     } catch (error) {
@@ -549,62 +273,47 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        let generated = [];
         for (let i = 0; i < files.length; i++) {
-          if (files[i].status === "FINISH") {
-            generated.push(files[i].id);
-            continue;
-          } else {
-            init = false;
-            break;
+          if (files[i].generated) continue;
+          else {
+            const response = await call.call(
+              "client-dashboard",
+              "get-contract-project-result-with-document-id",
+              {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  project_document_id: files[i].id.toString(),
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              },
+            );
+
+            if (response.status !== 200) {
+              triggerLoading(false);
+              if (response.status !== 200) {
+                triggerLoading(false);
+                triggerToast("error");
+                console.log(response);
+                break;
+              }
+
+              if (response.result.data.length > 0) {
+                files[i].generated = true;
+                files[i].result_id = response.result.data[0].id;
+              }
+            }
           }
         }
 
-        if (generated.length === files.length) {
-          triggerToast("updated");
-          console.log("FINISH");
-        } else {
-          await getDocumentContractProject();
-        }
+        timer = setTimeout(() => {
+          getStatusGenerated();
+        }, 3000);
       } catch (error) {
-        console.log(error);
-      }
-    }
-  }
-
-  async function goResultPage(id) {
-    let token = sessionStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await call.call(
-          "client-dashboard",
-          "get-contract-project-result-with-document-id",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              project_document_id: id.toString(),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
-
         triggerLoading(false);
-        // goto(
-        //   (await call.getPage("client-dashboard", "contract-project-review")) +
-        //     "?projectDocumentId=" +
-        //     response.result.data[0].id,
-        // );
-      } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
@@ -623,21 +332,8 @@
     return () => unsubscribe();
   });
 
-  $effect(async () => {
-    const unsubscribe = page.subscribe(async ($page) => {
-      projectId = $page.url.searchParams.get("projectId");
-      if (projectId !== null) {
-        getProject();
-        triggerLoading(false);
-      } else {
-        goto(await call.getPage("client-dashboard", "contract-project-list"));
-      }
-    });
-    onDestroy(() => unsubscribe());
-  });
-
   onDestroy(() => {
-    clearTimeout(timer);
+    clearInterval(timer);
   });
 </script>
 
@@ -660,7 +356,11 @@
     <!-- section form -->
     <div class="flex gap-3">
       <div class="w-60">
-        <Typography preset="Text md/Semibold" text={`${$_("industry")}`} color="secondary" />
+        <Typography
+          preset="Text md/Semibold"
+          text={`${$_("generalInformation")}`}
+          color="secondary"
+        />
       </div>
       <div class="flex flex-col grow gap-3">
         <!-- form dropdown -->
@@ -670,7 +370,7 @@
         </div>
         <div class="flex gap-3">
           <div class="flex grow flex-col gap-1.5">
-            <Typography preset="Text sm/medium" color="secondary" text={$_("rules")} />
+            <Typography preset="Text sm/medium" color="secondary" text={$_("case")} />
             <Dropdown
               dropdownOpen={false}
               bind:selectedItem={data.contract_rule_id}
@@ -730,35 +430,24 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- form upload -->
           {#if contractReady}
-            {#each documentUploads as docType, index}
+            {#each files as file}
               <DocumentProject
-                title={docType.title}
-                handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, data.as)}
-                file={getFileByType(docType.type, data.as)}
+                title={file.type}
+                handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
+                file={getFileByType(file.type)}
                 placeholderDropdown={$_("setRules")}
-                status={files.find((file) => file.type === docType.type)?.status}
+                status={file.status}
                 actionButton={true}
-                isLoading={docType.isLoading}
+                isLoading={!file.generated}
                 actionView={() => (
-                  (documentViewModal = true), (selectedFile = getFileByType(docType.type, data.as))
+                  (documentViewModal = true), (selectedFile = getFileByType(file.type))
                 )}
                 actionDelete={() => {
-                  typeTmp = docType.type;
-                  asTmp = data.as;
+                  typeTmp = file.type;
                   deleteModal = true;
                 }}
                 actionGenerate={() => {
-                  const index = files.findIndex((file) => file.type === docType.type);
-                  console.log(files[index]);
-                  if (files[index].status === "FINISH") {
-                    generatedAI(files[index]);
-                  } else if (files[index].status === "PROCESSING") {
-                    console.log("PROCESSING");
-                    alert("Please wait for the file to be generated");
-                  } else if (files[index].status === "INTERNAL ERROR") {
-                    triggerToast("error");
-                    console.log("INTERNAL ERROR");
-                  }
+                  generatedAI(file);
                 }}
               />
             {/each}
@@ -777,8 +466,12 @@
         {/each} -->
           <Button
             class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
-            on:click={() => {
-              addNewDocumentModal = true;
+            on:click={async () => {
+              goto(
+                (await call.getPage("client-dashboard", "contract-project-detail-document")) +
+                  "?project_id=" +
+                  projectId,
+              );
             }}
             color="light"
           >
@@ -791,44 +484,6 @@
   </div>
 {/if}
 
-<Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
-  {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
-    <div class="flex justify-center">
-      <PdfViewer
-        showBorder={false}
-        showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-        scale={1}
-        data={atob(selectedFile.base64)}
-      />
-    </div>
-  {/if}
-</Modal>
-
-<Modal title={$_("addNewDocument")} bind:open={addNewDocumentModal}>
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
-      <Input
-        bind:value={tmpDocumentName}
-        placeholder={$_("name")}
-        class="bg-primary-light dark:bg-primary-dark"
-      />
-    </div>
-    <UploadFile
-      title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper(tmpDocumentName, data.as)}
-      file={tmpFile}
-      actionButton={true}
-      actionDelete={() => (tmpFile = [])}
-    />
-  </div>
-  <svelte:fragment slot="footer">
-    <Button on:click={addOtherDocument} disabled={tmpFile.length === 0 || !tmpDocumentName}
-      >{$_("add")}</Button
-    >
-  </svelte:fragment>
-</Modal>
-
 <Modal bind:open={deleteModal} size="xs" autoclose>
   <div class="text-center">
     <Icon.ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
@@ -837,7 +492,7 @@
     </h3>
     <Button
       onclick={() => {
-        deleteFileByType(typeTmp, asTmp);
+        deleteFileByType(typeTmp);
       }}
       color="red"
       class="me-2">{$_("yesImSure")}</Button
