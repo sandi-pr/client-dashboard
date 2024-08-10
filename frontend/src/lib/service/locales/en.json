@@ -486,5 +486,6 @@
   "contentDate": "Content Date",
   "selectDate": "Select dates",
   "case": "Case",
-  "chooseCase": "Choose Case"
+  "chooseCase": "Choose Case",
+  "referencePrompt": "Reference Prompt",
 }

@@ -332,6 +332,12 @@ func CreateContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.
 		return ctx.Error(400, "invalid parameters section_prompt")
 	}
 
+	reference_prompt, ok := ctx.Params.GetString("reference_prompt")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters reference_prompt")
+	}
+
 	section_sample, ok := ctx.Params.GetString("section_sample")
 
 	if !ok {
@@ -342,6 +348,7 @@ func CreateContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.
 		"contract_rule_id": contract_rule_id,
 		"section_title":    section_title,
 		"section_prompt":   section_prompt,
+		"reference_prompt": reference_prompt,
 		"section_sample":   section_sample,
 		"creator_id":       id,
 	})

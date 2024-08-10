@@ -80,6 +80,7 @@ All Rights Reserved
         id: 0,
         title: "",
         prompt: "",
+        reference_prompt: "",
         sample: "",
         createdAt: "",
       },
@@ -148,6 +149,7 @@ All Rights Reserved
                     id: item.id,
                     title: item.attributes.section_title,
                     prompt: item.attributes.section_prompt,
+                    reference_prompt: item.attributes.reference_prompt,
                     sample: item.attributes.section_sample,
                     createdAt: format(item.attributes.createdAt, "yyyy-MM-dd"),
                   };
@@ -175,6 +177,7 @@ All Rights Reserved
             contract_rule_id: ruleId.toString(),
             section_title: data.title,
             section_prompt: data.prompt,
+            reference_prompt: data.reference_prompt,
             section_sample: data.sample,
           },
           Headers: {
@@ -248,6 +251,7 @@ All Rights Reserved
           Params: {
             section_title: tmpSection.title,
             section_prompt: tmpSection.prompt,
+            reference_prompt: tmpSection.reference_prompt,
             section_sample: tmpSection.sample,
           },
           Headers: {
@@ -560,6 +564,7 @@ All Rights Reserved
                     id: 0,
                     title: "",
                     prompt: "",
+                    reference_prompt: "",
                     sample: "",
                     createdAt: "",
                   });
@@ -627,8 +632,10 @@ All Rights Reserved
                                 editSection();
                               }
                             }}
-                            disabled={data.title === "" || data.prompt === "" || data.sample === ""}
-                            >{$_("save")}</button
+                            disabled={data.title === "" ||
+                              data.prompt === "" ||
+                              data.reference_prompt === "" ||
+                              data.sample === ""}>{$_("save")}</button
                           >
                         {/if}
                       </div>
@@ -656,6 +663,15 @@ All Rights Reserved
                         />
                         <TextareaRw bind:value={data.prompt} onEdit={editRules[index]} />
                       </div>
+                      <div class="flex flex-col grow gap-1.5">
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("referencePrompt")}
+                          color="secondary"
+                        />
+                        <TextareaRw bind:value={data.reference_prompt} onEdit={editRules[index]} />
+                      </div>
+
                       <div class="flex flex-col grow gap-1.5">
                         <Typography
                           preset="Text sm/Medium"

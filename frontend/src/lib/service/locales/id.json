@@ -486,5 +486,6 @@
   "contentDate": "Tgl. Konten",
   "selectDate": "Pilih tgl.",
   "case": "Case",
-  "chooseCase": "Pilih Case"
+  "chooseCase": "Pilih Case",
+  "referencePrompt": "Prompt Referensi",
 }

@@ -469,7 +469,7 @@
             on:click={async () => {
               goto(
                 (await call.getPage("client-dashboard", "contract-project-detail-document")) +
-                  "?project_id=" +
+                  "?projectId=" +
                   projectId,
               );
             }}

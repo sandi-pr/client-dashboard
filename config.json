@@ -2863,6 +2863,10 @@
                     "type": "string"
                 },
                 {
+                    "name": "reference_prompt",
+                    "type": "string"
+                },
+                {
                     "name": "section_sample",
                     "type": "string"
                 }
