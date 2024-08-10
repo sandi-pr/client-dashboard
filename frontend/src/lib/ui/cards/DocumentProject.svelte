@@ -21,6 +21,7 @@ All Rights Reserved
   import EyeIcon from "$lib/icon/eye.svelte";
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import StarsIcon from "$lib/icon/stars-01.svelte";
+  import InfoCircle from "$lib/icon/info-circle.svelte";
 
   let {
     title,
@@ -133,26 +134,26 @@ All Rights Reserved
             placeholder={$_(placeholderDropdown)}
             isOverlay={true}
           /> -->
+          <Button
+            color="light"
+            on:click={actionGenerate}
+            class="gap-1.5 grow border-brand-light dark:border-primary-dark"
+          >
+            <Typography preset="Text sm/Semibold" text={"AI-Generate"} color="brand-secondary" />
+            <StarsIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
+          </Button>
           {#if actionView}
-            <Button class="p-2 w-full gap-1.5" color="light" on:click={actionView}>
-              <EyeIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+            <Button class="p-2 w-max gap-1.5" color="light" on:click={actionView}>
+              <InfoCircle class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               <Typography preset="Text sm/Semibold" text={$_("view")} color="secondary" />
             </Button>
           {/if}
-          <Button class="p-2 w-full gap-1.5" color="light" on:click={actionDelete}>
+          <Button class="p-2 w-max gap-1.5" color="light" on:click={actionDelete}>
             <TrashIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
             <Typography preset="Text sm/Semibold" text={$_("remove")} color="secondary" />
           </Button>
         </div>
       {/if}
-      <Button
-        color="light"
-        on:click={actionGenerate}
-        class="gap-1.5 border-brand-light dark:border-primary-dark"
-      >
-        <Typography preset="Text sm/Semibold" text={"AI-Generate"} color="brand-secondary" />
-        <StarsIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
-      </Button>
     </div>
   {/if}
 </div>
