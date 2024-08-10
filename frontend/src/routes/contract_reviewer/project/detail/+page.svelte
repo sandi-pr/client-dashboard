@@ -360,6 +360,24 @@
             clearInterval(timer3);
             return;
           }
+
+          const response2 = await call.call("hexa-ai-contract-review", "process-to-rag", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              project_id: projectId.toString(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status !== 200) {
+            triggerLoading(false);
+            triggerToast("error");
+            console.log(response2);
+            return;
+          }
         }
 
         let allReady = true;
