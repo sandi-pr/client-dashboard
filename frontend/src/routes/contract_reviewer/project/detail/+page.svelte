@@ -348,7 +348,6 @@
               status_generated: file.status_generated,
               role: "Buyer",
               rag_id: file.rag_id,
-              result_id: 0,
             };
           });
 
@@ -371,20 +370,20 @@
         }
 
         if (allReady) {
-          let prosess = false;
-          for (let i = 0; i < files.length; i++) {
-            if (files[i].status_generated === "START") {
-              prosess = true;
-              break;
-            }
-          }
+          // let prosess = false;
+          // for (let i = 0; i < files.length; i++) {
+          //   if (files[i].status_generated === "START") {
+          //     prosess = true;
+          //     break;
+          //   }
+          // }
 
-          if (prosess) {
-            return;
-          } else {
-            interval = false;
-            clearInterval(timer3);
-          }
+          // if (prosess) {
+          //   return;
+          // } else {
+          interval = false;
+          clearInterval(timer3);
+          // }
         }
       }
     } catch (error) {
@@ -461,42 +460,43 @@
 
             if (response.status !== 200) {
               triggerLoading(false);
-              if (response.status !== 200) {
-                triggerLoading(false);
-                triggerToast("error");
-                console.log(response);
-                break;
-              }
+              triggerToast("error");
+              console.log(response);
+              break;
+            }
 
-              if (response.result.data.length > 0) {
-                if (response.result.data[0].attributes.result.length === countSection) {
-                  const response2 = await call.call(
-                    "client-dashboard",
-                    "update-project-document-status-generated",
-                    {
-                      URLQuery: {},
-                      URLParams: {
-                        id: files[i].id.toString(),
-                      },
-                      Params: {
-                        status_generated: "FINISH",
-                      },
-                      Headers: {
-                        Authorization: "Bearer " + token,
-                      },
+            if (response.result.data.length > 0) {
+              console.log(response.result.data[0].attributes.result.length, countSection);
+              if (response.result.data[0].attributes.result.length === countSection) {
+                const response2 = await call.call(
+                  "client-dashboard",
+                  "update-project-document-status-generated",
+                  {
+                    URLQuery: {},
+                    URLParams: {
+                      id: files[i].id.toString(),
                     },
-                  );
+                    Params: {
+                      status_generated: "FINISH",
+                    },
+                    Headers: {
+                      Authorization: "Bearer " + token,
+                    },
+                  },
+                );
 
-                  if (response2.status !== 200) {
-                    triggerLoading(false);
-                    triggerToast("error");
-                    console.log(response2);
-                    break;
-                  }
-
-                  files[i].status_generated = "FINISH";
-                  files[i].result_id = response.result.data[0].id;
+                if (response2.status !== 200) {
+                  triggerLoading(false);
+                  triggerToast("error");
+                  console.log(response2);
+                  break;
                 }
+
+                files[i] = {
+                  ...files[i],
+                  status_generated: "FINISH",
+                  result_id: response.result.data[0].id,
+                };
               }
             }
           }
@@ -645,10 +645,15 @@
               file={getFileByType(file.type)}
               bind:status={file.status_generated}
               actionButton={true}
-              bind:isLoading={file.status !== "FINISH"}
-              actionView={() => (
-                (documentViewModal = true), (selectedFile = getFileByType(file.type))
-              )}
+              isLoading={file.status !== "FINISH"}
+              actionView={async () => {
+                goto(
+                  (await call.getPage("client-dashboard", "contract-project-detail-document")) +
+                    "?projectDocumentId=" +
+                    file.id,
+                );
+                // (documentViewModal = true), (selectedFile = getFileByType(file.type));
+              }}
               actionDelete={() => {
                 typeTmp = file.type;
                 deleteModal = true;

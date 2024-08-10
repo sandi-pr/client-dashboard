@@ -364,6 +364,90 @@ func GetDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config
 	return 200, U.Dict{"files": datas}, nil
 }
 
+func GetContractProjectWithDocumentId(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	id, ok := ctx.Params.GetFloat64("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, document, err := Strapi.Find("project-documents-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": int64(id),
+			},
+		},
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := document.GetList("data")
+	if len(list) == 0 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	document_url := dict["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+	document_url = U.String(strings.TrimPrefix(string(document_url), "/"))
+
+	resp, err := http.Get(STRAPI_URL + string(document_url))
+	if err != nil {
+		fmt.Printf("error saat mengunduh file: %v", err)
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("error saat membaca isi file: %v", err)
+	}
+
+	base64Data := base64.StdEncoding.EncodeToString(data)
+
+	fmt.Println(base64Data)
+
+	return 200, U.Dict{"document": document, "base64": base64Data}, nil
+}
+
 func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")

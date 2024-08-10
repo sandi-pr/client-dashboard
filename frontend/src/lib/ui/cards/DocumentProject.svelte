@@ -8,7 +8,7 @@ All Rights Reserved
 -->
 <script>
   import { _ } from "svelte-i18n";
-  import { Button } from "flowbite-svelte";
+  import { Button, Spinner } from "flowbite-svelte";
   import { Typography, Dropdown } from "$lib";
   import LaodingLottie from "$lib/components/LaodingLottie.svelte";
   import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
@@ -35,7 +35,7 @@ All Rights Reserved
     status = $bindable(""),
     dropdownOpen = false,
     actionButton = false,
-    isLoading = $bindable(false),
+    isLoading = false,
     actionView = null,
     actionDelete = () => {},
     actionGenerate = () => {},

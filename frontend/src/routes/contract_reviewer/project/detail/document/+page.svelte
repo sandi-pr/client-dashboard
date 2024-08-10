@@ -25,7 +25,7 @@
   const call = new CR3Call(globalThis.location.origin);
 
   let projectId;
-  let docId;
+  let projectDocumentId;
 
   let onEdit = $state(true);
   let onView = $state(false);
@@ -136,6 +136,7 @@
   };
 
   const toggleDatePicker = () => {
+    if (onView) return;
     isOpen = !isOpen;
   };
 
@@ -213,17 +214,61 @@
     }
   }
 
+  async function getDocument(id) {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call(
+          "client-dashboard",
+          "get-contract-project-with-document-id",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              id: parseInt(id),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        file = {
+          base64: response.result.base64,
+        };
+
+        data = {
+          document_name: response.result.document.data[0].attributes.document_name,
+          content_date: response.result.document.data[0].attributes.content_date,
+          description: response.result.document.data[0].attributes.description,
+        };
+
+        startDate = new Date(response.result.document.data[0].attributes.content_date);
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     formattedStartDate = formatDate(new Date());
     const unsubscribe = page.subscribe(async ($page) => {
       projectId = $page.url.searchParams.get("projectId");
-      docId = $page.url.searchParams.get("docId");
+      projectDocumentId = $page.url.searchParams.get("projectDocumentId");
       if (projectId !== null) {
-        if (docId !== null) {
-          onEdit = false;
-          onView = true;
-          getDocument();
-        }
+        onEdit = true;
+        onView = false;
+      } else if (projectDocumentId !== null) {
+        onEdit = false;
+        onView = true;
+        getDocument(projectDocumentId);
       } else {
         triggerToast("error");
         goto(await call.getPage("client-dashboard", "contract-project-list"));
@@ -297,14 +342,16 @@
         <Typography preset="Text sm/Medium" text={$_("description")} color="secondary" />
         <TextareaRw {onEdit} bind:value={data.description} />
       </div>
-      <UploadFile
-        title={`${$_("documentUpload")}*`}
-        handleFileUploadWrapper={() => handleFileUploadWrapper()}
-        {file}
-        actionButton={true}
-        actionDelete={() => (file = null)}
-        isFlex
-      />
+      {#if !onView}
+        <UploadFile
+          title={`${$_("documentUpload")}*`}
+          handleFileUploadWrapper={() => handleFileUploadWrapper()}
+          {file}
+          actionButton={true}
+          actionDelete={() => (file = null)}
+          isFlex
+        />
+      {/if}
     </div>
   </div>
   <Divider />
