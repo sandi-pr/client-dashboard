@@ -675,7 +675,7 @@
                     );
                   } else {
                     console.log("gamasuk");
-                    let idResult = idResults.find((file) => file.idDocument === file.id);
+                    let idResult = idResults.find((file) => file.idDocument === file.id).idResult;
                     goto(
                       (await call.getPage("client-dashboard", "contract-project-review")) +
                         "?projectDocumentId=" +
