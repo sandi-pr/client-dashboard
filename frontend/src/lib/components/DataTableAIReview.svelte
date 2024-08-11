@@ -34,7 +34,7 @@
   import JpgIcon from "$lib/icon/jpg-icon.svelte";
   import InfoCircle from "$lib/icon/info-circle.svelte";
   import Stars01 from "$lib/icon/stars-01.svelte";
-    import { Typography } from "hexacomponents-svelte";
+  import { Typography } from "hexacomponents-svelte";
   // import { toCamelCase } from "../utils/toCamelCase.js";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
@@ -165,31 +165,35 @@
               {#if key !== "actions" && key !== "id"}
                 {#if typeof data[key] === "string" || typeof data[key] === "number"}
                   {#if key === "ai_suggestion"}
-                    <TableBodyCell
-                      class="w-2/5 bg-brand-primary-light dark:bg-brand-primary-dark"
-                    >
-                    <button 
-                      on:click={() => {
-                        suggestionData = [];
-                        suggestionModal = true;
-                        suggestionData = data[key];
-                      }}
-                    >
-                      <P size="sm" class="underline line-clamp-2 text-brand-primary-light dark:text-brand-primary-dark">
-                        <Markdown md={data[key]} {plugins} />
-                      </P>
-                    </button>
+                    <TableBodyCell class="w-2/5 bg-brand-primary-light dark:bg-brand-primary-dark">
+                      <button
+                        on:click={() => {
+                          suggestionData = [];
+                          suggestionModal = true;
+                          suggestionData = data[key];
+                        }}
+                      >
+                        <P
+                          size="sm"
+                          class="underline line-clamp-3 text-brand-primary-light dark:text-brand-primary-dark"
+                        >
+                          <Markdown md={data[key]} {plugins} />
+                        </P>
+                      </button>
                     </TableBodyCell>
                   {:else if key === "ai_review"}
                     <TableBodyCell>
-                      <button 
+                      <button
                         on:click={() => {
                           suggestionData = [];
                           reviewModal = true;
                           reviewData = data[key];
                         }}
                       >
-                        <P size="sm" class="text-tertiary-light dark:text-tertiary-dark underline line-clamp-2">
+                        <P
+                          size="sm"
+                          class="text-tertiary-light dark:text-tertiary-dark underline line-clamp-2"
+                        >
                           <Markdown md={data[key]} {plugins} />
                         </P>
                       </button>
@@ -207,7 +211,11 @@
                       {/if}
                       <div class="flex flex-col justify-center">
                         <button on:click={() => goto(data[key].url)} class="underline">
-                          <Typography preset="Text sm/Regular" text={data[key].name} color="secondary" />
+                          <Typography
+                            preset="Text sm/Regular"
+                            text={data[key].name}
+                            color="secondary"
+                          />
                         </button>
                       </div>
                     </div>

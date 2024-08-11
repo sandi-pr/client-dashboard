@@ -83,19 +83,6 @@
   2. Manager Contract & Settlement
     PT Pertamina Patra Niaga
 `);
-  let dummyDatas = $state([
-    {
-      id: 1,
-      section: "Buyer",
-      reference_documents: {
-        id: 3,
-        name: "GTC_version_feb2024.pdf",
-        url: "/document/document_collection/3",
-      },
-      ai_review: "\n**Buyer** : PT Pertamina Patra Niaga Jakarta, Indonesia\n",
-      ai_suggestion: "Based on the provided contract, here are some answers to questions related to it:\n\n\n1. How many days before vessel arrival at discharging port, whichever is earlier, except for loading port with less than twenty-four (24) hours sea days to discharge port must Seller submit documents in good order and/or in conformance with delivered quantity and/or within the time limit?\n\n\n**Answer:** 3 days\n\n\n2. If the Seller fails to submit such documents as per point above, who shall be entirely on the account for all costs relating to custom clearance charges and/or custom fine and including but not limited to demurrage incurred by late custom clearance?\n\n\n**Answer:** Seller's account\n\n\n3. For CFR or DAP basis, in the event of quantity discrepancy at discharging port, who shall not be liable for all customs fines and penalties caused by any excess or shortage related to discharging custom tolerance regulation?\n\n\n**Answer:** Buyer\n\n\n4. The parties agreed that CFR, DAP, and FOB terms should have their meanings given to those terms as per Incoterms (or subsequent amendment) modified by the terms and conditions of GTC and/or Agreement; if there's inconsistency between this GTC and Incoterms, which one shall prevail?\n\n\n**Answer:** This GTC",
-    },
-  ]);
 
   async function getDocument(page) {
     // TODO
@@ -172,6 +159,21 @@
   //   await createPdfUrl();
   // });
 
+  let dummyDatas = $state([
+    {
+      id: 1,
+      section: "Buyer",
+      reference_documents: {
+        id: 3,
+        name: "GTC_version_feb2024.pdf",
+        url: "/document/document_collection/3",
+      },
+      ai_review: "\n**Buyer** : PT Pertamina Patra Niaga Jakarta, Indonesia\n",
+      ai_suggestion:
+        "Based on the provided contract, here are some answers to questions related to it:\n\n\n1. How many days before vessel arrival at discharging port, whichever is earlier, except for loading port with less than twenty-four (24) hours sea days to discharge port must Seller submit documents in good order and/or in conformance with delivered quantity and/or within the time limit?\n\n\n**Answer:** 3 days\n\n\n2. If the Seller fails to submit such documents as per point above, who shall be entirely on the account for all costs relating to custom clearance charges and/or custom fine and including but not limited to demurrage incurred by late custom clearance?\n\n\n**Answer:** Seller's account\n\n\n3. For CFR or DAP basis, in the event of quantity discrepancy at discharging port, who shall not be liable for all customs fines and penalties caused by any excess or shortage related to discharging custom tolerance regulation?\n\n\n**Answer:** Buyer\n\n\n4. The parties agreed that CFR, DAP, and FOB terms should have their meanings given to those terms as per Incoterms (or subsequent amendment) modified by the terms and conditions of GTC and/or Agreement; if there's inconsistency between this GTC and Incoterms, which one shall prevail?\n\n\n**Answer:** This GTC",
+    },
+  ]);
+
   async function getProjectResult() {
     triggerLoading(true);
     datas = [];
@@ -198,27 +200,29 @@
 
         let index = 0;
 
+        let referenceDocumentNames = {};
+
         markdown = response.result.data[0].attributes.result_markdown;
         tmpResult = response.result.data[0].attributes.result;
-        let promise = response.result.data[0].attributes.result.map((data) => {
-          index++;
-          return {
-            id: index,
-            section: data.title,
-            result: data.text,
-            // actions: {
-            //   objects: [
-            //     {
-            //       onclick: () => {
-            //         tmpTitle = data.title;
-            //         tmpText = data.text;
-            //         editModal = true;
-            //       },
-            //       name: "Edit",
-            //     },
-            //   ],
-            // },
-          };
+        let promise = response.result.data[0].attributes.result.flatMap((item, index) => {
+          return item.generated.map((generatedItem, generatedIndex) => {
+            const documentId = generatedItem.reference_document_ids[0];
+
+            referenceDocumentNames[documentId] =
+              "Reference Document " + (index + generatedIndex + 1) + ".pdf";
+
+            return {
+              id: index + generatedIndex + 1,
+              section: item.title,
+              reference_documents: {
+                id: documentId,
+                name: referenceDocumentNames[documentId],
+                url: `/document/document_collection/${documentId}`,
+              },
+              ai_review: generatedItem.ai_review.replace("FORMAT:\n```\n", "").replace("\n```", ""),
+              ai_suggestion: removeCodeBlocks(generatedItem.ai_suggestion),
+            };
+          });
         });
 
         datas = await Promise.all(promise);
@@ -228,6 +232,10 @@
       }
     }
   }
+
+  const removeCodeBlocks = (text) => {
+    return text.replace(/```[\s\S]*?```/g, "").trim();
+  };
 
   async function updateResult() {
     editModal = false;
@@ -392,7 +400,7 @@
         {/if}
         {#if dropdownToggle[1]}
           <DataTableAiReview
-            bind:datas={dummyDatas}
+            bind:datas
             bind:configs
             bind:next={nextGTC}
             bind:previous={previousGTC}
