@@ -146,7 +146,11 @@ All Rights Reserved
 
             <Typography
               preset="Text sm/Semibold"
-              text={status !== "FINISH" ? "Generate Suggestion" : "AI Suggestion"}
+              text={status !== "FINISH"
+                ? status !== "ERROR"
+                  ? "Re-Generate"
+                  : "Generate Suggestion"
+                : "AI Suggestion"}
               color="brand-secondary"
             />
             <StarsIcon

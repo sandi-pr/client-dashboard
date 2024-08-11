@@ -532,6 +532,10 @@
                   });
 
                   break;
+                } else if (response.result.data[j].attributes.status === "FAILED") {
+                  files[i].status_generated = "ERROR";
+                  triggerToast("error");
+                  break;
                 }
               }
             }
