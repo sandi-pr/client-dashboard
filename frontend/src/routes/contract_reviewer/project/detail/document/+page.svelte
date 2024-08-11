@@ -291,8 +291,21 @@
         </div>
       </div>
       <div class="flex gap-3">
-        <Button outline on:click={() => {}} color="light">{$_("cancel")}</Button>
-        <Button disabled={file === null} on:click={() => {}}>{$_("add")}</Button>
+        <Button outline color="light"
+          >{$_("cancel")} on:click={async () => {
+            goto(
+              (await call.getPage("client-dashboard", "contract-project-detail")) +
+                "?projectId=" +
+                projectId,
+            );
+          }}
+        </Button>
+        <Button
+          disabled={file === null}
+          on:click={() => {
+            createDocument();
+          }}>{$_("add")}</Button
+        >
       </div>
     {:else}
       <div class="flex items-center gap-3">
@@ -316,7 +329,7 @@
           <Typography
             preset="Text sm/medium"
             color="secondary"
-            text={`${$_("projectDuration")}*`}
+            text={$_("contentDate")}
           />
           <DatePicker bind:isOpen bind:startDate enableFutureDates>
             <button
@@ -376,7 +389,7 @@
     </div>
   </div>
   <Divider />
-  {#if !onView}
+  <!-- {#if !onView}
     <div class="flex justify-end gap-3">
       <Button
         outline
@@ -396,7 +409,7 @@
         }}>{$_("add")}</Button
       >
     </div>
-  {/if}
+  {/if} -->
   {#if onView}
     <div class="flex gap-6">
       <div class="w-60">
