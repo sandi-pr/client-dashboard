@@ -291,14 +291,18 @@
         </div>
       </div>
       <div class="flex gap-3">
-        <Button outline color="light"
-          >{$_("cancel")} on:click={async () => {
+        <Button
+          outline
+          color="light"
+          on:click={async () => {
             goto(
               (await call.getPage("client-dashboard", "contract-project-detail")) +
                 "?projectId=" +
                 projectId,
             );
           }}
+        >
+          {$_("cancel")}
         </Button>
         <Button
           disabled={file === null}
@@ -326,11 +330,7 @@
           <InputRw {onEdit} bind:value={data.document_name} />
         </div>
         <div class="flex grow flex-col gap-1.5">
-          <Typography
-            preset="Text sm/medium"
-            color="secondary"
-            text={$_("contentDate")}
-          />
+          <Typography preset="Text sm/medium" color="secondary" text={$_("contentDate")} />
           <DatePicker bind:isOpen bind:startDate enableFutureDates>
             <button
               onclick={toggleDatePicker}
