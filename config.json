@@ -2662,6 +2662,24 @@
             ]
         },
         {
+            "name": "get-reference-document-by-id",
+            "path": "/get-reference-document-by-id/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetReferenceDocumentById"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "delete-references-document",
             "path": "/delete-references-document/:id",
             "method": "DELETE",

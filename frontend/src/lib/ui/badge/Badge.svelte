@@ -22,7 +22,7 @@
 </script>
 
 <p
-class={`py-[2px] px-2 border-[1px] text-xs font-medium rounded-xl text-center w-max ${classStatusType(type)}`}
+class={`py-[2px] px-2 border-[1px] text-xs font-medium rounded-xl text-center w-max h-max ${classStatusType(type)}`}
 >
   {text}
 </p>

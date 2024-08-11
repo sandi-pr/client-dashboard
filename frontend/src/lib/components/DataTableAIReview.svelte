@@ -25,8 +25,8 @@
     TableHeadCell,
     Modal,
   } from "flowbite-svelte";
-  import { FeaturedIcon } from "$lib";
-  import * as Icon from "flowbite-svelte-icons";
+  import { FeaturedIcon, Badge } from "$lib";
+  import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
@@ -48,10 +48,16 @@
   export let previous = () => {};
   // export let divider = false;
 
+  let sectionRefModal = false;
   let reviewModal = false;
   let suggestionModal = false;
+  let dropdownInput = true;
+  let dropdownOutput = true;
+  let sectionRefData = {};
   let reviewData = "";
   let suggestionData = "";
+  let tmpData = {};
+  let tmpRefDoc = {};
 
   let allChecked = false;
 
@@ -165,59 +171,71 @@
               {#if key !== "actions" && key !== "id"}
                 {#if typeof data[key] === "string" || typeof data[key] === "number"}
                   {#if key === "ai_suggestion"}
-                    <TableBodyCell class="w-2/5 bg-brand-primary-light dark:bg-brand-primary-dark">
-                      <button
-                        on:click={() => {
-                          suggestionData = [];
-                          suggestionModal = true;
-                          suggestionData = data[key];
-                        }}
+                    <TableBodyCell
+                      on:click={() => {
+                        suggestionModal = true;
+                        suggestionData = data[key];
+                      }}
+                      class="w-2/5 hover:cursor-pointer bg-brand-primary-light dark:bg-brand-primary-dark"
+                    >
+                      <P
+                        size="sm"
+                        class="underline line-clamp-3 text-brand-primary-light dark:text-brand-primary-dark"
                       >
-                        <P
-                          size="sm"
-                          class="underline line-clamp-3 text-brand-primary-light dark:text-brand-primary-dark"
-                        >
-                          <Markdown md={data[key]} {plugins} />
-                        </P>
-                      </button>
+                        <Markdown md={data[key]} {plugins} />
+                      </P>
                     </TableBodyCell>
                   {:else if key === "ai_review"}
-                    <TableBodyCell>
-                      <button
-                        on:click={() => {
-                          suggestionData = [];
-                          reviewModal = true;
-                          reviewData = data[key];
-                        }}
+                    <TableBodyCell
+                      on:click={() => {
+                        reviewModal = true;
+                        reviewData = data[key];
+                      }}
+                      class="hover:cursor-pointer"
+                    >
+                      <P
+                        size="sm"
+                        class="text-tertiary-light dark:text-tertiary-dark underline line-clamp-2"
                       >
-                        <P
-                          size="sm"
-                          class="text-tertiary-light dark:text-tertiary-dark underline line-clamp-2"
-                        >
-                          <Markdown md={data[key]} {plugins} />
-                        </P>
-                      </button>
+                        <Markdown md={data[key]} {plugins} />
+                      </P>
                     </TableBodyCell>
                   {:else}
                     <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                       {data[key]}
                     </TableBodyCell>
                   {/if}
+                {:else if typeof data[key] === "object" && key === "section"}
+                  <TableBodyCell
+                    on:click={() => {
+                      tmpData = data;
+                      tmpRefDoc = data[key];
+                      sectionRefModal = true;
+                      sectionRefData = data[key];
+                    }}
+                    class="hover:cursor-pointer underline"
+                  >
+                    <Typography preset="Text sm/Medium" text={data[key].name} />
+                  </TableBodyCell>
                 {:else if typeof data[key] === "object" && key === "reference_documents"}
-                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                    <div class="flex items-center justify-start gap-3">
+                  <TableBodyCell
+                    on:click={() => {
+                      tmpData = data;
+                      tmpRefDoc = data[key];
+                      sectionRefModal = true;
+                      sectionRefData = data[key];
+                    }}
+                    class="hover:cursor-pointer"
+                  >
+                    <div class="flex underline items-center justify-start gap-3">
                       {#if data[key].name.includes(".pdf") || data[key].name.includes(".PDF")}
                         <img src={PDFOutlineIcon} alt="" />
                       {/if}
-                      <div class="flex flex-col justify-center">
-                        <button on:click={() => goto(data[key].url)} class="underline">
-                          <Typography
-                            preset="Text sm/Regular"
-                            text={data[key].name}
-                            color="secondary"
-                          />
-                        </button>
-                      </div>
+                      <Typography
+                        preset="Text sm/Regular"
+                        text={data[key].name.replace(/\.[^/.]+$/, "")}
+                        color="secondary"
+                      />
                     </div>
                   </TableBodyCell>
                 {:else if typeof data[key] === "object"}
@@ -315,6 +333,64 @@
     </div>
   </div>
 {/if}
+
+<Modal bind:open={sectionRefModal} dialogClass="fixed top-0 start-0 end-0 h-modal md:inset-0 md:h-full z-50 w-full p-8 md:p-12 flex" bodyClass="bg-secondary-light dark:bg-secondary-dark rounded-lg" size="lg" outsideclose>
+  <div class="flex flex-col gap-4 p-8 md:p-12 bg-primary-light dark:bg-primary-dark">
+    <div class="flex flex-col gap-2">
+      <Typography preset="Text lg/Semibold" text={`No.${tmpData.no} - ${$_("section")} "${tmpData.section.name}"`} />
+      <div class="flex items-center justify-start gap-1.5">
+        {#if tmpRefDoc.name.includes(".pdf") || tmpRefDoc.name.includes(".PDF")}
+          <img src={PDFOutlineIcon} alt="" class="w-6 h-6" />
+        {/if}
+        <Typography
+          preset="Text sm/Regular"
+          text={tmpRefDoc.name.replace(/\.[^/.]+$/, "")}
+          color="secondary"
+        />
+      </div>
+    </div>
+    <Button
+      on:click={() => (dropdownInput = !dropdownInput)}
+      class="flex justify-between border-0 bg-secondary-light dark:bg-secondary-dark dark:hover:bg-secondary-hover-dark"
+      color="light"
+    >
+      <div class="flex items-center gap-2">
+        <P class="text-xs font-semibold text-utility-gray-500-light dark:text-utility-gray-500-dark"
+          >{$_("PROMPT")}</P
+        >
+        <Badge text="Input" type="warning" />
+      </div>
+      <ChevronDownOutline
+        class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+      />
+    </Button>
+    {#if dropdownInput}
+      <div class="flex flex-col gap-1">
+        <Markdown md={sectionRefData.prompt} {plugins}></Markdown>
+      </div>
+    {/if}
+    <Button
+      on:click={() => (dropdownOutput = !dropdownOutput)}
+      class="flex justify-between border-0 bg-secondary-light dark:bg-secondary-dark dark:hover:bg-secondary-hover-dark"
+      color="light"
+    >
+      <div class="flex items-center gap-2">
+        <P class="text-xs font-semibold text-utility-gray-500-light dark:text-utility-gray-500-dark"
+          >{$_("AI READ")}</P
+        >
+        <Badge text="Output" />
+      </div>
+      <ChevronDownOutline
+        class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+      />
+    </Button>
+    {#if dropdownOutput}
+      <div class="flex flex-col gap-1">
+        <Markdown md={sectionRefData.result} {plugins}></Markdown>
+      </div>
+    {/if}
+  </div>
+</Modal>
 
 <Modal bind:open={reviewModal} autoclose outsideclose>
   <div class="flex flex-col gap-4">
