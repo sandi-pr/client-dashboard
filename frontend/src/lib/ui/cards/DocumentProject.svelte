@@ -137,20 +137,21 @@ All Rights Reserved
           <Button
             color="light"
             on:click={actionGenerate}
-            disabled={status === "START"}
             class="gap-1.5 grow border-brand-light dark:border-primary-dark"
           >
-            {#if status === "START"}
+            <!-- {#if status === "START"}
               <Spinner color="purple" />
-            {/if}
+            {/if} -->
 
             <Typography
               preset="Text sm/Semibold"
-              text={status !== "FINISH"
-                ? status !== "ERROR"
+              text={status === "FINISH"
+                ? "AI Suggestion"
+                : status === "ERROR"
                   ? "Re-Generate"
-                  : "Generate Suggestion"
-                : "AI Suggestion"}
+                  : status === "GENERATING"
+                    ? "Generating..."
+                    : "Generate Suggestion"}
               color="brand-secondary"
             />
             <StarsIcon

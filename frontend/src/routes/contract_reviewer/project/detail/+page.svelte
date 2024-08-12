@@ -516,7 +516,7 @@
             if (response.result.data.length > 0) {
               for (let j = 0; j < response.result.data.length; j++) {
                 if (response.result.data[j].attributes.status === "GENERATED") {
-                  if (files[i].status_generated === "START") {
+                  if (files[i].status_generated === "GENERATING") {
                     const response2 = await call.call(
                       "client-dashboard",
                       "update-project-document-status-generated",
@@ -548,13 +548,63 @@
 
                   console.log("id", id);
 
-                  idResults.push({
-                    id_doc: files[i].id,
-                    id: id,
-                  });
+                  // check if already push to idResults
+                  let index = idResults.findIndex((result) => result.id_doc === files[i].id);
+                  if (index !== -1) {
+                    idResults[index].id = id;
+                  } else {
+                    idResults.push({
+                      id_doc: files[i].id,
+                      id: id,
+                    });
+                  }
+                }
 
-                  break;
-                } else if (response.result.data[j].attributes.status === "FAILED") {
+                if (response.result.data[j].attributes.status === "GENERATING") {
+                  if (files[i].status_generated === "START") {
+                    const response2 = await call.call(
+                      "client-dashboard",
+                      "update-project-document-status-generated",
+                      {
+                        URLQuery: {},
+                        URLParams: {
+                          id: files[i].id.toString(),
+                        },
+                        Params: {
+                          status_generated: "GENERATING",
+                        },
+                        Headers: {
+                          Authorization: "Bearer " + token,
+                        },
+                      },
+                    );
+
+                    if (response2.status !== 200) {
+                      triggerLoading(false);
+                      triggerToast("error");
+                      console.log(response2);
+                      break;
+                    }
+
+                    files[i].status_generated = "GENERATING";
+                  }
+
+                  let id = response.result.data[j].id;
+
+                  console.log("id", id);
+
+                  let index = idResults.findIndex((result) => result.id_doc === files[i].id);
+                  if (index !== -1) {
+                    idResults[index].id = id;
+                  } else {
+                    idResults.push({
+                      id_doc: files[i].id,
+                      id: id,
+                    });
+                  }
+                }
+
+                if (response.result.data[j].attributes.status === "FAILED") {
                   files[i].status_generated = "ERROR";
                   triggerToast("error");
                   break;
@@ -721,7 +771,7 @@
                 deleteModal = true;
               }}
               actionGenerate={async () => {
-                if (file.status_generated !== "FINISH") {
+                if (file.status_generated !== "FINISH" || file.status_generated !== "GENERATING") {
                   generatedAI(file);
                 } else {
                   if (file.result_id !== undefined) {
