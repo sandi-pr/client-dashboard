@@ -101,7 +101,7 @@
             URLParams: {},
             Params: {
               contract: "PROJECT",
-              contract_doc_id: files[index].id,
+              contract_doc_id: files[index].id.toString(),
             },
             Headers: {
               Authorization: "Bearer " + token,

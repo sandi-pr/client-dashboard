@@ -539,7 +539,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             contract: "REFERENCE",
-            contract_doc_id: tmpId,
+            contract_doc_id: tmpId.toString(),
           },
           Headers: {
             Authorization: "Bearer " + token,

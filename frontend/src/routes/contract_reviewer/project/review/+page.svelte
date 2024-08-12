@@ -18,7 +18,7 @@
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { goto } from "$app/navigation";
-  // import { ListMarkdown } from "$lib";
+  import { ListMarkdown } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -28,7 +28,7 @@
   let projectName = $state("Project Name");
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
-  let dropdownToggle = $state([false, true, false]);
+  let dropdownToggle = $state([true, true, false]);
   let documentViewModal = $state(false);
   let editModal = $state(false);
   let tmpResult = $state([]);
@@ -438,7 +438,7 @@
               <P class="flex">{`${index + 1}. `}&nbsp<Markdown md={data.result} {plugins} /></P>
               {#if index < datas.length - 1}<br />{/if}
             {/each} -->
-            <!-- <ListMarkdown bind:datas={datas2} /> -->
+            <ListMarkdown bind:datas={datas2} />
           </div>
         {/if}
         {#if dropdownToggle[1]}
