@@ -25,7 +25,7 @@
   const plugins = [gfmPlugin()];
 
   let projectDocumentId;
-  let projectName = $state("Project Name");
+  let projectName = $state("");
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let dropdownToggle = $state([true, true, false]);
@@ -180,6 +180,28 @@
           return;
         }
 
+        let projectId = response.result.data[0].attributes.project_id;
+
+        const response2 = await call.call("client-dashboard", "get-contract-project", {
+          URLQuery: {},
+          URLParams: {
+            id: projectId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          if (init) triggerLoading(false);
+          triggerToast("error");
+          console.log(response2);
+          return;
+        }
+
+        projectName = response2.result.data[0].attributes.project_name;
+
         let referenceDocumentNames = {};
 
         markdown = response.result.data[0].attributes.result_markdown;
@@ -192,7 +214,7 @@
         // console.log("referenceDocumentIds", referenceDocumentIds);
 
         for (const referenceDocumentId of referenceDocumentIds) {
-          const response = await call.call("client-dashboard", "get-reference-document-by-id", {
+          const response3 = await call.call("client-dashboard", "get-reference-document-by-id", {
             URLQuery: {},
             URLParams: {
               id: referenceDocumentId.toString(),
@@ -203,18 +225,18 @@
             },
           });
 
-          if (response.status !== 200) {
+          if (response3.status !== 200) {
             triggerLoading(false);
             triggerToast("error");
-            console.log(response);
+            console.log(response3);
             return;
           }
 
-          if (response.result.data.length === 0) {
+          if (response3.result.data.length === 0) {
             continue;
           } else {
             referenceDocumentNames[referenceDocumentId] =
-              response.result.data[0].attributes.document_name;
+              response3.result.data[0].attributes.document_name;
           }
         }
 
