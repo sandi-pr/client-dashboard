@@ -18,6 +18,7 @@
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { goto } from "$app/navigation";
+  // import { ListMarkdown } from "$lib";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -38,6 +39,7 @@
   let base64Data = $state();
   let fileUrl = $state(null);
   let datas = $state([]);
+  let datas2 = $state([]);
   let markdown = $state("");
   let markdownDummy = $state(`
 
@@ -138,13 +140,15 @@
       section: {
         name: "Buyer",
         prompt: "What is the name of company as Buyer?",
-        result: "Contacts:    \nOperations : Fax:+65 6225 5388; Tel: +65 6224  2228;  M: +65 9139 5056 ; keemeng.wee@aramcotrading.sg    \nAccounting  /Invoicing:  Fax;+966 13 875 -8484; Tel:+966 13 880 -1499  or1488 ; accounting@aramcotrading.com  /ATS-Settlement@aramcotrading.sg     \nTreasury/Letter of Credit:  Fax: :+966 13 875 -8484 Tel: +966 13 880 -1588, M: +966 55 -5269 418; treasury@aramcotradin g.com    \nNew demurrage claim shall be directed  To: Tel: +966  13 880-8720/ Tel: +966 13 872 -0147 ; NewDemurrageClaim@aramcotrading.com  \nFor all other related  correspondence demurrage email :  claims@aramcotrading.com   \nPage 4 of 4 \n DEAL NO.  PTP23SS00012  \ncoefficient value is 4.0 0 USD/ Barrel . For the avoidance of doubt, this estimation is solely for \nour customs clearance purpose. Number of clearance document must be align, for example \nif there are Two (2) B/L documents, then the packing list and custom invoice must be made \nin 2 (T wo) documents which represent each B/L document. All clearance documents (B/L or \nendorsed B/L, Packing List, and Customs Invoice) must be sent to Buyer at least Six (6) hours \nafter vessel depart from loading port. For CFR or DAP basis, vessel clearance mus t comply with \nIndonesia customs regulation such as but not limited to (RKSP (transcript BC1.0), inward \nmanifest (transcript BC1.1), and discharged permit from local customs office). All documents \nabove must be submitted immediately or Twenty -Four (24) hour s after vessel departure from \nloading port or Three (3) days before vessel arrive at discharging port, whichever is earlier, \nexcept for loading port with less than Twenty -Four (24) hours sea days to discharge port.  \n \nIn the event that the Seller fails to s ubmit such documents in good order and/or in \nconformance with delivered quantity and/or within the time limit, all costs in relation to the \ncustom clearance charges and/or custom fine, including but not limited to demurrage \nincurred by late custom clearanc e shall be entirely on the Seller’s account.  \n19. Law \u0026 \nArbitration:  English Law and Singapore Arbitration (SIAC)  \n20. Title \u0026 Risks:  CFR = load port  \nDAP = disport  \n21. Others:  Pricing to be finalized to 3 decimal places  \n22. Contact Details : • Aramco Trading Singapore PTE.  LTD. (ATS) will not be held responsible for the delays and \nno claim for demurrage shall be entertained if email claim does not reach \nNewDemurrageClaim@aramcotrading.com  \n• All correspondence relating to demurrage or demurrage claim (if any) shall be directed to \nthe following department in charge:  \nEmail:  claims@aramcotrading.com  \nTelephone no.:  +966 -13 880-8720 / +966 13 872 0147  \n• As afore -stipulated, resulting from the correspondence sent to any other place.  \nWe are pleased to have concluded this business with your company.  \n \nBest R egards,  \nNada Soqair  \nAramco Trading Singapore PTE. LTD .  \n******** ************* ********* ****** IMPORTANT NOTICE  ***************** ****** *******************  \nARAMCO TRADING COMPANY (AND ITS SUBSIDIARIES)  WILL NOT BE HELD RESPONSIBLE FOR DELAYS \nRESULTING FROM CORRESPONDENCE SENT TO ANY OTHER PLACE.  \nTHE ABSENCE OF A RESPONSE AND/OR DULY EXECUTED TRADE CONFIRMATION ON TH E PART OF EITHER \nPARTY OR BOTH PARTIES SHALL NOT AFFECT THE VALIDITY OF AND BINDING NATURE OF THE AGREEMENT.  \nPLEASE NOTE THAT ALL NOTICES FOR THE ATTENTION OF ARAMCO TRADING SINGAPORE PTE. LTD. MUST BE \nSENT TO THE OPERATIONS DEPARTMENT, ACCOUNTING SERVICES /INVOICES OR TREASURY LETTERS OF \nCREDIT DEPARTMENT RESPECTIVELY AT THE CONTACT ADDRESS GIVEN IN THE FOOTER BELOW  \n*************** ******** ******************* *******************************************************",
+        result:
+          "Contacts:    \nOperations : Fax:+65 6225 5388; Tel: +65 6224  2228;  M: +65 9139 5056 ; keemeng.wee@aramcotrading.sg    \nAccounting  /Invoicing:  Fax;+966 13 875 -8484; Tel:+966 13 880 -1499  or1488 ; accounting@aramcotrading.com  /ATS-Settlement@aramcotrading.sg     \nTreasury/Letter of Credit:  Fax: :+966 13 875 -8484 Tel: +966 13 880 -1588, M: +966 55 -5269 418; treasury@aramcotradin g.com    \nNew demurrage claim shall be directed  To: Tel: +966  13 880-8720/ Tel: +966 13 872 -0147 ; NewDemurrageClaim@aramcotrading.com  \nFor all other related  correspondence demurrage email :  claims@aramcotrading.com   \nPage 4 of 4 \n DEAL NO.  PTP23SS00012  \ncoefficient value is 4.0 0 USD/ Barrel . For the avoidance of doubt, this estimation is solely for \nour customs clearance purpose. Number of clearance document must be align, for example \nif there are Two (2) B/L documents, then the packing list and custom invoice must be made \nin 2 (T wo) documents which represent each B/L document. All clearance documents (B/L or \nendorsed B/L, Packing List, and Customs Invoice) must be sent to Buyer at least Six (6) hours \nafter vessel depart from loading port. For CFR or DAP basis, vessel clearance mus t comply with \nIndonesia customs regulation such as but not limited to (RKSP (transcript BC1.0), inward \nmanifest (transcript BC1.1), and discharged permit from local customs office). All documents \nabove must be submitted immediately or Twenty -Four (24) hour s after vessel departure from \nloading port or Three (3) days before vessel arrive at discharging port, whichever is earlier, \nexcept for loading port with less than Twenty -Four (24) hours sea days to discharge port.  \n \nIn the event that the Seller fails to s ubmit such documents in good order and/or in \nconformance with delivered quantity and/or within the time limit, all costs in relation to the \ncustom clearance charges and/or custom fine, including but not limited to demurrage \nincurred by late custom clearanc e shall be entirely on the Seller’s account.  \n19. Law \u0026 \nArbitration:  English Law and Singapore Arbitration (SIAC)  \n20. Title \u0026 Risks:  CFR = load port  \nDAP = disport  \n21. Others:  Pricing to be finalized to 3 decimal places  \n22. Contact Details : • Aramco Trading Singapore PTE.  LTD. (ATS) will not be held responsible for the delays and \nno claim for demurrage shall be entertained if email claim does not reach \nNewDemurrageClaim@aramcotrading.com  \n• All correspondence relating to demurrage or demurrage claim (if any) shall be directed to \nthe following department in charge:  \nEmail:  claims@aramcotrading.com  \nTelephone no.:  +966 -13 880-8720 / +966 13 872 0147  \n• As afore -stipulated, resulting from the correspondence sent to any other place.  \nWe are pleased to have concluded this business with your company.  \n \nBest R egards,  \nNada Soqair  \nAramco Trading Singapore PTE. LTD .  \n******** ************* ********* ****** IMPORTANT NOTICE  ***************** ****** *******************  \nARAMCO TRADING COMPANY (AND ITS SUBSIDIARIES)  WILL NOT BE HELD RESPONSIBLE FOR DELAYS \nRESULTING FROM CORRESPONDENCE SENT TO ANY OTHER PLACE.  \nTHE ABSENCE OF A RESPONSE AND/OR DULY EXECUTED TRADE CONFIRMATION ON TH E PART OF EITHER \nPARTY OR BOTH PARTIES SHALL NOT AFFECT THE VALIDITY OF AND BINDING NATURE OF THE AGREEMENT.  \nPLEASE NOTE THAT ALL NOTICES FOR THE ATTENTION OF ARAMCO TRADING SINGAPORE PTE. LTD. MUST BE \nSENT TO THE OPERATIONS DEPARTMENT, ACCOUNTING SERVICES /INVOICES OR TREASURY LETTERS OF \nCREDIT DEPARTMENT RESPECTIVELY AT THE CONTACT ADDRESS GIVEN IN THE FOOTER BELOW  \n*************** ******** ******************* *******************************************************",
       },
       reference_documents: {
         id: 3,
         name: "GTC_version_feb2024.pdf",
         prompt: "What is the name of company as Buyer?",
-        result: "PT Pertamina Patra Niaga GTC – Purchases of Petroleum Products                    \n \n                           Page 11 of 35 \n represent each B/L document. All clearance documents (B/L, Packing List, and Customs \nInvoice) have to be sent to Buyer at least six  (6) hours after vessel depart from loading port. For \nCFR or DAP basis, vessel clearance must comply with Indonesia customs regulation such as \nbut not limited to (RKSP (transcript BC1.0), inward manifest (transcript BC1.1), and discharged  \nperm it from local customs office).  All documents above must be submitted immediately or \ntwenty -four (24) hours after vessel departure from loading port or three (3) days before vessel \narrive at discharging port, whichever is earlier , except for loading port with less than twenty -four \n(24) hours sea days to discharge port.  \nIn the event that the Seller fails to submit such doc uments in good order  and/or in conformance \nwith delivered quantity and/or within the time limit, all costs in relation to the custom clearance \ncharges and/or custom fine, including but not limited to demurrage incurred by late custom clearance shall be ent irely on the Seller’s account.  \n17.8.  For CFR  or DAP basis, the shipper must comply with all Indonesian regulations. In the event \nthe Seller fails to tender delivery due to any violation caused by the shipper, Seller without any \nreasons whatsoever has to commit to deliver the cargo within the agreed ADD. All associated \ncost thereof shall be solely borne by the Seller.  \n17.9.  For CFR  or DAP basis, the shipping agent has to process and submit the discharging \npermission letter to the customs office in discharging port area. Seller must make sure that the \nshipping agent at discharging port submit discharge permit to local customs office at discharging \nport. \nFor CFR  or DAP basis, in the event of quantity discrepancy at the discharging port, buyer shall \nnot be liable f or all customs fines and penalties caused by any excess or shortage related to \nthe discharging custom tolerance regulation.  \n17.10.  The Buyer reserves all rights to claim for loss or damages including but not limited to change(s) \nmade to declared loading port. For  CFR or DAP delivery, custom clearance charges and/or \ncustom fine and/or paid government taxes and/or random inspection(s) pertaining to Red channel policy that may arise, including but not limited to, in the event of (a) wrong submission \nof custom documents, (b) error in custom documents submitted, (c) quantity or quality \ndiscrepancy attributable to the Seller including but not limited to outturn losses, and (d) rejection \nof cargo(es) due to off specification issue, including but not limited to any losses or damages \nsuffered by the Buyer resulting from such failure. In the event of any such claims, the Buyer \nshall notify the Seller of its claim in writing, and the Seller shall endeavor full settlement of all \nsuch claims.  \n17.11.  The Seller shall settle any other costs, expenses or charges (including but not limited to port \ncharges, agent fee, tug boat fee, inspector and /or any mutually agreed shared inspection costs, \ncharges incurred for acquiring LTBP rate, claim for quantity and/or quality losses or shortages, Delay of Delivery charge(s) and /or for FOB delivery, demurrage claim etc) which may arise \nunder the terms of this GTC  and/or the Agreement . \n17.12.  In case of any discrepancy or conflict among the terms and conditions in purchase order , the \nterms and conditions in this GTC, the terms and conditions in the Agreement and the terms and \nconditions in Incoterms for CFR Basis (latest edition)  or DAP Basis (latest edition) or FOB Basis \n(latest edition), then the terms and conditions shall prevail with the following sequenc e: \n1) Dealdone/Confirmation Letter along with the general terms and conditions agreed;  \n2) Agreement ; \n3) Purchase Order  (if any) ; \n4) Incoterms for CFR Basis (latest edition)  or DAP Basis (latest edition)  or FOB Basis (latest \nedition);  \n17.13.  CFR, DAP  and FOB shall have the meaning given to that term in Incoterms (or any subsequent \namendment thereto) as modified by the terms and conditions of this GTC  and/or the Agreement . \nFurther, if there is any inconsistency or conflict between this GTC and Incoterms, this GTC shall prevail.  \n17.14.  The Seller shall send the draft Agreement via email to trade.support@pertamina.com , unless \nspecified otherwise by the Buyer.",
+        result:
+          "PT Pertamina Patra Niaga GTC – Purchases of Petroleum Products                    \n \n                           Page 11 of 35 \n represent each B/L document. All clearance documents (B/L, Packing List, and Customs \nInvoice) have to be sent to Buyer at least six  (6) hours after vessel depart from loading port. For \nCFR or DAP basis, vessel clearance must comply with Indonesia customs regulation such as \nbut not limited to (RKSP (transcript BC1.0), inward manifest (transcript BC1.1), and discharged  \nperm it from local customs office).  All documents above must be submitted immediately or \ntwenty -four (24) hours after vessel departure from loading port or three (3) days before vessel \narrive at discharging port, whichever is earlier , except for loading port with less than twenty -four \n(24) hours sea days to discharge port.  \nIn the event that the Seller fails to submit such doc uments in good order  and/or in conformance \nwith delivered quantity and/or within the time limit, all costs in relation to the custom clearance \ncharges and/or custom fine, including but not limited to demurrage incurred by late custom clearance shall be ent irely on the Seller’s account.  \n17.8.  For CFR  or DAP basis, the shipper must comply with all Indonesian regulations. In the event \nthe Seller fails to tender delivery due to any violation caused by the shipper, Seller without any \nreasons whatsoever has to commit to deliver the cargo within the agreed ADD. All associated \ncost thereof shall be solely borne by the Seller.  \n17.9.  For CFR  or DAP basis, the shipping agent has to process and submit the discharging \npermission letter to the customs office in discharging port area. Seller must make sure that the \nshipping agent at discharging port submit discharge permit to local customs office at discharging \nport. \nFor CFR  or DAP basis, in the event of quantity discrepancy at the discharging port, buyer shall \nnot be liable f or all customs fines and penalties caused by any excess or shortage related to \nthe discharging custom tolerance regulation.  \n17.10.  The Buyer reserves all rights to claim for loss or damages including but not limited to change(s) \nmade to declared loading port. For  CFR or DAP delivery, custom clearance charges and/or \ncustom fine and/or paid government taxes and/or random inspection(s) pertaining to Red channel policy that may arise, including but not limited to, in the event of (a) wrong submission \nof custom documents, (b) error in custom documents submitted, (c) quantity or quality \ndiscrepancy attributable to the Seller including but not limited to outturn losses, and (d) rejection \nof cargo(es) due to off specification issue, including but not limited to any losses or damages \nsuffered by the Buyer resulting from such failure. In the event of any such claims, the Buyer \nshall notify the Seller of its claim in writing, and the Seller shall endeavor full settlement of all \nsuch claims.  \n17.11.  The Seller shall settle any other costs, expenses or charges (including but not limited to port \ncharges, agent fee, tug boat fee, inspector and /or any mutually agreed shared inspection costs, \ncharges incurred for acquiring LTBP rate, claim for quantity and/or quality losses or shortages, Delay of Delivery charge(s) and /or for FOB delivery, demurrage claim etc) which may arise \nunder the terms of this GTC  and/or the Agreement . \n17.12.  In case of any discrepancy or conflict among the terms and conditions in purchase order , the \nterms and conditions in this GTC, the terms and conditions in the Agreement and the terms and \nconditions in Incoterms for CFR Basis (latest edition)  or DAP Basis (latest edition) or FOB Basis \n(latest edition), then the terms and conditions shall prevail with the following sequenc e: \n1) Dealdone/Confirmation Letter along with the general terms and conditions agreed;  \n2) Agreement ; \n3) Purchase Order  (if any) ; \n4) Incoterms for CFR Basis (latest edition)  or DAP Basis (latest edition)  or FOB Basis (latest \nedition);  \n17.13.  CFR, DAP  and FOB shall have the meaning given to that term in Incoterms (or any subsequent \namendment thereto) as modified by the terms and conditions of this GTC  and/or the Agreement . \nFurther, if there is any inconsistency or conflict between this GTC and Incoterms, this GTC shall prevail.  \n17.14.  The Seller shall send the draft Agreement via email to trade.support@pertamina.com , unless \nspecified otherwise by the Buyer.",
       },
       ai_review: "\n**Buyer** : PT Pertamina Patra Niaga Jakarta, Indonesia\n",
       ai_suggestion:
@@ -182,10 +186,10 @@
         tmpResult = response.result.data[0].attributes.result;
 
         const referenceDocumentIds = tmpResult
-          .flatMap(section => section.generated.flatMap(item => item.reference_document_ids))
+          .flatMap((section) => section.generated.flatMap((item) => item.reference_document_ids))
           .filter((value, index, self) => self.indexOf(value) === index);
 
-          // console.log("referenceDocumentIds", referenceDocumentIds);
+        // console.log("referenceDocumentIds", referenceDocumentIds);
 
         for (const referenceDocumentId of referenceDocumentIds) {
           const response = await call.call("client-dashboard", "get-reference-document-by-id", {
@@ -209,16 +213,17 @@
           if (response.result.data.length === 0) {
             continue;
           } else {
-            referenceDocumentNames[referenceDocumentId] = response.result.data[0].attributes.document_name;
+            referenceDocumentNames[referenceDocumentId] =
+              response.result.data[0].attributes.document_name;
           }
         }
-          
+
         let idCounter = 1; // Initialize global counter
 
         let promise = response.result.data[0].attributes.result.flatMap((item) => {
           return item.generated.map((generatedItem) => {
             const documentId = generatedItem.reference_document_ids[0];
-            
+
             return {
               no: idCounter,
               id: idCounter++, // Increment counter for each new item
@@ -229,9 +234,10 @@
               },
               reference_documents: {
                 id: documentId,
-                // name: referenceDocumentNames[documentId] || "Reference Document " + documentId + ".pdf",
+                name:
+                  referenceDocumentNames[documentId] || "Reference Document " + documentId + ".pdf",
                 // dummy
-                name: "Reference Document " + documentId + ".pdf",
+                // name: "Reference Document " + documentId + ".pdf",
                 prompt: generatedItem.reference_prompt,
                 result: generatedItem.reference_results[0],
               },
@@ -241,8 +247,27 @@
           });
         });
 
-
         datas = await Promise.all(promise);
+
+        let alreadyAdded = new Set();
+
+        let promise2 = datas
+          .filter((data) => {
+            if (alreadyAdded.has(data.section.name)) {
+              return false;
+            } else {
+              alreadyAdded.add(data.section.name);
+              return true;
+            }
+          })
+          .map((data) => {
+            return {
+              name: data.section.name,
+              result: data.ai_review,
+            };
+          });
+
+        datas2 = await Promise.all(promise2);
         triggerLoading(false);
       } catch (error) {
         console.log(error);
@@ -409,16 +434,15 @@
           <div
             class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
           >
-            {#each datas as data, index}
+            <!-- {#each datas as data, index}
               <P class="flex">{`${index + 1}. `}&nbsp<Markdown md={data.result} {plugins} /></P>
               {#if index < datas.length - 1}<br />{/if}
-            {/each}
+            {/each} -->
+            <!-- <ListMarkdown bind:datas={datas2} /> -->
           </div>
         {/if}
         {#if dropdownToggle[1]}
-          <DataTableAiReview
-            bind:datas
-          />
+          <DataTableAiReview bind:datas />
           <!-- <DataTable bind:datas /> -->
         {/if}
       </div>

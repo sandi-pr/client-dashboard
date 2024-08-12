@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 
+	"gitlab.hexacode.org/go-libs/cr3call"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
 	"gitlab.hexacode.org/go-libs/strapi"
@@ -578,6 +579,16 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai-contract-review", "process-to-rag", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+		Params: U.Dict{
+			"project_id": project_idStr,
+		},
+	}, false)
 
 	return 200, documentProject, nil
 }

@@ -93,6 +93,28 @@
           return;
         }
 
+        const response2 = await call.call(
+          "client-dashboard",
+          "delete-document-collection-by-contract",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              contract: "PROJECT",
+              contract_doc_id: files[index].id,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response2.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response2);
+        }
+
         triggerToast("deleted");
         triggerLoading(false);
         files.splice(index, 1);

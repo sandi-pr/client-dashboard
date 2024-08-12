@@ -282,27 +282,6 @@ All Rights Reserved
           return;
         }
 
-        let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_id: collectionId.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response2.status !== 200) {
-          addDocumentsModal = true;
-          console.log(response2);
-          triggerToast("error");
-          triggerLoading(false);
-          return;
-        }
-
-        console.log(response2);
-
         if (tmpDocumentType === "Handwriting") {
           for (let i = 0; i < files.length; i++) {
             let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
@@ -385,48 +364,20 @@ All Rights Reserved
       let ids = datasChecked.filter((data) => data.checked).map((data) => data.id);
       try {
         for (const id of ids) {
-          let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+          let response = await call.call("client-dashboard", "delete-document", {
             URLQuery: {},
-            URLParams: {},
-            Params: {
-              document_id: id.toString(),
+            URLParams: {
+              id: id.toString(),
             },
             Headers: {
               Authorization: `Bearer ${token}`,
             },
           });
 
-          if (response2.status !== 200) {
-            triggerToast("error");
+          if (response.status !== 200) {
             triggerLoading(false);
-            popupModal = true;
-            console.log(response2);
-            return;
-          }
-
-          if (response2.status === 200) {
-            let response = await call.call("client-dashboard", "delete-document", {
-              URLQuery: {},
-              URLParams: {
-                id: id.toString(),
-              },
-              Headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-
-            if (response.status !== 200) {
-              triggerLoading(false);
-              triggerToast("error");
-              popupModal = true;
-              console.log(response);
-              return;
-            }
-          } else {
             triggerToast("error");
-            triggerLoading(false);
             popupModal = true;
-            triggerToast("error");
             console.log(response);
             return;
           }

@@ -43,6 +43,7 @@ export { default as getTextColors } from "$lib/utils/getTextColors";
 export { default as getIcons } from "$lib/utils/getIcons";
 export { default as triggerToast } from "$lib/utils/toast";
 export { default as triggerLoading } from "$lib/utils/loading";
+export { default as ListMarkdown } from "$lib/components/ListMarkdown.svelte";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export { triggerSelectCollection, selectedCollection, selectedDropdown, triggerSelectDropdown, triggerReload, reload } from "$lib/utils/selectCollection";
 export { triggerShowAI, showAI } from "$lib/utils/showAI";

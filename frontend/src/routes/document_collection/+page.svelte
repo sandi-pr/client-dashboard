@@ -608,23 +608,6 @@ All Rights Reserved
           return;
         }
 
-        let response3 = await call.call("hexa-ai-rag", "delete-document-by-collection-id", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_id: tmpCollectionId.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response3.status !== 200) {
-          console.log(response3);
-          triggerToast("error");
-          return;
-        }
-
         console.log("ayam", response2);
 
         triggerToast("deleted");
@@ -670,26 +653,6 @@ All Rights Reserved
         }
 
         console.log(response);
-
-        let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_id: tmpCollectionId.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response2.status !== 200) {
-          console.log(response2);
-          triggerToast("error");
-          triggerLoading(false);
-          return;
-        }
-
-        console.log(response2);
 
         if (tmpDocumentType === "Handwriting") {
           for (let i = 0; i < files.length; i++) {

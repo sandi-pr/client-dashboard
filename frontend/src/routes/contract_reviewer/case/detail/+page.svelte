@@ -59,6 +59,7 @@ All Rights Reserved
   let tmpId = $state(null);
   let tmpDocumentName = $state(null);
   let tmpSectionId = $state(null);
+  let collectionId = $state(null);
 
   let tabDatas = $state({
     selected: "Referenced Documents",
@@ -87,6 +88,54 @@ All Rights Reserved
     ],
   });
 
+  async function getCollections(name, id) {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await call.call("client-dashboard", "get-collection-by-name", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_name: id + ". " + name + " (Referenced Documents)",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length === 0) {
+          let response2 = await call.call("client-dashboard", "create-document-collection", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_name: id + ". " + name + " (Referenced Documents)",
+              description: "Collection for " + name,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response2.status !== 200) {
+            console.log(response2);
+            return;
+          }
+
+          collectionId = response2.result.data.id;
+          return;
+        }
+
+        collectionId = response.result.data[0].id;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   async function getRulesSections() {
     triggerLoading(true);
     let token = sessionStorage.getItem("token");
@@ -109,6 +158,11 @@ All Rights Reserved
           console.log(response);
           return;
         }
+
+        await getCollections(
+          response.result.data[0].attributes.rule_name,
+          response.result.data[0].id,
+        );
 
         let sectionsTmp = [];
         let page = 1;
@@ -294,7 +348,7 @@ All Rights Reserved
 
     if (industry_id === null) {
       triggerLoading(false);
-      alert("Please select an industry first");
+
       return;
     }
 
@@ -391,7 +445,7 @@ All Rights Reserved
     console.log("industry_id", industry_id);
     if (industry_id === null) {
       triggerLoading(false);
-      alert("Please select an industry first");
+
       return;
     }
     try {
@@ -418,6 +472,29 @@ All Rights Reserved
       }
 
       tmpFile.id = response.result.data[0].id;
+
+      tmpFile.document_title = tmpDocumentName;
+      tmpFile.description = "Document reference " + datas.title;
+      tmpFile.contract = "REFERENCE";
+
+      let response2 = await call.call("client-dashboard", "create-document", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          documents: JSON.stringify([tmpFile]),
+          collection_id: collectionId.toString(),
+          document_type: "Documents",
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response2.status !== 200) {
+        triggerLoading(false);
+        addRefDocModal = true;
+        triggerToast("error");
+      }
 
       files.push(tmpFile);
 
@@ -449,6 +526,28 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
+        triggerLoading(false);
+        triggerToast("error");
+        deleteModal = true;
+      }
+
+      const response2 = await call.call(
+        "client-dashboard",
+        "delete-document-collection-by-contract",
+        {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            contract: "REFERENCE",
+            contract_doc_id: tmpId,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        },
+      );
+
+      if (response2.status !== 200) {
         triggerLoading(false);
         triggerToast("error");
         deleteModal = true;

@@ -156,6 +156,32 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			description = ""
 		}
 
+		contract, ok := document.(map[string]interface{})["contract"].(string)
+		if !ok {
+			contract = ""
+		}
+
+		id_contract, ok := document.(map[string]interface{})["id"].(float64)
+		if !ok {
+			id_contract = 0
+		}
+
+		var reference_doc_id float64 = 0
+
+		var project_doc_id float64 = 0
+
+		if contract == "REFERENCE" {
+
+			reference_doc_id = id_contract
+
+		}
+
+		if contract == "PROJECT" {
+
+			project_doc_id = id_contract
+
+		}
+
 		status, upload, err := Strapi.Upload(documentName, documentFile)
 
 		fmt.Println("upload", upload)
@@ -187,26 +213,30 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 		if description == "" {
 			status, documents, err = Strapi.Create("document-management-table", U.Dict{
-				"document_title": document_title,
-				"document_type":  document_type,
-				"document":       id,
-				"collection_id":  collection_id,
-				"upload_by":      upload_by,
-				"file_size":      file_size,
-				"edited":         false,
-				"inserted":       false,
+				"document_title":   document_title,
+				"document_type":    document_type,
+				"document":         id,
+				"collection_id":    collection_id,
+				"upload_by":        upload_by,
+				"file_size":        file_size,
+				"edited":           false,
+				"inserted":         false,
+				"reference_doc_id": reference_doc_id,
+				"project_doc_id":   project_doc_id,
 			})
 		} else {
 			status, documents, err = Strapi.Create("document-management-table", U.Dict{
-				"document_title": document_title,
-				"document_type":  document_type,
-				"document":       id,
-				"collection_id":  collection_id,
-				"upload_by":      upload_by,
-				"file_size":      file_size,
-				"edited":         false,
-				"description":    description,
-				"inserted":       false,
+				"document_title":   document_title,
+				"document_type":    document_type,
+				"document":         id,
+				"collection_id":    collection_id,
+				"upload_by":        upload_by,
+				"file_size":        file_size,
+				"edited":           false,
+				"description":      description,
+				"inserted":         false,
+				"reference_doc_id": reference_doc_id,
+				"project_doc_id":   project_doc_id,
 			})
 		}
 
@@ -234,6 +264,16 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 
 		datas = append(datas, result)
 	}
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai-rag", "add-document-by-collection-id", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+		Params: U.Dict{
+			"collection_id": collection_idStr,
+		},
+	}, false)
 
 	return 200, U.Dict{"data": datas}, nil
 
@@ -978,6 +1018,16 @@ func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters id")
 	}
 
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai-rag", "delete-document-by-id", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+		Params: U.Dict{
+			"document_id": idStr,
+		},
+	}, false)
+
 	status, document, err := Strapi.Delete("document-management-table", int64(id))
 	if err != nil {
 		fmt.Println(err)
@@ -990,7 +1040,6 @@ func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	CR3 := cr3call.New(MODULE_MANAGER_URL)
 	go CR3.Call("hexa-ai", "refresh-document", cr3call.CR3CallData{
 		Headers: U.Dict{
 			"Authorization": bearer,
@@ -1141,4 +1190,107 @@ func GetCountDocumentsPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 	}
 
 	return 200, U.Dict{"document": document, "general": general, "contract": contract}, nil
+}
+
+func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	contract, ok := ctx.Params.GetString("contract")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	contract_doc_id, ok := ctx.Params.GetFloat64("contract_doc_id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var document U.Dict
+
+	if contract == "REFERENCE" {
+		status, document, err = Strapi.Find("document-management-table", U.Dict{
+			"filters": U.Dict{
+				"contract_doc_id": U.Dict{
+					"$eq": int64(contract_doc_id),
+				},
+			},
+		})
+	} else {
+		status, document, err = Strapi.Find("document-collection-table", U.Dict{
+			"filters": U.Dict{
+				"project_doc_id": U.Dict{
+					"$eq": int64(contract_doc_id),
+				},
+			},
+		})
+
+	}
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	data, ok := document.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(data) == 0 {
+		return 200, document, nil
+	}
+
+	dict, ok := data.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	id, ok := dict.GetFloat64("id")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	id_str := strconv.Itoa(int(id))
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("client-dashboard", "delete-document", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+		URLParams: U.Dict{
+			"id": id_str,
+		},
+	}, false)
+
+	return 200, document, nil
 }

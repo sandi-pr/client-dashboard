@@ -1690,6 +1690,29 @@
             ]
         },
         {
+            "name": "delete-document-collection-by-contract",
+            "path": "/delete-document-collection-by-contract",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteDocumentCollectionByContract"
+            },
+            "params": [
+                {
+                    "name": "contract",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "contract_doc_id",
+                    "type": "number",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "update-document-handwriting",
             "path": "/update-document-handwriting/:id",
             "method": "POST",
@@ -3810,6 +3833,12 @@
                     },
                     "inserted": {
                         "type": "boolean"
+                    },
+                    "reference_doc_id": {
+                        "type": "integer"
+                    },
+                    "project_doc_id": {
+                        "type": "integer"
                     }
                 }
             },

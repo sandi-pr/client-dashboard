@@ -43,6 +43,8 @@
   let selectedTypeCollection = $state("Documents");
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
   let fileUrl = $state("");
+  let collectionId = $state(null);
+  let projectName = $state("");
   let documentTypes = $state([
     {
       name: "Documents (TXT, PDF, DOC, DOCX)",
@@ -172,25 +174,29 @@
         return;
       }
 
-      const response2 = await call.call("hexa-ai-contract-review", "process-to-rag", {
+      // TODO: save to collection
+      file.id = response.result.data.id;
+      file.document_title = data.document_name;
+      file.description = "Document project " + projectName;
+      file.contract = "PROJECT";
+
+      let response3 = await call.call("client-dashboard", "create-document", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          project_id: projectId.toString(),
+          documents: JSON.stringify([file]),
+          collection_id: collectionId.toString(),
+          document_type: tmpDocumentType,
         },
         Headers: {
           Authorization: "Bearer " + token,
         },
       });
 
-      if (response2.status !== 200) {
+      if (response3.status !== 200) {
         triggerLoading(false);
         triggerToast("error");
-        console.log(response2);
-        return;
       }
-
-      // TODO: save to collection
 
       triggerToast("created");
       data = {
@@ -258,6 +264,75 @@
     }
   }
 
+  async function getCollections(id) {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const response = await call.call("client-dashboard", "get-contract-project", {
+          URLQuery: {},
+          URLParams: {
+            id: id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        projectName = response.result.data[0].attributes.project_name;
+
+        let response2 = await call.call("client-dashboard", "get-collection-by-name", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_name: id + ". " + projectName + " (Project Documents)",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response2.status !== 200) {
+          triggerToast("error");
+          console.log(response2);
+          return;
+        }
+
+        if (response2.result.data.length === 0) {
+          let response3 = await call.call("client-dashboard", "create-document-collection", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_name: id + ". " + projectName + " (Project Documents)",
+              description: "Collection for " + projectName,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response3.status !== 200) {
+            triggerToast("error");
+            console.log(response3);
+            return;
+          }
+
+          collectionId = response3.result.data.id;
+          return;
+        }
+
+        collectionId = response2.result.data[0].id;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     formattedStartDate = formatDate(new Date());
     const unsubscribe = page.subscribe(async ($page) => {
@@ -266,6 +341,7 @@
       if (projectId !== null) {
         onEdit = true;
         onView = false;
+        getCollections(projectId);
       } else if (projectDocumentId !== null) {
         onEdit = false;
         onView = true;
@@ -330,7 +406,7 @@
           <InputRw {onEdit} bind:value={data.document_name} />
         </div>
         <div class="flex grow flex-col gap-1.5">
-          <Typography preset="Text sm/medium" color="secondary" text={$_("contentDate")} />
+          <Typography preset="Text sm/medium" color="secondary" text={`${$_("contentDate")}*`} />
           <DatePicker bind:isOpen bind:startDate enableFutureDates>
             <button
               onclick={toggleDatePicker}

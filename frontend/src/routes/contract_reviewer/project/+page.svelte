@@ -189,7 +189,7 @@ All Rights Reserved
     let industry_id = sessionStorage.getItem("industry_id");
     if (industry_id === null) {
       triggerLoading(false);
-      alert("Please select an industry first");
+
       return;
     }
     if (token) {
