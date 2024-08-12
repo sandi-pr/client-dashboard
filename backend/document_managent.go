@@ -1261,6 +1261,7 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 	}
 
 	if status != 200 {
+		fmt.Println(document)
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}

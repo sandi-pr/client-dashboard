@@ -549,8 +549,8 @@ All Rights Reserved
 
       if (response2.status !== 200) {
         triggerLoading(false);
-        triggerToast("error");
-        deleteModal = true;
+        // triggerToast("error");
+        // deleteModal = true;
       }
 
       files = files.filter((file) => file.id !== tmpId);

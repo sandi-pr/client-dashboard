@@ -232,55 +232,55 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (documentId !== "" && documentId !== null && documentId !== undefined) {
       try {
-        let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+        // let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+        //   URLQuery: {},
+        //   URLParams: {},
+        //   Params: {
+        //     document_id: documentId.toString(),
+        //   },
+        //   Headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // });
+
+        // if (response2.status !== 200) {
+        //   console.log(response2);
+        //   return;
+        // }
+
+        // console.log(response2);
+
+        // if (response2.status === 200) {
+        let response = await call.call("client-dashboard", "delete-document", {
           URLQuery: {},
-          URLParams: {},
-          Params: {
-            document_id: documentId.toString(),
+          URLParams: {
+            id: documentId.toString(),
           },
           Headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (response2.status !== 200) {
-          console.log(response2);
-          return;
-        }
-
-        console.log(response2);
-
-        if (response2.status === 200) {
-          let response = await call.call("client-dashboard", "delete-document", {
-            URLQuery: {},
-            URLParams: {
-              id: documentId.toString(),
-            },
-            Headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (response.status !== 200) {
-            triggerToast("error");
-            console.log(response);
-            return;
-          }
-
-          triggerToast("deleted");
-          // setTimeout(async () => {
-          goto(
-            (await call.getPage("client-dashboard", "document-collection-list-document")) +
-              "?collectionId=" +
-              collectionId,
-          );
-          // }, 3000);
-          return;
-        } else {
+        if (response.status !== 200) {
           triggerToast("error");
           console.log(response);
           return;
         }
+
+        triggerToast("deleted");
+        // setTimeout(async () => {
+        goto(
+          (await call.getPage("client-dashboard", "document-collection-list-document")) +
+            "?collectionId=" +
+            collectionId,
+        );
+        // }, 3000);
+        return;
+        // } else {
+        //   triggerToast("error");
+        //   console.log(response);
+        //   return;
+        // }
       } catch (error) {
         triggerToast("error");
         console.log(error);

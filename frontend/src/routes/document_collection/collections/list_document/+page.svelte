@@ -383,10 +383,10 @@ All Rights Reserved
           }
         }
 
-        triggerLoading(false);
+        await getCollection();
+        await getDocuments(pagination.page);
         triggerToast("deleted");
-        getCollection();
-        getDocuments(pagination.page);
+        triggerLoading(false);
       } catch (error) {
         triggerToast("error");
         console.log(error);
