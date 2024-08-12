@@ -489,5 +489,6 @@
   "chooseCase": "Pilih Case",
   "referencePrompt": "Prompt Referensi",
   "aiSuggestion": "Saran AI",
-  "section": "Section"
+  "section": "Section",
+  "review": "Review"
 }

@@ -489,5 +489,6 @@
   "chooseCase": "Choose Case",
   "referencePrompt": "Reference Prompt",
   "aiSuggestion": "AI Suggestion",
-  "section": "Section"
+  "section": "Section",
+  "review": "Review"
 }
