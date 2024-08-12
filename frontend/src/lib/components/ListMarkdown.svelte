@@ -12,7 +12,7 @@
   }));
 </script>
 
-<div class="max-h-[46rem] overflow-auto hide-scrollbar">
+<div class="max-h-[46rem] overflow-y-auto hide-scrollbar">
   <div class={`p-10 bg-tertiary-light rounded-lg`}>
     <div class="bg-white w-full h-full rounded-sm">
       <div class="grid grid-cols-12 p-12">

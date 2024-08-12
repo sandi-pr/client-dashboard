@@ -298,7 +298,7 @@
   }
 
   const removeCodeBlocks = (text) => {
-    return text.replace(/```[\s\S]*?```/g, "").trim();
+    return text.replace(/```/g, "").trim();
   };
 
   async function updateResult() {

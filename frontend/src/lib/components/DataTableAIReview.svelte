@@ -165,7 +165,7 @@
       <TableBody>
         {#each configs?.search ? filteredItems : datas as data, index (data.id)}
           <TableBodyRow
-            class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
+            class="w-full dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
           >
             {#each Object.keys(data) as key}
               {#if key !== "actions" && key !== "id"}
@@ -182,6 +182,7 @@
                         size="sm"
                         class="underline line-clamp-3 text-brand-primary-light dark:text-brand-primary-dark"
                       >
+                        <!-- {data[key]} -->
                         <Markdown md={data[key]} {plugins} />
                       </P>
                     </TableBodyCell>
@@ -191,7 +192,7 @@
                         reviewModal = true;
                         reviewData = data[key];
                       }}
-                      class="hover:cursor-pointer"
+                      class="w-1/4 hover:cursor-pointer"
                     >
                       <P
                         size="sm"
@@ -227,7 +228,7 @@
                     }}
                     class="hover:cursor-pointer"
                   >
-                    <div class="flex underline items-center justify-start gap-3">
+                    <div class="flex underline line-clamp-2 items-center justify-start gap-3">
                       {#if data[key].name.includes(".pdf") || data[key].name.includes(".PDF")}
                         <img src={PDFOutlineIcon} alt="" />
                       {/if}
@@ -235,6 +236,7 @@
                         preset="Text sm/Regular"
                         text={data[key].name.replace(/\.[^/.]+$/, "")}
                         color="secondary"
+                        propClass="line-clamp-2"
                       />
                     </div>
                   </TableBodyCell>
@@ -334,10 +336,19 @@
   </div>
 {/if}
 
-<Modal bind:open={sectionRefModal} dialogClass="fixed top-0 start-0 end-0 h-modal md:inset-0 md:h-full z-50 w-full p-8 md:p-12 flex" bodyClass="bg-secondary-light dark:bg-secondary-dark rounded-lg" size="lg" outsideclose>
+<Modal
+  bind:open={sectionRefModal}
+  dialogClass="fixed top-0 start-0 end-0 h-modal md:inset-0 md:h-full z-50 w-full p-8 md:p-12 flex"
+  bodyClass="bg-secondary-light dark:bg-secondary-dark rounded-lg"
+  size="lg"
+  outsideclose
+>
   <div class="flex flex-col gap-4 p-8 md:p-12 bg-primary-light dark:bg-primary-dark">
     <div class="flex flex-col gap-2">
-      <Typography preset="Text lg/Semibold" text={`No.${tmpData.no} - ${$_("section")} "${tmpData.section.name}"`} />
+      <Typography
+        preset="Text lg/Semibold"
+        text={`No.${tmpData.no} - ${$_("section")} "${tmpData.section.name}"`}
+      />
       <div class="flex items-center justify-start gap-1.5">
         {#if tmpRefDoc.name.includes(".pdf") || tmpRefDoc.name.includes(".PDF")}
           <img src={PDFOutlineIcon} alt="" class="w-6 h-6" />
