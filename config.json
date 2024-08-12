@@ -1707,7 +1707,7 @@
                 },
                 {
                     "name": "contract_doc_id",
-                    "type": "number",
+                    "type": "string",
                     "required": true
                 }
             ]

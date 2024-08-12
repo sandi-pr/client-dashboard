@@ -1221,9 +1221,15 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	contract_doc_id, ok := ctx.Params.GetFloat64("contract_doc_id")
+	contract_doc_idStr, ok := ctx.Params.GetString("contract_doc_id")
 
 	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	contract_doc_id, err := strconv.Atoi(string(contract_doc_idStr))
+	if err != nil {
+		fmt.Println(err)
 		return ctx.Error(400, "invalid parameters")
 	}
 
@@ -1232,7 +1238,7 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 	if contract == "REFERENCE" {
 		status, document, err = Strapi.Find("document-management-table", U.Dict{
 			"filters": U.Dict{
-				"contract_doc_id": U.Dict{
+				"reference_doc_id": U.Dict{
 					"$eq": int64(contract_doc_id),
 				},
 			},
@@ -1249,6 +1255,7 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 	}
 
 	if err != nil {
+		fmt.Println(document)
 		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")
 	}
