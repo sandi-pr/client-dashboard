@@ -19,9 +19,9 @@
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { goto } from "$app/navigation";
   import { ListMarkdown } from "$lib";
-  import jsPDF from "jspdf";
+  // import jsPDF from "jspdf";
 
-  import html2canvas from "html2canvas";
+  // import html2canvas from "html2canvas";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -364,75 +364,75 @@
     }
   }
 
-  function downloadFile() {
-    // const element = document.getElementById("content-to-download");
+  // function downloadFile() {
+  //   // const element = document.getElementById("content-to-download");
 
-    // Menggunakan skala untuk memastikan gambar pas di halaman PDF
-    // const scale = 2; // Nilai ini bisa diatur sesuai kebutuhan
-    // const options = {
-    //   width: element.clientWidth * scale,
-    //   height: element.clientHeight * scale,
-    //   style: {
-    //     transform: `scale(${scale})`,
-    //     transformOrigin: "top left",
-    //     width: `${element.clientWidth}px`,
-    //     height: `${element.clientHeight}px`,
-    //   },
-    // };
+  //   // Menggunakan skala untuk memastikan gambar pas di halaman PDF
+  //   // const scale = 2; // Nilai ini bisa diatur sesuai kebutuhan
+  //   // const options = {
+  //   //   width: element.clientWidth * scale,
+  //   //   height: element.clientHeight * scale,
+  //   //   style: {
+  //   //     transform: `scale(${scale})`,
+  //   //     transformOrigin: "top left",
+  //   //     width: `${element.clientWidth}px`,
+  //   //     height: `${element.clientHeight}px`,
+  //   //   },
+  //   // };
 
-    // domtoimage
-    //   .toPng(element, options)
-    //   .then((dataUrl) => {
-    //     const pdf = new jsPDF({
-    //       orientation: "portrait",
-    //       unit: "px",
-    //       format: [options.width / scale, options.height / scale],
-    //     });
-    //     pdf.addImage(dataUrl, "PNG", 0, 0, options.width / scale, options.height / scale);
-    //     pdf.save("output.pdf");
-    //   })
-    //   .catch((error) => {
-    //     console.error("Oops, something went wrong!", error);
-    //   });
+  //   // domtoimage
+  //   //   .toPng(element, options)
+  //   //   .then((dataUrl) => {
+  //   //     const pdf = new jsPDF({
+  //   //       orientation: "portrait",
+  //   //       unit: "px",
+  //   //       format: [options.width / scale, options.height / scale],
+  //   //     });
+  //   //     pdf.addImage(dataUrl, "PNG", 0, 0, options.width / scale, options.height / scale);
+  //   //     pdf.save("output.pdf");
+  //   //   })
+  //   //   .catch((error) => {
+  //   //     console.error("Oops, something went wrong!", error);
+  //   //   });
 
-    const element = document.getElementById("content-to-download");
-    const pageHeight = 295; // Tinggi halaman dalam mm (A4)
-    const pageWidth = 210; // Lebar halaman dalam mm (A4)
-    const margin = 10; // Margin halaman dalam mm
-    const scale = 2; // Skala untuk kualitas gambar
+  //   const element = document.getElementById("content-to-download");
+  //   const pageHeight = 295; // Tinggi halaman dalam mm (A4)
+  //   const pageWidth = 210; // Lebar halaman dalam mm (A4)
+  //   const margin = 10; // Margin halaman dalam mm
+  //   const scale = 2; // Skala untuk kualitas gambar
 
-    html2canvas(element, {
-      scale: scale,
-      logging: true,
-    })
-      .then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const imgWidth = pageWidth - 2 * margin;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-        });
+  //   html2canvas(element, {
+  //     scale: scale,
+  //     logging: true,
+  //   })
+  //     .then((canvas) => {
+  //       const imgData = canvas.toDataURL("image/png");
+  //       const imgWidth = pageWidth - 2 * margin;
+  //       const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  //       const pdf = new jsPDF({
+  //         orientation: "portrait",
+  //         unit: "mm",
+  //         format: "a4",
+  //       });
 
-        let position = 0;
-        const pageCount = Math.ceil(imgHeight / (pageHeight - 2 * margin));
+  //       let position = 0;
+  //       const pageCount = Math.ceil(imgHeight / (pageHeight - 2 * margin));
 
-        for (let i = 0; i < pageCount; i++) {
-          const yOffset = -position * (pageHeight - 2 * margin);
-          pdf.addImage(imgData, "PNG", margin, yOffset + margin, imgWidth, imgHeight - 2 * margin);
-          if (i < pageCount - 1) {
-            pdf.addPage();
-          }
-          position++;
-        }
+  //       for (let i = 0; i < pageCount; i++) {
+  //         const yOffset = -position * (pageHeight - 2 * margin);
+  //         pdf.addImage(imgData, "PNG", margin, yOffset + margin, imgWidth, imgHeight - 2 * margin);
+  //         if (i < pageCount - 1) {
+  //           pdf.addPage();
+  //         }
+  //         position++;
+  //       }
 
-        pdf.save(projectName + ".pdf");
-      })
-      .catch((error) => {
-        console.error("Oops, something went wrong!", error);
-      });
-  }
+  //       pdf.save(projectName + ".pdf");
+  //     })
+  //     .catch((error) => {
+  //       console.error("Oops, something went wrong!", error);
+  //     });
+  // }
 
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
