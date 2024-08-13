@@ -771,7 +771,8 @@
                 deleteModal = true;
               }}
               actionGenerate={async () => {
-                if (file.status_generated !== "FINISH" || file.status_generated !== "GENERATING") {
+                console.log("generatedAI", file.status_generated);
+                if (file.status_generated !== "FINISH" && file.status_generated !== "GENERATING") {
                   generatedAI(file);
                 } else {
                   if (file.result_id !== undefined) {
