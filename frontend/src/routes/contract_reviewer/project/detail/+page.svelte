@@ -488,7 +488,11 @@
     if (token) {
       try {
         for (let i = 0; i < files.length; i++) {
-          if (files[i].status_generated !== "START" && files[i].status_generated !== "FINISH")
+          if (
+            files[i].status_generated !== "START" &&
+            files[i].status_generated !== "FINISH" &&
+            files[i].status_generated !== "GENERATING"
+          )
             continue;
           else {
             const response = await call.call(
