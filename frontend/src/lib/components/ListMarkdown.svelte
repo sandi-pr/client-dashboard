@@ -4,6 +4,7 @@
   import Markdown from "svelte-exmarkdown";
 
   export let datas;
+  export let id;
 
   // Process the data to replace each newline with two spaces and a newline
   $: processedDatas = datas.map((data) => ({
@@ -13,7 +14,7 @@
 </script>
 
 <div class="max-h-[46rem] overflow-y-auto hide-scrollbar">
-  <div class={`p-10 bg-tertiary-light rounded-lg`}>
+  <div {id} class={`p-10 bg-tertiary-light rounded-lg`}>
     <div class="bg-white w-full h-full rounded-sm">
       <div class="grid grid-cols-12 p-12">
         {#each processedDatas as data, index}

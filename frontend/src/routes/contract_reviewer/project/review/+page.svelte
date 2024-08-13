@@ -19,6 +19,10 @@
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { goto } from "$app/navigation";
   import { ListMarkdown } from "$lib";
+  import domtoimage from "dom-to-image";
+  import jsPDF from "jspdf";
+
+  import html2canvas from "html2canvas";
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -310,7 +314,12 @@
   }
 
   const removeCodeBlocks = (text) => {
-    return text.replace(/```/g, "").trim();
+    return text
+      .replace(/```/g, "") // Hapus semua backticks triple
+      .replace(/“/g, "") // Hapus semua tanda kutip buka
+      .replace(/”/g, "") // Hapus semua tanda kutip tutup
+      .replace(/\s{2,}/g, " ") // Gantikan lebih dari satu spasi dengan satu spasi
+      .trim();
   };
 
   async function updateResult() {
@@ -356,6 +365,76 @@
     }
   }
 
+  function downloadFile() {
+    // const element = document.getElementById("content-to-download");
+
+    // Menggunakan skala untuk memastikan gambar pas di halaman PDF
+    // const scale = 2; // Nilai ini bisa diatur sesuai kebutuhan
+    // const options = {
+    //   width: element.clientWidth * scale,
+    //   height: element.clientHeight * scale,
+    //   style: {
+    //     transform: `scale(${scale})`,
+    //     transformOrigin: "top left",
+    //     width: `${element.clientWidth}px`,
+    //     height: `${element.clientHeight}px`,
+    //   },
+    // };
+
+    // domtoimage
+    //   .toPng(element, options)
+    //   .then((dataUrl) => {
+    //     const pdf = new jsPDF({
+    //       orientation: "portrait",
+    //       unit: "px",
+    //       format: [options.width / scale, options.height / scale],
+    //     });
+    //     pdf.addImage(dataUrl, "PNG", 0, 0, options.width / scale, options.height / scale);
+    //     pdf.save("output.pdf");
+    //   })
+    //   .catch((error) => {
+    //     console.error("Oops, something went wrong!", error);
+    //   });
+
+    const element = document.getElementById("content-to-download");
+    const pageHeight = 295; // Tinggi halaman dalam mm (A4)
+    const pageWidth = 210; // Lebar halaman dalam mm (A4)
+    const margin = 10; // Margin halaman dalam mm
+    const scale = 2; // Skala untuk kualitas gambar
+
+    html2canvas(element, {
+      scale: scale,
+      logging: true,
+    })
+      .then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const imgWidth = pageWidth - 2 * margin;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+
+        let position = 0;
+        const pageCount = Math.ceil(imgHeight / (pageHeight - 2 * margin));
+
+        for (let i = 0; i < pageCount; i++) {
+          const yOffset = -position * (pageHeight - 2 * margin);
+          pdf.addImage(imgData, "PNG", margin, yOffset + margin, imgWidth, imgHeight - 2 * margin);
+          if (i < pageCount - 1) {
+            pdf.addPage();
+          }
+          position++;
+        }
+
+        pdf.save(projectName + ".pdf");
+      })
+      .catch((error) => {
+        console.error("Oops, something went wrong!", error);
+      });
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
       projectDocumentId = $page.url.searchParams.get("projectDocumentId");
@@ -391,6 +470,12 @@
           >{$_("aiReview")}</P
         >
         <Typography preset="Text sm/Regular" text={projectName} color="tertiary" />
+        <!-- <Button
+          onclick={() => {
+            downloadFile();
+          }}
+          class="h-max"><DownloadIcon svgClass="w-5 h-5 text-white" />Download</Button
+        > -->
       </div>
     </div>
     <div class="flex items-center gap-3">
@@ -403,8 +488,13 @@
         <FileDownloadIcon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
         &nbsp;
         {$_("generateNewDocs")}
-      </Button>
-      <Button on:click={() => {}} class="h-max">
+      </Button> -->
+      <!-- <Button
+        on:click={() => {
+          downloadFile();
+        }}
+        class="h-max"
+      >
         <DownloadIcon svgClass="w-5 h-5 text-white" />
         &nbsp;
         {$_("download")}</Button
@@ -468,11 +558,7 @@
           <div
             class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
           >
-            <!-- {#each datas as data, index}
-              <P class="flex">{`${index + 1}. `}&nbsp<Markdown md={data.result} {plugins} /></P>
-              {#if index < datas.length - 1}<br />{/if}
-            {/each} -->
-            <ListMarkdown bind:datas={datas2} />
+            <ListMarkdown id="content-to-download" bind:datas={datas2} />
           </div>
         {/if}
         {#if dropdownToggle[1]}
