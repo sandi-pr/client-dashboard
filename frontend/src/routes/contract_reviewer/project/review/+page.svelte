@@ -268,7 +268,7 @@
                 prompt: generatedItem.reference_prompt,
                 result: generatedItem.reference_results[0],
               },
-              ai_review: generatedItem.ai_review.replace("FORMAT:\n```\n", "").replace("\n```", ""),
+              ai_review: removeCodeBlocks(generatedItem.ai_review),
               ai_suggestion: removeCodeBlocks(generatedItem.ai_suggestion),
             };
           });
