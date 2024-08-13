@@ -208,7 +208,9 @@
         tmpResult = response.result.data[0].attributes.result;
 
         const referenceDocumentIds = tmpResult
-          .flatMap((section) => section.generated.flatMap((item) => item.reference_document_ids))
+          .flatMap((section) =>
+            section.generated.results_query.flatMap((item) => item.reference_document_ids),
+          )
           .filter((value, index, self) => self.indexOf(value) === index);
 
         // console.log("referenceDocumentIds", referenceDocumentIds);
@@ -294,7 +296,7 @@
         let promise2 = response.result.data[0].attributes.result.map((item) => {
           return {
             name: item.title,
-            result: item.generated.final_result,
+            result: removeCodeBlocks(item.generated.final_result),
           };
         });
 
