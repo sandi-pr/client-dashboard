@@ -19,7 +19,6 @@
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { goto } from "$app/navigation";
   import { ListMarkdown } from "$lib";
-  import domtoimage from "dom-to-image";
   import jsPDF from "jspdf";
 
   import html2canvas from "html2canvas";
