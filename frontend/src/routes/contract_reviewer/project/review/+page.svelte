@@ -243,7 +243,7 @@
         let idCounter = 1; // Initialize global counter
 
         let promise = response.result.data[0].attributes.result.flatMap((item) => {
-          return item.generated.map((generatedItem) => {
+          return item.generated.results_query.map((generatedItem) => {
             const documentId = generatedItem.reference_document_ids[0];
 
             return {
@@ -271,25 +271,35 @@
 
         datas = await Promise.all(promise);
 
-        let alreadyAdded = new Set();
+        // let alreadyAdded = new Set();
 
-        let promise2 = datas
-          .filter((data) => {
-            if (alreadyAdded.has(data.section.name)) {
-              return false;
-            } else {
-              alreadyAdded.add(data.section.name);
-              return true;
-            }
-          })
-          .map((data) => {
-            return {
-              name: data.section.name,
-              result: data.ai_review,
-            };
-          });
+        // let promise2 = datas
+        //   .filter((data) => {
+        //     if (alreadyAdded.has(data.section.name)) {
+        //       return false;
+        //     } else {
+        //       alreadyAdded.add(data.section.name);
+        //       return true;
+        //     }
+        //   })
+        //   .map((data) => {
+        //     return {
+        //       name: data.section.name,
+        //       result: data.ai_review,
+        //     };
+        //   });
+
+        // datas2 = await Promise.all(promise2);
+
+        let promise2 = response.result.data[0].attributes.result.map((item) => {
+          return {
+            name: item.title,
+            result: item.generated.final_result,
+          };
+        });
 
         datas2 = await Promise.all(promise2);
+
         triggerLoading(false);
       } catch (error) {
         console.log(error);
