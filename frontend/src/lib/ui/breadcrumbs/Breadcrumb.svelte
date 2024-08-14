@@ -163,6 +163,8 @@
   let activeUrlArray = $state([]);
   let copyActiveUrl = $state("");
   let activeUrlModified = $state("");
+  let detail = $state(false);
+  let title = $state("");
 
   const call = new CR3Call(globalThis.location.origin);
 
@@ -184,6 +186,18 @@
     }
   };
 
+  const isDetailPage = (url) => {
+    if (url.split("/").pop() === "detail") {
+      console.log("detail");
+      detail = true;
+      const params = new URLSearchParams(window.location.search);
+      title = params.get("title");
+    } else {
+      console.log("not detail");
+      detail = false;
+    }
+  };
+
   onMount(async () => {
     const result = await call.getPage("client-dashboard", "home-page");
     baseUrl = result.slice(0, result.lastIndexOf("/"));
@@ -192,6 +206,7 @@
   $effect(() => {
     if (activeUrl !== copyActiveUrl) {
       console.log(activeUrl);
+      isDetailPage(activeUrl);
       const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
       copyActiveUrl = activeUrl;
       let cleanActiveUrl = activeUrl;
@@ -253,6 +268,7 @@
         {#if item.href}
           <button
             type="button"
+            disabled={index === activeUrlArray.length - 1}
             class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
             onclick={() => {
               // window.location = `${appUrl}${item.href}`;
@@ -262,7 +278,11 @@
               goto(`${baseUrl}${item.href}`);
             }}
           >
-            {$_(toCamelCase(postProcessName(item.name)))}
+            {#if detail && title !== "" && index === activeUrlArray.length - 1}
+              {title}
+            {:else}
+              {$_(toCamelCase(postProcessName(item.name)))}
+            {/if}
           </button>
         {:else}
           <span class={spanClass}>

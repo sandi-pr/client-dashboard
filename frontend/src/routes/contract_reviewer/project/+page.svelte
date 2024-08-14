@@ -92,7 +92,7 @@ All Rights Reserved
               actions: {
                 objects: [
                   {
-                    href: url + `?projectId=${project.id}`,
+                    href: url + `?projectId=${project.id}&title=${project.attributes.project_name}`,
                     name: "View",
                   },
                 ],

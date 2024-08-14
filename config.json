@@ -241,8 +241,8 @@
         },
         {
             "name": "contract-project-detail-document",
-            "path": "/contract_reviewer/project/detail/document",
-            "file_path": "template/contract_reviewer/project/detail/document.html"
+            "path": "/contract_reviewer/project/document",
+            "file_path": "template/contract_reviewer/project/document.html"
         },
         {
             "name": "contract-project-review",
