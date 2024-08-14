@@ -37,6 +37,7 @@
     "just-throttle": "4.2.0",
     "lottie-web": "5.12.2",
     "papaparse": "5.4.1",
+    "rehype-raw": "^7.0.0",
     "svelte-add": "2.7.1",
     "svelte-agnostic-draggable": "0.2.0",
     "svelte-exmarkdown": "3.0.5",

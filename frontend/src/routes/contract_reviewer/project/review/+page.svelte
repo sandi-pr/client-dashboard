@@ -317,7 +317,7 @@
       .replace(/```/g, "") // Hapus semua backticks triple
       .replace(/“/g, "") // Hapus semua tanda kutip buka
       .replace(/”/g, "") // Hapus semua tanda kutip tutup
-      .replace(/\s{2,}/g, " ") // Gantikan lebih dari satu spasi dengan satu spasi
+      .replace(/\s{3,}/g, "  ") // Gantikan lebih dari tiga spasi dengan dua spasi
       .trim();
   };
 

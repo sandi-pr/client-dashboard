@@ -140,9 +140,9 @@
 
 <div>
   <div
-    class="[&>div]:sm:rounded-lg [&>div]:border-2 [&>div]:border-primary-light [&>div]:dark:border-primary-dark"
+    class="[&>div]:sm:rounded-lg [&>div]:border-2 overx [&>div]:border-primary-light [&>div]:dark:border-primary-dark"
   >
-    <Table class="font-jakarta dark:border-white">
+    <Table>
       <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
         {#if datas.length > 0}
           {#each Object.keys(datas[0]) as key}
@@ -176,13 +176,12 @@
                         suggestionModal = true;
                         suggestionData = data[key];
                       }}
-                      class="w-2/5 hover:cursor-pointer bg-brand-primary-light dark:bg-brand-primary-dark"
+                      class="w-1/4 hover:cursor-pointer bg-brand-primary-light dark:bg-brand-primary-dark"
                     >
                       <P
                         size="sm"
                         class="underline line-clamp-3 text-brand-primary-light dark:text-brand-primary-dark"
                       >
-                        <!-- {data[key]} -->
                         <Markdown md={data[key]} {plugins} />
                       </P>
                     </TableBodyCell>
@@ -214,7 +213,7 @@
                       sectionRefModal = true;
                       sectionRefData = data[key];
                     }}
-                    class="hover:cursor-pointer underline"
+                    tdClass="hover:cursor-pointer underline"
                   >
                     <Typography preset="Text sm/Medium" text={data[key].name} />
                   </TableBodyCell>
@@ -226,18 +225,15 @@
                       sectionRefModal = true;
                       sectionRefData = data[key];
                     }}
-                    class="hover:cursor-pointer"
+                    tdClass="w-1/6 hover:cursor-pointer"
                   >
-                    <div class="flex underline line-clamp-2 items-center justify-start gap-3">
+                    <div class="flex items-center justify-start gap-3">
                       {#if data[key].name.includes(".pdf") || data[key].name.includes(".PDF")}
                         <img src={PDFOutlineIcon} alt="" />
                       {/if}
-                      <Typography
-                        preset="Text sm/Regular"
-                        text={data[key].name.replace(/\.[^/.]+$/, "")}
-                        color="secondary"
-                        propClass="line-clamp-2"
-                      />
+                      <div class="line-clamp-2">
+                        <P size="sm">{data[key].name.replace(/\.[^/.]+$/, "")}</P>
+                      </div>
                     </div>
                   </TableBodyCell>
                 {:else if typeof data[key] === "object"}
