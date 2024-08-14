@@ -35,7 +35,7 @@ All Rights Reserved
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
-  let isFrontend = $state(false); // for frontend change to true
+  const isFrontend = true; // for frontend change to true
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -49,7 +49,7 @@ All Rights Reserved
     ],
   });
 
-  const call = isFrontend ? "" : new CR3Call(globalThis.location.origin);
+  const call = isFrontend ? new CR3Call("") : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
 
@@ -298,23 +298,44 @@ All Rights Reserved
   };
 
   async function CheckSetup() {
-    try {
-      var resp_setup = await call.call("client-login", "is-need-setup", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {},
-        Headers: {},
-      });
-      console.log(resp_setup);
-      if (resp_setup.status === 200) {
-        if (resp_setup.result.is_need_setup === true) {
-          if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
-          if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
-          await call.goToPage("hexapod-setup", "home-page");
-          return;
+    if (isFrontend) {
+      var token = sessionStorage.getItem("token");
+      window.devLogin = async (email, password) => {
+        var resp = await call.call("client-login", "login", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            email: email,
+            password: password,
+          },
+          Headers: {},
+        });
+
+        console.log(resp);
+        if (resp.status === 200) {
+          token = resp.result.token;
+          sessionStorage.setItem("token", token);
+          
+          resp = await call.call("client-login", "is-token-valid", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              token: token,
+            },
+            Headers: {},
+          });
+
+          if (resp.status === 200) {
+            if (resp.result.confirmed === true && resp.result.blocked === false) {
+              sessionStorage.setItem("user", JSON.stringify(resp.result));
+              userData = resp.result;
+            }
+          }
+
+          window.location.reload();
         }
       }
-      var token = sessionStorage.getItem("token");
+
       if (token !== null) {
         var resp = await call.call("client-login", "is-token-valid", {
           URLQuery: {},
@@ -331,17 +352,54 @@ All Rights Reserved
             userData = resp.result;
           }
         }
-      } else {
-        goto(
-          (await call.getPage("client-login", "home-page")) +
-            "?redirect=" +
-            globalThis.location.href,
-        );
-        return;
       }
-    } catch (error) {
-      // console.log(error);
-      userData = { username: "Hexa Staff", email: "hexacode@hexacode.org", brand: "hexacode" };
+    }
+    else {
+      try {
+        var resp_setup = await call.call("client-login", "is-need-setup", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {},
+        });
+        console.log(resp_setup);
+        if (resp_setup.status === 200) {
+          if (resp_setup.result.is_need_setup === true) {
+            if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
+            if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
+            await call.goToPage("hexapod-setup", "home-page");
+            return;
+          }
+        }
+        let token = sessionStorage.getItem("token");
+        if (token !== null) {
+          let resp = await call.call("client-login", "is-token-valid", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              token: token,
+            },
+            Headers: {},
+          });
+
+          if (resp.status === 200) {
+            if (resp.result.confirmed === true && resp.result.blocked === false) {
+              sessionStorage.setItem("user", JSON.stringify(resp.result));
+              userData = resp.result;
+            }
+          }
+        } else {
+          goto(
+            (await call.getPage("client-login", "home-page")) +
+              "?redirect=" +
+              globalThis.location.href,
+          );
+          return;
+        }
+      } catch (error) {
+        // console.log(error);
+        userData = { username: "Hexa Staff", email: "hexacode@hexacode.org", brand: "hexacode" };
+      }
     }
   }
 
@@ -438,7 +496,7 @@ All Rights Reserved
         bind:name={userData.username}
         bind:email={userData.email}
         bind:brand={userData.brand}
-        bind:isFrontend
+        isFrontend
         innerWidth={winInnerWidth}
         {logout}
       />
