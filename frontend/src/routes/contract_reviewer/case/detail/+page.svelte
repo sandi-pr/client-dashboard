@@ -40,6 +40,7 @@ All Rights Reserved
   let addRefDocModal = $state(false);
   let documentViewModal = $state(false);
   let deleteModal = $state(false);
+  let caseDelete = $state(false);
   let editRules = $state([]);
   let init = $state(false);
   let edit = $state(false);
@@ -559,6 +560,33 @@ All Rights Reserved
     }
   }
 
+  async function deleteCase() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "delete-rules", {
+          URLQuery: {},
+          URLParams: {
+            id: ruleId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          deleteModal = false;
+        }
+
+        triggerToast("deleted");
+        goto(await call.getPage("client-dashboard", "contract-case"));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
       ruleId = $page.url.searchParams.get("caseId");
@@ -585,7 +613,7 @@ All Rights Reserved
 
       <div class="flex flex-col">
         <!-- User Information -->
-        <div class="flex">
+        <div class="flex justify-between w-full">
           <!-- Header -->
           <div class="grow gap-2">
             <Heading
@@ -597,6 +625,18 @@ All Rights Reserved
               class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
               >{$_("createOn")}{` ${datas.createdAt}`}</P
             >
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-col">
+              <Button
+                onclick={() => {
+                  caseDelete = true;
+                  tmpId = null;
+                  deleteModal = true;
+                }}
+                color="light">{$_("delete")}</Button
+              >
+            </div>
           </div>
         </div>
 
@@ -646,6 +686,7 @@ All Rights Reserved
                       }}
                       actionDelete={() => {
                         tmpId = doc.id;
+                        caseDelete = false;
                         deleteModal = true;
                       }}
                     />
@@ -712,6 +753,7 @@ All Rights Reserved
                                   editRules.splice(index, 1);
                                 } else {
                                   tmpSectionId = data.id;
+                                  caseDelete = false;
                                   deleteModal = true;
                                 }
                               }}>{$_("delete")}</button
@@ -925,10 +967,14 @@ All Rights Reserved
     </h3>
     <Button
       onclick={() => {
-        if (tabDatas.selected === "Rules") {
-          deleteSection();
+        if (caseDelete) {
+          deleteCase();
         } else {
-          deleteDocument();
+          if (tabDatas.selected === "Rules") {
+            deleteSection();
+          } else {
+            deleteDocument();
+          }
         }
       }}
       color="red"
@@ -938,6 +984,7 @@ All Rights Reserved
       color="alternative"
       onclick={() => {
         deleteModal = false;
+        caseDelete = false;
       }}>{$_("noCancel")}</Button
     >
   </div>

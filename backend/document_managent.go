@@ -1221,6 +1221,8 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	fmt.Println(contract)
+
 	contract_doc_idStr, ok := ctx.Params.GetString("contract_doc_id")
 
 	if !ok {
@@ -1236,6 +1238,7 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 	var document U.Dict
 
 	if contract == "REFERENCE" {
+		fmt.Println("ayam")
 		status, document, err = Strapi.Find("document-management-table", U.Dict{
 			"filters": U.Dict{
 				"reference_doc_id": U.Dict{
@@ -1244,7 +1247,8 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 			},
 		})
 	} else {
-		status, document, err = Strapi.Find("document-collection-table", U.Dict{
+		fmt.Println("bebek")
+		status, document, err = Strapi.Find("document-management-table", U.Dict{
 			"filters": U.Dict{
 				"project_doc_id": U.Dict{
 					"$eq": int64(contract_doc_id),
@@ -1288,17 +1292,15 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	id_str := strconv.Itoa(int(id))
+	status, _, err = Strapi.Delete("document-management-table", int64(id))
 
-	CR3 := cr3call.New(MODULE_MANAGER_URL)
-	go CR3.Call("client-dashboard", "delete-document", cr3call.CR3CallData{
-		Headers: U.Dict{
-			"Authorization": bearer,
-		},
-		URLParams: U.Dict{
-			"id": id_str,
-		},
-	}, false)
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
 
 	return 200, document, nil
 }

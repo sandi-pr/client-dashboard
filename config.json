@@ -2889,6 +2889,24 @@
             ]
         },
         {
+            "name": "delete-rules",
+            "path": "/delete-rules/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteRules"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "create-contract-rule-section",
             "path": "/create-contract-rule-section",
             "method": "POST",
@@ -3046,6 +3064,24 @@
             "callback": {
                 "plugin": "plugin.so",
                 "function": "GetContractProject"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-contract-project",
+            "path": "/delete-contract-project/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteContractProject"
             },
             "url_params": [
                 {

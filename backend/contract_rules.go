@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 
+	"gitlab.hexacode.org/go-libs/cr3call"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
 	"gitlab.hexacode.org/go-libs/strapi"
@@ -293,6 +294,223 @@ func GetContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 	}
 
 	return 200, section, nil
+}
+
+func DeleteRules(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idString, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idString))
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, _, err = Strapi.Delete("contract-rules-table", int64(id))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	err = DeleteAllDocumentRules(strings.Replace(string(bearer), "Bearer ", "", 1), int(id))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	err = DeleteAllSectionRules(strings.Replace(string(bearer), "Bearer ", "", 1), int(id))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{}, nil
+}
+
+func DeleteAllDocumentRules(token string, id int) error {
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
+
+	page := 1
+	for {
+		status, documents, err := Strapi.Find("references-document-table", U.Dict{
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"filters": U.Dict{
+				"contract_rule_id": U.Dict{
+					"$eq": int64(id),
+				},
+			},
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return err
+		}
+
+		list, ok := documents.GetList("data")
+
+		fmt.Println("list", list)
+
+		if !ok {
+			return err
+		}
+
+		if len(list) == 0 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			dict, ok := list.GetDict(i)
+
+			if !ok {
+				return err
+			}
+
+			idDoc, ok := dict.GetFloat64("id")
+
+			if !ok {
+				return err
+			}
+
+			status, _, err := Strapi.Delete("references-document-table", int64(idDoc))
+
+			if status != 200 {
+				fmt.Println(status)
+				return err
+			}
+
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			idDocStr := strconv.Itoa(int(idDoc))
+
+			CR3 := cr3call.New(MODULE_MANAGER_URL)
+			go CR3.Call("client-dashboard", "delete-document-collection-by-contract", cr3call.CR3CallData{
+				Headers: U.Dict{
+					"Authorization": token,
+				},
+				Params: U.Dict{
+					"contract":        "REFERENCE",
+					"contract_doc_id": idDocStr,
+				},
+			}, false)
+		}
+		page++
+	}
+
+	return nil
+}
+
+func DeleteAllSectionRules(token string, id int) error {
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
+
+	page := 1
+	for {
+		status, documents, err := Strapi.Find("contract-rule-sections-table", U.Dict{
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"filters": U.Dict{
+				"contract_rule_id": U.Dict{
+					"$eq": int64(id),
+				},
+			},
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return err
+		}
+
+		list, ok := documents.GetList("data")
+
+		fmt.Println("list", list)
+
+		if !ok {
+			return err
+		}
+
+		if len(list) == 0 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			dict, ok := list.GetDict(i)
+
+			if !ok {
+				return err
+			}
+
+			idDoc, ok := dict.GetFloat64("id")
+
+			if !ok {
+				return err
+			}
+
+			status, _, err := Strapi.Delete("contract-rule-sections-table", int64(idDoc))
+
+			if status != 200 {
+				fmt.Println(status)
+				return err
+			}
+
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+		}
+		page++
+	}
+
+	return nil
 }
 
 func CreateContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

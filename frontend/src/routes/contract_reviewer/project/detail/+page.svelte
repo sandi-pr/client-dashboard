@@ -32,6 +32,7 @@
   let data = $state({});
 
   let deleteModal = $state(false);
+  let projectDelete = $state(false);
   let ready = $state(false);
   let files = $state([]);
   let tmpFile = $state([]);
@@ -642,6 +643,36 @@
     }
   }
 
+  async function deleteProject() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        const response = await call.call("client-dashboard", "delete-contract-project", {
+          URLQuery: {},
+          URLParams: {
+            id: projectId,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        triggerToast("deleted");
+        goto(await call.getPage("client-dashboard", "contract-project-list"));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
       projectId = $page.url.searchParams.get("projectId");
@@ -675,6 +706,18 @@
           text={`${$_("createOn")} - ${data.createdAt}`}
           color="quarterary"
         />
+      </div>
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-col">
+          <Button
+            on:click={() => {
+              projectDelete = true;
+              typeTmp = null;
+              deleteModal = true;
+            }}
+            color="light">{$_("delete")}</Button
+          >
+        </div>
       </div>
     </div>
     <Divider />
@@ -772,6 +815,8 @@
               }}
               actionDelete={() => {
                 typeTmp = file.type;
+
+                projectDelete = false;
                 deleteModal = true;
               }}
               actionGenerate={async () => {
@@ -840,7 +885,11 @@
     </h3>
     <Button
       onclick={() => {
-        deleteFileByType(typeTmp);
+        if (projectDelete === false) {
+          deleteFileByType(typeTmp);
+        } else {
+          deleteProject();
+        }
       }}
       color="red"
       class="me-2">{$_("yesImSure")}</Button
@@ -849,7 +898,8 @@
       color="alternative"
       onclick={() => {
         deleteModal = false;
-        tmpSectionId = null;
+        typeTmp = null;
+        projectDelete = false;
       }}>{$_("noCancel")}</Button
     >
   </div>
