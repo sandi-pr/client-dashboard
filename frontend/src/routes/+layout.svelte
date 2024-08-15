@@ -35,7 +35,7 @@ All Rights Reserved
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
-  const isFrontend = true; // for frontend change to true
+  const isFrontend = false; // for frontend change to true
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -315,7 +315,7 @@ All Rights Reserved
         if (resp.status === 200) {
           token = resp.result.token;
           sessionStorage.setItem("token", token);
-          
+
           resp = await call.call("client-login", "is-token-valid", {
             URLQuery: {},
             URLParams: {},
@@ -334,7 +334,7 @@ All Rights Reserved
 
           window.location.reload();
         }
-      }
+      };
 
       if (token !== null) {
         var resp = await call.call("client-login", "is-token-valid", {
@@ -353,8 +353,7 @@ All Rights Reserved
           }
         }
       }
-    }
-    else {
+    } else {
       try {
         var resp_setup = await call.call("client-login", "is-need-setup", {
           URLQuery: {},

@@ -68,7 +68,7 @@ func GetModelTrocr(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	modelTrocr, ok := attributes.GetString("model_trocr")
 
 	if !ok {
-		return ctx.Error(500, "Internal Server Error")
+		return 200, U.Dict{"model_trocr": nil}, nil
 	}
 
 	return 200, U.Dict{"model_trocr": modelTrocr}, nil
