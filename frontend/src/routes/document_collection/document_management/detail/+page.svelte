@@ -22,11 +22,11 @@ All Rights Reserved
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
-  import { goto } from "$app/navigation"; 
-  import { createEventDispatcher } from 'svelte';
+  import { goto } from "$app/navigation";
+  import { createEventDispatcher } from "svelte";
   import { generateUniqueId } from "$lib";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   let documentId = params.get("documentId");
@@ -74,7 +74,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-document", {
+        let response = await $call.call("client-dashboard", "get-document", {
           URLQuery: {},
           URLParams: {
             id: documentId.toString(),
@@ -102,11 +102,11 @@ All Rights Reserved
             ext: documentData.attributes.document.data.attributes.ext,
             person_client: documentData.attributes.person.data?.id,
             contract_start:
-            documentData.attributes.contract_start !== null
+              documentData.attributes.contract_start !== null
                 ? format(new Date(documentData.attributes.contract_start), "yyyy-MM-dd")
                 : "",
             contract_end:
-            documentData.attributes.contract_end !== null
+              documentData.attributes.contract_end !== null
                 ? format(new Date(documentData.attributes.contract_end), "yyyy-MM-dd")
                 : "",
           };
@@ -128,7 +128,7 @@ All Rights Reserved
           const blob = base64toBlob(base64, fileType);
           fileUrl = URL.createObjectURL(blob);
           console.log(fileUrl);
-          
+
           pdfReady = true;
         }
       } catch (error) {
@@ -144,7 +144,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (documentId !== "" && documentId !== null && documentId !== undefined) {
       try {
-        let response = await call.call("client-dashboard", "delete-document", {
+        let response = await $call.call("client-dashboard", "delete-document", {
           URLQuery: {},
           URLParams: {
             id: documentId.toString(),
@@ -156,7 +156,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("deleted");
           setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "document-management"));
+            goto(await $call.getPage("client-dashboard", "document-management"));
           }, 3000);
           return;
         } else {
@@ -176,7 +176,7 @@ All Rights Reserved
     if (token !== null) {
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-persons", {
+        let response = await $call.call("client-dashboard", "get-persons", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -225,12 +225,11 @@ All Rights Reserved
     } else {
       fileType = "text/plain";
     }
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = URL.createObjectURL(base64toBlob(base64, fileType));
     a.download = fileName;
     a.click();
   }
-
 
   function base64toBlob(base64Data, fileType) {
     const byteCharacters = atob(base64Data);
@@ -254,14 +253,17 @@ All Rights Reserved
 
   function getDocumentId() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('documentid');
+    return urlParams.get("documentid");
   }
 
   $effect(async () => {
     if (documentId) {
-      `${await call.getPage("client-dashboard", "document-management-detail")}` + "?documentId=" + document.id + "&edit=false"
+      `${await $call.getPage("client-dashboard", "document-management-detail")}` +
+        "?documentId=" +
+        document.id +
+        "&edit=false";
     }
-  })
+  });
 
   onMount(() => {
     const handleUrlChange = () => {
@@ -272,15 +274,15 @@ All Rights Reserved
     };
     // if (edit === "true") onEdit = true;
 
-    window.addEventListener('popstate', handleUrlChange);
-    window.addEventListener('pushstate', handleUrlChange); // In case you use pushState for navigation
+    window.addEventListener("popstate", handleUrlChange);
+    window.addEventListener("pushstate", handleUrlChange); // In case you use pushState for navigation
 
     getPersons();
     getDocument();
 
     return () => {
-      window.removeEventListener('popstate', handleUrlChange);
-      window.removeEventListener('pushstate', handleUrlChange);
+      window.removeEventListener("popstate", handleUrlChange);
+      window.removeEventListener("pushstate", handleUrlChange);
     };
   });
 </script>
@@ -313,7 +315,8 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={() => (popupModal = true)}
-            outline color="red"
+            outline
+            color="red"
             class="px-3 focus-within:!ring-1">{$_("delete")}</Button
           >
         </div>
@@ -339,17 +342,19 @@ All Rights Reserved
               </Button>
             </div>
           </div>
-          <div class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800">
+          <div
+            class="flex flex-col justify-center w-full py-10 px-6 bg-gray-50 rounded-lg dark:bg-gray-800"
+          >
             {#if pdfReady}
               {#if data.ext === ".pdf"}
-                <iframe class="w-full h-screen" src={`${fileUrl}`} ></iframe>
+                <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe>
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}
                   <p class="dark:text-white">{paragraphs}</p>
                 {/each}
               {/if}
             {/if}
-          </div>          
+          </div>
         {:else if tabDatas.selected === "Information"}
           <div class="flex flex-col gap-4 pt-6">
             <!-- general information -->

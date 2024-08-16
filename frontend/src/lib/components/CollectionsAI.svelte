@@ -6,7 +6,6 @@
   import VerifiedIcon from "$lib/icon/verified.svg";
   import Sidebar from "$lib/components/Sidebar.svelte";
   import { onMount, onDestroy } from "svelte";
-  import { CR3Call } from "hexacomponents-svelte";
   import { Pane } from "svelte-splitpanes";
   import { tick } from "svelte";
   import { goto } from "$app/navigation";
@@ -15,11 +14,9 @@
   import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
-  import { triggerToast, selectedCollection, reload, triggerReload } from "$lib";
+  import { triggerToast, selectedCollection, reload, triggerReload, call } from "$lib";
 
   const plugins = [gfmPlugin()];
-
-  const call = new CR3Call(globalThis.location.origin);
 
   let selectedCollectionOld = $state({});
 
@@ -145,7 +142,7 @@
       );
 
       try {
-        let chat = await call.call("hexa-ai-rag", "chat", {
+        let chat = await $call.call("hexa-ai-rag", "chat", {
           URLQuery: {},
           URLParams: {
             collection_id: $selectedCollection.id.toString(),
@@ -197,7 +194,7 @@
 
       let token = sessionStorage.getItem("token");
 
-      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -217,7 +214,7 @@
 
       if (conversationIdCollection) {
         try {
-          let chat = await call.call("hexa-ai-rag", "get-messages", {
+          let chat = await $call.call("hexa-ai-rag", "get-messages", {
             URLQuery: {},
             URLParams: {
               collection_id: $selectedCollection.id.toString(),
@@ -245,7 +242,7 @@
         }
       } else {
         try {
-          let createConversationResponse = await call.call("hexa-ai-rag", "create-conversation", {
+          let createConversationResponse = await $call.call("hexa-ai-rag", "create-conversation", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -282,7 +279,7 @@
   async function getStatusRag() {
     let token = sessionStorage.getItem("token");
     try {
-      // let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+      // let rag = await $call.call("hexa-ai-rag", "get-rag-status", {
       //   URLQuery: {},
       //   URLParams: {},
       //   Params: {},
@@ -315,7 +312,7 @@
       let allData = [];
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-documents-by-collectionid", {
+        let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
           URLQuery: {},
           URLParams: {},
           Params: {

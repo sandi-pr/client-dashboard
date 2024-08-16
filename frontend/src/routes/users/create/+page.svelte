@@ -20,7 +20,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { triggerToast } from "$lib";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const personId = params.get("personId");
@@ -42,7 +42,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    goto(await call.getPage("client-dashboard", "users"));
+    goto(await $call.getPage("client-dashboard", "users"));
     return;
   }
 
@@ -50,7 +50,7 @@ All Rights Reserved
     console.log(data);
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "create-user", {
+      let response = await $call.call("client-dashboard", "create-user", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -67,7 +67,7 @@ All Rights Reserved
       console.log("ayam", response);
       if (response.status === 200) {
         triggerToast("created");
-        goto(await call.getPage("client-dashboard", "users"));
+        goto(await $call.getPage("client-dashboard", "users"));
         return;
       } else {
         console.log(response);

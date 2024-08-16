@@ -10,15 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Button,
-    Select,
-    Textarea,
-    Toggle,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Toggle } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
@@ -34,7 +26,7 @@ All Rights Reserved
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let dropzoneActive = false;
   let onEdit = $state(true);
@@ -177,30 +169,26 @@ All Rights Reserved
       // if (data.document_type === "GENERAL") {
       if (files.length > 0) {
         try {
-          let response = await call.call(
-            "client-dashboard",
-            "create-document",
-            {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                // document_title: data.document_title,
-                // document: base64Data,
-                // document_name: fileTextName,
-                // description: data.description,
-                // document_type: data.document_type,
-                // person: 0,
-                // contract_start: format(new Date(), "yyyy-MM-dd"),
-                // contract_end: format(new Date(), "yyyy-MM-dd"),
-                // status: "Initiate",
-                documents: JSON.stringify(files),
-                collection_id: collectionId,
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
+          let response = await $call.call("client-dashboard", "create-document", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              // document_title: data.document_title,
+              // document: base64Data,
+              // document_name: fileTextName,
+              // description: data.description,
+              // document_type: data.document_type,
+              // person: 0,
+              // contract_start: format(new Date(), "yyyy-MM-dd"),
+              // contract_end: format(new Date(), "yyyy-MM-dd"),
+              // status: "Initiate",
+              documents: JSON.stringify(files),
+              collection_id: collectionId,
             },
-          );
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
 
           console.log(response);
 
@@ -210,20 +198,16 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
-            let response2 = await call.call(
-              "hexa-ai-rag",
-              "add-document-by-collection-id",
-              {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  collection_id: collectionId,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
+            let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                collection_id: collectionId,
               },
-            );
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
 
             if (response2.status !== 200) {
               console.log(response2);
@@ -234,10 +218,7 @@ All Rights Reserved
             triggerToast("created");
             // setTimeout(async () => {
             goto(
-              (await call.getPage(
-                "client-dashboard",
-                "document-collection-list",
-              )) +
+              (await $call.getPage("client-dashboard", "document-collection-list")) +
                 "?collectionId=" +
                 collectionId,
             );
@@ -249,32 +230,25 @@ All Rights Reserved
         }
       } else {
         try {
-          let response = await call.call(
-            "client-dashboard",
-            "create-document",
-            {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                document_title: data.document_title,
-                document: base64Data,
-                document_name: fileTextName,
-                description: data.description,
-                document_type: data.document_type,
-                person: data.person_client,
-                contract_start: format(
-                  new Date(data.contract_start),
-                  "yyyy-MM-dd",
-                ),
-                contract_end: format(new Date(data.contract_end), "yyyy-MM-dd"),
-                status: "Initiate",
-                collection_id: collectionId,
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
+          let response = await $call.call("client-dashboard", "create-document", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              document_title: data.document_title,
+              document: base64Data,
+              document_name: fileTextName,
+              description: data.description,
+              document_type: data.document_type,
+              person: data.person_client,
+              contract_start: format(new Date(data.contract_start), "yyyy-MM-dd"),
+              contract_end: format(new Date(data.contract_end), "yyyy-MM-dd"),
+              status: "Initiate",
+              collection_id: collectionId,
             },
-          );
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
 
           console.log(response);
 
@@ -284,20 +258,16 @@ All Rights Reserved
           }
 
           if (response.status === 200) {
-            let response2 = await call.call(
-              "hexa-ai-rag",
-              "add-document-by-collection-id",
-              {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  collection_id: collectionId,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
+            let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                collection_id: collectionId,
               },
-            );
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
 
             if (response2.status !== 200) {
               console.log(response2);
@@ -308,10 +278,7 @@ All Rights Reserved
             triggerToast("created");
             // setTimeout(async () => {
             goto(
-              (await call.getPage(
-                "client-dashboard",
-                "document-collection-list",
-              )) +
+              (await $call.getPage("client-dashboard", "document-collection-list")) +
                 "?collectionId=" +
                 collectionId,
             );
@@ -331,7 +298,7 @@ All Rights Reserved
     if (token !== null) {
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-persons", {
+        let response = await $call.call("client-dashboard", "get-persons", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -409,10 +376,7 @@ All Rights Reserved
           <Button
             onclick={async function () {
               goto(
-                (await call.getPage(
-                  "client-dashboard",
-                  "document-collection-list",
-                )) +
+                (await $call.getPage("client-dashboard", "document-collection-list")) +
                   "?collectionId=" +
                   collectionId,
               );
@@ -421,9 +385,7 @@ All Rights Reserved
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
           >
-          <Button onclick={createProduct} class="px-3 focus-within:!ring-1"
-            >{$_("create")}</Button
-          >
+          <Button onclick={createProduct} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
         </div>
       </div>
 
@@ -433,9 +395,7 @@ All Rights Reserved
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
             </P>
           </div>
@@ -470,16 +430,10 @@ All Rights Reserved
                   <div
                     class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
                   >
-                    <img
-                      src={upload}
-                      alt="mail.svg"
-                      class="p-4 dark:invert pointer-events-none"
-                    />
+                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
                   </div>
                   <div class="flex space-x-1">
-                    <P class="text-hc-brand-700 pointer-events-none"
-                      >{$_("clickToUpload")}</P
-                    >
+                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
                     <P class="pointer-events-none">
                       <!-- {$_("orDragAndDrop")} -->
                     </P>
@@ -504,14 +458,8 @@ All Rights Reserved
                           <img src={DOCSolidIcon} alt="" />
                         {/if}
                         <div class="flex flex-col justify-center">
-                          <P
-                            class="text-secondary-light dark:text-secondary-dark"
-                            >{file.name}</P
-                          >
-                          <P
-                            class="text-secondary-light dark:text-secondary-dark"
-                            >{file.size}</P
-                          >
+                          <P class="text-secondary-light dark:text-secondary-dark">{file.name}</P>
+                          <P class="text-secondary-light dark:text-secondary-dark">{file.size}</P>
                         </div>
                       </div>
                     </div>

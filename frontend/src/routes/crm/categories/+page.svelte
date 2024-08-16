@@ -26,7 +26,7 @@ All Rights Reserved
 
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let personsLatest = [];
   let documentsReady = $state(false);
@@ -56,7 +56,7 @@ All Rights Reserved
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-categories", {
+      let response = await $call.call("client-dashboard", "get-categories", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -84,7 +84,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-category-detail")}` +
+                    `${await $call.getPage("client-dashboard", "crm-category-detail")}` +
                     "?catergoryId=" +
                     category.id +
                     "&edit=" +
@@ -93,7 +93,7 @@ All Rights Reserved
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-category-detail")}` +
+                    `${await $call.getPage("client-dashboard", "crm-category-detail")}` +
                     "?catergoryId=" +
                     category.id +
                     "&edit=" +
@@ -111,9 +111,8 @@ All Rights Reserved
     }
   }
 
-
   async function addCategory() {
-    goto(await call.getPage("client-dashboard", "crm-category-create"));
+    goto(await $call.getPage("client-dashboard", "crm-category-create"));
     return;
   }
 

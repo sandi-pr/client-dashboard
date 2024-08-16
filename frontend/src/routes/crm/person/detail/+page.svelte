@@ -25,7 +25,7 @@ All Rights Reserved
 
   const dispatch = createEventDispatcher();
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const personId = params.get("personId");
@@ -67,13 +67,13 @@ All Rights Reserved
     if (personId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-      goto(await call.getPage("client-dashboard", "crm-person"));
+      goto(await $call.getPage("client-dashboard", "crm-person"));
       // }, 3000);
       return;
     }
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "get-person", {
+      let response = await $call.call("client-dashboard", "get-person", {
         URLQuery: {},
         URLParams: { id: personId },
         Params: {},
@@ -109,7 +109,7 @@ All Rights Reserved
   async function updatePerson() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "update-person", {
+      let response = await $call.call("client-dashboard", "update-person", {
         URLQuery: {},
         URLParams: { id: personId },
         Params: {
@@ -132,7 +132,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("updated");
         // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-person"));
+        goto(await $call.getPage("client-dashboard", "crm-person"));
         // }, 3000);
         return;
       }
@@ -145,7 +145,7 @@ All Rights Reserved
   async function deletePerson() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "delete-person", {
+      let response = await $call.call("client-dashboard", "delete-person", {
         URLQuery: {},
         URLParams: { id: personId },
         Params: {},
@@ -156,7 +156,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-person"));
+        goto(await $call.getPage("client-dashboard", "crm-person"));
         // }, 3000);
         return;
       }
@@ -214,7 +214,7 @@ All Rights Reserved
           {:else}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "crm-person"));
+                goto(await $call.getPage("client-dashboard", "crm-person"));
                 return;
               }}
               color="light"

@@ -41,7 +41,7 @@
   import { CR3Call } from "hexacomponents-svelte";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let currentTheme = "";
   let currentDate = new Date(); // Current date
@@ -480,7 +480,7 @@
     if (dateSame) {
       let token = sessionStorage.getItem("token");
       try {
-        let response = await call.call("client-dashboard", "create-schedule", {
+        let response = await $call.call("client-dashboard", "create-schedule", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -536,7 +536,7 @@
         currentDate.setDate(startDate.getDate() + i);
         let token = sessionStorage.getItem("token");
         try {
-          let response = await call.call("client-dashboard", "create-schedule", {
+          let response = await $call.call("client-dashboard", "create-schedule", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -794,7 +794,7 @@
     try {
       if (idCalendar === undefined) {
         let token = sessionStorage.getItem("token");
-        let response = await call.call("client-dashboard", "create-availability", {
+        let response = await $call.call("client-dashboard", "create-availability", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -814,7 +814,7 @@
         }
       } else {
         let token = sessionStorage.getItem("token");
-        let response = await call.call("client-dashboard", "update-availability", {
+        let response = await $call.call("client-dashboard", "update-availability", {
           URLQuery: {},
           URLParams: {
             id: idCalendar.toString(),
@@ -869,7 +869,7 @@
 
     try {
       if (!frontEndOnly) {
-        var response = await call.call("client-dashboard", "get-schedule", {
+        var response = await $call.call("client-dashboard", "get-schedule", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -993,7 +993,7 @@
     let token = sessionStorage.getItem("token");
     console.log(token);
     if (token !== null) {
-      const response = await call.call("client-dashboard", "delete-schedule", {
+      const response = await $call.call("client-dashboard", "delete-schedule", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -1055,7 +1055,7 @@
     if (token !== null) {
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-persons", {
+        let response = await $call.call("client-dashboard", "get-persons", {
           URLQuery: {},
           URLParams: {},
           Params: {

@@ -25,7 +25,7 @@
   import { page } from "$app/stores";
   import { breadcrumbLastName } from "$lib/stores/breadcrumbLastName.js";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let projectId = $state(null);
 
@@ -76,7 +76,7 @@
     if (index !== -1) {
       let token = sessionStorage.getItem("token");
       if (token) {
-        const response = await call.call("client-dashboard", "delete-document-project", {
+        const response = await $call.call("client-dashboard", "delete-document-project", {
           URLQuery: {},
           URLParams: {
             id: files[index].id.toString(),
@@ -94,7 +94,7 @@
           return;
         }
 
-        const response2 = await call.call(
+        const response2 = await $call.call(
           "client-dashboard",
           "delete-document-collection-by-contract",
           {
@@ -130,7 +130,7 @@
       let page = 1;
       try {
         while (true) {
-          const response = await call.call("client-dashboard", "get-contract-rules", {
+          const response = await $call.call("client-dashboard", "get-contract-rules", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -176,7 +176,7 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-contract-project", {
+        const response = await $call.call("client-dashboard", "get-contract-project", {
           URLQuery: {},
           URLParams: {
             id: projectId.toString(),
@@ -198,7 +198,7 @@
           if (response.result.data.length === 0) {
             triggerToast("error");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "contract-project-list"));
+              goto(await $call.getPage("client-dashboard", "contract-project-list"));
               return;
             }, 2000);
           }
@@ -253,7 +253,7 @@
         let tmpCount = 0;
         let page = 1;
         while (true) {
-          const response = await call.call("client-dashboard", "get-contract-rule-section", {
+          const response = await $call.call("client-dashboard", "get-contract-rule-section", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -291,7 +291,7 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("hexa-ai-contract-review", "generate-review", {
+        const response = await $call.call("hexa-ai-contract-review", "generate-review", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -309,7 +309,7 @@
           return;
         }
 
-        const response2 = await call.call(
+        const response2 = await $call.call(
           "client-dashboard",
           "update-project-document-status-generated",
           {
@@ -344,7 +344,7 @@
   async function getDocumentContractProject() {
     let token = sessionStorage.getItem("token");
     try {
-      const response2 = await call.call("client-dashboard", "get-document-contract-project", {
+      const response2 = await $call.call("client-dashboard", "get-document-contract-project", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -386,7 +386,7 @@
           }
 
           // if (initRAG) {
-          //   const response3 = await call.call("hexa-ai-contract-review", "process-to-rag", {
+          //   const response3 = await $call.call("hexa-ai-contract-review", "process-to-rag", {
           //     URLQuery: {},
           //     URLParams: {},
           //     Params: {
@@ -453,7 +453,7 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "check-reference-rag", {
+        const response = await $call.call("client-dashboard", "check-reference-rag", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -496,7 +496,7 @@
           )
             continue;
           else {
-            const response = await call.call(
+            const response = await $call.call(
               "client-dashboard",
               "get-contract-project-result-with-document-id",
               {
@@ -522,7 +522,7 @@
               for (let j = 0; j < response.result.data.length; j++) {
                 if (response.result.data[j].attributes.status === "GENERATED") {
                   if (files[i].status_generated === "GENERATING") {
-                    const response2 = await call.call(
+                    const response2 = await $call.call(
                       "client-dashboard",
                       "update-project-document-status-generated",
                       {
@@ -567,7 +567,7 @@
 
                 if (response.result.data[j].attributes.status === "GENERATING") {
                   if (files[i].status_generated === "START") {
-                    const response2 = await call.call(
+                    const response2 = await $call.call(
                       "client-dashboard",
                       "update-project-document-status-generated",
                       {
@@ -648,7 +648,7 @@
 
     if (token !== null) {
       try {
-        const response = await call.call("client-dashboard", "delete-contract-project", {
+        const response = await $call.call("client-dashboard", "delete-contract-project", {
           URLQuery: {},
           URLParams: {
             id: projectId,
@@ -666,7 +666,7 @@
         }
 
         triggerToast("deleted");
-        goto(await call.getPage("client-dashboard", "contract-project-list"));
+        goto(await $call.getPage("client-dashboard", "contract-project-list"));
       } catch (error) {
         console.log(error);
       }
@@ -680,7 +680,7 @@
         getProject();
       } else {
         triggerToast("error");
-        goto(await call.getPage("client-dashboard", "contract-project-list"));
+        goto(await $call.getPage("client-dashboard", "contract-project-list"));
       }
     });
     return () => unsubscribe();
@@ -807,7 +807,7 @@
               isLoading={file.status !== "FINISH"}
               actionView={async () => {
                 goto(
-                  (await call.getPage("client-dashboard", "contract-project-detail-document")) +
+                  (await $call.getPage("client-dashboard", "contract-project-detail-document")) +
                     "?projectDocumentId=" +
                     file.id,
                 );
@@ -825,7 +825,7 @@
                 } else {
                   if (file.result_id !== undefined) {
                     goto(
-                      (await call.getPage("client-dashboard", "contract-project-review")) +
+                      (await $call.getPage("client-dashboard", "contract-project-review")) +
                         "?projectDocumentId=" +
                         file.result_id,
                     );
@@ -836,7 +836,7 @@
                     console.log(index);
                     console.log(idResults[index]);
                     goto(
-                      (await call.getPage("client-dashboard", "contract-project-review")) +
+                      (await $call.getPage("client-dashboard", "contract-project-review")) +
                         "?projectDocumentId=" +
                         idResults[index].id,
                     );
@@ -861,7 +861,7 @@
             class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
             on:click={async () => {
               goto(
-                (await call.getPage("client-dashboard", "contract-project-detail-document")) +
+                (await $call.getPage("client-dashboard", "contract-project-detail-document")) +
                   "?projectId=" +
                   projectId,
               );

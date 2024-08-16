@@ -10,7 +10,7 @@
   import { triggerToast } from "$lib";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");
@@ -50,12 +50,10 @@
 
       messageInput = "";
 
-      let conversationIdCollection = sessionStorage.getItem(
-        "conversationIdCollection",
-      );
+      let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
 
       try {
-        let chat = await call.call("hexa-ai-rag", "chat", {
+        let chat = await $call.call("hexa-ai-rag", "chat", {
           URLQuery: {},
           URLParams: {
             collection_id: collectionId,
@@ -110,26 +108,20 @@
   });
 
   async function getMessages() {
-    let conversationIdCollection = sessionStorage.getItem(
-      "conversationIdCollection",
-    );
+    let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
 
     let token = sessionStorage.getItem("token");
 
-    let response2 = await call.call(
-      "hexa-ai-rag",
-      "add-document-by-collection-id",
-      {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: collectionId,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
+    let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {
+        collection_id: collectionId,
       },
-    );
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
 
     if (response2.status !== 200) {
       console.log(response2);
@@ -140,7 +132,7 @@
 
     if (conversationIdCollection) {
       try {
-        let chat = await call.call("hexa-ai-rag", "get-messages", {
+        let chat = await $call.call("hexa-ai-rag", "get-messages", {
           URLQuery: {},
           URLParams: {
             collection_id: collectionId,
@@ -173,30 +165,22 @@
       }
     } else {
       try {
-        let createConversationResponse = await call.call(
-          "hexa-ai-rag",
-          "create-conversation",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_id: parseInt(collectionId),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let createConversationResponse = await $call.call("hexa-ai-rag", "create-conversation", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_id: parseInt(collectionId),
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         console.log("createConversationResponse", createConversationResponse);
 
         if (createConversationResponse.status === 200) {
-          conversationIdCollection =
-            createConversationResponse.result.conversation_id;
-          sessionStorage.setItem(
-            "conversationIdCollection",
-            conversationIdCollection,
-          );
+          conversationIdCollection = createConversationResponse.result.conversation_id;
+          sessionStorage.setItem("conversationIdCollection", conversationIdCollection);
 
           getStatusRag();
         } else {
@@ -215,7 +199,7 @@
   async function getStatusRag() {
     let token = sessionStorage.getItem("token");
     try {
-      let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+      let rag = await $call.call("hexa-ai-rag", "get-rag-status", {
         URLQuery: {},
         URLParams: {},
         Params: {},
@@ -262,10 +246,10 @@
   });
 
   onDestroy(() => {
-  if (timer) {
-    clearTimeout(timer);
-  }
-});
+    if (timer) {
+      clearTimeout(timer);
+    }
+  });
 </script>
 
 {#if isLoading}
@@ -292,25 +276,17 @@
               {#if qaPair.role === "assistant"}
                 <img src={UserIcon} alt="User" class="" />
                 <div class="absolute bottom-0 right-0">
-                  <img
-                    src={VerifiedIcon}
-                    alt="User"
-                    style={{ width: 16, height: 16 }}
-                  />
+                  <img src={VerifiedIcon} alt="User" style={{ width: 16, height: 16 }} />
                 </div>
               {/if}
             </div>
             <div class="flex flex-col w-full gap-1">
               <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                <P
-                  weight="bold"
-                  class="text-primary-light dark:text-primary-dark"
+                <P weight="bold" class="text-primary-light dark:text-primary-dark"
                   >{qaPair.role === "user" ? "Customer" : "Assistant"}</P
                 >
               </div>
-              <P
-                weight="medium"
-                class="text-tertiary-light dark:text-tertiary-dark"
+              <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
                 >{qaPair.message}</P
               >
             </div>
@@ -325,24 +301,14 @@
             >
               <img src={UserIcon} alt="User" class="" />
               <div class="absolute bottom-0 right-0">
-                <img
-                  src={VerifiedIcon}
-                  alt="User"
-                  style={{ width: 16, height: 16 }}
-                />
+                <img src={VerifiedIcon} alt="User" style={{ width: 16, height: 16 }} />
               </div>
             </div>
             <div class="flex flex-col w-full gap-1">
               <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                <P
-                  weight="bold"
-                  class="text-primary-light dark:text-primary-dark"
-                  >{"Assistant"}</P
-                >
+                <P weight="bold" class="text-primary-light dark:text-primary-dark">{"Assistant"}</P>
               </div>
-              <P
-                weight="medium"
-                class="text-tertiary-light dark:text-tertiary-dark"
+              <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
                 >{"Assistant is typing..."}</P
               >
             </div>
@@ -352,10 +318,7 @@
     </div>
 
     <div class="sticky bg-white dark:bg-primary-dark pb-4 bottom-0">
-      <form
-        on:submit|preventDefault={sendMessage}
-        class="px-8 [&>div>div]:!pe-6"
-      >
+      <form on:submit|preventDefault={sendMessage} class="px-8 [&>div>div]:!pe-6">
         <Input
           disabled={disableInput}
           bind:value={messageInput}
@@ -367,8 +330,7 @@
             slot="right"
             size="sm"
             type="submit"
-            class="my-3 bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"
-            >Send</Button
+            class="my-3 bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark">Send</Button
           >
           <!-- <Button
           disabled={disableInput}

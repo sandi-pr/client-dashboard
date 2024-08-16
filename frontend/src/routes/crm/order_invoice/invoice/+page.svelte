@@ -21,7 +21,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { generateUniqueId } from "$lib";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const invoiceId = params.get("invoiceId");
@@ -49,7 +49,7 @@ All Rights Reserved
     if (invoiceId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-      goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+      goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
       // }, 3000);
       return;
     }
@@ -57,7 +57,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-invoice", {
+        let response = await $call.call("client-dashboard", "get-invoice", {
           URLQuery: {},
           URLParams: {
             id: invoiceId,
@@ -106,7 +106,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "delete-invoice", {
+        let response = await $call.call("client-dashboard", "delete-invoice", {
           URLQuery: {},
           URLParams: {
             id: invoiceId.toString(),
@@ -125,7 +125,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("deleted");
           // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+          goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
           // }, 3000);
         }
       } catch (error) {
@@ -172,7 +172,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+                goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button

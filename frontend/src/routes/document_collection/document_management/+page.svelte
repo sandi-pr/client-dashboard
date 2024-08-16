@@ -25,7 +25,7 @@ All Rights Reserved
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let documentsReady = $state(false);
 
@@ -39,22 +39,18 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       while (true) {
-        let response = await call.call(
-          "client-dashboard",
-          "get-documents-by-collectionid",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              page: page,
-              page_size: pagination.pageSize,
-              collection_id: collectionId,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
+        let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: pagination.pageSize,
+            collection_id: collectionId,
           },
-        );
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         if (response.status !== 200) {
           console.log(response);
@@ -69,15 +65,9 @@ All Rights Reserved
           let promises = response.result.data.map(async (document) => {
             return {
               id: document.id,
-              upload_date: format(
-                document.attributes.createdAt,
-                "dd-MM-yyyy HH:mm",
-              ),
+              upload_date: format(document.attributes.createdAt, "dd-MM-yyyy HH:mm"),
               document_name: document.attributes.document_title,
-              type:
-                document.attributes.document_type === "GENERAL"
-                  ? "General"
-                  : "Contract",
+              type: document.attributes.document_type === "GENERAL" ? "General" : "Contract",
               // status: {
               //   type: "brand",
               //   name: document.attributes.status,
@@ -86,7 +76,7 @@ All Rights Reserved
                 objects: [
                   {
                     href:
-                      `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                      `${await $call.getPage("client-dashboard", "document-management-detail")}` +
                       "?documentId=" +
                       document.id +
                       "&edit=false",
@@ -122,7 +112,7 @@ All Rights Reserved
   });
 
   async function addDocument() {
-    goto(await call.getPage("client-dashboard", "document-management-create"));
+    goto(await $call.getPage("client-dashboard", "document-management-create"));
     return;
   }
 </script>
@@ -135,11 +125,7 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography
-            preset="Display sm/Semibold"
-            color="primary"
-            text={$_("documentsList")}
-          />
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("documentsList")} />
           <Button onclick={addDocument} icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
             {$_("addNew")}</Button
@@ -151,10 +137,7 @@ All Rights Reserved
           <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else}
           <div class="pt-8">
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-            />
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           </div>
         {/if}
       </div>

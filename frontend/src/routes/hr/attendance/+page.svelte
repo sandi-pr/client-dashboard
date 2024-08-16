@@ -10,7 +10,7 @@
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
@@ -59,7 +59,7 @@
   async function getEmployeeAttendance() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-employee-attendances", {
+      let response = await $call.call("client-dashboard", "get-employee-attendances", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -99,7 +99,7 @@
       let page = 1;
       let employees = [];
       while (true) {
-        let response = await call.call("client-dashboard", "get-employees", {
+        let response = await $call.call("client-dashboard", "get-employees", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -246,7 +246,7 @@
     if (token) {
       let response;
       if (attendance.length > 0) {
-        response = await call.call("client-dashboard", "update-attendance", {
+        response = await $call.call("client-dashboard", "update-attendance", {
           URLQuery: {},
           URLParams: {},
           URLParams: {
@@ -260,7 +260,7 @@
           },
         });
       } else {
-        response = await call.call("client-dashboard", "create-attendance", {
+        response = await $call.call("client-dashboard", "create-attendance", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -310,7 +310,7 @@
     let token = sessionStorage.getItem("token");
 
     if (token) {
-      let response = await call.call("client-dashboard", "update-attendance", {
+      let response = await $call.call("client-dashboard", "update-attendance", {
         URLQuery: {},
         URLParams: {
           id: idAttendance,
@@ -365,7 +365,7 @@
       let response;
 
       if (attendance.length > 0) {
-        response = await call.call("client-dashboard", "update-attendance", {
+        response = await $call.call("client-dashboard", "update-attendance", {
           URLQuery: {},
           URLParams: {
             id: idAttendance,
@@ -378,7 +378,7 @@
           },
         });
       } else {
-        response = await call.call("client-dashboard", "create-attendance", {
+        response = await $call.call("client-dashboard", "create-attendance", {
           URLQuery: {},
           URLParams: {},
           Params: {

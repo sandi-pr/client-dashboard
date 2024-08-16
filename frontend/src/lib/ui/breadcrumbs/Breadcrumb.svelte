@@ -30,7 +30,7 @@
   const activeUrlArray = writable([]);
   const copyActiveUrl = writable("");
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const postProcessName = (name) => {
     let newName = name.replace(/-/g, " ").replace(/_/g, " ");
@@ -48,7 +48,7 @@
   };
 
   onMount(async () => {
-    const result = await call.getPage("client-dashboard", "home-page");
+    const result = await $call.getPage("client-dashboard", "home-page");
     baseUrl.set(result.slice(0, result.lastIndexOf("/")));
   });
 
@@ -166,7 +166,7 @@
   let detail = $state(false);
   let title = $state("");
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const postProcessName = (name) => {
     let newName = name.replace(/-/g, " ");
@@ -199,7 +199,7 @@
   };
 
   onMount(async () => {
-    const result = await call.getPage("client-dashboard", "home-page");
+    const result = await $call.getPage("client-dashboard", "home-page");
     baseUrl = result.slice(0, result.lastIndexOf("/"));
   });
 

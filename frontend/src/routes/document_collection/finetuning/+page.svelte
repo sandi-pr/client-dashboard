@@ -10,14 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Button,
-    CloseButton,
-    Textarea,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Button, CloseButton, Textarea } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { _ } from "svelte-i18n";
@@ -33,7 +26,7 @@ All Rights Reserved
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let fileTextName = $state(null);
 
@@ -53,15 +46,18 @@ All Rights Reserved
           const file = files[i];
           const imageUrl = URL.createObjectURL(file);
           const base64 = await readFileAsBase64(file);
-          
-          images = [...images, {
-            id: Date.now() + i,
-            file: file,
-            imageUrl: imageUrl,
-            base64: base64,
-            name: file.name,
-            sourceText: "",
-          }];
+
+          images = [
+            ...images,
+            {
+              id: Date.now() + i,
+              file: file,
+              imageUrl: imageUrl,
+              base64: base64,
+              name: file.name,
+              sourceText: "",
+            },
+          ];
         }
       } else {
         alert("Invalid file. Please select valid files.");
@@ -72,7 +68,7 @@ All Rights Reserved
   };
 
   const removeImage = (id) => {
-    images = images.filter(image => image.id !== id);
+    images = images.filter((image) => image.id !== id);
   };
 
   async function readFileAsBase64(file) {
@@ -95,20 +91,16 @@ All Rights Reserved
     if (token !== null) {
       if (images.length > 0) {
         try {
-          let response = await call.call(
-            "client-dashboard",
-            "add-data-handwriting",
-            {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                images: JSON.stringify(images),
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
+          let response = await $call.call("client-dashboard", "add-data-handwriting", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              images: JSON.stringify(images),
             },
-          );
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
 
           console.log(response);
 
@@ -127,7 +119,7 @@ All Rights Reserved
           triggerToast("error");
           console.log(error);
         }
-      } 
+      }
       return;
     } else {
       triggerToast("error");
@@ -153,7 +145,7 @@ All Rights Reserved
         </div>
         <div class="flex gap-2">
           <Button
-            onclick={ () => {
+            onclick={() => {
               window.history.back();
             }}
             color="light"
@@ -171,9 +163,7 @@ All Rights Reserved
         <!-- general information -->
         <div class="flex gap-6">
           <div class="w-60">
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("trainingData")}
             </P>
           </div>
@@ -194,16 +184,10 @@ All Rights Reserved
                   <div
                     class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-4 pointer-events-none"
                   >
-                    <img
-                      src={upload}
-                      alt="mail.svg"
-                      class="p-4 dark:invert pointer-events-none"
-                    />
+                    <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
                   </div>
                   <div class="flex space-x-1">
-                    <P class="text-hc-brand-700 pointer-events-none"
-                      >{$_("clickToUpload")}</P
-                    >
+                    <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P>
                     <P class="pointer-events-none">
                       <!-- {$_("orDragAndDrop")} -->
                     </P>
@@ -219,23 +203,22 @@ All Rights Reserved
                       class="flex justify-between items-start p-4 rounded-xl border border-secondary-light dark:border-secondary-dark"
                     >
                       <div class="flex flex-col gap-3">
-                        <P
-                          class="text-secondary-light dark:text-secondary-dark"
-                          >{image.name}</P
-                        >
+                        <P class="text-secondary-light dark:text-secondary-dark">{image.name}</P>
                         <img src={image.imageUrl} alt="" />
                         <div class="flex flex-col gap-1 justify-center">
-                          <P
-                            class="text-secondary-light dark:text-secondary-dark"
+                          <P class="text-secondary-light dark:text-secondary-dark"
                             >{$_("sourceText")}</P
                           >
-                          <Textarea 
+                          <Textarea
                             bind:value={image.sourceText}
                             class="bg-primary-light dark:bg-secondary-dark"
                           />
                         </div>
                       </div>
-                      <CloseButton on:click={() => removeImage(image.id)} class="h-min text-secondary-light dark:text-secondary-dark" />
+                      <CloseButton
+                        on:click={() => removeImage(image.id)}
+                        class="h-min text-secondary-light dark:text-secondary-dark"
+                      />
                     </div>
                   {/each}
                 </div>

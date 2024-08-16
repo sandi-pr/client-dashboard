@@ -11,10 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Toast } from "flowbite-svelte";
-  import {
-    CheckCircleSolid,
-    ExclamationCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { ToastContainer, triggerToast } from "$lib";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
@@ -25,7 +22,7 @@ All Rights Reserved
   import DotsGridIcon from "$lib/icon/dots-grid.svelte";
   import { CR3Call } from "hexacomponents-svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let tmpJobLevel = "";
 
@@ -73,7 +70,7 @@ All Rights Reserved
       let token = sessionStorage.getItem("token");
       if (token) {
         try {
-          const response = await call.call("client-dashboard", "create-job-level", {
+          const response = await $call.call("client-dashboard", "create-job-level", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -82,7 +79,7 @@ All Rights Reserved
             Headers: {
               Authorization: "Bearer " + token,
             },
-          })
+          });
 
           console.log(response);
 
@@ -101,7 +98,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-level", {
+        const response = await $call.call("client-dashboard", "get-job-level", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -146,7 +143,11 @@ All Rights Reserved
           </div>
         </div>
         <div class="flex gap-2">
-          <Button class="px-3 focus-within:!ring-1" disabled={buttonDisable} on:click={saveJobLevels}>{$_("save")}</Button>
+          <Button
+            class="px-3 focus-within:!ring-1"
+            disabled={buttonDisable}
+            on:click={saveJobLevels}>{$_("save")}</Button
+          >
           <Button class="px-3 focus-within:!ring-1">{$_("importCsv")}</Button>
         </div>
       </div>
@@ -155,26 +156,19 @@ All Rights Reserved
       <div class="flex gap-6 pt-8">
         <div class="w-60 space-y-2">
           <div>
-            <P
-              class="font-semibold text-secondary-light dark:text-secondary-dark"
-            >
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("newJobLevel")}
             </P>
             <P class="text-secondary-light dark:text-secondary-dark">
               {$_("adjust&MoveOrderByDragging")}
             </P>
           </div>
-          <Input
-            bind:value={tmpJobLevel}
-            class="bg-primary-light dark:bg-secondary-dark"
-          />
+          <Input bind:value={tmpJobLevel} class="bg-primary-light dark:bg-secondary-dark" />
           <Button color="light" on:click={addJobLevel}>{$_("add")}</Button>
         </div>
         <div class="flex flex-col grow gap-6">
           {#if jobLevels.length > 0}
-            <div
-              class="bg-secondary-light dark:bg-secondary-dark rounded-lg py-10 pl-4"
-            >
+            <div class="bg-secondary-light dark:bg-secondary-dark rounded-lg py-10 pl-4">
               <div
                 use:dndzone={{ items: jobLevels, flipDurationMs: 150 }}
                 on:consider={handleDndConsider}
@@ -185,18 +179,14 @@ All Rights Reserved
                   <div
                     class="px-4 py-2 bg-white dark:bg-tertiary-dark rounded-lg backdrop-blur-[26px] justify-between items-center flex w-2/5"
                   >
-                    <div
-                      class="min-w-[172px] self-stretch items-center gap-4 flex"
-                    >
+                    <div class="min-w-[172px] self-stretch items-center gap-4 flex">
                       <DotsGridIcon
                         class="w-6 h-6 text-fg-quaternary-light dark:text-fg-quaternary-dark"
                       />
                       <P size="lg" weight="semibold">{job.title}</P>
                     </div>
-                    <Button
-                      on:click={() => deleteJobLevel(job.id)}
-                      color="light"
-                      class="w-max">{$_("delete")}</Button
+                    <Button on:click={() => deleteJobLevel(job.id)} color="light" class="w-max"
+                      >{$_("delete")}</Button
                     >
                   </div>
                 {/each}

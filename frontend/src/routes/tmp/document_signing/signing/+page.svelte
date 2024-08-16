@@ -34,7 +34,7 @@
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
   import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   // Step 1
   let currentStep = 1;
@@ -113,16 +113,10 @@
 
   function saveQrCodePosition() {
     qrCodeX.subscribe(
-      (x) =>
-        (signers.find(
-          (signer) => signer.email === selectedSigner.email,
-        ).position.x = x),
+      (x) => (signers.find((signer) => signer.email === selectedSigner.email).position.x = x),
     );
     qrCodeY.subscribe(
-      (y) =>
-        (signers.find(
-          (signer) => signer.email === selectedSigner.email,
-        ).position.y = y),
+      (y) => (signers.find((signer) => signer.email === selectedSigner.email).position.y = y),
     );
   }
 
@@ -293,11 +287,8 @@
   function addSigner() {
     const newSigner = {
       id: selectedPersonClient,
-      name: personClient.find((person) => person.value === selectedPersonClient)
-        .name,
-      email: personClient.find(
-        (person) => person.value === selectedPersonClient,
-      ).email,
+      name: personClient.find((person) => person.value === selectedPersonClient).name,
+      email: personClient.find((person) => person.value === selectedPersonClient).email,
       role: selectedRole,
       position: { x: 0, y: 0 },
     };
@@ -316,7 +307,7 @@
     if (token !== null) {
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-persons", {
+        let response = await $call.call("client-dashboard", "get-persons", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -367,7 +358,7 @@
 
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "create-contract", {
+      let response = await $call.call("client-dashboard", "create-contract", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -387,7 +378,7 @@
       }
 
       console.log(response);
-      goto(await call.getPage("client-dashboard", "document-contract"));
+      goto(await $call.getPage("client-dashboard", "document-contract"));
     }
   };
 
@@ -400,9 +391,7 @@
 <div class="mt-16">
   <!-- Step 1 -->
   {#if currentStep == 1}
-    <div
-      class="flex flex-col justify-center lg:px-72 md:px-10 sm:px-4 gap-4"
-    >
+    <div class="flex flex-col justify-center lg:px-72 md:px-10 sm:px-4 gap-4">
       <div class="flex grow justify-start items-start gap-3">
         <P size="3xl" weight="semibold">{$_("chooseDocument")}</P>
         <!-- <Button color="light" class="text-hc-graylight-700">
@@ -480,9 +469,7 @@
                   <img src={DOCSolidIcon} alt="" />
                 {/if}
                 <div class="flex flex-col justify-center">
-                  <P class="text-secondary-light dark:text-secondary-dark"
-                    >{doc.name}</P
-                  >
+                  <P class="text-secondary-light dark:text-secondary-dark">{doc.name}</P>
                 </div>
               </div>
             </Card>
@@ -523,9 +510,7 @@
                 <div
                   class="px-6 py-4 bg-white dark:bg-tertiary-dark rounded-lg backdrop-blur-[26px] justify-between items-center flex w-full"
                 >
-                  <div
-                    class="w-full self-stretch items-center justify-between flex gap-4"
-                  >
+                  <div class="w-full self-stretch items-center justify-between flex gap-4">
                     <div class="flex items-center gap-4">
                       <DotsGridIcon
                         svgClass="w-6 h-6 text-fg-quaternary-light dark:text-fg-quaternary-dark"
@@ -533,10 +518,7 @@
                       <Avatar border />
                       <P size="lg" weight="semibold">{signer.name}</P>
                     </div>
-                    <Badge
-                      border
-                      rounded
-                      color={signer.role == "signer" ? "primary" : "indigo"}
+                    <Badge border rounded color={signer.role == "signer" ? "primary" : "indigo"}
                       >{$_(signer.role)}</Badge
                     >
                   </div>
@@ -552,19 +534,12 @@
           <div
             class="flex grow h-60 items-center justify-center p-4 rounded-lg border border-primary-light dark:border-primary-dark"
           >
-            <P size="md" weight="semibold" class="text-gray-500"
-              >{$_("noOneInvitedYet")}</P
-            >
+            <P size="md" weight="semibold" class="text-gray-500">{$_("noOneInvitedYet")}</P>
           </div>
         {/if}
       </div>
     </div>
-    <Modal
-      title={$_("whoDoYouWantToInvite")}
-      bind:open={selectRoleModal}
-      autoclose
-      outsideclose
-    >
+    <Modal title={$_("whoDoYouWantToInvite")} bind:open={selectRoleModal} autoclose outsideclose>
       <div class="flex flex-col grow gap-3">
         <Button
           on:click={() => selectRole("signer")}
@@ -574,9 +549,7 @@
           <UserIcon
             svgClass="w-7 h-7 text-utility-gray-500-light dark:text-utility-gray-500-dark"
           />
-          <P weight="semibold" class="text-primary-light dark:text-primary-dark"
-            >{$_("signer")}</P
-          >
+          <P weight="semibold" class="text-primary-light dark:text-primary-dark">{$_("signer")}</P>
         </Button>
       </div>
       <div class="flex flex-col grow gap-3">
@@ -588,8 +561,7 @@
           <UserCheckIcon
             svgClass="w-7 h-7 text-utility-gray-500-light dark:text-utility-gray-500-dark"
           />
-          <P weight="semibold" class="text-primary-light dark:text-primary-dark"
-            >{$_("reviewer")}</P
+          <P weight="semibold" class="text-primary-light dark:text-primary-dark">{$_("reviewer")}</P
           >
         </Button>
       </div>
@@ -608,12 +580,7 @@
         </Button>
       </div>
     </Modal>
-    <Modal
-      title={$_("inviteSigner")}
-      bind:open={addSignerModal}
-      autoclose
-      outsideclose
-    >
+    <Modal title={$_("inviteSigner")} bind:open={addSignerModal} autoclose outsideclose>
       <Select
         placeholder={$_("selectPerson")}
         class="bg-primary-light dark:bg-secondary-dark"
@@ -621,10 +588,8 @@
         bind:value={selectedPersonClient}
       />
       <svelte:fragment slot="footer">
-        <Button
-          disabled={!selectedPersonClient}
-          on:click={addSigner}
-          class="w-full">{$_("addSigner")}</Button
+        <Button disabled={!selectedPersonClient} on:click={addSigner} class="w-full"
+          >{$_("addSigner")}</Button
         >
       </svelte:fragment>
     </Modal>
@@ -635,15 +600,13 @@
     {#if files}
       <div class="px-20">
         <div class="flex justify-between items-center pb-4">
-          <P
-            class="text-3xl leading-9 font-semibold text-hc-graylight-900 dark:text-hc-graydark-50"
+          <P class="text-3xl leading-9 font-semibold text-hc-graylight-900 dark:text-hc-graydark-50"
             >Signature Placement</P
           >
         </div>
         <div class="flex gap-12">
           <div class="flex flex-col gap-4">
-            <P
-              class="font-semibold text-hc-graylight-900 dark:text-hc-graydark-50"
+            <P class="font-semibold text-hc-graylight-900 dark:text-hc-graydark-50"
               >Choose which signer to place the sign</P
             >
             <Button outline color="light" class="focus-within:!ring-1 acs">
@@ -651,9 +614,7 @@
               <div class="flex grow pl-2 pr-4">
                 <Span
                   class="font-jakarta text-start text-slate-700 dark:text-hc-graydark-300 text-sm leading-tight"
-                  >{selectedSigner !== null
-                    ? selectedSigner.name
-                    : signers[0].name}</Span
+                  >{selectedSigner !== null ? selectedSigner.name : signers[0].name}</Span
                 >
               </div>
               <Button
@@ -663,9 +624,7 @@
                   rounded-md focus-within:ring-0 font-medium
                   `}
               >
-                {selectedSigner !== null
-                  ? selectedSigner.role
-                  : signers[0].role}
+                {selectedSigner !== null ? selectedSigner.role : signers[0].role}
               </Button>
               <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
             </Button>
@@ -701,9 +660,7 @@
                       >
                         {signer.role}
                       </Button>
-                      <ChevronDownOutline
-                        class="w-3 h-3 ms-2 dark:text-white"
-                      />
+                      <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
                     </Button>
                   </DropdownItem>
                 {/if}
@@ -718,25 +675,16 @@
               </Button>
             </div>
           </div>
-          <div
-            class="flex justify-center grow py-10 bg-gray-50 rounded-lg dark:bg-gray-800"
-          >
+          <div class="flex justify-center grow py-10 bg-gray-50 rounded-lg dark:bg-gray-800">
             <!-- <PDFViewer {pdf} /> -->
             <div class="relative">
-              <PdfViewer
-                showBorder={false}
-                showButtons={false}
-                scale={1}
-                data={atob(base64Data)}
-              />
+              <PdfViewer showBorder={false} showButtons={false} scale={1} data={atob(base64Data)} />
               <div class="">
                 {#each signers as signer, index (signer)}
                   {#if showQr[index]}
                     {#if signer.email === selectedSigner.email}
                       <div
-                        on:mousedown={selectedSigner.email === signer.email
-                          ? startMove
-                          : null}
+                        on:mousedown={selectedSigner.email === signer.email ? startMove : null}
                         role="button"
                         aria-label="Move QR Code"
                         tabindex="0"
@@ -754,8 +702,8 @@
                         role="button"
                         aria-label="QR Code"
                         tabindex="0"
-                        style="position: absolute; top: {signer.position
-                          .y}px; left: {signer.position.x}px;"
+                        style="position: absolute; top: {signer.position.y}px; left: {signer
+                          .position.x}px;"
                       >
                         <img src={QRCodeIcon} alt="" width="70" height="70" />
                         <span class="text-xs">{signer.name}</span>

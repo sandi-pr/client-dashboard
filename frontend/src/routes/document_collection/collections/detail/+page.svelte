@@ -38,7 +38,7 @@ All Rights Reserved
 
   let documentId, collectionId;
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   // const params = new URLSearchParams(window.location.search);
   // let documentId = params.get("documentId");
@@ -91,7 +91,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-document", {
+        let response = await $call.call("client-dashboard", "get-document", {
           URLQuery: {},
           URLParams: {
             id: documentId.toString(),
@@ -137,7 +137,7 @@ All Rights Reserved
           //     documentData.attributes.detected_text === null ||
           //     documentData.attributes.result_trocr === null
           //   ) {
-          //     response2 = await call.call("hexa-ai-rag", "trocr-predict", {
+          //     response2 = await $call.call("hexa-ai-rag", "trocr-predict", {
           //       URLQuery: {},
           //       URLParams: {},
           //       Params: {
@@ -157,7 +157,7 @@ All Rights Reserved
           //     console.log("trocr-predict", response2);
 
           //     if (response2?.result?.text !== null) {
-          //       const response3 = await call.call("client-dashboard", "update-document", {
+          //       const response3 = await $call.call("client-dashboard", "update-document", {
           //         URLQuery: {},
           //         URLParams: {
           //           id: documentId.toString(),
@@ -232,7 +232,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (documentId !== "" && documentId !== null && documentId !== undefined) {
       try {
-        // let response2 = await call.call("hexa-ai-rag", "delete-document-by-id", {
+        // let response2 = await $call.call("hexa-ai-rag", "delete-document-by-id", {
         //   URLQuery: {},
         //   URLParams: {},
         //   Params: {
@@ -251,7 +251,7 @@ All Rights Reserved
         // console.log(response2);
 
         // if (response2.status === 200) {
-        let response = await call.call("client-dashboard", "delete-document", {
+        let response = await $call.call("client-dashboard", "delete-document", {
           URLQuery: {},
           URLParams: {
             id: documentId.toString(),
@@ -270,7 +270,7 @@ All Rights Reserved
         triggerToast("deleted");
         // setTimeout(async () => {
         goto(
-          (await call.getPage("client-dashboard", "document-collection-list-document")) +
+          (await $call.getPage("client-dashboard", "document-collection-list-document")) +
             "?collectionId=" +
             collectionId,
         );
@@ -293,7 +293,7 @@ All Rights Reserved
     if (token !== null) {
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-persons", {
+        let response = await $call.call("client-dashboard", "get-persons", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -397,7 +397,7 @@ All Rights Reserved
   //   onEdit = false;
   //   let token = sessionStorage.getItem("token");
   //   if (token !== null) {
-  //     let response = await call.call("client-dashboard", "update-document", {
+  //     let response = await $call.call("client-dashboard", "update-document", {
   //       URLQuery: {},
   //       URLParams: {
   //         id: documentId.toString(),
@@ -428,7 +428,7 @@ All Rights Reserved
     if (token !== null) {
       let response;
       if (data.document_type === "Handwriting") {
-        response = await call.call("client-dashboard", "update-document-handwriting", {
+        response = await $call.call("client-dashboard", "update-document-handwriting", {
           URLQuery: {},
           URLParams: {
             id: documentId.toString(),
@@ -453,7 +453,7 @@ All Rights Reserved
         triggerToast("updated");
         getDocument();
       } else {
-        response = await call.call("client-dashboard", "update-document", {
+        response = await $call.call("client-dashboard", "update-document", {
           URLQuery: {},
           URLParams: {
             id: documentId.toString(),
@@ -551,7 +551,7 @@ All Rights Reserved
             <Button
               onclick={async function () {
                 goto(
-                  (await call.getPage("client-dashboard", "document-collection-list-document")) +
+                  (await $call.getPage("client-dashboard", "document-collection-list-document")) +
                     `?collectionId=${collectionId}`,
                 );
                 return;

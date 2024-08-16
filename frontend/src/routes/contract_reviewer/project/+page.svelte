@@ -20,7 +20,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { CR3Call } from "hexacomponents-svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let tmpProjectName = $state("");
   let tmpProjectDescription = $state("");
@@ -59,7 +59,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-contract-projects", {
+        const response = await $call.call("client-dashboard", "get-contract-projects", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -82,7 +82,7 @@ All Rights Reserved
           configs = {
             pagination: response.result.meta.pagination,
           };
-          let url = await call.getPage("client-dashboard", "contract-project-detail");
+          let url = await $call.getPage("client-dashboard", "contract-project-detail");
           let promise = response.result.data.map((project) => {
             return {
               id: project.id,
@@ -120,7 +120,7 @@ All Rights Reserved
       let page = 1;
       try {
         while (true) {
-          const response = await call.call("client-dashboard", "get-contract-rules", {
+          const response = await $call.call("client-dashboard", "get-contract-rules", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -194,7 +194,7 @@ All Rights Reserved
     }
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "create-contract-project", {
+        const response = await $call.call("client-dashboard", "create-contract-project", {
           URLQuery: {},
           URLParams: {},
           Params: {

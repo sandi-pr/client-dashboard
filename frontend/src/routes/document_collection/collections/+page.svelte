@@ -39,7 +39,7 @@ All Rights Reserved
 
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let datas = $state([
     // {
@@ -92,7 +92,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
-      let response = await call.call("client-dashboard", "create-document-collection", {
+      let response = await $call.call("client-dashboard", "create-document-collection", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -112,7 +112,7 @@ All Rights Reserved
 
       console.log(response);
 
-      // let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      // let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
       //   URLQuery: {},
       //   URLParams: {},
       //   Params: {
@@ -138,7 +138,7 @@ All Rights Reserved
 
       addCollectionsModal = false;
       getCollections();
-      // goto(await call.getPage("client-dashboard", "document-collection"));
+      // goto(await $call.getPage("client-dashboard", "document-collection"));
     }
   }
 
@@ -150,7 +150,7 @@ All Rights Reserved
       collections = [];
       documents = [];
       while (true) {
-        let response = await call.call("client-dashboard", "get-document-collections", {
+        let response = await $call.call("client-dashboard", "get-document-collections", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -178,7 +178,7 @@ All Rights Reserved
       for (const collection of collections) {
         let page = 1;
         while (true) {
-          let response3 = await call.call("client-dashboard", "get-documents-by-collectionid", {
+          let response3 = await $call.call("client-dashboard", "get-documents-by-collectionid", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -205,7 +205,7 @@ All Rights Reserved
         }
       }
 
-      let collectionList = await call.getPage(
+      let collectionList = await $call.getPage(
         "client-dashboard",
         "document-collection-list-document",
       );
@@ -262,7 +262,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "update-document-collection", {
+        let response = await $call.call("client-dashboard", "update-document-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -303,7 +303,7 @@ All Rights Reserved
       try {
         for (const document of documents) {
           if (document.attributes.collection_id === tmpCollectionId) {
-            let response = await call.call("client-dashboard", "delete-document", {
+            let response = await $call.call("client-dashboard", "delete-document", {
               URLQuery: {},
               URLParams: {
                 id: document.id.toString(),
@@ -320,7 +320,7 @@ All Rights Reserved
             }
           }
         }
-        let response2 = await call.call("client-dashboard", "delete-document-collection", {
+        let response2 = await $call.call("client-dashboard", "delete-document-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -361,7 +361,7 @@ All Rights Reserved
     if (token !== null) {
       try {
         triggerLoading(true);
-        let response = await call.call("client-dashboard", "create-document", {
+        let response = await $call.call("client-dashboard", "create-document", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -385,7 +385,7 @@ All Rights Reserved
 
         if (tmpDocumentType === "Handwriting") {
           for (let i = 0; i < files.length; i++) {
-            let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
+            let response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
               URLQuery: {},
               URLParams: {},
               Params: {
@@ -407,22 +407,26 @@ All Rights Reserved
             console.log("trocr-predict", response3);
 
             if (response3?.result?.text !== null) {
-              const response4 = await call.call("client-dashboard", "update-document-handwriting", {
-                URLQuery: {},
-                URLParams: {
-                  id: response.result.data[i].id.toString(),
+              const response4 = await $call.call(
+                "client-dashboard",
+                "update-document-handwriting",
+                {
+                  URLQuery: {},
+                  URLParams: {
+                    id: response.result.data[i].id.toString(),
+                  },
+                  Params: {
+                    detected_text: response3.result.text,
+                    result_trocr: JSON.stringify(response3.result),
+                    edited: false,
+                    document_title: tmpDocumentTitle,
+                    description: tmpDocumentDescription,
+                  },
+                  Headers: {
+                    Authorization: "Bearer " + token,
+                  },
                 },
-                Params: {
-                  detected_text: response3.result.text,
-                  result_trocr: JSON.stringify(response3.result),
-                  edited: false,
-                  document_title: tmpDocumentTitle,
-                  description: tmpDocumentDescription,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
+              );
 
               if (response4.status !== 200) {
                 triggerToast("error");
@@ -545,7 +549,7 @@ All Rights Reserved
   async function getStatusRag() {
     let token = sessionStorage.getItem("token");
     try {
-      let rag = await call.call("hexa-ai-rag", "get-rag-status", {
+      let rag = await $call.call("hexa-ai-rag", "get-rag-status", {
         URLQuery: {},
         URLParams: {},
         Params: {},
@@ -612,13 +616,13 @@ All Rights Reserved
   });
 
   // async function addDocument() {
-  //   goto(await call.getPage("client-dashboard", "document-collection-create"));
+  //   goto(await $call.getPage("client-dashboard", "document-collection-create"));
   //   return;
   // }
 
   async function getDocumentCollectionDetail(id) {
     return (
-      `${await call.getPage("client-dashboard", "document-collection-list-document")}` +
+      `${await $call.getPage("client-dashboard", "document-collection-list-document")}` +
       "?collectionId=" +
       id
     );
@@ -626,7 +630,7 @@ All Rights Reserved
 
   async function askToAI(id) {
     return (
-      `${await call.getPage("client-dashboard", "document-collection-chat")}` +
+      `${await $call.getPage("client-dashboard", "document-collection-chat")}` +
       "?collectionId=" +
       id
     );

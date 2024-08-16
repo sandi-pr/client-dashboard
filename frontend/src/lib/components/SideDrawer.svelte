@@ -41,7 +41,7 @@ All Rights Reserved
     triggerSelectDropdown,
   } from "$lib";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let { innerWidth, changeShowAI } = $props();
 
@@ -86,7 +86,7 @@ All Rights Reserved
       let page = 1;
       initCollections = [];
       while (true) {
-        let response = await call.call("client-dashboard", "get-document-collections", {
+        let response = await $call.call("client-dashboard", "get-document-collections", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -113,7 +113,7 @@ All Rights Reserved
         let page2 = 1;
         documents = [];
         while (true) {
-          let response2 = await call.call("client-dashboard", "get-documents", {
+          let response2 = await $call.call("client-dashboard", "get-documents", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -157,7 +157,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     const callStatusRag = async () => {
       try {
-        let rag = await call.call("hexa-ai", "get-rag-status", {
+        let rag = await $call.call("hexa-ai", "get-rag-status", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -228,7 +228,7 @@ All Rights Reserved
   async function callColection() {
     let token = sessionStorage.getItem("token");
 
-    let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+    let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
       URLQuery: {},
       URLParams: {},
       Params: {

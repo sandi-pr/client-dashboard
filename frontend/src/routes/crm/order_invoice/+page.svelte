@@ -20,7 +20,7 @@ All Rights Reserved
   import PlusIcon from "$lib/icon/plus.svg";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let paginationOrders = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
   let paginationInvoices = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
@@ -54,7 +54,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-orders", {
+        let response = await $call.call("client-dashboard", "get-orders", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -86,7 +86,7 @@ All Rights Reserved
                   objects: [
                     {
                       href:
-                        `${await call.getPage("client-dashboard", "crm-order-invoice-order")}` +
+                        `${await $call.getPage("client-dashboard", "crm-order-invoice-order")}` +
                         "?orderId=" +
                         data.id,
                       name: "View",
@@ -111,7 +111,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token != null) {
-      let response = await call.call("client-dashboard", "get-invoices", {
+      let response = await $call.call("client-dashboard", "get-invoices", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -144,7 +144,7 @@ All Rights Reserved
                 objects: [
                   {
                     href:
-                      `${await call.getPage("client-dashboard", "crm-order-invoice-invoice")}` +
+                      `${await $call.getPage("client-dashboard", "crm-order-invoice-invoice")}` +
                       "?invoiceId=" +
                       data.id,
                     name: "View",
@@ -163,7 +163,7 @@ All Rights Reserved
   }
 
   async function addNew() {
-    goto(await call.getPage("client-dashboard", "crm-order-invoice-create"));
+    goto(await $call.getPage("client-dashboard", "crm-order-invoice-create"));
   }
 
   onMount(() => {

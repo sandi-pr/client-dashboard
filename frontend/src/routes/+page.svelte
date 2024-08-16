@@ -21,8 +21,8 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import LoadingContainer from "../lib/components/LoadingContainer.svelte";
+  import { call } from "$lib";
 
-  const call = new CR3Call(globalThis.location.origin);
   let userData = $state({ username: "", email: "", brand: "" });
 
   let isFirstTime = $state(true);
@@ -69,7 +69,7 @@ All Rights Reserved
 
   async function CheckSetup() {
     try {
-      var resp_setup = await call.call("client-login", "is-need-setup", {
+      var resp_setup = await $call.call("client-login", "is-need-setup", {
         URLQuery: {},
         URLParams: {},
         Params: {},
@@ -80,13 +80,13 @@ All Rights Reserved
         if (resp_setup.result.is_need_setup === true) {
           if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
           if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
-          await call.goToPage("hexapod-setup", "home-page");
+          await $call.goToPage("hexapod-setup", "home-page");
           return;
         }
       }
       var token = sessionStorage.getItem("token");
       if (token !== null) {
-        var resp = await call.call("client-login", "is-token-valid", {
+        var resp = await $call.call("client-login", "is-token-valid", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -102,7 +102,7 @@ All Rights Reserved
           }
         }
       } else {
-        await call.goToPage("client-login", "home-page");
+        await $call.goToPage("client-login", "home-page");
         return;
       }
     } catch (error) {
@@ -113,9 +113,9 @@ All Rights Reserved
 
   const navigateToPage = async (page) => {
     if (page === "bakrie-webchat") {
-      goto(await call.getPage("bakrie", "home-page"));
+      goto(await $call.getPage("bakrie", "home-page"));
     } else {
-      goto(await call.getPage("client-dashboard", page));
+      goto(await $call.getPage("client-dashboard", page));
     }
   };
 

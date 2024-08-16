@@ -30,7 +30,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { onMount, createEventDispatcher } from "svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
   let fileTextResult = $state(null);
   let base64Data = $state(null);
   let fileTextName = $state(null);
@@ -169,7 +169,7 @@ All Rights Reserved
       try {
         console.log(typeof data.phone);
         console.log(typeof data.phone.toString());
-        let response = await call.call("client-dashboard", "create-recruitment", {
+        let response = await $call.call("client-dashboard", "create-recruitment", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -201,7 +201,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("created");
           // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          goto(await $call.getPage("client-dashboard", "hr-recruitment"));
           // }, 3000);
         }
       } catch (error) {
@@ -220,7 +220,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-level", {
+        const response = await $call.call("client-dashboard", "get-job-level", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -246,7 +246,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-position", {
+        const response = await $call.call("client-dashboard", "get-job-position", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -316,7 +316,7 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async () => {
-              goto(await call.getPage("client-dashboard", "hr-recruitment"));
+              goto(await $call.getPage("client-dashboard", "hr-recruitment"));
             }}
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button

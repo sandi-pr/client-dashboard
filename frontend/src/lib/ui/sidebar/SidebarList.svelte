@@ -63,7 +63,7 @@
   let hrefUser = $state("");
   let hrefJobLevels = $state("");
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const sidebarBuilder = async () => {
     let moduleClient = await getModule();
@@ -90,12 +90,12 @@
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
 
-    hrefUser = isFrontend ? "/users" : await call.getPage("client-dashboard", "users");
+    hrefUser = isFrontend ? "/users" : await $call.getPage("client-dashboard", "users");
     hrefJobLevels = isFrontend
       ? "/job_management"
-      : await call.getPage("client-dashboard", "job-management");
+      : await $call.getPage("client-dashboard", "job-management");
 
-    let home = await call.getPage("client-dashboard", "home-page");
+    let home = await $call.getPage("client-dashboard", "home-page");
     sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
 
     // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
@@ -140,6 +140,7 @@
       {#each sidebarItems as item}
         {#if item.children.length > 0}
           <SidebarDropdownWrapper
+            onclick={() => (isOpen[item.name] = !isOpen[item.name])}
             bind:isOpen={isOpen[item.name]}
             spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
             btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -231,7 +232,7 @@
             </SidebarDropdownWrapper>
             <button
               onclick={async () => {
-                if (!isFrontend) goto(await call.getPage("client-dashboard", "settings"));
+                if (!isFrontend) goto(await $call.getPage("client-dashboard", "settings"));
                 else goto("/settings");
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"

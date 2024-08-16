@@ -23,7 +23,7 @@ All Rights Reserved
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
   import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let dropzoneActive = false;
   let onEdit = $state(true);
@@ -156,7 +156,7 @@ All Rights Reserved
     if (token !== null) {
       let response;
       if (files.length > 0) {
-        response = await call.call("client-dashboard", "create-document-collection", {
+        response = await $call.call("client-dashboard", "create-document-collection", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -169,7 +169,7 @@ All Rights Reserved
           },
         });
       } else {
-        response = await call.call("client-dashboard", "create-document-collection", {
+        response = await $call.call("client-dashboard", "create-document-collection", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -189,7 +189,7 @@ All Rights Reserved
 
       console.log(response);
 
-      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -207,7 +207,7 @@ All Rights Reserved
 
       console.log(response2);
 
-      goto(await call.getPage("client-dashboard", "document-collection"));
+      goto(await $call.getPage("client-dashboard", "document-collection"));
     }
   }
 </script>
@@ -231,7 +231,7 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              goto(await call.getPage("client-dashboard", "document-collection"));
+              goto(await $call.getPage("client-dashboard", "document-collection"));
               return;
             }}
             color="light"

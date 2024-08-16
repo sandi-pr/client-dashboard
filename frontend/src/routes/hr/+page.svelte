@@ -25,7 +25,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let { showAI = false } = $props();
 
@@ -99,21 +99,21 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "hr-attendance"),
+        href: await $call.getPage("client-dashboard", "hr-attendance"),
         // href: "/hr/employee/attendance",
         icon: UserPlusIcon,
         actionName: "Employee Attendance",
         desc: "desc Employee Attendance",
       },
       {
-        href: await call.getPage("client-dashboard", "hr-employee-create"),
+        href: await $call.getPage("client-dashboard", "hr-employee-create"),
         // href: "/hr/employee/create",
         icon: PackagePlusIcon,
         actionName: "Add New Employee",
         desc: "desc Add New Employee",
       },
       {
-        href: await call.getPage("client-dashboard", "hr-recruitment"),
+        href: await $call.getPage("client-dashboard", "hr-recruitment"),
         // href: "/hr/recruitment",
         icon: PackageSearchIcon,
         actionName: "Add New Recruitment",
@@ -366,7 +366,7 @@ All Rights Reserved
   async function getChartAction(totalEmployee, checkinEmployee, leaveEmployee) {
     chartAction = [
       {
-        href: await call.getPage("client-dashboard", "hr-employee"),
+        href: await $call.getPage("client-dashboard", "hr-employee"),
         // href: "hr/employee",
         dataName: "Total Employee",
         value: totalEmployee.total,
@@ -374,7 +374,7 @@ All Rights Reserved
         changeType: totalEmployee.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "hr-employee"),
+        href: await $call.getPage("client-dashboard", "hr-employee"),
         // href: "hr/employee",
         dataName: "Employee checked-in",
         value: checkinEmployee.total,
@@ -382,7 +382,7 @@ All Rights Reserved
         changeType: checkinEmployee.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "hr-employee"),
+        href: await $call.getPage("client-dashboard", "hr-employee"),
         // href: "hr/employee",
         dataName: "Employee leave",
         value: leaveEmployee.total,
@@ -396,15 +396,15 @@ All Rights Reserved
 
   async function viewAll(title) {
     if (title === "Attendance") {
-      let href = await call.getPage("client-dashboard", "hr-employee-attendance");
+      let href = await $call.getPage("client-dashboard", "hr-employee-attendance");
       globalThis.location.href = href;
       return;
     } else if (title === "Employee") {
-      let href = await call.getPage("client-dashboard", "hr-employee");
+      let href = await $call.getPage("client-dashboard", "hr-employee");
       globalThis.location.href = href;
       return;
     } else if (title === "Recruitment") {
-      let href = await call.getPage("client-dashboard", "hr-recruitment");
+      let href = await $call.getPage("client-dashboard", "hr-recruitment");
       globalThis.location.href = href;
     }
   }
@@ -432,7 +432,7 @@ All Rights Reserved
   async function getEmployee() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-employees", {
+      let response = await $call.call("client-dashboard", "get-employees", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -467,13 +467,13 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "hr-employee-detail")}` +
+                    `${await $call.getPage("client-dashboard", "hr-employee-detail")}` +
                     `?employeeId=${employee.id}&edit=false`,
                   name: "View",
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "hr-employee-detail")}` +
+                    `${await $call.getPage("client-dashboard", "hr-employee-detail")}` +
                     "?employeeId=" +
                     employee.id +
                     "&edit=true",
@@ -493,7 +493,7 @@ All Rights Reserved
   async function getAttendance() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-attendances", {
+      let response = await $call.call("client-dashboard", "get-attendances", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -532,7 +532,7 @@ All Rights Reserved
   async function getRecruitment() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-recruitments", {
+      let response = await $call.call("client-dashboard", "get-recruitments", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -566,13 +566,13 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "hr-recruitment-detail")}` +
+                    `${await $call.getPage("client-dashboard", "hr-recruitment-detail")}` +
                     `?recruitmentId=${recruitment.id}&edit=false`,
                   name: "View",
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "hr-recruitment-detail")}` +
+                    `${await $call.getPage("client-dashboard", "hr-recruitment-detail")}` +
                     "?recruitmentId=" +
                     recruitment.id +
                     "&edit=true",
@@ -599,7 +599,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
-        let response = await call.call("client-dashboard", "get-count-employee-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-employee-per-month", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -633,7 +633,7 @@ All Rights Reserved
       }
 
       for (let i = 0; i < 7; i++) {
-        let response = await call.call("client-dashboard", "get-count-employee-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-employee-per-month", {
           URLQuery: {},
           URLParams: {},
           Params: {

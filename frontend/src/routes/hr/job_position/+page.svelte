@@ -10,7 +10,7 @@
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let pagination = $state({ page: 1, pageSize: 5, pageCount: 1, total: 0 });
 
@@ -22,7 +22,7 @@
     // if (page > pagination.pageCount) return;
     // let token = sessionStorage.getItem("token");
     // if (token !== null) {
-    //   let response = await call.call("client-dashboard", "get-positions", {
+    //   let response = await $call.call("client-dashboard", "get-positions", {
     //     URLQuery: {},
     //     URLParams: {},
     //     Params: {
@@ -57,13 +57,13 @@
     //           objects: [
     //             {
     //               href:
-    //                 `${await call.getPage("client-dashboard", "hr-position-detail")}` +
+    //                 `${await $call.getPage("client-dashboard", "hr-position-detail")}` +
     //                 `?employeeId=${position.id}&edit=false`,
     //               name: "View",
     //             },
     //             {
     //               href:
-    //                 `${await call.getPage("client-dashboard", "hr-position-detail")}` +
+    //                 `${await $call.getPage("client-dashboard", "hr-position-detail")}` +
     //                 "?employeeId=" +
     //                 position.id +
     //                 "&edit=true",
@@ -162,7 +162,7 @@
   }
 
   async function addPosition() {
-    goto(await call.getPage("client-dashboard", "hr-position-create"));
+    goto(await $call.getPage("client-dashboard", "hr-position-create"));
     return;
   }
 

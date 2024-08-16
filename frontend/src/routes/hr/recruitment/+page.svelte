@@ -10,7 +10,7 @@
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
@@ -22,7 +22,7 @@
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-recruitments", {
+      let response = await $call.call("client-dashboard", "get-recruitments", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -56,13 +56,13 @@
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "hr-recruitment-detail")}` +
+                    `${await $call.getPage("client-dashboard", "hr-recruitment-detail")}` +
                     `?recruitmentId=${recruitment.id}&edit=false`,
                   name: "View",
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "hr-recruitment-detail")}` +
+                    `${await $call.getPage("client-dashboard", "hr-recruitment-detail")}` +
                     "?recruitmentId=" +
                     recruitment.id +
                     "&edit=true",
@@ -87,7 +87,7 @@
   }
 
   async function addRecruitment() {
-    goto(await call.getPage("client-dashboard", "hr-recruitment-create"));
+    goto(await $call.getPage("client-dashboard", "hr-recruitment-create"));
     return;
   }
 

@@ -21,7 +21,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { generateUniqueId } from "$lib";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("orderId");
@@ -56,7 +56,7 @@ All Rights Reserved
     if (orderId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-      goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+      goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
       // }, 3000);
       return;
     }
@@ -64,7 +64,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-order", {
+        let response = await $call.call("client-dashboard", "get-order", {
           URLQuery: {},
           URLParams: {
             id: orderId,
@@ -128,7 +128,7 @@ All Rights Reserved
   // async function updateOrder() {
   //   let token = sessionStorage.getItem("token");
   //   try {
-  //     let response = await call.call("client-dashboard", "update-order", {
+  //     let response = await $call.call("client-dashboard", "update-order", {
   //       URLQuery: {},
   //       URLParams: {
   //         id: orderId,
@@ -155,7 +155,7 @@ All Rights Reserved
   //     console.log("response", response);
 
   //     if (response.status === 200) {
-  //       goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+  //       goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
   //     }
   //   } catch (error) {
   //     console.log(error);
@@ -166,7 +166,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (invoiceId !== "" && invoiceId !== null && invoiceId !== undefined) {
       try {
-        let response = await call.call("client-dashboard", "delete-invoice", {
+        let response = await $call.call("client-dashboard", "delete-invoice", {
           URLQuery: {},
           URLParams: {
             id: invoiceId.toString(),
@@ -183,7 +183,7 @@ All Rights Reserved
         }
 
         if (response.status === 200) {
-          let response = await call.call("client-dashboard", "delete-order", {
+          let response = await $call.call("client-dashboard", "delete-order", {
             URLQuery: {},
             URLParams: {
               id: orderId,
@@ -197,7 +197,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("deleted");
             // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+            goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
             // }, 3000);
           }
         }
@@ -206,7 +206,7 @@ All Rights Reserved
         console.log(error);
       }
     } else {
-      let response = await call.call("client-dashboard", "delete-order", {
+      let response = await $call.call("client-dashboard", "delete-order", {
         URLQuery: {},
         URLParams: {
           id: orderId,
@@ -220,7 +220,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+        goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
         // }, 3000);
       }
     }
@@ -263,7 +263,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+                goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button

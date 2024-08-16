@@ -18,7 +18,7 @@
   import { CR3Call } from "hexacomponents-svelte";
   import { onMount, onDestroy } from "svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let dropdownIndustryOpen = $state(false);
   let documentViewModal = $state(false);
@@ -146,7 +146,7 @@
 
       for (let i = 0; i < files.length; i++) {
         if (files[i].id === 0) {
-          const response = await call.call("client-dashboard", "create-references-document", {
+          const response = await $call.call("client-dashboard", "create-references-document", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -172,7 +172,7 @@
 
           files[i].id = response.result.data[0].id;
 
-          // const response2 = await call.call("hexa-ai-contract-review", "storing-to-rag", {
+          // const response2 = await $call.call("hexa-ai-contract-review", "storing-to-rag", {
           //   URLQuery: {},
           //   URLParams: {},
           //   Params: {
@@ -199,7 +199,7 @@
           //   break;
           // }
 
-          // const response3 = await call.call("client-dashboard", "update-references-document", {
+          // const response3 = await $call.call("client-dashboard", "update-references-document", {
           //   URLQuery: {},
           //   URLParams: {
           //     id: files[i].id.toString(),
@@ -265,7 +265,7 @@
     if (tmpIdDeleted.length > 0) {
       for (let i = 0; i < tmpIdDeleted.length; i++) {
         if (tmpIdDeleted[i] !== 0) {
-          const response = await call.call("client-dashboard", "delete-references-document", {
+          const response = await $call.call("client-dashboard", "delete-references-document", {
             URLQuery: {},
             URLParams: {
               id: tmpIdDeleted[i].toString(),
@@ -334,7 +334,7 @@
       files = [];
 
       while (true) {
-        const response = await call.call("client-dashboard", "get-references-document", {
+        const response = await $call.call("client-dashboard", "get-references-document", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -391,7 +391,7 @@
       let page = 1;
       let tmpIndustries = [];
       while (true) {
-        const response = await call.call("client-dashboard", "get-industries", {
+        const response = await $call.call("client-dashboard", "get-industries", {
           URLQuery: {},
           URLParams: {},
           Params: {

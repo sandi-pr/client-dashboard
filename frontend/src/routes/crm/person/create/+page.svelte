@@ -21,7 +21,7 @@ All Rights Reserved
 
   import { CR3Call } from "hexacomponents-svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let data = $state({
     fullname: "",
@@ -60,7 +60,7 @@ All Rights Reserved
     console.log(data);
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "create-person", {
+      let response = await $call.call("client-dashboard", "create-person", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -83,7 +83,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("created");
         // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-person"));
+        goto(await $call.getPage("client-dashboard", "crm-person"));
         // }, 3000);
         return;
       } else {
@@ -97,7 +97,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    goto(await call.getPage("client-dashboard", "crm-person"));
+    goto(await $call.getPage("client-dashboard", "crm-person"));
     return;
   }
 

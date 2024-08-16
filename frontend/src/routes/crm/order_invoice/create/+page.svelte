@@ -17,7 +17,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   let onEdit = $state(true);
@@ -47,7 +47,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "create-order", {
+        let response = await $call.call("client-dashboard", "create-order", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -78,7 +78,7 @@ All Rights Reserved
             const invoice_date = currentDateTime.toISOString();
             const due_date = oneHourLater.toISOString();
             console.log("svelte", data.total_amount);
-            let response2 = await call.call("client-dashboard", "create-invoice", {
+            let response2 = await $call.call("client-dashboard", "create-invoice", {
               URLQuery: {},
               URLParams: {},
               Params: {
@@ -109,7 +109,7 @@ All Rights Reserved
             if (response2.status === 200) {
               triggerToast("created");
               // setTimeout(async () => {
-                goto(await call.getPage("client-dashboard", "crm-order-invoice"));
+              goto(await $call.getPage("client-dashboard", "crm-order-invoice"));
               // }, 3000);
             }
           }
@@ -129,7 +129,7 @@ All Rights Reserved
     if (token !== null) {
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-products", {
+        let response = await $call.call("client-dashboard", "get-products", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -170,7 +170,7 @@ All Rights Reserved
     if (token !== null) {
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-persons", {
+        let response = await $call.call("client-dashboard", "get-persons", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -256,7 +256,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "crm-categories"));
+                goto(await $call.getPage("client-dashboard", "crm-categories"));
                 return;
               }}
               color="light"

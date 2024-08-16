@@ -34,7 +34,7 @@ All Rights Reserved
   const params = new URLSearchParams(window.location.search);
   let collectionId = params.get("collectionId");
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let documentsReady = $state(false);
 
@@ -80,7 +80,7 @@ All Rights Reserved
   async function getDocuments(page) {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-documents-by-collectionid", {
+      let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -163,7 +163,7 @@ All Rights Reserved
           ],
         };
         let promises = response.result.data.map(async (document) => {
-          let link = await call.getPage("client-dashboard", "document-collection-detail");
+          let link = await $call.getPage("client-dashboard", "document-collection-detail");
           return {
             id: document.id,
             file_name: {
@@ -194,7 +194,7 @@ All Rights Reserved
                 },
                 // {
                 //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
-                //   // `${await call.getPage("client-dashboard", "document-collection-detail")}` +
+                //   // `${await $call.getPage("client-dashboard", "document-collection-detail")}` +
                 //   // "?documentId=" +
                 //   // document.id +
                 //   // "&collectionId=" +
@@ -222,7 +222,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-collection-by-id", {
+        let response = await $call.call("client-dashboard", "get-collection-by-id", {
           URLQuery: {},
           URLParams: {
             id: collectionId.toString(),
@@ -261,7 +261,7 @@ All Rights Reserved
       try {
         addDocumentsModal = false;
         triggerLoading(true);
-        let response = await call.call("client-dashboard", "create-document", {
+        let response = await $call.call("client-dashboard", "create-document", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -284,7 +284,7 @@ All Rights Reserved
 
         if (tmpDocumentType === "Handwriting") {
           for (let i = 0; i < files.length; i++) {
-            let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
+            let response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
               URLQuery: {},
               URLParams: {},
               Params: {
@@ -307,22 +307,26 @@ All Rights Reserved
             }
 
             if (response3?.result?.text !== null) {
-              const response4 = await call.call("client-dashboard", "update-document-handwriting", {
-                URLQuery: {},
-                URLParams: {
-                  id: response.result.data[i].id.toString(),
+              const response4 = await $call.call(
+                "client-dashboard",
+                "update-document-handwriting",
+                {
+                  URLQuery: {},
+                  URLParams: {
+                    id: response.result.data[i].id.toString(),
+                  },
+                  Params: {
+                    detected_text: response3.result.text,
+                    result_trocr: JSON.stringify(response3.result),
+                    edited: false,
+                    document_title: tmpDocumentTitle,
+                    description: tmpDocumentDescription,
+                  },
+                  Headers: {
+                    Authorization: "Bearer " + token,
+                  },
                 },
-                Params: {
-                  detected_text: response3.result.text,
-                  result_trocr: JSON.stringify(response3.result),
-                  edited: false,
-                  document_title: tmpDocumentTitle,
-                  description: tmpDocumentDescription,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
+              );
 
               if (response3.status !== 200) {
                 addDocumentsModal = true;
@@ -364,7 +368,7 @@ All Rights Reserved
       let ids = datasChecked.filter((data) => data.checked).map((data) => data.id);
       try {
         for (const id of ids) {
-          let response = await call.call("client-dashboard", "delete-document", {
+          let response = await $call.call("client-dashboard", "delete-document", {
             URLQuery: {},
             URLParams: {
               id: id.toString(),
@@ -528,7 +532,7 @@ All Rights Reserved
         trainingModelModal = false;
         triggerLoading(true);
         let token = sessionStorage.getItem("token");
-        const response = await call.call("hexa-ai-rag", "trocr-train", {
+        const response = await $call.call("hexa-ai-rag", "trocr-train", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -542,7 +546,7 @@ All Rights Reserved
 
         console.log(response);
         if (response.status === 200) {
-          const response2 = await call.call("client-dashboard", "update-model-trocr", {
+          const response2 = await $call.call("client-dashboard", "update-model-trocr", {
             URLQuery: {},
             URLParams: {},
             Params: {

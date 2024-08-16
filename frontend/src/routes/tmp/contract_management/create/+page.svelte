@@ -20,7 +20,7 @@ All Rights Reserved
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let dropzoneActive = false;
   let onEdit = $state(true);
@@ -161,7 +161,7 @@ All Rights Reserved
     if (token !== null) {
       if (data.document_type === "GENERAL") {
         try {
-          let response = await call.call("client-dashboard", "create-document", {
+          let response = await $call.call("client-dashboard", "create-document", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -190,7 +190,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("created");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-overview"));
+              goto(await $call.getPage("client-dashboard", "document-overview"));
             }, 3000);
           }
         } catch (error) {
@@ -199,7 +199,7 @@ All Rights Reserved
         }
       } else {
         try {
-          let response = await call.call("client-dashboard", "create-document", {
+          let response = await $call.call("client-dashboard", "create-document", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -228,7 +228,7 @@ All Rights Reserved
           if (response.status === 200) {
             triggerToast("created");
             setTimeout(async () => {
-              goto(await call.getPage("client-dashboard", "document-overview"));
+              goto(await $call.getPage("client-dashboard", "document-overview"));
             }, 3000);
           }
         } catch (error) {
@@ -245,7 +245,7 @@ All Rights Reserved
     if (token !== null) {
       let page = 1;
       while (true) {
-        let response = await call.call("client-dashboard", "get-persons", {
+        let response = await $call.call("client-dashboard", "get-persons", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -322,7 +322,7 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              goto(await call.getPage("client-dashboard", "document-management-list"));
+              goto(await $call.getPage("client-dashboard", "document-management-list"));
               return;
             }}
             color="light"

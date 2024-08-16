@@ -14,13 +14,21 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane, Splitpanes } from "svelte-splitpanes";
   import { Datepicker } from "flowbite-svelte";
-  import { Navbar, Sidebar, ToastContainer } from "$lib";
+  import {
+    Navbar,
+    Sidebar,
+    ToastContainer,
+    setCall,
+    callReady,
+    triggerShowAI,
+    showAI,
+    triggerReload,
+  } from "$lib";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
-  import { triggerShowAI, showAI, triggerReload } from "$lib";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import { goto } from "$app/navigation";
   // import { set_pdfjs_context } from '$lib/utils/vite.ts';
@@ -458,6 +466,8 @@ All Rights Reserved
       locale.set(localStorage.getItem("lang"));
     }
 
+    setCall(call);
+
     getModelsTrocr();
     getIndustryId();
 
@@ -487,7 +497,7 @@ All Rights Reserved
 
 {#if $isLoading}
   <!-- <LoadingSpinner /> -->
-{:else if winInnerWidth > 0}
+{:else if winInnerWidth > 0 && $callReady === true}
   {#if hideLayout()}
     <div class="lg:flex">
       <Sidebar
@@ -534,7 +544,7 @@ All Rights Reserved
   {:else}
     <slot />
   {/if}
-{/if}
+{:else}{/if}
 
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */

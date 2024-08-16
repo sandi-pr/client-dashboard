@@ -16,7 +16,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   let onEdit = $state(true);
@@ -39,7 +39,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "create-category", {
+        let response = await $call.call("client-dashboard", "create-category", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -55,7 +55,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("created");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "crm-categories"));
+          goto(await $call.getPage("client-dashboard", "crm-categories"));
           // }, 3000);
         }
       } catch (error) {
@@ -66,11 +66,8 @@ All Rights Reserved
   }
 
   $effect(() => {
-    buttonDisable =
-      data.category_name.length < 1 ||
-      data.description.length < 1;
+    buttonDisable = data.category_name.length < 1 || data.description.length < 1;
   });
-
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -93,14 +90,16 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "crm-categories"));
+                goto(await $call.getPage("client-dashboard", "crm-categories"));
                 return;
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button disabled={buttonDisable} onclick={createCategory} class="px-3 focus-within:!ring-1"
-              >{$_("create")}</Button
+            <Button
+              disabled={buttonDisable}
+              onclick={createCategory}
+              class="px-3 focus-within:!ring-1">{$_("create")}</Button
             >
           {/if}
         </div>

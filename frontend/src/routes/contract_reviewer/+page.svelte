@@ -30,7 +30,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { tr } from "date-fns/locale";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let files = $state([]);
   let actionItems = $state([]);
@@ -71,7 +71,7 @@ All Rights Reserved
         desc: "desc Add new project",
       },
       {
-        href: await call.getPage("client-dashboard", "contract-case"),
+        href: await $call.getPage("client-dashboard", "contract-case"),
         icon: "bookOpen",
         actionName: "Manage cases",
         desc: "desc Set your referenced document",
@@ -83,7 +83,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-company-type", {
+        const response = await $call.call("client-dashboard", "get-company-type", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -117,7 +117,7 @@ All Rights Reserved
     }
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "create-contract-project", {
+        const response = await $call.call("client-dashboard", "create-contract-project", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -164,7 +164,7 @@ All Rights Reserved
       let page = 1;
       try {
         while (true) {
-          const response = await call.call("client-dashboard", "get-contract-rules", {
+          const response = await $call.call("client-dashboard", "get-contract-rules", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -211,7 +211,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-contract-projects", {
+        const response = await $call.call("client-dashboard", "get-contract-projects", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -229,13 +229,13 @@ All Rights Reserved
             actions: [
               {
                 name: "viewAll",
-                href: await call.getPage("client-dashboard", "contract-project-list"),
+                href: await $call.getPage("client-dashboard", "contract-project-list"),
                 type: "info",
               },
             ],
             seperator: true,
           };
-          let url = await call.getPage("client-dashboard", "contract-project-detail");
+          let url = await $call.getPage("client-dashboard", "contract-project-detail");
           let promise = response.result.data.map((project) => {
             return {
               id: project.id,

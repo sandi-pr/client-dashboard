@@ -20,7 +20,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { triggerToast } from "$lib";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const userId = params.get("userId");
@@ -60,7 +60,7 @@ All Rights Reserved
   async function getUser() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "get-user", {
+      let response = await $call.call("client-dashboard", "get-user", {
         URLQuery: {},
         URLParams: { id: userId },
         Params: {},
@@ -97,7 +97,7 @@ All Rights Reserved
     try {
       let response;
       if (data.password === "") {
-        response = await call.call("client-dashboard", "update-user", {
+        response = await $call.call("client-dashboard", "update-user", {
           URLQuery: {},
           URLParams: { id: userId },
           Params: {
@@ -114,7 +114,7 @@ All Rights Reserved
           },
         });
       } else {
-        response = await call.call("client-dashboard", "update-user", {
+        response = await $call.call("client-dashboard", "update-user", {
           URLQuery: {},
           URLParams: { id: userId },
           Params: {
@@ -138,7 +138,7 @@ All Rights Reserved
         return;
       }
 
-      goto(await call.getPage("client-dashboard", "users"));
+      goto(await $call.getPage("client-dashboard", "users"));
     } catch (error) {
       console.log(error);
     }
@@ -147,7 +147,7 @@ All Rights Reserved
   async function deleteUser() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "delete-user", {
+      let response = await $call.call("client-dashboard", "delete-user", {
         URLQuery: {},
         URLParams: { id: userId },
         Params: {},
@@ -162,7 +162,7 @@ All Rights Reserved
       }
 
       triggerToast("deleted");
-      goto(await call.getPage("client-dashboard", "users"));
+      goto(await $call.getPage("client-dashboard", "users"));
     } catch (error) {
       console.log(error);
     }
@@ -208,7 +208,7 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "users"));
+                goto(await $call.getPage("client-dashboard", "users"));
                 return;
               }}
               color="light"

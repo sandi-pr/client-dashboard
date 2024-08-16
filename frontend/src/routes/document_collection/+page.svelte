@@ -41,7 +41,7 @@ All Rights Reserved
   } from "$lib";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let { showAI = false } = $props();
 
@@ -78,7 +78,7 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "document-collection-create"),
+        href: await $call.getPage("client-dashboard", "document-collection-create"),
         icon: "filePlus",
         actionName: "Add new document collection",
         desc: "desc Add new document collection",
@@ -308,21 +308,21 @@ All Rights Reserved
   async function getChartAction(totalCollections, readyCollection, dataCollecting) {
     chartAction = [
       {
-        href: await call.getPage("client-dashboard", "document-collection"),
+        href: await $call.getPage("client-dashboard", "document-collection"),
         dataName: "Total Documents",
         value: totalCollections.total,
         change: totalCollections.change,
         changeType: totalCollections.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-collection"),
+        href: await $call.getPage("client-dashboard", "document-collection"),
         dataName: "Document Collection",
         value: readyCollection.total,
         change: readyCollection.change,
         changeType: readyCollection.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-collection"),
+        href: await $call.getPage("client-dashboard", "document-collection"),
         dataName: "Collecting Data",
         value: dataCollecting.total,
         change: dataCollecting.change,
@@ -336,7 +336,7 @@ All Rights Reserved
   let latestDocumentCollection = $state([]);
 
   async function viewAll() {
-    goto(await call.getPage("client-dashboard", "document-collection"));
+    goto(await $call.getPage("client-dashboard", "document-collection"));
   }
 
   async function createCollection() {
@@ -344,7 +344,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
-      let response = await call.call("client-dashboard", "create-document-collection", {
+      let response = await $call.call("client-dashboard", "create-document-collection", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -364,7 +364,7 @@ All Rights Reserved
 
       console.log(response);
 
-      let response2 = await call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -390,7 +390,7 @@ All Rights Reserved
 
       addCollectionsModal = false;
       getCollections();
-      // goto(await call.getPage("client-dashboard", "document-collection"));
+      // goto(await $call.getPage("client-dashboard", "document-collection"));
     }
   }
 
@@ -400,7 +400,7 @@ All Rights Reserved
     if (token !== null) {
       collections = [];
       documents = [];
-      let response = await call.call("client-dashboard", "get-document-collections", {
+      let response = await $call.call("client-dashboard", "get-document-collections", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -423,7 +423,7 @@ All Rights Reserved
 
       // let page2 = 1;
       // while (true) {
-      //   let response2 = await call.call("client-dashboard", "get-documents", {
+      //   let response2 = await $call.call("client-dashboard", "get-documents", {
       //     URLQuery: {},
       //     URLParams: {},
       //     Params: {
@@ -451,7 +451,7 @@ All Rights Reserved
       for (const collection of collections) {
         let page = 1;
         while (true) {
-          let response3 = await call.call("client-dashboard", "get-documents-by-collectionid", {
+          let response3 = await $call.call("client-dashboard", "get-documents-by-collectionid", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -478,7 +478,7 @@ All Rights Reserved
         }
       }
 
-      let collectionList = await call.getPage(
+      let collectionList = await $call.getPage(
         "client-dashboard",
         "document-collection-list-document",
       );
@@ -533,7 +533,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "update-document-collection", {
+        let response = await $call.call("client-dashboard", "update-document-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -574,7 +574,7 @@ All Rights Reserved
       try {
         for (const document of documents) {
           if (document.attributes.collection_id === tmpCollectionId) {
-            let response = await call.call("client-dashboard", "delete-document", {
+            let response = await $call.call("client-dashboard", "delete-document", {
               URLQuery: {},
               URLParams: {
                 id: document.id.toString(),
@@ -591,7 +591,7 @@ All Rights Reserved
             }
           }
         }
-        let response2 = await call.call("client-dashboard", "delete-document-collection", {
+        let response2 = await $call.call("client-dashboard", "delete-document-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -632,7 +632,7 @@ All Rights Reserved
     if (token !== null) {
       try {
         triggerLoading(true);
-        let response = await call.call("client-dashboard", "create-document", {
+        let response = await $call.call("client-dashboard", "create-document", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -656,7 +656,7 @@ All Rights Reserved
 
         if (tmpDocumentType === "Handwriting") {
           for (let i = 0; i < files.length; i++) {
-            let response3 = await call.call("hexa-ai-rag", "trocr-predict", {
+            let response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
               URLQuery: {},
               URLParams: {},
               Params: {
@@ -678,22 +678,26 @@ All Rights Reserved
             console.log("trocr-predict", response3);
 
             if (response3?.result?.text !== null) {
-              const response4 = await call.call("client-dashboard", "update-document-handwriting", {
-                URLQuery: {},
-                URLParams: {
-                  id: response.result.data[i].id.toString(),
+              const response4 = await $call.call(
+                "client-dashboard",
+                "update-document-handwriting",
+                {
+                  URLQuery: {},
+                  URLParams: {
+                    id: response.result.data[i].id.toString(),
+                  },
+                  Params: {
+                    detected_text: response3.result.text,
+                    result_trocr: JSON.stringify(response3.result),
+                    edited: false,
+                    document_title: tmpDocumentTitle,
+                    description: tmpDocumentDescription,
+                  },
+                  Headers: {
+                    Authorization: "Bearer " + token,
+                  },
                 },
-                Params: {
-                  detected_text: response3.result.text,
-                  result_trocr: JSON.stringify(response3.result),
-                  edited: false,
-                  document_title: tmpDocumentTitle,
-                  description: tmpDocumentDescription,
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
+              );
 
               if (response4.status !== 200) {
                 triggerToast("error");
@@ -801,7 +805,7 @@ All Rights Reserved
 
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
-        let response = await call.call("client-dashboard", "get-count-documents-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-documents-per-month", {
           URLQuery: {},
           URLParams: {},
           Params: {

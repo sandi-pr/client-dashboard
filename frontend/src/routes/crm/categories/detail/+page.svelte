@@ -21,7 +21,7 @@ All Rights Reserved
   import { generateUniqueId } from "$lib";
   import { formatDistanceToNow } from "date-fns";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const catergoryId = params.get("catergoryId");
@@ -42,13 +42,13 @@ All Rights Reserved
     if (catergoryId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-      goto(await call.getPage("client-dashboard", "crm-categories"));
+      goto(await $call.getPage("client-dashboard", "crm-categories"));
       // }, 3000);
       return;
     }
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-category", {
+      let response = await $call.call("client-dashboard", "get-category", {
         URLQuery: {},
         URLParams: {
           id: catergoryId,
@@ -78,7 +78,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "update-category", {
+        let response = await $call.call("client-dashboard", "update-category", {
           URLQuery: {},
           URLParams: {
             id: catergoryId,
@@ -95,7 +95,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("updated");
           // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-categories"));
+          goto(await $call.getPage("client-dashboard", "crm-categories"));
           // }, 3000);
         }
       } catch (error) {
@@ -107,7 +107,7 @@ All Rights Reserved
   async function deleteCategory() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "delete-category", {
+      let response = await $call.call("client-dashboard", "delete-category", {
         URLQuery: {},
         URLParams: {
           id: catergoryId,
@@ -120,7 +120,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-categories"));
+        goto(await $call.getPage("client-dashboard", "crm-categories"));
         // }, 3000);
       }
     } catch (error) {
@@ -177,7 +177,7 @@ All Rights Reserved
           {:else}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "crm-categories"));
+                goto(await $call.getPage("client-dashboard", "crm-categories"));
                 return;
               }}
               color="light"

@@ -37,7 +37,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { generateUniqueId } from "$lib";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const recruitmentId = params.get("recruitmentId");
@@ -109,7 +109,7 @@ All Rights Reserved
   async function getRecruitment() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-recruitment", {
+      let response = await $call.call("client-dashboard", "get-recruitment", {
         URLQuery: {},
         URLParams: {
           id: recruitmentId,
@@ -164,7 +164,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (recruitmentId !== "" && recruitmentId !== null && recruitmentId !== undefined) {
       try {
-        let response = await call.call("client-dashboard", "update-recruitment", {
+        let response = await $call.call("client-dashboard", "update-recruitment", {
           URLQuery: {},
           URLParams: {
             id: recruitmentId.toString(),
@@ -187,7 +187,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("updated");
           // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          goto(await $call.getPage("client-dashboard", "hr-recruitment"));
           // }, 3000);
           return;
         } else {
@@ -206,7 +206,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (recruitmentId !== "" && recruitmentId !== null && recruitmentId !== undefined) {
       try {
-        let response = await call.call("client-dashboard", "delete-recruitment", {
+        let response = await $call.call("client-dashboard", "delete-recruitment", {
           URLQuery: {},
           URLParams: {
             id: recruitmentId.toString(),
@@ -218,7 +218,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("deleted");
           // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "hr-recruitment"));
+          goto(await $call.getPage("client-dashboard", "hr-recruitment"));
           // }, 3000);
           return;
         } else {
@@ -274,7 +274,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-level", {
+        const response = await $call.call("client-dashboard", "get-job-level", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -300,7 +300,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-position", {
+        const response = await $call.call("client-dashboard", "get-job-position", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -393,7 +393,7 @@ All Rights Reserved
           {:else}
             <Button
               onclick={async function () {
-                goto(await call.getPage("client-dashboard", "hr-recruitment"));
+                goto(await $call.getPage("client-dashboard", "hr-recruitment"));
                 return;
               }}
               color="light"

@@ -20,7 +20,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let personsLatest = [];
   let documentsReady = $state(false);
@@ -64,7 +64,7 @@ All Rights Reserved
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-products", {
+      let response = await $call.call("client-dashboard", "get-products", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -99,7 +99,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
+                    `${await $call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
                     product.id +
                     "&edit=" +
@@ -108,7 +108,7 @@ All Rights Reserved
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
+                    `${await $call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
                     product.id +
                     "&edit=" +
@@ -127,7 +127,7 @@ All Rights Reserved
   }
 
   async function addProduct() {
-    goto(await call.getPage("client-dashboard", "crm-product-service-create"));
+    goto(await $call.getPage("client-dashboard", "crm-product-service-create"));
     return;
   }
 

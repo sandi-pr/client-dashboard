@@ -22,7 +22,7 @@ All Rights Reserved
 
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let documentsReady = $state(false);
 
@@ -35,7 +35,7 @@ All Rights Reserved
   async function getDocuments(page) {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-documents", {
+      let response = await $call.call("client-dashboard", "get-documents", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -71,7 +71,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                    `${await $call.getPage("client-dashboard", "document-management-detail")}` +
                     "?documentId=" +
                     document.id +
                     "&edit=false",
@@ -79,7 +79,7 @@ All Rights Reserved
                 },
                 // {
                 //   href:
-                //     `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                //     `${await $call.getPage("client-dashboard", "document-management-detail")}` +
                 //     "?documentId=" +
                 //     document.id +
                 //     "&edit=true",
@@ -109,7 +109,7 @@ All Rights Reserved
   });
 
   async function addDocument() {
-    goto(await call.getPage("client-dashboard", "document-management-create"));
+    goto(await $call.getPage("client-dashboard", "document-management-create"));
     return;
   }
 </script>

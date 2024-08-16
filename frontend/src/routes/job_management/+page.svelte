@@ -24,7 +24,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let tmpIdPosition = $state("");
   let tmpJobLevel = $state("");
@@ -98,7 +98,7 @@ All Rights Reserved
       let token = sessionStorage.getItem("token");
       if (token) {
         try {
-          const response = await call.call("client-dashboard", "create-job-level", {
+          const response = await $call.call("client-dashboard", "create-job-level", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -126,7 +126,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-level", {
+        const response = await $call.call("client-dashboard", "get-job-level", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -149,7 +149,7 @@ All Rights Reserved
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-job-position", {
+      let response = await $call.call("client-dashboard", "get-job-position", {
         URLQuery: {},
         URLParams: {},
         Params: {},
@@ -207,7 +207,7 @@ All Rights Reserved
     if (token) {
       datas.push({ id: Date.now(), job_position: tmpJobPosition, job_level: selectedJobLevel });
       try {
-        const response = await call.call("client-dashboard", "save-job-position", {
+        const response = await $call.call("client-dashboard", "save-job-position", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -248,7 +248,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "save-job-position", {
+        const response = await $call.call("client-dashboard", "save-job-position", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -280,7 +280,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "save-job-position", {
+        const response = await $call.call("client-dashboard", "save-job-position", {
           URLQuery: {},
           URLParams: {},
           Params: {

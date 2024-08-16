@@ -23,7 +23,7 @@ All Rights Reserved
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let { showAI = false } = $props();
 
@@ -49,7 +49,7 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "document-management-create"),
+        href: await $call.getPage("client-dashboard", "document-management-create"),
         icon: UserPlusIcon,
         actionName: "Add new document",
         desc: "desc Add new document",
@@ -279,21 +279,21 @@ All Rights Reserved
   async function getChartAction(totalPersons, activePersons, inactivePersons) {
     chartAction = [
       {
-        href: await call.getPage("client-dashboard", "document-management-list"),
+        href: await $call.getPage("client-dashboard", "document-management-list"),
         dataName: "Total Documents",
         value: totalPersons.total,
         change: totalPersons.change,
         changeType: totalPersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-management-list"),
+        href: await $call.getPage("client-dashboard", "document-management-list"),
         dataName: "General Documents",
         value: activePersons.total,
         change: activePersons.change,
         changeType: activePersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "document-management-list"),
+        href: await $call.getPage("client-dashboard", "document-management-list"),
         dataName: "Contract Documents",
         value: inactivePersons.total,
         change: inactivePersons.change,
@@ -305,13 +305,13 @@ All Rights Reserved
   let latestDocuments = $state([]);
 
   async function viewAll() {
-    goto(await call.getPage("client-dashboard", "document-management-list"));
+    goto(await $call.getPage("client-dashboard", "document-management-list"));
   }
 
   async function getDocumentLatest() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-documents", {
+      let response = await $call.call("client-dashboard", "get-documents", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -345,7 +345,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "document-management-detail")}` +
+                    `${await $call.getPage("client-dashboard", "document-management-detail")}` +
                     "?documentId=" +
                     document.id +
                     "&edit=false",
@@ -365,7 +365,6 @@ All Rights Reserved
             break;
           }
         }
-        
       }
     }
   }
@@ -377,7 +376,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
-        let response = await call.call("client-dashboard", "get-count-documents-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-documents-per-month", {
           URLQuery: {},
           URLParams: {},
           Params: {

@@ -21,7 +21,7 @@ All Rights Reserved
     Helper,
     Alert,
   } from "flowbite-svelte";
-  import { InfoCircleSolid } from 'flowbite-svelte-icons';
+  import { InfoCircleSolid } from "flowbite-svelte-icons";
   import { ToastContainer, triggerToast } from "$lib";
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";
@@ -30,7 +30,7 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let onEdit = $state(true);
   let uploadedImage = $state(null);
@@ -136,7 +136,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "create-product", {
+        let response = await $call.call("client-dashboard", "create-product", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -163,7 +163,7 @@ All Rights Reserved
               if (resources[i].resource_name === "" || resources[i].description === "") {
                 continue;
               } else {
-                let response2 = await call.call("client-dashboard", "create-resource", {
+                let response2 = await $call.call("client-dashboard", "create-resource", {
                   URLQuery: {},
                   URLParams: {},
                   Params: {
@@ -189,7 +189,7 @@ All Rights Reserved
           }
           triggerToast("created");
           // setTimeout(async () => {
-            goto(await call.getPage("client-dashboard", "crm-product-service"));
+          goto(await $call.getPage("client-dashboard", "crm-product-service"));
           // }, 3000);
           return;
         } else {
@@ -207,7 +207,7 @@ All Rights Reserved
   async function getCategories() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-categories", {
+      let response = await $call.call("client-dashboard", "get-categories", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -244,12 +244,12 @@ All Rights Reserved
   });
 
   async function addCategory() {
-    goto(await call.getPage("client-dashboard", "crm-category-create"));
+    goto(await $call.getPage("client-dashboard", "crm-category-create"));
     return;
   }
 
   onMount(async () => {
-    getCategories();;
+    getCategories();
   });
 
   // let dropdownOpen = false;
@@ -274,7 +274,7 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              goto(await call.getPage("client-dashboard", "crm-product-service"));
+              goto(await $call.getPage("client-dashboard", "crm-product-service"));
               return;
             }}
             color="light"
@@ -363,11 +363,15 @@ All Rights Reserved
                     class="bg-primary-light dark:bg-secondary-dark"
                   />
                   {#if categories.length === 0}
-                  <Alert color="red">
-                    <InfoCircleSolid slot="icon" class="w-5 h-5" />
-                    {$_("pleaseAddCategoryFirst")}
-                    <button onclick={addCategory} class="font-semibold underline hover:text-red-800 dark:hover:text-red-900">{$_("inHere")}</button>
-                  </Alert>
+                    <Alert color="red">
+                      <InfoCircleSolid slot="icon" class="w-5 h-5" />
+                      {$_("pleaseAddCategoryFirst")}
+                      <button
+                        onclick={addCategory}
+                        class="font-semibold underline hover:text-red-800 dark:hover:text-red-900"
+                        >{$_("inHere")}</button
+                      >
+                    </Alert>
                     <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
                   {/if}
                   <!-- <Input

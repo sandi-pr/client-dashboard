@@ -33,7 +33,7 @@ All Rights Reserved
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let ruleId = $state(null);
   let addRulesSectionsModal = $state(false);
@@ -93,7 +93,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-collection-by-name", {
+        let response = await $call.call("client-dashboard", "get-collection-by-name", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -109,7 +109,7 @@ All Rights Reserved
         }
 
         if (response.result.data.length === 0) {
-          let response2 = await call.call("client-dashboard", "create-document-collection", {
+          let response2 = await $call.call("client-dashboard", "create-document-collection", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -142,7 +142,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-contract-rule", {
+        const response = await $call.call("client-dashboard", "get-contract-rule", {
           URLQuery: {},
           URLParams: {
             id: ruleId.toString(),
@@ -169,7 +169,7 @@ All Rights Reserved
         let page = 1;
 
         while (true) {
-          const response2 = await call.call("client-dashboard", "get-contract-rule-section", {
+          const response2 = await $call.call("client-dashboard", "get-contract-rule-section", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -239,7 +239,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "create-contract-rule-section", {
+        const response = await $call.call("client-dashboard", "create-contract-rule-section", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -277,7 +277,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "delete-contract-rule-section", {
+        const response = await $call.call("client-dashboard", "delete-contract-rule-section", {
           URLQuery: {},
           URLParams: {
             id: tmpSectionId.toString(),
@@ -312,7 +312,7 @@ All Rights Reserved
     let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "update-contract-rule-section", {
+        const response = await $call.call("client-dashboard", "update-contract-rule-section", {
           URLQuery: {},
           URLParams: {
             id: tmpSection.id.toString(),
@@ -358,7 +358,7 @@ All Rights Reserved
       files = [];
 
       while (true) {
-        const response = await call.call("client-dashboard", "get-references-document", {
+        const response = await $call.call("client-dashboard", "get-references-document", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -452,7 +452,7 @@ All Rights Reserved
     try {
       tmpFile.type = tmpDocumentName;
 
-      const response = await call.call("client-dashboard", "create-references-document", {
+      const response = await $call.call("client-dashboard", "create-references-document", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -478,7 +478,7 @@ All Rights Reserved
       tmpFile.description = "Document reference " + datas.title;
       tmpFile.contract = "REFERENCE";
 
-      let response2 = await call.call("client-dashboard", "create-document", {
+      let response2 = await $call.call("client-dashboard", "create-document", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -515,7 +515,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (tmpId !== 0) {
-      const response = await call.call("client-dashboard", "delete-references-document", {
+      const response = await $call.call("client-dashboard", "delete-references-document", {
         URLQuery: {},
         URLParams: {
           id: tmpId.toString(),
@@ -532,7 +532,7 @@ All Rights Reserved
         deleteModal = true;
       }
 
-      const response2 = await call.call(
+      const response2 = await $call.call(
         "client-dashboard",
         "delete-document-collection-by-contract",
         {
@@ -564,7 +564,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "delete-rules", {
+        const response = await $call.call("client-dashboard", "delete-rules", {
           URLQuery: {},
           URLParams: {
             id: ruleId.toString(),
@@ -580,7 +580,7 @@ All Rights Reserved
         }
 
         triggerToast("deleted");
-        goto(await call.getPage("client-dashboard", "contract-case"));
+        goto(await $call.getPage("client-dashboard", "contract-case"));
       } catch (error) {
         console.log(error);
       }
@@ -598,7 +598,7 @@ All Rights Reserved
         triggerToast("error");
         setTimeout(async () => {
           triggerLoading(false);
-          goto(await call.getPage("client-dashboard", "contract-case"));
+          goto(await $call.getPage("client-dashboard", "contract-case"));
         }, 2000);
       }
     });

@@ -23,7 +23,7 @@ All Rights Reserved
 
   import { CR3Call } from "hexacomponents-svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let data = $state({
     employee_name: "",
@@ -68,7 +68,7 @@ All Rights Reserved
     console.log(data);
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "create-employee", {
+      let response = await $call.call("client-dashboard", "create-employee", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -98,7 +98,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("created");
         // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "hr-employee"));
+        goto(await $call.getPage("client-dashboard", "hr-employee"));
         // }, 3000);
         return;
       } else {
@@ -112,7 +112,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    goto(await call.getPage("client-dashboard", "hr-employee"));
+    goto(await $call.getPage("client-dashboard", "hr-employee"));
     return;
   }
 
@@ -120,7 +120,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-level", {
+        const response = await $call.call("client-dashboard", "get-job-level", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -146,7 +146,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-position", {
+        const response = await $call.call("client-dashboard", "get-job-position", {
           URLQuery: {},
           URLParams: {},
           Params: {},

@@ -21,7 +21,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let ready = $state(false);
 
@@ -44,7 +44,7 @@ All Rights Reserved
   async function createIndustry() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "create-industry", {
+      let response = await $call.call("client-dashboard", "create-industry", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -70,7 +70,7 @@ All Rights Reserved
   async function getIndustries() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-industries", {
+      let response = await $call.call("client-dashboard", "get-industries", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -131,7 +131,7 @@ All Rights Reserved
   async function deleteIndustry() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "delete-industry", {
+      let response = await $call.call("client-dashboard", "delete-industry", {
         URLQuery: {},
         URLParams: {
           id: tmpIndustryId.toString(),
@@ -157,7 +157,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
-      let response = await call.call("client-dashboard", "update-industry", {
+      let response = await $call.call("client-dashboard", "update-industry", {
         URLQuery: {},
         URLParams: {
           id: tmpIndustryId.toString(),

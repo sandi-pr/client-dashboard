@@ -22,7 +22,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let projectId;
   let projectDocumentId;
@@ -154,7 +154,7 @@
 
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await call.call("client-dashboard", "create-document-project", {
+      const response = await $call.call("client-dashboard", "create-document-project", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -180,7 +180,7 @@
       file.description = "Document project " + projectName;
       file.contract = "PROJECT";
 
-      let response3 = await call.call("client-dashboard", "create-document", {
+      let response3 = await $call.call("client-dashboard", "create-document", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -212,7 +212,7 @@
       setTimeout(async () => {
         triggerLoading(false);
         goto(
-          (await call.getPage("client-dashboard", "contract-project-detail")) +
+          (await $call.getPage("client-dashboard", "contract-project-detail")) +
             "?projectId=" +
             projectId,
         );
@@ -224,7 +224,7 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call(
+        const response = await $call.call(
           "client-dashboard",
           "get-contract-project-with-document-id",
           {
@@ -268,7 +268,7 @@
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        const response = await call.call("client-dashboard", "get-contract-project", {
+        const response = await $call.call("client-dashboard", "get-contract-project", {
           URLQuery: {},
           URLParams: {
             id: id.toString(),
@@ -287,7 +287,7 @@
 
         projectName = response.result.data[0].attributes.project_name;
 
-        let response2 = await call.call("client-dashboard", "get-collection-by-name", {
+        let response2 = await $call.call("client-dashboard", "get-collection-by-name", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -304,7 +304,7 @@
         }
 
         if (response2.result.data.length === 0) {
-          let response3 = await call.call("client-dashboard", "create-document-collection", {
+          let response3 = await $call.call("client-dashboard", "create-document-collection", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -348,7 +348,7 @@
         getDocument(projectDocumentId);
       } else {
         triggerToast("error");
-        goto(await call.getPage("client-dashboard", "contract-project-list"));
+        goto(await $call.getPage("client-dashboard", "contract-project-list"));
       }
     });
     onDestroy(() => unsubscribe());
@@ -372,7 +372,7 @@
           color="light"
           on:click={async () => {
             goto(
-              (await call.getPage("client-dashboard", "contract-project-detail")) +
+              (await $call.getPage("client-dashboard", "contract-project-detail")) +
                 "?projectId=" +
                 projectId,
             );
@@ -471,7 +471,7 @@
         outline
         on:click={async () => {
           goto(
-            (await call.getPage("client-dashboard", "contract-project-detail")) +
+            (await $call.getPage("client-dashboard", "contract-project-detail")) +
               "?projectId=" +
               projectId,
           );

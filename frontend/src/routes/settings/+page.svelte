@@ -29,7 +29,7 @@
   import { datas, informationFormDatas, configs } from "./dummy";
   import { CR3Call } from "hexacomponents-svelte";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let screenWidth;
   let user = informationFormDatas;
@@ -226,7 +226,7 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       let me = JSON.parse(sessionStorage.getItem("user"));
-      const response = await call.call("client-dashboard", "update-photo-user", {
+      const response = await $call.call("client-dashboard", "update-photo-user", {
         URLQuery: {},
         URLParams: {
           id: me.id.toString(),
@@ -253,7 +253,7 @@
 
   const currentPasswordCheck = async () => {
     let me = JSON.parse(sessionStorage.getItem("user"));
-    var resp = await call.call("client-login", "login", {
+    var resp = await $call.call("client-login", "login", {
       URLQuery: {},
       URLParams: {},
       Params: {
@@ -323,7 +323,7 @@
 
     let me = JSON.parse(sessionStorage.getItem("user"));
     let token = sessionStorage.getItem("token");
-    var resp = await call.call("client-dashboard", "update-user", {
+    var resp = await $call.call("client-dashboard", "update-user", {
       URLQuery: {},
       URLParams: {
         id: me.id.toString(),
@@ -357,7 +357,7 @@
   async function getCompanyType() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await call.call("client-dashboard", "get-company-type", {
+      const response = await $call.call("client-dashboard", "get-company-type", {
         URLQuery: {},
         URLParams: {},
         Params: {},
@@ -379,7 +379,7 @@
   async function updateCompanyType() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await call.call("client-dashboard", "update-company-type", {
+      const response = await $call.call("client-dashboard", "update-company-type", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -402,7 +402,7 @@
   }
 
   async function getModels() {
-    const response = await call.call("hexa-ai-rag", "trocr-get-models", {
+    const response = await $call.call("hexa-ai-rag", "trocr-get-models", {
       URLQuery: {},
       URLParams: {},
       Params: {},
@@ -429,7 +429,7 @@
   async function updateModelTrocr() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await call.call("client-dashboard", "update-model-trocr", {
+      const response = await $call.call("client-dashboard", "update-model-trocr", {
         URLQuery: {},
         URLParams: {},
         Params: {

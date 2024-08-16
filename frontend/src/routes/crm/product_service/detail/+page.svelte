@@ -25,7 +25,7 @@ All Rights Reserved
   import { generateUniqueId, decodeUniqueId } from "$lib";
   import { formatDistanceToNow } from "date-fns";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const productId = params.get("productId");
@@ -87,7 +87,7 @@ All Rights Reserved
       console.log(id);
       try {
         let token = sessionStorage.getItem("token");
-        let response = await call.call("client-dashboard", "delete-resource", {
+        let response = await $call.call("client-dashboard", "delete-resource", {
           URLQuery: {},
           URLParams: { id: decodeUniqueId(id).toString() },
           Params: {},
@@ -144,13 +144,13 @@ All Rights Reserved
     if (productId === null) {
       triggerToast("error");
       // setTimeout(async () => {
-      goto(await call.getPage("client-dashboard", "crm-product-service"));
+      goto(await $call.getPage("client-dashboard", "crm-product-service"));
       // }, 3000);
       return;
     }
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "get-product", {
+      let response = await $call.call("client-dashboard", "get-product", {
         URLQuery: {},
         URLParams: { id: productId },
         Params: {},
@@ -210,7 +210,7 @@ All Rights Reserved
     try {
       let response;
       if (tabDatas.selected === "Information") {
-        response = await call.call("client-dashboard", "update-product", {
+        response = await $call.call("client-dashboard", "update-product", {
           URLQuery: {},
           URLParams: { id: productId },
           Params: {
@@ -233,14 +233,14 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("updated");
           // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-product-service"));
+          goto(await $call.getPage("client-dashboard", "crm-product-service"));
           // }, 3000);
           return;
         }
       } else if (tabDatas.selected === "Resource") {
         for (let i = 0; i < resources.length; i++) {
           if (resourceReady.includes(resources[i].id)) {
-            response = await call.call("client-dashboard", "update-resource", {
+            response = await $call.call("client-dashboard", "update-resource", {
               URLQuery: {},
               URLParams: { id: decodeUniqueId(resources[i].id).toString() },
               Params: {
@@ -253,7 +253,7 @@ All Rights Reserved
               },
             });
           } else {
-            response = await call.call("client-dashboard", "create-resource", {
+            response = await $call.call("client-dashboard", "create-resource", {
               URLQuery: {},
               URLParams: {},
               Params: {
@@ -277,7 +277,7 @@ All Rights Reserved
         if (response.status === 200) {
           triggerToast("updated");
           // setTimeout(async () => {
-          goto(await call.getPage("client-dashboard", "crm-product-service"));
+          goto(await $call.getPage("client-dashboard", "crm-product-service"));
           // }, 3000);
           return;
         }
@@ -290,7 +290,7 @@ All Rights Reserved
   async function deleteProduct() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "delete-product", {
+      let response = await $call.call("client-dashboard", "delete-product", {
         URLQuery: {},
         URLParams: { id: productId },
         Params: {},
@@ -307,7 +307,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "crm-product-service"));
+        goto(await $call.getPage("client-dashboard", "crm-product-service"));
         // }, 3000);
         return;
       }
@@ -319,7 +319,7 @@ All Rights Reserved
   async function getCategories() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-categories", {
+      let response = await $call.call("client-dashboard", "get-categories", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -348,7 +348,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    goto(await call.getPage("client-dashboard", "crm-product-service"));
+    goto(await $call.getPage("client-dashboard", "crm-product-service"));
     return;
   }
 

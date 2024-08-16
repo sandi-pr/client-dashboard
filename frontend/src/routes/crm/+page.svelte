@@ -25,7 +25,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { format } from "date-fns";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let { showAI = false } = $props();
 
@@ -51,19 +51,19 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await call.getPage("client-dashboard", "crm-person-create"),
+        href: await $call.getPage("client-dashboard", "crm-person-create"),
         icon: "userPlus",
         actionName: "Create new persons",
         desc: "desc Create New Person",
       },
       {
-        href: await call.getPage("client-dashboard", "crm-product-service-create"),
+        href: await $call.getPage("client-dashboard", "crm-product-service-create"),
         icon: "packagePlus",
         actionName: "Create new Product & Services",
         desc: "desc Create New Product & Services",
       },
       {
-        href: await call.getPage("client-dashboard", "crm-categories"),
+        href: await $call.getPage("client-dashboard", "crm-categories"),
         icon: "packageSearch",
         actionName: "Manage Categories",
         desc: "desc Manage Categories",
@@ -305,21 +305,21 @@ All Rights Reserved
   async function getChartAction(totalPersons, activePersons, inactivePersons) {
     chartAction = [
       {
-        href: await call.getPage("client-dashboard", "crm-person"),
+        href: await $call.getPage("client-dashboard", "crm-person"),
         dataName: "Total Persons",
         value: totalPersons.total,
         change: totalPersons.change,
         changeType: totalPersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "crm-person"),
+        href: await $call.getPage("client-dashboard", "crm-person"),
         dataName: "Active Persons",
         value: activePersons.total,
         change: activePersons.change,
         changeType: activePersons.changeType,
       },
       {
-        href: await call.getPage("client-dashboard", "crm-person"),
+        href: await $call.getPage("client-dashboard", "crm-person"),
         dataName: "Inactive Persons",
         value: inactivePersons.total,
         change: inactivePersons.change,
@@ -334,11 +334,11 @@ All Rights Reserved
 
   async function viewAll(title) {
     if (title === "Persons") {
-      let href = await call.getPage("client-dashboard", "crm-person");
+      let href = await $call.getPage("client-dashboard", "crm-person");
       globalThis.location.href = href;
       return;
     } else if (title === "Products & Services") {
-      let href = await call.getPage("client-dashboard", "crm-product-service");
+      let href = await $call.getPage("client-dashboard", "crm-product-service");
       globalThis.location.href = href;
       return;
     }
@@ -365,7 +365,7 @@ All Rights Reserved
   async function getPerson() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-persons", {
+      let response = await $call.call("client-dashboard", "get-persons", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -405,7 +405,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-person-detail")}` +
+                    `${await $call.getPage("client-dashboard", "crm-person-detail")}` +
                     "?personId=" +
                     person.id +
                     "&edit=false",
@@ -413,7 +413,7 @@ All Rights Reserved
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-person-detail")}` +
+                    `${await $call.getPage("client-dashboard", "crm-person-detail")}` +
                     "?personId=" +
                     person.id +
                     "&edit=true",
@@ -433,7 +433,7 @@ All Rights Reserved
   async function getProducts() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      let response = await call.call("client-dashboard", "get-products", {
+      let response = await $call.call("client-dashboard", "get-products", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -463,7 +463,7 @@ All Rights Reserved
               objects: [
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
+                    `${await $call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
                     product.id +
                     "&edit=false",
@@ -471,7 +471,7 @@ All Rights Reserved
                 },
                 {
                   href:
-                    `${await call.getPage("client-dashboard", "crm-product-service-detail")}` +
+                    `${await $call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
                     product.id +
                     "&edit=true",
@@ -500,7 +500,7 @@ All Rights Reserved
 
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
-        let response = await call.call("client-dashboard", "get-count-persons-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-persons-per-month", {
           URLQuery: {},
           URLParams: {},
           Params: {

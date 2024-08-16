@@ -23,7 +23,7 @@
 
   // import html2canvas from "html2canvas";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const plugins = [gfmPlugin()];
 
@@ -165,7 +165,7 @@
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        let response = await call.call("client-dashboard", "get-contract-project-result", {
+        let response = await $call.call("client-dashboard", "get-contract-project-result", {
           URLQuery: {},
           URLParams: {
             id: projectDocumentId,
@@ -185,7 +185,7 @@
 
         let projectId = response.result.data[0].attributes.project_id;
 
-        const response2 = await call.call("client-dashboard", "get-contract-project", {
+        const response2 = await $call.call("client-dashboard", "get-contract-project", {
           URLQuery: {},
           URLParams: {
             id: projectId.toString(),
@@ -219,7 +219,7 @@
         // console.log("referenceDocumentIds", referenceDocumentIds);
 
         for (const referenceDocumentId of referenceDocumentIds) {
-          const response3 = await call.call("client-dashboard", "get-reference-document-by-id", {
+          const response3 = await $call.call("client-dashboard", "get-reference-document-by-id", {
             URLQuery: {},
             URLParams: {
               id: referenceDocumentId.toString(),
@@ -332,7 +332,7 @@
       }
 
       try {
-        let response = await call.call("client-dashboard", "update-contract-project-result", {
+        let response = await $call.call("client-dashboard", "update-contract-project-result", {
           URLQuery: {},
           URLParams: {
             id: projectDocumentId,
@@ -441,7 +441,7 @@
         getProjectResult();
       } else {
         triggerToast("error");
-        goto(await call.getPage("client-dashboard", "contract-project-list"));
+        goto(await $call.getPage("client-dashboard", "contract-project-list"));
       }
     });
     return () => unsubscribe();
@@ -453,7 +453,7 @@
       if (projectDocumentId !== null) {
         getProjectResult();
       } else {
-        goto(await call.getPage("client-dashboard", "contract-project-list"));
+        goto(await $call.getPage("client-dashboard", "contract-project-list"));
       }
     });
     onDestroy(() => unsubscribe());

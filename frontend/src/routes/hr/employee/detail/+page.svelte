@@ -25,7 +25,7 @@ All Rights Reserved
 
   const dispatch = createEventDispatcher();
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const employeeId = params.get("employeeId");
@@ -63,7 +63,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-level", {
+        const response = await $call.call("client-dashboard", "get-job-level", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -89,7 +89,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "get-job-position", {
+        const response = await $call.call("client-dashboard", "get-job-position", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -124,7 +124,7 @@ All Rights Reserved
   async function getEmployee() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "get-employee", {
+      let response = await $call.call("client-dashboard", "get-employee", {
         URLQuery: {},
         URLParams: { id: employeeId },
         Params: {},
@@ -166,7 +166,7 @@ All Rights Reserved
   async function updateEmployee() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "update-employee", {
+      let response = await $call.call("client-dashboard", "update-employee", {
         URLQuery: {},
         URLParams: { id: employeeId },
         Params: {
@@ -195,7 +195,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("updated");
         // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "hr-employee"));
+        goto(await $call.getPage("client-dashboard", "hr-employee"));
         // }, 3000);
         return;
       }
@@ -208,7 +208,7 @@ All Rights Reserved
   async function deleteEmployee() {
     let token = sessionStorage.getItem("token");
     try {
-      let response = await call.call("client-dashboard", "delete-employee", {
+      let response = await $call.call("client-dashboard", "delete-employee", {
         URLQuery: {},
         URLParams: { id: employeeId },
         Params: {},
@@ -219,7 +219,7 @@ All Rights Reserved
       if (response.status === 200) {
         triggerToast("deleted");
         // setTimeout(async () => {
-        goto(await call.getPage("client-dashboard", "hr-employee"));
+        goto(await $call.getPage("client-dashboard", "hr-employee"));
         // }, 3000);
         return;
       }
@@ -230,7 +230,7 @@ All Rights Reserved
   }
 
   async function backPage() {
-    goto(await call.getPage("client-dashboard", "hr-employee"));
+    goto(await $call.getPage("client-dashboard", "hr-employee"));
     return;
   }
 

@@ -12,17 +12,13 @@
   import { goto } from "$app/navigation";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import {
-    PaperPlaneOutline,
-    TrashBinOutline,
-    RefreshOutline,
-  } from "flowbite-svelte-icons";
+  import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
 
   const plugins = [gfmPlugin()];
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let imageFileName = $state("");
   let imageUrl = $state(null);
@@ -139,18 +135,14 @@
 
       if (!conversationId) {
         try {
-          let createConversationResponse = await call.call(
-            "hexa-ai",
-            "create-conversation",
-            {
-              URLQuery: {},
-              URLParams: {},
-              Params: {},
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
+          let createConversationResponse = await $call.call("hexa-ai", "create-conversation", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
             },
-          );
+          });
 
           if (createConversationResponse.status === 200) {
             conversationId = createConversationResponse.result.conversation_id;
@@ -164,7 +156,7 @@
       }
 
       try {
-        let chat = await call.call("hexa-ai", "chat", {
+        let chat = await $call.call("hexa-ai", "chat", {
           URLQuery: {},
           URLParams: {
             conversation_id: conversationId,
@@ -212,7 +204,7 @@
 
     if (conversationId) {
       try {
-        let chat = await call.call("hexa-ai", "get-messages", {
+        let chat = await $call.call("hexa-ai", "get-messages", {
           URLQuery: {},
           URLParams: {
             conversation_id: conversationId,
@@ -226,10 +218,7 @@
         console.log(chat);
 
         if (chat.status === 200) {
-          dataConversatonLogs = [
-            ...dataConversatonLogs,
-            ...chat.result.messages,
-          ];
+          dataConversatonLogs = [...dataConversatonLogs, ...chat.result.messages];
         }
       } catch (error) {
         console.log(error);
@@ -319,13 +308,9 @@
                   <img src={VerifiedIcon} alt="User" class="w-3 h-3" />
                 </div>
               </div>
-              <P weight="bold" class="text-primary-light dark:text-primary-dark"
-                >{"HexaAI"}</P
-              >
+              <P weight="bold" class="text-primary-light dark:text-primary-dark">{"HexaAI"}</P>
             </div>
-            <P
-              weight="medium"
-              class="text-tertiary-light dark:text-tertiary-dark"
+            <P weight="medium" class="text-tertiary-light dark:text-tertiary-dark"
               >{"Assistant is typing..."}</P
             >
           </div>
@@ -333,9 +318,7 @@
       {/if}
     </div>
   </div>
-  <div
-    class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-2 py-2 flex items-center"
-  >
+  <div class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-2 py-2 flex items-center">
     <form on:submit|preventDefault={sendMessage} class="flex-grow">
       <!-- <Input
       bind:disabled={disableInput}
@@ -378,12 +361,7 @@
           class="block mx-2 p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
           placeholder="Send a message..."
         ></textarea>
-        <Button
-          type="submit"
-          disabled={disableButton}
-          color="primary"
-          class="rounded-full !px-2.5"
-        >
+        <Button type="submit" disabled={disableButton} color="primary" class="rounded-full !px-2.5">
           <PaperPlaneOutline class="w-5 h-5 rotate-45" />
           <!-- <span class="sr-only">Send</span> -->
         </Button>
@@ -407,7 +385,7 @@
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 </style>

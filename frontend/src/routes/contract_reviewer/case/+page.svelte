@@ -22,7 +22,7 @@ All Rights Reserved
   import PlusIcon from "$lib/icon/plus.svg";
   import { goto } from "$app/navigation";
 
-  const call = new CR3Call(globalThis.location.origin);
+  import { call } from "$lib";
 
   let tmpRulesName = $state("");
   let addRulesModal = $state(false);
@@ -41,7 +41,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await call.call("client-dashboard", "create-contract-rules", {
+        const response = await $call.call("client-dashboard", "create-contract-rules", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -66,7 +66,7 @@ All Rights Reserved
         addRulesModal = false;
         getRules();
         // goto(
-        //   (await call.getPage("client-dashboard", "contract-case-detail")) +
+        //   (await $call.getPage("client-dashboard", "contract-case-detail")) +
         //     "?caseId=" +
         //     response.result.data.id,
         // );
@@ -92,7 +92,7 @@ All Rights Reserved
     if (token) {
       let rules = [];
       try {
-        const response = await call.call("client-dashboard", "get-contract-rules", {
+        const response = await $call.call("client-dashboard", "get-contract-rules", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -120,7 +120,7 @@ All Rights Reserved
             search: true,
             searchHandler: handleSearch,
           };
-          let link = await call.getPage("client-dashboard", "contract-case-detail");
+          let link = await $call.getPage("client-dashboard", "contract-case-detail");
           let promise = rules.map((rule) => {
             return {
               id: rule.id,
