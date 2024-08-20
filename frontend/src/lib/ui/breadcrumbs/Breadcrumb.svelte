@@ -278,7 +278,7 @@
               goto(`${baseUrl}${item.href}`);
             }}
           >
-            {#if detail && title !== "" && index === activeUrlArray.length - 1}
+            {#if detail && title !== null && index === activeUrlArray.length - 1}
               {title}
             {:else}
               {$_(toCamelCase(postProcessName(item.name)))}
