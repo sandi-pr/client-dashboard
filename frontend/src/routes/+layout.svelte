@@ -43,7 +43,7 @@ All Rights Reserved
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
-  const isFrontend = false; // for frontend change to true
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let tabDatas = $state({
     selected: "Latest Activity",
@@ -57,7 +57,7 @@ All Rights Reserved
     ],
   });
 
-  const call = isFrontend ? new CR3Call("") : new CR3Call(globalThis.location.origin);
+  const call = isFrontend ? new CR3Call("https://tank.hexacode.ai") : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
 

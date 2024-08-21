@@ -129,7 +129,7 @@ All Rights Reserved
   });
 </script>
 
-<div class="flex flex-col gap-4 px-4 py-8">
+<div class="flex flex-col gap-4 px-4 md:py-8">
   {#if isFirstTime}
     <Alert dismissable on:close={setFristTime} class="relative flex justify-center">
       <CloseButton

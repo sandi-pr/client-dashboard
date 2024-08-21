@@ -53,7 +53,7 @@
     class="flex justify-between px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
     <button onclick={funcDetailCollection}>
-      <Typography preset="Text md/Semibold" text={collectionName} propClass="hover:underline" />
+      <Typography preset="Text md/Semibold" text={collectionName} propClass="hover:underline line-clamp-2" />
     </button>
     <div class=" flex items-center relative">
       <Button

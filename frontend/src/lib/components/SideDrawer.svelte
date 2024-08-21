@@ -347,17 +347,19 @@ All Rights Reserved
                   </DropdownItem> -->
                 </Dropdown>
                 <div class="flex gap-2">
-                  <Button
-                    disabled={disableConfigButton}
-                    on:click={() => (modalOpen = true)}
-                    color="light"
-                    class={`w-max mt-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
-                  >
-                    <P>{$_("configure")}</P>
-                    <SettingsIcon
-                      svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
-                    />
-                  </Button>
+                  {#if !disableConfigButton}
+                    <Button
+                      disabled={disableConfigButton}
+                      on:click={() => (modalOpen = true)}
+                      color="light"
+                      class={`w-max mt-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
+                    >
+                      <P>{$_("configure")}</P>
+                      <SettingsIcon
+                        svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
+                      />
+                    </Button>
+                  {/if}
                   <Button
                     on:click={clearChat}
                     color="light"

@@ -34,6 +34,7 @@ export { default as SidebarNavItem } from "$lib/ui/buttons/SidebarNavItem.svelte
 export { default as LanguageSelector } from "$lib/ui/buttons/LanguageSelector.svelte";
 export { default as SectionHeader } from "$lib/ui/header/SectionHeader.svelte";
 export { default as FeaturedIcon } from "$lib/ui/avatar/FeaturedIcon.svelte";
+export { default as Icon } from "$lib/ui/avatar/Icon.svelte";
 export { default as StateCard } from "$lib/ui/cards/StateCard.svelte";
 export { default as SelectedCard } from "$lib/ui/cards/SelectedCard.svelte";
 export { default as Toast } from "$lib/ui/toast/Toast.svelte";

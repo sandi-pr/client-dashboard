@@ -32,7 +32,7 @@
 <div>
   <div class="flex justify-between px-4 lg:pt-8">
     <Breadcrumb {activeUrl} {appUrl} />
-    <div class="flex space-x-4">
+    <div class="flex items-center gap-2 md:gap-3">
       <LanguageSelector />
       <Button
         color="light"

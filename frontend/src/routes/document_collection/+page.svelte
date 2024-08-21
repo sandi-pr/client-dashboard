@@ -38,12 +38,14 @@ All Rights Reserved
     triggerSelectDropdown,
     triggerReload,
     triggerLoading,
+    showAI,
   } from "$lib";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
   import { call } from "$lib";
 
-  let { showAI = false } = $props();
+  // let { showAI = true } = $props();
+  // let showAI = $state(false);
 
   let documents = $state([]);
   let collections = $state([]);
@@ -926,7 +928,7 @@ All Rights Reserved
         <!-- Action Items -->
         <div class="flex flex-col gap-4">
           <SectionHeader title={$_("action")} />
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
+          <div class={`grid ${$showAI ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 lg:grid-cols-3"} gap-4 w-full items-center justify-center`}>
             {#each actionItems as item}
               <Card
                 onclick={() => (addCollectionsModal = true)}
@@ -942,7 +944,7 @@ All Rights Reserved
         <div class="flex flex-col gap-4">
           <SectionHeader title={$_("reports")} />
           <div
-            class={`grid ${showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
+            class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
           >
             {#each chartAction as { href, dataName, value, change, changeType }, index}
               <ChartCard
@@ -969,7 +971,7 @@ All Rights Reserved
 
           <div>
             {#if latestDocumentCollection.length > 0}
-              <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}>
                 {#each latestDocumentCollection as document}
                   <CollectionCard
                     collectionName={document.collectionName}

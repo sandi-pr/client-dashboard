@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Avatar, Button } from "flowbite-svelte";
+  import { Icon } from "$lib";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import EN from "$lib/icon/GB.svg";
   import ID from "$lib/icon/ID.svg";
@@ -28,13 +29,14 @@
 </script>
 
 <div onfocusout={handleDropdownFocusLoss}>
-  <Button color="light" on:click={() => (dropdownOpen = !dropdownOpen)} id="dropdownDefaultButton">
+  <Button color="light" on:click={() => (dropdownOpen = !dropdownOpen)} id="dropdownDefaultButton" class="py-2 gap-1 px-2.5 md:px-3">
     {#if $locale === "id"}
-      <Avatar src={ID} alt="id" size="xs" class="mr-2" />
+      <Avatar src={ID} alt="id" size="xs" />
     {:else}
-      <Avatar src={EN} alt="us" size="xs" class="mr-2" />
+      <Avatar src={EN} alt="us" size="xs" />
     {/if}
-    <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
+    <Icon name="chevronDown" />
+    <!-- <ChevronDownOutline class="w-5 h-5 dark:text-white" /> -->
   </Button>
 
   <!-- Dropdown menu -->

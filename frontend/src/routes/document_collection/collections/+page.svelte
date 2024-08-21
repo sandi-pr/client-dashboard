@@ -34,6 +34,7 @@ All Rights Reserved
     triggerSelectDropdown,
     triggerReload,
     triggerLoading,
+    showAI,
   } from "$lib";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
@@ -660,7 +661,7 @@ All Rights Reserved
             bind:value={searchTerm}
           /> -->
           {#if datas.length > 0}
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}>
               {#each datas as document}
                 <CollectionCard
                   collectionName={document.collectionName}
