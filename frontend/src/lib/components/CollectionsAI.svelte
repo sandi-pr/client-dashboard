@@ -181,105 +181,101 @@
   }
 
   async function getMessage() {
-    if ($reload !== false) {
-      console.log("reload getMessage", $reload);
-      if (dataConversatonLogs.length < 2) {
-        dataConversatonLogs.push({
-          role: "assistant",
-          message: "Collection is selected. Please wait while we prepare your assistant.",
-        });
-      }
-
-      let conversationIdCollection = sessionStorage.getItem(
-        "conversationIdCollection-" + $selectedCollection.id.toString(),
-      );
-
-      let token = sessionStorage.getItem("token");
-
-      let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: $selectedCollection.id.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
+    console.log("reload getMessage", $reload);
+    if (dataConversatonLogs.length < 2) {
+      dataConversatonLogs.push({
+        role: "assistant",
+        message: "Collection is selected. Please wait while we prepare your assistant.",
       });
+    }
 
-      if (response2.status !== 200) {
-        console.log(response2);
-        return;
-      }
+    let conversationIdCollection = sessionStorage.getItem(
+      "conversationIdCollection-" + $selectedCollection.id.toString(),
+    );
 
+    let token = sessionStorage.getItem("token");
+
+    let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {
+        collection_id: $selectedCollection.id.toString(),
+      },
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    if (response2.status !== 200) {
       console.log(response2);
+      return;
+    }
 
-      if (conversationIdCollection) {
-        try {
-          let chat = await $call.call("hexa-ai-rag", "get-messages", {
-            URLQuery: {},
-            URLParams: {
-              collection_id: $selectedCollection.id.toString(),
-              conversation_id: conversationIdCollection,
-            },
-            Params: {},
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+    console.log(response2);
 
-          console.log("chat", chat);
+    if (conversationIdCollection) {
+      try {
+        let chat = await $call.call("hexa-ai-rag", "get-messages", {
+          URLQuery: {},
+          URLParams: {
+            collection_id: $selectedCollection.id.toString(),
+            conversation_id: conversationIdCollection,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-          if (chat.status === 200) {
-            if (chat.result.messages.length > 0) {
-              dataConversatonLogs = chat.result.messages;
-            }
+        console.log("chat", chat);
 
-            triggerReload(false);
-            if (runningRAG === false) {
-              runningRAG = true;
-              getStatusRag();
-            }
+        if (chat.status === 200) {
+          if (chat.result.messages.length > 0) {
+            dataConversatonLogs = chat.result.messages;
           }
-        } catch (error) {
-          triggerToast("error");
-          console.log(error);
-        }
-      } else {
-        try {
-          let createConversationResponse = await $call.call("hexa-ai-rag", "create-conversation", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_id: parseInt($selectedCollection.id.toString()),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
 
-          console.log("createConversationResponse", createConversationResponse);
-
-          if (createConversationResponse.status === 200) {
-            conversationIdCollection = createConversationResponse.result.conversation_id;
-            sessionStorage.setItem(
-              "conversationIdCollection-" + $selectedCollection.id.toString(),
-              conversationIdCollection,
-            );
-
-            triggerReload(false);
-            if (runningRAG === false) {
-              runningRAG = true;
-              getStatusRag();
-            }
-          } else {
-            triggerToast("error");
-            console.log(createConversationResponse);
+          if (runningRAG === false) {
+            runningRAG = true;
+            getStatusRag();
           }
-        } catch (error) {
-          triggerToast("error");
-          console.log(error);
         }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    } else {
+      try {
+        let createConversationResponse = await $call.call("hexa-ai-rag", "create-conversation", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_id: parseInt($selectedCollection.id.toString()),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("createConversationResponse", createConversationResponse);
+
+        if (createConversationResponse.status === 200) {
+          conversationIdCollection = createConversationResponse.result.conversation_id;
+          sessionStorage.setItem(
+            "conversationIdCollection-" + $selectedCollection.id.toString(),
+            conversationIdCollection,
+          );
+
+          if (runningRAG === false) {
+            runningRAG = true;
+            getStatusRag();
+          }
+        } else {
+          triggerToast("error");
+          console.log(createConversationResponse);
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
       }
     }
   }
@@ -456,6 +452,7 @@
   $effect(() => {
     if ($selectedCollection) {
       if ($reload !== false) {
+        triggerReload(false);
         console.log("reload effect", $reload);
         if ($selectedCollection !== selectedCollectionOld) {
           if ($selectedCollection !== null) {
