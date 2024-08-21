@@ -41,6 +41,8 @@
 
   let init = $state(false);
 
+  let runningRAG = $state(false);
+
   let dataConversatonLogs = $state([
     {
       role: "assistant",
@@ -234,7 +236,10 @@
             }
 
             triggerReload(false);
-            getStatusRag();
+            if (runningRAG === false) {
+              runningRAG = true;
+              getStatusRag();
+            }
           }
         } catch (error) {
           triggerToast("error");
@@ -263,7 +268,10 @@
             );
 
             triggerReload(false);
-            getStatusRag();
+            if (runningRAG === false) {
+              runningRAG = true;
+              getStatusRag();
+            }
           } else {
             triggerToast("error");
             console.log(createConversationResponse);
@@ -367,12 +375,15 @@
           ) {
             console.log("Already");
             clearTimeout(timer);
+            runningRAG = false;
             return;
           } else {
             dataConversatonLogs.push({
               role: "assistant",
               message: "Your document is ready",
             });
+            runningRAG = false;
+            return;
           }
         }
       } else {
@@ -406,7 +417,9 @@
     } catch (error) {
       console.error("Error:", error);
     }
-    timer = setTimeout(getStatusRag, 2000);
+    timer = setTimeout(() => {
+      getStatusRag();
+    }, 2000);
   }
 
   const handleFileUploadWrapper = () => {

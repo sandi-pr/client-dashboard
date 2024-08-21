@@ -140,7 +140,6 @@
       {#each sidebarItems as item}
         {#if item.children.length > 0}
           <SidebarDropdownWrapper
-            onclick={() => (isOpen[item.name] = !isOpen[item.name])}
             bind:isOpen={isOpen[item.name]}
             spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
             btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
