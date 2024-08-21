@@ -125,7 +125,7 @@ All Rights Reserved
     //   triggerLoading(false);
     // }, 3000);
     getFristTime();
-    CheckSetup();
+    // CheckSetup();
   });
 </script>
 

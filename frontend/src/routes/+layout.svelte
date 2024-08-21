@@ -461,6 +461,11 @@ All Rights Reserved
   }
 
   onMount(() => {
+    if (sessionStorage.getItem("token") === null && isFrontend) {
+      alert("Please insert token to session storage and refresh the page");
+      return;
+    }
+
     CheckSetup();
     if (localStorage.getItem("lang") !== null) {
       locale.set(localStorage.getItem("lang"));
