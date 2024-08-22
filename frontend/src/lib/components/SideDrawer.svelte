@@ -250,7 +250,11 @@ All Rights Reserved
   }
 
   function clearChat() {
-    sessionStorage.removeItem("conversationId");
+    if ($selectedDropdown === "collections") {
+      sessionStorage.removeItem("conversationIdCollection-" + tmpSelectedCollection.id);
+    } else {
+      sessionStorage.removeItem("conversationId");
+    }
     window.location.reload();
   }
 
