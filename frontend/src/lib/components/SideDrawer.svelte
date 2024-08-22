@@ -251,7 +251,7 @@ All Rights Reserved
 
   function clearChat() {
     if ($selectedDropdown === "collections") {
-      sessionStorage.removeItem("conversationIdCollection-" + tmpSelectedCollection.id);
+      sessionStorage.removeItem("conversationIdCollection-" + $selectedCollection.id);
     } else {
       sessionStorage.removeItem("conversationId");
     }
