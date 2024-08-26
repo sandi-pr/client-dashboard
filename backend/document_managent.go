@@ -1019,7 +1019,7 @@ func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	}
 
 	CR3 := cr3call.New(MODULE_MANAGER_URL)
-	go CR3.Call("hexa-ai-rag", "delete-document-by-id", cr3call.CR3CallData{
+	resp, err := CR3.Call("hexa-ai-rag", "delete-document-by-id", cr3call.CR3CallData{
 		Headers: U.Dict{
 			"Authorization": bearer,
 		},
@@ -1027,6 +1027,13 @@ func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			"document_id": idStr,
 		},
 	}, false)
+
+	fmt.Println("ayam", resp)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
 
 	status, document, err := Strapi.Delete("document-management-table", int64(id))
 	if err != nil {
