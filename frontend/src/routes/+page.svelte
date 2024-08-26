@@ -28,12 +28,12 @@ All Rights Reserved
   let isFirstTime = $state(true);
 
   const cards = [
-    // {
-    //   icon: "users",
-    //   title: "crmOverview",
-    //   description: "descCrm",
-    //   page: "crm-overview",
-    // },
+    {
+      icon: "users",
+      title: "crmOverview",
+      description: "descCrm",
+      page: "crm-overview",
+    },
     {
       icon: "messageChat",
       title: "webchat",
@@ -46,12 +46,12 @@ All Rights Reserved
       description: "descDocumentCollection",
       page: "document-collection-overview",
     },
-    // {
-    //   icon: "userSquare",
-    //   title: "HR",
-    //   description: "descHr",
-    //   page: "hr-overview",
-    // },
+    {
+      icon: "userSquare",
+      title: "HR",
+      description: "descHr",
+      page: "hr-overview",
+    },
   ];
 
   function setFristTime() {
@@ -69,21 +69,21 @@ All Rights Reserved
 
   async function CheckSetup() {
     try {
-      var resp_setup = await $call.call("client-login", "is-need-setup", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {},
-        Headers: {},
-      });
-      console.log(resp_setup);
-      if (resp_setup.status === 200) {
-        if (resp_setup.result.is_need_setup === true) {
-          if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
-          if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
-          await $call.goToPage("hexapod-setup", "home-page");
-          return;
-        }
-      }
+      // var resp_setup = await $call.call("client-login", "is-need-setup", {
+      //   URLQuery: {},
+      //   URLParams: {},
+      //   Params: {},
+      //   Headers: {},
+      // });
+      // console.log(resp_setup);
+      // if (resp_setup.status === 200) {
+      //   if (resp_setup.result.is_need_setup === true) {
+      //     if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
+      //     if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
+      //     await $call.goToPage("hexapod-setup", "home-page");
+      //     return;
+      //   }
+      // }
       var token = sessionStorage.getItem("token");
       if (token !== null) {
         var resp = await $call.call("client-login", "is-token-valid", {
@@ -125,7 +125,7 @@ All Rights Reserved
     //   triggerLoading(false);
     // }, 3000);
     getFristTime();
-    // CheckSetup();
+    CheckSetup();
   });
 </script>
 
