@@ -191,18 +191,18 @@ All Rights Reserved
           // },
         ],
       },
-      {
-        icon: "fileAttachment",
-        name: "documentSigning",
-        children: [
-          {
-            href: isFrontend
-              ? "/document_signing"
-              : await call.getPage("client-dashboard", "document-signing-overview"),
-            name: "overview",
-          },
-        ],
-      },
+      // {
+      //   icon: "fileAttachment",
+      //   name: "documentSigning",
+      //   children: [
+      //     {
+      //       href: isFrontend
+      //         ? "/document_signing"
+      //         : await call.getPage("client-dashboard", "document-signing-overview"),
+      //       name: "overview",
+      //     },
+      //   ],
+      // },
       {
         icon: "userSquare",
         name: "HR",
