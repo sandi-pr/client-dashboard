@@ -233,6 +233,16 @@
 
   async function getMessage() {
     console.log("reload getMessage", $reload);
+    if (dataConversatonLogs.length > 1) {
+      dataConversatonLogs = [
+        {
+          role: "assistant",
+          message:
+            "Hi! I’m your virtual assistant. This is Collections AI. Please select source document by clicking “Configure” above.",
+        },
+      ];
+    }
+
     if (dataConversatonLogs.length < 2) {
       dataConversatonLogs.push({
         role: "assistant",
