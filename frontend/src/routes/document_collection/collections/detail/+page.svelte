@@ -103,9 +103,20 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          // triggerToast("error");
+          triggerLoading(false);
+          triggerToast("error");
           console.log(response);
-          return;
+          if (collectionId !== null) {
+            goto(
+              (await $call.getPage("client-dashboard", "document-collection")) +
+                "?collectionId=" +
+                collectionId,
+            );
+            return;
+          } else {
+            goto(await $call.getPage("client-dashboard", "document-collection"));
+            return;
+          }
         }
 
         if (response.result.document.data.length > 0) {
@@ -220,7 +231,8 @@ All Rights Reserved
           triggerLoading(false);
         }
       } catch (error) {
-        // triggerToast("error");
+        triggerLoading(false);
+        triggerToast("error");
         console.log(error);
       }
     } else {
