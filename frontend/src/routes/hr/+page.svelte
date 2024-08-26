@@ -23,6 +23,7 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
 
   import { call } from "$lib";
@@ -78,6 +79,7 @@ All Rights Reserved
     //     },
     //   }
   ]);
+  let gettingDatas = $state(false);
   let configs = $state({});
   let dataReady = $state(false);
   let personsIsEmpty = $state(true);
@@ -432,6 +434,7 @@ All Rights Reserved
   async function getEmployee() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
+      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-employees", {
         URLQuery: {},
         URLParams: {},
@@ -446,6 +449,7 @@ All Rights Reserved
 
       if (response.status !== 200) {
         console.log(response);
+        gettingDatas = false;
         return;
       }
 
@@ -485,7 +489,7 @@ All Rights Reserved
         });
 
         latestEmployee = await Promise.all(promises);
-        dataReady = true;
+        gettingDatas = false;
       }
     }
   }
@@ -850,35 +854,26 @@ All Rights Reserved
               <!-- Person Table Data -->
               {#if latestEmployee.length > 0}
                 <DataTable bind:datas={latestEmployee} bind:configs />
+              {:else if gettingDatas}
+                <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
               {:else}
-                <div class="pt-6">
-                  <StateCard
-                    illustration={IllustrationEmpty}
-                    description={$_("youDontHaveAnyDataYet")}
-                  />
-                </div>
+                <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
               {/if}
-            {:else if tabDatas.selected === "Attendance"}
+            <!-- {:else if tabDatas.selected === "Attendance"}
               {#if latestAttendance.length > 0}
                 <DataTable bind:datas={latestAttendance} bind:configs />
+              {:else if gettingDatas}
+                <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
               {:else}
-                <div class="pt-6">
-                  <StateCard
-                    illustration={IllustrationEmpty}
-                    description={$_("youDontHaveAnyDataYet")}
-                  />
-                </div>
-              {/if}
+                <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+              {/if} -->
             {:else if tabDatas.selected === "Recruitment"}
               {#if latestRecruitment.length > 0}
                 <DataTable bind:datas={latestRecruitment} bind:configs />
+              {:else if gettingDatas}
+                <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
               {:else}
-                <div class="pt-6">
-                  <StateCard
-                    illustration={IllustrationEmpty}
-                    description={$_("youDontHaveAnyDataYet")}
-                  />
-                </div>
+                <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
               {/if}
             {/if}
           </div>

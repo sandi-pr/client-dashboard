@@ -17,6 +17,7 @@ All Rights Reserved
   import { StateCard, InputRw, TextareaRw, triggerToast, UploadFile } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { Button, P, Modal, Tooltip, Indicator, Input } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
@@ -41,6 +42,8 @@ All Rights Reserved
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
 
   let datas = $state([]);
+
+  let gettingDatas = $state(false);
 
   let onEdit = $state(false);
 
@@ -80,6 +83,7 @@ All Rights Reserved
   async function getDocuments(page) {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
+      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
         URLQuery: {},
         URLParams: {},
@@ -95,6 +99,7 @@ All Rights Reserved
 
       if (response.status !== 200) {
         console.log(response);
+        gettingDatas = false;
         return;
       }
 
@@ -212,9 +217,9 @@ All Rights Reserved
           return { id: data.id, checked: false };
         });
       }
-    }
 
-    documentsReady = true;
+      gettingDatas = false;
+    }
   }
 
   async function getCollection() {
@@ -645,15 +650,15 @@ All Rights Reserved
               bind:handleCheckAll
               bind:handleCheck
             />
+          {:else if gettingDatas}
+            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
           {:else}
-            <div class="pt-8">
-              <StateCard
-                illustration={IllustrationEmpty}
-                description={$_("youDontHaveAnyDataYet")}
-                actionText={$_("addNewDocument")}
-                funcButton={() => (addDocumentsModal = true)}
-              />
-            </div>
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+              actionText={$_("addNewDocument")}
+              funcButton={() => (addDocumentsModal = true)}
+            />
           {/if}
         {:else if tabDatas.selected === "Information"}
           <div class="flex flex-col gap-4 pt-6">

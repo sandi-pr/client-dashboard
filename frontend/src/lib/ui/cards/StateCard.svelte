@@ -14,8 +14,8 @@
   let { illustration, description, actionText, funcButton }: { illustration: any, description: string, actionText: string, funcButton?: () => void } = $props();
 </script>
 
-<div>
-  <div class="flex flex-col items-center gap-8">
+<div class="pt-4 lg:pt-6">
+  <div class="flex flex-col items-center gap-3 lg:gap-5">
     <svelte:component this={illustration} svgClass="text-utility-brand-50-light dark:text-gray-800" />
     {#if description}
     <Typography preset="Text md/Semibold" text={description} color="primary" />

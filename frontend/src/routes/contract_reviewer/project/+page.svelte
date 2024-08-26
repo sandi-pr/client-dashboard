@@ -12,6 +12,7 @@ All Rights Reserved
   import { Button, Modal, Input, Textarea } from "flowbite-svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import { _ } from "svelte-i18n";
@@ -52,8 +53,11 @@ All Rights Reserved
 
   let datas = $state([]);
 
+  let gettingDatas = $state(false);
+
   async function getProjects() {
-    triggerLoading(true);
+    gettingDatas = true;
+    // triggerLoading(true);
     await getRules();
 
     let token = sessionStorage.getItem("token");
@@ -73,6 +77,7 @@ All Rights Reserved
         if (response.status !== 200) {
           triggerLoading(false);
           triggerToast("error");
+          gettingDatas = false;
           console.log(response);
           return;
         }
@@ -104,13 +109,16 @@ All Rights Reserved
           console.log("datas", datas);
 
           triggerLoading(false);
+          gettingDatas = false;
         }
       } catch (error) {
         triggerLoading(false);
+        gettingDatas = false;
         triggerToast("error");
         console.log(error);
       }
     }
+    gettingDatas = false;
   }
 
   async function getRules() {
@@ -257,10 +265,10 @@ All Rights Reserved
         <!-- Document Table Data -->
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs bind:next={nextPage} bind:previous={previousPage} />
+        {:else if gettingDatas}
+          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
         {:else}
-          <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          </div>
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>

@@ -23,12 +23,14 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
 
   import { call } from "$lib";
 
   let { showAI = false } = $props();
 
+  let gettingDatas = $state(false);
   let latestPersons = $state([]);
   let configs = $state({});
   let documentsReady = $state(false);
@@ -365,6 +367,7 @@ All Rights Reserved
   async function getPerson() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
+      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-persons", {
         URLQuery: {},
         URLParams: {},
@@ -379,6 +382,7 @@ All Rights Reserved
 
       if (response.status !== 200) {
         console.log(response);
+        gettingDatas = false;
         return;
       }
 
@@ -425,14 +429,16 @@ All Rights Reserved
         });
 
         latestPersons = await Promise.all(promises);
-        documentsReady = true;
       }
+      
+      gettingDatas = false;
     }
   }
 
   async function getProducts() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
+      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-products", {
         URLQuery: {},
         URLParams: {},
@@ -447,6 +453,7 @@ All Rights Reserved
 
       if (response.status !== 200) {
         console.log(response);
+        gettingDatas = false;
         return;
       }
 
@@ -483,7 +490,7 @@ All Rights Reserved
         });
 
         latestProductServices = await Promise.all(promises);
-        documentsReady = true;
+        gettingDatas = false;
       }
     }
   }
@@ -662,8 +669,15 @@ All Rights Reserved
               <!-- Person Table Data -->
               {#if latestPersons.length > 0}
                 <DataTable bind:datas={latestPersons} bind:configs />
+              {:else if gettingDatas}
+                <div class="pt-4 lg:pt-6">
+                  <StateCard
+                    illustration={IllustrationProgress}
+                    description={$_("fetchingDataPleaseWait")}
+                  />
+                </div>
               {:else}
-                <div class="pt-6">
+                <div class="pt-4 lg:pt-6">
                   <StateCard
                     illustration={IllustrationEmpty}
                     description={$_("youDontHaveAnyDataYet")}
@@ -673,8 +687,15 @@ All Rights Reserved
             {:else if tabDatas.selected === "Products & Services"}
               {#if latestProductServices.length > 0}
                 <DataTable bind:datas={latestProductServices} bind:configs />
+              {:else if gettingDatas}
+                <div class="pt-4 lg:pt-6">
+                  <StateCard
+                    illustration={IllustrationProgress}
+                    description={$_("fetchingDataPleaseWait")}
+                  />
+                </div>
               {:else}
-                <div class="pt-6">
+                <div class="pt-4 lg:pt-6">
                   <StateCard
                     illustration={IllustrationEmpty}
                     description={$_("youDontHaveAnyDataYet")}

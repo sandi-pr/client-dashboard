@@ -490,5 +490,6 @@
   "referencePrompt": "Reference Prompt",
   "aiSuggestion": "AI Suggestion",
   "section": "Section",
-  "review": "Review"
+  "review": "Review",
+  "fetchingDataPleaseWait": "Fetching data, please wait..."
 }

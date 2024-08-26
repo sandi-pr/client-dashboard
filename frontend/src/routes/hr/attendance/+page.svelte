@@ -8,6 +8,7 @@
   import { _ } from "svelte-i18n";
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
 
   import { call } from "$lib";
@@ -15,6 +16,8 @@
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
   let datas = $state([]);
+
+  let gettingDatas = $state(false);
 
   let configs = $state({});
   // let employees = $state([]);
@@ -96,6 +99,7 @@
   async function getEmployee() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
+      gettingDatas = true;
       let page = 1;
       let employees = [];
       while (true) {
@@ -113,6 +117,7 @@
 
         if (response.status !== 200) {
           console.log(response);
+          gettingDatas = false;
           return;
         }
 
@@ -124,7 +129,6 @@
         }
       }
 
-      console.log("telur", datas);
       datas = [];
 
       for (let i = 0; i < employees.length; i++) {
@@ -152,8 +156,6 @@
           },
         });
       }
-
-      console.log("ayam", datas);
 
       attendance = await getEmployeeAttendance();
 
@@ -204,6 +206,8 @@
       }
 
       console.log("datas", datas);
+
+      gettingDatas = false;
 
       configs = {
         search: true,
@@ -443,10 +447,10 @@
         <!-- Document Table Data -->
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs bind:next bind:previous />
+        {:else if gettingDatas}
+          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
         {:else}
-          <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          </div>
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>

@@ -30,6 +30,7 @@ All Rights Reserved
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { CR3Call } from "hexacomponents-svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
   import {
@@ -337,6 +338,8 @@ All Rights Reserved
 
   let latestDocumentCollection = $state([]);
 
+  let gettingDatas = $state(false);
+
   async function viewAll() {
     goto(await $call.getPage("client-dashboard", "document-collection"));
   }
@@ -400,6 +403,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
+      gettingDatas = true;
       collections = [];
       documents = [];
       let response = await $call.call("client-dashboard", "get-document-collections", {
@@ -416,6 +420,7 @@ All Rights Reserved
 
       if (response.status !== 200) {
         console.log(response);
+        gettingDatas = false;
         return;
       }
 
@@ -468,6 +473,7 @@ All Rights Reserved
 
           if (response3.status !== 200) {
             console.log(response3);
+            gettingDatas = false;
             return;
           }
 
@@ -527,6 +533,8 @@ All Rights Reserved
           href: `${collectionList}?collectionId=${collection.id}`,
         };
       });
+
+      gettingDatas = false;
     }
   }
 
@@ -1006,13 +1014,10 @@ All Rights Reserved
                   />
                 {/each}
               </div>
+            {:else if gettingDatas}
+              <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
             {:else}
-              <div class="pt-6">
-                <StateCard
-                  illustration={IllustrationEmpty}
-                  description={$_("youDontHaveAnyDataYet")}
-                />
-              </div>
+              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
             {/if}
           </div>
         </div>

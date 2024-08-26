@@ -19,6 +19,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import { goto } from "$app/navigation";
 
@@ -30,6 +31,8 @@ All Rights Reserved
   let configs = $state({});
 
   let datas = $state([]);
+
+  let gettingDatas = $state(false);
 
   let page = $state(1);
   let pageCount = $state(1);
@@ -87,9 +90,10 @@ All Rights Reserved
   };
 
   async function getRules() {
-    triggerLoading(true);
+    // triggerLoading(true);
     let token = sessionStorage.getItem("token");
     if (token) {
+      gettingDatas = true;
       let rules = [];
       try {
         const response = await $call.call("client-dashboard", "get-contract-rules", {
@@ -107,6 +111,7 @@ All Rights Reserved
 
         if (response.status !== 200) {
           triggerLoading(false);
+          gettingDatas = false;
           console.log(response);
           return;
         }
@@ -137,10 +142,13 @@ All Rights Reserved
           });
           datas = await Promise.all(promise);
           triggerLoading(false);
+          gettingDatas = false;
         }
         triggerLoading(false);
+        gettingDatas = false;
       } catch (error) {
         console.log(error);
+        gettingDatas = false;
       }
     }
   }
@@ -192,10 +200,10 @@ All Rights Reserved
         <!-- table latest -->
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs next={nextPage} prev={prevPage} />
+        {:else if gettingDatas}
+          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
         {:else}
-          <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          </div>
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>

@@ -18,6 +18,7 @@ All Rights Reserved
   import { Button } from "flowbite-svelte";
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { goto } from "$app/navigation";
 
   import { call } from "$lib";
@@ -28,6 +29,8 @@ All Rights Reserved
   let actionItems = $state([]);
 
   let datas = $state([]);
+
+  let gettingDatas = $state(false);
 
   let configs = $state({});
 
@@ -64,6 +67,7 @@ All Rights Reserved
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
+      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-products", {
         URLQuery: {},
         URLParams: {},
@@ -78,6 +82,7 @@ All Rights Reserved
 
       if (response.status !== 200) {
         console.log(response);
+        gettingDatas = false;
         return;
       }
 
@@ -121,8 +126,9 @@ All Rights Reserved
         });
 
         datas = await Promise.all(promises);
-        documentsReady = true;
       }
+
+      gettingDatas = false;
     }
   }
 
@@ -161,10 +167,10 @@ All Rights Reserved
         <!-- Person Table Data -->
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs bind:next bind:previous />
+        {:else if gettingDatas}
+          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
         {:else}
-          <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          </div>
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>

@@ -22,6 +22,7 @@ All Rights Reserved
     UploadFile,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
   import { Button, Modal, Input, P, Indicator, Tooltip } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -65,6 +66,8 @@ All Rights Reserved
     //   status: "collecting data",
     // },
   ]);
+
+  let gettingDatas = $state(false);
 
   let collections = $state([]);
   let documents = $state([]);
@@ -147,6 +150,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
+      gettingDatas = true;
       let page = 1;
       collections = [];
       documents = [];
@@ -165,6 +169,7 @@ All Rights Reserved
 
         if (response.status !== 200) {
           console.log(response);
+          gettingDatas = false;
           return;
         }
 
@@ -194,6 +199,7 @@ All Rights Reserved
 
           if (response3.status !== 200) {
             console.log(response3);
+            gettingDatas = false;
             return;
           }
 
@@ -253,6 +259,8 @@ All Rights Reserved
           href: `${collectionList}?collectionId=${collection.id}`,
         };
       });
+
+      gettingDatas = false;
 
       // timer = setTimeout(getCollections, 2000);
     }
@@ -696,6 +704,8 @@ All Rights Reserved
                 />
               {/each}
             </div>
+          {:else if gettingDatas}  
+            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
           {:else}
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}

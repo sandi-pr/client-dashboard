@@ -28,6 +28,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { tr } from "date-fns/locale";
 
   import { call } from "$lib";
@@ -61,6 +62,8 @@ All Rights Reserved
 
   let datas = $state([]);
   let rules = $state([]);
+
+  let gettingDatas = $state(false);
 
   async function getActionItems() {
     actionItems = [
@@ -210,6 +213,7 @@ All Rights Reserved
   async function getProjectsLatest() {
     let token = sessionStorage.getItem("token");
     if (token) {
+      gettingDatas = true;
       try {
         const response = await $call.call("client-dashboard", "get-contract-projects", {
           URLQuery: {},
@@ -255,9 +259,11 @@ All Rights Reserved
 
           datas = await Promise.all(promise);
           console.log("datas", datas);
+          gettingDatas = false;
         }
       } catch (error) {
         console.log(error);
+        gettingDatas = false;
       }
     }
   }
@@ -312,10 +318,10 @@ All Rights Reserved
         <!-- table latest -->
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs />
+        {:else if gettingDatas}
+          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
         {:else}
-          <div class="pt-8">
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          </div>
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>

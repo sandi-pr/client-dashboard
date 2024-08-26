@@ -490,5 +490,7 @@
   "referencePrompt": "Prompt Referensi",
   "aiSuggestion": "Saran AI",
   "section": "Section",
-  "review": "Review"
+  "review": "Review",
+  "gettingData": "Mengambil data",
+  "fetchingDataPleaseWait": "Memuat data, mohon tunggu..."
 }

@@ -18,6 +18,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { dndzone, TRIGGERS } from "svelte-dnd-action";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import DotsGridIcon from "$lib/icon/dots-grid.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -34,6 +35,8 @@ All Rights Reserved
 
   let datas = $state([]);
   let configs = $state({});
+
+  let gettingDatas = $state(false);
 
   let pagination = $state({ page: 1, pageSize: 5, pageCount: 1, total: 0 });
 
@@ -125,6 +128,7 @@ All Rights Reserved
   async function getJobLevels() {
     let token = sessionStorage.getItem("token");
     if (token) {
+      gettingDatas = true;
       try {
         const response = await $call.call("client-dashboard", "get-job-level", {
           URLQuery: {},
@@ -138,8 +142,11 @@ All Rights Reserved
         if (response.status === 200) {
           jobLevels = response.result.job_level;
         }
+
+        gettingDatas = false;
       } catch (error) {
         triggerToast("error");
+        gettingDatas = false;
         console.log(error);
       }
     }
@@ -149,6 +156,7 @@ All Rights Reserved
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
     if (token !== null) {
+      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-job-position", {
         URLQuery: {},
         URLParams: {},
@@ -160,6 +168,8 @@ All Rights Reserved
 
       if (response.status !== 200) {
         console.log(response);
+        triggerToast("error");
+        gettingDatas = false;
         return;
       }
 
@@ -199,6 +209,8 @@ All Rights Reserved
 
         datas = await Promise.all(promises2);
       }
+
+      gettingDatas = false;
     }
   }
 
@@ -398,13 +410,10 @@ All Rights Reserved
                   {/each}
                 </div>
               </div>
+            {:else if gettingDatas}
+              <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
             {:else}
-              <div class="pt-8">
-                <StateCard
-                  illustration={IllustrationEmpty}
-                  description={$_("youDontHaveAnyDataYet")}
-                />
-              </div>
+              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
             {/if}
           </div>
         </div>
@@ -424,6 +433,8 @@ All Rights Reserved
               </div>
               <DataTable bind:datas bind:configs bind:next bind:previous />
             </div>
+          {:else if gettingDatas}
+            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
           {:else}
             <StateCard
               illustration={IllustrationEmpty}

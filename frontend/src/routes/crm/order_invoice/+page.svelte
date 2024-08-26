@@ -19,6 +19,9 @@ All Rights Reserved
   import { Button } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import { goto } from "$app/navigation";
+  import { StateCard } from "$lib";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
   import { call } from "$lib";
 
@@ -37,6 +40,8 @@ All Rights Reserved
     ],
   });
 
+  let gettingDatas = $state(false);
+
   let dataOrders = $state([]);
 
   let dataInvoices = $state([]);
@@ -53,6 +58,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token !== null) {
+      gettingDatas = true;
       try {
         let response = await $call.call("client-dashboard", "get-orders", {
           URLQuery: {},
@@ -97,12 +103,12 @@ All Rights Reserved
             });
 
             dataOrders = await Promise.all(promise);
-
-            orderReady = true;
           }
+          gettingDatas = false;
         }
       } catch (error) {
         console.log(error);
+        gettingDatas = false;
       }
     }
   }
@@ -111,6 +117,7 @@ All Rights Reserved
     let token = sessionStorage.getItem("token");
 
     if (token != null) {
+      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-invoices", {
         URLQuery: {},
         URLParams: {},
@@ -156,7 +163,7 @@ All Rights Reserved
 
           dataInvoices = await Promise.all(promise);
 
-          invoiceReady = true;
+          gettingDatas = false;
         }
       }
     }
@@ -195,24 +202,20 @@ All Rights Reserved
 
         <!-- Table Data -->
         {#if tabDatas.selected === "Orders"}
-          {#if orderReady}
-            <div>
-              <DataTable bind:datas={dataOrders} bind:configs={configsOrders} />
-            </div>
+          {#if dataOrders.length > 0}
+            <DataTable bind:datas={dataOrders} bind:configs={configsOrders} />
+          {:else if gettingDatas}
+            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
           {:else}
-            <div>
-              <DataTable bind:datas={dataOrders} bind:configs={configsOrders} />
-            </div>
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}
         {:else if tabDatas.selected === "Invoices"}
-          {#if invoiceReady}
-            <div>
-              <DataTable bind:datas={dataInvoices} bind:configs={configsInvoices} />
-            </div>
+          {#if dataInvoices.length > 0}
+            <DataTable bind:datas={dataInvoices} bind:configs={configsInvoices} />
+          {:else if gettingDatas}
+            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
           {:else}
-            <div>
-              <DataTable bind:datas={dataInvoices} bind:configs={configsInvoices} />
-            </div>
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}
         {/if}
       </div>
