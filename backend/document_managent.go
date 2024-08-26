@@ -1028,7 +1028,7 @@ func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		},
 	}, false)
 
-	fmt.Println("ayam", resp)
+	fmt.Println(resp)
 
 	if err != nil {
 		fmt.Println(err)
