@@ -217,6 +217,9 @@ All Rights Reserved
         datasChecked = datas.map((data) => {
           return { id: data.id, checked: false };
         });
+      } else {
+        datas = [];
+        datasChecked = [];
       }
 
       gettingDatas = false;
