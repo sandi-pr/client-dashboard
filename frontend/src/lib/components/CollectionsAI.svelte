@@ -566,7 +566,7 @@
               >
             </div>
             <div
-              class="prose font-medium text-tertiary-light dark:text-primary-dark [&>p>a]:text-primary-light dark:[&>p>a]:text-primary-dark"
+              class="prose font-medium text-tertiary-light dark:text-primary-dark [&>p>a]:text-primary-light dark:[&>p>a]:text-primary-dark dark:[&>p>strong]:text-primary-dark"
             >
               <Markdown md={qaPair.message} {plugins} />
             </div>
