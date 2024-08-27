@@ -25,7 +25,8 @@ All Rights Reserved
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
   import { onMount, onDestroy } from "svelte";
-  import { _ } from "svelte-i18n";
+  import { _, locale } from "svelte-i18n";
+  import { id as localeId, enUS as localeEn } from "date-fns/locale";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { format, formatDistanceToNow } from "date-fns";
@@ -39,6 +40,7 @@ All Rights Reserved
   let documentId, collectionId;
 
   import { call } from "$lib";
+    import { da } from "date-fns/locale";
 
   // const params = new URLSearchParams(window.location.search);
   // let documentId = params.get("documentId");
@@ -196,7 +198,7 @@ All Rights Reserved
 
           data = {
             id: documentData.id,
-            createdAt: formatDistanceToNow(documentData.attributes.createdAt, { addSuffix: true }),
+            createdAt: documentData.attributes.createdAt,
             document_title: documentData.attributes.document_title,
             description: documentData.attributes.description,
             document_type: documentData.attributes.document_type,
@@ -540,7 +542,14 @@ All Rights Reserved
           </div>
           <P
             class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-            >{$_("createOn")}{` ${data.createdAt}`}</P
+            >
+            {#if fileReady}
+              {#if $locale === "id"}
+                {$_("createOn")} {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeId })}
+              {:else}
+                {$_("createOn")} {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeEn })}
+              {/if}
+            {/if}</P
           >
         </div>
 

@@ -46,6 +46,12 @@
       return Stars03Icon;
     }
   };
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return 
+    dropdownOpen = false
+  }
+  
 </script>
 
 <Card class="gap-2.5 justify-between !p-0">
@@ -55,7 +61,7 @@
     <button onclick={funcDetailCollection}>
       <Typography preset="Text md/Semibold" text={collectionName} propClass="hover:underline line-clamp-2" />
     </button>
-    <div class=" flex items-center relative">
+    <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
       <Button
         on:click={() => (dropdownOpen = !dropdownOpen)}
         class="focus-within:ring-0 !p-0"

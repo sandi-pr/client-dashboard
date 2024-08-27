@@ -21,6 +21,7 @@ All Rights Reserved
     CollectionCard,
     triggerToast,
     UploadFile,
+    ActionCard,
   } from "$lib";
   import { _ } from "svelte-i18n";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -57,8 +58,8 @@ All Rights Reserved
   let tmpMonthlyCollectionsCounts = $state([]);
   let tmpMonthlyCollectionReadyCounts = $state([]);
   let tmpMonthlyCollectingDataCounts = $state([]);
-  let dataChartAll = $state({});
-  let dataChartReady = $state({});
+  let dataChartAllDocs = $state({});
+  let dataChartCollections = $state({});
   let dataChartCollecting = $state({});
   let chartReady = $state(false);
   let actionItems = $state([]);
@@ -99,7 +100,7 @@ All Rights Reserved
       return new Intl.DateTimeFormat("en-US", options).format(date);
     };
 
-    dataChartAll = {
+    dataChartAllDocs = {
       chart: {
         type: "area",
         fontFamily: "Inter, sans-serif",
@@ -142,7 +143,7 @@ All Rights Reserved
       },
       series: [
         {
-          name: "New users",
+          name: "Total documents",
           data: monthlyCollectionsCounts,
           color: "#17B169",
         },
@@ -168,7 +169,7 @@ All Rights Reserved
       },
     };
 
-    dataChartReady = {
+    dataChartCollections = {
       chart: {
         type: "area",
         fontFamily: "Inter, sans-serif",
@@ -211,7 +212,7 @@ All Rights Reserved
       },
       series: [
         {
-          name: "New users",
+          name: "Documents collection",
           data: monthlyCollectionReadyCounts,
           color: "#17B169",
         },
@@ -280,7 +281,7 @@ All Rights Reserved
       },
       series: [
         {
-          name: "New users",
+          name: "Collecting data",
           data: monthlyCollectingDataCounts,
           color: "#17B169",
         },
@@ -324,13 +325,13 @@ All Rights Reserved
         change: readyCollection.change,
         changeType: readyCollection.changeType,
       },
-      {
-        href: await $call.getPage("client-dashboard", "document-collection"),
-        dataName: "Collecting Data",
-        value: dataCollecting.total,
-        change: dataCollecting.change,
-        changeType: dataCollecting.changeType,
-      },
+      // {
+      //   href: await $call.getPage("client-dashboard", "document-collection"),
+      //   dataName: "Collecting Data",
+      //   value: dataCollecting.total,
+      //   change: dataCollecting.change,
+      //   changeType: dataCollecting.changeType,
+      // },
     ];
   }
 
@@ -904,15 +905,10 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    // getChartAction(
-    //   { total: 0, change: 0, changeType: "-" },
-    //   { total: 0, change: 0, changeType: "-" },
-    //   { total: 0, change: 0, changeType: "-" },
-    // );
-    getCollections();
-    getCountDocumentsPerMonth();
-    // generateChartData();
     getActionItems();
+    getCountDocumentsPerMonth();
+    getCollections();
+    // generateChartData();
   });
 
   onDestroy(() => {
@@ -929,112 +925,81 @@ All Rights Reserved
 </script>
 
 <div class="flex dark:bg-primary-dark">
-  <div class="w-full pb-10">
-    <div class="flex flex-col m-4">
-      <!-- <Navbar /> -->
+  <div class="flex flex-col w-full pb-10 m-4 gap-8">
+    <!-- User Information -->
+    <Typography preset="Display sm/Semibold" text={$_("documentCollectionOverview")} />
 
-      <div class="flex flex-col gap-8">
-        <!-- User Information -->
-        <Typography preset="Display sm/Semibold" text={$_("documentCollectionOverview")} />
+    <!-- Action Items -->
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("action")} />
+      <ActionCard {actionItems} onclick={() => (addCollectionsModal = true)} />
+    </div>
 
-        <!-- Action Items -->
-        <div class="flex flex-col gap-4">
-          <SectionHeader title={$_("action")} />
+    <!-- Reports Monitoring -->
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("reports")} />
+      <ChartCard {chartAction} chartList={[dataChartAllDocs, dataChartCollections]} />
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div
+        class="flex justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
+      >
+        <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")} />
+        <div></div>
+        <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
+      </div>
+
+      <div>
+        {#if latestDocumentCollection.length > 0}
           <div
-            class={`grid ${$showAI ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 lg:grid-cols-3"} gap-4 w-full items-center justify-center`}
+            class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
           >
-            {#each actionItems as item}
-              <Card
-                onclick={() => (addCollectionsModal = true)}
-                icon={item.icon}
-                title={$_(toCamelCase(item.actionName))}
-                description={$_(toCamelCase(item.desc))}
+            {#each latestDocumentCollection as document}
+              <CollectionCard
+                collectionName={document.collectionName}
+                totalDocuments={document.totalDocuments}
+                status={document.status}
+                functButton={() => {
+                  selectCollection({
+                    id: document.collectionId,
+                    name: document.collectionName,
+                    description: document.description,
+                    totalDocuments: document.totalDocuments,
+                  });
+                }}
+                functAddDocuments={() => {
+                  tmpCollectionId = document.collectionId;
+                  selectTypeCollection("Documents");
+                  addDocumentsModal = true;
+                }}
+                functEdit={() => {
+                  tmpCollectionId = document.collectionId;
+                  tmpCollectionName = document.collectionName;
+                  tmpDescription = document.description;
+                  editModal = true;
+                }}
+                functDelete={() => {
+                  tmpCollectionId = document.collectionId;
+                  deleteModal = true;
+                }}
+                funcDetailCollection={() => {
+                  goto(document.href);
+                }}
               />
             {/each}
           </div>
-        </div>
-
-        <!-- Reports Monitoring -->
-        <div class="flex flex-col gap-4">
-          <SectionHeader title={$_("reports")} />
-          <div
-            class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
-          >
-            {#each chartAction as { href, dataName, value, change, changeType }, index}
-              <ChartCard
-                {href}
-                dataName={$_(toCamelCase(dataName))}
-                {value}
-                {change}
-                {changeType}
-                {index}
-                chartList={[dataChartAll, dataChartReady, dataChartCollecting]}
-              />
-            {/each}
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-4">
-          <div
-            class="flex justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
-          >
-            <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")} />
-            <div></div>
-            <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
-          </div>
-
-          <div>
-            {#if latestDocumentCollection.length > 0}
-              <div
-                class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
-              >
-                {#each latestDocumentCollection as document}
-                  <CollectionCard
-                    collectionName={document.collectionName}
-                    totalDocuments={document.totalDocuments}
-                    status={document.status}
-                    functButton={() => {
-                      selectCollection({
-                        id: document.collectionId,
-                        name: document.collectionName,
-                        description: document.description,
-                        totalDocuments: document.totalDocuments,
-                      });
-                    }}
-                    functAddDocuments={() => {
-                      tmpCollectionId = document.collectionId;
-                      selectTypeCollection("Documents");
-                      addDocumentsModal = true;
-                    }}
-                    functEdit={() => {
-                      tmpCollectionId = document.collectionId;
-                      tmpCollectionName = document.collectionName;
-                      tmpDescription = document.description;
-                      editModal = true;
-                    }}
-                    functDelete={() => {
-                      tmpCollectionId = document.collectionId;
-                      deleteModal = true;
-                    }}
-                    funcDetailCollection={() => {
-                      goto(document.href);
-                    }}
-                  />
-                {/each}
-              </div>
-            {:else if gettingDatas}
-              <StateCard
-                illustration={IllustrationProgress}
-                description={$_("fetchingDataPleaseWait")}
-              />
-            {:else}
-              <StateCard
-                illustration={IllustrationEmpty}
-                description={$_("youDontHaveAnyDataYet")}
-              />
-            {/if}
-          </div>
-        </div>
+        {:else if gettingDatas}
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
+        {:else}
+          <StateCard
+            illustration={IllustrationEmpty}
+            description={$_("youDontHaveAnyDataYet")}
+          />
+        {/if}
       </div>
     </div>
   </div>

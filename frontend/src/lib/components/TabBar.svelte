@@ -1,5 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { _ } from "svelte-i18n";
+  import { toCamelCase } from "$lib"
   export let tabDatas;
   const dispatch = createEventDispatcher();
   function capitalizeFirstLetter(string) {
@@ -22,7 +24,7 @@
       name={submenu.name}
       on:click={() => handleTabClick(submenu.name)}
       class={`p-2 px-4 font-semibold text-quaternary-light dark:text-white hover:bg-tertiary-light hover:dark:bg-brand-solid-dark ${tabDatas.selected === submenu.name && "border-b-2 border-brand-solid-light !text-brand-tertiary-light focus:bg-transparent dark:focus:bg-transparent dark:!text-brand-tertiary-light hover:bg-secondary-light hover:dark:bg-primary-light"}`}
-      >{capitalizeFirstLetter(submenu.name)}</button
+      >{capitalizeFirstLetter($_(toCamelCase(submenu.name)))}</button
     >
   {/each}
 </div>

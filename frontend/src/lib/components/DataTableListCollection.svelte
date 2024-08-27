@@ -27,7 +27,9 @@
   } from "flowbite-svelte";
   import * as Icon from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
-  import { _ } from "svelte-i18n";
+  import { _, locale } from "svelte-i18n";
+  import { formatDistanceToNow } from "date-fns";
+  import { id as localeId, enUS as localeEn } from "date-fns/locale";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import JpgIcon from "$lib/icon/jpg-icon.svelte";
   import PngIcon from "$lib/icon/png-icon.svelte";
@@ -149,7 +151,7 @@
   >
     {#if configs?.headers}
       <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-        >{configs.headers}</Heading
+        >{$_(toCamelCase(configs.headers))}</Heading
       >
     {/if}
     <div class="flex items-center gap-3">
@@ -177,7 +179,7 @@
                 <Icon.TrashBinOutline class="w-5 h-5" />&nbsp;
               {/if}
             {/if}
-            {action.name}
+            {$_(toCamelCase(action.name))}
           </Button>
         {/each}
       {/if}
@@ -232,7 +234,15 @@
               {#if key !== "actions" && key !== "id"}
                 {#if typeof data[key] === "string" || typeof data[key] === "number"}
                   <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                    {data[key]}
+                    {#if key === "upload_date"}
+                      {#if $locale === "id"}
+                        {$_("createOn")} {formatDistanceToNow(data[key], { addSuffix: true, locale: localeId })}
+                      {:else}
+                        {$_("createOn")} {formatDistanceToNow(data[key], { addSuffix: true, locale: localeEn })}
+                      {/if}
+                    {:else}
+                      {data[key]}
+                    {/if}
                   </TableBodyCell>
                 {:else if typeof data[key] === "object"}
                   {#if data[key]?.type !== "custom"}
@@ -315,21 +325,21 @@
 {#if configs?.pagination && Object.keys(configs.pagination).length > 0}
   <div class="flex justify-between">
     <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-      {"showing"}
+      {$_("showing")}
       <span
         >{configs.pagination.page === 1
           ? 1
           : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
       >
-      {"to"}
+      {$_("to")}
       <span
         >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
           ? configs.pagination.total
           : configs.pagination.page * configs.pagination.pageSize}</span
       >
-      {"of"}
+      {$_("of")}
       <span>{configs.pagination.total}</span>
-      {"entries"}
+      {$_("entries")}
     </div>
 
     <div class="m-4">
@@ -339,8 +349,8 @@
         on:previous={previous}
         activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
       >
-        <span slot="prev">{"previous"}</span>
-        <span slot="next">{"next"}</span>
+        <span slot="prev">{$_("previous")}</span>
+        <span slot="next">{$_("next")}</span>
       </Pagination>
     </div>
   </div>

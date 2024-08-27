@@ -494,5 +494,9 @@
   "gettingData": "Mengambil data",
   "fetchingDataPleaseWait": "Memuat data, mohon tunggu...",
   "pleaseAddJobLevelFirst": "Mohon tambahkan level pekerja terlebih dahulu",
-  "pleaseAddJobPositionFirst": "Mohon tambahkan posisi pekerja terlebih dahulu"
+  "pleaseAddJobPositionFirst": "Mohon tambahkan posisi pekerja terlebih dahulu",
+  "fileUploaded": "File ter-upload",
+  "fileName": "Nama file",
+  "fileSize": "Ukuran file",
+  "uploadedBy": "Diunggah oleh"
 }

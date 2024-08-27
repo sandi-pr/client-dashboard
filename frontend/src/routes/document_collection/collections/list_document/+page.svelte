@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { _ } from "svelte-i18n";
+  import { _, locale } from "svelte-i18n";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { StateCard, InputRw, TextareaRw, triggerToast, UploadFile } from "$lib";
@@ -19,6 +19,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format, formatDistanceToNow } from "date-fns";
+  import { id as localeId, enUS as localeEn } from "date-fns/locale";
   import { Button, P, Modal, Tooltip, Indicator, Input } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
@@ -44,7 +45,7 @@ All Rights Reserved
 
   let datas = $state([]);
 
-  let gettingDatas = $state(false);
+  let gettingDatas = $state(true);
 
   let onEdit = $state(false);
 
@@ -186,7 +187,8 @@ All Rights Reserved
             },
             file_size:
               document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
-            upload_date: formatDistanceToNow(document.attributes.createdAt, { addSuffix: true }),
+            upload_date: document.attributes.createdAt,
+
             uploaded_by:
               document.attributes.upload_by.data === null
                 ? "Unknown"
@@ -251,9 +253,7 @@ All Rights Reserved
         collection = {
           id: response.result.data.id,
           name: response.result.data.attributes.collection_name,
-          createdAt: formatDistanceToNow(response.result.data.attributes.createdAt, {
-            addSuffix: true,
-          }),
+          createdAt: response.result.data.attributes.createdAt,
           description: response.result.data.attributes.description,
         };
       } catch (error) {
@@ -610,7 +610,13 @@ All Rights Reserved
             <P
               class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
             >
-              {$_("createOn")}{` ${collection.createdAt}`}
+            {#if !gettingDatas}
+              {#if $locale === "id"}
+                {$_("createOn")} {formatDistanceToNow(collection.createdAt, { addSuffix: true, locale: localeId })}
+              {:else}
+                {$_("createOn")} {formatDistanceToNow(collection.createdAt, { addSuffix: true, locale: localeEn })}
+              {/if}
+            {/if}
             </P>
           </div>
           <div>

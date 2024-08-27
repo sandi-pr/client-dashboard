@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { P, Avatar, Heading, A, Button } from "flowbite-svelte";
-  import { StateCard, Typography, Card, ChartCard } from "$lib";
+  import { StateCard, Typography, Card, ChartCard, ActionCard } from "$lib";
   import { _ } from "svelte-i18n";
   import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
   import PackagePlusIcon from "$lib/icon/package-plus.svelte";
@@ -612,16 +612,7 @@ All Rights Reserved
               {$_("action")}
             </Heading>
           </div>
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
-            {#each actionItems as item}
-              <Card
-                href={item.href}
-                icon={item.icon}
-                title={$_(toCamelCase(item.actionName))}
-                description={$_(toCamelCase(item.desc))}
-              />
-            {/each}
-          </div>
+          <ActionCard {actionItems} />
         </div>
 
         <!-- Reports Monitoring -->
@@ -631,25 +622,7 @@ All Rights Reserved
               {$_("reports")}
             </Heading>
           </div>
-          <div
-            class={`grid ${showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4 items-center justify-center`}
-          >
-            {#each chartAction as { href, dataName, value, change, changeType }, index}
-              <ChartCard
-                {href}
-                dataName={$_(toCamelCase(dataName))}
-                {value}
-                {change}
-                {changeType}
-                {index}
-                chartList={[
-                  dataChartTotalPersons,
-                  dataChartActivePersons,
-                  dataChartInactivePersons,
-                ]}
-              />
-            {/each}
-          </div>
+          <ChartCard {chartAction} chartList={[dataChartTotalPersons, dataChartActivePersons, dataChartInactivePersons,]} />
         </div>
 
         <div class="flex flex-col">

@@ -493,5 +493,9 @@
   "review": "Review",
   "fetchingDataPleaseWait": "Fetching data, please wait...",
   "pleaseAddJobLevelFirst": "Please add job level first",
-  "pleaseAddJobPositionFirst": "Please add job position first"
+  "pleaseAddJobPositionFirst": "Please add job position first",
+  "fileUploaded": "File uploaded",
+  "fileName": "File name",
+  "fileSize": "File size",
+  "uploadedBy": "Uploaded by"
 }
