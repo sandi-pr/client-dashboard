@@ -492,5 +492,7 @@
   "section": "Section",
   "review": "Review",
   "gettingData": "Mengambil data",
-  "fetchingDataPleaseWait": "Memuat data, mohon tunggu..."
+  "fetchingDataPleaseWait": "Memuat data, mohon tunggu...",
+  "pleaseAddJobLevelFirst": "Mohon tambahkan level pekerja terlebih dahulu",
+  "pleaseAddJobPositionFirst": "Mohon tambahkan posisi pekerja terlebih dahulu"
 }

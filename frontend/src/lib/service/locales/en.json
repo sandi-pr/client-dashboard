@@ -491,5 +491,7 @@
   "aiSuggestion": "AI Suggestion",
   "section": "Section",
   "review": "Review",
-  "fetchingDataPleaseWait": "Fetching data, please wait..."
+  "fetchingDataPleaseWait": "Fetching data, please wait...",
+  "pleaseAddJobLevelFirst": "Please add job level first",
+  "pleaseAddJobPositionFirst": "Please add job position first"
 }

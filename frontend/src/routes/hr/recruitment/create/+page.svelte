@@ -20,6 +20,7 @@ All Rights Reserved
     MultiSelect,
     Select,
     Helper,
+    Alert,
   } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
@@ -29,6 +30,7 @@ All Rights Reserved
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
   import { onMount, createEventDispatcher } from "svelte";
+  import { InfoCircleSolid } from "flowbite-svelte-icons";
 
   import { call } from "$lib";
   let fileTextResult = $state(null);
@@ -281,6 +283,10 @@ All Rights Reserved
     dispatch("emailChange", { email, emailValid });
   }
 
+  async function addJobLevel() {
+    goto(await $call.getPage("client-dashboard", "job-management"));
+  }
+
   onMount(() => {
     getJobLevels();
     getJobPositions();
@@ -359,6 +365,18 @@ All Rights Reserved
                     items={jobLevels}
                     bind:value={data.job_level}
                   />
+                  {#if jobLevels.length === 0}
+                    <Alert color="red">
+                      <InfoCircleSolid slot="icon" class="w-5 h-5" />
+                      {$_("pleaseAddJobLevelFirst")}
+                      <button
+                        onclick={addJobLevel}
+                        class="font-semibold underline hover:text-red-800 dark:hover:text-red-900"
+                        >{$_("inHere")}</button
+                      >
+                    </Alert>
+                    <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
+                  {/if}
                 </div>
                 <div class="flex flex-col grow gap-2">
                   <P
@@ -371,6 +389,18 @@ All Rights Reserved
                     items={jobPositions}
                     bind:value={data.job_position}
                   />
+                  {#if jobPositions.length === 0}
+                    <Alert color="red">
+                      <InfoCircleSolid slot="icon" class="w-5 h-5" />
+                      {$_("pleaseAddJobPositionFirst")}
+                      <button
+                        onclick={addJobLevel}
+                        class="font-semibold underline hover:text-red-800 dark:hover:text-red-900"
+                        >{$_("inHere")}</button
+                      >
+                    </Alert>
+                    <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
+                  {/if}
                 </div>
               </div>
               <div class="flex gap-5">

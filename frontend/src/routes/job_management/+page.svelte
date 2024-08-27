@@ -23,7 +23,7 @@ All Rights Reserved
   import TabDetail from "$lib/components/TabDetail.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { CR3Call } from "hexacomponents-svelte";
-  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { InfoCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
 
   import { call } from "$lib";
 
@@ -70,11 +70,14 @@ All Rights Reserved
     };
     jobLevels = [...jobLevels, newJobLevel];
 
+    saveJobLevels();
+
     tmpJobLevel = "";
   }
 
   function deleteJobLevel(id) {
     jobLevels = jobLevels.filter((jobLevel) => jobLevel.id !== id);
+    saveJobLevels();
   }
 
   function handleDndConsider(e) {
@@ -86,43 +89,45 @@ All Rights Reserved
       // Optional: Handle logic when drag starts
     }
     jobLevels = newItems;
+    saveJobLevels();
   }
 
   function handleDndFinalize(e) {
     const { items: newItems } = e.detail;
     jobLevels = newItems;
+    saveJobLevels();
   }
 
   async function saveJobLevels() {
-    if (jobLevels.length === 0) {
-      triggerToast("error");
-      return;
-    } else {
-      let token = sessionStorage.getItem("token");
-      if (token) {
-        try {
-          const response = await $call.call("client-dashboard", "create-job-level", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              job_level: JSON.stringify(jobLevels),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+    // if (jobLevels.length === 0) {
+    //   triggerToast("error");
+    //   return;
+    // } else {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "create-job-level", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            job_level: JSON.stringify(jobLevels),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-          console.log(response);
+        console.log(response);
 
-          if (response.status === 200) {
-            triggerToast("created");
-          }
-        } catch (error) {
-          console.log(error);
-          triggerToast("error");
+        if (response.status === 200) {
+          // triggerToast("created");
         }
+      } catch (error) {
+        console.log(error);
+        triggerToast("error");
       }
     }
+    // }
   }
 
   async function getJobLevels() {
@@ -358,11 +363,11 @@ All Rights Reserved
           </div>
         </div>
         <div class="flex gap-2">
-          <Button
+          <!-- <Button
             class="px-3 focus-within:!ring-1"
             disabled={buttonDisable}
             on:click={saveJobLevels}>{$_("save")}</Button
-          >
+          > -->
           <!-- <Button class="px-3 focus-within:!ring-1">{$_("importCsv")}</Button> -->
         </div>
       </div>
@@ -411,9 +416,15 @@ All Rights Reserved
                 </div>
               </div>
             {:else if gettingDatas}
-              <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
             {:else}
-              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
             {/if}
           </div>
         </div>
@@ -434,7 +445,10 @@ All Rights Reserved
               <DataTable bind:datas bind:configs bind:next bind:previous />
             </div>
           {:else if gettingDatas}
-            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
           {:else}
             <StateCard
               illustration={IllustrationEmpty}
@@ -462,11 +476,12 @@ All Rights Reserved
         {`${selectedJobLevel ? selectedJobLevel : $_("selectJobLevel")}`}
         <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
       </Button>
-      <div
-        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-      >
-        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-          {#if jobLevels.length > 0}
+
+      {#if jobLevels.length > 0}
+        <div
+          class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+        >
+          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
             {#each jobLevels as job (job.id)}
               <button
                 class="flex p-2"
@@ -476,13 +491,14 @@ All Rights Reserved
                 }}>{job.title}</button
               >
             {/each}
-          {:else}
-            <Alert color="yellow">
-              {$_("pleaseAddJobLevelsFirst")}
-            </Alert>
-          {/if}
-        </ul>
-      </div>
+          </ul>
+        </div>
+      {:else}
+        <Alert color="red">
+          <InfoCircleSolid slot="icon" class="w-5 h-5" />
+          {$_("pleaseAddJobLevelsFirst")}
+        </Alert>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("positionName")}*`} />

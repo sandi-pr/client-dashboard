@@ -12,12 +12,13 @@ All Rights Reserved
 <script>
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
-  import { P, Heading, Input, Button, Helper, Toast, Select } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Helper, Alert, Select } from "flowbite-svelte";
   import { ToastContainer, triggerToast } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { fly } from "svelte/transition";
   import { createEventDispatcher, onMount } from "svelte";
   import { goto } from "$app/navigation";
+  import { InfoCircleSolid } from "flowbite-svelte-icons";
 
   const dispatch = createEventDispatcher();
 
@@ -164,6 +165,10 @@ All Rights Reserved
         console.log(error);
       }
     }
+  }
+
+  async function addJobLevel() {
+    goto(await $call.getPage("client-dashboard", "job-management"));
   }
 
   onMount(async () => {
@@ -371,6 +376,18 @@ All Rights Reserved
                   items={jobLevels}
                   bind:value={data.job_level}
                 />
+                {#if jobLevels.length === 0}
+                  <Alert color="red">
+                    <InfoCircleSolid slot="icon" class="w-5 h-5" />
+                    {$_("pleaseAddJobLevelFirst")}
+                    <button
+                      onclick={addJobLevel}
+                      class="font-semibold underline hover:text-red-800 dark:hover:text-red-900"
+                      >{$_("inHere")}</button
+                    >
+                  </Alert>
+                  <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
+                {/if}
               </div>
               <div class="flex flex-col gap-2">
                 <P
@@ -382,6 +399,18 @@ All Rights Reserved
                   items={jobPositions}
                   bind:value={data.job_position}
                 />
+                {#if jobPositions.length === 0}
+                  <Alert color="red">
+                    <InfoCircleSolid slot="icon" class="w-5 h-5" />
+                    {$_("pleaseAddJobPositionFirst")}
+                    <button
+                      onclick={addJobLevel}
+                      class="font-semibold underline hover:text-red-800 dark:hover:text-red-900"
+                      >{$_("inHere")}</button
+                    >
+                  </Alert>
+                  <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
+                {/if}
               </div>
               <div class="flex flex-col gap-2">
                 <P

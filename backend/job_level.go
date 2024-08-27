@@ -122,7 +122,27 @@ func GetJobLevel(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 
 	fmt.Println(company)
 
-	company_job_level := company["data"].(U.Dict)["attributes"].(U.Dict)["company_job_level"].(U.List)
+	var company_job_level U.List
+
+	data, ok := company.GetDict("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	attributes, ok := data.GetDict("attributes")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	company_job_level, ok = attributes.GetList("company_job_level")
+
+	if !ok {
+		company_job_level = U.List{}
+	}
+
+	// company_job_level := company["data"].(U.Dict)["attributes"].(U.Dict)["company_job_level"].(U.List)
 
 	return 200, U.Dict{"job_level": company_job_level}, nil
 }
