@@ -894,9 +894,13 @@ All Rights Reserved
   async function selectCollection(collection) {
     console.log("ayam overview");
     triggerShowAI(true);
+    localStorage.setItem("showAI", "true");
     triggerSelectDropdown("collections");
+    localStorage.setItem("selectedDropdown", "collections");
     triggerReload(true);
     triggerSelectCollection(collection);
+    localStorage.setItem("selectedCollection", JSON.stringify(collection));
+    return;
   }
 
   onMount(async () => {
@@ -936,7 +940,9 @@ All Rights Reserved
         <!-- Action Items -->
         <div class="flex flex-col gap-4">
           <SectionHeader title={$_("action")} />
-          <div class={`grid ${$showAI ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 lg:grid-cols-3"} gap-4 w-full items-center justify-center`}>
+          <div
+            class={`grid ${$showAI ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 lg:grid-cols-3"} gap-4 w-full items-center justify-center`}
+          >
             {#each actionItems as item}
               <Card
                 onclick={() => (addCollectionsModal = true)}
@@ -979,7 +985,9 @@ All Rights Reserved
 
           <div>
             {#if latestDocumentCollection.length > 0}
-              <div class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}>
+              <div
+                class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
+              >
                 {#each latestDocumentCollection as document}
                   <CollectionCard
                     collectionName={document.collectionName}
@@ -1015,9 +1023,15 @@ All Rights Reserved
                 {/each}
               </div>
             {:else if gettingDatas}
-              <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
             {:else}
-              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
             {/if}
           </div>
         </div>

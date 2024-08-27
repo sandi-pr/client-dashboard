@@ -404,11 +404,31 @@
       }
 
       if (allData.length === 0) {
-        dataConversatonLogs.push({
-          role: "assistant",
-          message: "Your collection is empty",
+        let response2 = await $call.call("client-dashboard", "get-collection-by-id", {
+          URLQuery: {},
+          URLParams: {
+            id: selectedCollectionOld.id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
         });
-        return;
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          dataConversatonLogs.push({
+            role: "assistant",
+            message: "Your collection is not found, please select another collection",
+          });
+          return;
+        } else {
+          dataConversatonLogs.push({
+            role: "assistant",
+            message: "Your collection is empty",
+          });
+          return;
+        }
       }
 
       let allReady = true;

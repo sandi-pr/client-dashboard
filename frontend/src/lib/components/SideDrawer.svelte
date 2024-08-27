@@ -219,6 +219,7 @@ All Rights Reserved
   const selectDropdown = (item) => {
     dropdownOpen = false;
     triggerSelectDropdown(item);
+    localStorage.setItem("selectedDropdown", item);
   };
 
   const selectCollection = (item) => {
@@ -246,6 +247,7 @@ All Rights Reserved
 
     triggerReload(true);
     triggerSelectCollection(tmpSelectedCollection);
+    localStorage.setItem("selectedCollection", JSON.stringify(tmpSelectedCollection));
     console.log(response2);
   }
 

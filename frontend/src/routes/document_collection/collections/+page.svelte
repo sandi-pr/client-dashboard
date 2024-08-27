@@ -601,9 +601,12 @@ All Rights Reserved
   async function selectCollection(collection) {
     console.log("ayam collections");
     triggerShowAI(true);
+    localStorage.setItem("showAI", "true");
     triggerSelectDropdown("collections");
+    localStorage.setItem("selectedDropdown", "collections");
     triggerReload(true);
     triggerSelectCollection(collection);
+    localStorage.setItem("selectedCollection", JSON.stringify(collection));
     return;
   }
 
@@ -669,7 +672,9 @@ All Rights Reserved
             bind:value={searchTerm}
           /> -->
           {#if datas.length > 0}
-          <div class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}>
+            <div
+              class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
+            >
               {#each datas as document}
                 <CollectionCard
                   collectionName={document.collectionName}
@@ -704,8 +709,11 @@ All Rights Reserved
                 />
               {/each}
             </div>
-          {:else if gettingDatas}  
-            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          {:else if gettingDatas}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
           {:else}
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}

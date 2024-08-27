@@ -22,6 +22,8 @@ All Rights Reserved
     callReady,
     triggerShowAI,
     showAI,
+    triggerSelectDropdown,
+    triggerSelectCollection,
     triggerReload,
   } from "$lib";
   import { onMount } from "svelte";
@@ -491,8 +493,14 @@ All Rights Reserved
   let winInnerWidth = $derived(innerWidth);
   if (typeof localStorage !== "undefined") {
     triggerShowAI(localStorage.getItem("showAI") === "true" ? true : false);
-  } else {
-    console.log("localstorage is undefined");
+    if (localStorage.getItem("selectedDropdown") === "collections") {
+      triggerSelectDropdown(
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
+      );
+      if (localStorage.getItem("selectedCollection") !== null) {
+        triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));
+      }
+    }
   }
 
   $effect(() => {

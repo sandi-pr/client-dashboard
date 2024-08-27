@@ -24,6 +24,7 @@ All Rights Reserved
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
   import upload from "$lib/icon/upload-cloud-02.svg";
+  import { goto } from "$app/navigation";
   import {
     triggerSelectCollection,
     triggerShowAI,
@@ -239,6 +240,8 @@ All Rights Reserved
         });
         if (response.status !== 200) {
           console.log(response);
+          triggerToast("error");
+          goto(await $call.getPage("client-dashboard", "document-collection"));
           return;
         }
 
@@ -251,6 +254,7 @@ All Rights Reserved
           description: response.result.data.attributes.description,
         };
       } catch (error) {
+        triggerToast("error");
         console.log(error);
       }
     }
@@ -516,9 +520,12 @@ All Rights Reserved
   async function selectCollection(collection) {
     console.log("ayam list");
     triggerShowAI(true);
+    localStorage.setItem("showAI", "true");
     triggerSelectDropdown("collections");
+    localStorage.setItem("selectedDropdown", "collections");
     triggerReload(true);
     triggerSelectCollection(collection);
+    localStorage.setItem("selectedCollection", JSON.stringify(collection));
     return;
   }
 
@@ -651,7 +658,10 @@ All Rights Reserved
               bind:handleCheck
             />
           {:else if gettingDatas}
-            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
           {:else}
             <StateCard
               illustration={IllustrationEmpty}
