@@ -168,27 +168,31 @@
 
               console.log("status", attendance[j].status);
 
-              if (attendance[i].status === "Checkin") {
-                console.log("checkin");
-                datas[j].actions.objects[0].actionButton = {
-                  CheckOut: () => {
-                    checkout_time(datas[j].id);
-                  },
-                };
-              }
-
-              if (attendance[i].status === "Checkout") {
-                console.log("checkout");
+              if (selectedDate === format(new Date(), "yyyy-MM-dd")) {
                 datas[j].actions.objects[0].actionButton = {};
-              }
+              } else {
+                if (attendance[i].status === "Checkin") {
+                  console.log("checkin");
+                  datas[j].actions.objects[0].actionButton = {
+                    CheckOut: () => {
+                      checkout_time(datas[j].id);
+                    },
+                  };
+                }
 
-              if (attendance[i].status === "Absent") {
-                console.log("absent");
-                datas[j].actions.objects[0].actionButton = {
-                  // CheckIn: () => {
-                  //   checkin_time(datas[j].id);
-                  // },
-                };
+                if (attendance[i].status === "Checkout") {
+                  console.log("checkout");
+                  datas[j].actions.objects[0].actionButton = {};
+                }
+
+                if (attendance[i].status === "Absent") {
+                  console.log("absent");
+                  datas[j].actions.objects[0].actionButton = {
+                    // CheckIn: () => {
+                    //   checkin_time(datas[j].id);
+                    // },
+                  };
+                }
               }
 
               datas[j].status = getStatus(attendance[i].status);
@@ -448,7 +452,10 @@
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else if gettingDatas}
-          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
