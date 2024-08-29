@@ -169,6 +169,7 @@
           <Button
             onclick={action.onclick}
             color="light"
+            disabled={action?.disabled}
             class={`${classActionType(action.type)} min-w-max px-2 py-3`}
           >
             {#if action?.icon}
@@ -236,9 +237,11 @@
                   <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                     {#if key === "upload_date"}
                       {#if $locale === "id"}
-                        {$_("createOn")} {formatDistanceToNow(data[key], { addSuffix: true, locale: localeId })}
+                        {$_("createOn")}
+                        {formatDistanceToNow(data[key], { addSuffix: true, locale: localeId })}
                       {:else}
-                        {$_("createOn")} {formatDistanceToNow(data[key], { addSuffix: true, locale: localeEn })}
+                        {$_("createOn")}
+                        {formatDistanceToNow(data[key], { addSuffix: true, locale: localeEn })}
                       {/if}
                     {:else}
                       {data[key]}

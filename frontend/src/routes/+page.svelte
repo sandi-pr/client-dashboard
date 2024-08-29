@@ -28,30 +28,30 @@ All Rights Reserved
   let isFirstTime = $state(true);
 
   const cards = [
-    // {
-    //   icon: "users",
-    //   title: "crmOverview",
-    //   description: "descCrm",
-    //   page: "crm-overview",
-    // },
-    // {
-    //   icon: "messageChat",
-    //   title: "webchat",
-    //   description: "talkToYourPrivateAiAssistantHere",
-    //   page: "bakrie-webchat",
-    // },
+    {
+      icon: "users",
+      title: "crmOverview",
+      description: "descCrm",
+      page: "crm-overview",
+    },
+    {
+      icon: "messageChat",
+      title: "webchat",
+      description: "talkToYourPrivateAiAssistantHere",
+      page: "bakrie-webchat",
+    },
     {
       icon: "fileShield",
       title: "documentCollection",
       description: "descDocumentCollection",
       page: "document-collection-overview",
     },
-    // {
-    //   icon: "userSquare",
-    //   title: "HR",
-    //   description: "descHr",
-    //   page: "hr-overview",
-    // },
+    {
+      icon: "userSquare",
+      title: "HR",
+      description: "descHr",
+      page: "hr-overview",
+    },
   ];
 
   function setFristTime() {

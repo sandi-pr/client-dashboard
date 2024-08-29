@@ -85,7 +85,6 @@ All Rights Reserved
   async function getDocuments(page) {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
         URLQuery: {},
         URLParams: {},
@@ -151,6 +150,7 @@ All Rights Reserved
               name: "Delete",
               icon: "trash",
               type: "error",
+              disabled: datasChecked.find((data) => data.checked) ? false : true,
               onclick: () => {
                 if (datasChecked.find((data) => data.checked)) {
                   popupModal = true;
@@ -223,10 +223,20 @@ All Rights Reserved
         datas = [];
         datasChecked = [];
       }
-
-      gettingDatas = false;
     }
   }
+
+  $effect(() => {
+    if (datasChecked) {
+      if (configs?.actions) {
+        configs.actions.find((config) => {
+          if (config.id === "delete") {
+            config.disabled = datasChecked.find((data) => data.checked) ? false : true;
+          }
+        });
+      }
+    }
+  });
 
   async function getCollection() {
     // search collection using params collectionId here
@@ -256,6 +266,7 @@ All Rights Reserved
           createdAt: response.result.data.attributes.createdAt,
           description: response.result.data.attributes.description,
         };
+        gettingDatas = false;
       } catch (error) {
         triggerToast("error");
         console.log(error);
@@ -610,13 +621,15 @@ All Rights Reserved
             <P
               class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
             >
-            {#if !gettingDatas}
-              {#if $locale === "id"}
-                {$_("createOn")} {formatDistanceToNow(collection.createdAt, { addSuffix: true, locale: localeId })}
-              {:else}
-                {$_("createOn")} {formatDistanceToNow(collection.createdAt, { addSuffix: true, locale: localeEn })}
+              {#if !gettingDatas}
+                {#if $locale === "id"}
+                  {$_("createOn")}
+                  {formatDistanceToNow(collection.createdAt, { addSuffix: true, locale: localeId })}
+                {:else}
+                  {$_("createOn")}
+                  {formatDistanceToNow(collection.createdAt, { addSuffix: true, locale: localeEn })}
+                {/if}
               {/if}
-            {/if}
             </P>
           </div>
           <div>

@@ -117,46 +117,46 @@ All Rights Reserved
 
   const getModules = async () => {
     return [
-      // {
-      //   icon: "users",
-      //   name: "crmOverview",
-      //   desc: "descCrm",
-      //   status: "coming soon",
-      //   children: [
-      //     {
-      //       href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
-      //       name: "persons",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/crm/product_service"
-      //         : await call.getPage("client-dashboard", "crm-product-service"),
-      //       name: "product&Services",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/crm/categories"
-      //         : await call.getPage("client-dashboard", "crm-categories"),
-      //       name: "categories",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/crm/order_invoice"
-      //         : await call.getPage("client-dashboard", "crm-order-invoice"),
-      //       name: "order&Invoice",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/crm/calendar"
-      //         : await call.getPage("client-dashboard", "crm-calendar"),
-      //       name: "calendar",
-      //     },
-      //   ],
-      // },
+      {
+        icon: "users",
+        name: "crmOverview",
+        desc: "descCrm",
+        status: "coming soon",
+        children: [
+          {
+            href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+            name: "overview",
+          },
+          {
+            href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
+            name: "persons",
+          },
+          {
+            href: isFrontend
+              ? "/crm/product_service"
+              : await call.getPage("client-dashboard", "crm-product-service"),
+            name: "product&Services",
+          },
+          {
+            href: isFrontend
+              ? "/crm/categories"
+              : await call.getPage("client-dashboard", "crm-categories"),
+            name: "categories",
+          },
+          {
+            href: isFrontend
+              ? "/crm/order_invoice"
+              : await call.getPage("client-dashboard", "crm-order-invoice"),
+            name: "order&Invoice",
+          },
+          {
+            href: isFrontend
+              ? "/crm/calendar"
+              : await call.getPage("client-dashboard", "crm-calendar"),
+            name: "calendar",
+          },
+        ],
+      },
       {
         icon: "box",
         name: "documentCollection",
@@ -205,46 +205,46 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      // {
-      //   icon: "userSquare",
-      //   name: "HR",
-      //   children: [
-      //     {
-      //       href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/attendance"
-      //         : await call.getPage("client-dashboard", "hr-attendance"),
-      //       name: "attendance",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/employee"
-      //         : await call.getPage("client-dashboard", "hr-employee"),
-      //       name: "employee",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/recruitment"
-      //         : await call.getPage("client-dashboard", "hr-recruitment"),
-      //       name: "recruitment",
-      //     },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/hr/job_level"
-      //     //     : await call.getPage("client-dashboard", "hr-joblevel"),
-      //     //   name: "jobLevel",
-      //     // },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/hr/job_position"
-      //     //     : await call.getPage("client-dashboard", "hr-jobposition"),
-      //     //   name: "jobPosition",
-      //     // },
-      //   ],
-      // },
+      {
+        icon: "userSquare",
+        name: "HR",
+        children: [
+          {
+            href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
+            name: "overview",
+          },
+          {
+            href: isFrontend
+              ? "/hr/attendance"
+              : await call.getPage("client-dashboard", "hr-attendance"),
+            name: "attendance",
+          },
+          {
+            href: isFrontend
+              ? "/hr/employee"
+              : await call.getPage("client-dashboard", "hr-employee"),
+            name: "employee",
+          },
+          {
+            href: isFrontend
+              ? "/hr/recruitment"
+              : await call.getPage("client-dashboard", "hr-recruitment"),
+            name: "recruitment",
+          },
+          // {
+          //   href: isFrontend
+          //     ? "/hr/job_level"
+          //     : await call.getPage("client-dashboard", "hr-joblevel"),
+          //   name: "jobLevel",
+          // },
+          // {
+          //   href: isFrontend
+          //     ? "/hr/job_position"
+          //     : await call.getPage("client-dashboard", "hr-jobposition"),
+          //   name: "jobPosition",
+          // },
+        ],
+      },
       {
         icon: "fileShield",
         name: "contractReviewer",
