@@ -21,6 +21,24 @@
 
   let configs = $state({});
 
+  function getStatus(is_active) {
+    if (is_active === "Yes") {
+      return {
+        type: "success",
+        name: "Active",
+      };
+    }
+
+    if (is_active === "No") {
+      return {
+        type: "danger",
+        name: "Inactive",
+      };
+    }
+
+    return;
+  }
+
   async function getPerson(page) {
     if (page > pagination.pageCount) return;
     let token = sessionStorage.getItem("token");
@@ -62,7 +80,7 @@
             // zip_code: person.attributes.zip_code,
             country: person.attributes.country,
             // date_of_birth: person.attributes.date_of_birth,
-            is_active: person.attributes.is_active,
+            status: getStatus(person.attributes.is_active),
             actions: {
               objects: [
                 {
@@ -127,7 +145,10 @@
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else if gettingDatas}
-          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
