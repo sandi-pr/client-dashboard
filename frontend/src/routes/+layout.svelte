@@ -33,9 +33,9 @@ All Rights Reserved
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import { goto } from "$app/navigation";
-  // import { set_pdfjs_context } from '$lib/utils/vite.ts';
+  import { set_pdfjs_context } from '$lib/utils/vite.ts';
 
-  // set_pdfjs_context();
+  set_pdfjs_context();
 
   let innerWidth = $state(0);
   // let { showAI = false } = $props();
@@ -60,7 +60,7 @@ All Rights Reserved
   });
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://192.168.1.13")
     : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);

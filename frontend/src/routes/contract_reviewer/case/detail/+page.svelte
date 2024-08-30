@@ -30,6 +30,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import PlusCircleICon from "$lib/icon/plus-circle.svelte";
   import PdfViewer from "svelte-pdf";
+  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
 
@@ -898,12 +899,13 @@ All Rights Reserved
 <Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
   {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
     <div class="flex justify-center">
-      <PdfViewer
+      <PdfjsViewer pdfFile={selectedFile.base64} />
+      <!-- <PdfViewer
         showBorder={false}
         showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
         scale={1}
         data={atob(selectedFile.base64)}
-      />
+      /> -->
     </div>
   {/if}
 </Modal>

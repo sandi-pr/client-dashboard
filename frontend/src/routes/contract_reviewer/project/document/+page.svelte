@@ -14,7 +14,7 @@
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import { DatePicker } from "@svelte-plugins/datepicker";
-  import PdfViewer from "svelte-pdf";
+  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
   import { format } from "date-fns";
   import { _ } from "svelte-i18n";
   import { onMount, onDestroy } from "svelte";
@@ -498,12 +498,7 @@
           <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
           <div class="flex justify-center">
             <!-- {#if pdfReady} -->
-            <PdfViewer
-              showBorder={false}
-              showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-              scale={1}
-              data={atob(file.base64)}
-            />
+            <PdfjsViewer pdfFile={file.base64} />
             <!-- {/if} -->
           </div>
         {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}

@@ -33,6 +33,7 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { createEventDispatcher } from "svelte";
   import PdfViewer from "svelte-pdf";
+  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
   import { generateUniqueId } from "$lib";
   import { page } from "$app/stores";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
@@ -612,7 +613,7 @@ All Rights Reserved
               </P>
             </div>
             <div
-              class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+              class="flex flex-col grow gap-6 rounded-lg"
             >
               <div class="flex flex-col gap-1.5">
                 <Typography
@@ -701,20 +702,12 @@ All Rights Reserved
               </P>
             </div>
             <div
-              class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+              class="flex flex-col relative items-center grow py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark"
             >
               {#if data.ext === ".pdf"}
-                <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
-                <div class="flex justify-center">
-                  {#if pdfReady}
-                    <PdfViewer
-                      showBorder={false}
-                      showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                      scale={1}
-                      data={atob(base64)}
-                    />
-                  {/if}
-                </div>
+                {#if pdfReady}
+                  <PdfjsViewer pdfFile={base64} />
+                {/if}
               {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
                 <div class="flex justify-center">
                   <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />

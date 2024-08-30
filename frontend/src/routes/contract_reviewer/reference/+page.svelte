@@ -9,7 +9,7 @@
     Dropdown,
     triggerLoading,
   } from "$lib";
-  import PdfViewer from "svelte-pdf";
+  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
   import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
@@ -609,12 +609,7 @@
 <Modal title={$_("documentViewer")} bind:open={documentViewModal} autoclose outsideclose>
   {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
     <div class="flex justify-center">
-      <PdfViewer
-        showBorder={false}
-        showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-        scale={1}
-        data={atob(selectedFile.base64)}
-      />
+      <PdfjsViewer pdfFile={selectedFile.base64} />
     </div>
   {/if}
 </Modal>
