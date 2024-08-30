@@ -143,14 +143,7 @@
             objects: [
               {
                 attendance: true,
-                actionButton: {
-                  CheckIn: () => {
-                    checkin_time(employees[i].id);
-                  },
-                  Absent: () => {
-                    absent(employees[i].id);
-                  },
-                },
+                actionButton: {},
               },
             ],
           },
@@ -160,15 +153,22 @@
       attendance = await getEmployeeAttendance();
 
       if (attendance.length > 0) {
+        console.log("attendance", attendance);
         for (let i = 0; i < attendance.length; i++) {
           for (let j = 0; j < datas.length; j++) {
             if (attendance[i].employee_id === datas[j].id) {
               datas[j].checkin_time = attendance[i].checkin_time;
               datas[j].checkout_time = attendance[i].checkout_time;
 
-              console.log("status", attendance[j].status);
+              console.log("status", attendance[i].status);
 
-              if (selectedDate === format(new Date(), "yyyy-MM-dd")) {
+              if (
+                new Date(format(selectedDate, "yyyy-MM-dd")) <
+                  new Date(format(new Date(), "yyyy-MM-dd")) ||
+                new Date(format(selectedDate, "yyyy-MM-dd")) >
+                  new Date(format(new Date(), "yyyy-MM-dd"))
+              ) {
+                console.log("before");
                 datas[j].actions.objects[0].actionButton = {};
               } else {
                 if (attendance[i].status === "Checkin") {
@@ -199,12 +199,49 @@
 
               console.log("attendance", datas[j]);
             } else {
+              if (
+                new Date(format(selectedDate, "yyyy-MM-dd")) <
+                  new Date(format(new Date(), "yyyy-MM-dd")) ||
+                new Date(format(selectedDate, "yyyy-MM-dd")) >
+                  new Date(format(new Date(), "yyyy-MM-dd"))
+              ) {
+                datas[j].actions.objects[0].actionButton = {};
+              } else {
+                datas[j].actions.objects[0].actionButton = {
+                  CheckIn: () => {
+                    checkin_time(employees[i].id);
+                  },
+                  Absent: () => {
+                    absent(employees[i].id);
+                  },
+                };
+              }
+
               datas[j].status = getStatus("-");
             }
           }
         }
       } else {
+        console.log("no attendance");
         for (let i = 0; i < datas.length; i++) {
+          if (
+            new Date(format(selectedDate, "yyyy-MM-dd")) <
+              new Date(format(new Date(), "yyyy-MM-dd")) ||
+            new Date(format(selectedDate, "yyyy-MM-dd")) >
+              new Date(format(new Date(), "yyyy-MM-dd"))
+          ) {
+            console.log("before");
+            datas[i].actions.objects[0].actionButton = {};
+          } else {
+            datas[i].actions.objects[0].actionButton = {
+              CheckIn: () => {
+                checkin_time(employees[i].id);
+              },
+              Absent: () => {
+                absent(employees[i].id);
+              },
+            };
+          }
           datas[i].status = getStatus("-");
         }
       }
@@ -287,6 +324,7 @@
       }
 
       console.log("success", response);
+      idAttendance = response.result.data.id.toString();
       datas = datas2;
     }
   }
@@ -405,7 +443,7 @@
       }
 
       console.log("success", response);
-
+      idAttendance = response.result.data.id.toString();
       datas = datas2;
     }
   }
