@@ -278,7 +278,7 @@ All Rights Reserved
       <div class="flex items-center">
         <div
           id="drawer-label"
-          class="w-full inline-flex items-center mx-4 mt-4 text-base font-semibold text-gray-500 dark:text-gray-400"
+          class="w-full relative inline-flex items-center mx-4 mt-4 text-base font-semibold text-gray-500 dark:text-gray-400"
         >
           {#if tabDatas.selected === "Latest Activity"}
             <div
@@ -380,7 +380,7 @@ All Rights Reserved
             </div>
           {/if}
           {#if innerWidth < 1024}
-            <CloseButton on:click={changeShowAI} class="mb-4 dark:text-white" />
+            <CloseButton on:click={changeShowAI} class="mb-4 absolute right-0 top-1 dark:text-white" />
           {/if}
         </div>
       </div>
