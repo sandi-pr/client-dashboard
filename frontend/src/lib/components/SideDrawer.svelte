@@ -62,6 +62,8 @@ All Rights Reserved
   let initCollections = $state([]);
   let documents = $state([]);
   let collections = $state([]);
+  let nameCollection = $state(null);
+  let reloadCollection = $state(true);
 
   let tabDatas = $state({
     selected: "Hexa AI",
@@ -218,6 +220,17 @@ All Rights Reserved
 
   const selectDropdown = (item) => {
     dropdownOpen = false;
+    if (item === "general") {
+      nameCollection = null;
+    }
+
+    if (item === "collections") {
+      if ($selectedCollection !== null) {
+        tmpSelectedCollection = $selectedCollection;
+        callColection();
+      }
+    }
+
     triggerSelectDropdown(item);
     localStorage.setItem("selectedDropdown", item);
   };
@@ -264,6 +277,19 @@ All Rights Reserved
     disableButton = tmpSelectedCollection === null ? true : false;
     disableConfigButton =
       $selectedDropdown === "general" ? true : $selectedDropdown === "ocr" ? true : false;
+  });
+
+  $effect(() => {
+    if ($selectedDropdown === "collections") {
+      if ($selectedCollection !== null) {
+        nameCollection = $selectedCollection.name;
+        if (reloadCollection) {
+          reloadCollection = false;
+          tmpSelectedCollection = $selectedCollection;
+          callColection();
+        }
+      }
+    }
   });
 
   onMount(() => {
@@ -327,9 +353,15 @@ All Rights Reserved
                 <Button
                   on:click={() => (dropdownOpen = !dropdownOpen)}
                   color="light"
-                  class={`w-max mt-4 !pr-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex justify-start`}
+                  class={`w-max-fit mr-3 mt-4 !pr-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex justify-start`}
                 >
-                  <P>{$_($selectedDropdown)}</P>
+                  <P class="line-clamp-1"
+                    >{selectedDropdown === "general"
+                      ? $_($selectedDropdown)
+                      : nameCollection !== null
+                        ? nameCollection
+                        : $_($selectedDropdown)}</P
+                  >
                   <ChevronRightOutline
                     class="text-fg-secondary-light dark:text-fg-secondary-dark"
                   />
@@ -360,7 +392,7 @@ All Rights Reserved
                       color="light"
                       class={`w-max mt-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
                     >
-                      <P>{$_("configure")}</P>
+                      <!-- <P>{$_("configure")}</P> -->
                       <SettingsIcon
                         svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
                       />
@@ -380,7 +412,10 @@ All Rights Reserved
             </div>
           {/if}
           {#if innerWidth < 1024}
-            <CloseButton on:click={changeShowAI} class="mb-4 absolute right-0 top-1 dark:text-white" />
+            <CloseButton
+              on:click={changeShowAI}
+              class="mb-4 absolute right-0 top-1 dark:text-white"
+            />
           {/if}
         </div>
       </div>

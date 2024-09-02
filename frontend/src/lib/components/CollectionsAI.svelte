@@ -294,11 +294,11 @@
           if (chat.result.messages.length > 0) {
             dataConversatonLogs = chat.result.messages;
           }
+        }
 
-          if (runningRAG === false) {
-            runningRAG = true;
-            getStatusRag();
-          }
+        if (runningRAG === false) {
+          runningRAG = true;
+          getStatusRag();
         }
       } catch (error) {
         triggerToast("error");
