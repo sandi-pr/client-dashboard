@@ -35,6 +35,7 @@
 
   let disableInput = $state(false);
   let disableButton = $state(false);
+  let showSendMessage = $state(false);
 
   let dataConversatonLogs = $state([
     {
@@ -172,14 +173,40 @@
         console.log("merpati", chat);
 
         if (chat.status === 200) {
-          disableInput = false;
+          let aiMessage = chat.result.message.message;
+          let aiRole = chat.result.message.role;
+
           dataConversatonLogs = [
             ...dataConversatonLogs,
             {
-              role: chat.result.message.role,
-              message: chat.result.message.message,
+              role: aiRole,
+              message: "", // Mulai dengan pesan kosong
             },
           ];
+
+          let i = 0;
+
+          function typeWriter() {
+            if (i < aiMessage.length) {
+              // Update pesan terakhir yang merupakan jawaban AI
+              dataConversatonLogs = [
+                ...dataConversatonLogs.slice(0, -1), // Hapus pesan AI kosong terakhir
+                {
+                  role: aiRole,
+                  message:
+                    dataConversatonLogs[dataConversatonLogs.length - 1].message +
+                    aiMessage.charAt(i),
+                },
+              ];
+              i++;
+              setTimeout(typeWriter, 10); // Set interval penulisan huruf, sesuaikan kecepatannya di sini
+            } else {
+              disableInput = false; // Aktifkan input kembali setelah selesai
+            }
+          }
+
+          typeWriter();
+
           if (
             chat.result.message.message ===
             "I'm sorry we're busy. Please wait a few minutes, and then resend your message"
@@ -250,6 +277,18 @@
   function clearChat() {
     sessionStorage.removeItem("conversationId");
     window.location.reload();
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      if (!event.shiftKey) {
+        event.preventDefault();
+        if (messageInput.trim() !== "") {
+          // sendMessage();
+          sendMessage();
+        }
+      }
+    }
   }
 
   onMount(() => {
@@ -356,6 +395,9 @@
         <textarea
           bind:this={textarea}
           bind:value={messageInput}
+          on:keydown={handleKeyDown}
+          on:focus={() => (showSendMessage = true)}
+          on:focusout={() => (showSendMessage = false)}
           id="chat"
           rows="1"
           class="block mx-2 p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
