@@ -13,6 +13,7 @@
   import { goto } from "$app/navigation";
   import { Typography, getIcons } from "$lib";
   import { page } from "$app/stores";
+  import { sidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
 
   const {
     href = "/",
@@ -22,6 +23,7 @@
     icon = "",
     classesSvg = "w-5 h-5 text-gray-700 dark:text-gray-400",
     typographyData = {},
+    collapse = false,
   } = $props();
 
   function extractPath(url) {
@@ -34,7 +36,11 @@
 </script>
 
 <button
-  class={activeUrl2 === extractPath(href) ? classesActive : classes}
+  class={!$sidebarLargeClosed
+    ? activeUrl2 === extractPath(href)
+      ? classesActive
+      : classes
+    : "flex w-full py-2 m-0 !my-4 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 justify-center"}
   onclick={() => {
     // console.log(href);
     goto(href);

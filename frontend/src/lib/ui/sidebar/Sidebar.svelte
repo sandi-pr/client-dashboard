@@ -45,7 +45,13 @@
 </script>
 
 <!-- Sidebar for small screen -->
-<Drawer transitionType="fly" {transitionParams} bind:hidden={hidden2} class="!p-0" divClass="overflow-y-hidden hover:overflow-y-auto z-50 p-4 bg-white dark:bg-gray-800">
+<Drawer
+  transitionType="fly"
+  {transitionParams}
+  bind:hidden={hidden2}
+  class="!p-0"
+  divClass="overflow-y-hidden hover:overflow-y-auto z-50 p-4 bg-white dark:bg-gray-800"
+>
   <!-- <div class="fixed z-10 top-3 left-[280px]"> -->
   <!-- <div class="absolute z-50 top-3 start-[280px]">
     <CloseButton on:click={() => (hidden2 = true)} class=" dark:text-white" />
@@ -60,6 +66,7 @@
     isHidden={false}
     funcButton={() => (hidden2 = true)}
     {logout}
+    {innerWidth}
   />
 </Drawer>
 
@@ -73,6 +80,7 @@
   isHidden={innerWidth < 1024}
   funcButton={() => (hidden2 = true)}
   {logout}
+  {innerWidth}
 />
 
 <!-- Appbar for Drawer -->
@@ -95,12 +103,12 @@
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
-      display: none;
+    display: none;
   }
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 </style>

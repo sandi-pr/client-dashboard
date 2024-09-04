@@ -32,6 +32,9 @@
     ArrowRightToBracketOutline,
   } from "flowbite-svelte-icons";
   import LogoIcon from "$lib/icon/Logomark.svg";
+  import { sidebarLargeClosed, toggleSidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
+  import SidebarCloseIcon from "$lib/icon/sidebar-close.svg";
+  import SidebarOpenIcon from "$lib/icon/sidebar-open.svg";
   import { onMount } from "svelte";
   import Me from "$lib/utils/me";
   import { _ } from "svelte-i18n";
@@ -46,6 +49,7 @@
     isFrontend = $bindable(false),
     funcButton,
     logout,
+    innerWidth = 0,
   } = $props();
 
   let site = {
@@ -120,67 +124,105 @@
 
 <Sidebar
   {activeUrl}
-  class={` ${isHidden ? "hidden h-screen" : "fixed h-full"} border-r border-secondary-light dark:border-secondary-dark lg:fixed lg:inset-y-0 lg:z-10 lg:flex w-80`}
+  class={` ${isHidden ? "hidden h-screen" : "fixed h-full"} border-r border-secondary-light dark:border-secondary-dark lg:fixed lg:inset-y-0 lg:z-10 lg:flex ${$sidebarLargeClosed ? "w-20" : "w-80"} transition-all duration-300 ease-in-out`}
 >
   <SidebarWrapper
     class="h-full w-full lg:pt-6 lg:px-4 flex flex-col justify-between bg-white dark:bg-primary-dark"
     divClass="overflow-y-hidden hover:overflow-y-auto overflow-x-hidden no-scrollbar py-4 px-3 bg-gray-50 rounded dark:bg-gray-800"
   >
     <SidebarGroup>
-      <div class="flex justify-between items-start">
-        <LogoBrand brandName="Hexapod" href="/" brandLogo={site.img} />
+      <div
+        class={`relative flex items-start ${!$sidebarLargeClosed ? "justify-between" : "justify-center"}`}
+      >
         {#if isHidden}
           <div></div>
+        {:else if !$sidebarLargeClosed}
+          <LogoBrand brandName="Hexapod" href="/" brandLogo={site.img} imgClass="h-6 sm:h-8" />
+          {#if !(innerWidth < 1024)}
+            <button
+              onclick={() => {
+                toggleSidebarLargeClosed();
+              }}
+            >
+              <img src={SidebarCloseIcon} alt="Sidebar Close Icon" class="w-8 h-8 cursor-pointer" />
+            </button>
+          {/if}
         {:else}
-          <!-- <CloseButton on:click={funcButton} class="dark:text-white" /> -->
+          <LogoBrand brandName="" href="/" brandLogo={site.img} imgClass="h-6 sm:h-8" />
+          {#if !(innerWidth < 1024)}
+            <button
+              onclick={() => {
+                toggleSidebarLargeClosed();
+              }}
+              class="absolute right-[-2rem] !z-50"
+            >
+              <img src={SidebarOpenIcon} alt="Sidebar Open Icon" class="w-8 h-8 cursor-pointer" />
+            </button>
+          {/if}
         {/if}
       </div>
-      <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark mb-6" />
-      <!-- TODO Search component belom kelar -->
-      {#each sidebarItems as item}
-        {#if item.children.length > 0}
-          <SidebarDropdownWrapper
-            bind:isOpen={isOpen[item.name]}
-            spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
-            btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-            label={$_(item.name)}
-          >
-            <svelte:fragment slot="icon">
-              <svelte:component
-                this={getIcons(item.icon)}
-                svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
-              />
-            </svelte:fragment>
-            {#each item.children as child}
-              <SidebarNavItem
-                rel="external"
-                href={child.href}
-                {activeUrl}
-                icon={child.icon}
-                classes="flex w-full gap-3 items-center px-11 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                classesActive="flex w-full gap-3 items-center px-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                ,
-                typographyData={{
-                  preset: "Text md/Regular",
-                  text: $_(child.name),
-                  color: "secondary",
-                }}
-              />
-            {/each}
-          </SidebarDropdownWrapper>
-        {:else}
+      {#if !$sidebarLargeClosed}
+        <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark mb-6" />
+        {#each sidebarItems as item}
+          {#if item.children.length > 0}
+            <SidebarDropdownWrapper
+              bind:isOpen={isOpen[item.name]}
+              spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
+              btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+              label={$_(item.name)}
+            >
+              <svelte:fragment slot="icon">
+                <svelte:component
+                  this={getIcons(item.icon)}
+                  svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
+                />
+              </svelte:fragment>
+              {#each item.children as child}
+                <SidebarNavItem
+                  rel="external"
+                  href={child.href}
+                  {activeUrl}
+                  icon={child.icon}
+                  classes="flex w-full gap-3 items-center px-11 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  classesActive="flex w-full gap-3 items-center px-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  typographyData={{
+                    preset: "Text md/Regular",
+                    text: $_(child.name),
+                    color: "secondary",
+                  }}
+                  collapse={false}
+                />
+              {/each}
+            </SidebarDropdownWrapper>
+          {:else}
+            <SidebarNavItem
+              href={item.href}
+              {activeUrl}
+              icon={item.icon}
+              typographyData={{
+                preset: "Text md/Semibold",
+                text: $_(item.name),
+                color: "secondary",
+              }}
+              collapse={false}
+            />
+          {/if}
+        {/each}
+      {:else}
+        <Search placeholder={$_("")} class="bg-white dark:bg-primary-dark mb-6 w-0 px-0" />
+        {#each sidebarItems as item}
           <SidebarNavItem
             href={item.href}
             {activeUrl}
             icon={item.icon}
             typographyData={{
               preset: "Text md/Semibold",
-              text: $_(item.name),
               color: "secondary",
             }}
+            collapse={true}
           />
-        {/if}
-      {/each}
+        {/each}
+      {/if}
     </SidebarGroup>
     <div>
       <!-- <SidebarGroup>
@@ -196,10 +238,8 @@
         <div
           class={`z-10 ${dropdownUser ? "absolute" : "hidden"} bottom-full w-full p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
         >
-          <ul
-            class="static space-y-1.5 text-sm text-gray-700 dark:text-gray-200"
-            aria-labelledby="dropdownDefaultButton"
-          >
+          class="static space-y-1.5 text-sm text-gray-700 dark:text-gray-200"
+          <ul aria-labelledby="dropdownDefaultButton">
             <div class="flex pb-3 justify-between rounded-lg border-b">
               <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
                 <Avatar />
@@ -218,8 +258,8 @@
                 />
               </Button>
             </div>
+            ulClass="py-0 space-y-0"
             <SidebarDropdownWrapper
-              ulClass="py-0 space-y-0"
               spanClass="flex-1 ms-0 text-left whitespace-nowrap"
               label={$_("manage")}
             >
@@ -256,10 +296,14 @@
           >
             <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
               <Avatar />
-              <div class="grow">
-                <Typography preset="Text md/Semibold" text={name} color="secondary" />
-                <Typography preset="Text sm/Regular" text={email} color="tertiary" />
-              </div>
+              {#if !$sidebarLargeClosed}
+                <div class="grow">
+                  <Typography preset="Text md/Semibold" text={name} color="secondary" />
+                  <Typography preset="Text sm/Regular" text={email} color="tertiary" />
+                </div>
+              {:else}
+                <div></div>
+              {/if}
             </div>
             <Button
               color="light"

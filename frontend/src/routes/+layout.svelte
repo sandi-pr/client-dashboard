@@ -34,30 +34,15 @@ All Rights Reserved
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import { goto } from "$app/navigation";
   import { set_pdfjs_context } from "$lib/utils/vite.ts";
+  import { sidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
 
   set_pdfjs_context();
 
   let innerWidth = $state(0);
-  // let { showAI = false } = $props();
-  let isShowAI = $state(false);
-  let activities = $state([]);
-  // let isActiveUrl = $state($page.url.pathname);
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
   const isFrontend = process.env.NODE_ENV === "development";
-
-  let tabDatas = $state({
-    selected: "Latest Activity",
-    data: [
-      {
-        name: "Latest Activity",
-      },
-      {
-        name: "Hexa AI",
-      },
-    ],
-  });
 
   const call = isFrontend
     ? new CR3Call("http://192.168.1.13")
@@ -403,7 +388,7 @@ All Rights Reserved
           goto(
             (await call.getPage("client-login", "home-page")) +
               "?redirect=" +
-              globalThis.location.href,
+              globalThis.location.href
           );
           return;
         }
@@ -459,7 +444,7 @@ All Rights Reserved
       }
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data[0].attributes.company_industry),
+        parseInt(response.result.data[0].attributes.company_industry)
       );
     }
   }
@@ -495,7 +480,7 @@ All Rights Reserved
     triggerShowAI(localStorage.getItem("showAI") === "true" ? true : false);
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));
@@ -525,7 +510,7 @@ All Rights Reserved
         {logout}
       />
       <div
-        class="w-full h-screen flex lg:pl-80 border-l border-secondary-light dark:border-secondary-dark"
+        class={`w-full h-screen flex border-l border-secondary-light dark:border-secondary-dark ${!$sidebarLargeClosed ? "lg:pl-80" : "lg:pl-20"} transition-all duration-300 ease-in-out`}
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
