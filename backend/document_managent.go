@@ -465,18 +465,18 @@ func GetCollectionByName(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 func GetCollectionByNamePublic(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(STRAPI_TOKEN), "Bearer ", "", 1))
 
-	status, me, err := Strapi.UsersMe()
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// status, me, err := Strapi.UsersMe()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	if status != 200 {
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if status != 200 {
+	// 	fmt.Println(status)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	fmt.Println(me)
+	// fmt.Println(me)
 
 	collection_name, ok := ctx.Params.GetString("collection_name")
 	if !ok {
@@ -653,18 +653,18 @@ func GetDocumentsByCollectionIdPublic(ctx *config.ConfigContext) (int, U.Dict, *
 
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(STRAPI_TOKEN), "Bearer ", "", 1))
 
-	status, me, err := Strapi.UsersMe()
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// status, me, err := Strapi.UsersMe()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	if status != 200 {
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if status != 200 {
+	// 	fmt.Println(status)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	fmt.Println(me)
+	// fmt.Println(me)
 
 	page, ok := ctx.Params.GetFloat64("page")
 	if !ok {
