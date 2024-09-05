@@ -445,6 +445,12 @@ const config = {
               dark: "#ECFDF3",
             },
           },
+          bg: {
+            primary: {
+              light: "#FFFFFF",
+              dark: "#0C111D",
+            },
+          }
         },
       },
       textColor: {

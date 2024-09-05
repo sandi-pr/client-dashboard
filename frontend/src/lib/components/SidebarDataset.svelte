@@ -297,9 +297,9 @@
     </div>
     {#if Object.keys(sidebarData).length === 0}
       <div
-        class="flex w-full h-full justify-center mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
+        class="flex w-full h-min py-4 justify-center mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
       >
-        <Typography preset="Text md/Regular" text="No sidebarData yet" color="fg-disabled" />
+        <Typography preset="Text md/Regular" text="No datasets yet" color="fg-disabled" />
       </div>
     {:else}
       <div class="flex flex-col overflow-hidden hover:overflow-auto pb-20 w-full">
@@ -320,7 +320,7 @@
                   setSelectedConversation(conversation.id);
                   hidden = true;
                 }}
-                class="w-full gap-1.5 bg-transparent border-0"
+                class="w-full gap-1.5 bg-secondary-light dark:bg-secondary-dark border-0"
               >
                 <img src={MessageChatCircleIcon} alt="MessageChatCircleIcon" class="w-5 h-5" />
                 <Typography preset="Text md/Semibold" text={conversation.title} color="secondary" />
@@ -333,7 +333,7 @@
   </div>
 
   <div
-    class="absolute z-50 bottom-0 py-14 bg-gradient-to-t from-white dark:from-black from-80% w-full flex-col flex"
+    class="absolute z-50 bottom-0 py-14 bg-gradient-to-t from-white dark:from-utility-bg-primary-dark from-80% w-full flex-col flex"
   >
     <div class="flex w-full justify-center px-8">
       <Button

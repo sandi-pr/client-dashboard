@@ -528,7 +528,7 @@ All Rights Reserved
 {:else if winInnerWidth > 0 && $callReady === true}
   {#if hideLayout()}
     <div class="lg:flex">
-      <div class="z-10">
+      <div class="z-20">
         <Sidebar
           getModule={getModules}
           bind:name={userData.username}
