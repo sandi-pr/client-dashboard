@@ -203,6 +203,7 @@
         });
 
         if (response.status === 200) {
+          statusRequest = "REQUEST";
           triggerToast("created");
         }
       } catch (error) {
