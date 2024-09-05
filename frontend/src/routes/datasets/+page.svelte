@@ -51,7 +51,7 @@
 
   let innerWidth = $state(0);
   let disableInput = $state(false);
-  let hideSidebar = $state(false);
+  let hideSidebar = $state(true);
   let documentListModal = $state(false);
   let pageListDocument = $state(false);
   let previewModal = $state(false);
@@ -686,12 +686,12 @@
     bind:sidebarData
     {logout}
   />
-  <div class={`flex flex-col md:ml-80 pt-4 px-4 md:px-8`}>
+  <div class={`flex flex-col lg:ml-80 pt-4 px-4 md:px-8`}>
     <div class="flex flex-col gap-3 md:gap-4">
       <div
-        class="sticky top-0 z-20 py-4 bg-primary-light dark:bg-primary-dark flex w-full justify-between items-center"
+        class="flex sticky top-0 z-20 py-4 bg-primary-light dark:bg-primary-dark w-full justify-between items-center"
       >
-        <div class="md:hidden flex w-max items-end justify-end">
+        <div class="lg:hidden flex w-max items-end justify-end pe-4">
           <Button
             outline
             on:click={() => (hideSidebar = !hideSidebar)}
@@ -700,7 +700,7 @@
             <img src={MenuIcon} alt="MenuIcon" class="w-5 h-5" />
           </Button>
         </div>
-        <div class="flex justify-between w-full">
+        <div class="flex justify-between items-center w-full">
           <div class="flex items-center gap-2">
             <!-- <img src={MessagePlusIconGreen} alt="MessagePlusIcon" class="w-8 h-8" /> -->
             {#if editTitle}
@@ -722,7 +722,7 @@
                 preset="Text xl/Bold"
                 text={currentChatTitle}
                 color="primary"
-                propClass="fluid-lg"
+                propClass="fluid-lg line-clamp-1"
               />
             {/if}
             <!-- {#if conversationId !== null && dataConversationChats.length !== 0}
@@ -742,10 +742,10 @@
               on:click={() => {
                 editTitle = true;
               }}
-              class="gap-1 px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
+              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
             >
               <img src={EditIcon} alt="Refresh Icon" class="w-5 h-5" />
-              <Typography preset="Text md/Semibold" text={$_("rename")} color="brand-secondary" />
+              <Typography preset="Text md/Semibold" text={$_("rename")} color="brand-secondary" propClass="hidden md:block" />
             </Button>
             <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
               <Button
@@ -792,7 +792,7 @@
               {/if}
             </div>
             <div class="flex flex-col relative w-full gap-3 md:gap-1">
-              <div class="flex items-center justify-between gap-2.5 rtl:space-x-reverse">
+              <div class="flex items-center justify-start gap-2.5 rtl:space-x-reverse">
                 <div
                   class="w-9 h-9 md:w-12 md:h-11 relative flex md:hidden justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
                 >

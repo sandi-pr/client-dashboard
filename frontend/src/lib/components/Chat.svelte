@@ -58,10 +58,10 @@
 </script>
 
 <div
-  class={`-z-0 bg-gradient-to-t from-white dark:from-black from-80% fixed flex items-center bottom-0 left-0 right-0 ${!$sidebarLargeClosed ? "pl-[350px] lg:pl-[670px]" : hideSidebar ? "" : "pl-[350px] lg:pl-[430px]"} py-12 px-8`}
+  class={`-z-0 bg-gradient-to-t from-white dark:from-black from-80% fixed flex items-center bottom-0 left-0 right-0 ${!$sidebarLargeClosed ? hideSidebar ? "pl-0 lg:pl-[670px]" : "pl-[350px] lg:pl-[670px]" : hideSidebar ? "pl-0 lg:pl-[430px]" : "pl-[350px] lg:pl-[430px]"} py-12 md:px-8`}
 >
   <div
-    class="border-2 border-brand-solid-light dark:border-brand-solid-dark w-full py-3 px-6 rounded-3xl flex"
+    class="border-2 border-brand-solid-light dark:border-brand-solid-dark w-full py-3 mx-4 md:mx-0 px-6 rounded-3xl flex"
   >
     <div class="">
       <Button

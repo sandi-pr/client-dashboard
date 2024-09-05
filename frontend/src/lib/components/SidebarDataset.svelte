@@ -254,7 +254,7 @@
 </script>
 
 <div
-  class={`h-full fixed z-10 w-full md:w-80 pt-9 pb-4 border-r border-secondary-light dark:border-secondary-dark bg-primary-light dark:bg-primary-dark flex flex-col justify-between items-start md:inline-flex ${
+  class={`h-full fixed z-10 w-full md:w-80 pt-9 pb-4 border-r border-secondary-light dark:border-secondary-dark bg-primary-light dark:bg-primary-dark flex flex-col justify-between items-start lg:inline-flex ${
     hidden ? "hidden" : ""
   } `}
 >
@@ -273,7 +273,7 @@
     <div class="flex flex-col gap-2 w-full">
       <Button
         on:click={newChat}
-        class="!hidden lg:!flex self-stretch h-12 !text-white dark:!text-white rounded-2xl"
+        class="!flex self-stretch h-12 !text-white dark:!text-white rounded-2xl"
       >
         <img src={MessagePlusIcon} alt="MessagePlusIcon" class="w-5 h-5" />
         &nbsp; &nbsp;
@@ -285,7 +285,7 @@
           processDataset();
         }}
         outline
-        class="!hidden lg:!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
+        class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
       >
         <DataFlow
           svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"

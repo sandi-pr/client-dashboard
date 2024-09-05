@@ -53,7 +53,7 @@ All Rights Reserved
 
   const hideScrollList = $state(["/document/document_collection/chat"]);
 
-  const hideNavbarList = $state(["/client-dashboard/datasets"]);
+  const hideNavbarList = $state(["/client-dashboard/datasets", "/datasets"]);
 
   const hideScroll = () => {
     return !hideScrollList.some((path) => {
@@ -540,7 +540,7 @@ All Rights Reserved
         />
       </div>
       <div
-        class={`w-full h-screen flex border-l border-secondary-light dark:border-secondary-dark ${!$sidebarLargeClosed ? "lg:pl-80" : "lg:pl-20"} transition-all duration-300 ease-in-out`}
+        class={`w-full h-screen pt-20 lg:pt-0 flex border-l border-secondary-light dark:border-secondary-dark ${!$sidebarLargeClosed ? "lg:pl-80" : "lg:pl-20"} transition-all duration-300 ease-in-out`}
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">

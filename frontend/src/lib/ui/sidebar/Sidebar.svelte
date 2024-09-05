@@ -85,7 +85,7 @@
 
 <!-- Appbar for Drawer -->
 {#if innerWidth < 1024}
-  <div class="lg:hidden pl-4 pr-2 py-3 justify-between items-center flex">
+  <div class="lg:hidden fixed top-0 w-full z-50 pl-4 pr-2 py-3 justify-between items-center flex">
     <div class="justify-between items-center gap-2 flex">
       <div class="w-8 h-8 justify-center items-center flex">
         <img alt="logo" src={LogoIcon} class="w-8 h-8" />
