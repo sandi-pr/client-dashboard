@@ -128,11 +128,11 @@
     let tmpConversationId;
     if (messageInput.trim() !== "") {
       console.log("messageInput", messageInput);
-      const role = selectedRole === "As Bots" ? "assistant" : "user";
+      const role = selectedRole === "Qur’ani" ? "assistant" : "user";
       const message = messageInput.trim();
 
-      if (selectedRole === "As Bots") selectedRole = "As Human";
-      else selectedRole = "As Bots";
+      if (selectedRole === "Qur’ani") selectedRole = "User";
+      else selectedRole = "Qur’ani";
 
       messageInput = "";
 
@@ -334,7 +334,7 @@
     datasetArray = [];
     currentChatTitle = "New Chat";
     conversationId = null;
-    selectedRole = "As Human";
+    selectedRole = "User";
     const newUrl =
       window.location.protocol + "//" + window.location.host + window.location.pathname;
 
@@ -435,6 +435,12 @@
 
       currentChatTitle = response.result.attributes.title;
       dataConversationChats = response.result.attributes.message;
+      let lastRole = dataConversationChats[dataConversationChats.length - 1].role;
+      if (lastRole === "user") {
+        selectedRole = "Qur’ani";
+      } else {
+        selectedRole = "User";
+      }
       addToDatasetFromDB();
       autoscroll();
     }
@@ -745,7 +751,12 @@
               class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
             >
               <img src={EditIcon} alt="Refresh Icon" class="w-5 h-5" />
-              <Typography preset="Text md/Semibold" text={$_("rename")} color="brand-secondary" propClass="hidden md:block" />
+              <Typography
+                preset="Text md/Semibold"
+                text={$_("rename")}
+                color="brand-secondary"
+                propClass="hidden md:block"
+              />
             </Button>
             <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
               <Button
