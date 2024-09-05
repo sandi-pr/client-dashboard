@@ -498,5 +498,7 @@
   "fileName": "File name",
   "fileSize": "File size",
   "uploadedBy": "Uploaded by",
-  "datasets": "Datasets"
+  "datasets": "Datasets",
+  "allDatasets": "All Datasets",
+  "list": "List"
 }
