@@ -14,4 +14,5 @@ export const sidebarLargeClosed = writable(false);
 
 export const toggleSidebarLargeClosed = () => {
   sidebarLargeClosed.update((value) => !value);
+  localStorage.setItem("sidebarLargeClosed", sidebarLargeClosed ? "true" : "false");
 };

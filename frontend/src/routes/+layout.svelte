@@ -34,7 +34,7 @@ All Rights Reserved
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import { goto } from "$app/navigation";
   import { set_pdfjs_context } from "$lib/utils/vite.ts";
-  import { sidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
+  import { sidebarLargeClosed, toggleSidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
 
   set_pdfjs_context();
 
@@ -51,6 +51,8 @@ All Rights Reserved
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
 
   const hideScrollList = $state(["/document/document_collection/chat"]);
+
+  const hideNavbarList = $state(["/datasets"]);
 
   const hideScroll = () => {
     return !hideScrollList.some((path) => {
@@ -73,6 +75,25 @@ All Rights Reserved
 
   const hideLayout = () => {
     return !hideLayoutList.some((path) => {
+      try {
+        if (path.endsWith("/*")) {
+          return globalThis.location.pathname.startsWith(path.slice(0, -1));
+        } else {
+          return globalThis.location.pathname === path;
+        }
+      } catch (error) {
+        console.log(error);
+        if (path.endsWith("/*")) {
+          return window.location.pathname.startsWith(path.slice(0, -1));
+        } else {
+          return window.location.pathname === path;
+        }
+      }
+    });
+  };
+
+  const hideNavbar = () => {
+    return !hideNavbarList.some((path) => {
       try {
         if (path.endsWith("/*")) {
           return globalThis.location.pathname.startsWith(path.slice(0, -1));
@@ -177,6 +198,12 @@ All Rights Reserved
           //   name: "finetuning",
           // },
         ],
+      },
+      {
+        icon: "data",
+        name: "datasets",
+        href: isFrontend ? "/datasets" : await call.getPage("client-dashboard", "datasets"),
+        children: [],
       },
       // {
       //   icon: "fileAttachment",
@@ -478,6 +505,9 @@ All Rights Reserved
   let winInnerWidth = $derived(innerWidth);
   if (typeof localStorage !== "undefined") {
     triggerShowAI(localStorage.getItem("showAI") === "true" ? true : false);
+    if (localStorage.getItem("sidebarLargeClosed") === "true") {
+      toggleSidebarLargeClosed();
+    }
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
         localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
@@ -500,15 +530,17 @@ All Rights Reserved
 {:else if winInnerWidth > 0 && $callReady === true}
   {#if hideLayout()}
     <div class="lg:flex">
-      <Sidebar
-        getModule={getModules}
-        bind:name={userData.username}
-        bind:email={userData.email}
-        bind:brand={userData.brand}
-        isFrontend
-        innerWidth={winInnerWidth}
-        {logout}
-      />
+      <div class="z-50">
+        <Sidebar
+          getModule={getModules}
+          bind:name={userData.username}
+          bind:email={userData.email}
+          bind:brand={userData.brand}
+          isFrontend
+          innerWidth={winInnerWidth}
+          {logout}
+        />
+      </div>
       <div
         class={`w-full h-screen flex border-l border-secondary-light dark:border-secondary-dark ${!$sidebarLargeClosed ? "lg:pl-80" : "lg:pl-20"} transition-all duration-300 ease-in-out`}
       >
@@ -516,10 +548,12 @@ All Rights Reserved
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
           <Pane minSize={innerWidth > 1024 ? 80 : 0}>
             <div class="relative transition-all duration-300 h-screen">
-              <div class="absolute w-full top-0 z-10">
-                <Navbar {activeUrl} {$showAI} {changeShowAI} {appUrl} {reset_database} />
-              </div>
-              <div class="h-screen pt-20">
+              {#if hideNavbar()}
+                <div class="absolute w-full top-0 z-10">
+                  <Navbar {activeUrl} {$showAI} {changeShowAI} {appUrl} {reset_database} />
+                </div>
+              {/if}
+              <div class={`h-screen ${hideNavbar() ? "pt-20" : ""}`}>
                 {#if hideScroll()}
                   <div class="h-full overflow-y-auto">
                     <slot />

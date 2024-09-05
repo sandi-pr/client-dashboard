@@ -124,11 +124,11 @@
 
 <Sidebar
   {activeUrl}
-  class={` ${isHidden ? "hidden h-screen" : "fixed h-full"} border-r border-secondary-light dark:border-secondary-dark lg:fixed lg:inset-y-0 lg:z-10 lg:flex ${$sidebarLargeClosed ? "w-20" : "w-80"} transition-all duration-300 ease-in-out`}
+  class={` ${isHidden ? "hidden h-screen" : "fixed h-full"} !overflow-x-visible z-50 border-r border-secondary-light dark:border-secondary-dark lg:fixed lg:inset-y-0 lg:z-10 lg:flex ${$sidebarLargeClosed ? "w-20" : "w-80"} transition-all duration-300 ease-in-out`}
 >
   <SidebarWrapper
-    class="h-full w-full lg:pt-6 lg:px-4 flex flex-col justify-between bg-white dark:bg-primary-dark"
-    divClass="overflow-y-hidden hover:overflow-y-auto overflow-x-hidden no-scrollbar py-4 px-3 bg-gray-50 rounded dark:bg-gray-800"
+    class="h-full lg:pt-6 lg:px-4 flex flex-col justify-between bg-white dark:bg-primary-dark"
+    divClass="overflow-y-hidden hover:overflow-y-auto no-scrollbar py-4 px-3 bg-gray-50 rounded dark:bg-gray-800"
   >
     <SidebarGroup>
       <div
@@ -154,7 +154,7 @@
               onclick={() => {
                 toggleSidebarLargeClosed();
               }}
-              class="absolute right-[-2rem] !z-50"
+              class="fixed left-16 z-50 overflow-visible"
             >
               <img src={SidebarOpenIcon} alt="Sidebar Open Icon" class="w-8 h-8 cursor-pointer" />
             </button>
@@ -236,9 +236,8 @@
       <div class="relative">
         <!-- Dropdown menu user -->
         <div
-          class={`z-10 ${dropdownUser ? "absolute" : "hidden"} bottom-full w-full p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
+          class={`z-10 ${dropdownUser ? "fixed" : "hidden"} bottom-16 p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
         >
-          class="static space-y-1.5 text-sm text-gray-700 dark:text-gray-200"
           <ul aria-labelledby="dropdownDefaultButton">
             <div class="flex pb-3 justify-between rounded-lg border-b">
               <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
@@ -258,7 +257,6 @@
                 />
               </Button>
             </div>
-            ulClass="py-0 space-y-0"
             <SidebarDropdownWrapper
               spanClass="flex-1 ms-0 text-left whitespace-nowrap"
               label={$_("manage")}
@@ -289,36 +287,36 @@
         <SidebarGroup>
           <button
             type="button"
-            class="flex p-2 justify-between rounded-lg hover:bg-secondary-light dark:hover:bg-secondary-dark"
+            class="flex w-full justify-between rounded-lg hover:bg-secondary-light dark:hover:bg-secondary-dark"
             onclick={() => {
               dropdownUser = !dropdownUser;
             }}
           >
-            <div class="flex w-full h-full space-x-4 items-center cursor-pointer">
+            <div class={`flex w-full h-full ${$sidebarLargeClosed ? "" : "gap-4"} items-center cursor-pointer`}>
               <Avatar />
               {#if !$sidebarLargeClosed}
                 <div class="grow">
                   <Typography preset="Text md/Semibold" text={name} color="secondary" />
                   <Typography preset="Text sm/Regular" text={email} color="tertiary" />
                 </div>
+                <Button
+                  color="light"
+                  class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-primary-light dark:hover:bg-primary-dark"
+                >
+                  {#if dropdownUser}
+                    <ChevronUpOutline
+                      class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                    />
+                  {:else}
+                    <ChevronDownOutline
+                      class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                    />
+                  {/if}
+                </Button>
               {:else}
                 <div></div>
               {/if}
             </div>
-            <Button
-              color="light"
-              class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-primary-light dark:hover:bg-primary-dark"
-            >
-              {#if dropdownUser}
-                <ChevronUpOutline
-                  class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
-                />
-              {:else}
-                <ChevronDownOutline
-                  class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
-                />
-              {/if}
-            </Button>
           </button>
         </SidebarGroup>
       </div>

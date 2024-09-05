@@ -51,3 +51,5 @@ export { triggerSelectCollection, selectedCollection, selectedDropdown, triggerS
 export { triggerShowAI, showAI } from "$lib/utils/showAI";
 export { call, setCall, callReady } from "$lib/utils/call";
 export { toCamelCase } from "$lib/utils/toCamelCase";
+export { isHome, setHome } from "$lib/utils/home";
+export { selectedConversation, setSelectedConversation } from "$lib/utils/selectedConversation";

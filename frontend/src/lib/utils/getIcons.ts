@@ -20,6 +20,7 @@ import BuildingIcon from "../icon/building-08.svelte";
 import BookOpenIcon from "../icon/book-open-02.svelte";
 import DistributeVertIcon from "../icon/distribute-spacing-vertical.svelte";
 import ChevronDownIcon from "../icon/chevron-down.svelte";
+import DataIcon from "../icon/data.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -67,6 +68,8 @@ let getIcons = (presetIcon: String) => {
       return DistributeVertIcon;
     case "chevronDown":
       return ChevronDownIcon;
+    case "data":
+      return DataIcon;
     default:
       return "";
   }
