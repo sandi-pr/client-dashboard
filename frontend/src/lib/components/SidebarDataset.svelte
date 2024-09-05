@@ -1,6 +1,15 @@
 <script>
   import { onMount } from "svelte";
-  import { DarkMode, Button, P, Modal, Dropzone, Avatar, SidebarGroup } from "flowbite-svelte";
+  import {
+    DarkMode,
+    Button,
+    P,
+    Modal,
+    Dropzone,
+    Avatar,
+    SidebarGroup,
+    Indicator,
+  } from "flowbite-svelte";
   import { Typography } from "$lib";
   import { format, isToday, isYesterday, set } from "date-fns";
   import SunIcon from "$lib/icon/sun.svg";
@@ -28,7 +37,7 @@
   // import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   // import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
   import "@fontsource/plus-jakarta-sans";
-  import { setSelectedConversation, call } from "$lib";
+  import { setSelectedConversation, call, triggerToast } from "$lib";
   import { goto } from "$app/navigation";
 
   let who = "Crossroads Bot";
@@ -48,6 +57,8 @@
   let fileTextResult = $state(null);
   let base64Data = $state("");
   let dropdownUser = $state(false);
+  let statusRequest = $state(null);
+  let colorStatusRequest = $state("dark");
 
   let fileList = $state([]);
 
@@ -192,7 +203,30 @@
         });
 
         if (response.status === 200) {
-          console.log(response);
+          triggerToast("created");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function getStatusRequest() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const response = await $call.call("lajnah", "get-status-request-fine-tuning", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status === 200) {
+          if (response.result.data.length > 0) {
+            statusRequest = response.result.data[0].attributes.status;
+          }
         }
       } catch (error) {
         console.log(error);
@@ -206,6 +240,16 @@
     // if (prefersDarkMode) {
     //   changeTheme();
     // }
+    getStatusRequest();
+  });
+
+  $effect(() => {
+    if (statusRequest !== null) {
+      if (statusRequest === "REQUEST") colorStatusRequest = "blue";
+      if (statusRequest === "PROCESS") colorStatusRequest = "yellow";
+      if (statusRequest === "SUCCESS") colorStatusRequest = "green";
+      if (statusRequest === "FAILED") colorStatusRequest = "red";
+    }
   });
 </script>
 
@@ -223,6 +267,7 @@
       <div class="flex gap-2 items-center">
         <DataIcon svgClass="text-utility-brand-700-light dark:text-utility-brand-700-dark" />
         <Typography preset="Display sm/Bold" text="Datasets" />
+        <Indicator color={colorStatusRequest} />
       </div>
     </div>
     <div class="flex flex-col gap-2 w-full">
@@ -235,6 +280,7 @@
         <P class="!text-white dark:!text-white">New Dataset</P>
       </Button>
       <Button
+        disabled={statusRequest === "process"}
         on:click={() => {
           processDataset();
         }}
