@@ -17,13 +17,13 @@
 
   let dropdownItem = [
     {
-      name: "As Bots",
-      value: "As Bots",
+      name: "Qur’ani",
+      value: "Qur’ani",
       selected: false,
     },
     {
-      name: "As Human",
-      value: "As Human",
+      name: "User",
+      value: "User",
       selected: true,
     },
   ];

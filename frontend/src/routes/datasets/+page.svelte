@@ -70,7 +70,7 @@
   let initRAG = $state(false);
   let initDocList = $state(true);
   let showSendMessage = $state(false);
-  let selectedRole = $state("As Human");
+  let selectedRole = $state("User");
   let conversationId = $state(null);
   let editingMessageId = $state(null);
   let editedMessage = $state("");
@@ -805,7 +805,7 @@
                 </div>
                 <Typography
                   preset="Text md/Bold"
-                  text={qaPair.role === "user" ? "Customer" : "Lajnah Assistant"}
+                  text={qaPair.role === "user" ? "User" : "Qur’ani"}
                   color="primary"
                   propClass="fluid-base md:fluid-base"
                 />
@@ -868,7 +868,7 @@
                 </div>
                 <Typography
                   preset="Text md/Bold"
-                  text={"Lajnah Assistant"}
+                  text={"Qur’ani"}
                   color="primary"
                   propClass="fluid-base md:fluid-base"
                 />
@@ -876,7 +876,7 @@
               <div
                 class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
               >
-                <Markdown md={"Lajnah Assistant is typing..."} {plugins} />
+                <Markdown md={"Qur’ani is typing..."} {plugins} />
               </div>
             </div>
           </div>
