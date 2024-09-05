@@ -263,6 +263,16 @@
             "name": "contract-case-detail",
             "path": "/contract_reviewer/case/detail",
             "file_path": "template/contract_reviewer/case/detail.html"
+        },
+        {
+            "name": "datasets",
+            "path": "/datasets",
+            "file_path": "template/datasets.html"
+        },
+        {
+            "name": "datasets-list",
+            "path": "/datasets/list",
+            "file_path": "template/datasets/list.html"
         }
     ],
     "apis": [

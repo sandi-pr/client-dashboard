@@ -43,16 +43,17 @@ All Rights Reserved
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "", brand: "" });
   const isFrontend = process.env.NODE_ENV === "development";
+  let hideNav = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.1.13")
+    ? new CR3Call("http://localhost")
     : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
 
   const hideScrollList = $state(["/document/document_collection/chat"]);
 
-  const hideNavbarList = $state(["/datasets"]);
+  const hideNavbarList = $state(["/client-dashboard/datasets"]);
 
   const hideScroll = () => {
     return !hideScrollList.some((path) => {
@@ -93,22 +94,16 @@ All Rights Reserved
   };
 
   const hideNavbar = () => {
-    return !hideNavbarList.some((path) => {
-      try {
-        if (path.endsWith("/*")) {
-          return globalThis.location.pathname.startsWith(path.slice(0, -1));
-        } else {
-          return globalThis.location.pathname === path;
-        }
-      } catch (error) {
-        console.log(error);
-        if (path.endsWith("/*")) {
-          return window.location.pathname.startsWith(path.slice(0, -1));
-        } else {
-          return window.location.pathname === path;
-        }
+    hideNav = hideNavbarList.some((path) => {
+      const currentPath = globalThis?.location?.pathname || window.location.pathname;
+
+      if (path.endsWith("/*")) {
+        return currentPath.startsWith(path.slice(0, -2));
+      } else {
+        return currentPath === path;
       }
     });
+    console.log(hideNav);
   };
 
   const changeShowAI = () => {
@@ -415,7 +410,7 @@ All Rights Reserved
           goto(
             (await call.getPage("client-login", "home-page")) +
               "?redirect=" +
-              globalThis.location.href
+              globalThis.location.href,
           );
           return;
         }
@@ -471,7 +466,7 @@ All Rights Reserved
       }
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data[0].attributes.company_industry)
+        parseInt(response.result.data[0].attributes.company_industry),
       );
     }
   }
@@ -491,6 +486,7 @@ All Rights Reserved
 
     getModelsTrocr();
     getIndustryId();
+    hideNavbar();
 
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
@@ -510,7 +506,7 @@ All Rights Reserved
     }
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));
@@ -519,8 +515,10 @@ All Rights Reserved
   }
 
   $effect(() => {
+    console.log(activeUrl);
     if (activeUrl !== $page.url.pathname) {
       activeUrl = $page.url.pathname;
+      hideNavbar();
     }
   });
 </script>
@@ -548,12 +546,12 @@ All Rights Reserved
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
           <Pane minSize={innerWidth > 1024 ? 80 : 0}>
             <div class="relative transition-all duration-300 h-screen">
-              {#if hideNavbar()}
+              {#if !hideNav}
                 <div class="absolute w-full top-0 z-10">
                   <Navbar {activeUrl} {$showAI} {changeShowAI} {appUrl} {reset_database} />
                 </div>
               {/if}
-              <div class={`h-screen ${hideNavbar() ? "pt-20" : ""}`}>
+              <div class={`h-screen ${!hideNav ? "pt-20" : ""}`}>
                 {#if hideScroll()}
                   <div class="h-full overflow-y-auto">
                     <slot />

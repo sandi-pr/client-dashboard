@@ -28,10 +28,8 @@
   // import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   // import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
   import "@fontsource/plus-jakarta-sans";
-  import { setSelectedConversation } from "$lib";
-  import { CR3Call } from "hexacomponents-svelte";
-
-  const call = new CR3Call(globalThis.location.origin);
+  import { setSelectedConversation, call } from "$lib";
+  import { goto } from "$app/navigation";
 
   let who = "Crossroads Bot";
   let theme = "light";
@@ -180,6 +178,28 @@
     logout();
   };
 
+  async function processDataset() {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const response = await $call.call("lajnah", "request-fine-tuning", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          console.log(response);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     // Initialize theme based on system preferences
     // const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -194,7 +214,9 @@
     hidden ? "hidden" : ""
   } `}
 >
-  <div class="flex-col w-full h-full px-4 md:px-8 justify-start items-center gap-4 md:gap-6 pb-4 md:pb-8 flex">
+  <div
+    class="flex-col w-full h-full px-4 md:px-8 justify-start items-center gap-4 md:gap-6 pb-4 md:pb-8 flex"
+  >
     <div class="flex flex-col w-full justify-center items-center gap-2 pb-1">
       <!-- <img src={HexaBotLogo} alt="HexaBot Logo" class="" /> -->
       <!-- <img src={Lajnah} alt="Lajnah Logo" class="" /> -->
@@ -213,11 +235,15 @@
         <P class="!text-white dark:!text-white">New Dataset</P>
       </Button>
       <Button
-        on:click={() => {}}
+        on:click={() => {
+          processDataset();
+        }}
         outline
         class="!hidden lg:!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
       >
-        <DataFlow svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark" />
+        <DataFlow
+          svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
+        />
         &nbsp; &nbsp;
         <Typography preset="Text md/Semibold" text="Process Dataset" color="brand-secondary" />
       </Button>
@@ -234,7 +260,12 @@
           <div
             class="flex flex-col w-full h-min py-4 justify-start mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
           >
-            <Typography preset="Text md/Regular" text={formatDate(date)} color="disabled" propClass="mb-2" />
+            <Typography
+              preset="Text md/Regular"
+              text={formatDate(date)}
+              color="disabled"
+              propClass="mb-2"
+            />
             {#each sidebarData[date] as conversation}
               <Button
                 color="light"
@@ -254,11 +285,13 @@
     {/if}
   </div>
 
-  <div class="absolute z-50 bottom-0 py-14 bg-gradient-to-t from-white dark:from-black from-80% w-full flex-col flex">
+  <div
+    class="absolute z-50 bottom-0 py-14 bg-gradient-to-t from-white dark:from-black from-80% w-full flex-col flex"
+  >
     <div class="flex w-full justify-center px-8">
       <Button
-        on:click={() => {
-          
+        on:click={async () => {
+          goto(await $call.getPage("client-dashboard", "datasets-list"));
         }}
         class="!bg-secondary-light dark:!bg-secondary-dark grow h-12 !text-slate-700 dark:!text-gray-300 w-full"
       >

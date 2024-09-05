@@ -8,7 +8,7 @@
   import { goto } from "$app/navigation";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { format, parse, sub } from "date-fns";
-  import { Typography, triggerToast, selectedConversation, call, isHome } from "$lib";
+  import { Typography, triggerToast, selectedConversation, call, triggerShowAI } from "$lib";
   import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
   import StateCard from "$lib/ui/cards/StateCard.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -528,6 +528,7 @@
   }
 
   onMount(() => {
+    triggerShowAI(false);
     userData = isFrontend
       ? { username: "John Doe", email: "johndoe@gmail.com" }
       : JSON.parse(sessionStorage.getItem("user"));
@@ -666,9 +667,9 @@
   // });
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return 
-    dropdownOpen = false
-  }
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
 
   onDestroy(() => {
     window.removeEventListener("popstate", handleBeforePopState);
@@ -754,7 +755,9 @@
                 }}
                 class="gap-1 p-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
               >
-                <DotsVerticalIcon svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark" />
+                <DotsVerticalIcon
+                  svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
+                />
                 <!-- <Typography preset="Text md/Semibold" text="Clear Conversation" color="secondary" /> -->
               </Button>
               <div
@@ -769,7 +772,7 @@
                   >
                 </ul>
               </div>
-          </div>
+            </div>
           </div>
         </div>
       </div>
@@ -806,7 +809,7 @@
                   color="primary"
                   propClass="fluid-base md:fluid-base"
                 />
-                
+
                 <!-- {#if editingMessageId !== qaPair.id}
                   <button on:click={() => startEditingMessage(qaPair.id, qaPair.message)}>
                     <img src={EditIcon} alt="EditIcon" class="w-full h-full" />
@@ -823,7 +826,10 @@
                 >
               {/if}
               {#if editingMessageId === qaPair.id}
-                <Textarea bind:value={editedMessage} unWrappedClass="focus:border-fg-success-secondary-light dark:focus:border-fg-success-secondary-dark focus:ring-0"></Textarea>
+                <Textarea
+                  bind:value={editedMessage}
+                  unWrappedClass="focus:border-fg-success-secondary-light dark:focus:border-fg-success-secondary-dark focus:ring-0"
+                ></Textarea>
                 <div class="flex gap-2 justify-end">
                   <Button on:click={saveEditedMessage} class="h-max">Save</Button>
                   <Button color="light" on:click={cancelEditing} class="h-max">Cancel</Button>

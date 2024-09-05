@@ -32,6 +32,7 @@ All Rights Reserved
 
   let configs = $state({});
 
+  let allDatas = $state([]);
   let datas = $state([]);
 
   let gettingDatas = $state(false);
@@ -41,10 +42,11 @@ All Rights Reserved
   let searchTerm = $state("");
 
   const handleSearch = async (value) => {
-    page = 1;
     searchTerm = value;
 
-    await getListConversations();
+    datas = datas.filter((data) => {
+      return data.title.toLowerCase().includes(value.toLowerCase());
+    });
   };
 
   async function getListConversations() {
@@ -55,11 +57,7 @@ All Rights Reserved
         const response = await $call.call("lajnah", "get-conversations", {
           URLQuery: {},
           URLParams: {},
-          Params: {
-            search: searchTerm,
-            page: page,
-            page_size: 10,
-          },
+          Params: {},
           Headers: {
             Authorization: "Bearer " + token,
           },
@@ -78,9 +76,15 @@ All Rights Reserved
         conversations = response.result.data;
 
         if (conversations.length > 0) {
-          pageCount = response.result.meta.pagination.pageCount;
+          pageCount = Math.ceil(response.result.data.length / 10);
+
           configs = {
-            pagination: response.result.meta.pagination,
+            pagination: {
+              page: 1,
+              pageCount: pageCount,
+              pageSize: 10,
+              total: response.result.data.length,
+            },
             search: true,
             searchHandler: handleSearch,
           };
@@ -116,7 +120,8 @@ All Rights Reserved
               },
             };
           });
-          datas = await Promise.all(promise);
+          allDatas = await Promise.all(promise);
+          datas = allDatas.slice(0, 10);
           gettingDatas = false;
         }
       } catch (error) {
@@ -129,19 +134,21 @@ All Rights Reserved
   async function nextPage() {
     if (page >= pageCount) return;
     page++;
-    await getListConversations();
+    configs.pagination.page = page;
+    datas = allDatas.slice(10 * (page - 1), 10 * page);
   }
 
   async function prevPage() {
+    console.log(page);
     if (page <= 1) return;
     page--;
-    await getListConversations();
+    configs.pagination.page = page;
+    datas = allDatas.slice(10 * (page - 1), 10 * page);
   }
 
   onMount(() => {
     getListConversations();
   });
-
 </script>
 
 <div class="flex dark:bg-primary-dark">
@@ -157,9 +164,12 @@ All Rights Reserved
 
         <!-- table latest -->
         {#if datas.length > 0}
-          <DataTable bind:datas bind:configs next={nextPage} prev={prevPage} />
+          <DataTable bind:datas bind:configs next={nextPage} previous={prevPage} />
         {:else if gettingDatas}
-          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}

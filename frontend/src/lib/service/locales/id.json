@@ -498,5 +498,6 @@
   "fileUploaded": "File ter-upload",
   "fileName": "Nama file",
   "fileSize": "Ukuran file",
-  "uploadedBy": "Diunggah oleh"
+  "uploadedBy": "Diunggah oleh",
+  "datasets": "Datasets"
 }
