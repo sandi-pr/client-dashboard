@@ -1683,16 +1683,6 @@
             },
             "params": [
                 {
-                    "name": "page",
-                    "type": "number",
-                    "required": false
-                },
-                {
-                    "name": "page_size",
-                    "type": "number",
-                    "required": false
-                },
-                {
                     "name": "collection_id",
                     "type": "string",
                     "required": false

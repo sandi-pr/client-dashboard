@@ -666,16 +666,16 @@ func GetDocumentsByCollectionIdPublic(ctx *config.ConfigContext) (int, U.Dict, *
 
 	// fmt.Println(me)
 
-	page, ok := ctx.Params.GetFloat64("page")
-	if !ok {
-		fmt.Println("invalid parameters")
-		page = 1
-	}
+	// page, ok := ctx.Params.GetFloat64("page")
+	// if !ok {
+	// 	fmt.Println("invalid parameters")
+	// 	page = 1
+	// }
 
-	page_size, ok := ctx.Params.GetFloat64("page_size")
-	if !ok {
-		page_size = 10
-	}
+	// page_size, ok := ctx.Params.GetFloat64("page_size")
+	// if !ok {
+	// 	page_size = 10
+	// }
 
 	collection_id, ok := ctx.Params.GetString("collection_id")
 	if !ok {
@@ -687,28 +687,43 @@ func GetDocumentsByCollectionIdPublic(ctx *config.ConfigContext) (int, U.Dict, *
 		return ctx.Error(400, "invalid parameters id")
 	}
 
-	status, documents, err := Strapi.Find("document-management-table", U.Dict{
-		"filters": U.Dict{
-			"collection_id": U.Dict{
-				"$eq": id,
-			},
-		},
-		"pagination": U.Dict{
-			"page":     page,
-			"pageSize": page_size,
-		},
-		"sort":     "id:desc",
-		"populate": "*",
-	})
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	page := 1
 
-	if status != 200 {
-		fmt.Println(documents)
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
+	allDocuments := U.List{}
+
+	for {
+		status, documents, err := Strapi.Find("document-management-table", U.Dict{
+			"filters": U.Dict{
+				"collection_id": U.Dict{
+					"$eq": id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"sort": "id:desc",
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(documents)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if list, ok := documents.GetList("data"); ok {
+			if len(list) == 0 {
+				break
+			} else {
+				allDocuments = append(allDocuments, list...)
+			}
+		}
+		page++
 	}
 
 	CR3 := cr3call.New(MODULE_MANAGER_URL)
@@ -718,7 +733,27 @@ func GetDocumentsByCollectionIdPublic(ctx *config.ConfigContext) (int, U.Dict, *
 		},
 	}, false)
 
-	return 200, documents, nil
+	statusRAG := true
+
+	for i := 0; i < len(allDocuments); i++ {
+		if data, ok := allDocuments.GetDict(i); ok {
+			if attributes, ok := data.GetDict("attributes"); ok {
+				status, ok := attributes.GetString("status")
+
+				if !ok {
+					statusRAG = false
+					break
+				}
+
+				if status != "Ready" {
+					statusRAG = false
+					break
+				}
+			}
+		}
+	}
+
+	return 200, U.Dict{"status": statusRAG}, nil
 }
 
 func GetDocumentsByCollectionIdWithFile(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {

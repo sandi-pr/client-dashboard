@@ -533,6 +533,117 @@
     }
   }
 
+  const handleUploadWrapper = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = ".csv";
+
+    inputElement.addEventListener("change", async (event) => {
+      const files = event.target.files;
+
+      fileList = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        if (file) {
+          let base64 = "";
+          base64 = await readFileAsBase64(file);
+
+          const fileData = {
+            name: file.name,
+            size: file.size,
+            base64: base64,
+          };
+
+          fileList = [...fileList, fileData];
+          selectedFile = file;
+        } else {
+          alert("Invalid file. Please select a valid file.");
+        }
+      }
+    });
+
+    inputElement.click();
+  };
+
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function importConversationWithCsv() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      console.log(fileList);
+      try {
+        if (conversationId === null) {
+          currentChatTitle = "New Chat " + format(new Date(), "dd.MM.yyyy");
+          const response = await $call.call("lajnah", "create-conversation", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              title: currentChatTitle,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log("response", response);
+
+          if (response.status !== 200) {
+            triggerToast("error");
+            return;
+          }
+
+          conversationId = response.result.conversation_id;
+
+          let tmpConversationId = response.result.conversation_id;
+
+          const newUrl =
+            window.location.protocol +
+            "//" +
+            window.location.host +
+            window.location.pathname +
+            "?id=" +
+            tmpConversationId;
+
+          window.history.pushState({ path: newUrl }, "", newUrl);
+          getListConversations();
+        }
+
+        const response = await $call.call("lajnah", "import-conversation-with-csv", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            conversation_id: conversationId,
+            documents: JSON.stringify(fileList),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          getmessage(conversationId);
+          triggerToast("uploaded");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     triggerShowAI(false);
     userData = isFrontend
@@ -743,6 +854,11 @@
             {/if} -->
           </div>
           <div class="flex relative gap-2">
+            <button on:click={handleUploadWrapper}>import CSV</button>
+            {#if selectedFile}
+              <p>{selectedFile.name}</p>
+            {/if}
+            <button on:click={importConversationWithCsv}>Upload</button>
             <Button
               outline
               on:click={() => {

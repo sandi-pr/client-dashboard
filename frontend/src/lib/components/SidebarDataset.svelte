@@ -61,6 +61,7 @@
   let colorStatusRequest = $state("dark");
 
   let fileList = $state([]);
+  let selectedFile = $state(null);
 
   async function readFileAsText(file) {
     return new Promise((resolve, reject) => {
@@ -94,32 +95,28 @@
   const handleUploadWrapper = () => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    inputElement.accept = ".jpg, .jpeg, .png, .pdf, .doc, .docx";
-    inputElement.multiple = true;
+    inputElement.accept = ".csv";
 
     inputElement.addEventListener("change", async (event) => {
       const files = event.target.files;
+
+      fileList = [];
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
         if (file) {
           let base64 = "";
-          if (file.type === "text/plain") {
-            const { text, base64: fileBase64 } = await readFileAsText(file);
-            fileTextResult = text;
-            base64 = fileBase64;
-          } else {
-            base64 = await readFileAsBase64(file);
-          }
+          base64 = await readFileAsBase64(file);
 
           const fileData = {
             name: file.name,
             size: file.size,
-            base64Data: base64,
+            base64: base64,
           };
 
           fileList = [...fileList, fileData];
+          selectedFile = file;
         } else {
           alert("Invalid file. Please select a valid file.");
         }
@@ -128,6 +125,56 @@
 
     inputElement.click();
   };
+
+  async function importConversationWithCsv() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      console.log(fileList);
+      try {
+        if (conversationId === null) {
+          init = true;
+          currentChatTitle = "New Chat " + format(new Date(), "dd.MM.yyyy");
+          const response = await $call.call("lajnah", "create-conversation", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              title: currentChatTitle,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          console.log("response", response);
+
+          if (response.status !== 200) {
+            triggerToast("error");
+            return;
+          }
+
+          conversationId = response.result.conversation_id;
+
+          tmpConversationId = response.result.conversation_id;
+        }
+        const response = await $call.call("lajnah", "import-conversation-with-csv", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            documents: JSON.stringify(fileList),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          triggerToast("uploaded");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 
   async function dropHandle(event) {
     event.preventDefault();
