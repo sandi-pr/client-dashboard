@@ -805,6 +805,7 @@
     bind:hidden={hideSidebar}
     bind:sidebarData
     {logout}
+    {getListConversations}
   />
   <div class={`flex flex-col lg:ml-80 pt-4 px-4 md:px-8`}>
     <div class="flex flex-col gap-3 md:gap-4">

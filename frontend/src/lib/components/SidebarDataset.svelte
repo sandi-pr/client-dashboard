@@ -48,6 +48,7 @@
     name = $bindable("User"),
     email = $bindable("user@gmail.com"),
     logout = () => {},
+    getListConversations = () => {},
     sidebarData = $bindable({}),
   } = $props();
 
@@ -126,37 +127,11 @@
     inputElement.click();
   };
 
-  async function importConversationWithCsv() {
+  async function importDatasetsWithCsv() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      console.log(fileList);
       try {
-        if (conversationId === null) {
-          init = true;
-          currentChatTitle = "New Chat " + format(new Date(), "dd.MM.yyyy");
-          const response = await $call.call("lajnah", "create-conversation", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              title: currentChatTitle,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          console.log("response", response);
-
-          if (response.status !== 200) {
-            triggerToast("error");
-            return;
-          }
-
-          conversationId = response.result.conversation_id;
-
-          tmpConversationId = response.result.conversation_id;
-        }
-        const response = await $call.call("lajnah", "import-conversation-with-csv", {
+        const response = await $call.call("lajnah", "import-datasets-with-csv", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -168,7 +143,8 @@
         });
 
         if (response.status === 200) {
-          triggerToast("uploaded");
+          triggerToast("created");
+          getListConversations();
         }
       } catch (error) {
         console.log(error);
@@ -341,6 +317,12 @@
         &nbsp; &nbsp;
         <Typography preset="Text md/Semibold" text="Process Dataset" color="brand-secondary" />
       </Button>
+
+      <button on:click={handleUploadWrapper}>import CSV</button>
+      {#if selectedFile}
+        <p>{selectedFile.name}</p>
+      {/if}
+      <button on:click={importDatasetsWithCsv}>Upload</button>
     </div>
     {#if Object.keys(sidebarData).length === 0}
       <div
