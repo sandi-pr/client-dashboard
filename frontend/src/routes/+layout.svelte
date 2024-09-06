@@ -501,9 +501,7 @@ All Rights Reserved
   let winInnerWidth = $derived(innerWidth);
   if (typeof localStorage !== "undefined") {
     triggerShowAI(localStorage.getItem("showAI") === "true" ? true : false);
-    if (localStorage.getItem("sidebarLargeClosed") === "true") {
-      toggleSidebarLargeClosed();
-    }
+    toggleSidebarLargeClosed(localStorage.getItem("sidebarLargeClosed") === "true" ? true : false);
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
         localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",

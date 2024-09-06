@@ -91,6 +91,12 @@
     logout();
   };
 
+  const changeSidbar = () => {
+    toggleSidebarLargeClosed(!$sidebarLargeClosed);
+    console.log($sidebarLargeClosed);
+    localStorage.setItem("sidebarLargeClosed", $sidebarLargeClosed ? "true" : "false");
+  };
+
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
 
@@ -141,7 +147,7 @@
           {#if !(innerWidth < 1024)}
             <button
               onclick={() => {
-                toggleSidebarLargeClosed();
+                changeSidbar();
               }}
             >
               <img src={SidebarCloseIcon} alt="Sidebar Close Icon" class="w-8 h-8 cursor-pointer" />
@@ -152,7 +158,7 @@
           {#if !(innerWidth < 1024)}
             <button
               onclick={() => {
-                toggleSidebarLargeClosed();
+                changeSidbar();
               }}
               class="fixed left-16 z-50 overflow-visible"
             >

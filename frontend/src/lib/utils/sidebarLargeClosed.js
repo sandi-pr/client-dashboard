@@ -12,7 +12,10 @@ import { writable } from "svelte/store";
 
 export const sidebarLargeClosed = writable(false);
 
-export const toggleSidebarLargeClosed = () => {
-  sidebarLargeClosed.update((value) => !value);
-  localStorage.setItem("sidebarLargeClosed", sidebarLargeClosed ? "true" : "false");
+export function toggleSidebarLargeClosed(show) {
+  if (show) {
+    sidebarLargeClosed.set(true);
+  } else {
+    sidebarLargeClosed.set(false);
+  }
 };
