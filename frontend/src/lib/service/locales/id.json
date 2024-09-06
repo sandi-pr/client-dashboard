@@ -502,6 +502,8 @@
   "datasets": "Datasets",
   "allDatasets": "Semua Datasets",
   "list": "List",
-  "rename": "Rename",
-  "importConversation": "Import Conversation"
+  "rename": "Ganti nama",
+  "importConversation": "Impor Obrolan",
+  "process": "Proses",
+  "import": "Impor"
 }

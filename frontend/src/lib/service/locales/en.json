@@ -502,5 +502,7 @@
   "allDatasets": "All Datasets",
   "list": "List",
   "rename": "Rename",
-  "importConversation": "Import Conversation"
+  "importConversation": "Import Conversation",
+  "process": "Process",
+  "import": "Import"
 }

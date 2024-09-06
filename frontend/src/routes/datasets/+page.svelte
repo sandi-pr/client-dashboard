@@ -857,7 +857,7 @@
               </button>
             {/if} -->
           </div>
-          <div class="flex relative gap-2">
+          <div class="flex relative items-center justify-center gap-2">
             <!-- <button on:click={handleUploadWrapper}>import CSV</button>
             {#if selectedFile}
               <p>{selectedFile.name}</p>
@@ -875,7 +875,7 @@
                 preset="Text md/Semibold"
                 text={$_("rename")}
                 color="brand-secondary"
-                propClass="hidden md:block"
+                propClass="hidden xl:block"
               />
             </Button>
             <Button
@@ -883,12 +883,12 @@
               on:click={handleUploadWrapper}
               class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
             >
-              <img src={AlignRightIcon} alt="Refresh Icon" class="w-5 h-5" />
+              <img src={AlignRightIcon} alt="Import Icon" class="w-5 h-5" />
               <Typography
                 preset="Text md/Semibold"
                 text={$_("importConversation")}
                 color="brand-secondary"
-                propClass="hidden md:block"
+                propClass="hidden xl:block"
               />
             </Button>
             <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
