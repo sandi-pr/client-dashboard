@@ -501,5 +501,7 @@
   "uploadedBy": "Diunggah oleh",
   "datasets": "Datasets",
   "allDatasets": "Semua Datasets",
-  "list": "List"
+  "list": "List",
+  "rename": "Rename",
+  "importConversation": "Import Conversation"
 }

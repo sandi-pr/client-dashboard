@@ -500,5 +500,7 @@
   "uploadedBy": "Uploaded by",
   "datasets": "Datasets",
   "allDatasets": "All Datasets",
-  "list": "List"
+  "list": "List",
+  "rename": "Rename",
+  "importConversation": "Import Conversation"
 }

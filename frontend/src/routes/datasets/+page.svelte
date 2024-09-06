@@ -42,6 +42,7 @@
   // import MessagePlusIcon from "$lib/icon/message-plus-circle-white.svg";
   import MessagePlusIconGreen from "$lib/icon/message-plus-circle-green.svg";
   import EditIcon from "$lib/icon/edit-05.svg";
+  import AlignRightIcon from "$lib/icon/align-right-01.svg";
   import FileIcon from "$lib/icon/file-04.svg";
   import { page } from "$app/stores";
   import { _ } from "svelte-i18n";
@@ -562,6 +563,8 @@
           alert("Invalid file. Please select a valid file.");
         }
       }
+
+      importConversationWithCsv();
     });
 
     inputElement.click();
@@ -854,11 +857,11 @@
             {/if} -->
           </div>
           <div class="flex relative gap-2">
-            <button on:click={handleUploadWrapper}>import CSV</button>
+            <!-- <button on:click={handleUploadWrapper}>import CSV</button>
             {#if selectedFile}
               <p>{selectedFile.name}</p>
             {/if}
-            <button on:click={importConversationWithCsv}>Upload</button>
+            <button on:click={importConversationWithCsv}>Upload</button> -->
             <Button
               outline
               on:click={() => {
@@ -870,6 +873,19 @@
               <Typography
                 preset="Text md/Semibold"
                 text={$_("rename")}
+                color="brand-secondary"
+                propClass="hidden md:block"
+              />
+            </Button>
+            <Button
+              outline
+              on:click={handleUploadWrapper}
+              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
+            >
+              <img src={AlignRightIcon} alt="Refresh Icon" class="w-5 h-5" />
+              <Typography
+                preset="Text md/Semibold"
+                text={$_("importConversation")}
                 color="brand-secondary"
                 propClass="hidden md:block"
               />
