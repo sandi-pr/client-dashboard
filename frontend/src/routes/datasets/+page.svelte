@@ -129,11 +129,11 @@
     let tmpConversationId;
     if (messageInput.trim() !== "") {
       console.log("messageInput", messageInput);
-      const role = selectedRole === "Qur’ani" ? "assistant" : "user";
+      const role = selectedRole === "Bot" ? "assistant" : "user";
       const message = messageInput.trim();
 
-      if (selectedRole === "Qur’ani") selectedRole = "User";
-      else selectedRole = "Qur’ani";
+      if (selectedRole === "Bot") selectedRole = "User";
+      else selectedRole = "Bot";
 
       messageInput = "";
 
@@ -438,7 +438,7 @@
       dataConversationChats = response.result.attributes.message;
       let lastRole = dataConversationChats[dataConversationChats.length - 1].role;
       if (lastRole === "user") {
-        selectedRole = "Qur’ani";
+        selectedRole = "Bot";
       } else {
         selectedRole = "User";
       }
@@ -791,6 +791,12 @@
     dropdownOpen = false;
   };
 
+  function autoResizeTextarea(event) {
+    const textarea = event.target;
+    textarea.style.height = "auto"; // Reset height
+    textarea.style.height = textarea.scrollHeight + "px"; // Adjust height
+  }
+
   onDestroy(() => {
     window.removeEventListener("popstate", handleBeforePopState);
     window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -936,7 +942,7 @@
               {/if}
             </div>
             <div class="flex flex-col relative w-full gap-3 md:gap-1">
-              <div class="flex items-center justify-start gap-2.5 rtl:space-x-reverse">
+              <div class="flex items-center justify-between gap-2.5 rtl:space-x-reverse">
                 <div
                   class="w-9 h-9 md:w-12 md:h-11 relative flex md:hidden justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
                 >
@@ -949,18 +955,18 @@
                 </div>
                 <Typography
                   preset="Text md/Bold"
-                  text={qaPair.role === "user" ? "User" : "Qur’ani"}
+                  text={qaPair.role === "user" ? "User" : "Bot"}
                   color="primary"
                   propClass="fluid-base md:fluid-base"
                 />
 
-                <!-- {#if editingMessageId !== qaPair.id}
+                {#if editingMessageId !== qaPair.id}
                   <button on:click={() => startEditingMessage(qaPair.id, qaPair.message)}>
                     <img src={EditIcon} alt="EditIcon" class="w-full h-full" />
                   </button>
-                {/if} -->
+                {/if}
               </div>
-              {#if qaPair?.documents && editingMessageId !== qaPair.id}
+              <!-- {#if qaPair?.documents && editingMessageId !== qaPair.id}
                 <Button
                   color="green"
                   class="absolute right-6 -top-3 text-utility-success-500-light dark:text-white font-semibold bg-hc-success-50 hover:bg-hc-success-100 dark:bg-hc-success-500 hover:dark:bg-hc-success-400 rounded-2xl border border-utility-success-500-light dark:border-utility-success-500-dark"
@@ -968,10 +974,11 @@
                   <img src={FileIcon} alt="File Icon" class="w-5 h-5" />
                   &nbsp; &nbsp; Document Retrieval</Button
                 >
-              {/if}
+              {/if} -->
               {#if editingMessageId === qaPair.id}
                 <Textarea
                   bind:value={editedMessage}
+                  on:input={autoResizeTextarea}
                   unWrappedClass="focus:border-fg-success-secondary-light dark:focus:border-fg-success-secondary-dark focus:ring-0"
                 ></Textarea>
                 <div class="flex gap-2 justify-end">
@@ -1012,7 +1019,7 @@
                 </div>
                 <Typography
                   preset="Text md/Bold"
-                  text={"Qur’ani"}
+                  text={"Bot"}
                   color="primary"
                   propClass="fluid-base md:fluid-base"
                 />
