@@ -3358,6 +3358,183 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "create-conversation",
+            "path": "/create-conversation",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateConversation"
+            },
+            "params": [
+                {
+                    "name": "title",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "create-message",
+            "path": "/create-message",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateMessage"
+            },
+            "params": [
+                {
+                    "name": "conversation_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "message",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "import-conversation-with-csv",
+            "path": "/import-conversation-with-csv",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "ImportConversationWithCsv"
+            },
+            "params": [
+                {
+                    "name": "conversation_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "documents",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "import-datasets-with-csv",
+            "path": "/import-datasets-with-csv",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "ImportDatasetsWithCsv"
+            },
+            "params": [
+                {
+                    "name": "documents",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-messages",
+            "path": "/get-messages",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetMessages"
+            },
+            "params": [
+                {
+                    "name": "conversation_id",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-title",
+            "path": "/update-title",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateTitle"
+            },
+            "params": [
+                {
+                    "name": "conversation_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "title",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-conversations",
+            "path": "/get-conversations",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetConversations"
+            },
+            "params": []
+        },
+        {
+            "name": "delete-conversation",
+            "path": "/delete-conversation",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteConversation"
+            },
+            "params": [
+                {
+                    "name": "conversation_id",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "request-fine-tuning",
+            "path": "/request-fine-tuning",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "RequestFineTuning"
+            },
+            "params": []
+        },
+        {
+            "name": "get-status-request-fine-tuning",
+            "path": "/get-status-request-fine-tuning",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetStatusRequestFineTuning"
+            },
+            "params": []
         }
     ],
     "options": {
@@ -4312,6 +4489,44 @@
                     },
                     "creator_id": {
                         "type": "integer"
+                    }
+                }
+            },
+            {
+                "name": "conversation-fine-tuned",
+                "label": "Conversation Fine Tuned",
+                "fields": {
+                    "user": {
+                        "type": "integer",
+                        "required": true
+                    },
+                    "conversation_id": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "message": {
+                        "type": "json"
+                    },
+                    "title": {
+                        "type": "string",
+                        "required": true
+                    }
+                }
+            },
+            {
+                "name": "request-fine-tuning",
+                "label": "Request Fine Tuning",
+                "fields": {
+                    "user": {
+                        "type": "integer",
+                        "required": true
+                    },
+                    "file": {
+                        "type": "media"
+                    },
+                    "status": {
+                        "type": "string",
+                        "required": true
                     }
                 }
             }

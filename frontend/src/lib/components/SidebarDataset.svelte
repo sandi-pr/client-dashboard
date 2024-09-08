@@ -135,7 +135,7 @@
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
-        const response = await $call.call("lajnah", "import-datasets-with-csv", {
+        const response = await $call.call("client-dashboard", "import-datasets-with-csv", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -220,7 +220,7 @@
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        const response = await $call.call("lajnah", "request-fine-tuning", {
+        const response = await $call.call("client-dashboard", "request-fine-tuning", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -243,7 +243,7 @@
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       try {
-        const response = await $call.call("lajnah", "get-status-request-fine-tuning", {
+        const response = await $call.call("client-dashboard", "get-status-request-fine-tuning", {
           URLQuery: {},
           URLParams: {},
           Params: {},

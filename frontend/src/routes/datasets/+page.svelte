@@ -147,7 +147,7 @@
       if (conversationId === null) {
         init = true;
         currentChatTitle = "New Chat " + format(new Date(), "dd.MM.yyyy");
-        const response = await $call.call("lajnah", "create-conversation", {
+        const response = await $call.call("client-dashboard", "create-conversation", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -177,7 +177,7 @@
         message: message,
       });
 
-      const response2 = await $call.call("lajnah", "create-message", {
+      const response2 = await $call.call("client-dashboard", "create-message", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -242,7 +242,7 @@
 
       let token = sessionStorage.getItem("token");
 
-      const response = await $call.call("lajnah", "create-message", {
+      const response = await $call.call("client-dashboard", "create-message", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -307,7 +307,7 @@
   async function clearConversation() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await $call.call("lajnah", "delete-conversation", {
+      const response = await $call.call("client-dashboard", "delete-conversation", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -416,7 +416,7 @@
   async function getmessage(conversationId) {
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await $call.call("lajnah", "get-messages", {
+      const response = await $call.call("client-dashboard", "get-messages", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -472,7 +472,7 @@
   async function updateTitle() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await $call.call("lajnah", "update-title", {
+      const response = await $call.call("client-dashboard", "update-title", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -499,7 +499,7 @@
   async function getListConversations() {
     let token = sessionStorage.getItem("token");
     if (token) {
-      const response = await $call.call("lajnah", "get-conversations", {
+      const response = await $call.call("client-dashboard", "get-conversations", {
         URLQuery: {},
         URLParams: {},
         Params: {},
@@ -591,7 +591,7 @@
       try {
         if (conversationId === null) {
           currentChatTitle = "New Chat " + format(new Date(), "dd.MM.yyyy");
-          const response = await $call.call("lajnah", "create-conversation", {
+          const response = await $call.call("client-dashboard", "create-conversation", {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -625,7 +625,7 @@
           getListConversations();
         }
 
-        const response = await $call.call("lajnah", "import-conversation-with-csv", {
+        const response = await $call.call("client-dashboard", "import-conversation-with-csv", {
           URLQuery: {},
           URLParams: {},
           Params: {

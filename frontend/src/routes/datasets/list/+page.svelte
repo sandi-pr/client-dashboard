@@ -54,7 +54,7 @@ All Rights Reserved
     if (token) {
       gettingDatas = true;
       try {
-        const response = await $call.call("lajnah", "get-conversations", {
+        const response = await $call.call("client-dashboard", "get-conversations", {
           URLQuery: {},
           URLParams: {},
           Params: {},
