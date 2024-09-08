@@ -1015,7 +1015,7 @@ func transformDatasetFromCsv(base64String string, strapi *strapi.StrapiClassic, 
 			"message": userMessage,
 		})
 		conversations = append(conversations, U.Dict{
-			"id":      1,
+			"id":      2,
 			"role":    "assistant",
 			"message": botResponse,
 		})
