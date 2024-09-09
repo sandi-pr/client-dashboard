@@ -1,5 +1,5 @@
 <script>
-  import { Button, Input, P, Heading, Span, Modal, Textarea } from "flowbite-svelte";
+  import { Button, Input, P, Heading, Span, Modal, Textarea, Spinner } from "flowbite-svelte";
   import PdfViewer from "svelte-pdf";
   import { onMount, onDestroy } from "svelte";
   import { tick } from "svelte";
@@ -111,6 +111,8 @@
   let pageTotal = $state(1);
 
   let noAutoScroll = $state(false);
+
+  let processGetData = $state(false);
 
   // let dataConversation = $state([
   //   {
@@ -468,6 +470,8 @@
 
       chatContainer.scrollTop = newScrollTop;
 
+      processGetData = false;
+
       let lastRole = dataConversationChats[dataConversationChats.length - 1].role;
       if (lastRole === "user") {
         selectedRole = "Bot";
@@ -481,6 +485,7 @@
   function getPrevMessage() {
     pageData++;
     noAutoScroll = true;
+    processGetData = true;
     getmessage(conversationId);
   }
 
@@ -739,6 +744,10 @@
 
       window.history.pushState({ path: newUrl }, "", newUrl);
 
+      pageData = 1;
+      pageTotal = 1;
+
+      dataConversationChats = [];
       getmessage($selectedConversation);
     }
   });
@@ -971,7 +980,11 @@
       </div>
       <div class="flex flex-col pb-40 gap-4">
         {#if pageData < pageTotal}
-          <button on:click={getPrevMessage} class="w-full">test</button>
+          <div class="flex w-full justify-center">
+            <Button color="light" on:click={getPrevMessage} class="w-max"
+              >Get Previous Messages &nbsp; {#if processGetData}<Spinner />{/if}</Button
+            >
+          </div>
         {/if}
         {#each dataConversationChats as qaPair}
           <div
