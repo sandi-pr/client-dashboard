@@ -10,7 +10,7 @@ All Rights Reserved
 
 import { writable } from "svelte/store";
 
-export const selectedConversation = writable(0);
+export const selectedConversation = writable(null);
 
 export function setSelectedConversation(value) {
   selectedConversation.set(value);

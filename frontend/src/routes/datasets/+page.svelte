@@ -11,6 +11,7 @@
   import {
     Typography,
     triggerToast,
+    setSelectedConversation,
     selectedConversation,
     call,
     triggerShowAI,
@@ -357,6 +358,7 @@
       window.location.protocol + "//" + window.location.host + window.location.pathname;
 
     window.history.pushState({ path: newUrl }, "", newUrl);
+    setSelectedConversation(null);
 
     dataConversationChats = [];
   }
@@ -438,8 +440,6 @@
       const scrollTop = chatContainer.scrollTop;
       const scrollHeight = chatContainer.scrollHeight;
 
-      console.log(scrollTop, scrollHeight);
-
       const response = await $call.call("client-dashboard", "get-messages", {
         URLQuery: {},
         URLParams: {},
@@ -452,8 +452,6 @@
           Authorization: "Bearer " + token,
         },
       });
-
-      console.log("response", response);
 
       if (response.status !== 200) {
         triggerToast("error");
@@ -554,8 +552,6 @@
         triggerToast("error");
         return;
       }
-
-      console.log("response", response);
 
       sidebarData = {};
 
@@ -706,18 +702,16 @@
     globalThis.addEventListener("resize", resizeHandler);
     resizeHandler(); // call once initially to set the correct value
 
-    getListConversations();
+    conversationId = $page.url.searchParams.get("id");
 
-    const unsubscribe = page.subscribe(($page) => {
-      conversationId = $page.url.searchParams.get("id");
-      if (conversationId) {
-        getmessage(conversationId);
-      }
-    });
+    if (conversationId) {
+      getmessage(conversationId);
+    }
+
+    getListConversations();
 
     return () => {
       globalThis.removeEventListener("resize", resizeHandler);
-      unsubscribe();
     };
   });
 
@@ -732,7 +726,12 @@
   // });
 
   $effect(() => {
-    if ($selectedConversation) {
+    if ($selectedConversation !== null) {
+      if (conversationId !== $selectedConversation) {
+        dataConversationChats = [];
+        getmessage($selectedConversation);
+      }
+
       conversationId = $selectedConversation;
       const newUrl =
         window.location.protocol +
@@ -746,9 +745,6 @@
 
       pageData = 1;
       pageTotal = 1;
-
-      dataConversationChats = [];
-      getmessage($selectedConversation);
     }
   });
 
@@ -979,7 +975,7 @@
         </div>
       </div>
       <div class="flex flex-col pb-40 gap-4">
-        {#if pageData < pageTotal}
+        {#if pageData < pageTotal && dataConversationChats.length !== 0}
           <div class="flex w-full justify-center">
             <Button color="light" on:click={getPrevMessage} class="w-max"
               >Get Previous Messages &nbsp; {#if processGetData}<Spinner />{/if}</Button
