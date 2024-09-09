@@ -41,7 +41,7 @@
   let sidebarTitle = null;
   let dropdownThemeOpen = false;
   let dropdownModelTrocrOpen = false;
-  let selectedTheme = "green";
+  let selectedTheme = "purple";
   let themes = [
     {
       name: "Purple",
@@ -455,6 +455,17 @@
 
     console.log("trocr-get-models", response);
 
+    if (response === null) {
+      options = [
+        {
+          value: "trocr:latest",
+          name: "trocr:latest",
+        },
+      ];
+
+      selectedModelTrocr = sessionStorage.getItem("model_trocr") || "trocr:latest";
+    }
+
     if (response.status !== 200) {
       console.log(response);
       return;
@@ -535,10 +546,7 @@
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text={$_("personalInfo")} />
-            <Typography
-              preset="Text sm/Reguler"
-              text={$_("descPersonalInfo")}
-            />
+            <Typography preset="Text sm/Reguler" text={$_("descPersonalInfo")} />
           </div>
           <div class="py-8 border-b border-secondary-light dark:border-secondary-dark">
             <InformationForm datas={user} {screenWidth} />
@@ -585,10 +593,7 @@
           <!-- <DataTable {datas} {configs} /> -->
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text={$_("changePassword")} />
-            <Typography
-              preset="Text sm/Reguler"
-              text={$_("descPassword")}
-            />
+            <Typography preset="Text sm/Reguler" text={$_("descPassword")} />
           </div>
           <div class="py-8">
             <div class="flex flex-col w-full">
@@ -600,10 +605,7 @@
                 class="mt-2 bg-primary-light dark:bg-primary-dark"
               />
               {#if !currentPasswordMatch && passwordObject.currentPassword.length > 0}
-                <Typography
-                  preset="Text sm/Reguler"
-                  text={$_("passwordNotMatch")}
-                />
+                <Typography preset="Text sm/Reguler" text={$_("passwordNotMatch")} />
               {/if}
             </div>
             <div class="flex flex-col w-full mt-4">
@@ -616,10 +618,7 @@
                 class="mt-2 bg-primary-light dark:bg-primary-dark"
               />
               {#if !passwordCheck() && passwordObject.newPassword.length > 0}
-                <Typography
-                  preset="Text sm/Reguler"
-                  text={$_("hintPassword")}
-                />
+                <Typography preset="Text sm/Reguler" text={$_("hintPassword")} />
               {/if}
             </div>
             <div class="flex flex-col w-full mt-4">
@@ -649,10 +648,7 @@
           />
           <div class="pt-8 pb-5 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text={$_("industryType")} />
-            <Typography
-              preset="Text sm/Reguler"
-              text={$_("decIndustry")}
-            />
+            <Typography preset="Text sm/Reguler" text={$_("decIndustry")} />
           </div>
           <Divider />
           <div class="pb-4"></div>
