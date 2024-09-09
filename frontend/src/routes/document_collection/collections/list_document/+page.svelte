@@ -374,6 +374,9 @@ All Rights Reserved
 
       files = [];
 
+      tmpDocumentTitle = "";
+      tmpDocumentDescription = "";
+
       addDocumentsModal = false;
       getDocuments(pagination.page);
       triggerLoading(false);
