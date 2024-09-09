@@ -474,7 +474,7 @@ All Rights Reserved
   }
 
   function getPrimaryColor() {
-    setPrimaryColor(greenColors);
+    setPrimaryColor(purpleColors);
   }
 
   onMount(() => {
