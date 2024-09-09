@@ -304,6 +304,7 @@
   "documentCollectionName": "Document Collection Name",
   "askToAI": "Ask to AI",
   "editCollectionName": "Edit Collection Name",
+  "selectCollectionWebchat": "Select Collection for Webchat",
   "deleteCollection": "Delete Collection",
   "enterCollectionName": "Enter Collection Name",
   "chooseDocument": "Choose Document",

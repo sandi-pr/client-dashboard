@@ -455,3 +455,148 @@ func DeleteDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 
 	return 200, document, nil
 }
+
+func UpdateCollectionWebchat(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	status, allDocument, err := Strapi.Find("document-collection-table", U.Dict{
+		"filters": U.Dict{
+			"webchat_tmp": U.Dict{
+				"$eq": true,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("ayam 1")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		fmt.Println("ayam 2")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println("allDocument", allDocument)
+
+	list, ok := allDocument.GetList("data")
+
+	if !ok {
+		fmt.Println("ayam 3")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) > 0 {
+		if dict, ok := list.GetDict(0); ok {
+			if id, ok := dict.GetFloat64("id"); ok {
+				status, document, err := Strapi.Update("document-collection-table", int64(id), U.Dict{
+					"webchat_tmp": false,
+				})
+
+				if err != nil {
+					fmt.Println(err)
+					fmt.Println("ayam 4")
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				if status != 200 {
+					fmt.Println(status)
+					fmt.Println("ayam 5")
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				fmt.Println(document)
+			}
+		}
+
+	}
+
+	collection_id, ok := ctx.Params.GetFloat64("collection_id")
+	if !ok {
+		fmt.Println("ayam 6")
+		return ctx.Error(400, "invalid parameters collection_id")
+	}
+
+	status, document, err := Strapi.Update("document-collection-table", int64(collection_id), U.Dict{
+		"webchat_tmp": true,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("ayam 7")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		fmt.Println("ayam 8")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, document, nil
+}
+
+func GetCollectionWebchatPublic(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
+
+	status, allDocument, err := Strapi.Find("document-collection-table", U.Dict{
+		"filters": U.Dict{
+			"webchat_tmp": U.Dict{
+				"$eq": true,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("ayam 1")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		fmt.Println("ayam 2")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println("allDocument", allDocument)
+
+	list, ok := allDocument.GetList("data")
+
+	if !ok {
+		fmt.Println("ayam 3")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) > 0 {
+		if dict, ok := list.GetDict(0); ok {
+			if id, ok := dict.GetFloat64("id"); ok {
+				return 200, U.Dict{"id": id}, nil
+			}
+		}
+
+	}
+
+	return 404, U.Dict{}, nil
+}

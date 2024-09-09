@@ -11,10 +11,12 @@
     collectionName,
     totalDocuments = 0,
     status,
+    webchat = false,
     functButton = () => {},
     functEdit = () => {},
     functAddDocuments = () => {},
     functDelete = () => {},
+    funcSelectCollectionWebchat = () => {},
     dropdownOpen = false,
     funcDetailCollection = () => {},
   } = $props();
@@ -48,10 +50,9 @@
   };
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return 
-    dropdownOpen = false
-  }
-  
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
 </script>
 
 <Card class="gap-2.5 justify-between !p-0">
@@ -59,7 +60,11 @@
     class="flex justify-between px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
     <button onclick={funcDetailCollection}>
-      <Typography preset="Text md/Semibold" text={collectionName} propClass="hover:underline line-clamp-2" />
+      <Typography
+        preset="Text md/Semibold"
+        text={webchat ? collectionName + " (Webchat)" : collectionName}
+        propClass="hover:underline line-clamp-2"
+      />
     </button>
     <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
       <Button
@@ -90,6 +95,12 @@
             onclick={() => {
               functDelete(), (dropdownOpen = !dropdownOpen);
             }}>{$_("delete")}</button
+          >
+          <button
+            class="flex p-2"
+            onclick={() => {
+              funcSelectCollectionWebchat(), (dropdownOpen = !dropdownOpen);
+            }}>{$_("selectCollectionWebchat")}</button
           >
         </ul>
       </div>

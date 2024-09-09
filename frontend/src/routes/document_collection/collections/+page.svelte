@@ -257,6 +257,7 @@ All Rights Reserved
           totalDocuments: totalDocuments,
           status: collectionStatus,
           href: `${collectionList}?collectionId=${collection.id}`,
+          webchat: collection.attributes.webchat_tmp === true ? true : false,
         };
       });
 
@@ -610,6 +611,34 @@ All Rights Reserved
     return;
   }
 
+  async function UpdateCollectionWebchat() {
+    let token = sessionStorage.getItem("token");
+    try {
+      let res = await $call.call("client-dashboard", "update-collection-webchat", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: tmpCollectionId,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (res.status !== 200) {
+        console.log(res);
+        triggerToast("error");
+        return;
+      }
+
+      getCollections();
+      triggerToast("success");
+      return;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
   let buttonDisabled = $state(false);
 
   $effect(() => {
@@ -680,6 +709,7 @@ All Rights Reserved
                   collectionName={document.collectionName}
                   totalDocuments={document.totalDocuments}
                   status={document.status}
+                  webchat={document.webchat}
                   functButton={() => {
                     selectCollection({
                       id: document.collectionId,
@@ -702,6 +732,10 @@ All Rights Reserved
                   functDelete={() => {
                     tmpCollectionId = document.collectionId;
                     deleteModal = true;
+                  }}
+                  funcSelectCollectionWebchat={() => {
+                    tmpCollectionId = document.collectionId;
+                    UpdateCollectionWebchat();
                   }}
                   funcDetailCollection={() => {
                     goto(document.href);

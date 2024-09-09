@@ -2597,6 +2597,35 @@
             ]
         },
         {
+            "name": "update-collection-webchat",
+            "path": "/update-collection-webchat",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateCollectionWebchat"
+            },
+            "params": [
+                {
+                    "name": "collection_id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-collection-webchat-public",
+            "path": "/get-collection-webchat-public",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCollectionWebchatPublic"
+            },
+            "params": []
+        },
+        {
             "name": "add-data-handwriting",
             "path": "/add-data-handwriting",
             "method": "POST",
@@ -4126,6 +4155,9 @@
                     },
                     "deploy_status": {
                         "type": "string"
+                    },
+                    "webchat_tmp": {
+                        "type": "boolean"
                     }
                 }
             },
