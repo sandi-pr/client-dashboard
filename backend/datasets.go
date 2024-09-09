@@ -16,6 +16,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/google/uuid"
@@ -208,6 +209,18 @@ func GetMessages(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	limit, ok := ctx.Params.GetFloat64("limit")
+	if !ok || limit <= 0 {
+		limit = 100
+	}
+
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok || page <= 0 {
+		page = 1
+	}
+
+	offset := int((page - 1) * limit)
+
 	status, conversation, err := Strapi.Find("conversation-fine-tuned-table", U.Dict{
 		"filters": U.Dict{
 			"conversation_id": U.Dict{
@@ -241,6 +254,39 @@ func GetMessages(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 	if !ok {
 		return ctx.Error(500, "Internal Server Error")
 	}
+
+	attributes, ok := dict.GetDict("attributes")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	message, ok := attributes.GetList("message")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	totalMessages := len(message)
+	pageTotal := int(math.Ceil(float64(totalMessages) / float64(limit)))
+
+	start := totalMessages - int(limit) - int(offset)
+	if start < 0 {
+		start = 0
+	}
+	end := totalMessages - int(offset)
+
+	if start >= totalMessages {
+		message = U.List{}
+	} else if end > totalMessages {
+		message = message[start:]
+	} else {
+		message = message[start:end]
+	}
+
+	attributes["message"] = message
+	dict["attributes"] = attributes
+	dict["page_total"] = pageTotal
 
 	return 200, dict, nil
 }

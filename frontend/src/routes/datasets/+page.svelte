@@ -8,7 +8,14 @@
   import { goto } from "$app/navigation";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { format, parse, sub } from "date-fns";
-  import { Typography, triggerToast, selectedConversation, call, triggerShowAI } from "$lib";
+  import {
+    Typography,
+    triggerToast,
+    selectedConversation,
+    call,
+    triggerShowAI,
+    triggerLoading,
+  } from "$lib";
   import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
   import StateCard from "$lib/ui/cards/StateCard.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -99,6 +106,12 @@
 
   let sidebarData = $state({});
 
+  let pageData = $state(1);
+
+  let pageTotal = $state(1);
+
+  let noAutoScroll = $state(false);
+
   // let dataConversation = $state([
   //   {
   //     id: 0,
@@ -170,6 +183,8 @@
         tmpConversationId = response.result.conversation_id;
       }
 
+      noAutoScroll = false;
+
       let dataConversationChatsTmp = [...dataConversationChats];
       dataConversationChatsTmp.push({
         id: dataConversationChatsTmp.length + 1,
@@ -220,7 +235,7 @@
 
       dataConversationChats = dataConversationChatsTmp;
 
-      addToDataset(role, message);
+      // addToDataset(role, message);
       messageInput = "";
     }
   }
@@ -261,8 +276,8 @@
 
       console.log("response", response);
 
-      datasetArray = [];
-      addToDatasetFromDB();
+      // datasetArray = [];
+      // addToDatasetFromDB();
 
       dataConversationChats = dataConversationChatsTmp;
       editingMessageId = null;
@@ -416,11 +431,20 @@
   async function getmessage(conversationId) {
     let token = sessionStorage.getItem("token");
     if (token) {
+      const chatContainer = document.getElementById("chat-container");
+
+      const scrollTop = chatContainer.scrollTop;
+      const scrollHeight = chatContainer.scrollHeight;
+
+      console.log(scrollTop, scrollHeight);
+
       const response = await $call.call("client-dashboard", "get-messages", {
         URLQuery: {},
         URLParams: {},
         Params: {
           conversation_id: conversationId,
+          limit: 100,
+          page: pageData,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -435,16 +459,29 @@
       }
 
       currentChatTitle = response.result.attributes.title;
-      dataConversationChats = response.result.attributes.message;
+      dataConversationChats = [...response.result.attributes.message, ...dataConversationChats];
+      pageTotal = response.result.page_total;
+
+      await tick();
+      const newScrollHeight = chatContainer.scrollHeight;
+      const newScrollTop = scrollTop + (newScrollHeight - scrollHeight);
+
+      chatContainer.scrollTop = newScrollTop;
+
       let lastRole = dataConversationChats[dataConversationChats.length - 1].role;
       if (lastRole === "user") {
         selectedRole = "Bot";
       } else {
         selectedRole = "User";
       }
-      addToDatasetFromDB();
-      autoscroll();
+      // addToDatasetFromDB();
     }
+  }
+
+  function getPrevMessage() {
+    pageData++;
+    noAutoScroll = true;
+    getmessage(conversationId);
   }
 
   function addToDatasetFromDB() {
@@ -708,7 +745,9 @@
 
   $effect(() => {
     if (dataConversationChats.length) {
-      autoscroll();
+      if (!noAutoScroll) {
+        autoscroll();
+      }
     }
   });
 
@@ -803,7 +842,11 @@
   });
 </script>
 
-<div bind:this={div} class="static h-screen overflow-y-auto bg-primary-light dark:bg-primary-dark">
+<div
+  bind:this={div}
+  id="chat-container"
+  class="static h-screen overflow-y-auto bg-primary-light dark:bg-primary-dark"
+>
   <Sidebar
     bind:name={userData.username}
     bind:email={userData.email}
@@ -927,6 +970,9 @@
         </div>
       </div>
       <div class="flex flex-col pb-40 gap-4">
+        {#if pageData < pageTotal}
+          <button on:click={getPrevMessage} class="w-full">test</button>
+        {/if}
         {#each dataConversationChats as qaPair}
           <div
             class="flex w-full bg-secondary-light dark:bg-secondary-dark rounded-2xl p-4 md:px-8 md:py-6 items-start gap-4"

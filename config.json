@@ -3456,6 +3456,14 @@
                     "name": "conversation_id",
                     "type": "string",
                     "required": true
+                },
+                {
+                    "name": "limit",
+                    "type": "number"
+                },
+                {
+                    "name": "page",
+                    "type": "number"
                 }
             ]
         },
