@@ -174,8 +174,6 @@
           },
         });
 
-        console.log("response", response);
-
         if (response.status !== 200) {
           triggerToast("error");
           return;
