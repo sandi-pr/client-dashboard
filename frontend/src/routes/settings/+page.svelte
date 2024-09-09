@@ -12,8 +12,8 @@
 
 <script>
   import { onMount } from "svelte";
-  import { P, Input, Avatar, Button, Select } from "flowbite-svelte";
-  import { SelectedCard, InformationForm, Typography, triggerToast } from "$lib";
+  import { P, Input, Avatar, Button, Select, Indicator } from "flowbite-svelte";
+  import { SelectedCard, InformationForm, Typography, triggerToast, InputRw, Dropdown } from "$lib";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { SearchOutline } from "flowbite-svelte-icons";
@@ -27,7 +27,10 @@
   import OilGas from "$lib/icon/oil-gas.svelte";
   import SlidersIcon from "$lib/icon/sliders-04.svelte";
   import { datas, informationFormDatas, configs } from "./dummy";
+  import { setPrimaryColor } from "$lib/utils/colorTheme";
+  import { purpleColors, greenColors, blueColors } from "$lib/utils/presetColors";
   import { CR3Call } from "hexacomponents-svelte";
+  import { _ } from "svelte-i18n";
 
   import { call } from "$lib";
 
@@ -35,6 +38,24 @@
   let user = informationFormDatas;
   let userCopy = {};
   let isAdmin = true;
+  let sidebarTitle = null;
+  let dropdownThemeOpen = false;
+  let dropdownModelTrocrOpen = false;
+  let selectedTheme = "green";
+  let themes = [
+    {
+      name: "Purple",
+      value: "purple",
+    },
+    {
+      name: "Green",
+      value: "green",
+    },
+    {
+      name: "Blue",
+      value: "blue",
+    },
+  ];
   let fileImage = null;
   let fileImageName = null;
   let fileImageResult = null;
@@ -57,7 +78,10 @@
         name: "Company Type",
       },
       {
-        name: "Model TROCR",
+        name: "Theme",
+      },
+      {
+        name: "Configuration AI",
       },
     ],
   };
@@ -209,7 +233,7 @@
           grid: 2,
         },
         {
-          name: "User ID",
+          name: "User Id",
           value: me.id,
           grid: 1,
         },
@@ -245,6 +269,10 @@
         triggerToast("error");
         return;
       }
+
+      fileImage = null;
+      fileImageResult = null;
+      fileImageName = null;
 
       triggerToast("updated");
       console.log("ayam", response);
@@ -401,6 +429,22 @@
     }
   }
 
+  function updateTheme(setColor) {
+    if (setColor === "purple") {
+      setPrimaryColor(purpleColors);
+    } else if (setColor === "blue") {
+      setPrimaryColor(blueColors);
+    } else if (setColor === "green") {
+      setPrimaryColor(greenColors);
+    }
+  }
+
+  $: {
+    if (selectedTheme) {
+      updateTheme(selectedTheme);
+    }
+  }
+
   async function getModels() {
     const response = await $call.call("hexa-ai-rag", "trocr-get-models", {
       URLQuery: {},
@@ -490,23 +534,23 @@
       {#if tabDatas.selected === "My Profile"}
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
-            <Typography preset="Text lg/Semibold" text="Personal info" />
+            <Typography preset="Text lg/Semibold" text={$_("personalInfo")} />
             <Typography
               preset="Text sm/Reguler"
-              text="Update your photo and personal details here."
+              text={$_("descPersonalInfo")}
             />
           </div>
           <div class="py-8 border-b border-secondary-light dark:border-secondary-dark">
             <InformationForm datas={user} {screenWidth} />
           </div>
-          <div class="py-8">
+          <!-- <div class="py-8">
             <div class="grid grid-cols-4">
               <div class="col-span-1">
                 <Typography preset="Text lg/Semibold" text="Your photo" />
               </div>
               <div class="col-span-3 flex w-full">
                 <Avatar class="size-16" src={fileImageName ? fileImageResult : ""} />
-                <div class="w-full ml-8">
+                <div class="grow ml-8">
                   <Button
                     ondragover={handleDragOver}
                     ondragleave={handleDragLeave}
@@ -534,21 +578,21 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       {:else if tabDatas.selected === "Password"}
         <div class="mx-4 mt-4">
           <!-- <DataTable {datas} {configs} /> -->
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
-            <Typography preset="Text lg/Semibold" text="Password" />
+            <Typography preset="Text lg/Semibold" text={$_("changePassword")} />
             <Typography
               preset="Text sm/Reguler"
-              text="Please enter your current password to change your password."
+              text={$_("descPassword")}
             />
           </div>
           <div class="py-8">
             <div class="flex flex-col w-full">
-              <Typography preset="Text sm/Semibold" text="Current Password" />
+              <Typography preset="Text sm/Semibold" text={$_("currentPassword")} />
               <Input
                 type="password"
                 bind:value={passwordObject.currentPassword}
@@ -558,12 +602,12 @@
               {#if !currentPasswordMatch && passwordObject.currentPassword.length > 0}
                 <Typography
                   preset="Text sm/Reguler"
-                  text="Your current password did not match with our records. Please try again."
+                  text={$_("passwordNotMatch")}
                 />
               {/if}
             </div>
             <div class="flex flex-col w-full mt-4">
-              <Typography preset="Text sm/Semibold" text="New Password" />
+              <Typography preset="Text sm/Semibold" text={$_("newPassword")} />
               <Input
                 type="password"
                 disabled={!currentPasswordMatch}
@@ -574,12 +618,12 @@
               {#if !passwordCheck() && passwordObject.newPassword.length > 0}
                 <Typography
                   preset="Text sm/Reguler"
-                  text="Your new password must be at least than 8 characters, contains at least one digit number, contains at least one special character, contains at least one lowercase letter, and contains at least one uppercase letter."
+                  text={$_("hintPassword")}
                 />
               {/if}
             </div>
             <div class="flex flex-col w-full mt-4">
-              <Typography preset="Text sm/Semibold" text="Confirm Password" />
+              <Typography preset="Text sm/Semibold" text={$_("confirmPassword")} />
               <Input
                 type="password"
                 disabled={!currentPasswordMatch}
@@ -592,8 +636,8 @@
       {:else if tabDatas.selected === "Company Type"}
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-5 border-b border-secondary-light dark:border-secondary-dark">
-            <Typography preset="Text lg/Semibold" text="Company Size" />
-            <Typography preset="Text sm/Reguler" text="Please select your companies current size" />
+            <Typography preset="Text lg/Semibold" text={$_("companySize")} />
+            <Typography preset="Text sm/Reguler" text={$_("descCompanySize")} />
           </div>
           <Divider />
           <div class="pb-4"></div>
@@ -604,10 +648,10 @@
             isRadio
           />
           <div class="pt-8 pb-5 border-b border-secondary-light dark:border-secondary-dark">
-            <Typography preset="Text lg/Semibold" text="Industry" />
+            <Typography preset="Text lg/Semibold" text={$_("industryType")} />
             <Typography
               preset="Text sm/Reguler"
-              text="Please select your companies current industry"
+              text={$_("decIndustry")}
             />
           </div>
           <Divider />
@@ -620,54 +664,139 @@
             widthFlex="w-max"
           />
         </div>
-      {:else if tabDatas.selected === "Model TROCR"}
+      {:else if tabDatas.selected === "Theme"}
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
-            <Typography preset="Text lg/Semibold" text="Model TROCR" />
-            <Select items={options} class="display-block" bind:value={selectedModelTrocr} />
+            <div class="grid grid-cols-4">
+              <div class="col-span-1">
+                <Typography preset="Text lg/Semibold" text={$_("sidebarTitle")} />
+              </div>
+              <div class="col-span-3 flex w-full">
+                <InputRw bind:value={sidebarTitle} onEdit />
+              </div>
+            </div>
+          </div>
+          <div class="py-8 border-b border-secondary-light dark:border-secondary-dark">
+            <div class="grid grid-cols-4">
+              <div class="col-span-1">
+                <Typography preset="Text lg/Semibold" text={$_("companyLogo")} />
+              </div>
+              <div class="col-span-3 flex w-full">
+                <Avatar class="size-12" src={fileImageName ? fileImageResult : ""} />
+                <div class="grow ml-3">
+                  <Button
+                    ondragover={handleDragOver}
+                    ondragleave={handleDragLeave}
+                    ondrop={handleDrop}
+                    onclick={handleInputFile}
+                    color="light"
+                    class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark py-4 flex flex-col justify-start items-center`}
+                  >
+                    <div
+                      class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-3 pointer-events-none"
+                    >
+                      <img
+                        src={upload}
+                        alt="mail.svg"
+                        class="p-4 dark:invert pointer-events-none"
+                      />
+                    </div>
+                    <div class="flex space-x-1">
+                      <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P><P
+                        class="pointer-events-none">{$_("orDragAndDrop")}</P
+                      >
+                    </div>
+                    <P class="pointer-events-none">PNG or SVG file (max. 1MB)</P>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="py-8">
+            <div class="grid grid-cols-4">
+              <div class="col-span-1">
+                <Typography preset="Text lg/Semibold" text={$_("themeColors")} />
+              </div>
+              <div class="col-span-3 flex w-1/3">
+                <Dropdown
+                  dropdownOpen={dropdownThemeOpen}
+                  bind:selectedItem={selectedTheme}
+                  items={themes}
+                  isOverlay={true}
+                  widget={Indicator}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      {:else if tabDatas.selected === "Configuration AI"}
+        <div class="mx-4 mt-4">
+          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+            <Typography preset="Text lg/Semibold" text={$_("configurationAI")} />
+            <Typography preset="Text sm/Reguler" text={$_("descConfigurationAI")} />
+          </div>
+          <Divider />
+          <div class="py-8">
+            <div class="grid grid-cols-4">
+              <div class="col-span-1">
+                <Typography preset="Text lg/Semibold" text="Model TROCR" />
+              </div>
+              <div class="col-span-3 flex w-1/3">
+                <Dropdown
+                  dropdownOpen={dropdownModelTrocrOpen}
+                  bind:selectedItem={selectedModelTrocr}
+                  items={options}
+                  isOverlay={true}
+                />
+              </div>
+            </div>
           </div>
         </div>
       {/if}
 
       <!-- action buttons -->
-      <div class="flex w-full justify-end">
-        {#if tabDatas.selected !== "Model TROCR"}
+      {#if tabDatas.selected !== "My Profile"}
+        <div class="flex w-full px-4 justify-end">
+          {#if tabDatas.selected !== "Configuration AI"}
+            <Button
+              class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
+              on:click={() => {
+                if (tabDatas.selected === "My Profile") {
+                  getUser();
+                } else if (tabDatas.selected === "Password") {
+                  passwordObject = {
+                    currentPassword: "",
+                    newPassword: "",
+                    confirmPassword: "",
+                  };
+                }
+              }}>Cancel</Button
+            >
+          {/if}
           <Button
-            class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
+            class="bg-hc-brand-600 hover:bg-hc-brand-700"
             on:click={() => {
               if (tabDatas.selected === "My Profile") {
-                getUser();
+                updatePhotoUser();
               } else if (tabDatas.selected === "Password") {
-                passwordObject = {
-                  currentPassword: "",
-                  newPassword: "",
-                  confirmPassword: "",
-                };
+                updatePassword();
+              } else if (tabDatas.selected === "Company Type") {
+                updateCompanyType();
+              } else if (tabDatas.selected === "Configuration AI") {
+                updateModelTrocr();
+              } else if (tabDatas.selected === "Theme") {
+                updateTheme(newThemeColors);
               }
-            }}>Cancel</Button
+            }}
           >
-        {/if}
-        <Button
-          class="bg-hc-brand-600 hover:bg-hc-brand-700"
-          on:click={() => {
-            if (tabDatas.selected === "My Profile") {
-              updatePhotoUser();
-            } else if (tabDatas.selected === "Password") {
-              updatePassword();
-            } else if (tabDatas.selected === "Company Type") {
-              updateCompanyType();
-            } else if (tabDatas.selected === "Model TROCR") {
-              updateModelTrocr();
-            }
-          }}
-        >
-          {#if tabDatas.selected === "My Profile" || tabDatas.selected === "Company Type" || tabDatas.selected === "Model TROCR"}
-            Save
-          {:else if tabDatas.selected === "Password"}
-            Update Password
-          {/if}
-        </Button>
-      </div>
+            {#if tabDatas.selected === "My Profile" || tabDatas.selected === "Company Type" || tabDatas.selected === "Configuration AI" || tabDatas.selected === "Theme"}
+              Save
+            {:else if tabDatas.selected === "Password"}
+              Update Password
+            {/if}
+          </Button>
+        </div>
+      {/if}
     {:else}
       hello user
     {/if}

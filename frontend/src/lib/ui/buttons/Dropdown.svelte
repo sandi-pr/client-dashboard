@@ -21,6 +21,7 @@ All Rights Reserved
     isOverlay = false,
     disabled = false,
     onClick = null,
+    widget = null,
   } = $props();
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
@@ -35,7 +36,12 @@ All Rights Reserved
     class={`flex justify-between border-primary-light dark:border-primary-dark dark:bg-gray-800 ${disabled ? "focus:ring-0 hover:cursor-default hover:bg-white dark:hover:bg-slate-800" : ""}`}
     color="light"
   >
-    {selectedItem === "" ? placeholder : items.find((item) => item.value === selectedItem)?.name}
+    <div class="flex items-center gap-2">
+      {#if widget}
+        <svelte:component this={widget} color={items.find((item) => item.value === selectedItem)?.value} />
+      {/if}
+      {selectedItem === "" ? placeholder : items.find((item) => item.value === selectedItem)?.name}
+    </div>
     <ChevronDownOutline
       class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
     />

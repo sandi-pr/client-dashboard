@@ -41,18 +41,17 @@ const config = {
     extend: {
       colors: {
         primary: {
-          25: "#FCFAFF",
-          50: "#F9F5FF",
-          100: "#F4EBFF",
-          200: "#E9D7FE",
-          300: "#D6BBFB",
-          400: "#B692F6",
-          500: "#9E77ED",
-          600: "#7F56D9",
-          700: "#6941C6",
-          800: "#53389E",
-          900: "#42307D",
-          950: "#2C1C5F",
+          50: 'var(--primary-50)',
+          100: 'var(--primary-100)',
+          200: 'var(--primary-200)',
+          300: 'var(--primary-300)',
+          400: 'var(--primary-400)',
+          500: 'var(--primary-500)',
+          600: 'var(--primary-600)',
+          700: 'var(--primary-700)',
+          800: 'var(--primary-800)',
+          900: 'var(--primary-900)',
+          950: 'var(--primary-950)',
         },
         hc: {
           graylight: {
@@ -84,18 +83,17 @@ const config = {
             950: "#0C111D",
           },
           brand: {
-            25: "#FCFAFF",
-            50: "#F9F5FF",
-            100: "#F4EBFF",
-            200: "#E9D7FE",
-            300: "#D6BBFB",
-            400: "#B692F6",
-            500: "#9E77ED",
-            600: "#7F56D9",
-            700: "#6941C6",
-            800: "#53389E",
-            900: "#42307D",
-            950: "#2C1C5F",
+            50: 'var(--primary-50)',
+            100: 'var(--primary-100)',
+            200: 'var(--primary-200)',
+            300: 'var(--primary-300)',
+            400: 'var(--primary-400)',
+            500: 'var(--primary-500)',
+            600: 'var(--primary-600)',
+            700: 'var(--primary-700)',
+            800: 'var(--primary-800)',
+            900: 'var(--primary-900)',
+            950: 'var(--primary-950)',
           },
           error: {
             25: "#FFFBFA",
@@ -191,16 +189,16 @@ const config = {
           },
           brand: {
             primary: {
-              light: "#7F56D9",
-              dark: "#9E77ED",
+              light: 'var(--primary-600)',
+              dark: 'var(--primary-500)',
               alt: {
-                light: "#7F56D9",
+                light: 'var(--primary-500)',
                 dark: "#CECFD2",
               },
             },
             secondary: {
-              light: "#9E77ED",
-              dark: "#9E77ED",
+              light: 'var(--primary-500)',
+              dark: 'var(--primary-500)',
             },
           },
           error: {
@@ -279,44 +277,48 @@ const config = {
           },
           brand: {
             50: {
-              light: "#F9F5FF",
-              dark: "#2C1C5F",
+              light: 'var(--primary-50)',
+              dark: 'var(--primary-950)',
             },
             100: {
-              light: "#F4EBFF",
-              dark: "#42307D",
+              light: 'var(--primary-100)',
+              dark: 'var(--primary-900)',
             },
             200: {
-              light: "#E9D7FE",
-              dark: "#53389E",
+              light: 'var(--primary-200)',
+              dark: 'var(--primary-800)',
             },
             300: {
-              light: "#D6BBFB",
-              dark: "#6941C6",
+              light: 'var(--primary-300)',
+              dark: 'var(--primary-700)',
             },
             400: {
-              light: "#B692F6",
-              dark: "#7F56D9",
+              light: 'var(--primary-400)',
+              dark: 'var(--primary-600)',
             },
             500: {
-              light: "#9E77ED",
-              dark: "#9E77ED",
+              light: 'var(--primary-500)',
+              dark: 'var(--primary-500)',
+              alt: {
+                light: 'var(--primary-500)',
+                dark: "#667085",
+              },
             },
             600: {
-              light: "#7F56D9",
-              dark: "#B692F6",
+              light: 'var(--primary-600)',
+              dark: 'var(--primary-400)',
             },
             700: {
-              light: "#6941C6",
-              dark: "#D6BBFB",
+              light: 'var(--primary-700)',
+              dark: 'var(--primary-300)',
             },
             800: {
-              light: "#53389E",
-              dark: "#E9D7FE",
+              light: 'var(--primary-800)',
+              dark: 'var(--primary-200)',
             },
             900: {
-              light: "#42307D",
-              dark: "#F4EBFF",
+              light: 'var(--primary-900)',
+              dark: 'var(--primary-100)',
             },
           },
           error: {
@@ -470,7 +472,7 @@ const config = {
             dark: "#CECFD2",
           },
           onbrand: {
-            light: "#E9D7FE",
+            light: 'var(--primary-200)',
             dark: "#CECFD2",
           },
         },
@@ -482,7 +484,7 @@ const config = {
             dark: "#CECFD2",
           },
           onbrand: {
-            light: "#E9D7FE",
+            light: 'var(--primary-200)',
             dark: "#94969C",
           },
         },
@@ -490,7 +492,7 @@ const config = {
           light: "#667085",
           dark: "#94969C",
           onbrand: {
-            light: "#E9D7FE",
+            light: 'var(--primary-200)',
             dark: "#94969C",
           },
         },
@@ -508,18 +510,18 @@ const config = {
         },
         brand: {
           primary: {
-            light: "#42307D",
+            light: 'var(--primary-900)',
             dark: "#F5F5F6",
           },
           secondary: {
-            light: "#6941C6",
+            light: 'var(--primary-700)',
             dark: "#CECFD2",
           },
           tertiary: {
-            light: "#7F56D9",
+            light: 'var(--primary-600)',
             dark: "#94969C",
             alt: {
-              light: "#7F56D9",
+              light: 'var(--primary-600)',
               dark: "#F5F5F6",
             },
           },
@@ -565,13 +567,13 @@ const config = {
           },
         },
         brand: {
-          light: "#D6BBFB",
-          dark: "#B692F6",
+          light: 'var(--primary-300)',
+          dark: 'var(--primary-400)',
           solid: {
-            light: "#7F56D9",
-            dark: "#9E77ED",
+            light: 'var(--primary-600)',
+            dark: 'var(--primary-500)',
             alt: {
-              light: "#7F56D9",
+              light: 'var(--primary-600)',
               dark: "#333741",
             },
           },
@@ -648,30 +650,30 @@ const config = {
         },
         brand: {
           primary: {
-            light: "#F9F5FF",
-            dark: "#9E77ED",
+            light: 'var(--primary-50)',
+            dark: 'var(--primary-500)',
             alt: {
-              light: "#F9F5FF",
+              light: 'var(--primary-50)',
               dark: "#1F242F",
             },
           },
           secondary: {
-            light: "#F4EBFF",
-            dark: "#7F56D9",
+            light: 'var(--primary-100)',
+            dark: 'var(--primary-600)',
           },
           solid: {
-            light: "#7F56D9",
-            dark: "#7F56D9",
+            light: 'var(--primary-600)',
+            dark: 'var(--primary-600)',
             hover: {
-              light: "#6941C6",
-              dark: "#9E77ED",
+              light: 'var(--primary-700)',
+              dark: 'var(--primary-500)',
             },
           },
           section: {
-            light: "#53389E",
+            light: 'var(--primary-800)',
             dark: "#1F242F",
             subtle: {
-              light: "#6941C6",
+              light: 'var(--primary-700)',
               dark: "#0C111D",
             },
           },

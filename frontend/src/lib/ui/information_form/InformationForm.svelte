@@ -1,6 +1,7 @@
 <script lang="ts">
   import { P, Textarea } from "flowbite-svelte";
-  import { Typography } from "$lib";
+  import { Typography, toCamelCase } from "$lib";
+  import { _ } from "svelte-i18n";
 
   export let screenWidth: number;
   // export let user: {
@@ -54,12 +55,12 @@
 <!-- syntax reference -->
 
 <div class={`grid gap-4 ${screenWidth > 1024 ? "grid-cols-" + datas.grid : "grid-cols-1"}`}>
-  <Typography preset="Text lg/Semibold" text={datas.title} propClass={`${screenWidth > 1024 ? "col-span-" + datas.titleGrid : "col-span-1"}`} />
+  <Typography preset="Text lg/Semibold" text={$_(toCamelCase(datas.title))} propClass={`${screenWidth > 1024 ? "col-span-" + datas.titleGrid : "col-span-1"}`} />
 
   <div class={`col-span-${datas.grid - datas.titleGrid} grid gap-4 ${screenWidth > 1024 ? "grid-cols-" + datas.innerGrid : "grid-cols-1"}`}>
     {#each datas.data as data (data)}
       <div class={`${datas.innerGrid > data.grid ? (screenWidth > 1024 ? "col-span-" + data.grid : "col-span-" + datas.innerGrid) : "col-span-" + data.grid} [&>*]:text-hc-graylight-700 [&>*]:bg-white [&>*]:dark:bg-hc-graydark-950 [&>textarea]:text-hc-graylight-500`}>
-        <P>{data.name}</P>
+        <P>{$_(toCamelCase(data.name))}</P>
         <Textarea class="resize-none" rows={screenWidth > 1024 ? "1" : "2"} disabled value={data.value} />
       </div>
     {/each}

@@ -35,6 +35,8 @@ All Rights Reserved
   import { goto } from "$app/navigation";
   import { set_pdfjs_context } from "$lib/utils/vite.ts";
   import { sidebarLargeClosed, toggleSidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
+  import { setPrimaryColor } from "$lib/utils/colorTheme";
+  import { purpleColors, greenColors } from "$lib/utils/presetColors";
 
   set_pdfjs_context();
 
@@ -471,7 +473,12 @@ All Rights Reserved
     }
   }
 
+  function getPrimaryColor() {
+    setPrimaryColor(greenColors);
+  }
+
   onMount(() => {
+    getPrimaryColor();
     if (sessionStorage.getItem("token") === null && isFrontend) {
       alert("Please insert token to session storage and refresh the page");
       return;

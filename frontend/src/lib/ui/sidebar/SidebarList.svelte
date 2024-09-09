@@ -33,8 +33,8 @@
   } from "flowbite-svelte-icons";
   import LogoIcon from "$lib/icon/Logomark.svg";
   import { sidebarLargeClosed, toggleSidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
-  import SidebarCloseIcon from "$lib/icon/sidebar-close.svg";
-  import SidebarOpenIcon from "$lib/icon/sidebar-open.svg";
+  import SidebarCloseIcon from "$lib/icon/sidebar-close.svelte";
+  import SidebarOpenIcon from "$lib/icon/sidebar-open.svelte";
   import { onMount } from "svelte";
   import Me from "$lib/utils/me";
   import { _ } from "svelte-i18n";
@@ -150,7 +150,7 @@
                 changeSidbar();
               }}
             >
-              <img src={SidebarCloseIcon} alt="Sidebar Close Icon" class="w-8 h-8 cursor-pointer" />
+              <SidebarCloseIcon svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark" />
             </button>
           {/if}
         {:else}
@@ -162,7 +162,7 @@
               }}
               class="fixed left-16 z-50 overflow-visible"
             >
-              <img src={SidebarOpenIcon} alt="Sidebar Open Icon" class="w-8 h-8 cursor-pointer" />
+              <SidebarOpenIcon svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark" />
             </button>
           {/if}
         {/if}
