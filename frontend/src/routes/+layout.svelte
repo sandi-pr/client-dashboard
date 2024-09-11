@@ -413,11 +413,8 @@ All Rights Reserved
             }
           }
         } else {
-          goto(
-            (await call.getPage("client-login", "home-page")) +
-              "?redirect=" +
-              globalThis.location.href,
-          );
+          localStorage.setItem("redirect", globalThis.location.href);
+          goto(await call.getPage("client-login", "home-page"));
           return;
         }
       } catch (error) {
