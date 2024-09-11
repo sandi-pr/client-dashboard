@@ -85,6 +85,7 @@
   let editedMessage = $state("");
   let deleteModal = $state(false);
   let dropdownOpen = $state(false);
+  let gettingDatas = $state(true);
 
   let messageInput = $state("");
 
@@ -540,7 +541,10 @@
       const response = await $call.call("client-dashboard", "get-conversations", {
         URLQuery: {},
         URLParams: {},
-        Params: {},
+        Params: {
+          page: 1,
+          page_size: 10,
+        },
         Headers: {
           Authorization: "Bearer " + token,
         },
@@ -567,6 +571,8 @@
           id: id,
         });
       });
+
+      gettingDatas = false;
     }
   }
 
@@ -858,6 +864,7 @@
     bind:sidebarData
     {logout}
     {getListConversations}
+    bind:gettingDatas
   />
   <div class={`flex flex-col lg:ml-80 pt-4 px-4 md:px-8`}>
     <div class="flex flex-col gap-3 md:gap-4">

@@ -43,10 +43,11 @@ All Rights Reserved
 
   const handleSearch = async (value) => {
     searchTerm = value;
+    page = 1;
 
-    datas = datas.filter((data) => {
-      return data.title.toLowerCase().includes(value.toLowerCase());
-    });
+    console.log(searchTerm);
+
+    await getListConversations();
   };
 
   async function getListConversations() {
@@ -57,7 +58,11 @@ All Rights Reserved
         const response = await $call.call("client-dashboard", "get-conversations", {
           URLQuery: {},
           URLParams: {},
-          Params: {},
+          Params: {
+            page: page,
+            page_size: 10,
+            search: searchTerm,
+          },
           Headers: {
             Authorization: "Bearer " + token,
           },
@@ -75,55 +80,49 @@ All Rights Reserved
 
         conversations = response.result.data;
 
-        if (conversations.length > 0) {
-          pageCount = Math.ceil(response.result.data.length / 10);
+        pageCount = response.result.meta.pagination.pageCount;
+        configs = {
+          pagination: response.result.meta.pagination,
+          search: true,
+          searchHandler: handleSearch,
+        };
 
-          configs = {
-            pagination: {
-              page: 1,
-              pageCount: pageCount,
-              pageSize: 10,
-              total: response.result.data.length,
+        // if (conversations.length > 0) {
+        // response.result.data.forEach((conversation) => {
+        //   let updateAt = format(new Date(conversation.attributes.updatedAt), "yyyy-MM-dd");
+        //   let title = conversation.attributes.title;
+        //   let id = conversation.attributes.conversation_id;
+
+        //   if (!sidebarData[updateAt]) {
+        //     sidebarData[updateAt] = [];
+        //   }
+
+        //   sidebarData[updateAt].push({
+        //     title: title,
+        //     id: id,
+        //   });
+        // });
+
+        let link = await $call.getPage("client-dashboard", "datasets");
+        let promise = conversations.map((conversation) => {
+          return {
+            id: conversation.attributes.conversation_id,
+            updateAt: format(new Date(conversation.attributes.updatedAt), "yyyy-MM-dd"),
+            title: conversation.attributes.title,
+            actions: {
+              objects: [
+                {
+                  href: link + "?id=" + conversation.attributes.conversation_id,
+                  name: "Select",
+                },
+              ],
             },
-            search: true,
-            searchHandler: handleSearch,
           };
-
-          // response.result.data.forEach((conversation) => {
-          //   let updateAt = format(new Date(conversation.attributes.updatedAt), "yyyy-MM-dd");
-          //   let title = conversation.attributes.title;
-          //   let id = conversation.attributes.conversation_id;
-
-          //   if (!sidebarData[updateAt]) {
-          //     sidebarData[updateAt] = [];
-          //   }
-
-          //   sidebarData[updateAt].push({
-          //     title: title,
-          //     id: id,
-          //   });
-          // });
-
-          let link = await $call.getPage("client-dashboard", "datasets");
-          let promise = conversations.map((conversation) => {
-            return {
-              id: conversation.attributes.conversation_id,
-              updateAt: format(new Date(conversation.attributes.updatedAt), "yyyy-MM-dd"),
-              title: conversation.attributes.title,
-              actions: {
-                objects: [
-                  {
-                    href: link + "?id=" + conversation.attributes.conversation_id,
-                    name: "Select",
-                  },
-                ],
-              },
-            };
-          });
-          allDatas = await Promise.all(promise);
-          datas = allDatas.slice(0, 10);
-          gettingDatas = false;
-        }
+        });
+        allDatas = await Promise.all(promise);
+        datas = allDatas.slice(0, 10);
+        gettingDatas = false;
+        // }
       } catch (error) {
         console.log("error", error);
         gettingDatas = false;
@@ -134,16 +133,14 @@ All Rights Reserved
   async function nextPage() {
     if (page >= pageCount) return;
     page++;
-    configs.pagination.page = page;
-    datas = allDatas.slice(10 * (page - 1), 10 * page);
+    getListConversations();
   }
 
   async function prevPage() {
     console.log(page);
     if (page <= 1) return;
     page--;
-    configs.pagination.page = page;
-    datas = allDatas.slice(10 * (page - 1), 10 * page);
+    getListConversations();
   }
 
   onMount(() => {
@@ -163,7 +160,7 @@ All Rights Reserved
         </div>
 
         <!-- table latest -->
-        {#if datas.length > 0}
+        {#if datas.length > 0 || searchTerm !== ""}
           <DataTable bind:datas bind:configs next={nextPage} previous={prevPage} />
         {:else if gettingDatas}
           <StateCard

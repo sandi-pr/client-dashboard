@@ -52,6 +52,7 @@
     logout = () => {},
     getListConversations = () => {},
     sidebarData = $bindable({}),
+    gettingDatas = $bindable(true),
   } = $props();
 
   let clickOutsideModal = $state(false);
@@ -334,7 +335,7 @@
         </Button>
       </div>
     </div>
-    {#if Object.keys(sidebarData).length === 0}
+    {#if Object.keys(sidebarData).length === 0 && !gettingDatas}
       <div
         class="flex w-full h-min py-4 justify-center mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
       >

@@ -227,7 +227,7 @@
         <Search placeholder={$_("")} class="bg-white dark:bg-primary-dark mb-6 w-0 px-0" />
         {#each sidebarItems as item}
           <SidebarNavItem
-            href={item.href}
+            href={item.children.length > 0 ? item.children[0].href : item.href}
             {activeUrl}
             icon={item.icon}
             typographyData={{

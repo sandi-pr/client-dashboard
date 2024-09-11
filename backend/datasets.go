@@ -404,19 +404,32 @@ func GetConversations(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 
 	fmt.Println(me)
 
-	page := 1
-
-	var allConversations U.Dict
-
-	allConversations = U.Dict{
-		"data": []interface{}{},
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		page = 1
 	}
 
-	for {
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		page_size = 25
+	}
+
+	search, ok := ctx.Params.GetString("search")
+
+	if !ok {
+		search = ""
+	}
+
+	if search != "" {
 		status, conversations, err := Strapi.Find("conversation-fine-tuned-table", U.Dict{
+			"filters": U.Dict{
+				"title": U.Dict{
+					"$contains": search,
+				},
+			},
 			"pagination": U.Dict{
 				"page":     page,
-				"pageSize": 25,
+				"pageSize": page_size,
 			},
 			"populate": "*",
 			"sort":     "updatedAt:desc",
@@ -432,26 +445,29 @@ func GetConversations(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		list, ok := conversations.GetList("data")
-		if !ok {
+		return 200, conversations, nil
+	} else {
+		status, conversations, err := Strapi.Find("conversation-fine-tuned-table", U.Dict{
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": page_size,
+			},
+			"populate": "*",
+			"sort":     "updatedAt:desc",
+		})
+
+		if err != nil {
+			fmt.Println(err)
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		if len(list) == 0 {
-			break
-		}
-
-		existingList, ok := allConversations.GetList("data")
-		if !ok {
+		if status != 200 {
+			fmt.Println(status)
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		allConversations["data"] = append(existingList, list...)
-
-		page++
+		return 200, conversations, nil
 	}
-
-	return 200, allConversations, nil
 }
 
 func DeleteConversation(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
