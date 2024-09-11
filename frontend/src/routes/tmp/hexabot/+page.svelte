@@ -20,6 +20,10 @@
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Eye from "$lib/icon/eye.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
+  import { Typography } from "$lib";
+  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
+  import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 
   // const isDev = process.env.NODE_ENV === "development";
@@ -38,15 +42,15 @@
       moduleName: "Create New Bots",
       desc: "desc Create New Bots",
     },
-    {
-      href: "#",
-      action: () => {
-        deployStatusModal = true;
-      },
-      icon: Eye,
-      moduleName: "View bot deployment status",
-      desc: "desc View Bot Deployment Status",
-    },
+    // {
+    //   href: "#",
+    //   action: () => {
+    //     deployStatusModal = true;
+    //   },
+    //   icon: Eye,
+    //   moduleName: "View bot deployment status",
+    //   desc: "desc View Bot Deployment Status",
+    // },
   ];
 
   let Header;
@@ -54,6 +58,7 @@
   let bots = [
     {
       botsName: "Bot 1",
+      botDescription: "Bot 1 Description",
       botsID: "711",
       clientID: "b608d45f-0f54-45f7-816e-8d6aa82e6eba",
       activationTime: "2024-02-06 10:30:13",
@@ -224,7 +229,45 @@
             <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
               {#each bots as bot (bot.botsID)}
                 {#if bot.deployStatus === "Done"}
-                  <div class="span-col-1">
+                <Card padding="none" class="shadow-none">
+                  <div
+                    class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
+                  >
+                    <div class="flex justify-between items-center">
+                      <div class="flex items-center gap-3">
+                        <Avatar />
+                        <div class="flex flex-col">
+                          <Typography preset="Text lg/Semibold" color="primary" text={bot.botsName} />
+                          <Typography preset="Text sm/Regular" color="secondary" text={bot.botDescription} />
+                        </div>
+                      </div>
+                      <DotsVerticalIcon svgClass="w-5 h-5 text-fg-quinary" />
+                    </div>
+                  </div>
+                  <div class="flex gap-3 px-4 pt-4 pb-6">
+                    <div class="grid grow grid-cols-2 gap-3">
+                      <Button
+                        on:click={() => {}}
+                        outline
+                        class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
+                      >
+                        <Typography preset="Text sm/Semibold" text={$_("view")} color="brand-secondary" />
+                      </Button>
+                      <Button
+                        on:click={() => {}}
+                        outline
+                        class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
+                      >
+                        <Typography preset="Text sm/Semibold" text={$_("webchat")} color="secondary" />
+                        <ArrowUpRightIcon svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark" />
+                      </Button>
+                    </div>
+                    <button>
+                      <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                    </button>
+                  </div>
+                </Card>
+                  <!-- <div class="span-col-1">
                     <Card padding="none" size="md">
                       <div
                         class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-3"
@@ -258,29 +301,6 @@
                               <Button class="focus-within:ring-0 !p-0" color="none" size="xs"
                                 ><DotsVerticalOutline /></Button
                               >
-                              <!-- <Dropdown>
-                                <DropdownItem>
-                                  <div class="flex">
-                                    <MessageChatSquare
-                                      svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                    />{$_("conversationLogs")}
-                                  </div>
-                                </DropdownItem>
-                                <DropdownItem>
-                                  <div class="flex">
-                                    <PencilLine
-                                      svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                    />{$_("editBotName")}
-                                  </div>
-                                </DropdownItem>
-                                <DropdownItem>
-                                  <div class="flex">
-                                    <FileAttachment_02
-                                      svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                    />{$_("viewDocuments")}
-                                  </div>
-                                </DropdownItem>
-                              </Dropdown> -->
                             </div>
                           </div>
                         </div>
@@ -365,7 +385,7 @@
                         </div>
                       </div>
                     </Card>
-                  </div>
+                  </div> -->
                 {/if}
               {/each}
             </div>

@@ -9,6 +9,7 @@
     Avatar,
     SidebarGroup,
     Indicator,
+    ListPlaceholder,
   } from "flowbite-svelte";
   import { Typography } from "$lib";
   import { format, isToday, isYesterday, set } from "date-fns";
@@ -308,7 +309,7 @@
         &nbsp; &nbsp;
         <P class="!text-white dark:!text-white">New Dataset</P>
       </Button>
-      <div class="flex gap-2">
+      <div class="grid grid-cols-2 gap-2">
         <Button
           disabled={statusRequest === "process"}
           on:click={() => {
@@ -335,12 +336,18 @@
         </Button>
       </div>
     </div>
-    {#if Object.keys(sidebarData).length === 0 && !gettingDatas}
-      <div
-        class="flex w-full h-min py-4 justify-center mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
-      >
-        <Typography preset="Text md/Regular" text="No datasets yet" color="fg-disabled" />
-      </div>
+    {#if Object.keys(sidebarData).length === 0}
+      {#if gettingDatas}
+        <div class="flex grow">
+          <ListPlaceholder />
+        </div>
+      {:else}
+        <div
+          class="flex w-full h-min py-4 justify-center mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
+        >
+          <Typography preset="Text md/Regular" text="No datasets yet" color="fg-disabled" />
+        </div>
+      {/if}
     {:else}
       <div class="flex flex-col overflow-hidden hover:overflow-auto pb-20 w-full">
         {#each Object.keys(sidebarData) as date}

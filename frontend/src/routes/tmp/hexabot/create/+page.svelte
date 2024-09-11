@@ -18,6 +18,7 @@
     Button,
     Checkbox,
     Textarea,
+    Avatar,
     // Dropdown,
     // DropdownItem,
   } from "flowbite-svelte";
@@ -27,37 +28,28 @@
   // import TelegramIcon from "$lib/icon/telegram.svg";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import { onMount } from "svelte";
+  import { _ } from "svelte-i18n";
+  import upload from "$lib/icon/upload-cloud-02.svg";
+  import { call, Typography, SelectedCard, Dropdown } from "$lib";
   // import axios from "axios";
   // import { getTemplates } from "$lib/service/strapi";
 
   // export let data;
 
-  let dropdownOpen = false;
+  let selectedplatforms = null;
+  let dropdownCollectionOpen = false;
+  let selectedCollection = "";
+  let collections = [];
+  let initCollections = [];
+  let documents = [];
 
   let placement = "bottom-start";
 
   let platforms = [
     {
-      name: "Web",
-      icon: WebIcon,
-      description: "A web-based chat interface for your bot, built with SvelteKit.",
-      selected: true,
-      disabled: true,
+      id: 1,
+      name: "LLama 3.1",
     },
-    {
-      name: "Whatsapp",
-      icon: WhatsappIcon,
-      description: "A mobile messaging app for your bot, widely used for communication.",
-      selected: false,
-      disabled: true,
-    },
-    // {
-    //   name: "Telegram",
-    //   icon: TelegramIcon,
-    //   description: "A cloud-based instant messaging platform for your bot.",
-    //   selected: false,
-    //   disabled: true,
-    // },
   ];
 
   let selectedDays = [
@@ -97,6 +89,10 @@
       selected: false,
     },
   ];
+
+  let fileImage = null;
+  let fileImageName = null;
+  let fileImageResult = null;
 
   // let product = {
   //   name: "CRM for Small Business",
@@ -199,10 +195,6 @@
   // function removeFile(index) {
   //   files = files.filter((_, i) => i !== index);
   // }
-
-  onMount(() => {
-    // getTemplate();
-  });
 
   // let templates = [];
   let dropdownIndustryOpen = false;
@@ -308,6 +300,136 @@
     });
     products_and_services = [...products_and_services, newProduct];
   };
+
+  function handleDragOver(event) {
+    event.preventDefault();
+    dropzoneActive = true;
+  }
+
+  function handleDragLeave() {
+    dropzoneActive = false;
+  }
+
+  async function handleDrop(event) {
+    event.preventDefault();
+    dropzoneActive = false;
+
+    const files = event.dataTransfer.files;
+
+    if (files[0] && (files[0].type === "image/jpeg" || files[0].type === "image/png")) {
+      fileImageResult = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+
+        reader.readAsDataURL(files[0]);
+      });
+
+      fileImage = files[0];
+      fileImageName = files[0].name;
+      // console.log(fileImageResult);
+    } else {
+      alert("Invalid file. Please select a valid .jpg or .png file.");
+    }
+  }
+
+  const handleInputFile = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = "image/jpeg, image/png";
+
+    inputElement.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+
+      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+        fileImageResult = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+
+          reader.readAsDataURL(file);
+        });
+
+        // conver to base64
+        fileImage = await readFileAsBase64(file);
+        fileImageName = file.name;
+        // console.log(fileImageResult);
+      } else {
+        alert("Invalid file. Please select a valid .jpg or .png file.");
+      }
+    });
+
+    inputElement.click();
+  };
+
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function getCollections() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let page = 1;
+      initCollections = [];
+      while (true) {
+        let response = await $call.call("client-dashboard", "get-document-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          initCollections = initCollections.concat(response.result.data);
+          page++;
+        } else {
+          break;
+        }
+
+        let page2 = 1;
+
+        collections = initCollections.map((collection) => {
+          let totalDocuments = documents.filter(
+            (document) => document.attributes.collection_id === collection.id,
+          ).length;
+          return {
+            id: collection.id,
+            name: collection.attributes.collection_name,
+            description: collection.attributes.description,
+            totalDocuments: totalDocuments,
+          };
+        });
+      }
+    }
+  }
+
+  onMount(() => {
+    getCollections();
+  });
+
 </script>
 
 <svelte:window bind:innerWidth={screenWidth} />
@@ -330,7 +452,7 @@
   </div>
 
   <!-- Content -->
-  <div class="mx-4 mt-8">
+  <div class="mx-4 mt-8 pb-4">
     <div class="md:flex">
       <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Bots Information</P>
 
@@ -355,184 +477,71 @@
           >
           <Textarea class="resize-none" />
         </div>
-        <div
-          class="space-y-1 col-span-4 sm:col-span-2 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark [&>textarea]:text-primary-light dark:[&>textarea]:text-primary-dark"
-        >
-          <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-            >Industry*</P
-          >
-          <Button
-            on:click={() => (dropdownIndustryOpen = !dropdownIndustryOpen)}
-            class="w-full flex justify-between border-primary-light dark:border-primary-dark"
-            color="light"
-            >{selectedIndustry ? selectedIndustry : "select industry"}<ChevronDownOutline
-              class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-            /></Button
-          >
-          <div id="dropdown" class={`z-10 ${dropdownIndustryOpen ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
-            <ul class="py-2 flex border rounded-md flex-col items-center w-full text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-              {#each templates as template}
-              <button
-                class="flex w-full py-2 px-4 mx-8"
-                on:click={() => (
-                  (dropdownIndustryOpen = false), (params = template.attributes.parameters), (selectedIndustry = template.attributes.name), console.log(params)
-                )}>
-                {template.attributes.name}
-              </button>
-              {/each}
-            </ul>
-          </div>
-          <P size="sm" class="!mt-1" color="text-tertiary-light dark:text-tertiary-dark"
-            >This will set bots base configuration</P
-          >
-        </div>
-        <div
-          class="space-y-1 col-span-4 sm:col-span-2 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark [&>textarea]:text-primary-light dark:[&>textarea]:text-primary-dark"
-        >
-          <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-            >{params[0]?.children[0]?.label ?? "Use Case"}{params[0]?.children[0]?.required ? "*" : ""}</P
-          >
-          <Button
-            on:click={() => (dropdownUseCaseOpen = !dropdownUseCaseOpen)}
-            class="w-full flex justify-between border-primary-light dark:border-primary-dark"
-            color="light"
-            >{selectedUseCase ? selectedUseCase : params[0]?.children?.length > 0 ? "select use case" : "select industry first"}<ChevronDownOutline
-              class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-            /></Button
-          >
-          <div id="dropdown" class={`z-10 ${dropdownUseCaseOpen ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
-            <ul class="py-2 flex border rounded-md flex-col items-center w-full text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-              {#each params[0]?.children[0]?.enum as useCase}
-              <button
-                class="flex w-full py-2 px-4 mx-8"
-                on:click={() => ((dropdownUseCaseOpen = !dropdownUseCaseOpen), (selectedUseCase = useCase), console.log(useCase))}>
-                {useCase}
-              </button>
-              {/each}
-            </ul>
-          </div>
-          <!-- <Dropdown containerClass="w-10/12 sm:w-1/4" {placement} bind:open={dropdownUseCaseOpen}>
-            {#each params[0]?.children[0]?.enum as useCase}
-              <DropdownItem on:click={() => (dropdownUseCaseOpen = false)}>{useCase}</DropdownItem>
-            {/each}
-          </Dropdown> -->
-          <P size="sm" class="!mt-1" color="text-tertiary-light dark:text-tertiary-dark"
-            >{params[0]?.children[0]?.description}</P
-          >
-        </div>
-        {#if params[0]?.children}
-          {#each params[0]?.children as param, index (param)}
-            {#if index === 0}
-              <div
-                class="flex flex-col gap-1 col-span-4 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark [&>textarea]:text-primary-light dark:[&>textarea]:text-primary-dark"
-              >
-                <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-                  >{param.label}{param.required ? "*" : ""}</P
-                >
-                <Input
-                  type={param.type}
-                  placeholder={param.placeholder}
-                  defaultClass={param.required}
-                  min={param.min}
-                  max={param.max}
-                />
-              </div>
-            {/if}
-          {/each}
-        {/if}
-      </div>
-    </div>
-    <div class="border border-b-1 my-4"></div>
-    <div class="md:flex">
-      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Product & Services</P>
-      <div class="w-full md:w-3/4 flex flex-col justify-center gap-2">
-        {#if params[1]?.children.length > 0}
-          <P>{params[1]?.label !== undefined ? params[1]?.label : "Products & Services"}</P>
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
-            {#each products_and_services as product, index}
-              <Card>
-                {#each params[1]?.children[0].list_dict_format as field}
-                  <div class="flex flex-col gap-1 col-span-4">
-                    <P
-                      size="sm"
-                      weight="medium"
-                      class="text-secondary-light dark:text-secondary-dark"
-                    >
-                      {field.label}{field.required ? "*" : ""}
-                    </P>
-                    <Input
-                      type={field.type}
-                      placeholder={field.placeholder}
-                      defaultClass={field.required}
-                      min={field.min}
-                      max={field.max}
-                      bind:value={product[field.name]}
-                    />
-                  </div>
-                {/each}
-              </Card>
-            {/each}
-          </div>
-          <Button on:click={addProduct} color="light">Tambah</Button>
-        {/if}
-      </div>
-    </div>
-    <div class="border border-b-1 my-4"></div>
-    <div class="md:flex">
-      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Deployed Platforms</P>
-      <div class="w-full md:w-3/4 grid grid-cols-3 gap-4">
-        {#each platforms as platform}
-          <Checkbox checked={platform.selected} disabled={platform.disabled} custom>
-            <div
-              class={`font-normal p-5 w-full text-gray-500 bg-white rounded-lg border-2 border-gray-200 cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary-600 hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 dark:text-gray-400 dark:bg-gray-800 hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark
-              ${platform.disabled ? "cursor-default bg-disabled-subtle-light dark:bg-disabled-subtle-dark bg-opacity-50 hover:bg-disabled-subtle-light dark:hover:bg-disabled-subtle-dark" : ""}`}
+        <div class="flex flex-col col-span-4 w-full space-y-1">
+          <div class="">
+            <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
+              >Bot’s Profile Picture</P
             >
-              <div class="flex items-center gap-3">
+          </div>
+          <div class="flex w-full">
+            <Avatar class="size-12" src={fileImageName ? fileImageResult : ""} />
+            <div class="grow ml-3">
+              <Button
+                ondragover={handleDragOver}
+                ondragleave={handleDragLeave}
+                ondrop={handleDrop}
+                onclick={handleInputFile}
+                color="light"
+                class={`w-full grow rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark py-4 flex flex-col justify-start items-center`}
+              >
                 <div
-                  class="w-10 h-10 p-2.5 bg-tertiary-light dark:bg-tertiary-dark rounded-full justify-center items-center flex"
+                  class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-3 pointer-events-none"
                 >
-                  <!-- <WebIcon svgClass="w-5 h-5 text-violet-500" /> -->
-                  <img src={platform.icon} alt="Web" class="w-5 h-5" />
+                  <img
+                    src={upload}
+                    alt="mail.svg"
+                    class="p-4 dark:invert pointer-events-none"
+                  />
                 </div>
-                <P
-                  weight="medium"
-                  class={`${platform.disabled ? "text-disabled-light dark:text-disabled-dark" : "text-secondary-light dark:text-secondary-dark"}`}
-                  >{platform.name}</P
-                >
-              </div>
-              <!-- <div class="w-full pt-2">
-                <P size="sm" class="text-tertiary-light dark:text-tertiary-dark"
-                  >{platform.description}</P
-                >
-              </div> -->
+                <div class="flex space-x-1">
+                  <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P><P
+                    class="pointer-events-none">{$_("orDragAndDrop")}</P
+                  >
+                </div>
+                <P class="pointer-events-none">PNG or SVG file (max. 1MB)</P>
+              </Button>
             </div>
-          </Checkbox>
-        {/each}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="border border-b-1 my-4"></div>
+    <div class="w-full flex">
+      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">AI Engines</P>
+      <div class="w-full md:w-3/4">
+        <SelectedCard
+          selectionData={platforms}
+          bind:selectedData={selectedplatforms}
+          isFlex
+          isRadio
+          widthFlex="w-max"
+        />
       </div>
     </div>
     <div class="border border-b-1 my-4"></div>
     <div class="md:flex">
-      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Avability</P>
+      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Document Collection</P>
       <div class="w-full md:w-3/4 flex flex-col justify-center gap-2">
         <div class="flex items-center gap-4">
-          <P>Select day</P>
-          {#each selectedDays as day}
-            <!-- <Checkbox custom>
-              <div
-                class="flex items-center font-normal w-9 h-9 text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark rounded-full cursor-pointer peer-checked:text-white dark:peer-checked:text-white peer-checked:bg-fg-brand-primary-light dark:peer-checked:bg-fg-brand-primary-dark"
-              >
-                <div class="w-full text-base font-semibold text-center">{day.label}</div>
-              </div>
-            </Checkbox> -->
-            <ul class="">
-              <li>
-                <input type="checkbox" id={day.name} value="" class="hidden peer" required="">
-                <label for={day.name} class="inline-flex items-center justify-between w-9 h-9 text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark rounded-full cursor-pointer peer-checked:text-white dark:peer-checked:text-white peer-checked:bg-fg-brand-primary-light dark:peer-checked:bg-fg-brand-primary-dark">                           
-                  <div class="w-full text-base font-semibold text-center">{day.label}</div>
-                </label>
-              </li>
-            </ul>
-          {/each}
+          <div class="w-max">
+            <Dropdown
+              dropdownOpen={dropdownCollectionOpen}
+              bind:selectedItem={selectedCollection}
+              items={collections}
+              placeholder={"Choose Collection"}
+              isOverlay={true}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -540,7 +549,9 @@
     <div class="md:flex">
       <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Additional Prompts</P>
       <div class="w-full md:w-3/4 flex flex-col justify-center gap-2">
-        <P>Additional Prompts*</P>
+        <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
+          >Additional Prompts*</P
+        >
         <Textarea class="resize-none" rows={10} />
       </div>
     </div>
