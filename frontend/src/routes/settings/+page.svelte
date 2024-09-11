@@ -80,9 +80,9 @@
       {
         name: "Theme",
       },
-      {
-        name: "Configuration AI",
-      },
+      // {
+      //   name: "Configuration AI",
+      // },
     ],
   };
 
