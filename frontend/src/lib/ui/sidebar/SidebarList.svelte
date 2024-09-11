@@ -44,19 +44,14 @@
     toCamelCase,
     name = $bindable(""),
     email = $bindable(""),
-    brand = $bindable("Hexapod"),
+    brand = $bindable(""),
+    logoUrl = $bindable(""),
     isHidden = true,
     isFrontend = $bindable(false),
     funcButton,
     logout,
     innerWidth = 0,
   } = $props();
-
-  let site = {
-    name: brand,
-    href: "/",
-    img: LogoIcon,
-  };
 
   let sidebarItems = $state([]);
   let dropdownUser = $state(false);
@@ -143,18 +138,30 @@
         {#if isHidden}
           <div></div>
         {:else if !$sidebarLargeClosed}
-          <LogoBrand brandName="Hexapod" href="/" brandLogo={site.img} imgClass="h-6 sm:h-8" />
+          <LogoBrand
+            brandName={brand !== "" ? brand : "Hexapod"}
+            href="/"
+            brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
+            imgClass="h-6 sm:h-8"
+          />
           {#if !(innerWidth < 1024)}
             <button
               onclick={() => {
                 changeSidbar();
               }}
             >
-              <SidebarCloseIcon svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark" />
+              <SidebarCloseIcon
+                svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark"
+              />
             </button>
           {/if}
         {:else}
-          <LogoBrand brandName="" href="/" brandLogo={site.img} imgClass="h-6 sm:h-8" />
+          <LogoBrand
+            brandName={""}
+            href="/"
+            brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
+            imgClass="h-6 sm:h-8"
+          />
           {#if !(innerWidth < 1024)}
             <button
               onclick={() => {
@@ -162,7 +169,9 @@
               }}
               class="fixed left-16 z-50 overflow-visible"
             >
-              <SidebarOpenIcon svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark" />
+              <SidebarOpenIcon
+                svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark"
+              />
             </button>
           {/if}
         {/if}
@@ -298,7 +307,9 @@
               dropdownUser = !dropdownUser;
             }}
           >
-            <div class={`flex w-full h-full ${$sidebarLargeClosed ? "" : "gap-4"} items-center cursor-pointer`}>
+            <div
+              class={`flex w-full h-full ${$sidebarLargeClosed ? "" : "gap-4"} items-center cursor-pointer`}
+            >
               <Avatar />
               {#if !$sidebarLargeClosed}
                 <div class="grow">

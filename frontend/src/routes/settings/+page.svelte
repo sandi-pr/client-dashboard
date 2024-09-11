@@ -162,9 +162,8 @@
         reader.readAsDataURL(files[0]);
       });
 
-      fileImage = files[0];
+      fileImage = await readFileAsBase64(files[0]);
       fileImageName = files[0].name;
-      // console.log(fileImageResult);
     } else {
       alert("Invalid file. Please select a valid .jpg or .png file.");
     }
@@ -275,7 +274,6 @@
       fileImageName = null;
 
       triggerToast("updated");
-      console.log("ayam", response);
     }
   };
 
@@ -369,15 +367,11 @@
       },
     });
 
-    console.log("telur", resp);
-
     if (resp.status !== 200) {
       triggerToast("error");
       console.log(resp);
       return;
     }
-
-    console.log("ayam", resp);
 
     triggerToast("updated");
   };
@@ -399,9 +393,57 @@
         return;
       }
 
-      selectedCompanyType = parseInt(response.result.data[0].attributes.company_size);
-      selectedIndustryType = parseInt(response.result.data[0].attributes.company_industry);
+      selectedCompanyType = parseInt(response.result.data.attributes.company_size);
+      selectedIndustryType = parseInt(response.result.data.attributes.company_industry);
+
+      sidebarTitle = response.result.data.attributes.sidebar_title || "Hexapod";
+
+      if (response.result.data.attributes.company_logo.data !== null) {
+        let ext = response.result.data.attributes.company_logo.data.attributes.ext;
+
+        let fileType;
+        if (ext === ".png") {
+          fileType = "image/png";
+        } else if (ext === ".jpg") {
+          fileType = "image/jpg";
+        } else if (ext === ".jpeg") {
+          fileType = "image/jpeg";
+        } else if (ext === ".svg") {
+          fileType = "image/svg+xml";
+        } else {
+          fileType = "image/png";
+        }
+
+        fileImageName = response.result.data.attributes.company_logo.data?.attributes.name;
+        if (response.result.company_logo !== "") {
+          fileImage = response.result.company_logo;
+          let blob = base64toBlob(fileImage, fileType);
+          fileImageResult = URL.createObjectURL(blob);
+        }
+      }
+
+      selectedTheme = response.result.data.attributes.theme_color || "purple";
     }
+  }
+
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
   }
 
   async function updateCompanyType() {
@@ -429,56 +471,83 @@
     }
   }
 
-  function updateTheme(setColor) {
-    if (setColor === "purple") {
-      setPrimaryColor(purpleColors);
-    } else if (setColor === "blue") {
-      setPrimaryColor(blueColors);
-    } else if (setColor === "green") {
-      setPrimaryColor(greenColors);
+  async function updateTheme() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "update-theme", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            sidebar_title: sidebarTitle + "",
+            theme_color: selectedTheme + "",
+            company_logo: JSON.stringify({
+              base64Data: fileImage,
+              name: fileImageName,
+            }),
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        triggerToast("updated");
+
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 
-  $: {
-    if (selectedTheme) {
-      updateTheme(selectedTheme);
-    }
-  }
+  // $: {
+  //   if (selectedTheme) {
+  //     updateTheme(selectedTheme);
+  //   }
+  // }
 
   async function getModels() {
-    const response = await $call.call("hexa-ai-rag", "trocr-get-models", {
-      URLQuery: {},
-      URLParams: {},
-      Params: {},
-      Headers: {},
-    });
+    try {
+      const response = await $call.call("hexa-ai-rag", "trocr-get-models", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {},
+      });
 
-    console.log("trocr-get-models", response);
+      if (response === null) {
+        options = [
+          {
+            value: "trocr:latest",
+            name: "trocr:latest",
+          },
+        ];
 
-    if (response === null) {
-      options = [
-        {
-          value: "trocr:latest",
-          name: "trocr:latest",
-        },
-      ];
+        selectedModelTrocr = sessionStorage.getItem("model_trocr") || "trocr:latest";
+        return;
+      }
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      options = response.result.models.map((model) => {
+        return {
+          value: model.name,
+          name: model.name,
+        };
+      });
 
       selectedModelTrocr = sessionStorage.getItem("model_trocr") || "trocr:latest";
+    } catch (error) {
+      console.log(error);
     }
-
-    if (response.status !== 200) {
-      console.log(response);
-      return;
-    }
-
-    options = response.result.models.map((model) => {
-      return {
-        value: model.name,
-        name: model.name,
-      };
-    });
-
-    selectedModelTrocr = sessionStorage.getItem("model_trocr") || "trocr:latest";
   }
 
   async function updateModelTrocr() {
@@ -530,7 +599,7 @@
           disabled={JSON.stringify(user) === JSON.stringify(userCopy)}
           on:click={updatePhotoUser}>Save</Button
         > -->
-        <div class="flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none">
+        <div class="hidden flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none">
           <SearchOutline class="w-4 h-4 text-primary-light dark:text-primary-dark" />
         </div>
         <Input class="ps-10 bg-primary-light dark:bg-primary-dark" placeholder="Search" />
@@ -770,6 +839,7 @@
             >
           {/if}
           <Button
+            disabled={tabDatas.selected === "Theme" ? (sidebarTitle === "" ? true : false) : false}
             class="bg-hc-brand-600 hover:bg-hc-brand-700"
             on:click={() => {
               if (tabDatas.selected === "My Profile") {
@@ -781,7 +851,7 @@
               } else if (tabDatas.selected === "Configuration AI") {
                 updateModelTrocr();
               } else if (tabDatas.selected === "Theme") {
-                updateTheme(newThemeColors);
+                updateTheme();
               }
             }}
           >

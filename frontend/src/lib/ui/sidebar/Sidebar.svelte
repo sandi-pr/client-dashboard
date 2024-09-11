@@ -29,6 +29,7 @@
     name = $bindable("Hexapod"),
     email = $bindable(""),
     brand = $bindable(""),
+    logoUrl = $bindable(""),
     isFrontend = $bindable(false),
     innerWidth = 0,
     logout,
@@ -38,6 +39,7 @@
     name: string;
     email: string;
     brand: string;
+    logoUrl: string;
     isFrontend: boolean;
     innerWidth: number;
     logout: () => void;
@@ -62,6 +64,7 @@
     {name}
     {email}
     {brand}
+    {logoUrl}
     {isFrontend}
     isHidden={false}
     funcButton={() => (hidden2 = true)}
@@ -77,6 +80,7 @@
   {name}
   {email}
   {brand}
+  {logoUrl}
   isHidden={innerWidth < 1024}
   funcButton={() => (hidden2 = true)}
   {logout}

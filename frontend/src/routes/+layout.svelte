@@ -25,6 +25,7 @@ All Rights Reserved
     triggerSelectDropdown,
     triggerSelectCollection,
     triggerReload,
+    triggerToast,
   } from "$lib";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -36,16 +37,19 @@ All Rights Reserved
   import { set_pdfjs_context } from "$lib/utils/vite.ts";
   import { sidebarLargeClosed, toggleSidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
   import { setPrimaryColor } from "$lib/utils/colorTheme";
-  import { purpleColors, greenColors } from "$lib/utils/presetColors";
+  import { purpleColors, greenColors, blueColors } from "$lib/utils/presetColors";
 
   set_pdfjs_context();
 
   let innerWidth = $state(0);
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
-  let userData = $state({ username: "", email: "", brand: "" });
+  let userData = $state({ username: "", email: "" });
+  let brand = $state("");
+  let logoUrl = $state("");
   const isFrontend = process.env.NODE_ENV === "development";
   let hideNav = $state(false);
+  let ready = $state(false);
 
   const call = isFrontend
     ? new CR3Call("http://localhost")
@@ -418,7 +422,7 @@ All Rights Reserved
         }
       } catch (error) {
         // console.log(error);
-        userData = { username: "Hexa Staff", email: "hexacode@hexacode.org", brand: "hexacode" };
+        userData = { username: "Hexa Staff", email: "hexacode@hexacode.org" };
       }
     }
   }
@@ -434,6 +438,17 @@ All Rights Reserved
           Authorization: "Bearer " + token,
         },
       });
+
+      if (resp === null) {
+        sessionStorage.setItem("model_trocr", "trocr:latest");
+        return;
+      }
+
+      if (resp.status !== 200) {
+        console.log(resp);
+        return;
+      }
+
       if (resp.status === 200) {
         if (resp.result.model_trocr !== null) {
           sessionStorage.setItem("model_trocr", resp.result.model_trocr);
@@ -463,36 +478,84 @@ All Rights Reserved
         return;
       }
 
-      if (response.result.data.length === 0) {
-        return;
-      }
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data[0].attributes.company_industry),
+        parseInt(response.result.data.attributes.company_industry),
       );
+
+      brand = response.result.data.attributes.sidebar_title || "Hexapod";
+
+      if (response.result.data.attributes.company_logo.data !== null) {
+        let ext = response.result.data.attributes.company_logo.data.attributes.ext;
+
+        let fileType;
+        if (ext === ".png") {
+          fileType = "image/png";
+        } else if (ext === ".jpg") {
+          fileType = "image/jpg";
+        } else if (ext === ".jpeg") {
+          fileType = "image/jpeg";
+        } else if (ext === ".svg") {
+          fileType = "image/svg+xml";
+        } else {
+          fileType = "image/png";
+        }
+
+        const blob = base64toBlob(response.result.company_logo, fileType);
+        logoUrl = URL.createObjectURL(blob);
+      }
+
+      let theme_color = response.result.data.attributes.theme_color;
+
+      if (theme_color !== null) {
+        if (theme_color === "purple") {
+          setPrimaryColor(purpleColors);
+        } else if (theme_color === "green") {
+          setPrimaryColor(greenColors);
+        } else if (theme_color === "blue") {
+          setPrimaryColor(blueColors);
+        }
+      } else {
+        setPrimaryColor(purpleColors);
+      }
     }
   }
 
-  function getPrimaryColor() {
-    setPrimaryColor(purpleColors);
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
   }
 
-  onMount(() => {
-    getPrimaryColor();
+  onMount(async () => {
     if (sessionStorage.getItem("token") === null && isFrontend) {
       alert("Please insert token to session storage and refresh the page");
       return;
     }
 
-    CheckSetup();
+    await CheckSetup();
     if (localStorage.getItem("lang") !== null) {
       locale.set(localStorage.getItem("lang"));
     }
 
     setCall(call);
 
-    getModelsTrocr();
-    getIndustryId();
+    await getModelsTrocr();
+    await getIndustryId();
     hideNavbar();
 
     const resizeHandler = () => {
@@ -500,6 +563,8 @@ All Rights Reserved
     };
     globalThis.addEventListener("resize", resizeHandler);
     resizeHandler(); // call once initially to set the correct value
+
+    ready = true;
     return () => {
       globalThis.removeEventListener("resize", resizeHandler);
     };
@@ -530,7 +595,7 @@ All Rights Reserved
 
 {#if $isLoading}
   <!-- <LoadingSpinner /> -->
-{:else if winInnerWidth > 0 && $callReady === true}
+{:else if winInnerWidth > 0 && $callReady === true && ready === true}
   {#if hideLayout()}
     <div class="lg:flex">
       <div class="z-20">
@@ -538,7 +603,8 @@ All Rights Reserved
           getModule={getModules}
           bind:name={userData.username}
           bind:email={userData.email}
-          bind:brand={userData.brand}
+          bind:brand
+          bind:logoUrl
           isFrontend
           innerWidth={winInnerWidth}
           {logout}

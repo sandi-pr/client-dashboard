@@ -12,6 +12,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -518,7 +519,44 @@ func GetCompanyType(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, company, nil
+	list, ok := company.GetList("data")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	if len(list) == 0 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var base64Data string
+
+	if dict["attributes"].(U.Dict)["company_logo"].(U.Dict)["data"] != nil {
+		fmt.Println(dict["attributes"].(U.Dict)["company_logo"].(U.Dict)["data"])
+		document_url := dict["attributes"].(U.Dict)["company_logo"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		document_url = U.String(strings.TrimPrefix(string(document_url), "/"))
+
+		resp, err := http.Get(STRAPI_URL + string(document_url))
+		if err != nil {
+			fmt.Printf("error saat mengunduh file: %v", err)
+		}
+		defer resp.Body.Close()
+
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Printf("error saat membaca isi file: %v", err)
+		}
+
+		base64Data = base64.StdEncoding.EncodeToString(data)
+	}
+
+	return 200, U.Dict{"data": dict, "company_logo": base64Data}, nil
 }
 
 func UpdateCompanyType(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
@@ -565,6 +603,135 @@ func UpdateCompanyType(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 		"company_size":     company_size,
 		"company_industry": company_industry,
 	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, company, nil
+}
+
+func UpdateTheme(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	companyId, ok := me.GetFloat64("company")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	sidebar_title, ok := ctx.Params.GetString("sidebar_title")
+
+	if !ok {
+		sidebar_title = ""
+	}
+
+	theme_color, ok := ctx.Params.GetString("theme_color")
+
+	if !ok {
+		theme_color = ""
+	}
+
+	company_logo_str, ok := ctx.Params.GetString("company_logo")
+
+	if !ok {
+		company_logo_str = ""
+	}
+
+	var company_logo_id U.Float64
+
+	company_logo_id = 0
+
+	if company_logo_str != "" {
+		var company_logo U.Dict
+
+		err = json.Unmarshal([]byte(company_logo_str), &company_logo)
+		if err != nil {
+			return ctx.Error(400, "invalid parameters")
+		}
+
+		if company_logo_base64, ok := company_logo.GetString("base64Data"); ok {
+
+			if !ok {
+				return ctx.Error(400, "invalid parameters")
+			}
+
+			file_logo, err := base64.StdEncoding.DecodeString(string(company_logo_base64))
+			if err != nil {
+				return ctx.Error(400, "failed to decode photo")
+			}
+
+			file_name, ok := company_logo.GetString("name")
+
+			if !ok {
+				return ctx.Error(400, "invalid parameters")
+			}
+
+			status, upload, err := Strapi.Upload(string(file_name), file_logo)
+
+			fmt.Println("upload", upload)
+
+			if err != nil {
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			data, ok := upload.GetDict(0)
+
+			if !ok {
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			company_logo_id, ok = data.GetFloat64("id")
+
+			if !ok {
+				return ctx.Error(500, "Internal Server Error")
+			}
+		} else {
+			company_logo_str = ""
+		}
+	}
+
+	updates := U.Dict{}
+	if sidebar_title != "" {
+		updates["sidebar_title"] = sidebar_title
+	}
+	if theme_color != "" {
+		updates["theme_color"] = theme_color
+	}
+	if company_logo_id != 0 {
+		updates["company_logo"] = int64(company_logo_id)
+	}
+
+	status, company, err := Strapi.Update("company-profile-table", int64(companyId), updates)
 
 	if err != nil {
 		fmt.Println(err)

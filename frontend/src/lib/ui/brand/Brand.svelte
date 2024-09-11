@@ -11,7 +11,7 @@
 -->
 <script>
   import { Typography } from "$lib";
-  let { brandName = '', href = '/', brandLogo = '', imgClass = 'h-6 me-2 sm:h-8' } = $props();
+  let { brandName = "", href = "/", brandLogo = "", imgClass = "h-6 me-2 sm:h-8" } = $props();
 
   let site = {
     name: brandName,
@@ -19,13 +19,10 @@
     img: brandLogo,
   };
 
-  let aClass = 'flex items-center mb-5 w-max';
-
+  let aClass = "flex items-center mb-5 w-max gap-2";
 </script>
 
 <a href={site.href} class={aClass}>
   <img src={site.img} class={imgClass} alt={site.name} />
   <Typography preset="Text lg/Bold" text={site.name} color="primary" />
 </a>
-
-

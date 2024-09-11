@@ -945,6 +945,31 @@
             ]
         },
         {
+            "name": "update-theme",
+            "path": "/update-theme",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateTheme"
+            },
+            "params": [
+                {
+                    "name": "sidebar_title",
+                    "type": "string"
+                },
+                {
+                    "name": "theme_color",
+                    "type": "string"
+                },
+                {
+                    "name": "company_logo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "get-model-trocr",
             "path": "/get-model-trocr",
             "method": "POST",
@@ -3981,6 +4006,15 @@
                         "type": "json"
                     },
                     "model_trocr": {
+                        "type": "string"
+                    },
+                    "theme_color": {
+                        "type": "string"
+                    },
+                    "company_logo": {
+                        "type": "media"
+                    },
+                    "sidebar_title": {
                         "type": "string"
                     }
                 }
