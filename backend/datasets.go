@@ -181,6 +181,242 @@ func CreateMessage(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	return 200, update, nil
 }
 
+func AddMessage(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	conversation_id, ok := ctx.Params.GetString("conversation_id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, conversation, err := Strapi.Find("conversation-fine-tuned-table", U.Dict{
+		"filters": U.Dict{
+			"conversation_id": U.Dict{
+				"$eq": conversation_id,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := conversation.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) == 0 {
+		return ctx.Error(404, "conversation not found")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	id, ok := dict.GetFloat64("id")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	attributes, ok := dict.GetDict("attributes")
+
+	if !ok {
+		fmt.Println("Error getting attributes")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	already_messages, ok := attributes.GetList("message")
+
+	if !ok {
+		fmt.Println("Error getting already_messages")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	messageString, ok := ctx.Params.GetString("message")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var message U.List
+	err = json.Unmarshal([]byte(messageString), &message)
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	already_messages = append(already_messages, message...)
+
+	status, update, err := Strapi.Update("conversation-fine-tuned-table", int64(id), U.Dict{
+		"message": already_messages,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, update, nil
+}
+
+func UpdateMessage(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	conversation_id, ok := ctx.Params.GetString("conversation_id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, conversation, err := Strapi.Find("conversation-fine-tuned-table", U.Dict{
+		"filters": U.Dict{
+			"conversation_id": U.Dict{
+				"$eq": conversation_id,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := conversation.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) == 0 {
+		return ctx.Error(404, "conversation not found")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	id, ok := dict.GetFloat64("id")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	attributes, ok := dict.GetDict("attributes")
+
+	if !ok {
+		fmt.Println("Error getting attributes")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	already_messages, ok := attributes.GetList("message")
+
+	if !ok {
+		fmt.Println("Error getting already_messages")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	messageString, ok := ctx.Params.GetString("message")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var message []interface{}
+	err = json.Unmarshal([]byte(messageString), &message)
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	for i := 0; i < len(already_messages); i++ {
+		for j := 0; j < len(message); j++ {
+			alreadyID := already_messages[i].(U.Dict)["id"].(U.Float64)
+			messageID := message[j].(map[string]interface{})["id"].(float64)
+
+			if int64(alreadyID) == int64(messageID) {
+				already_messages[i].(U.Dict)["message"] = message[j].(map[string]interface{})["message"]
+				break
+			}
+		}
+	}
+
+	status, update, err := Strapi.Update("conversation-fine-tuned-table", int64(id), U.Dict{
+		"message": already_messages,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, update, nil
+}
+
 func GetMessages(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 

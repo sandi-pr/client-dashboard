@@ -3455,6 +3455,52 @@
             ]
         },
         {
+            "name": "add-message",
+            "path": "/add-message",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "AddMessage"
+            },
+            "params": [
+                {
+                    "name": "conversation_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "message",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-message",
+            "path": "/update-message",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateMessage"
+            },
+            "params": [
+                {
+                    "name": "conversation_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "message",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "import-conversation-with-csv",
             "path": "/import-conversation-with-csv",
             "method": "POST",

@@ -194,36 +194,58 @@
         message: message,
       });
 
-      const response2 = await $call.call("client-dashboard", "create-message", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          conversation_id: conversationId,
-          message: JSON.stringify(dataConversationChatsTmp),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response2.status !== 200) {
-        triggerToast("error");
-        return;
-      }
-
-      console.log("response2", response2);
-
-      const newUrl =
-        window.location.protocol +
-        "//" +
-        window.location.host +
-        window.location.pathname +
-        "?id=" +
-        tmpConversationId;
-
       if (init) {
+        const response2 = await $call.call("client-dashboard", "create-message", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            conversation_id: conversationId,
+            message: JSON.stringify(dataConversationChatsTmp),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          triggerToast("error");
+          return;
+        }
+
+        console.log("response2", response2);
+
+        const newUrl =
+          window.location.protocol +
+          "//" +
+          window.location.host +
+          window.location.pathname +
+          "?id=" +
+          tmpConversationId;
         window.history.pushState({ path: newUrl }, "", newUrl);
         getListConversations();
+      } else {
+        const response2 = await $call.call("client-dashboard", "add-message", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            conversation_id: conversationId,
+            message: JSON.stringify([
+              {
+                id: dataConversationChatsTmp.length,
+                role: role,
+                message: message,
+              },
+            ]),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          triggerToast("error");
+          return;
+        }
       }
 
       let currentDate = format(new Date(), "dd.MM.yyyy");
@@ -259,12 +281,18 @@
 
       let token = sessionStorage.getItem("token");
 
-      const response = await $call.call("client-dashboard", "create-message", {
+      const response = await $call.call("client-dashboard", "update-message", {
         URLQuery: {},
         URLParams: {},
         Params: {
           conversation_id: conversationId,
-          message: JSON.stringify(dataConversationChatsTmp),
+          message: JSON.stringify([
+            {
+              id: editingMessageId,
+              role: "assistant",
+              message: editedMessage,
+            },
+          ]),
         },
         Headers: {
           Authorization: "Bearer " + token,
