@@ -11,6 +11,7 @@ All Rights Reserved
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { _ } from "svelte-i18n";
+  import Divider from "../../components/Divider.svelte";
 
   let {
     dropdownOpen,
@@ -38,7 +39,10 @@ All Rights Reserved
   >
     <div class="flex items-center gap-2">
       {#if widget}
-        <svelte:component this={widget} color={items.find((item) => item.value === selectedItem)?.value} />
+        <svelte:component
+          this={widget}
+          color={items.find((item) => item.value === selectedItem)?.value}
+        />
       {/if}
       {selectedItem === "" ? placeholder : items.find((item) => item.value === selectedItem)?.name}
     </div>
@@ -51,18 +55,21 @@ All Rights Reserved
       <div
         id="dropdown"
         class={`z-10 ${dropdownOpen ? "absolute top-12 px-2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow ${width} dark:bg-gray-700`}
+        style="max-height: 200px; overflow-y: auto;"
       >
         <ul
           class="py-2 text-sm text-gray-700 dark:text-gray-200"
           aria-labelledby="dropdownDefaultButton"
         >
-          {#each items as item}
+          {#each items as item, index}
+            {#if index !== 0}
+              <Divider />
+            {/if}
             <button
-              class="flex w-full py-2 px-4"
-              onclick={onClick === null ? 
-              () => ((dropdownOpen = false), (selectedItem = item.value)) : 
-              () => ((dropdownOpen = false), (selectedItem = item.value), onClick(item.value))
-              }
+              class="flex w-full text-left py-2 px-4"
+              onclick={onClick === null
+                ? () => ((dropdownOpen = false), (selectedItem = item.value))
+                : () => ((dropdownOpen = false), (selectedItem = item.value), onClick(item.value))}
             >
               {item.name}
             </button>
@@ -74,6 +81,7 @@ All Rights Reserved
         style:visibility={dropdownOpen ? "visible" : "hidden"}
         class="py-2 flex flex-col items-center border border-secondary-light dark:border-secondary-dark rounded-lg text-sm text-primary-light dark:text-primary-dark"
         aria-labelledby="dropdownDefaultButton"
+        style="max-height: 200px; overflow-y: auto;"
       >
         {#each items as item}
           <button

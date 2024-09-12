@@ -11,39 +11,25 @@
 -->
 
 <script>
-  import {
-    P,
-    Card,
-    Input,
-    Button,
-    Checkbox,
-    Textarea,
-    Avatar,
-    // Dropdown,
-    // DropdownItem,
-  } from "flowbite-svelte";
-  import { ChevronDownOutline } from "flowbite-svelte-icons";
-  import WebIcon from "$lib/icon/server-06.svg";
-  import WhatsappIcon from "$lib/icon/whatsapp.svg";
-  // import TelegramIcon from "$lib/icon/telegram.svg";
-  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+  import { P, Card, Input, Button, Checkbox, Textarea, Avatar } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import upload from "$lib/icon/upload-cloud-02.svg";
-  import { call, Typography, SelectedCard, Dropdown } from "$lib";
-  // import axios from "axios";
-  // import { getTemplates } from "$lib/service/strapi";
+  import { call, SelectedCard, Dropdown, triggerToast } from "$lib";
 
-  // export let data;
-
-  let selectedplatforms = null;
   let dropdownCollectionOpen = false;
-  let selectedCollection = "";
   let collections = [];
   let initCollections = [];
   let documents = [];
 
-  let placement = "bottom-start";
+  let botName = "";
+  let description = "";
+  let fileImage = null;
+  let fileImageName = null;
+  let fileImageResult = null;
+  let selectedplatforms = null;
+  let selectedCollection = "";
+  let additionalPrompt = "";
 
   let platforms = [
     {
@@ -90,115 +76,7 @@
     },
   ];
 
-  let fileImage = null;
-  let fileImageName = null;
-  let fileImageResult = null;
-
-  // let product = {
-  //   name: "CRM for Small Business",
-  //   moduleId: "1454523",
-  //   lastVersion: "1.2",
-  //   status: { name: "Active", type: "success" },
-  //   description:
-  //     "Bank Jasa Jakarta is a bank that provides various financial services, including savings, loans, and investment services.",
-  //   activePeriod: "Currently Running",
-  //   chargingPeriod: "Monthly",
-  // };
-
-  // let componenDatas = [
-  //   {
-  //     id: 1,
-  //     companyName: "CRM for Small Business",
-  //     modulesUsed: "CRM",
-  //     featuresUsed: "Profiles, Features 2, Features 3",
-  //   },
-  //   {
-  //     id: 2,
-  //     companyName: "CRM for Medium Business",
-  //     modulesUsed: "CRM",
-  //     featuresUsed: "Profiles, Features 2, Features 3",
-  //   },
-  //   {
-  //     id: 3,
-  //     companyName: "CRM for Larger Enterprises",
-  //     modulesUsed: "CRM",
-  //     featuresUsed: "Profiles, Features 2, Features 3",
-  //   },
-  // ];
-
-  // let UsageDatas = [
-  //   {
-  //     id: 1,
-  //     features: "Profiles",
-  //     lowerLimit: "100 Users",
-  //     upperLimit: "1000 Users",
-  //     Pricing: "$0.25/user",
-  //   },
-  //   {
-  //     id: 2,
-  //     features: "Features 2",
-  //     lowerLimit: "100 Users",
-  //     upperLimit: "1000 Users",
-  //     Pricing: "$0.25/user",
-  //   },
-  //   {
-  //     id: 3,
-  //     features: "Features 3",
-  //     lowerLimit: "100 Users",
-  //     upperLimit: "1000 Users",
-  //     Pricing: "$0.25/user",
-  //   },
-  // ];
-
-  // let formattedDate = "Created on 2021-08-12 14:00 PM";
-
-  // let submenu = "information";
-  let isLoading = false;
   let screenWidth;
-
-  // let files = [];
-
-  // function handleFileChange(event) {
-  //   const selectedFiles = event.target.files;
-
-  //   for (const file of selectedFiles) {
-  //     if (file.size > 1 * 1024 * 1024) {
-  //       alert(`File "${file.name}" size exceeds the 10 MB limit. Please choose a smaller file.`);
-  //       return;
-  //     }
-  //     if (file) {
-  //       const reader = new FileReader();
-  //       reader.onloadend = () => {
-  //         // pdf = reader.result;
-  //         // base64 = reader.result.split(",")[1];
-  //       };
-  //       reader.readAsDataURL(file);
-  //       files.push(file);
-  //     }
-  //   }
-  //   console.log(files);
-  //   files = [...files];
-  // }
-
-  // function formatBytes(bytes, decimals = 2) {
-  //   if (bytes === 0) return "0 Bytes";
-
-  //   const k = 1024;
-  //   const dm = decimals < 0 ? 0 : decimals;
-  //   const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-
-  //   const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  //   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  // }
-
-  // function removeFile(index) {
-  //   files = files.filter((_, i) => i !== index);
-  // }
-
-  // let templates = [];
-  let dropdownIndustryOpen = false;
-  let dropdownUseCaseOpen = false;
   let params = [];
   let products_and_services = [];
 
@@ -225,8 +103,22 @@
             children: [
               {
                 list_dict_format: [
-                  { label: "Field 1", required: true, type: "text", placeholder: "Enter Field 1", name: "field1" },
-                  { label: "Field 2", required: false, type: "number", placeholder: "Enter Field 2", min: 0, max: 100, name: "field2" },
+                  {
+                    label: "Field 1",
+                    required: true,
+                    type: "text",
+                    placeholder: "Enter Field 1",
+                    name: "field1",
+                  },
+                  {
+                    label: "Field 2",
+                    required: false,
+                    type: "number",
+                    placeholder: "Enter Field 2",
+                    min: 0,
+                    max: 100,
+                    name: "field2",
+                  },
                 ],
               },
             ],
@@ -276,31 +168,6 @@
     },
   ];
 
-  let selectedIndustry = "";
-  let selectedUseCase = "";
-
-  // const getTemplate = async () => {
-  //   const result = await getTemplates(data.data.jwt);
-
-  //   if (result.data.length > 0) {
-  //     templates = result.data;
-  //     params = templates[0].attributes.parameters;
-  //     const initialProduct = {};
-  //     params[1].children[0].list_dict_format.forEach((field) => {
-  //       initialProduct[field.name] = "";
-  //     });
-  //     products_and_services.push(initialProduct);
-  //   }
-  // };
-
-  const addProduct = () => {
-    const newProduct = {};
-    params[1]?.children[0]?.list_dict_format.forEach((field) => {
-      newProduct[field.name] = "";
-    });
-    products_and_services = [...products_and_services, newProduct];
-  };
-
   function handleDragOver(event) {
     event.preventDefault();
     dropzoneActive = true;
@@ -326,9 +193,8 @@
         reader.readAsDataURL(files[0]);
       });
 
-      fileImage = files[0];
+      fileImage = await readFileAsBase64(files[0]);
       fileImageName = files[0].name;
-      // console.log(fileImageResult);
     } else {
       alert("Invalid file. Please select a valid .jpg or .png file.");
     }
@@ -352,10 +218,8 @@
           reader.readAsDataURL(file);
         });
 
-        // conver to base64
         fileImage = await readFileAsBase64(file);
         fileImageName = file.name;
-        // console.log(fileImageResult);
       } else {
         alert("Invalid file. Please select a valid .jpg or .png file.");
       }
@@ -408,33 +272,67 @@
         } else {
           break;
         }
-
-        let page2 = 1;
-
-        collections = initCollections.map((collection) => {
-          let totalDocuments = documents.filter(
-            (document) => document.attributes.collection_id === collection.id,
-          ).length;
-          return {
-            id: collection.id,
-            name: collection.attributes.collection_name,
-            description: collection.attributes.description,
-            totalDocuments: totalDocuments,
-          };
-        });
       }
+
+      collections = initCollections.map((collection) => {
+        let totalDocuments = documents.filter(
+          (document) => document.attributes.collection_id === collection.id,
+        ).length;
+        return {
+          value: collection.id,
+          id: collection.id,
+          name: collection.attributes.collection_name,
+          description: collection.attributes.description,
+          totalDocuments: totalDocuments,
+        };
+      });
     }
   }
 
-  onMount(() => {
-    getCollections();
-  });
+  async function createBot() {
+    let token = sessionStorage.getItem("token");
 
+    if (token !== null) {
+      try {
+        const response = await $call.call("client-dashboard", "create-bot", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            bot_name: botName,
+            description: description,
+            bot_profile: JSON.stringify({ name: fileImageName, base64Data: fileImage }),
+            ai_engine: platforms.find((platform) => platform.id === selectedplatforms).name,
+            collection_id: selectedCollection,
+            additional_prompt: additionalPrompt,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log(response);
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        triggerToast("created");
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("no token");
+      return;
+    }
+  }
+
+  onMount(async () => {
+    await getCollections();
+  });
 </script>
 
 <svelte:window bind:innerWidth={screenWidth} />
-
-<!-- <LoadingSpinner {isLoading} /> -->
 
 <div class="m-4">
   <div class="flex justify-between">
@@ -444,9 +342,12 @@
     <div class="flex text-sm gap-3">
       <Button on:click={() => {}} color="light">Cancel</Button>
       <Button
-        on:click={() => {}}
+        disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
+        on:click={() => {
+          createBot();
+        }}
         class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
-        >Finish</Button
+        >Create</Button
       >
     </div>
   </div>
@@ -464,6 +365,7 @@
             >Bots Name*</P
           >
           <Textarea
+            bind:value={botName}
             class="resize-none"
             rows={screenWidth > 1024 ? "1" : "2"}
             unWrappedClass="p-2.5 text-sm border border-primary-light dark:border-primary-dark focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -475,7 +377,7 @@
           <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
             >Description (Opsional)</P
           >
-          <Textarea class="resize-none" />
+          <Textarea bind:value={description} class="resize-none" />
         </div>
         <div class="flex flex-col col-span-4 w-full space-y-1">
           <div class="">
@@ -497,11 +399,7 @@
                 <div
                   class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-3 pointer-events-none"
                 >
-                  <img
-                    src={upload}
-                    alt="mail.svg"
-                    class="p-4 dark:invert pointer-events-none"
-                  />
+                  <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
                 </div>
                 <div class="flex space-x-1">
                   <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P><P
@@ -533,7 +431,7 @@
       <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Document Collection</P>
       <div class="w-full md:w-3/4 flex flex-col justify-center gap-2">
         <div class="flex items-center gap-4">
-          <div class="w-max">
+          <div class="md:w-1/2">
             <Dropdown
               dropdownOpen={dropdownCollectionOpen}
               bind:selectedItem={selectedCollection}
@@ -550,9 +448,9 @@
       <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Additional Prompts</P>
       <div class="w-full md:w-3/4 flex flex-col justify-center gap-2">
         <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-          >Additional Prompts*</P
+          >Additional Prompts</P
         >
-        <Textarea class="resize-none" rows={10} />
+        <Textarea bind:value={additionalPrompt} class="resize-none" rows={10} />
       </div>
     </div>
   </div>

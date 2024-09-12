@@ -3610,6 +3610,46 @@
                 "function": "GetStatusRequestFineTuning"
             },
             "params": []
+        },
+        {
+            "name": "create-bot",
+            "path": "/create-bot",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateBot"
+            },
+            "params": [
+                {
+                    "name": "bot_name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "bot_profile",
+                    "type": "string"
+                },
+                {
+                    "name": "ai_engine",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "additional_prompt",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -4614,6 +4654,60 @@
                     "status": {
                         "type": "string",
                         "required": true
+                    }
+                }
+            },
+            {
+                "name": "hexabot",
+                "label": "Hexabot",
+                "fields": {
+                    "bot_id": {
+                        "type": "string"
+                    },
+                    "bot_name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "bot_profile": {
+                        "type": "media"
+                    },
+                    "user_profile": {
+                        "type": "media"
+                    },
+                    "ai_engine": {
+                        "type": "string"
+                    },
+                    "bot_logo": {
+                        "type": "media"
+                    },
+                    "logo_name": {
+                        "type": "string"
+                    },
+                    "color_theme": {
+                        "type": "string"
+                    },
+                    "collection_id": {
+                        "type": "integer"
+                    },
+                    "additional_prompt": {
+                        "type": "text"
+                    },
+                    "greeting_text": {
+                        "type": "text"
+                    },
+                    "layout": {
+                        "type": "string"
+                    },
+                    "background": {
+                        "type": "media"
+                    },
+                    "overlay_color": {
+                        "type": "string"
+                    },
+                    "background_align": {
+                        "type": "string"
                     }
                 }
             }
