@@ -411,7 +411,7 @@ All Rights Reserved
 
           if (resp.status === 200) {
             if (resp.result.confirmed === true && resp.result.blocked === false) {
-              if (resp2.result.authority === "User") {
+              if (resp.result.authority === "User") {
                 globalThis.location.href = await call.getPage("lajnah", "home-page");
                 return;
               }
