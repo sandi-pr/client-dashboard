@@ -10,6 +10,8 @@
     isFlex = false,
     isRadio = false,
     widthFlex = "min-w-80",
+    spacing = "",
+    widgetIndicator,
   }: {
     selectionData: any;
     selectedData?: any;
@@ -17,6 +19,8 @@
     isFlex?: any;
     isRadio?: any;
     widthFlex?: any;
+    spacing?: any;
+    widgetIndicator?: any;
   } = $props();
   const selectData = (id: any) => {
     selectedData = id;
@@ -25,12 +29,12 @@
 </script>
 
 <div
-  class={`${isFlex ? "flex !justify-start" : `grid grid-cols-${numGrid}`} w-full gap-6 items-center justify-center`}
+  class={`${isFlex ? "flex !justify-start" : `grid grid-cols-${numGrid}`} w-full gap-4 items-center justify-center`}
 >
   {#each selectionData as data, i}
     <Card
       horizontal={true}
-      class={`justify-between ${isFlex ? `gap-3 ${widthFlex}` : "w-full"} !py-6 !pr-4 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark ${
+      class={`justify-between ${isFlex ? `gap-3 ${widthFlex}` : "w-full"} ${spacing ? spacing : "!py-6 !pr-4"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark ${
         selectedData === data.id
           ? "border-brand-solid-light dark:border-brand-solid-dark"
           : "border-secondary-light dark:border-secondary-dark"
@@ -38,12 +42,15 @@
       size="none"
       on:click={() => selectData(data?.id)}
     >
-      <div class="flex items-start gap-4">
+      <div class="flex items-center gap-4">
         {#if data.icon}
           <svelte:component
             this={data.icon}
             svgClass={`w-7 h-7 ${selectedData === data.id ? "text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark" : "text-utility-gray-500-light dark:text-utility-gray-500-dark"}`}
           />
+        {/if}
+        {#if widgetIndicator}
+          <svelte:component this={widgetIndicator} color={data.value} size="lg" />
         {/if}
         <div class="flex-col">
           <div class="flex flex-col gap-[2px]">

@@ -8,7 +8,7 @@ All Rights Reserved
 -->
 <script>
   import { _ } from "svelte-i18n";
-  import { Button } from "flowbite-svelte";
+  import { Button, Avatar } from "flowbite-svelte";
   import { Typography } from "$lib";
   import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
@@ -30,6 +30,9 @@ All Rights Reserved
     actionView = null,
     actionDelete = () => {},
     isFlex = false,
+    isPreview = false,
+    largePreview = false,
+    srcAvatar = null,
   } = $props();
 
   const textFileType = (type) => {
@@ -44,24 +47,35 @@ All Rights Reserved
 <div class="relative flex flex-col gap-1.5">
   <Typography preset="Text sm/Medium" text={title} color="secondary" />
   {#if file === null}
-    <Button
-      on:click={handleFileUploadWrapper}
-      color="light"
-      class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-gray-800 gap-3 py-4 flex flex-col justify-start items-center`}
-    >
-      <div
-        class="rounded-xl p-2.5 shadow border border-primary-light dark:border-primary-dark justify-center items-center"
+    <div class={`flex gap-3 ${isPreview ? "flex-row" : "flex-col"}`}>
+      {#if isPreview}
+        {#if largePreview}
+          {#if srcAvatar}
+            <img src={srcAvatar} class="h-32 rounded-xl" alt="preview" />
+          {/if}
+        {:else}
+          <Avatar class="size-12  object-cover" src={srcAvatar} />
+        {/if}
+      {/if}
+      <Button
+        on:click={handleFileUploadWrapper}
+        color="light"
+        class={`grow rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-gray-800 gap-3 py-4 flex flex-col justify-start items-center`}
       >
-        <UploadIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-      </div>
-      <div class="flex flex-col items-center gap-0.5">
-        <Typography preset="Text sm/Semibold" text={$_("clickToUpload")} color="brand-secondary" />
-        <Typography preset="Text xs/Regular" text={textFileType(type)} color="tertiary" />
-      </div>
-    </Button>
+        <div
+          class="rounded-xl p-2.5 shadow border border-primary-light dark:border-primary-dark justify-center items-center"
+        >
+          <UploadIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+        </div>
+        <div class="flex flex-col items-center gap-0.5">
+          <Typography preset="Text sm/Semibold" text={$_("clickToUpload")} color="brand-secondary" />
+          <Typography preset="Text xs/Regular" text={textFileType(type)} color="tertiary" />
+        </div>
+      </Button>
+    </div>
   {:else}
     <div
-      class={`flex ${isFlex ? "flex-row justify-between" : "flex-col"} gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark`}
+      class={`flex ${isFlex ? "flex-row items-center justify-between" : "flex-col"} gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark`}
     >
       <div class="flex items-center justify-start gap-3">
         {#if file.name.includes(".pdf") || file.name.includes(".PDF")}
@@ -92,7 +106,7 @@ All Rights Reserved
               <Typography preset="Text sm/Semibold" text={$_("viewDocument")} color="secondary" />
             </Button>
           {/if}
-          <Button class="w-max p-2" color="light" on:click={actionDelete}>
+          <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
             <TrashIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
           </Button>
         </div>

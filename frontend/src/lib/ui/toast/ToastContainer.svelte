@@ -11,7 +11,7 @@ All Rights Reserved
 <script>
   import { fly } from 'svelte/transition';
   import { Toast } from 'flowbite-svelte';
-  import { toastCreated, toastUpdated, toastDeleted, toastError, toastNotAvailable, toastDayNotAvailable, toastTimeNotAvailable } from '$lib/utils/toast';
+  import { toastCreated, toastUpdated, toastDeleted, toastError, toastNotAvailable, toastDayNotAvailable, toastTimeNotAvailable, toastCopyToClipboard } from '$lib/utils/toast';
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { _ } from 'svelte-i18n';
 </script>
@@ -58,5 +58,11 @@ All Rights Reserved
       <ExclamationCircleSolid class="w-5 h-5" />
     </svelte:fragment>
     {$_("sometingWentWrongPleaseTryAgain")}
+  </Toast>
+  <Toast class="!max-w-sm" color="green" transition={fly} params={{ x: 200 }} bind:open={$toastCopyToClipboard}>
+    <svelte:fragment slot="icon">
+      <CheckCircleSolid class="w-5 h-5" />
+    </svelte:fragment>
+    {$_("copiedToClipboard")}
   </Toast>
 </div>

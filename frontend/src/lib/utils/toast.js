@@ -17,6 +17,7 @@ export const toastError = writable(false);
 export const toastNotAvailable = writable(false);
 export const toastDayNotAvailable = writable(false);
 export const toastTimeNotAvailable = writable(false);
+export const toastCopyToClipboard = writable(false);
 export let counter = 6;
 
 function triggerToast(target) {
@@ -41,6 +42,9 @@ function triggerToast(target) {
       break;
     case 'timeNotAvailable':
       toastTimeNotAvailable.set(true);
+      break;
+    case 'copyToClipboard':
+      toastCopyToClipboard.set(true);
       break;
     default:
       console.log('target not found');
@@ -74,6 +78,9 @@ function timeout(target) {
       break;
     case 'timeNotAvailable':
       toastTimeNotAvailable.set(false);
+      break;
+    case 'copyToClipboard':
+      toastCopyToClipboard.set(false);
       break;
     default:
       console.log('target not found');

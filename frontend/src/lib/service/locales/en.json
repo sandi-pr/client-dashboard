@@ -523,5 +523,6 @@
   "sidebarTitle": "Sidebar Title",
   "companyLogo": "Company Logo",
   "themeColors": "Theme Colors",
-  "userId": "User ID"
+  "userId": "User ID",
+  "widgetEmbed": "Widget Embed"
 }

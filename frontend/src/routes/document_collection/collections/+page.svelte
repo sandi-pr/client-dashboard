@@ -827,6 +827,7 @@ All Rights Reserved
       file={files[0]}
       actionButton={true}
       actionDelete={() => (files = [])}
+      isFlex
     />
   </div>
   <svelte:fragment slot="footer">
