@@ -45,6 +45,7 @@ All Rights Reserved
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
   let userData = $state({ username: "", email: "" });
+  let authority = $state("");
   let brand = $state("");
   let logoUrl = $state("");
   const isFrontend = process.env.NODE_ENV === "development";
@@ -354,6 +355,7 @@ All Rights Reserved
             if (resp.result.confirmed === true && resp.result.blocked === false) {
               sessionStorage.setItem("user", JSON.stringify(resp.result));
               userData = resp.result;
+              authority = resp.result.authority;
             }
           }
 
@@ -375,6 +377,7 @@ All Rights Reserved
           if (resp.result.confirmed === true && resp.result.blocked === false) {
             sessionStorage.setItem("user", JSON.stringify(resp.result));
             userData = resp.result;
+            authority = resp.result.authority;
           }
         }
       }
@@ -410,6 +413,7 @@ All Rights Reserved
             if (resp.result.confirmed === true && resp.result.blocked === false) {
               sessionStorage.setItem("user", JSON.stringify(resp.result));
               userData = resp.result;
+              authority = resp.result.authority;
             }
           }
         } else {
@@ -616,7 +620,14 @@ All Rights Reserved
             <div class="relative transition-all duration-300 h-screen">
               {#if !hideNav}
                 <div class="absolute w-full top-0 z-10">
-                  <Navbar {activeUrl} {$showAI} {changeShowAI} {appUrl} {reset_database} />
+                  <Navbar
+                    {activeUrl}
+                    {$showAI}
+                    {changeShowAI}
+                    {appUrl}
+                    {reset_database}
+                    bind:authority
+                  />
                 </div>
               {/if}
               <div class={`h-screen ${!hideNav ? "pt-20" : ""}`}>
