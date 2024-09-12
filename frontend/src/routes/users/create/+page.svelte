@@ -239,19 +239,28 @@ All Rights Reserved
                       </button> -->
                       <button
                         class="flex p-2"
-                        onclick={() => (data.authority = "Admin")((dropdownOpen = false))}
+                        onclick={() => {
+                          data.authority = "Admin";
+                          dropdownOpen = false;
+                        }}
                       >
                         <Badge text="Admin" />
                       </button>
                       <button
                         class="flex p-2"
-                        onclick={() => (data.authority = "Employee")((dropdownOpen = false))}
+                        onclick={() => {
+                          data.authority = "Employee";
+                          dropdownOpen = false;
+                        }}
                       >
                         <Badge text="Employee" type="info" />
                       </button>
                       <button
                         class="flex p-2"
-                        onclick={() => (data.authority = "User")((dropdownOpen = false))}
+                        onclick={() => {
+                          data.authority = "User";
+                          dropdownOpen = false;
+                        }}
                       >
                         <Badge text="User" type="info" />
                       </button>

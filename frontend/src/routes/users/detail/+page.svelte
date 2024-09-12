@@ -322,25 +322,43 @@ All Rights Reserved
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownDefaultButton"
                     >
-                      {#if (data.authority = "Super Admin")}
+                      {#if data.authority === "Super Admin"}
                         <button
                           class="flex p-2"
-                          onclick={() => (data.authority = "Super Admin")((dropdownOpen = false))}
+                          onclick={() => {
+                            data.authority = "Super Admin";
+                            dropdownOpen = false;
+                          }}
                         >
                           <Badge text="Super Admin" />
                         </button>
                       {:else}
                         <button
                           class="flex p-2"
-                          onclick={() => (data.authority = "Admin")((dropdownOpen = false))}
+                          onclick={() => {
+                            data.authority = "Admin";
+                            dropdownOpen = false;
+                          }}
                         >
                           <Badge text="Admin" />
                         </button>
                         <button
                           class="flex p-2"
-                          onclick={() => (data.authority = "Employee")((dropdownOpen = false))}
+                          onclick={() => {
+                            data.authority = "Employee";
+                            dropdownOpen = false;
+                          }}
                         >
                           <Badge text="Employee" type="info" />
+                        </button>
+                        <button
+                          class="flex p-2"
+                          onclick={() => {
+                            data.authority = "User";
+                            dropdownOpen = false;
+                          }}
+                        >
+                          <Badge text="User" />
                         </button>
                       {/if}
                     </ul>
