@@ -20,7 +20,7 @@
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Eye from "$lib/icon/eye.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { Typography } from "$lib";
+  import { Typography, call } from "$lib";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
@@ -85,9 +85,99 @@
     }
   };
 
-  onMount(async () => {
-    const module = await import("$lib/components/Header.svelte");
-    Header = module.default;
+  async function getBots() {
+    let token = sessionStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "get-bots", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: 1,
+            page_size: 8,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log(response);
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        let tmp = response.result.data.map((bot) => {
+          let fileImageResult = "";
+          if (bot.attributes.bot_profile.data !== null) {
+            let ext = bot.attributes.bot_profile.data.attributes.ext;
+
+            let fileType;
+            if (ext === ".png") {
+              fileType = "image/png";
+            } else if (ext === ".jpg") {
+              fileType = "image/jpg";
+            } else if (ext === ".jpeg") {
+              fileType = "image/jpeg";
+            } else if (ext === ".svg") {
+              fileType = "image/svg+xml";
+            } else {
+              fileType = "image/png";
+            }
+
+            if (bot.bot_profile !== "") {
+              let fileImage = bot.bot_profile;
+              let blob = base64toBlob(fileImage, fileType);
+              fileImageResult = URL.createObjectURL(blob);
+            }
+          }
+          return {
+            botsName: bot.attributes.bot_name,
+            botDescription: bot.attributes.description,
+            botsID: bot.id,
+            // clientID: bot.attributes.client_id,
+            activationTime: bot.attributes.createdAt,
+            urlBot: "",
+            timestamp: bot.attributes.updatedAt,
+            // deployStatus: bot.attributes.deploy_status,
+            deployedPlatform: bot.attributes.ai_engine,
+            bot_profile: fileImageResult,
+          };
+        });
+
+        bots = await Promise.all(tmp);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("token not found");
+    }
+  }
+
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  }
+
+  onMount(() => {
+    getBots();
   });
 </script>
 
@@ -226,19 +316,27 @@
                 >{$_("viewAll")}</Button
               >
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-4">
               {#each bots as bot (bot.botsID)}
-                {#if bot.deployStatus === "Done"}
-                <Card padding="none" class="shadow-none">
+                <!-- {#if bot.deployStatus === "Done"} -->
+                <Card padding="none" class="shadow-none grow w-full">
                   <div
                     class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
                   >
                     <div class="flex justify-between items-center">
                       <div class="flex items-center gap-3">
-                        <Avatar />
+                        <Avatar src={bot.bot_profile ? bot.bot_profile : ""} />
                         <div class="flex flex-col">
-                          <Typography preset="Text lg/Semibold" color="primary" text={bot.botsName} />
-                          <Typography preset="Text sm/Regular" color="secondary" text={bot.botDescription} />
+                          <Typography
+                            preset="Text lg/Semibold"
+                            color="primary"
+                            text={bot.botsName}
+                          />
+                          <Typography
+                            preset="Text sm/Regular"
+                            color="secondary"
+                            text={bot.botDescription}
+                          />
                         </div>
                       </div>
                       <DotsVerticalIcon svgClass="w-5 h-5 text-fg-quinary" />
@@ -251,23 +349,37 @@
                         outline
                         class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
                       >
-                        <Typography preset="Text sm/Semibold" text={$_("view")} color="brand-secondary" />
+                        <Typography
+                          preset="Text sm/Semibold"
+                          text={$_("view")}
+                          color="brand-secondary"
+                        />
                       </Button>
                       <Button
                         on:click={() => {}}
                         outline
                         class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
                       >
-                        <Typography preset="Text sm/Semibold" text={$_("webchat")} color="secondary" />
-                        <ArrowUpRightIcon svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark" />
+                        <Typography
+                          preset="Text sm/Semibold"
+                          text={$_("webchat")}
+                          color="secondary"
+                        />
+                        <ArrowUpRightIcon
+                          svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark"
+                        />
                       </Button>
                     </div>
-                    <button>
+                    <button
+                      on:click={() => {
+                        navigator.clipboard.writeText(bot.urlBot);
+                      }}
+                    >
                       <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
                     </button>
                   </div>
                 </Card>
-                  <!-- <div class="span-col-1">
+                <!-- <div class="span-col-1">
                     <Card padding="none" size="md">
                       <div
                         class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-3"
@@ -386,7 +498,7 @@
                       </div>
                     </Card>
                   </div> -->
-                {/if}
+                <!-- {/if} -->
               {/each}
             </div>
           </div>
@@ -576,7 +688,7 @@
           </div>
           <Button
             class={`p-[2px] border-[1px] h-1/2 rounded-xl text-center ${classStatusType(
-              bot.deployStatus
+              bot.deployStatus,
             )}`}>{bot.deployStatus}</Button
           >
         </div>

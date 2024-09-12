@@ -3650,6 +3650,31 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "get-bots",
+            "path": "/get-bots",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetBots"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                },
+                {
+                    "name": "search",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {

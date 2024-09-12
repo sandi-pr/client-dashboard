@@ -231,11 +231,23 @@ All Rights Reserved
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownDefaultButton"
                     >
+                      <!-- <button
+                        class="flex p-2"
+                        onclick={() => (data.authority = "Super Admin")((dropdownOpen = false))}
+                      >
+                        <Badge text="Super Admin" type="info" />
+                      </button> -->
                       <button
                         class="flex p-2"
                         onclick={() => (data.authority = "Admin")((dropdownOpen = false))}
                       >
                         <Badge text="Admin" />
+                      </button>
+                      <button
+                        class="flex p-2"
+                        onclick={() => (data.authority = "Employee")((dropdownOpen = false))}
+                      >
+                        <Badge text="Employee" type="info" />
                       </button>
                       <button
                         class="flex p-2"

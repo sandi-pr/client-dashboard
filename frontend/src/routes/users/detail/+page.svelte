@@ -216,13 +216,15 @@ All Rights Reserved
             >
             <Button onclick={updateUser} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button
-              onclick={() => {
-                popupModal = true;
-              }}
-              color="light"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-            >
+            {#if data.authority !== "Super Admin"}
+              <Button
+                onclick={() => {
+                  popupModal = true;
+                }}
+                color="light"
+                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              >
+            {/if}
             <!-- <Button
               onclick={() => {
                 onEdit = true;
@@ -320,24 +322,27 @@ All Rights Reserved
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownDefaultButton"
                     >
-                      <button
-                        class="flex p-2"
-                        onclick={() => (data.authority = "Super Admin")((dropdownOpen = false))}
-                      >
-                        <Badge text="Super Admin" />
-                      </button>
-                      <button
-                        class="flex p-2"
-                        onclick={() => (data.authority = "Admin")((dropdownOpen = false))}
-                      >
-                        <Badge text="Admin" />
-                      </button>
-                      <button
-                        class="flex p-2"
-                        onclick={() => (data.authority = "Employee")((dropdownOpen = false))}
-                      >
-                        <Badge text="Employee" type="info" />
-                      </button>
+                      {#if (data.authority = "Super Admin")}
+                        <button
+                          class="flex p-2"
+                          onclick={() => (data.authority = "Super Admin")((dropdownOpen = false))}
+                        >
+                          <Badge text="Super Admin" />
+                        </button>
+                      {:else}
+                        <button
+                          class="flex p-2"
+                          onclick={() => (data.authority = "Admin")((dropdownOpen = false))}
+                        >
+                          <Badge text="Admin" />
+                        </button>
+                        <button
+                          class="flex p-2"
+                          onclick={() => (data.authority = "Employee")((dropdownOpen = false))}
+                        >
+                          <Badge text="Employee" type="info" />
+                        </button>
+                      {/if}
                     </ul>
                   </div>
                 </div>
