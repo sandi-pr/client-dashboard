@@ -210,11 +210,6 @@
             "file_path": "template/hr/job_level.html"
         },
         {
-            "name": "hexabot-overview",
-            "path": "/hexabot",
-            "file_path": "template/hexabot.html"
-        },
-        {
             "name": "job-management",
             "path": "/job_management",
             "file_path": "template/job_management.html"

@@ -24,6 +24,7 @@
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
+  import { goto } from "$app/navigation";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 
   // const isDev = process.env.NODE_ENV === "development";
@@ -35,9 +36,11 @@
     admin: false,
   };
 
-  let moduleMonitoringData = [
+  const moduleMonitoringData = [
     {
-      href: "/hexabot/create",
+      action: async () => {
+        goto(await $call.getPage("hexabot", "create"));
+      },
       icon: MessagePlus,
       moduleName: "Create New Bots",
       desc: "desc Create New Bots",
@@ -194,12 +197,11 @@
               >
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
-              {#each moduleMonitoringData as { href, action, icon, moduleName, desc }}
+              {#each moduleMonitoringData as { action, icon, moduleName, desc }}
                 <Card
-                  {href}
                   on:click={action}
                   horizontal="true"
-                  class="items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
+                  class="cursor-pointer items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
                   size="none"
                 >
                   <Avatar class="!bg-hc-brand-100 dark:!bg-hc-brand-900 !p-2 !h-10"
@@ -301,7 +303,7 @@
                 >{$_("recentDeployedBots")}</Heading
               >
               <Button
-                on:click={async () => goto(await $call.call("hexabot", "list"))}
+                on:click={async () => goto(await $call.getPage("hexabot", "list"))}
                 color="light"
                 class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
                 >{$_("viewAll")}</Button

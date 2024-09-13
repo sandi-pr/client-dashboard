@@ -193,7 +193,7 @@
                     <Button
                       on:click={async () => {
                         goto(
-                          (await $call.call("client-dashboard", "hexabot-detail")) +
+                          (await $call.getPage("client-dashboard", "hexabot-detail")) +
                             "?id=" +
                             bot.botsID,
                         );
