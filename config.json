@@ -273,6 +273,26 @@
             "name": "datasets-list",
             "path": "/datasets/list",
             "file_path": "template/datasets/list.html"
+        },
+        {
+            "name": "hexabot",
+            "path": "/hexabot",
+            "file_path": "template/hexabot.html"
+        },
+        {
+            "name": "hexabot-create",
+            "path": "/hexabot/create",
+            "file_path": "template/hexabot/create.html"
+        },
+        {
+            "name": "hexabot-list",
+            "path": "/hexabot/list",
+            "file_path": "template/hexabot/list.html"
+        },
+        {
+            "name": "hexabot-detail",
+            "path": "/hexabot/detail",
+            "file_path": "template/hexabot/detail.html"
         }
     ],
     "apis": [
