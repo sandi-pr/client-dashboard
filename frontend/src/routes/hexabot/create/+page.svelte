@@ -349,6 +349,7 @@
           return;
         }
 
+        goto(await $call.call("client-dashboard", "hexabot"));
         triggerToast("created");
       } catch (error) {
         console.log(error);
@@ -373,7 +374,12 @@
       <P size="3xl" weight="semibold">Create New Bots</P>
     </div>
     <div class="flex text-sm gap-3">
-      <Button on:click={() => {}} color="light">Cancel</Button>
+      <Button
+        on:click={async () => {
+          goto(await $call.call("client-dashboard", "hexabot"));
+        }}
+        color="light">Cancel</Button
+      >
       <Button
         disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
         on:click={() => {

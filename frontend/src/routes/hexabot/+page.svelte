@@ -301,7 +301,7 @@
                 >{$_("recentDeployedBots")}</Heading
               >
               <Button
-                href="/hexabot/deployed"
+                on:click={async () => goto(await $call.call("hexabot", "list"))}
                 color="light"
                 class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
                 >{$_("viewAll")}</Button
@@ -336,7 +336,13 @@
                   <div class="flex gap-3 px-4 pt-4 pb-6">
                     <div class="grid grow grid-cols-2 gap-3">
                       <Button
-                        on:click={() => {}}
+                        on:click={async () => {
+                          goto(
+                            (await $call.call("client-dashboard", "hexabot-detail")) +
+                              "?id=" +
+                              bot.botsID,
+                          );
+                        }}
                         outline
                         class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
                       >
