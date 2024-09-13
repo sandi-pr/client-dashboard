@@ -39,7 +39,7 @@
   const moduleMonitoringData = [
     {
       action: async () => {
-        goto(await $call.getPage("hexabot", "create"));
+        goto(await $call.getPage("client-dashboard", "hexabot-create"));
       },
       icon: MessagePlus,
       moduleName: "Create New Bots",
@@ -303,7 +303,9 @@
                 >{$_("recentDeployedBots")}</Heading
               >
               <Button
-                on:click={async () => goto(await $call.getPage("hexabot", "list"))}
+                on:click={async () => {
+                  goto(await $call.getPage("client-dashboard", "hexabot-list"));
+                }}
                 color="light"
                 class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
                 >{$_("viewAll")}</Button
@@ -341,7 +343,7 @@
                         on:click={async () => {
                           goto(
                             (await $call.call("client-dashboard", "hexabot-detail")) +
-                              "?id=" +
+                              "?botId=" +
                               bot.botsID,
                           );
                         }}

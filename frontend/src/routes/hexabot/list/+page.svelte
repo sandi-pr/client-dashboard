@@ -6,6 +6,7 @@
   import Copy01Icon from "$lib/icon/copy-01.svelte";
   import { Typography, call } from "$lib";
   import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
 
   let searchTerm = $state("");
   let bots = $state([]);
@@ -194,7 +195,7 @@
                       on:click={async () => {
                         goto(
                           (await $call.getPage("client-dashboard", "hexabot-detail")) +
-                            "?id=" +
+                            "?botId=" +
                             bot.botsID,
                         );
                       }}

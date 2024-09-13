@@ -16,6 +16,9 @@
   import { _ } from "svelte-i18n";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { call, SelectedCard, Dropdown, triggerToast } from "$lib";
+  import { goto } from "$app/navigation";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let dropdownCollectionOpen = false;
   let collections = [];
@@ -299,6 +302,20 @@
 
         console.log("models", response);
 
+        if (response === null) {
+          if (isFrontend) {
+            platforms = [
+              {
+                id: 1,
+                name: "Llama3.1",
+                model: "llama3.1:8b",
+                description: "Llama3.1 Develop by Meta",
+                create_at: "2024-07-23",
+              },
+            ];
+          }
+        }
+
         if (response.status === 200) {
           let i = 0;
           let promise = response.result.models.map((model) => {
@@ -332,7 +349,7 @@
           Params: {
             bot_name: botName,
             description: description,
-            bot_profile: JSON.stringify({ name: fileImageName, base64Data: fileImage }),
+            bot_logo: JSON.stringify({ name: fileImageName, base64Data: fileImage }),
             ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
             collection_id: selectedCollection,
             additional_prompt: additionalPrompt,

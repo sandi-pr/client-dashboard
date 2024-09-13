@@ -3693,7 +3693,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "bot_profile",
+                    "name": "bot_logo",
                     "type": "string"
                 },
                 {
@@ -3733,6 +3733,113 @@
                 },
                 {
                     "name": "search",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "get-bot",
+            "path": "/get-bot/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetBot"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": []
+        },
+        {
+            "name": "update-bot",
+            "path": "/update-bot/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateBot"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "additional_prompt",
+                    "type": "string"
+                },
+                {
+                    "name": "ai_engine",
+                    "type": "string"
+                },
+                {
+                    "name": "background",
+                    "type": "string"
+                },
+                {
+                    "name": "background_align",
+                    "type": "string"
+                },
+                {
+                    "name": "bot_logo",
+                    "type": "string"
+                },
+                {
+                    "name": "bot_name",
+                    "type": "string"
+                },
+                {
+                    "name": "bot_profile",
+                    "type": "string"
+                },
+                {
+                    "name": "color_theme",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "greeting_text",
+                    "type": "string"
+                },
+                {
+                    "name": "layout",
+                    "type": "string"
+                },
+                {
+                    "name": "logo_name",
+                    "type": "string"
+                },
+                {
+                    "name": "logo_only",
+                    "type": "boolean"
+                },
+                {
+                    "name": "overlay_color",
+                    "type": "string"
+                },
+                {
+                    "name": "user_profile",
+                    "type": "string"
+                },
+                {
+                    "name": "deployed_platform",
+                    "type": "string"
+                },
+                {
+                    "name": "username",
                     "type": "string"
                 }
             ]
@@ -4793,6 +4900,15 @@
                         "type": "string"
                     },
                     "background_align": {
+                        "type": "string"
+                    },
+                    "logo_only": {
+                        "type": "boolean"
+                    },
+                    "deployed_platform": {
+                        "type": "string"
+                    },
+                    "username": {
                         "type": "string"
                     }
                 }
