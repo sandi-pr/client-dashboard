@@ -55,19 +55,7 @@
 
   let Header;
 
-  let bots = [
-    {
-      botsName: "Bot 1",
-      botDescription: "Bot 1 Description",
-      botsID: "711",
-      clientID: "b608d45f-0f54-45f7-816e-8d6aa82e6eba",
-      activationTime: "2024-02-06 10:30:13",
-      urlBot: "https://webchat.hexacode.org/1fff",
-      timestamp: "2024-02-06 10:30:13",
-      deployStatus: "Done",
-      deployedPlatform: "Web",
-    },
-  ];
+  let bots = [];
 
   let deployStatusModal = false;
 
@@ -102,7 +90,10 @@
           },
         });
 
-        console.log(response);
+        if (response === null) {
+          console.log(response);
+          return;
+        }
 
         if (response.status !== 200) {
           console.log(response);

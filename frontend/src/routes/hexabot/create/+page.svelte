@@ -31,12 +31,7 @@
   let selectedCollection = "";
   let additionalPrompt = "";
 
-  let platforms = [
-    {
-      id: 1,
-      name: "LLama 3.1",
-    },
-  ];
+  let platforms = [];
 
   let selectedDays = [
     {
@@ -289,6 +284,43 @@
     }
   }
 
+  async function getModels() {
+    let token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        let response = await $call.call("hexa-ai-rag", "get-models", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("models", response);
+
+        if (response.status === 200) {
+          let i = 0;
+          let promise = response.result.models.map((model) => {
+            return {
+              id: i++,
+              name: model.name,
+              model: model.model,
+              description: model.description,
+              create_at: model.create_at,
+            };
+          });
+
+          platforms = await Promise.all(promise);
+        } else {
+          console.log(response);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   async function createBot() {
     let token = sessionStorage.getItem("token");
 
@@ -301,7 +333,7 @@
             bot_name: botName,
             description: description,
             bot_profile: JSON.stringify({ name: fileImageName, base64Data: fileImage }),
-            ai_engine: platforms.find((platform) => platform.id === selectedplatforms).name,
+            ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
             collection_id: selectedCollection,
             additional_prompt: additionalPrompt,
           },
@@ -327,8 +359,9 @@
     }
   }
 
-  onMount(async () => {
-    await getCollections();
+  onMount(() => {
+    getCollections();
+    getModels();
   });
 </script>
 
