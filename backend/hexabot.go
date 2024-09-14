@@ -130,10 +130,15 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 	var data U.Dict
 
 	data = U.Dict{
-		"bot_id":        uuid.New().String(),
-		"bot_name":      bot_name,
-		"ai_engine":     ai_engine,
-		"collection_id": int64(collection_id),
+		"bot_id":           uuid.New().String(),
+		"bot_name":         bot_name,
+		"ai_engine":        ai_engine,
+		"collection_id":    int64(collection_id),
+		"background_align": "center",
+		"color_theme":      "purple",
+		"layout":           "Modern Minimalism",
+		"overlay_color":    "purple",
+		"username":         "User",
 	}
 
 	if description != "" {
@@ -237,10 +242,17 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		return ctx.Error(500, "Internal Server Error")
 	}
 
+	meta, ok := data.GetDict("meta")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	var bots U.Dict
 
 	bots = U.Dict{
 		"data": U.List{},
+		"meta": meta,
 	}
 
 	for i := 0; i < len(list); i++ {
@@ -754,4 +766,51 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 	}
 
 	return 200, update, nil
+}
+
+func DeleteBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idStr, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, _, err = Strapi.Delete("hexabot-table", int64(id))
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{}, nil
 }

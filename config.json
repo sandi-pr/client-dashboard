@@ -3862,6 +3862,25 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "delete-bot",
+            "path": "/delete-bot/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteBot"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": []
         }
     ],
     "options": {

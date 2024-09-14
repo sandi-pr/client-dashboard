@@ -497,6 +497,7 @@
   }
 
   async function updateBot() {
+    console.log(users.logoOnly);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -707,7 +708,11 @@
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
-              <Toggle bind:checked={users.logoOnly} class="w-max">Logo only</Toggle>
+              <Toggle
+                checked={users.logoOnly}
+                onclick={() => (users.logoOnly = !users.logoOnly)}
+                class="w-max">Logo only</Toggle
+              >
             </div>
             <div class="col-span-2">
               <UploadFile

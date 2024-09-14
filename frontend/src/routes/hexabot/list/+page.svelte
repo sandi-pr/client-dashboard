@@ -1,36 +1,38 @@
 <script>
-  import { P, Card, Button, Heading, Avatar, Toast } from "flowbite-svelte";
+  import {
+    P,
+    Card,
+    Button,
+    Heading,
+    Avatar,
+    Toast,
+    Pagination,
+    PaginationItem,
+    Modal,
+  } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
-  import { Typography, call, triggerToast } from "$lib";
+  import { Typography, call, triggerToast, StateCard } from "$lib";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
 
   let searchTerm = $state("");
+  let gettingDatas = $state(true);
   let bots = $state([]);
+  let tmpId = $state(null);
   let page = $state(1);
+  let pagination = $state({
+    total: 0,
+    page: 0,
+    pageSize: 0,
+  });
 
-  // $: filteredItems = bots.filter(
-  //   (bot) => bot.botsName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1,
-  // );
-
-  // let filteredItems = $state([]);
-
-  // $effect(() => {
-  //   filteredItems = bots.filter((bot) => {
-  //     for (const key in bot) {
-  //       if (
-  //         typeof bot[key] === "string" &&
-  //         bot[key].toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
-  //       ) {
-  //         return true;
-  //       }
-  //     }
-  //     return false;
-  //   });
-  // });
+  let popupModal = $state(false);
 
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
@@ -69,14 +71,18 @@
         });
 
         if (response === null) {
+          gettingDatas = false;
           console.log(response);
           return;
         }
 
         if (response.status !== 200) {
+          gettingDatas = false;
           console.log(response);
           return;
         }
+
+        pagination = response.result.meta.pagination;
 
         let tmp = response.result.data.map(async (bot) => {
           let fileImageResult = "";
@@ -103,7 +109,8 @@
             }
           }
 
-          let urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + bot.bot_id;
+          let urlBot =
+            (await $call.getPage("hexabot", "home-page")) + "?id=" + bot.attributes.bot_id;
 
           return {
             botsName: bot.attributes.bot_name,
@@ -120,6 +127,13 @@
         });
 
         bots = await Promise.all(tmp);
+
+        dropdownOpen = [];
+        for (let i = 0; i < bots.length; i++) {
+          dropdownOpen.push(false);
+        }
+
+        gettingDatas = false;
         console.log(bots);
       } catch (error) {
         console.log(error);
@@ -149,6 +163,61 @@
     return blob;
   }
 
+  function nextPage() {
+    if (page < pagination.pageCount) {
+      page = page + 1;
+      getBots();
+    }
+  }
+
+  function previousPage() {
+    if (page > 1) {
+      page = page - 1;
+      getBots();
+    }
+  }
+
+  let dropdownOpen = $state([]);
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    for (let i = 0; i < dropdownOpen.length; i++) {
+      dropdownOpen[i] = false;
+    }
+  };
+
+  async function deleteBot(id) {
+    let token = sessionStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "delete-bot", {
+          URLQuery: {},
+          URLParams: {
+            id: id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        tmpId = null;
+        popupModal = false;
+        triggerToast("deleted");
+        getBots();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     getBots();
   });
@@ -170,83 +239,153 @@
             placeholder={$_("searchBotName")}
             bind:value={searchTerm}
           /> -->
-          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-            {#each bots as bot (bot.botsID)}
-              <!-- {#if bot.deployStatus === "Done"} -->
-              <Card padding="none" class="shadow-none grow w-full">
-                <div
-                  class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
-                >
-                  <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                      <Avatar src={bot.bot_profile ? bot.bot_profile : ""} />
-                      <div class="flex flex-col">
-                        <Typography preset="Text lg/Semibold" color="primary" text={bot.botsName} />
-                        <Typography
-                          preset="Text sm/Regular"
-                          color="secondary"
-                          text={bot.botDescription}
-                        />
+
+          {#if gettingDatas}
+            <div class="flex flex-col gap-4 w-full">
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            </div>
+          {:else if bots.length === 0}
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          {:else}
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+              {#each bots as bot, index (bot.botsID)}
+                <!-- {#if bot.deployStatus === "Done"} -->
+                <Card padding="none" class="shadow-none grow w-full">
+                  <div
+                    class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
+                  >
+                    <div class="flex justify-between items-center">
+                      <div class="flex items-center gap-3">
+                        <Avatar src={bot.bot_profile ? bot.bot_profile : ""} />
+                        <div class="flex flex-col">
+                          <Typography
+                            preset="Text lg/Semibold"
+                            color="primary"
+                            text={bot.botsName}
+                          />
+                          <Typography
+                            preset="Text sm/Regular"
+                            color="secondary"
+                            text={bot.botDescription}
+                          />
+                        </div>
+                      </div>
+                      <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+                        <Button
+                          on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
+                          class="focus-within:ring-0 !p-0"
+                          color="none"
+                          size="xs"
+                          ><DotsVerticalIcon
+                            class="text-fg-quinary-light dark:text-fg-quinary-dark"
+                          /></Button
+                        >
+                        <div
+                          class={`z-10 ${dropdownOpen[index] ? "absolute top-10" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                        >
+                          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                            <button
+                              class="flex p-2"
+                              onclick={() => {
+                                popupModal = true;
+                                tmpId = bot.botsID;
+                                dropdownOpen[index] = !dropdownOpen[index];
+                              }}>{$_("delete")}</button
+                            >
+                          </ul>
+                        </div>
                       </div>
                     </div>
-                    <!-- <DotsVerticalIcon svgClass="w-5 h-5 text-fg-quinary" /> -->
                   </div>
-                </div>
-                <div class="flex gap-3 px-4 pt-4 pb-6">
-                  <div class="grid grow grid-cols-2 gap-3">
-                    <Button
-                      on:click={async () => {
-                        goto(
-                          (await $call.getPage("client-dashboard", "hexabot-detail")) +
-                            "?botId=" +
-                            bot.botsID,
-                        );
+                  <div class="flex gap-3 px-4 pt-4 pb-6">
+                    <div class="grid grow grid-cols-2 gap-3">
+                      <Button
+                        on:click={async () => {
+                          goto(
+                            (await $call.getPage("client-dashboard", "hexabot-detail")) +
+                              "?botId=" +
+                              bot.botsID,
+                          );
+                        }}
+                        outline
+                        class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
+                      >
+                        <Typography
+                          preset="Text sm/Semibold"
+                          text={$_("view")}
+                          color="brand-secondary"
+                        />
+                      </Button>
+                      <Button
+                        on:click={() => {
+                          goto(bot.urlBot);
+                        }}
+                        outline
+                        class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
+                      >
+                        <Typography
+                          preset="Text sm/Semibold"
+                          text={$_("webchat")}
+                          color="secondary"
+                        />
+                        <ArrowUpRightIcon
+                          svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark"
+                        />
+                      </Button>
+                    </div>
+                    <button
+                      onclick={() => {
+                        navigator.clipboard
+                          .writeText(bot.urlBot)
+                          .then(() => {
+                            console.log("Text copied to clipboard");
+                            triggerToast("copyToClipboard");
+                          })
+                          .catch((err) => {
+                            console.error("Failed to copy: ", err);
+                          });
                       }}
-                      outline
-                      class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
                     >
-                      <Typography
-                        preset="Text sm/Semibold"
-                        text={$_("view")}
-                        color="brand-secondary"
-                      />
-                    </Button>
-                    <Button
-                      on:click={() => {
-                        goto(bot.urlBot);
-                      }}
-                      outline
-                      class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
-                    >
-                      <Typography
-                        preset="Text sm/Semibold"
-                        text={$_("webchat")}
-                        color="secondary"
-                      />
-                      <ArrowUpRightIcon
-                        svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark"
-                      />
-                    </Button>
+                      <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                    </button>
                   </div>
-                  <button
-                    on:click={() => {
-                      navigator.clipboard
-                        .writeText(bot.urlBot)
-                        .then(() => {
-                          console.log("Text copied to clipboard");
-                          triggerToast("copyToClipboard");
-                        })
-                        .catch((err) => {
-                          console.error("Failed to copy: ", err);
-                        });
-                    }}
-                  >
-                    <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                  </button>
-                </div>
-              </Card>
-            {/each}
-          </div>
+                </Card>
+              {/each}
+            </div>
+            <div class="flex justify-between">
+              <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+                {$_("showing")}
+                <span
+                  >{pagination.page === 1
+                    ? 1
+                    : (pagination.page - 1) * pagination.pageSize + 1}</span
+                >
+                {$_("to")}
+                <span
+                  >{pagination.page * pagination.pageSize >= pagination.total
+                    ? pagination.total
+                    : pagination.page * pagination.pageSize}</span
+                >
+                {$_("of")}
+                <span>{pagination.total}</span>
+                {$_("entries")}
+              </div>
+
+              <div class="m-4">
+                <Pagination
+                  on:next={nextPage}
+                  on:previous={previousPage}
+                  activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
+                >
+                  <span slot="prev">{$_("previous")}</span>
+                  <span slot="next">{$_("next")}</span>
+                </Pagination>
+              </div>
+            </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -256,3 +395,14 @@
 <div class="flex justify-center">
   <Toast bind:open>{$_("copiedToClipboard")}</Toast>
 </div>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={() => deleteBot(tmpId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>
