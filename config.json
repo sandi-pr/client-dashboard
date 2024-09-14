@@ -3757,6 +3757,25 @@
             "params": []
         },
         {
+            "name": "get-bot-public",
+            "path": "/get-bot-public/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetBotPublic"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true
+                }
+            ],
+            "params": []
+        },
+        {
             "name": "update-bot",
             "path": "/update-bot/:id",
             "method": "PUT",

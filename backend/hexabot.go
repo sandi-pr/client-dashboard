@@ -403,6 +403,99 @@ func GetBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	return 200, dict, nil
 }
 
+func GetBotPublic(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
+
+	id, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, data, err := Strapi.Find("hexabot-table", U.Dict{
+		"filters": U.Dict{
+			"bot_id": U.Dict{
+				"$eq": id,
+			},
+		},
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println(data)
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(data)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := data.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) == 0 {
+		return ctx.Error(404, "not found")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if dict["attributes"].(U.Dict)["bot_logo"].(U.Dict)["data"] != nil {
+		document_url := dict["attributes"].(U.Dict)["bot_logo"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		base64Data, err := getFileByUrl(document_url)
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict["bot_logo"] = base64Data
+	}
+
+	if dict["attributes"].(U.Dict)["bot_profile"].(U.Dict)["data"] != nil {
+		document_url := dict["attributes"].(U.Dict)["bot_profile"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		base64Data, err := getFileByUrl(document_url)
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict["bot_profile"] = base64Data
+	}
+
+	if dict["attributes"].(U.Dict)["user_profile"].(U.Dict)["data"] != nil {
+		document_url := dict["attributes"].(U.Dict)["user_profile"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		base64Data, err := getFileByUrl(document_url)
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict["user_profile"] = base64Data
+	}
+
+	if dict["attributes"].(U.Dict)["background"].(U.Dict)["data"] != nil {
+		document_url := dict["attributes"].(U.Dict)["background"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		base64Data, err := getFileByUrl(document_url)
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict["background"] = base64Data
+	}
+
+	return 200, dict, nil
+}
+
 func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 

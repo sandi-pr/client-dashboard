@@ -4,7 +4,7 @@
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
-  import { Typography, call } from "$lib";
+  import { Typography, call, triggerToast } from "$lib";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
@@ -61,7 +61,7 @@
           URLParams: {},
           Params: {
             page: page,
-            page_size: 12,
+            page_size: 18,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -78,7 +78,7 @@
           return;
         }
 
-        let tmp = response.result.data.map((bot) => {
+        let tmp = response.result.data.map(async (bot) => {
           let fileImageResult = "";
           if (bot.attributes.bot_profile.data !== null) {
             let ext = bot.attributes.bot_profile.data.attributes.ext;
@@ -102,13 +102,16 @@
               fileImageResult = URL.createObjectURL(blob);
             }
           }
+
+          let urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + bot.bot_id;
+
           return {
             botsName: bot.attributes.bot_name,
             botDescription: bot.attributes.description,
             botsID: bot.id,
             // clientID: bot.attributes.client_id,
             activationTime: bot.attributes.createdAt,
-            urlBot: "",
+            urlBot: urlBot,
             timestamp: bot.attributes.updatedAt,
             // deployStatus: bot.attributes.deploy_status,
             deployedPlatform: bot.attributes.ai_engine,
@@ -167,7 +170,7 @@
             placeholder={$_("searchBotName")}
             bind:value={searchTerm}
           /> -->
-          <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {#each bots as bot (bot.botsID)}
               <!-- {#if bot.deployStatus === "Done"} -->
               <Card padding="none" class="shadow-none grow w-full">
@@ -186,7 +189,7 @@
                         />
                       </div>
                     </div>
-                    <DotsVerticalIcon svgClass="w-5 h-5 text-fg-quinary" />
+                    <!-- <DotsVerticalIcon svgClass="w-5 h-5 text-fg-quinary" /> -->
                   </div>
                 </div>
                 <div class="flex gap-3 px-4 pt-4 pb-6">
@@ -209,7 +212,9 @@
                       />
                     </Button>
                     <Button
-                      on:click={() => {}}
+                      on:click={() => {
+                        goto(bot.urlBot);
+                      }}
                       outline
                       class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
                     >
@@ -225,7 +230,15 @@
                   </div>
                   <button
                     on:click={() => {
-                      navigator.clipboard.writeText(bot.urlBot);
+                      navigator.clipboard
+                        .writeText(bot.urlBot)
+                        .then(() => {
+                          console.log("Text copied to clipboard");
+                          triggerToast("copyToClipboard");
+                        })
+                        .catch((err) => {
+                          console.error("Failed to copy: ", err);
+                        });
                     }}
                   >
                     <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />

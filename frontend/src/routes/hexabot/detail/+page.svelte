@@ -382,6 +382,8 @@
         const bot = response.result;
         const attributes = bot.attributes;
 
+        let urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + attributes.bot_id;
+
         users = {
           botName: attributes.bot_name,
           logoName: attributes.logo_name,
@@ -408,7 +410,7 @@
               : 1,
           background_align:
             attributes.background_align !== null ? attributes.background_align : "center",
-          embedCode: `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="http://webchat.hexacode.org/19ca7b92-4bfd-4c20-b6ab-048207e66258"></iframe>`,
+          embedCode: `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="${urlBot}"></iframe>`,
         };
 
         if (attributes.background.data !== null) {
