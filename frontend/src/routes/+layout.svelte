@@ -488,7 +488,13 @@ All Rights Reserved
         parseInt(response.result.data.attributes.company_industry),
       );
 
-      brand = response.result.data.attributes.sidebar_title || "Hexapod";
+      if (response.result.data.attributes.sidebar_title !== null) {
+        sessionStorage.setItem("sidebar_title", response.result.data.attributes.sidebar_title);
+        brand = response.result.data.attributes.sidebar_title;
+      } else {
+        sessionStorage.setItem("sidebar_title", "Hexapod");
+        brand = "Hexapod";
+      }
 
       if (response.result.data.attributes.company_logo.data !== null) {
         let ext = response.result.data.attributes.company_logo.data.attributes.ext;

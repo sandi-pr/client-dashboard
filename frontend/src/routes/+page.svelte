@@ -141,7 +141,11 @@ All Rights Reserved
       />
       <StateCard illustration={IllustrationFirst} />
       <div class="flex flex-col justify-center items-center gap-1 pt-2">
-        <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
+        <Typography
+          preset="Display sm/Semibold"
+          text={$_("welcometoHexapod") + sessionStorage.getItem("sidebar_title")}
+          color="primary"
+        />
         <!-- <Typography
         text="{userData?.data?.username || 'Hexastaff'} - {userData?.data?.email ||
           'staff@hexacode.org'}"
@@ -151,7 +155,11 @@ All Rights Reserved
     </Alert>
   {:else}
     <div class="flex flex-col gap-1">
-      <Typography preset="Display sm/Semibold" text={$_("welcometoHexapod")} color="primary" />
+      <Typography
+        preset="Display sm/Semibold"
+        text={$_("welcometoHexapod") + sessionStorage.getItem("sidebar_title")}
+        color="primary"
+      />
       <Typography text="{userData.username} - {userData.email}" color="tertiary" />
     </div>
   {/if}
