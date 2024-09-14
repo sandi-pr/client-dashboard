@@ -376,6 +376,8 @@
         if (response.status !== 200) {
           console.log(response);
           triggerLoading(false);
+          triggerToast("error");
+          goto(await $call.getPage("client-dashboard", "hexabot-list"));
           return;
         }
 
@@ -828,8 +830,12 @@
         </div>
         <Divider />
         <div class="flex justify-end gap-3">
-          <Button onclick={() => {}} color="light" class="px-3 focus-within:!ring-1"
-            >{"Cancel"}</Button
+          <Button
+            onclick={async () => {
+              goto(await $call.getPage("client-dashboard", "hexabot-list"));
+            }}
+            color="light"
+            class="px-3 focus-within:!ring-1">{"Cancel"}</Button
           >
           <Button
             disabled={disabledButton}
