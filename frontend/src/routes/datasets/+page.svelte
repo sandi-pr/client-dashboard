@@ -49,8 +49,8 @@
   import MessageChatCircleIcon from "$lib/icon/message-chat-circle.svg";
   // import MessagePlusIcon from "$lib/icon/message-plus-circle-white.svg";
   import MessagePlusIconGreen from "$lib/icon/message-plus-circle-green.svg";
-  import EditIcon from "$lib/icon/edit-05.svg";
-  import AlignRightIcon from "$lib/icon/align-right-01.svg";
+  import EditIcon from "$lib/icon/edit-05.svelte";
+  import AlignRightIcon from "$lib/icon/align-right-01.svelte";
   import FileIcon from "$lib/icon/file-04.svg";
   import { page } from "$app/stores";
   import { _ } from "svelte-i18n";
@@ -955,9 +955,10 @@
               on:click={() => {
                 editTitle = true;
               }}
-              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
+              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
             >
-              <img src={EditIcon} alt="Refresh Icon" class="w-5 h-5" />
+              <EditIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
+              <!-- <img src={EditIcon} alt="Refresh Icon" class="w-5 h-5" /> -->
               <Typography
                 preset="Text md/Semibold"
                 text={$_("rename")}
@@ -968,9 +969,9 @@
             <Button
               outline
               on:click={handleUploadWrapper}
-              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
+              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
             >
-              <img src={AlignRightIcon} alt="Import Icon" class="w-5 h-5" />
+              <AlignRightIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
               <Typography
                 preset="Text md/Semibold"
                 text={$_("importConversation")}
@@ -1050,7 +1051,7 @@
 
                 {#if editingMessageId !== qaPair.id}
                   <button on:click={() => startEditingMessage(qaPair.id, qaPair.message)}>
-                    <img src={EditIcon} alt="EditIcon" class="w-full h-full" />
+                    <EditIcon svgClass="w-full h-full text-brand-secondary dark:text-brand-secondary" />
                   </button>
                 {/if}
               </div>

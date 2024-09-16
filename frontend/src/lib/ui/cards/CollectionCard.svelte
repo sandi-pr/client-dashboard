@@ -111,13 +111,12 @@
     class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-6 pt-2"
   >
     <div class="relative">
-      <FileTypeIcon />
+      <FileTypeIcon svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark" />
       {#if totalDocuments > 0}
         <Indicator
-          color="purple"
           border
           placement="center-right"
-          class="!w-8 !h-8 text-white text-xs font-semibold p-4">+{totalDocuments}</Indicator
+          class="!w-8 !h-8 text-white bg-utility-brand-600-light dark:bg-utility-brand-600-dark text-xs font-semibold p-4">+{totalDocuments}</Indicator
         >
       {/if}
     </div>

@@ -21,7 +21,7 @@
   import MessageChatCircleIcon from "$lib/icon/message-chat-circle.svg";
   import DataIcon from "$lib/icon/data.svelte";
   import DataFlow from "$lib/icon/dataflow-03.svelte";
-  import AlignRightIcon from "$lib/icon/align-right-01.svg";
+  import AlignRightIcon from "$lib/icon/align-right-01.svelte";
   import { _ } from "svelte-i18n";
   // import HexaBotLogo from "$lib/icon/hexabot-logo.svg";
   // import FileIcon from "$lib/icon/file-plus-02.svg";
@@ -330,7 +330,7 @@
           outline
           class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
         >
-          <img src={AlignRightIcon} alt="Import Icon" class="w-5 h-5" />
+          <AlignRightIcon svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark" />
           &nbsp; &nbsp;
           <Typography preset="Text md/Semibold" text={$_("import")} color="brand-secondary" />
         </Button>
