@@ -166,6 +166,7 @@
           },
           Params: {
             message: newMessage,
+            model: "llama3:8b",
           },
           Headers: {
             Authorization: "Bearer " + token,
