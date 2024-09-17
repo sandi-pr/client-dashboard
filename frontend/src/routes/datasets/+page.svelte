@@ -1,5 +1,5 @@
 <script>
-  import { Button, Input, P, Heading, Span, Modal, Textarea, Spinner } from "flowbite-svelte";
+  import { Button, Input, P, Heading, Span, Modal, Textarea, Spinner, DarkMode } from "flowbite-svelte";
   import PdfViewer from "svelte-pdf";
   import { onMount, onDestroy } from "svelte";
   import { tick } from "svelte";
@@ -955,7 +955,7 @@
               on:click={() => {
                 editTitle = true;
               }}
-              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
+              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
             >
               <EditIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
               <!-- <img src={EditIcon} alt="Refresh Icon" class="w-5 h-5" /> -->
@@ -969,7 +969,7 @@
             <Button
               outline
               on:click={handleUploadWrapper}
-              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
+              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
             >
               <AlignRightIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
               <Typography
@@ -979,13 +979,16 @@
                 propClass="hidden xl:block"
               />
             </Button>
+            <DarkMode
+              btnClass="text-brand-secondary-light dark:text-brand-secondary-dark bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark focus:outline-none rounded-lg px-3 py-2 border border-primary-light dark:border-primary-dark"
+            />
             <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
               <Button
                 outline
                 on:click={() => {
                   dropdownOpen = !dropdownOpen;
                 }}
-                class="gap-1 p-2 bg-secondary-light dark:bg-secondary-dark hover:bg-white hover:text-primary-700 text-fg-secondary-light dark:text-fg-secondary-dark"
+                class="gap-1 p-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark border-primary-light dark:border-primary-dark"
               >
                 <DotsVerticalIcon
                   svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"

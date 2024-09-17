@@ -34,7 +34,7 @@
   {#each selectionData as data, i}
     <Card
       horizontal={true}
-      class={`justify-between ${isFlex ? `gap-3 ${widthFlex}` : "w-full"} ${spacing ? spacing : "!py-6 !pr-4"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark ${
+      class={`justify-between ${isFlex ? `gap-3 ${widthFlex}` : "w-full h-full"} ${spacing ? spacing : "!py-6 !pr-4"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark ${
         selectedData === data.id
           ? "border-brand-solid-light dark:border-brand-solid-dark"
           : "border-secondary-light dark:border-secondary-dark"

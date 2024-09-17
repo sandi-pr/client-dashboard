@@ -147,7 +147,7 @@
 
 <div>
   <div
-    class={`flex items-center justify-between p-4 mt-8 border-t-2 border-x-2 border-primary-light dark:border-primary-dark rounded-t-lg ${withSeperator(configs)}`}
+    class={`flex items-center justify-between p-4 mt-6 border-t-2 border-x-2 border-primary-light dark:border-primary-dark rounded-t-lg ${withSeperator(configs)}`}
   >
     {#if configs?.headers}
       <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
@@ -191,18 +191,20 @@
   >
     <Table class="font-jakarta dark:border-white">
       <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
-        <TableHeadCell class="!p-4">
-          <input
-            type="checkbox"
-            id="checkAll"
-            name="checkAll"
-            checked={allChecked}
-            on:click={() => {
-              handleCheckAll(allChecked);
-            }}
-            class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
-          />
-        </TableHeadCell>
+        {#if datasChecked}
+          <TableHeadCell class="!p-4">
+            <input
+              type="checkbox"
+              id="checkAll"
+              name="checkAll"
+              checked={allChecked}
+              on:click={() => {
+                handleCheckAll(allChecked);
+              }}
+              class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
+            />
+          </TableHeadCell>
+        {/if}
         {#if datas.length > 0}
           {#each Object.keys(datas[0]) as key}
             {#if key !== "actions" && key !== "id"}
@@ -219,18 +221,20 @@
           <TableBodyRow
             class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
           >
-            <TableBodyCell class="!p-4">
-              <input
-                type="checkbox"
-                id={data.id}
-                name={data.id}
-                checked={getCheckedStatus(data.id)}
-                on:click={() => {
-                  handleCheck(data.id);
-                }}
-                class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
-              />
-            </TableBodyCell>
+            {#if datasChecked}
+              <TableBodyCell class="!p-4">
+                <input
+                  type="checkbox"
+                  id={data.id}
+                  name={data.id}
+                  checked={getCheckedStatus(data.id)}
+                  on:click={() => {
+                    handleCheck(data.id);
+                  }}
+                  class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
+                />
+              </TableBodyCell>
+            {/if}
             {#each Object.keys(datas[0]) as key}
               {#if key !== "actions" && key !== "id"}
                 {#if typeof data[key] === "string" || typeof data[key] === "number"}

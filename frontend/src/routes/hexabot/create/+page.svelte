@@ -11,12 +11,13 @@
 -->
 
 <script>
-  import { P, Card, Input, Button, Checkbox, Textarea, Avatar } from "flowbite-svelte";
+  import { P, Card, Input, Button, Checkbox, Textarea, Avatar, Modal } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import upload from "$lib/icon/upload-cloud-02.svg";
-  import { call, SelectedCard, Dropdown, triggerToast } from "$lib";
+  import Divider from "$lib/components/Divider.svelte";
+  import { call, SelectedCard, UploadFile, triggerToast, Typography, InputRw, TextareaRw } from "$lib";
   import { goto } from "$app/navigation";
+  import { ChevronDownOutline } from "flowbite-svelte-icons";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -33,6 +34,7 @@
   let selectedplatforms = null;
   let selectedCollection = "";
   let additionalPrompt = "";
+  let modalOpen = false;
 
   let platforms = [];
 
@@ -385,17 +387,15 @@
 
 <svelte:window bind:innerWidth={screenWidth} />
 
-<div class="m-4">
+<div class="m-4 pb-12">
   <div class="flex justify-between">
-    <div class="ml-4">
-      <P size="3xl" weight="semibold">Create New Bots</P>
-    </div>
+    <Typography preset="Display sm/Semibold" text={$_("createNewBots")} />
     <div class="flex text-sm gap-3">
       <Button
         on:click={async () => {
           goto(await $call.getPage("client-dashboard", "hexabot"));
         }}
-        color="light">Cancel</Button
+        color="light">{$_("cancel")}</Button
       >
       <Button
         disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
@@ -403,111 +403,112 @@
           createBot();
         }}
         class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
-        >Create</Button
+        >{$_("create")}</Button
       >
     </div>
   </div>
 
   <!-- Content -->
-  <div class="mx-4 mt-8 pb-4">
+  <div class="mt-6 space-y-6">
     <div class="md:flex">
-      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Bots Information</P>
-
-      <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div
-          class="flex flex-col gap-1 col-span-4 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark [&>textarea]:text-primary-light dark:[&>textarea]:text-primary-dark"
-        >
-          <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-            >Bots Name*</P
-          >
-          <Textarea
-            bind:value={botName}
-            class="resize-none"
-            rows={screenWidth > 1024 ? "1" : "2"}
-            unWrappedClass="p-2.5 text-sm border border-primary-light dark:border-primary-dark focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+      <Typography 
+        preset="Text md/Semibold" 
+        text={$_("botsInformation")} 
+        propClass="w-full md:w-1/4" 
+      />
+      <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="flex flex-col gap-1.5 col-span-4">
+          <Typography preset="Text sm/Medium" text={$_("botsName")} color="secondary" />
+          <InputRw bind:value={botName} onEdit />
+        </div>
+        <div class="flex flex-col gap-1.5 col-span-4">
+          <Typography preset="Text sm/Medium" text={$_("descriptionOptional")} color="secondary" />
+          <TextareaRw bind:value={description} onEdit />
+        </div>
+        <div class="col-span-4">
+          <UploadFile
+            title={$_("botsProfilePicture")}
+            handleFileUploadWrapper={() => handleInputFile()}
+            isPreview
+            srcAvatar={fileImageName ? fileImageResult : ""}
           />
-        </div>
-        <div
-          class="space-y-1 col-span-4 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark [&>textarea]:text-primary-light dark:[&>textarea]:text-primary-dark"
-        >
-          <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-            >Description (Opsional)</P
-          >
-          <Textarea bind:value={description} class="resize-none" />
-        </div>
-        <div class="flex flex-col col-span-4 w-full space-y-1">
-          <div class="">
-            <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-              >Bot’s Profile Picture</P
-            >
-          </div>
-          <div class="flex w-full">
-            <Avatar class="size-12" src={fileImageName ? fileImageResult : ""} />
-            <div class="grow ml-3">
-              <Button
-                ondragover={handleDragOver}
-                ondragleave={handleDragLeave}
-                ondrop={handleDrop}
-                onclick={handleInputFile}
-                color="light"
-                class={`w-full grow rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark py-4 flex flex-col justify-start items-center`}
-              >
-                <div
-                  class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center inline-flex mb-3 pointer-events-none"
-                >
-                  <img src={upload} alt="mail.svg" class="p-4 dark:invert pointer-events-none" />
-                </div>
-                <div class="flex space-x-1">
-                  <P class="text-hc-brand-700 pointer-events-none">{$_("clickToUpload")}</P><P
-                    class="pointer-events-none">{$_("orDragAndDrop")}</P
-                  >
-                </div>
-                <P class="pointer-events-none">PNG or SVG file (max. 1MB)</P>
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-    <div class="border border-b-1 my-4"></div>
-    <div class="w-full flex">
-      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">AI Engines</P>
+    <Divider />
+    <div class="md:flex">
+      <Typography
+        preset="Text md/Semibold"
+        text={$_("aiEngines")}
+        color="secondary"
+        propClass="w-full md:w-1/4"
+      />
       <div class="w-full md:w-3/4">
         <SelectedCard
           selectionData={platforms}
           bind:selectedData={selectedplatforms}
-          isFlex
+          numGrid={3}
           isRadio
-          widthFlex="w-max"
         />
       </div>
     </div>
-    <div class="border border-b-1 my-4"></div>
+    <Divider />
     <div class="md:flex">
-      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Document Collection</P>
-      <div class="w-full md:w-3/4 flex flex-col justify-center gap-2">
+      <Typography
+        preset="Text md/Semibold"
+        text={$_("documentCollection")}
+        color="secondary"
+        propClass="w-full md:w-1/4"
+      />
+      <div class="w-full md:w-3/4">
         <div class="flex items-center gap-4">
-          <div class="md:w-1/2">
-            <Dropdown
-              dropdownOpen={dropdownCollectionOpen}
-              bind:selectedItem={selectedCollection}
-              items={collections}
-              placeholder={"Choose Collection"}
-              isOverlay={true}
+          <Button
+            on:click={() => (modalOpen = true)}
+            color="light"
+            class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
+          >
+            <Typography preset="Text md/Semibold" text={selectedCollection ? collections.find((item) => item.value === selectedCollection)?.name : $_("chooseCollection")} color="secondary" />
+            <ChevronDownOutline
+              class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
             />
-          </div>
+          </Button>
         </div>
       </div>
     </div>
-    <div class="border border-b-1 my-4"></div>
+    <Divider />
     <div class="md:flex">
-      <P size="lg" weight="semibold" class="w-full md:w-1/4 pb-2">Additional Prompts</P>
-      <div class="w-full md:w-3/4 flex flex-col justify-center gap-2">
-        <P size="sm" weight="medium" class="text-secondary-light dark:text-secondary-dark"
-          >Additional Prompts</P
-        >
-        <Textarea bind:value={additionalPrompt} class="resize-none" rows={10} />
+      <Typography
+        preset="Text md/Semibold"
+        text={$_("additionalPrompts")}
+        color="secondary"
+        propClass="w-full md:w-1/4"
+      />
+      <div
+        class="w-full md:w-3/4 flex flex-col gap-1.5"
+      >
+        <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
+        <TextareaRw bind:value={additionalPrompt} onEdit />
       </div>
     </div>
   </div>
 </div>
+
+<Modal title={$_("chooseSource")} bind:open={modalOpen} autoclose outsideclose>
+  <div class="flex flex-col justify-center gap-4">
+    <div class="flex flex-col justify-center mt-3 gap-3">
+      <Typography preset="Text sm/Medium" text={$_("recentCollections")} color="quaterary" />
+
+      <SelectedCard
+        selectionData={collections}
+        bind:selectedData={selectedCollection}
+        numGrid={2}
+        isRadio
+      />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button on:click={() => {}} class="w-full" disabled={!selectedCollection}
+      >{$_("select")}</Button
+    >
+  </svelte:fragment>
+</Modal>

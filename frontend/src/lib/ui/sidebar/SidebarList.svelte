@@ -160,7 +160,7 @@
             brandName={""}
             href="/"
             brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
-            imgClass="h-6 sm:h-8"
+            imgClass="h-7 sm:h-8"
           />
           {#if !(innerWidth < 1024)}
             <button

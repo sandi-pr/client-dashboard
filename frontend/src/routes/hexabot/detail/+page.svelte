@@ -11,16 +11,15 @@
 -->
 <script>
   import { P, Avatar, Button, Toggle, Indicator, Modal } from "flowbite-svelte";
-  import ID from "$lib/icon/ID.svg";
-  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
+  import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import CopyIcon from "$lib/icon/copy-03.svelte";
-  // import card from "$lib/icon/credit-card-refresh.svg";
-  import crm from "$lib/icon/users-right.svg";
-  import box from "$lib/icon/box.svg";
   import { ChevronDownOutline, DotsVerticalOutline } from "flowbite-svelte-icons";
   import TabDetail from "$lib/components/TabDetail.svelte";
+  import { _ } from "svelte-i18n";
+  import  { goto } from "$app/navigation";
   import {
     Typography,
     Badge,
@@ -31,11 +30,11 @@
     Dropdown,
     triggerToast,
     triggerLoading,
+    StateCard,
     call,
   } from "$lib";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
-  import { goto } from "$app/navigation";
   // import Highlight from "svelte-highlight";
   // import typescript from "svelte-highlight/languages/typescript";
   // import github from "svelte-highlight/styles/github";
@@ -68,11 +67,19 @@
 
   let users = {};
 
+  let collectionId = null;
+  let collection = {};
+  let datas = [];
+  let gettingDatas = false;
+  let datasChecked = [];
+  let configs = {};
+  let pagination = { page: 1, pageSize: 10, pageCount: 0, total: 0 };
+
   let tmpThemeColor = "";
   let tmpOverlayColor = "";
 
   let tabDatas = {
-    selected: "Information",
+    selected: "Customization",
     data: [
       {
         name: "Information",
@@ -80,9 +87,9 @@
       {
         name: "Customization",
       },
-      // {
-      //   name: "Data",
-      // },
+      {
+        name: "Data",
+      },
       {
         name: "Widget Embed",
       },
@@ -303,6 +310,31 @@
       });
   }
 
+  async function next() {
+    getDocuments(pagination.page + 1);
+  }
+
+  async function previous() {
+    getDocuments(pagination.page - 1);
+  }
+
+  async function handleCheckAll(allChecked) {
+    datasChecked = datasChecked.map((data) => {
+      return { id: data.id, checked: allChecked ? false : true };
+    });
+  }
+
+  async function handleCheck(id) {
+    let datasCheckedCopy = JSON.parse(JSON.stringify(datasChecked));
+    datasCheckedCopy = datasCheckedCopy.map((data) => {
+      if (data.id === id) {
+        return { id: data.id, checked: !data.checked };
+      }
+      return data;
+    });
+    datasChecked = datasCheckedCopy;
+  }
+
   let formattedDate = "Created on 2021-08-12 14:00 PM";
 
   let code = `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="http://webchat.hexacode.org/19ca7b92-4bfd-4c20-b6ab-048207e66258"></iframe>`;
@@ -358,6 +390,123 @@
     }
   }
 
+  async function getCollection() {
+    // search collection using params collectionId here
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "get-collection-by-id", {
+          URLQuery: {},
+          URLParams: {
+            id: collectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response);
+          triggerToast("error");
+          goto(await $call.getPage("client-dashboard", "document-collection"));
+          return;
+        }
+
+        collection = {
+          id: response.result.data.id,
+          name: response.result.data.attributes.collection_name,
+          createdAt: response.result.data.attributes.createdAt,
+          description: response.result.data.attributes.description,
+        };
+        gettingDatas = false;
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
+  async function getDocuments(page) {
+    console.log("getDocuments", collectionId, page);
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: page,
+          page_size: pagination.pageSize,
+          collection_id: collectionId.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        gettingDatas = false;
+        return;
+      }
+
+      console.log("ayam", response);
+
+      if (response.result.data.length > 0) {
+        configs = {
+          search: true,
+          headers: "Files",
+          pagination: response.result.meta.pagination,
+        };
+        let promises = response.result.data.map(async (document) => {
+          let link = await $call.getPage("client-dashboard", "document-collection-detail");
+          return {
+            id: document.id,
+            file_name: {
+              name: document.attributes.document_title,
+              filename: document.attributes.document.data.attributes.name,
+              type: "custom",
+              size:
+                document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
+            },
+            type: {
+              name: document.attributes.document_type,
+              type: "pill",
+              color: "brand",
+            },
+            upload_date: document.attributes.createdAt,
+            actions: {
+              objects: [
+                {
+                  // href: "/document/document_collection/detail?documentId=1&collectionId=1",
+                  href: `${link}` + "?documentId=" + document.id + "&collectionId=" + collectionId,
+                  name: "View",
+                },
+                // {
+                //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
+                //   // `${await $call.getPage("client-dashboard", "document-collection-detail")}` +
+                //   // "?documentId=" +
+                //   // document.id +
+                //   // "&collectionId=" +
+                //   // collectionId,
+                //   function: handleTitikTiga,
+                //   name: "Titik tiga",
+                // },
+              ],
+            },
+          };
+        });
+
+        datas = await Promise.all(promises);
+        datasChecked = datas.map((data) => {
+          return { id: data.id, checked: false };
+        });
+      } else {
+        datas = [];
+        datasChecked = [];
+      }
+    }
+  }
+
   async function getBot() {
     let token = sessionStorage.getItem("token");
     if (token) {
@@ -385,6 +534,10 @@
         const attributes = bot.attributes;
 
         let urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + attributes.bot_id;
+
+        collectionId = attributes.collection_id;
+        await getCollection();
+        await getDocuments(1);
 
         users = {
           botName: attributes.bot_name,
@@ -594,18 +747,18 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="Bots Information"
+            text={$_("botsInformation")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
 
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
             <div class="flex flex-col gap-1.5 col-span-4">
-              <Typography preset="Text sm/Medium" text="Bots Name" color="secondary" />
+              <Typography preset="Text sm/Medium" text={$_("botsName")} color="secondary" />
               <InputRw bind:value={users.botName} onEdit />
             </div>
             <div class="flex flex-col gap-1.5 col-span-4">
-              <Typography preset="Text sm/Medium" text="Description (Optional)" color="secondary" />
+              <Typography preset="Text sm/Medium" text={$_("descriptionOptional")} color="secondary" />
               <TextareaRw bind:value={users.description} onEdit />
             </div>
           </div>
@@ -614,7 +767,7 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="AI Engines"
+            text={$_("aiEngines")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
@@ -622,9 +775,8 @@
             <SelectedCard
               selectionData={platforms}
               bind:selectedData={users.platform}
-              isFlex
+              numGrid={3}
               isRadio
-              widthFlex="w-max"
             />
           </div>
         </div>
@@ -632,28 +784,28 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="Additional Prompts"
+            text={$_("additionalPrompts")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
           <div
-            class="w-full md:w-3/4 flex flex-col justify-center gap-2 [&>*]:bg-primary-light [&>*]:dark:bg-primary-dark"
+            class="w-full md:w-3/4 flex flex-col gap-1.5"
           >
-            <Typography preset="Text sm/Medium" text="Bot’s Role" color="secondary" />
+            <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
             <TextareaRw bind:value={users.additionalPrompts} onEdit />
           </div>
         </div>
         <Divider />
         <div class="flex justify-end gap-3">
           <Button onclick={() => {}} color="light" class="px-3 focus-within:!ring-1"
-            >{"Cancel"}</Button
+            >{$_("cancel")}</Button
           >
           <Button
             disabled={disabledButton}
             onclick={() => {
               updateBot();
             }}
-            class="px-3 focus-within:!ring-1">{"Save"}</Button
+            class="px-3 focus-within:!ring-1">{$_("save")}</Button
           >
         </div>
       </div>
@@ -662,29 +814,29 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="General"
+            text={$_("general")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
 
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="flex flex-col gap-1.5 col-span-4">
-              <Typography preset="Text sm/Medium" text="Welcome Message" color="secondary" />
+              <Typography preset="Text sm/Medium" text={$_("welcomeMessage")} color="secondary" />
               <TextareaRw bind:value={users.welcomeMessage} onEdit />
             </div>
             <div class="flex gap-4 col-span-4">
               <div class="flex flex-col gap-1.5 grow">
-                <Typography preset="Text sm/Medium" text="Bots Name" color="secondary" />
+                <Typography preset="Text sm/Medium" text={$_("botsName")} color="secondary" />
                 <InputRw bind:value={users.botName} onEdit />
               </div>
               <div class="flex flex-col gap-1.5 grow">
-                <Typography preset="Text sm/Medium" text="User Name" color="secondary" />
+                <Typography preset="Text sm/Medium" text={$_("userName")} color="secondary" />
                 <InputRw bind:value={users.username} onEdit />
               </div>
             </div>
             <div class="col-span-2">
               <UploadFile
-                title="Bots Profile Picture"
+                title={$_("botsProfilePicture")}
                 handleFileUploadWrapper={() => handleInputFile("bot")}
                 isPreview
                 srcAvatar={botFile.name ? botFile.imageResult : ""}
@@ -692,7 +844,7 @@
             </div>
             <div class="col-span-2">
               <UploadFile
-                title="User Profile Picture"
+                title={$_("userprofilePicture")}
                 handleFileUploadWrapper={() => handleInputFile("user")}
                 isPreview
                 srcAvatar={userFile.name ? userFile.imageResult : ""}
@@ -704,7 +856,7 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="Logo"
+            text={$_("logo")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
@@ -713,19 +865,19 @@
               <Toggle
                 checked={users.logoOnly}
                 onclick={() => (users.logoOnly = !users.logoOnly)}
-                class="w-max">Logo only</Toggle
+                class="w-max">{$_("logoOnly")}</Toggle
               >
             </div>
             <div class="col-span-2">
               <UploadFile
-                title="Logo"
+                title={$_("logo")}
                 handleFileUploadWrapper={() => handleInputFile("logo")}
                 isPreview
                 srcAvatar={logoFile.name ? logoFile.imageResult : ""}
               />
             </div>
             <div class="flex flex-col gap-1.5 col-span-2">
-              <Typography preset="Text sm/Medium" text="Logo Name" color="secondary" />
+              <Typography preset="Text sm/Medium" text={$_("logoName")} color="secondary" />
               <InputRw bind:value={users.logoName} onEdit />
             </div>
           </div>
@@ -734,13 +886,13 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="Theme Colors"
+            text={$_("themeColors")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="flex flex-col gap-1.5 col-span-2">
-              <Typography preset="Text sm/Medium" text="Primary Brand Color" color="secondary" />
+              <Typography preset="Text sm/Medium" text={$_("primaryBrandColor")} color="secondary" />
               <Button
                 on:click={() => {
                   tmpThemeColor = users.primaryBrandColor;
@@ -764,7 +916,7 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="Layout"
+            text={$_("layout")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
@@ -783,14 +935,14 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="Background"
+            text={$_("background")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
               <UploadFile
-                title="Background Picture"
+                title={$_("backgroundPicture")}
                 handleFileUploadWrapper={() => handleInputFile("background")}
                 isPreview
                 largePreview
@@ -798,7 +950,7 @@
               />
             </div>
             <div class="flex flex-col gap-1.5 col-span-2">
-              <Typography preset="Text sm/Medium" text="Overlay Color" color="secondary" />
+              <Typography preset="Text sm/Medium" text={$_("overlayColor")} color="secondary" />
               <Button
                 on:click={() => {
                   tmpOverlayColor = users.overlayColor;
@@ -817,12 +969,11 @@
               </Button>
             </div>
             <div class="flex flex-col gap-1.5 col-span-2">
-              <Typography preset="Text sm/Medium" text="Background Align" color="secondary" />
+              <Typography preset="Text sm/Medium" text={$_("backgroundAlign")} color="secondary" />
               <Dropdown
                 dropdownOpen={dropdownBgAlignOpen}
                 bind:selectedItem={users.background_align}
                 items={bgAlign}
-                placeholder={"Choose Collection"}
                 isOverlay={true}
               />
             </div>
@@ -835,21 +986,62 @@
               goto(await $call.getPage("client-dashboard", "hexabot-list"));
             }}
             color="light"
-            class="px-3 focus-within:!ring-1">{"Cancel"}</Button
+            class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
           >
           <Button
             disabled={disabledButton}
             onclick={() => {
               updateBot();
             }}
-            class="px-3 focus-within:!ring-1">{"Save"}</Button
+            class="px-3 focus-within:!ring-1">{$_("save")}</Button
           >
         </div>
       </div>
-      <!-- {:else if tabDatas.selected === "Conversation Logs"}
-    <div>
-      <DataTable datas={conversationDatas} configs={conversationConfigs} />
-    </div> -->
+    {:else if tabDatas.selected === "Data"}
+    <div class="md:flex">
+      <div class="w-full md:w-1/4 mt-6">
+        <Typography
+          preset="Text md/Semibold"
+          text={collection.name}
+          color="secondary"
+          propClass=""
+        />
+        <button 
+          onclick={async function () {
+            goto(
+              (await $call.getPage("client-dashboard", "document-collection-list-document")) +
+                `?collectionId=${collectionId}`,
+            );
+            return;
+          }} 
+          class="text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
+        >
+          {$_("goToDocumentCollection")}
+        </button>
+      </div>
+      <div class="w-full md:w-3/4">
+        {#if datas.length > 0}
+          <DataTableListCollection
+            bind:datas
+            bind:configs
+            bind:next
+            bind:previous
+          />
+        {:else if gettingDatas}
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
+        {:else}
+          <StateCard
+            illustration={IllustrationEmpty}
+            description={$_("youDontHaveAnyDataYet")}
+            actionText={$_("goToDocumentCollection")}
+            funcButton={() => {}}
+          />
+        {/if}
+      </div>
+    </div>
     {:else if tabDatas.selected === "Widget Embed"}
       <div class="mt-6 space-y-6">
         <div class="md:flex">

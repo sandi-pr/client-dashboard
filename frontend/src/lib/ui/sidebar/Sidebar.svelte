@@ -89,10 +89,10 @@
 
 <!-- Appbar for Drawer -->
 {#if innerWidth < 1024}
-  <div class="lg:hidden fixed top-0 w-full z-50 pl-4 pr-2 py-3 justify-between items-center flex">
+  <div class="lg:hidden fixed top-0 w-full z-40 pl-4 pr-2 py-3 justify-between items-center flex">
     <div class="justify-between items-center gap-2 flex">
       <div class="w-8 h-8 justify-center items-center flex">
-        <img alt="logo" src={LogoIcon} class="w-8 h-8" />
+        <img alt="logo" src={logoUrl} class="w-8 h-8" />
       </div>
       <Typography preset="Text lg/Bold" text={brand} color="primary" />
     </div>

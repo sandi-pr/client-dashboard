@@ -34,17 +34,23 @@ All Rights Reserved
     //   description: "descCrm",
     //   page: "crm-overview",
     // },
-    // {
-    //   icon: "messageChat",
-    //   title: "webchat",
-    //   description: "talkToYourPrivateAiAssistantHere",
-    //   page: "bakrie-webchat",
-    // },
     {
-      icon: "fileShield",
+      icon: "box",
       title: "documentCollection",
       description: "descDocumentCollection",
       page: "document-collection-overview",
+    },
+    {
+      icon: "data",
+      title: "datasets",
+      description: "descDatasets",
+      page: "datasets",
+    },
+    {
+      icon: "messageChat",
+      title: "hexabot",
+      description: "descCreateNewBots",
+      page: "hexabot",
     },
     // {
     //   icon: "userSquare",
