@@ -412,7 +412,7 @@ All Rights Reserved
         URLParams: {},
         Params: {
           page: 1,
-          page_size: 5,
+          page_size: 4,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -532,6 +532,7 @@ All Rights Reserved
           totalDocuments: totalDocuments,
           status: collectionStatus,
           href: `${collectionList}?collectionId=${collection.id}`,
+          webchat: collection.attributes.webchat_tmp === true ? true : false,
         };
       });
 
@@ -995,10 +996,7 @@ All Rights Reserved
             description={$_("fetchingDataPleaseWait")}
           />
         {:else}
-          <StateCard
-            illustration={IllustrationEmpty}
-            description={$_("youDontHaveAnyDataYet")}
-          />
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>
