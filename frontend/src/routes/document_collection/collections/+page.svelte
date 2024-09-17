@@ -24,7 +24,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
-  import { Button, Modal, Input, P, Indicator, Tooltip } from "flowbite-svelte";
+  import { Button, Modal, Input, Pagination } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
@@ -83,6 +83,12 @@ All Rights Reserved
   let editModal = $state(false);
   let deleteModal = $state(false);
   let dropdownOpen = $state(false);
+  let page = $state(1);
+  let pagination = $state({
+    total: 0,
+    page: 0,
+    pageSize: 0,
+  });
 
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
 
@@ -151,35 +157,31 @@ All Rights Reserved
 
     if (token !== null) {
       gettingDatas = true;
-      let page = 1;
       collections = [];
       documents = [];
-      while (true) {
-        let response = await $call.call("client-dashboard", "get-document-collections", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: page,
-            page_size: 25,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+      let response = await $call.call("client-dashboard", "get-document-collections", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: page,
+          page_size: 12,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-        if (response.status !== 200) {
-          console.log(response);
-          gettingDatas = false;
-          return;
-        }
-
-        if (response.result.data.length > 0) {
-          collections = collections.concat(response.result.data);
-          page++;
-        } else {
-          break;
-        }
+      if (response.status !== 200) {
+        console.log(response);
+        gettingDatas = false;
+        return;
       }
+
+      console.log("collections", response);
+
+      collections = response.result.data;
+
+      pagination = response.result.meta.pagination;
 
       for (const collection of collections) {
         let page = 1;
@@ -645,6 +647,20 @@ All Rights Reserved
     buttonDisabled = files.length === 0 || tmpDocumentTitle === "";
   });
 
+  function nextPage() {
+    if (page < pagination.pageCount) {
+      page = page + 1;
+      getCollections();
+    }
+  }
+
+  function previousPage() {
+    if (page > 1) {
+      page = page - 1;
+      getCollections();
+    }
+  }
+
   onMount(async () => {
     // await getStatusRag();
     await getCollections();
@@ -742,6 +758,36 @@ All Rights Reserved
                   }}
                 />
               {/each}
+            </div>
+            <div class="flex justify-between">
+              <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+                {$_("showing")}
+                <span
+                  >{pagination.page === 1
+                    ? 1
+                    : (pagination.page - 1) * pagination.pageSize + 1}</span
+                >
+                {$_("to")}
+                <span
+                  >{pagination.page * pagination.pageSize >= pagination.total
+                    ? pagination.total
+                    : pagination.page * pagination.pageSize}</span
+                >
+                {$_("of")}
+                <span>{pagination.total}</span>
+                {$_("entries")}
+              </div>
+
+              <div class="m-4">
+                <Pagination
+                  on:next={nextPage}
+                  on:previous={previousPage}
+                  activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
+                >
+                  <span slot="prev">{$_("previous")}</span>
+                  <span slot="next">{$_("next")}</span>
+                </Pagination>
+              </div>
             </div>
           {:else if gettingDatas}
             <StateCard
