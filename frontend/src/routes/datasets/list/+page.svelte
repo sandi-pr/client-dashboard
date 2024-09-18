@@ -82,7 +82,7 @@ All Rights Reserved
 
         pageCount = response.result.meta.pagination.pageCount;
         configs = {
-          pagination: response.result.meta.pagination,
+          pagination: response.result.data > 0 ? response.result.meta.pagination : null,
           search: true,
           searchHandler: handleSearch,
         };

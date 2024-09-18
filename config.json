@@ -1708,6 +1708,10 @@
                     "name": "collection_id",
                     "type": "string",
                     "required": false
+                },
+                {
+                    "name": "search",
+                    "type": "string"
                 }
             ]
         },

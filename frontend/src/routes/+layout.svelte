@@ -53,7 +53,7 @@ All Rights Reserved
   let ready = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://localhost")
     : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
@@ -212,7 +212,7 @@ All Rights Reserved
         name: "hexabot",
         href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
         children: [],
-      }
+      },
       // {
       //   icon: "fileAttachment",
       //   name: "documentSigning",

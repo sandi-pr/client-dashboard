@@ -107,20 +107,21 @@
   //   }
   // });
 
-  $: filteredItems = datas.filter((data) => {
-    if (searchTerm === "") return true;
-    if (data) {
-      return Object.values(data).some((value) => {
-        if (typeof value === "string") {
-          return value.toLowerCase().includes(searchTerm.toLowerCase());
-        }
-        return false;
-      });
-    }
-  });
+  // $: filteredItems = datas.filter((data) => {
+  //   if (searchTerm === "") return true;
+  //   if (data) {
+  //     return Object.values(data).some((value) => {
+  //       if (typeof value === "string") {
+  //         return value.toLowerCase().includes(searchTerm.toLowerCase());
+  //       }
+  //       return false;
+  //     });
+  //   }
+  // });
 
   const handleSearch = (event) => {
-    searchTerm = event.target.value;
+    console.log(event.target.value);
+    configs?.searchHandler(event.target.value);
   };
 
   const getCheckedStatus = (id) => {
@@ -195,7 +196,7 @@
   >
     <Table class="font-jakarta dark:border-white">
       <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
-        {#if datasChecked}
+        {#if datasChecked && datasChecked.length > 0}
           <TableHeadCell class="!p-4">
             <input
               type="checkbox"
@@ -221,7 +222,7 @@
         {/if}
       </TableHead>
       <TableBody>
-        {#each configs?.search ? filteredItems : datas as data, index (data.id)}
+        {#each datas as data, index (data.id)}
           <TableBodyRow
             class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
           >
@@ -363,5 +364,11 @@
         <span slot="next">{$_("next")}</span>
       </Pagination>
     </div>
+  </div>
+  <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+    {$_("page")}
+    <span>{configs.pagination.page}</span>
+    {$_("of")}
+    <span>{configs.pagination.pageCount}</span>
   </div>
 {/if}

@@ -85,7 +85,18 @@ All Rights Reserved
 
   let timer;
 
-  async function getDocuments(page) {
+  let page = $state(1);
+
+  let searchTerm = $state("");
+
+  const handleSearch = async (value) => {
+    page = 1;
+    searchTerm = value;
+
+    await getDocuments();
+  };
+
+  async function getDocuments() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
@@ -95,6 +106,7 @@ All Rights Reserved
           page: page,
           page_size: pagination.pageSize,
           collection_id: collectionId,
+          search: searchTerm,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -145,6 +157,7 @@ All Rights Reserved
       if (response.result.data.length > 0) {
         configs = {
           search: true,
+          searchHandler: handleSearch,
           headers: "File Uploaded",
           pagination: response.result.meta.pagination,
           actions: [
@@ -226,6 +239,36 @@ All Rights Reserved
       } else {
         datas = [];
         datasChecked = [];
+        configs = {
+          search: true,
+          searchHandler: handleSearch,
+          headers: "File Uploaded",
+          pagination: null,
+          actions: [
+            {
+              id: "delete",
+              name: "Delete",
+              icon: "trash",
+              type: "error",
+              disabled: datasChecked.find((data) => data.checked) ? false : true,
+              onclick: () => {
+                if (datasChecked.find((data) => data.checked)) {
+                  popupModal = true;
+                }
+              },
+            },
+            {
+              id: "add_new",
+              name: "Add New",
+              icon: "plus",
+              type: "brand-inverse",
+              onclick: () => {
+                selectTypeCollection("Documents");
+                addDocumentsModal = true;
+              },
+            },
+          ],
+        };
       }
     }
   }
@@ -382,7 +425,7 @@ All Rights Reserved
       tmpDocumentDescription = "";
 
       addDocumentsModal = false;
-      getDocuments(pagination.page);
+      getDocuments();
       triggerLoading(false);
 
       triggerToast("created");
@@ -418,7 +461,7 @@ All Rights Reserved
         }
 
         await getCollection();
-        await getDocuments(pagination.page);
+        await getDocuments();
         triggerToast("deleted");
         triggerLoading(false);
       } catch (error) {
@@ -510,11 +553,15 @@ All Rights Reserved
   };
 
   async function next() {
-    getDocuments(pagination.page + 1);
+    if (page >= pagination.pageCount) return;
+    page++;
+    getDocuments();
   }
 
   async function previous() {
-    getDocuments(pagination.page - 1);
+    if (page <= 1) return;
+    page--;
+    getDocuments();
   }
 
   async function handleCheckAll(allChecked) {
@@ -663,7 +710,7 @@ All Rights Reserved
                     totalDocuments: datas.length,
                   });
                 }}
-                >
+              >
                 <MessageChatCircle svgClass="text-white w-5 h-5" />
                 <div class="hidden lg:block">{$_("startReading")}</div>
               </Button>
@@ -677,7 +724,7 @@ All Rights Reserved
 
         {#if tabDatas.selected === "Documents"}
           <!-- Person Table Data -->
-          {#if datas.length > 0}
+          {#if datas.length > 0 || searchTerm !== ""}
             <DataTableListCollection
               bind:datas
               bind:datasChecked

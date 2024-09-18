@@ -594,6 +594,11 @@ func GetDocumentsByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config
 
 	fmt.Println(me)
 
+	search, ok := ctx.Params.GetString("search")
+	if !ok {
+		search = ""
+	}
+
 	page, ok := ctx.Params.GetFloat64("page")
 	if !ok {
 		fmt.Println("invalid parameters")
@@ -619,6 +624,9 @@ func GetDocumentsByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config
 		"filters": U.Dict{
 			"collection_id": U.Dict{
 				"$eq": id,
+			},
+			"document_title": U.Dict{
+				"$contains": search,
 			},
 		},
 		"pagination": U.Dict{
