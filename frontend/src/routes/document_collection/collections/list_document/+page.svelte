@@ -13,8 +13,8 @@ All Rights Reserved
   import { onMount, onDestroy } from "svelte";
   import { _, locale } from "svelte-i18n";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
-  import { StateCard, InputRw, TextareaRw, triggerToast, UploadFile } from "$lib";
+  import { CR3Call } from "hexacomponents-svelte";
+  import { StateCard, InputRw, TextareaRw, triggerToast, UploadFile, Typography } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -24,6 +24,7 @@ All Rights Reserved
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
+  import MessageChatCircle from "$lib/icon/message-chat-circle.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { goto } from "$app/navigation";
   import {
@@ -44,6 +45,8 @@ All Rights Reserved
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
 
   let datas = $state([]);
+
+  let status = $state(null);
 
   let gettingDatas = $state(true);
 
@@ -180,6 +183,7 @@ All Rights Reserved
               size:
                 document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
             },
+            status: document.attributes.status,
             type: {
               name: document.attributes.document_type,
               type: "pill",
@@ -620,6 +624,7 @@ All Rights Reserved
               preset="Display sm/Semibold"
               color="primary"
               text={collection.name ? collection.name : $_("loading")}
+              propClass="fluid-xl"
             />
             <P
               class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
@@ -658,10 +663,10 @@ All Rights Reserved
                     totalDocuments: datas.length,
                   });
                 }}
-                icon={PlusIcon}
-                ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
-                {$_("startReading")}</Button
-              >
+                >
+                <MessageChatCircle svgClass="text-white w-5 h-5" />
+                <div class="hidden lg:block">{$_("startReading")}</div>
+              </Button>
             </div>
           </div>
         </div>

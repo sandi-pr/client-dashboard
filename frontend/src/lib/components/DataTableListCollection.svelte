@@ -155,15 +155,17 @@
       >
     {/if}
     <div class="flex items-center gap-3">
-      <Input
-        id="search"
-        type="search"
-        class="bg-white dark:bg-hc-graydark-950 py-3"
-        placeholder={$_("search")}
-        on:change={handleSearch}
-      >
-        <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-      </Input>
+      <div class="hidden lg:block">
+        <Input
+          id="search"
+          type="search"
+          class="bg-white dark:bg-hc-graydark-950 py-3"
+          placeholder={$_("search")}
+          on:change={handleSearch}
+        >
+          <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+        </Input>
+      </div>
       {#if configs?.actions && Object.keys(configs.actions).length > 0}
         {#each configs.actions as action (action.id)}
           <Button
@@ -180,7 +182,9 @@
                 <Icon.TrashBinOutline class="w-5 h-5" />&nbsp;
               {/if}
             {/if}
-            {$_(toCamelCase(action.name))}
+            <div class="hidden lg:block">
+              {$_(toCamelCase(action.name))}
+            </div>
           </Button>
         {/each}
       {/if}
@@ -330,7 +334,7 @@
 </div>
 
 {#if configs?.pagination && Object.keys(configs.pagination).length > 0}
-  <div class="flex justify-between">
+  <div class="flex-col md:flex justify-between">
     <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
       {$_("showing")}
       <span
@@ -349,9 +353,8 @@
       {$_("entries")}
     </div>
 
-    <div class="m-4">
+    <div class="m-4 flex justify-end">
       <Pagination
-        bind:pages
         on:next={next}
         on:previous={previous}
         activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"

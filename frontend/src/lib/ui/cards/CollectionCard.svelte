@@ -22,19 +22,19 @@
   } = $props();
 
   const getTextStatus = (status) => {
-    if (status === "ready") {
+    if (status === "Ready") {
       return "ready";
-    } else if (status === "reading") {
+    } else if (status === "Reading") {
       return "aiIsReading";
     } else {
-      return "collectingData";
+      return "noDocumnetAvailable";
     }
   };
 
   const getTextButton = (status) => {
-    if (status === "ready") {
+    if (status === "Ready") {
       return "askAI";
-    } else if (status === "reading") {
+    } else if (status === "Reading") {
       return "reading";
     } else {
       return "startReading";
@@ -42,7 +42,7 @@
   };
 
   const getIconButton = (status) => {
-    if (status === "ready") {
+    if (status === "Ready") {
       return MessageChatCircle;
     } else {
       return Stars03Icon;
@@ -63,7 +63,7 @@
       <Typography
         preset="Text md/Semibold"
         text={webchat ? collectionName + " (Webchat)" : collectionName}
-        propClass="hover:underline line-clamp-2"
+        propClass="hover:underline line-clamp-1 md:line-clamp-2 fluid-sm"
       />
     </button>
     <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
@@ -108,7 +108,7 @@
   </div>
   <Card
     on:click={funcDetailCollection}
-    class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-6 pt-2"
+    class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-2 md:pb-6 pt-2"
   >
     <div class="relative">
       <FileTypeIcon svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark" />
@@ -122,17 +122,17 @@
     </div>
     <Badge
       text={$_(getTextStatus(status))}
-      type={`${status === "ready" ? "success" : status === "reading" ? "warning" : "info"}`}
+      type={`${status === "Ready" ? "success" : status === "Reading" ? "warning" : "info"}`}
     />
   </Card>
   <div class="flex justify-center border-t border-secondary-light dark:border-secondary-dark">
     <Button
+      disabled={status === undefined || status === null || status === "Reading" || status === "null"}
       on:click={() => {
         functButton();
       }}
-      disabled={status === "reading"}
       color="light"
-      class="flex w-full gap-1.5 border-none"
+      class="flex w-full gap-1 md:gap-1.5 border-none fluid-xs md:fluid-sm"
     >
       <svelte:component
         this={getIconButton(status)}

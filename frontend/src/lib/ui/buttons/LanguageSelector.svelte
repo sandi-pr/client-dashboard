@@ -9,6 +9,8 @@
   let dropdownOpen = $state(false);
   let myLocale = $state("en");
 
+  let { isMobileScreen = false } = $props();
+
   const changeLanguage = (lang) => {
     locale.set(lang);
     localStorage.setItem("lang", lang);
@@ -28,8 +30,8 @@
   // };
 </script>
 
-<div onfocusout={handleDropdownFocusLoss}>
-  <Button color="light" on:click={() => (dropdownOpen = !dropdownOpen)} id="dropdownDefaultButton" class="py-2 gap-1 px-2.5 md:px-3">
+<div onfocusout={handleDropdownFocusLoss} class="relative">
+  <Button color="light" on:click={() => (dropdownOpen = !dropdownOpen)} id="dropdownDefaultButton" class={`py-2 w-full justify-between gap-1 px-2.5 md:px-3`}>
     {#if $locale === "id"}
       <Avatar src={ID} alt="id" size="xs" />
     {:else}

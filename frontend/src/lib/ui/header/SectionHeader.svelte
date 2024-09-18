@@ -16,7 +16,7 @@
   let { title = 'Section Header', hrefAction = '' }: { title: string, hrefAction?: string } = $props();
 </script>
 
-<div class="flex flex-col gap-5">
+<div class="flex flex-col gap-1.5 md:gap-5">
   <div class="flex justify-between items-center">
     <Typography preset="Text lg/Semibold" text={title} color="primary" />
     {#if hrefAction}

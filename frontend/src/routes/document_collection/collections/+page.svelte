@@ -234,7 +234,7 @@ All Rights Reserved
 
         // Hitung jumlah dokumen dengan status angka
         const numberDocuments = filteredDocuments.filter(
-          (document) => typeof document.attributes.status === "number",
+          (document) => document.attributes.status?.includes("Reading"),
         ).length;
 
         // Hitung total dokumen yang Ready
@@ -245,11 +245,16 @@ All Rights Reserved
         // Tentukan status koleksi berdasarkan kondisi yang diberikan
         let collectionStatus;
         if (nullDocuments === totalDocuments) {
+          console.log("null", collection.id);
           collectionStatus = null;
         } else if (nullDocuments > 0 || numberDocuments > 0) {
-          collectionStatus = "reading";
-        } else if (numberDocuments === totalDocuments && readyDocuments === totalDocuments) {
-          collectionStatus = "ready";
+          console.log("read", collection.id);
+          collectionStatus = "Reading";
+        } else if (readyDocuments === totalDocuments) {
+          console.log("ready", collection.id);
+          collectionStatus = "Ready";
+        } else {
+          console.log("else", collection.id);
         }
         return {
           collectionId: collection.id,
@@ -696,17 +701,17 @@ All Rights Reserved
 
 <div class="flex dark:bg-primary-dark">
   <div class="w-full pb-10">
-    <div class="flex flex-col m-4 pt-2">
+    <div class="flex flex-col m-4">
       <!-- <Navbar /> -->
 
-      <div class="flex flex-col gap-8">
+      <div class="flex flex-col md:gap-8">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={$_("collectionList")} />
-          <Button on:click={() => (addCollectionsModal = true)} icon={PlusIcon}
-            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
-            {$_("addNew")}</Button
-          >
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("collectionList")} propClass="fluid-xl" />
+          <Button on:click={() => (addCollectionsModal = true)} class="">
+            <img class="w-4 h-4 md:me-1" src={PlusIcon} alt="plus-icon" />
+            <div class="hidden md:block">{$_("addNew")}</div>
+          </Button>
         </div>
 
         <!-- Bots List Data -->
@@ -759,7 +764,7 @@ All Rights Reserved
                 />
               {/each}
             </div>
-            <div class="flex justify-between">
+            <div class="flex-col md:flex justify-between">
               <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
                 {$_("showing")}
                 <span
@@ -778,7 +783,7 @@ All Rights Reserved
                 {$_("entries")}
               </div>
 
-              <div class="m-4">
+              <div class="m-4 flex justify-end">
                 <Pagination
                   on:next={nextPage}
                   on:previous={previousPage}

@@ -549,5 +549,6 @@
   "overlayColor": "Overlay Color",
   "backgroundAlign": "Background Align",
   "files": "Files",
-  "chooseCollection": "Choose Collection"
+  "chooseCollection": "Choose Collection",
+  "noDocumnetAvailable": "No document available"
 }

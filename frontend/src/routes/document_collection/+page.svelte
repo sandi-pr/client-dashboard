@@ -507,7 +507,7 @@ All Rights Reserved
 
         // Hitung jumlah dokumen dengan status angka
         const numberDocuments = filteredDocuments.filter(
-          (document) => typeof document.attributes.status === "number",
+          (document) => document.attributes.status?.includes("Reading"),
         ).length;
 
         // Hitung total dokumen yang Ready
@@ -518,11 +518,16 @@ All Rights Reserved
         // Tentukan status koleksi berdasarkan kondisi yang diberikan
         let collectionStatus;
         if (nullDocuments === totalDocuments) {
+          console.log("null", collection.id);
           collectionStatus = null;
         } else if (nullDocuments > 0 || numberDocuments > 0) {
-          collectionStatus = "reading";
-        } else if (numberDocuments === totalDocuments && readyDocuments === totalDocuments) {
-          collectionStatus = "ready";
+          console.log("read", collection.id);
+          collectionStatus = "Reading";
+        } else if (readyDocuments === totalDocuments) {
+          console.log("ready", collection.id);
+          collectionStatus = "Ready";
+        } else {
+          console.log("else", collection.id);
         }
         return {
           collectionId: collection.id,
@@ -535,6 +540,8 @@ All Rights Reserved
           webchat: collection.attributes.webchat_tmp === true ? true : false,
         };
       });
+
+      console.log("cek status", latestDocumentCollection);
 
       gettingDatas = false;
     }
@@ -926,9 +933,9 @@ All Rights Reserved
 </script>
 
 <div class="flex dark:bg-primary-dark">
-  <div class="flex flex-col w-full pb-10 m-4 gap-8">
+  <div class="flex flex-col w-full pb-10 m-4 gap-3 md:gap-8">
     <!-- User Information -->
-    <Typography preset="Display sm/Semibold" text={$_("documentCollectionOverview")} />
+    <Typography preset="Display sm/Semibold" text={$_("documentCollectionOverview")} propClass="fluid-xl" />
 
     <!-- Action Items -->
     <div class="flex flex-col gap-4">
@@ -944,7 +951,7 @@ All Rights Reserved
 
     <div class="flex flex-col gap-4">
       <div
-        class="flex justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
+        class="flex items-center justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
       >
         <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")} />
         <div></div>

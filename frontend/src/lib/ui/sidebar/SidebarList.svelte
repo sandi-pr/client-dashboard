@@ -11,7 +11,7 @@
 
 <script>
   import { page } from "$app/stores";
-  import { LogoBrand, SidebarNavItem, Typography, getIcons } from "$lib";
+  import { LogoBrand, SidebarNavItem, Typography, getIcons, LanguageSelector } from "$lib";
   import { goto } from "$app/navigation";
   import { CR3Call } from "hexacomponents-svelte";
   import {
@@ -23,6 +23,7 @@
     SidebarWrapper,
     SidebarDropdownWrapper,
     SidebarDropdownItem,
+    DarkMode,
   } from "flowbite-svelte";
   import {
     CogOutline,
@@ -142,7 +143,7 @@
             brandName={brand !== "" ? brand : "Hexapod"}
             href="/"
             brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
-            imgClass="h-6 sm:h-8"
+            imgClass="h-8"
           />
           {#if !(innerWidth < 1024)}
             <button
@@ -160,7 +161,7 @@
             brandName={""}
             href="/"
             brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
-            imgClass="h-7 sm:h-8"
+            imgClass="h-8"
           />
           {#if !(innerWidth < 1024)}
             <button
@@ -177,7 +178,18 @@
         {/if}
       </div>
       {#if !$sidebarLargeClosed}
-        <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark mb-6" />
+        <div class="md:hidden flex gap-2 pb-1">
+          <div class="grow w-full">
+            <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark !py-2" />
+          </div>
+          <DarkMode
+            btnClass="text-gray-500 h-max dark:text-gray-400 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600 focus-within:ring-4 focus-within:outline-none focus-within:ring-gray-200 dark:focus-within:ring-gray-700"
+          />
+          <LanguageSelector isMobileScreen />
+        </div>
+        <div class="hidden md:flex">
+          <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark mb-6" />
+        </div>
         {#each sidebarItems as item}
           {#if item.children.length > 0}
             <SidebarDropdownWrapper

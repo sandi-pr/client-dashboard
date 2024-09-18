@@ -550,5 +550,6 @@
   "overlayColor": "Warna Overlay",
   "backgroundAlign": "Perataan Background",
   "files": "File",
-  "chooseCollection": "Pilih Koleksi"
+  "chooseCollection": "Pilih Koleksi",
+  "noDocumnetAvailable": "Tidak ada dokumen"
 }

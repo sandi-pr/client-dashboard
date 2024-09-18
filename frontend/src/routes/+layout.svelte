@@ -53,7 +53,7 @@ All Rights Reserved
   let ready = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://localhost")
+    ? new CR3Call("https://tank.hexacode.ai")
     : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
@@ -628,7 +628,7 @@ All Rights Reserved
         />
       </div>
       <div
-        class={`w-full h-screen pt-20 lg:pt-0 flex border-l border-secondary-light dark:border-secondary-dark ${!$sidebarLargeClosed ? "lg:pl-80" : "lg:pl-20"} transition-all duration-300 ease-in-out`}
+        class={`w-full h-screen pt-16 md:pt-20 lg:pt-0 flex border-l border-secondary-light dark:border-secondary-dark ${!$sidebarLargeClosed ? "lg:pl-80" : "lg:pl-20"} transition-all duration-300 ease-in-out`}
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">
@@ -646,7 +646,7 @@ All Rights Reserved
                   />
                 </div>
               {/if}
-              <div class={`h-screen ${!hideNav ? "pt-20" : ""}`}>
+              <div class={`h-screen ${!hideNav ? "pt-12 md:pt-20 pb-12 lg:pb-0" : ""}`}>
                 {#if hideScroll()}
                   <div class="h-full overflow-y-auto">
                     <slot />

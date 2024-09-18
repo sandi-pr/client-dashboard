@@ -26,7 +26,7 @@
           />
         </div>
         <Typography preset="Text xl/Semibold" text={value} />
-        <TextButton {href} text={$_("seeAll")} />
+        <!-- <TextButton {href} text={$_("seeAll")} /> -->
       </div>
       <div class="col-span-6 sm:col-span-5 md:col-span-7">
         {#each chartList as chart, i}
