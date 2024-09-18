@@ -654,6 +654,80 @@ func GetDocumentsByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config
 		},
 	}, false)
 
+	list, ok := documents.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) == 0 {
+		return 200, documents, nil
+	}
+
+	page2 := 1
+
+	var allDoc U.List
+
+	for {
+		status, documents2, err := Strapi.Find("document-management-table", U.Dict{
+			"filters": U.Dict{
+				"collection_id": U.Dict{
+					"$eq": id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page2,
+				"pageSize": 25,
+			},
+			"sort": "id:desc",
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := documents2.GetList("data")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) == 0 {
+			break
+		}
+
+		allDoc = append(allDoc, list...)
+
+		page2++
+	}
+
+	status_rag := "Ready"
+
+	for i := 0; i < len(allDoc); i++ {
+		attributes, ok := allDoc[i].(U.Dict).GetDict("attributes")
+		if ok {
+			status, ok := attributes.GetString("status")
+			if ok {
+				if status == "Reading" {
+					status_rag = "Reading"
+				}
+			} else {
+				status_rag = ""
+				break
+			}
+		}
+	}
+
+	if status_rag != "" {
+		documents["status_rag"] = status_rag
+	}
+
 	return 200, documents, nil
 }
 
