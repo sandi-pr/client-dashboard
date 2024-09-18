@@ -525,24 +525,24 @@ All Rights Reserved
 <div class="flex dark:bg-hc-graydark-950">
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
-      <div class="flex items-center justify-between pb-8">
+      <div class="flex items-center justify-between">
         <div class="flex flex-col grow">
           <!-- Header -->
           <div class="gap-2">
             <Heading
               tag="h3"
-              class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
+              class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
               >{data.document_title}<Button
                 outline
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <!-- <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" /> -->
               </Button></Heading
             >
           </div>
           <P
-            class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
+            class="fluid-sm md:fluid-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
             >
             {#if fileReady}
               {#if $locale === "id"}
@@ -579,7 +579,7 @@ All Rights Reserved
                 return;
               }}
               color="light"
-              class="px-3 focus-within:!ring-1">{$_("back")}</Button
+              class="hidden md:block px-3 focus-within:!ring-1">{$_("back")}</Button
             >
             <Button
               onclick={() => (popupModal = true)}
@@ -603,17 +603,17 @@ All Rights Reserved
       <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
 
       <!-- Content -->
-      <div class="flex flex-col gap-4 pt-6">
+      <div class="flex flex-col gap-4 pt-4 md:pt-6 md:gap-6">
         {#if fileReady}
           <!-- general information -->
-          <div class="flex gap-6">
+          <div class="flex flex-col md:flex-row gap-3 md:gap-6">
             <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("generalInformation")}
               </P>
             </div>
             <div
-              class="flex flex-col grow gap-6 rounded-lg"
+              class="flex flex-col grow gap-3 md:gap-6 rounded-lg"
             >
               <div class="flex flex-col gap-1.5">
                 <Typography
@@ -635,7 +635,7 @@ All Rights Reserved
           </div>
           <Divider />
           {#if data.document_type === "Handwriting"}
-            <div class="flex gap-6">
+            <div class="flex flex-col md:flex-row gap-4 md:gap-6">
               <div class="w-60">
                 <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                   {$_("handwritingInformation")}
@@ -668,7 +668,7 @@ All Rights Reserved
                   {/if}
                 </div> -->
               </div>
-              <div class="flex flex-col grow gap-6">
+              <div class="flex flex-col grow gap-4 md:gap-6">
                 <div class="grid grid-cols-1">
                   <div class="flex flex-col gap-2">
                     <P
@@ -695,14 +695,14 @@ All Rights Reserved
             </div>
             <Divider />
           {/if}
-          <div class="flex gap-6">
+          <div class="flex flex-col md:flex-row gap-6">
             <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("viewer")}
               </P>
             </div>
             <div
-              class="flex flex-col relative items-center grow py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+              class="flex flex-col relative items-center grow py-4 md:py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark"
             >
               {#if data.ext === ".pdf"}
                 {#if pdfReady}

@@ -670,7 +670,7 @@ All Rights Reserved
 
 <div class="flex dark:bg-primary-dark">
   <div class="w-full pb-10">
-    <div class="flex flex-col m-4 pt-2">
+    <div class="flex flex-col m-4">
       <!-- <Navbar /> -->
 
       <div class="flex flex-col">

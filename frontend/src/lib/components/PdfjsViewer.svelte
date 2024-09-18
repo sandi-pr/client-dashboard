@@ -15,6 +15,7 @@
 	
   import RefreshCwIcon from "$lib/icon/refresh-cw-01.svelte";
   import RefreshCcwIcon from "$lib/icon/refresh-ccw-01.svelte";
+	import { onMount } from "svelte";
 
 	export let pdfFile;
 
@@ -25,6 +26,7 @@
 	let target_height = 500;
 	let sizing = 1;
 	let rotation = 0;
+	let isMobile = false;
 
 	const handleLoadSuccess = (e) => {
 		max_pages = e.detail.numPages;
@@ -81,6 +83,22 @@
     return blob;
   }
 
+	const updateIsMobile = () => {
+    isMobile = window.innerWidth <= 768; // Assume mobile screen is less than or equal to 768px
+		if (isMobile) {
+			scale = 0.5;
+		}
+  };
+
+  onMount(() => {
+    updateIsMobile();
+    window.addEventListener('resize', updateIsMobile);
+
+    return () => {
+      window.removeEventListener('resize', updateIsMobile);
+    };
+  });
+
 </script>
 
 {#if browser}
@@ -97,7 +115,7 @@
 		</Document>
 	</div>
 
-	<div class="max-w-max">
+	<div class="w-full md:max-w-max">
 		<section class="flex items-center justify-between mb-2">
 			<button
 				on:click={prevPage}
@@ -106,7 +124,7 @@
 			>
 				<ArrowLeftOutline class="w-6 h-6" />
 			</button>
-			<span class="font-semibold text-primary-light dark:text-primary-dark text-xl">
+			<span class="font-semibold text-primary-light dark:text-primary-dark fluid-base">
 				Page {num} of {max_pages}
 			</span>
 			<button
@@ -118,31 +136,33 @@
 			</button>
 		</section>
 
-		<section class="flex items-center justify-between gap-6">
-			<div class="flex items-center gap-4">
-				<label for="zoom" class="font-semibold text-primary-light dark:text-primary-dark">Scale:</label>
-				<Range id="range-steps" min="1" max="1.5" bind:value={scale} step="0.1" />
-				<span class="font-mono text-primary-light dark:text-primary-dark">{scale.toFixed(1)}x</span>
-			</div>
-			<div class="flex items-center gap-3">
-				<button
-					on:click={rotateCounterClockwise}
-					class="bg-primary-light dark:bg-gray-800 text-primary-light dark:text-primary-dark p-2 rounded-lg shadow-md focus:outline-none"
-				>
-					<RefreshCcwIcon
+		{#if !isMobile}
+			<section class="flex items-center justify-between gap-6">
+				<div class="flex items-center gap-4">
+					<label for="zoom" class="font-semibold text-primary-light dark:text-primary-dark">Scale:</label>
+					<Range id="range-steps" min="1" max="1.5" bind:value={scale} step="0.1" />
+					<span class="font-mono text-primary-light dark:text-primary-dark">{scale.toFixed(1)}x</span>
+				</div>
+				<div class="flex items-center gap-3">
+					<button
+						on:click={rotateCounterClockwise}
+						class="bg-primary-light dark:bg-gray-800 text-primary-light dark:text-primary-dark p-2 rounded-lg shadow-md focus:outline-none"
+					>
+						<RefreshCcwIcon
+							svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark"
+						/>
+					</button>
+					<button
+						on:click={rotateClockwise}
+						class="bg-primary-light dark:bg-gray-800 text-primary-light dark:text-primary-dark p-2 rounded-lg shadow-md focus:outline-none"
+					>
+					<RefreshCwIcon
 						svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark"
 					/>
-				</button>
-				<button
-					on:click={rotateClockwise}
-					class="bg-primary-light dark:bg-gray-800 text-primary-light dark:text-primary-dark p-2 rounded-lg shadow-md focus:outline-none"
-				>
-				<RefreshCwIcon
-					svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark"
-				/>
-				</button>
-			</div>
-		</section>
+					</button>
+				</div>
+			</section>
+		{/if}
 	</div>
 </div>
 {/if}

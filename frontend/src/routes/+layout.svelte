@@ -596,7 +596,7 @@ All Rights Reserved
                   />
                 </div>
               {/if}
-              <div class={`h-screen ${!hideNav ? "pt-12 md:pt-20 pb-12 lg:pb-0" : ""}`}>
+              <div class={`h-screen ${!hideNav ? "pt-12 lg:pt-20 pb-12 lg:pb-0" : ""}`}>
                 {#if hideScroll()}
                   <div class="h-full overflow-y-auto">
                     <slot />
