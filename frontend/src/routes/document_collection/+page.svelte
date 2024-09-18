@@ -518,8 +518,13 @@ All Rights Reserved
         // Tentukan status koleksi berdasarkan kondisi yang diberikan
         let collectionStatus;
         if (nullDocuments === totalDocuments) {
-          console.log("null", collection.id);
-          collectionStatus = null;
+          if (totalDocuments === 0) {
+            console.log("empty", collection.id);
+            collectionStatus = "Empty";
+          } else {
+            console.log("null", collection.id);
+            collectionStatus = null;
+          }
         } else if (nullDocuments > 0 || numberDocuments > 0) {
           console.log("read", collection.id);
           collectionStatus = "Reading";

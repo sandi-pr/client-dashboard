@@ -29,6 +29,9 @@ All Rights Reserved
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import upload from "$lib/icon/upload-cloud-02.svg";
+  import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
+  import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
+  
   import {
     triggerSelectCollection,
     triggerShowAI,
@@ -84,11 +87,7 @@ All Rights Reserved
   let deleteModal = $state(false);
   let dropdownOpen = $state(false);
   let page = $state(1);
-  let pagination = $state({
-    total: 0,
-    page: 0,
-    pageSize: 0,
-  });
+  let pagination = $state({});
 
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
 
@@ -244,17 +243,19 @@ All Rights Reserved
 
         // Tentukan status koleksi berdasarkan kondisi yang diberikan
         let collectionStatus;
-        if (nullDocuments === totalDocuments) {
+
+        if (totalDocuments === 0) {
+          console.log("empty", collection.id);
+          collectionStatus = "Empty";
+        } else if (nullDocuments > 0) {
           console.log("null", collection.id);
           collectionStatus = null;
-        } else if (nullDocuments > 0 || numberDocuments > 0) {
+        } else if (numberDocuments === totalDocuments && totalDocuments > 0) {
           console.log("read", collection.id);
           collectionStatus = "Reading";
-        } else if (readyDocuments === totalDocuments) {
+        } else if (readyDocuments === totalDocuments && totalDocuments > 0) {
           console.log("ready", collection.id);
           collectionStatus = "Ready";
-        } else {
-          console.log("else", collection.id);
         }
         return {
           collectionId: collection.id,
@@ -704,11 +705,11 @@ All Rights Reserved
     <div class="flex flex-col m-4">
       <!-- <Navbar /> -->
 
-      <div class="flex flex-col md:gap-8">
+      <div class="flex flex-col gap-3 md:gap-8">
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text={$_("collectionList")} propClass="fluid-xl" />
-          <Button on:click={() => (addCollectionsModal = true)} class="">
+          <Button on:click={() => (addCollectionsModal = true)} class="p-2 md:px-3 md:py-2">
             <img class="w-4 h-4 md:me-1" src={PlusIcon} alt="plus-icon" />
             <div class="hidden md:block">{$_("addNew")}</div>
           </Button>
@@ -722,49 +723,109 @@ All Rights Reserved
             bind:value={searchTerm}
           /> -->
           {#if datas.length > 0}
-            <div
-              class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
-            >
-              {#each datas as document}
-                <CollectionCard
-                  collectionName={document.collectionName}
-                  totalDocuments={document.totalDocuments}
-                  status={document.status}
-                  webchat={document.webchat}
-                  functButton={() => {
-                    selectCollection({
-                      id: document.collectionId,
-                      name: document.collectionName,
-                      description: document.description,
-                      totalDocuments: document.totalDocuments,
-                    });
-                  }}
-                  functAddDocuments={() => {
-                    tmpCollectionId = document.collectionId;
-                    selectTypeCollection("Documents");
-                    addDocumentsModal = true;
-                  }}
-                  functEdit={() => {
-                    tmpCollectionId = document.collectionId;
-                    tmpCollectionName = document.collectionName;
-                    tmpDescription = document.description;
-                    editModal = true;
-                  }}
-                  functDelete={() => {
-                    tmpCollectionId = document.collectionId;
-                    deleteModal = true;
-                  }}
-                  funcSelectCollectionWebchat={() => {
-                    tmpCollectionId = document.collectionId;
-                    UpdateCollectionWebchat();
-                  }}
-                  funcDetailCollection={() => {
-                    goto(document.href);
-                  }}
-                />
-              {/each}
-            </div>
-            <div class="flex-col md:flex justify-between">
+            {#if !gettingDatas}
+              <div
+                class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
+              >
+                {#each datas as document}
+                  <CollectionCard
+                    collectionName={document.collectionName}
+                    totalDocuments={document.totalDocuments}
+                    status={document.status}
+                    webchat={document.webchat}
+                    functButton={() => {
+                      selectCollection({
+                        id: document.collectionId,
+                        name: document.collectionName,
+                        description: document.description,
+                        totalDocuments: document.totalDocuments,
+                      });
+                    }}
+                    functAddDocuments={() => {
+                      tmpCollectionId = document.collectionId;
+                      selectTypeCollection("Documents");
+                      addDocumentsModal = true;
+                    }}
+                    functEdit={() => {
+                      tmpCollectionId = document.collectionId;
+                      tmpCollectionName = document.collectionName;
+                      tmpDescription = document.description;
+                      editModal = true;
+                    }}
+                    functDelete={() => {
+                      tmpCollectionId = document.collectionId;
+                      deleteModal = true;
+                    }}
+                    funcSelectCollectionWebchat={() => {
+                      tmpCollectionId = document.collectionId;
+                      UpdateCollectionWebchat();
+                    }}
+                    funcDetailCollection={() => {
+                      goto(document.href);
+                    }}
+                  />
+                {/each}
+              </div>
+            {:else}
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            {/if}
+            {#if !gettingDatas}
+              <div class="flex justify-between">
+                <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+                  {$_("showing")}
+                  <span
+                    >{pagination.page === 1
+                      ? 1
+                      : (pagination.page - 1) * pagination.pageSize + 1}</span
+                  >
+                  -
+                  <!-- {$_("to")} -->
+                  <span
+                    >{pagination.page * pagination.pageSize >= pagination.total
+                      ? pagination.total
+                      : pagination.page * pagination.pageSize}</span
+                  >
+                  {$_("of")}
+                  <span>{pagination.total}</span>
+                  <!-- {$_("entries")} -->
+                </div>
+                
+                {#if pagination.total > pagination.pageSize}
+                  <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+                    {$_("page")}
+                    <span>{pagination.page}</span>
+                    {$_("of")}
+                    <span>{pagination.pageCount}</span>
+                  </div>
+                {/if}
+              </div>
+              {#if pagination.total > pagination.pageSize}
+                <div class="flex justify-end">
+                  <Button 
+                    disabled={pagination.page === 1}
+                    on:click={previousPage} 
+                    color="light" 
+                    class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
+                  >
+                    <ArrowLeftIcon svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5" />
+                    {$_("previous")}
+                  </Button>
+                  <Button 
+                    disabled={pagination.page * pagination.pageSize >= pagination.total}
+                    on:click={nextPage} 
+                    color="light" 
+                    class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
+                  >
+                    {$_("next")}
+                    <ArrowRightIcon svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5" />
+                  </Button>
+                </div>
+              {/if}
+            {/if}
+            <!-- <div class="flex-col md:flex justify-between">
               <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
                 {$_("showing")}
                 <span
@@ -783,17 +844,19 @@ All Rights Reserved
                 {$_("entries")}
               </div>
 
-              <div class="m-4 flex justify-end">
-                <Pagination
-                  on:next={nextPage}
-                  on:previous={previousPage}
-                  activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
-                >
-                  <span slot="prev">{$_("previous")}</span>
-                  <span slot="next">{$_("next")}</span>
-                </Pagination>
-              </div>
-            </div>
+              {#if pagination.total > pagination.pageSize}
+                <div class="m-4 flex justify-end">
+                  <Pagination
+                    on:next={nextPage}
+                    on:previous={previousPage}
+                    activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
+                  >
+                    <span slot="prev">{$_("previous")}</span>
+                    <span slot="next">{$_("next")}</span>
+                  </Pagination>
+                </div>
+              {/if}
+            </div> -->
           {:else if gettingDatas}
             <StateCard
               illustration={IllustrationProgress}

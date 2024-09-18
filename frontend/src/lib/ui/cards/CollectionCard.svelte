@@ -6,6 +6,7 @@
   import Stars03Icon from "$lib/icon/stars-03.svelte";
   import MessageChatCircle from "$lib/icon/message-chat-circle.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
+  import PlusIcon from "$lib/icon/plus.svelte";
 
   let {
     collectionName,
@@ -26,8 +27,10 @@
       return "ready";
     } else if (status === "Reading") {
       return "aiIsReading";
-    } else {
+    } else if (status === "Empty") {
       return "noDocumnetAvailable";
+    } else {
+      return "collectingData";
     }
   };
 
@@ -36,6 +39,8 @@
       return "askAI";
     } else if (status === "Reading") {
       return "reading";
+    } else if (status === "Empty") {
+      return "addDocuments";
     } else {
       return "startReading";
     }
@@ -44,6 +49,8 @@
   const getIconButton = (status) => {
     if (status === "Ready") {
       return MessageChatCircle;
+    } else if (status === "Empty") {
+      return PlusIcon;
     } else {
       return Stars03Icon;
     }
@@ -111,12 +118,12 @@
     class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-2 md:pb-6 pt-2"
   >
     <div class="relative">
-      <FileTypeIcon svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark" />
+      <FileTypeIcon svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark w-16 h-16 md:w-20 md:h-20" />
       {#if totalDocuments > 0}
         <Indicator
           border
           placement="center-right"
-          class="!w-8 !h-8 text-white bg-utility-brand-600-light dark:bg-utility-brand-600-dark text-xs font-semibold p-4">+{totalDocuments}</Indicator
+          class="!w-6 !h-6 !md:w-8 !md:h-8 text-white bg-utility-brand-600-light dark:bg-utility-brand-600-dark fluid-xs font-semibold p-2 md:p-4">+{totalDocuments}</Indicator
         >
       {/if}
     </div>
@@ -127,16 +134,16 @@
   </Card>
   <div class="flex justify-center border-t border-secondary-light dark:border-secondary-dark">
     <Button
-      disabled={status === undefined || status === null || status === "Reading" || status === "null"}
+      disabled={status === "Reading"}
       on:click={() => {
         functButton();
       }}
       color="light"
-      class="flex w-full gap-1 md:gap-1.5 border-none fluid-xs md:fluid-sm"
+      class="flex w-full px-2 py-2 md:px-4 md:py-2.5 gap-1 md:gap-1.5 border-none fluid-xs md:fluid-sm"
     >
       <svelte:component
         this={getIconButton(status)}
-        svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+        svgClass="w-4 h-4 md:w-5 md:h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
       />
       {$_(getTextButton(status))}
     </Button>

@@ -330,47 +330,25 @@ All Rights Reserved
   };
 
   async function CheckSetup() {
-    if (isFrontend) {
-      var token = sessionStorage.getItem("token");
-      window.devLogin = async (email, password) => {
-        var resp = await call.call("client-login", "login", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            email: email,
-            password: password,
-          },
-          Headers: {},
-        });
-
-        console.log(resp);
-        if (resp.status === 200) {
-          token = resp.result.token;
-          sessionStorage.setItem("token", token);
-
-          resp = await call.call("client-login", "is-token-valid", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              token: token,
-            },
-            Headers: {},
-          });
-
-          if (resp.status === 200) {
-            if (resp.result.confirmed === true && resp.result.blocked === false) {
-              sessionStorage.setItem("user", JSON.stringify(resp.result));
-              userData = resp.result;
-              authority = resp.result.authority;
-            }
-          }
-
-          window.location.reload();
+    try {
+      var resp_setup = await call.call("client-login", "is-need-setup", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {},
+      });
+      console.log(resp_setup);
+      if (resp_setup.status === 200) {
+        if (resp_setup.result.is_need_setup === true) {
+          if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
+          if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
+          await call.goToPage("hexapod-setup", "home-page");
+          return;
         }
-      };
-
+      }
+      let token = sessionStorage.getItem("token");
       if (token !== null) {
-        var resp = await call.call("client-login", "is-token-valid", {
+        let resp = await call.call("client-login", "is-token-valid", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -381,60 +359,32 @@ All Rights Reserved
 
         if (resp.status === 200) {
           if (resp.result.confirmed === true && resp.result.blocked === false) {
+            console.log("is token valid");
+            if (resp.result.authority === "User") {
+              globalThis.location.href = await call.getPage("lajnah", "home-page");
+              return;
+            }
             sessionStorage.setItem("user", JSON.stringify(resp.result));
             userData = resp.result;
             authority = resp.result.authority;
           }
-        }
-      }
-    } else {
-      try {
-        var resp_setup = await call.call("client-login", "is-need-setup", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {},
-          Headers: {},
-        });
-        console.log(resp_setup);
-        if (resp_setup.status === 200) {
-          if (resp_setup.result.is_need_setup === true) {
-            if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
-            if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
-            await call.goToPage("hexapod-setup", "home-page");
+        } else if (resp.status === 401) {
+          console.log("is token invalid");
+            localStorage.setItem("redirect", globalThis.location.href);
+            goto(await call.getPage("client-login", "home-page"));
             return;
           }
-        }
-        let token = sessionStorage.getItem("token");
-        if (token !== null) {
-          let resp = await call.call("client-login", "is-token-valid", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              token: token,
-            },
-            Headers: {},
-          });
-
-          if (resp.status === 200) {
-            if (resp.result.confirmed === true && resp.result.blocked === false) {
-              if (resp.result.authority === "User") {
-                globalThis.location.href = await call.getPage("lajnah", "home-page");
-                return;
-              }
-              sessionStorage.setItem("user", JSON.stringify(resp.result));
-              userData = resp.result;
-              authority = resp.result.authority;
-            }
+          else {
+            console.log("unhandled response");
           }
-        } else {
-          localStorage.setItem("redirect", globalThis.location.href);
-          goto(await call.getPage("client-login", "home-page"));
-          return;
-        }
-      } catch (error) {
-        // console.log(error);
-        userData = { username: "Hexa Staff", email: "hexacode@hexacode.org" };
+      } else {
+        localStorage.setItem("redirect", globalThis.location.href);
+        goto(await call.getPage("client-login", "home-page"));
+        return;
       }
+    } catch (error) {
+      // console.log(error);
+      userData = { username: "Hexa Staff", email: "hexacode@hexacode.org" };
     }
   }
 
@@ -590,7 +540,7 @@ All Rights Reserved
   let winInnerWidth = $derived(innerWidth);
   if (typeof localStorage !== "undefined") {
     triggerShowAI(localStorage.getItem("showAI") === "true" ? true : false);
-    toggleSidebarLargeClosed(localStorage.getItem("sidebarLargeClosed") === "true" ? true : false);
+    toggleSidebarLargeClosed(localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024 ? true : false);
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
         localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",

@@ -284,7 +284,7 @@
                 />
               </Button>
             </div>
-            <SidebarDropdownWrapper
+            <!-- <SidebarDropdownWrapper
               spanClass="flex-1 ms-0 text-left whitespace-nowrap"
               label={$_("manage")}
             >
@@ -293,7 +293,7 @@
               </svelte:fragment>
               <SidebarDropdownItem href={hrefUser} class="!ps-14" label={$_("users")} />
               <SidebarDropdownItem href={hrefJobLevels} class="!ps-14" label={$_("job")} />
-            </SidebarDropdownWrapper>
+            </SidebarDropdownWrapper> -->
             <button
               onclick={async () => {
                 if (!isFrontend) goto(await $call.getPage("client-dashboard", "settings"));

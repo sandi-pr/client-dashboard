@@ -25,6 +25,7 @@ All Rights Reserved
   import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
   import MessageChatCircle from "$lib/icon/message-chat-circle.svelte";
+  import Stars03Icon from "$lib/icon/stars-03.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { goto } from "$app/navigation";
   import {
@@ -47,6 +48,8 @@ All Rights Reserved
   let datas = $state([]);
 
   let status = $state(null);
+
+  let statusRag = $state(null);
 
   let gettingDatas = $state(true);
 
@@ -99,6 +102,7 @@ All Rights Reserved
   async function getDocuments() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
+      gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
         URLQuery: {},
         URLParams: {},
@@ -154,7 +158,12 @@ All Rights Reserved
       //   },
       // };
 
+      if (response.result?.status_rag) {
+        statusRag = response.result.status_rag;
+      }
+
       if (response.result.data.length > 0) {
+        pagination = response.result.meta.pagination;
         configs = {
           search: true,
           searchHandler: handleSearch,
@@ -196,7 +205,7 @@ All Rights Reserved
               size:
                 document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
             },
-            status: document.attributes.status,
+            status: document.attributes.status === null ? " " : document.attributes.status,
             type: {
               name: document.attributes.document_type,
               type: "pill",
@@ -270,6 +279,7 @@ All Rights Reserved
           ],
         };
       }
+      gettingDatas = false;
     }
   }
 
@@ -701,7 +711,7 @@ All Rights Reserved
                 >
               {/if} -->
               <Button
-                disabled={datas.length === 0}
+                disabled={datas.length === 0 || statusRag === "Reading"}
                 onclick={() => {
                   selectCollection({
                     id: collectionId,
@@ -710,9 +720,22 @@ All Rights Reserved
                     totalDocuments: datas.length,
                   });
                 }}
+                class="gap-2"
               >
-                <MessageChatCircle svgClass="text-white w-5 h-5" />
-                <div class="hidden lg:block">{$_("startReading")}</div>
+                {#if statusRag === "Ready"}
+                  <MessageChatCircle svgClass="text-white w-5 h-5" />
+                {:else}
+                  <Stars03Icon svgClass="text-white w-5 h-5" />
+                {/if}
+                <div class="hidden lg:block">
+                  {#if statusRag === null}
+                    {$_("startReading")}
+                  {:else if statusRag === "Reading"}
+                    {$_("reading")}
+                  {:else if statusRag === "Ready"}
+                    {$_("askToAI")}
+                  {/if}
+                </div>
               </Button>
             </div>
           </div>
@@ -725,15 +748,23 @@ All Rights Reserved
         {#if tabDatas.selected === "Documents"}
           <!-- Person Table Data -->
           {#if datas.length > 0 || searchTerm !== ""}
-            <DataTableListCollection
-              bind:datas
-              bind:datasChecked
-              bind:configs
-              bind:next
-              bind:previous
-              bind:handleCheckAll
-              bind:handleCheck
-            />
+            {#if !gettingDatas}
+              <DataTableListCollection
+                bind:datas
+                bind:datasChecked
+                bind:configs
+                bind:gettingDatas
+                bind:next
+                bind:previous
+                bind:handleCheckAll
+                bind:handleCheck
+              />
+            {:else}
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            {/if}
           {:else if gettingDatas}
             <StateCard
               illustration={IllustrationProgress}
@@ -748,15 +779,15 @@ All Rights Reserved
             />
           {/if}
         {:else if tabDatas.selected === "Information"}
-          <div class="flex flex-col gap-4 pt-6">
+          <div class="flex flex-col gap-4 pt-4 md:pt-6">
             <!-- general information -->
-            <div class="flex gap-6">
+            <div class="flex flex-col md:flex-row gap-3 md:gap-6">
               <div class="w-60">
                 <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                   {$_("generalInformation")}
                 </P>
               </div>
-              <div class="flex flex-col grow gap-6">
+              <div class="flex flex-col grow gap-2 md:gap-6">
                 <div class="flex gap-5">
                   <div class="flex flex-col grow gap-2">
                     <P

@@ -40,10 +40,13 @@
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
+  import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
   // import { toCamelCase } from "../utils/toCamelCase.js";
 
   export let datas;
   export let datasChecked;
+  export let gettingDatas;
   export let configs;
   export let next = () => {};
   export let previous = () => {};
@@ -173,7 +176,7 @@
             onclick={action.onclick}
             color="light"
             disabled={action?.disabled}
-            class={`${classActionType(action.type)} min-w-max px-2 py-3`}
+            class={`${classActionType(action.type)} min-w-max p-2 md:px-2 md:py-3`}
           >
             {#if action?.icon}
               {#if action.icon === "plus"}
@@ -227,7 +230,7 @@
             class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
           >
             {#if datasChecked}
-              <TableBodyCell class="!p-4">
+              <TableBodyCell class="!px-4">
                 <input
                   type="checkbox"
                   id={data.id}
@@ -268,20 +271,20 @@
                       </div>
                     </TableBodyCell>
                   {:else}
-                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                      <div class="flex gap-2">
+                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400 px-3 py-2 md:px-6 md:py-4 pe-8">
+                      <div class="flex gap-2 items-center">
                         {#if data[key]?.filename?.includes(".jpg") || data[key]?.filename?.includes(".JPG")}
-                          <img src={JPGSolidIcon} alt="" />
+                          <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
                         {:else if data[key]?.filename?.includes(".jpeg") || data[key]?.filename?.includes(".JPEG")}
-                          <img src={JPEGSolidIcon} alt="" />
+                          <img src={JPEGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
                         {:else if data[key]?.filename?.includes(".png") || data[key]?.filename?.includes(".PNG")}
-                          <img src={PNGSolidIcon} alt="" />
+                          <img src={PNGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
                         {:else if data[key]?.filename?.includes(".pdf") || data[key]?.filename?.includes(".PDF")}
-                          <img src={PDFSolidIcon} alt="" />
+                          <img src={PDFSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
                         {:else if data[key]?.filename?.includes(".doc") || data[key]?.filename?.includes(".DOC")}
-                          <img src={DOCSolidIcon} alt="" />
+                          <img src={DOCSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
                         {:else if data[key]?.filename?.includes(".docx") || data[key]?.filename?.includes(".DOCX")}
-                          <img src={DOCXSolidIcon} alt="" />
+                          <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
                         {/if}
                         <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG") || data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
                           <JpgIcon />
@@ -291,8 +294,8 @@
                           <PdfIcon />
                         {/if} -->
                         <!-- <JpgIcon /> -->
-                        <div class="flex flex-col">
-                          <P>{data[key].name}</P>
+                        <div class="flex flex-col min-w-40 md:min-w-64">
+                          <P class="line-clamp-2 fluid-sm">{data[key].name}</P>
                           <P size="sm" class="text-hc-graylight-500">{data[key].size}</P>
                         </div>
                       </div>
@@ -334,8 +337,8 @@
   </div>
 </div>
 
-{#if configs?.pagination && Object.keys(configs.pagination).length > 0}
-  <div class="flex-col md:flex justify-between">
+{#if configs?.pagination && Object.keys(configs.pagination).length > 0 && gettingDatas === false}
+  <div class="flex justify-between">
     <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
       {$_("showing")}
       <span
@@ -343,7 +346,8 @@
           ? 1
           : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
       >
-      {$_("to")}
+      -
+      <!-- {$_("to")} -->
       <span
         >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
           ? configs.pagination.total
@@ -351,24 +355,37 @@
       >
       {$_("of")}
       <span>{configs.pagination.total}</span>
-      {$_("entries")}
+      <!-- {$_("entries")} -->
     </div>
-
-    <div class="m-4 flex justify-end">
-      <Pagination
-        on:next={next}
-        on:previous={previous}
-        activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
+    {#if configs.pagination.total > configs.pagination.pageSize}
+      <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+        {$_("page")}
+        <span>{configs.pagination.page}</span>
+        {$_("of")}
+        <span>{configs.pagination.pageCount}</span>
+      </div>
+    {/if}
+  </div>
+  {#if configs.pagination.total > configs.pagination.pageSize}
+    <div class="flex justify-end">
+      <Button 
+        disabled={configs.pagination.page === 1}
+        on:click={previous} 
+        color="light" 
+        class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
       >
-        <span slot="prev">{$_("previous")}</span>
-        <span slot="next">{$_("next")}</span>
-      </Pagination>
+        <ArrowLeftIcon svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5" />
+        {$_("previous")}
+      </Button>
+      <Button 
+        disabled={configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total}
+        on:click={next} 
+        color="light" 
+        class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
+      >
+        {$_("next")}
+        <ArrowRightIcon svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5" />
+      </Button>
     </div>
-  </div>
-  <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-    {$_("page")}
-    <span>{configs.pagination.page}</span>
-    {$_("of")}
-    <span>{configs.pagination.pageCount}</span>
-  </div>
+  {/if}
 {/if}
