@@ -551,5 +551,7 @@
   "backgroundAlign": "Perataan Background",
   "files": "File",
   "chooseCollection": "Pilih Koleksi",
-  "noDocumnetAvailable": "Tidak ada dokumen"
+  "noDocumnetAvailable": "Tidak ada dokumen",
+  "additionalSettings": "Pengaturan Tambahan",
+  "requiresLogin": "Membutuhkan Login"
 }

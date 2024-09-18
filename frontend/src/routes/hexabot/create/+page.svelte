@@ -11,7 +11,7 @@
 -->
 
 <script>
-  import { P, Card, Input, Button, Checkbox, Textarea, Avatar, Modal } from "flowbite-svelte";
+  import { P, Card, Input, Button, Checkbox, Textarea, Avatar, Modal, Toggle } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
@@ -42,6 +42,7 @@
   let selectedplatforms = null;
   let selectedCollection = "";
   let additionalPrompt = "";
+  let needAuth = false;
   let modalOpen = false;
 
   let platforms = [];
@@ -363,8 +364,7 @@
             ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
             collection_id: selectedCollection,
             additional_prompt: additionalPrompt,
-            // dummy
-            need_auth: false,
+            need_auth: needAuth,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -502,6 +502,24 @@
       <div class="w-full md:w-3/4 flex flex-col gap-1.5">
         <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
         <TextareaRw bind:value={additionalPrompt} onEdit />
+      </div>
+    </div>
+    <Divider />
+    <div class="md:flex">
+      <Typography
+        preset="Text md/Semibold"
+        text={$_("additionalSettings")}
+        color="secondary"
+        propClass="w-full md:w-1/4"
+      />
+      <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="col-span-4">
+          <Toggle
+            checked={needAuth}
+            onclick={() => (needAuth = !needAuth)}
+            class="w-max">{$_("requiresLogin")}</Toggle
+          >
+        </div>
       </div>
     </div>
   </div>

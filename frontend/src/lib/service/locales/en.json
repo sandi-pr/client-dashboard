@@ -550,5 +550,7 @@
   "backgroundAlign": "Background Align",
   "files": "Files",
   "chooseCollection": "Choose Collection",
-  "noDocumnetAvailable": "No document available"
+  "noDocumnetAvailable": "No document available",
+  "additionalSettings": "Additional Settings",
+  "requiresLogin": "Requires Login"
 }

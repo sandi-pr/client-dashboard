@@ -988,6 +988,24 @@
           </div>
         </div>
         <Divider />
+        <div class="md:flex">
+          <Typography
+            preset="Text md/Semibold"
+            text={$_("additionalSettings")}
+            color="secondary"
+            propClass="w-full md:w-1/4"
+          />
+          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="col-span-4">
+              <Toggle
+                checked={users.needAuth}
+                onclick={() => (users.needAuth = !users.needAuth)}
+                class="w-max">{$_("requiresLogin")}</Toggle
+              >
+            </div>
+          </div>
+        </div>
+        <Divider />
         <div class="flex justify-end gap-3">
           <Button
             onclick={async () => {
