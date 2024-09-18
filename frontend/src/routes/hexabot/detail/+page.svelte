@@ -79,7 +79,7 @@
   let tmpOverlayColor = "";
 
   let tabDatas = {
-    selected: "Customization",
+    selected: "Information",
     data: [
       {
         name: "Information",

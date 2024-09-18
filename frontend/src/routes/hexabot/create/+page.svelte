@@ -11,7 +11,17 @@
 -->
 
 <script>
-  import { P, Card, Input, Button, Checkbox, Textarea, Avatar, Modal, Toggle } from "flowbite-svelte";
+  import {
+    P,
+    Card,
+    Input,
+    Button,
+    Checkbox,
+    Textarea,
+    Avatar,
+    Modal,
+    Toggle,
+  } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
@@ -514,10 +524,8 @@
       />
       <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="col-span-4">
-          <Toggle
-            checked={needAuth}
-            onclick={() => (needAuth = !needAuth)}
-            class="w-max">{$_("requiresLogin")}</Toggle
+          <Toggle checked={needAuth} onclick={() => (needAuth = !needAuth)} class="w-max"
+            >{$_("requiresLogin")}</Toggle
           >
         </div>
       </div>
