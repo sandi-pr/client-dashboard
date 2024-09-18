@@ -19,7 +19,7 @@
   import { ChevronDownOutline, DotsVerticalOutline } from "flowbite-svelte-icons";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { _ } from "svelte-i18n";
-  import  { goto } from "$app/navigation";
+  import { goto } from "$app/navigation";
   import {
     Typography,
     Badge,
@@ -566,6 +566,7 @@
           background_align:
             attributes.background_align !== null ? attributes.background_align : "center",
           embedCode: `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="${urlBot}"></iframe>`,
+          needAuth: attributes.need_auth,
         };
 
         if (attributes.background.data !== null) {
@@ -679,6 +680,7 @@
             user_profile: JSON.stringify(userFile),
             deployed_platform: users.deployedPlatform,
             username: users.username,
+            need_auth: users.needAuth,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -758,7 +760,11 @@
               <InputRw bind:value={users.botName} onEdit />
             </div>
             <div class="flex flex-col gap-1.5 col-span-4">
-              <Typography preset="Text sm/Medium" text={$_("descriptionOptional")} color="secondary" />
+              <Typography
+                preset="Text sm/Medium"
+                text={$_("descriptionOptional")}
+                color="secondary"
+              />
               <TextareaRw bind:value={users.description} onEdit />
             </div>
           </div>
@@ -788,9 +794,7 @@
             color="secondary"
             propClass="w-full md:w-1/4"
           />
-          <div
-            class="w-full md:w-3/4 flex flex-col gap-1.5"
-          >
+          <div class="w-full md:w-3/4 flex flex-col gap-1.5">
             <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
             <TextareaRw bind:value={users.additionalPrompts} onEdit />
           </div>
@@ -892,7 +896,11 @@
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="flex flex-col gap-1.5 col-span-2">
-              <Typography preset="Text sm/Medium" text={$_("primaryBrandColor")} color="secondary" />
+              <Typography
+                preset="Text sm/Medium"
+                text={$_("primaryBrandColor")}
+                color="secondary"
+              />
               <Button
                 on:click={() => {
                   tmpThemeColor = users.primaryBrandColor;
@@ -998,50 +1006,45 @@
         </div>
       </div>
     {:else if tabDatas.selected === "Data"}
-    <div class="md:flex">
-      <div class="w-full md:w-1/4 mt-6">
-        <Typography
-          preset="Text md/Semibold"
-          text={collection.name}
-          color="secondary"
-          propClass=""
-        />
-        <button 
-          onclick={async function () {
-            goto(
-              (await $call.getPage("client-dashboard", "document-collection-list-document")) +
-                `?collectionId=${collectionId}`,
-            );
-            return;
-          }} 
-          class="text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
-        >
-          {$_("goToDocumentCollection")}
-        </button>
+      <div class="md:flex">
+        <div class="w-full md:w-1/4 mt-6">
+          <Typography
+            preset="Text md/Semibold"
+            text={collection.name}
+            color="secondary"
+            propClass=""
+          />
+          <button
+            onclick={async function () {
+              goto(
+                (await $call.getPage("client-dashboard", "document-collection-list-document")) +
+                  `?collectionId=${collectionId}`,
+              );
+              return;
+            }}
+            class="text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
+          >
+            {$_("goToDocumentCollection")}
+          </button>
+        </div>
+        <div class="w-full md:w-3/4">
+          {#if datas.length > 0}
+            <DataTableListCollection bind:datas bind:configs bind:next bind:previous />
+          {:else if gettingDatas}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
+          {:else}
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+              actionText={$_("goToDocumentCollection")}
+              funcButton={() => {}}
+            />
+          {/if}
+        </div>
       </div>
-      <div class="w-full md:w-3/4">
-        {#if datas.length > 0}
-          <DataTableListCollection
-            bind:datas
-            bind:configs
-            bind:next
-            bind:previous
-          />
-        {:else if gettingDatas}
-          <StateCard
-            illustration={IllustrationProgress}
-            description={$_("fetchingDataPleaseWait")}
-          />
-        {:else}
-          <StateCard
-            illustration={IllustrationEmpty}
-            description={$_("youDontHaveAnyDataYet")}
-            actionText={$_("goToDocumentCollection")}
-            funcButton={() => {}}
-          />
-        {/if}
-      </div>
-    </div>
     {:else if tabDatas.selected === "Widget Embed"}
       <div class="mt-6 space-y-6">
         <div class="md:flex">

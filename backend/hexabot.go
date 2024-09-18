@@ -127,6 +127,11 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		additional_prompt = ""
 	}
 
+	need_auth, ok := ctx.Params.GetBool("need_auth")
+	if !ok {
+		need_auth = false
+	}
+
 	var data U.Dict
 
 	data = U.Dict{
@@ -139,6 +144,7 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"layout":           "Modern Minimalism",
 		"overlay_color":    "purple",
 		"username":         "User",
+		"need_auth":        need_auth,
 	}
 
 	if description != "" {
@@ -640,6 +646,12 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		return ctx.Error(400, "invalid parameters username")
 	}
 
+	need_auth, ok := ctx.Params.GetBool("need_auth")
+
+	if !ok {
+		need_auth = false
+	}
+
 	var background_id int64
 
 	if backgroundStr != "" {
@@ -715,6 +727,7 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"overlay_color":     overlay_color,
 		"deployed_platform": deployed_platform,
 		"username":          username,
+		"need_auth":         need_auth,
 	}
 
 	if backgroundStr != "" {

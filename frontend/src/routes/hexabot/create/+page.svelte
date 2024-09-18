@@ -15,7 +15,15 @@
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
-  import { call, SelectedCard, UploadFile, triggerToast, Typography, InputRw, TextareaRw } from "$lib";
+  import {
+    call,
+    SelectedCard,
+    UploadFile,
+    triggerToast,
+    Typography,
+    InputRw,
+    TextareaRw,
+  } from "$lib";
   import { goto } from "$app/navigation";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
 
@@ -355,6 +363,8 @@
             ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
             collection_id: selectedCollection,
             additional_prompt: additionalPrompt,
+            // dummy
+            need_auth: false,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -411,10 +421,10 @@
   <!-- Content -->
   <div class="mt-6 space-y-6">
     <div class="md:flex">
-      <Typography 
-        preset="Text md/Semibold" 
-        text={$_("botsInformation")} 
-        propClass="w-full md:w-1/4" 
+      <Typography
+        preset="Text md/Semibold"
+        text={$_("botsInformation")}
+        propClass="w-full md:w-1/4"
       />
       <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div class="flex flex-col gap-1.5 col-span-4">
@@ -467,7 +477,13 @@
             color="light"
             class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
           >
-            <Typography preset="Text md/Semibold" text={selectedCollection ? collections.find((item) => item.value === selectedCollection)?.name : $_("chooseCollection")} color="secondary" />
+            <Typography
+              preset="Text md/Semibold"
+              text={selectedCollection
+                ? collections.find((item) => item.value === selectedCollection)?.name
+                : $_("chooseCollection")}
+              color="secondary"
+            />
             <ChevronDownOutline
               class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
             />
@@ -483,9 +499,7 @@
         color="secondary"
         propClass="w-full md:w-1/4"
       />
-      <div
-        class="w-full md:w-3/4 flex flex-col gap-1.5"
-      >
+      <div class="w-full md:w-3/4 flex flex-col gap-1.5">
         <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
         <TextareaRw bind:value={additionalPrompt} onEdit />
       </div>
@@ -507,8 +521,7 @@
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button on:click={() => {}} class="w-full" disabled={!selectedCollection}
-      >{$_("select")}</Button
+    <Button on:click={() => {}} class="w-full" disabled={!selectedCollection}>{$_("select")}</Button
     >
   </svelte:fragment>
 </Modal>

@@ -3713,6 +3713,10 @@
                 {
                     "name": "additional_prompt",
                     "type": "string"
+                },
+                {
+                    "name": "need_auth",
+                    "type": "boolean"
                 }
             ]
         },
@@ -3864,6 +3868,10 @@
                 {
                     "name": "username",
                     "type": "string"
+                },
+                {
+                    "name": "need_auth",
+                    "type": "boolean"
                 }
             ]
         },
@@ -4952,6 +4960,9 @@
                     },
                     "username": {
                         "type": "string"
+                    },
+                    "need_auth": {
+                        "type": "boolean"
                     }
                 }
             }
