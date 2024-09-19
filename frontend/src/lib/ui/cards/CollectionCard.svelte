@@ -104,10 +104,14 @@
             }}>{$_("delete")}</button
           >
           <button
-            class="flex p-2"
+            disabled={totalDocuments === 0}
+            class={"flex p-2"}
             onclick={() => {
               funcSelectCollectionWebchat(), (dropdownOpen = !dropdownOpen);
-            }}>{$_("selectCollectionWebchat")}</button
+            }}
+            ><div class={totalDocuments === 0 ? "text-disabled-light dark:text-disabled-dark" : ""}>
+              {$_("selectCollectionWebchat")}
+            </div></button
           >
         </ul>
       </div>
@@ -118,12 +122,15 @@
     class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-2 md:pb-6 pt-2"
   >
     <div class="relative">
-      <FileTypeIcon svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark w-16 h-16 md:w-20 md:h-20" />
+      <FileTypeIcon
+        svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark w-16 h-16 md:w-20 md:h-20"
+      />
       {#if totalDocuments > 0}
         <Indicator
           border
           placement="center-right"
-          class="!w-6 !h-6 !md:w-8 !md:h-8 text-white bg-utility-brand-600-light dark:bg-utility-brand-600-dark fluid-xs font-semibold p-2 md:p-4">+{totalDocuments}</Indicator
+          class="!w-6 !h-6 !md:w-8 !md:h-8 text-white bg-utility-brand-600-light dark:bg-utility-brand-600-dark fluid-xs font-semibold p-2 md:p-4"
+          >+{totalDocuments}</Indicator
         >
       {/if}
     </div>
