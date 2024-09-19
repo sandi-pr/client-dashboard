@@ -1441,3 +1441,53 @@ func transformData(allConversations U.Dict) U.List {
 
 	return result
 }
+
+// report
+
+func SendReport(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
+
+	messageStr, ok := ctx.Params.GetString("message")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	var message U.List
+
+	err := json.Unmarshal([]byte(messageStr), &message)
+
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	collection_id, ok := ctx.Params.GetFloat64("collection_id")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	model, ok := ctx.Params.GetString("model")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, report, err := Strapi.Create("report-conversation-table", U.Dict{
+		"message":       message,
+		"collection_id": int64(collection_id),
+		"model":         model,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, report, nil
+}

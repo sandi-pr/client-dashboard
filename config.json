@@ -3893,6 +3893,31 @@
                 }
             ],
             "params": []
+        },
+        {
+            "name": "send-report",
+            "path": "/send-report",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "SendReport"
+            },
+            "params": [
+                {
+                    "name": "message",
+                    "type": "string"
+                },
+                {
+                    "name": "collection_id",
+                    "type": "number"
+                },
+                {
+                    "name": "model",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -4963,6 +4988,24 @@
                     },
                     "need_auth": {
                         "type": "boolean"
+                    }
+                }
+            },
+            {
+                "name": "report-conversation",
+                "label": "Report Conversation",
+                "fields": {
+                    "message": {
+                        "type": "json",
+                        "required": true
+                    },
+                    "collection_id": {
+                        "type": "integer",
+                        "required": true
+                    },
+                    "model": {
+                        "type": "string",
+                        "required": true
                     }
                 }
             }
