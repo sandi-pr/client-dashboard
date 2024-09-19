@@ -552,5 +552,6 @@
   "chooseCollection": "Choose Collection",
   "noDocumnetAvailable": "No document available",
   "additionalSettings": "Additional Settings",
-  "requiresLogin": "Requires Login"
+  "requiresLogin": "Requires Login",
+  "fileNotSupport": "File not support"
 }

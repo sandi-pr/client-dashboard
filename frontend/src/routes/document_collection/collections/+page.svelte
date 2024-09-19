@@ -24,14 +24,18 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
-  import { Button, Modal, Input, Pagination } from "flowbite-svelte";
+  import { Button, Modal, Input, Alert } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
-  import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
+  import {
+    ExclamationCircleSolid,
+    ChevronDownOutline,
+    InfoCircleSolid,
+  } from "flowbite-svelte-icons";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
-  
+
   import {
     triggerSelectCollection,
     triggerShowAI,
@@ -88,6 +92,7 @@ All Rights Reserved
   let dropdownOpen = $state(false);
   let page = $state(1);
   let pagination = $state({});
+  let fileNotSupport = $state(false);
 
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
 
@@ -232,8 +237,8 @@ All Rights Reserved
         ).length;
 
         // Hitung jumlah dokumen dengan status angka
-        const numberDocuments = filteredDocuments.filter(
-          (document) => document.attributes.status?.includes("Reading"),
+        const numberDocuments = filteredDocuments.filter((document) =>
+          document.attributes.status?.includes("Reading"),
         ).length;
 
         // Hitung total dokumen yang Ready
@@ -495,7 +500,18 @@ All Rights Reserved
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
 
-      if (file) {
+      const fileTypeRegex = new RegExp(
+        acceptedFileTypes
+          .split(",")
+          .map((type) => type.trim().replace(".", "\\."))
+          .join("|") + "$",
+        "i",
+      );
+
+      console.log(fileTypeRegex.test(file.name));
+
+      if (file && fileTypeRegex.test(file.name)) {
+        fileNotSupport = false;
         const base64Data = await readFileAsBase64(file);
         files.push({
           name: file.name,
@@ -505,7 +521,7 @@ All Rights Reserved
           base64: base64Data,
         });
       } else {
-        alert("Invalid file. Please select a valid file.");
+        fileNotSupport = true;
       }
     });
 
@@ -708,7 +724,12 @@ All Rights Reserved
       <div class="flex flex-col gap-3 md:gap-8">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={$_("collectionList")} propClass="fluid-xl" />
+          <Typography
+            preset="Display sm/Semibold"
+            color="primary"
+            text={$_("collectionList")}
+            propClass="fluid-xl"
+          />
           <Button on:click={() => (addCollectionsModal = true)} class="p-2 md:px-3 md:py-2">
             <img class="w-4 h-4 md:me-1" src={PlusIcon} alt="plus-icon" />
             <div class="hidden md:block">{$_("addNew")}</div>
@@ -792,7 +813,7 @@ All Rights Reserved
                   <span>{pagination.total}</span>
                   <!-- {$_("entries")} -->
                 </div>
-                
+
                 {#if pagination.total > pagination.pageSize}
                   <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
                     {$_("page")}
@@ -804,23 +825,27 @@ All Rights Reserved
               </div>
               {#if pagination.total > pagination.pageSize}
                 <div class="flex justify-end">
-                  <Button 
+                  <Button
                     disabled={pagination.page === 1}
-                    on:click={previousPage} 
-                    color="light" 
+                    on:click={previousPage}
+                    color="light"
                     class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
                   >
-                    <ArrowLeftIcon svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5" />
+                    <ArrowLeftIcon
+                      svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+                    />
                     {$_("previous")}
                   </Button>
-                  <Button 
+                  <Button
                     disabled={pagination.page * pagination.pageSize >= pagination.total}
-                    on:click={nextPage} 
-                    color="light" 
+                    on:click={nextPage}
+                    color="light"
                     class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
                   >
                     {$_("next")}
-                    <ArrowRightIcon svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5" />
+                    <ArrowRightIcon
+                      svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+                    />
                   </Button>
                 </div>
               {/if}
@@ -943,6 +968,12 @@ All Rights Reserved
       actionDelete={() => (files = [])}
       isFlex
     />
+    {#if fileNotSupport}
+      <Alert color="red">
+        <InfoCircleSolid slot="icon" class="w-5 h-5" />
+        {$_("fileNotSupport")}
+      </Alert>
+    {/if}
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"

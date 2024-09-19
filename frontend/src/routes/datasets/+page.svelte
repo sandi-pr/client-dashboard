@@ -1,5 +1,15 @@
 <script>
-  import { Button, Input, P, Heading, Span, Modal, Textarea, Spinner, DarkMode } from "flowbite-svelte";
+  import {
+    Button,
+    Input,
+    P,
+    Heading,
+    Span,
+    Modal,
+    Textarea,
+    Spinner,
+    DarkMode,
+  } from "flowbite-svelte";
   import PdfViewer from "svelte-pdf";
   import { onMount, onDestroy } from "svelte";
   import { tick } from "svelte";
@@ -617,7 +627,7 @@
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        if (file) {
+        if (file && file.name.endsWith(".csv")) {
           let base64 = "";
           base64 = await readFileAsBase64(file);
 
@@ -629,12 +639,11 @@
 
           fileList = [...fileList, fileData];
           selectedFile = file;
+          importConversationWithCsv();
         } else {
-          alert("Invalid file. Please select a valid file.");
+          triggerToast("error");
         }
       }
-
-      importConversationWithCsv();
     });
 
     inputElement.click();
@@ -957,7 +966,9 @@
               }}
               class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
             >
-              <EditIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
+              <EditIcon
+                svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+              />
               <!-- <img src={EditIcon} alt="Refresh Icon" class="w-5 h-5" /> -->
               <Typography
                 preset="Text md/Semibold"
@@ -971,7 +982,9 @@
               on:click={handleUploadWrapper}
               class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
             >
-              <AlignRightIcon svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark" />
+              <AlignRightIcon
+                svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+              />
               <Typography
                 preset="Text md/Semibold"
                 text={$_("importConversation")}
@@ -1003,6 +1016,7 @@
                     class="flex p-2"
                     on:click={() => {
                       clearConversation();
+                      dropdownOpen = false;
                     }}>{$_("delete")}</button
                   >
                 </ul>
@@ -1054,7 +1068,9 @@
 
                 {#if editingMessageId !== qaPair.id}
                   <button on:click={() => startEditingMessage(qaPair.id, qaPair.message)}>
-                    <EditIcon svgClass="w-full h-full text-brand-secondary dark:text-brand-secondary" />
+                    <EditIcon
+                      svgClass="w-full h-full text-brand-secondary dark:text-brand-secondary"
+                    />
                   </button>
                 {/if}
               </div>

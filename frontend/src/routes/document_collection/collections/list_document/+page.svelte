@@ -20,9 +20,13 @@ All Rights Reserved
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { id as localeId, enUS as localeEn } from "date-fns/locale";
-  import { Button, P, Modal, Tooltip, Indicator, Input } from "flowbite-svelte";
+  import { Button, P, Modal, Tooltip, Indicator, Input, Alert } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
-  import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
+  import {
+    ExclamationCircleSolid,
+    ChevronDownOutline,
+    InfoCircleSolid,
+  } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
   import MessageChatCircle from "$lib/icon/message-chat-circle.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
@@ -85,6 +89,7 @@ All Rights Reserved
   let dropdownOpen = $state(false);
   let newModelName = $state("");
   let trainingModelModal = $state(false);
+  let fileNotSupport = $state(false);
 
   let timer;
 
@@ -502,7 +507,18 @@ All Rights Reserved
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
 
-      if (file) {
+      const fileTypeRegex = new RegExp(
+        acceptedFileTypes
+          .split(",")
+          .map((type) => type.trim().replace(".", "\\."))
+          .join("|") + "$",
+        "i",
+      );
+
+      console.log(fileTypeRegex.test(file.name));
+
+      if (file && fileTypeRegex.test(file.name)) {
+        fileNotSupport = false;
         const base64Data = await readFileAsBase64(file);
         files.push({
           name: file.name,
@@ -512,7 +528,7 @@ All Rights Reserved
           base64: base64Data,
         });
       } else {
-        alert("Invalid file. Please select a valid file.");
+        fileNotSupport = true;
       }
     });
 
@@ -869,6 +885,12 @@ All Rights Reserved
       actionDelete={() => (files = [])}
       isFlex
     />
+    {#if fileNotSupport}
+      <Alert color="red">
+        <InfoCircleSolid slot="icon" class="w-5 h-5" />
+        {$_("fileNotSupport")}
+      </Alert>
+    {/if}
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"

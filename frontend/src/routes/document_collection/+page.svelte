@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input, P, Indicator, Tooltip } from "flowbite-svelte";
+  import { Modal, Button, Input, P, Indicator, Alert } from "flowbite-svelte";
   import {
     StateCard,
     Typography,
@@ -26,7 +26,11 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import PlusIcon from "$lib/icon/plus.svg";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
-  import { ExclamationCircleSolid, ChevronDownOutline } from "flowbite-svelte-icons";
+  import {
+    ExclamationCircleSolid,
+    ChevronDownOutline,
+    InfoCircleSolid,
+  } from "flowbite-svelte-icons";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { CR3Call } from "hexacomponents-svelte";
@@ -78,6 +82,7 @@ All Rights Reserved
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
   let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
   let timer;
+  let fileNotSupport = $state(false);
 
   async function getActionItems() {
     actionItems = [
@@ -506,8 +511,8 @@ All Rights Reserved
         ).length;
 
         // Hitung jumlah dokumen dengan status angka
-        const numberDocuments = filteredDocuments.filter(
-          (document) => document.attributes.status?.includes("Reading"),
+        const numberDocuments = filteredDocuments.filter((document) =>
+          document.attributes.status?.includes("Reading"),
         ).length;
 
         // Hitung total dokumen yang Ready
@@ -770,7 +775,18 @@ All Rights Reserved
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
 
-      if (file) {
+      const fileTypeRegex = new RegExp(
+        acceptedFileTypes
+          .split(",")
+          .map((type) => type.trim().replace(".", "\\."))
+          .join("|") + "$",
+        "i",
+      );
+
+      console.log(fileTypeRegex.test(file.name));
+
+      if (file && fileTypeRegex.test(file.name)) {
+        fileNotSupport = false;
         const base64Data = await readFileAsBase64(file);
         files.push({
           name: file.name,
@@ -780,7 +796,7 @@ All Rights Reserved
           base64: base64Data,
         });
       } else {
-        alert("Invalid file. Please select a valid file.");
+        fileNotSupport = true;
       }
     });
 
@@ -940,7 +956,11 @@ All Rights Reserved
 <div class="flex dark:bg-primary-dark">
   <div class="flex flex-col w-full pb-10 m-4 gap-3 md:gap-8">
     <!-- User Information -->
-    <Typography preset="Display sm/Semibold" text={$_("documentCollectionOverview")} propClass="fluid-xl" />
+    <Typography
+      preset="Display sm/Semibold"
+      text={$_("documentCollectionOverview")}
+      propClass="fluid-xl"
+    />
 
     <!-- Action Items -->
     <div class="flex flex-col gap-4">
@@ -1091,6 +1111,12 @@ All Rights Reserved
       actionDelete={() => (files = [])}
       isFlex
     />
+    {#if fileNotSupport}
+      <Alert color="red">
+        <InfoCircleSolid slot="icon" class="w-5 h-5" />
+        {$_("fileNotSupport")}
+      </Alert>
+    {/if}
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
