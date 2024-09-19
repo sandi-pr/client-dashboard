@@ -82,30 +82,30 @@
         ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
       >
       <div
-        class={`z-10 ${dropdownOpen ? "absolute top-10" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+        class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
       >
-        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+        <ul class="py-2 grow text-sm">
           <button
-            class="flex p-2"
+            class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
             onclick={() => {
               functAddDocuments(), (dropdownOpen = !dropdownOpen);
             }}>{$_("addDocuments")}</button
           >
           <button
-            class="flex p-2"
+            class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
             onclick={() => {
               functEdit(), (dropdownOpen = !dropdownOpen);
             }}>{$_("editCollectionName")}</button
           >
           <button
-            class="flex p-2"
+            class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
             onclick={() => {
               functDelete(), (dropdownOpen = !dropdownOpen);
             }}>{$_("delete")}</button
           >
           <button
             disabled={totalDocuments === 0}
-            class={"flex p-2"}
+            class={`flex p-2 w-full ${totalDocuments === 0 ? 'text-disabled-light dark:text-disabled-dark' : 'text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark'}`}
             onclick={() => {
               funcSelectCollectionWebchat(), (dropdownOpen = !dropdownOpen);
             }}
