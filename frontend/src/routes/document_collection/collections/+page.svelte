@@ -730,7 +730,14 @@ All Rights Reserved
             text={$_("collectionList")}
             propClass="fluid-xl"
           />
-          <Button on:click={() => (addCollectionsModal = true)} class="p-2 md:px-3 md:py-2">
+          <Button
+            on:click={() => {
+              addCollectionsModal = true;
+              tmpCollectionName = "";
+              tmpDescription = "";
+            }}
+            class="p-2 md:px-3 md:py-2"
+          >
             <img class="w-4 h-4 md:me-1" src={PlusIcon} alt="plus-icon" />
             <div class="hidden md:block">{$_("addNew")}</div>
           </Button>

@@ -41,7 +41,7 @@ All Rights Reserved
   let documentId, collectionId;
 
   import { call } from "$lib";
-    import { da } from "date-fns/locale";
+  import { da } from "date-fns/locale";
 
   // const params = new URLSearchParams(window.location.search);
   // let documentId = params.get("documentId");
@@ -75,6 +75,7 @@ All Rights Reserved
   let fileReady = $state(false);
 
   let data = $state({});
+  let tmpData = $state({});
 
   let categories = $state([
     {
@@ -228,6 +229,22 @@ All Rights Reserved
             //         "yyyy-MM-dd",
             //       )
             //     : "",
+          };
+
+          tmpData = {
+            id: documentData.id,
+            createdAt: documentData.attributes.createdAt,
+            document_title: documentData.attributes.document_title,
+            description: documentData.attributes.description,
+            document_type: documentData.attributes.document_type,
+            ext: documentData.attributes.document.data.attributes.ext,
+            detectedText: documentData.attributes.detected_text
+              ? documentData.attributes.detected_text
+              : "",
+            slices: documentData.attributes.result_trocr
+              ? documentData.attributes.result_trocr.slices
+              : "",
+            result_trocr: documentData.attributes.result_trocr,
           };
 
           fileReady = true;
@@ -543,12 +560,14 @@ All Rights Reserved
           </div>
           <P
             class="fluid-sm md:fluid-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-            >
+          >
             {#if fileReady}
               {#if $locale === "id"}
-                {$_("createOn")} {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeId })}
+                {$_("createOn")}
+                {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeId })}
               {:else}
-                {$_("createOn")} {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeEn })}
+                {$_("createOn")}
+                {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeEn })}
               {/if}
             {/if}</P
           >
@@ -559,6 +578,8 @@ All Rights Reserved
             <Button
               onclick={() => {
                 onEdit = false;
+                data = { ...tmpData };
+                console.log(tmpData);
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -612,9 +633,7 @@ All Rights Reserved
                 {$_("generalInformation")}
               </P>
             </div>
-            <div
-              class="flex flex-col grow gap-3 md:gap-6 rounded-lg"
-            >
+            <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
               <div class="flex flex-col gap-1.5">
                 <Typography
                   preset="Text sm/medium"
