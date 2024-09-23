@@ -20,7 +20,7 @@ All Rights Reserved
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { id as localeId, enUS as localeEn } from "date-fns/locale";
-  import { Button, P, Modal, Tooltip, Indicator, Input, Alert } from "flowbite-svelte";
+  import { Button, P, Modal, Tooltip, Indicator, Input, Alert, MultiSelect } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import {
     ExclamationCircleSolid,
@@ -94,6 +94,17 @@ All Rights Reserved
   let files = $state([]);
   let tmpDocumentType = $state("Documents");
   let tmpDocumentTitle = $state("");
+  let categories = $state([
+    {
+      value: "Category 1",
+      name: "Category 1",
+    },
+    {
+      value: "Category 2",
+      name: "Category 2",
+    },
+  ]);
+  let tmpCategories = $state([]);
   let tmpDocumentDescription = $state("");
   let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
@@ -1053,6 +1064,10 @@ All Rights Reserved
           >
         </ul>
       </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}*`} />
+      <MultiSelect items={categories} bind:value={tmpCategories} />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
