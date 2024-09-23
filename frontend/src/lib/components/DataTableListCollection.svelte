@@ -48,10 +48,10 @@
   export let datasChecked;
   export let gettingDatas;
   export let configs;
-  export let next = () => {};
-  export let previous = () => {};
-  export let handleCheckAll = () => {};
-  export let handleCheck = () => {};
+  export let next;
+  export let previous;
+  export let handleCheckAll;
+  export let handleCheck;
   // export let divider = false;
 
   let allChecked = false;
@@ -271,7 +271,9 @@
                       </div>
                     </TableBodyCell>
                   {:else}
-                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400 px-3 py-2 md:px-6 md:py-4 pe-8">
+                    <TableBodyCell
+                      class="text-hc-graylight-600 dark:text-hc-graydark-400 px-3 py-2 md:px-6 md:py-4 pe-8"
+                    >
                       <div class="flex gap-2 items-center">
                         {#if data[key]?.filename?.includes(".jpg") || data[key]?.filename?.includes(".JPG")}
                           <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
@@ -368,23 +370,27 @@
   </div>
   {#if configs.pagination.total > configs.pagination.pageSize}
     <div class="flex justify-end">
-      <Button 
+      <Button
         disabled={configs.pagination.page === 1}
-        on:click={previous} 
-        color="light" 
+        on:click={previous}
+        color="light"
         class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
       >
-        <ArrowLeftIcon svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5" />
+        <ArrowLeftIcon
+          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+        />
         {$_("previous")}
       </Button>
-      <Button 
+      <Button
         disabled={configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total}
-        on:click={next} 
-        color="light" 
+        on:click={next}
+        color="light"
         class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
       >
         {$_("next")}
-        <ArrowRightIcon svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5" />
+        <ArrowRightIcon
+          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+        />
       </Button>
     </div>
   {/if}

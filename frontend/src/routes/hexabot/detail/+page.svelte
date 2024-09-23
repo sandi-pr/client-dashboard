@@ -418,7 +418,6 @@
           createdAt: response.result.data.attributes.createdAt,
           description: response.result.data.attributes.description,
         };
-        gettingDatas = false;
       } catch (error) {
         triggerToast("error");
         console.log(error);
@@ -500,9 +499,12 @@
         datasChecked = datas.map((data) => {
           return { id: data.id, checked: false };
         });
+
+        gettingDatas = false;
       } else {
         datas = [];
         datasChecked = [];
+        gettingDatas = false;
       }
     }
   }
