@@ -1,0 +1,23 @@
+<script>
+  export let svgClass = "";
+</script>
+
+<svg
+  class={svgClass}
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g id="chevron-up">
+    <path
+      id="Icon"
+      d="M15 12.5L10 7.5L5 12.5"
+      stroke="currentColor"
+      stroke-width="1.66667"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+</svg>

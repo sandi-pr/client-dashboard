@@ -49,6 +49,7 @@ All Rights Reserved
 
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
 
+  let allData = $state([]);
   let datas = $state([]);
 
   let status = $state(null);
@@ -61,17 +62,28 @@ All Rights Reserved
 
   let popupModal = $state(false);
 
+  let deleteCategoriesModal = $state(false);
+
   let datasChecked = $state([]);
+
+  let datasCategoriesChecked = $state([]);
 
   let collection = $state({});
 
   let configs = $state({});
 
+  let configsCategories = $state([]);
+
+  let dropdownToggle = $state([true, false]);
+
   let tabDatas = $state({
-    selected: "Documents",
+    selected: "By Categories",
     data: [
       {
-        name: "Documents",
+        name: "Lists",
+      },
+      {
+        name: "By Categories",
       },
       {
         name: "Information",
@@ -102,6 +114,36 @@ All Rights Reserved
     searchTerm = value;
 
     await getDocuments();
+  };
+
+  const dummyData = {
+    id: "1",
+    file_name: {
+      name: "dummy document",
+      filename: "dummy.pdf",
+      type: "custom",
+      size: "2MB",
+    },
+    category: {
+      name: "dummy category",
+      type: "pill",
+      color: "info",
+    },
+    type: {
+      name: "dummy type",
+      type: "pill",
+      color: "brand",
+    },
+    file_size: "2MB",
+    upload_date: "2024-01-01",
+    actions: {
+      objects: [
+        {
+          href: "/document-collection/collections/detail/document?documentId=1&collectionId=1",
+          name: "View",
+        },
+      ],
+    },
   };
 
   async function getDocuments() {
@@ -174,10 +216,10 @@ All Rights Reserved
           searchHandler: handleSearch,
           headers: "File Uploaded",
           pagination: response.result.meta.pagination,
+          isCategories: false,
           actions: [
             {
               id: "delete",
-              name: "Delete",
               icon: "trash",
               type: "error",
               disabled: datasChecked.find((data) => data.checked) ? false : true,
@@ -199,6 +241,90 @@ All Rights Reserved
             },
           ],
         };
+        configsCategories[0] = {
+          search: true,
+          searchHandler: handleSearch,
+          headers: "Categories 1",
+          pagination: response.result.meta.pagination,
+          isCategories: true,
+          dropdownToggle: dropdownToggle[true, false],
+          actions: [
+            {
+              id: "delete",
+              icon: "trash",
+              type: "error",
+              disabled: datasChecked.find((data) => data.checked) ? false : true,
+              onclick: () => {
+                if (datasChecked.find((data) => data.checked)) {
+                  popupModal = true;
+                }
+              },
+            },
+            {
+              id: "add_new",
+              name: "Add New",
+              icon: "plus",
+              type: "brand-inverse",
+              onclick: () => {
+                selectTypeCollection("Documents");
+                addDocumentsModal = true;
+              },
+            },
+            {
+              id: "expand",
+              icon: "chevron",
+              type: "info",
+              onclick: () => {
+                dropdownToggle[0] = !dropdownToggle[0];
+              },
+            },
+            {
+              id: "dots-vertical",
+              icon: "dots-vertical",
+              type: "info",
+              dropdown: "delete",
+            },
+          ],
+        }
+        configsCategories[1] = {
+          search: true,
+          searchHandler: handleSearch,
+          headers: "Categories 2",
+          pagination: response.result.meta.pagination,
+          isCategories: true,
+          dropdownToggle: dropdownToggle[true, false],
+          actions: [
+            {
+              id: "delete",
+              icon: "trash",
+              type: "error",
+              disabled: datasChecked.find((data) => data.checked) ? false : true,
+              onclick: () => {
+                if (datasChecked.find((data) => data.checked)) {
+                  popupModal = true;
+                }
+              },
+            },
+            {
+              id: "add_new",
+              name: "Add New",
+              icon: "plus",
+              type: "brand-inverse",
+              onclick: () => {
+                selectTypeCollection("Documents");
+                addDocumentsModal = true;
+              },
+            },
+            {
+              id: "expand",
+              icon: "chevron",
+              type: "info",
+              onclick: () => {
+                dropdownToggle[1] = !dropdownToggle[1];
+              },
+            },
+          ],
+        }
         let promises = response.result.data.map(async (document) => {
           let link = await $call.getPage("client-dashboard", "document-collection-detail");
           return {
@@ -210,7 +336,11 @@ All Rights Reserved
               size:
                 document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
             },
-            status: document.attributes.status === null ? " " : document.attributes.status,
+            category: {
+              name: "",
+              type: "pill",
+              color: "info",
+            },
             type: {
               name: document.attributes.document_type,
               type: "pill",
@@ -220,10 +350,10 @@ All Rights Reserved
               document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
             upload_date: document.attributes.createdAt,
 
-            uploaded_by:
-              document.attributes.upload_by.data === null
-                ? "Unknown"
-                : document.attributes.upload_by.data.attributes.fullname,
+            // uploaded_by:
+            //   document.attributes.upload_by.data === null
+            //     ? "Unknown"
+            //     : document.attributes.upload_by.data.attributes.fullname,
             actions: {
               objects: [
                 {
@@ -246,8 +376,10 @@ All Rights Reserved
           };
         });
 
-        datas = await Promise.all(promises);
-        datasChecked = datas.map((data) => {
+        allData = await Promise.all(promises);
+        datas[0] = await Promise.all(promises);
+        datas[1] = [dummyData];
+        datasChecked = datas[0].map((data) => {
           return { id: data.id, checked: false };
         });
       } else {
@@ -445,6 +577,13 @@ All Rights Reserved
 
       triggerToast("created");
     }
+  }
+
+  function functDeleteCategories() {
+    deleteCategoriesModal = true;
+  }
+
+  async function deleteCategories() {
   }
 
   async function deleteDocument() {
@@ -761,15 +900,61 @@ All Rights Reserved
         <!-- <TabBar {tabDatas} {changeTabbar} /> -->
         <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
-        {#if tabDatas.selected === "Documents"}
-          <!-- Person Table Data -->
-          {#if datas.length > 0 || searchTerm !== ""}
+        {#if tabDatas.selected === "Lists"}
+          <!-- List Table Data -->
+          {#if allData.length > 0 || searchTerm !== ""}
             {#if !gettingDatas}
               <DataTableListCollection
-                bind:datas
+                bind:datas={allData}
                 bind:datasChecked
                 bind:configs
                 bind:gettingDatas
+                bind:next
+                bind:previous
+                bind:handleCheckAll
+                bind:handleCheck
+              />
+            {:else}
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            {/if}
+          {:else if gettingDatas}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
+          {:else}
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+              actionText={$_("addNewDocument")}
+              funcButton={() => (addDocumentsModal = true)}
+            />
+          {/if}
+        {:else if tabDatas.selected === "By Categories"}
+          <!-- Categories Table Data -->
+          {#if datas.length > 0 || searchTerm !== ""}
+            {#if !gettingDatas}
+              <DataTableListCollection
+                bind:datas={datas[0]}
+                bind:datasChecked
+                bind:configs={configsCategories[0]}
+                bind:gettingDatas
+                bind:dropdownToggle={dropdownToggle[0]}
+                bind:next
+                bind:previous
+                bind:handleCheckAll
+                bind:handleCheck
+                bind:functDeleteCategories
+              />
+              <DataTableListCollection
+                bind:datas={datas[1]}
+                bind:datasChecked
+                bind:configs={configsCategories[1]}
+                bind:gettingDatas
+                bind:dropdownToggle={dropdownToggle[1]}
                 bind:next
                 bind:previous
                 bind:handleCheckAll
@@ -907,6 +1092,17 @@ All Rights Reserved
       {$_("areYouSureYouWantToDelete")}
     </h3>
     <Button onclick={deleteDocument} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>
+
+<Modal bind:open={deleteCategoriesModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDeleteCategories")}
+    </h3>
+    <Button onclick={deleteCategories} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

@@ -25,6 +25,7 @@
     TableHead,
     TableHeadCell,
   } from "flowbite-svelte";
+  import Dropdown from "$lib/ui/buttons/Dropdown.svelte";
   import * as Icon from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
   import { _, locale } from "svelte-i18n";
@@ -42,6 +43,11 @@
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
   import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
+  import FIlePlusIcon from "$lib/icon/file-plus-02.svelte";
+  import TrashIcon from "$lib/icon/trash-01.svelte";
+  import ChevronDownIcon from "$lib/icon/chevron-down.svelte";
+  import ChevronUpIcon from "$lib/icon/chevron-up.svelte";
+  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   // import { toCamelCase } from "../utils/toCamelCase.js";
 
   export let datas;
@@ -52,6 +58,17 @@
   export let previous;
   export let handleCheckAll;
   export let handleCheck;
+  export let functDeleteCategories;
+  export let dropdownToggle = true;
+
+  let dropdownActionOpen = false;
+  let selectedAction = "";
+  let action = [
+    {
+      value: "delete",
+      name: "Delete",
+    },
+  ];
   // export let divider = false;
 
   let allChecked = false;
@@ -60,6 +77,11 @@
   if (configs?.pagination && Object.keys(configs.pagination).length > 0) {
     pages = pagesBuilder(configs.pagination);
   }
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownActionOpen = false;
+  };
 
   const splitCamelCase = (value) => {
     return value.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/_/g, " ");
@@ -89,15 +111,15 @@
     } else if (type === "brand") {
       return "text-white bg-hc-brand-600 dark:bg-hc-brand-600 hover:bg-hc-brand-700 dark:hover:bg-hc-brand-700 focus-within:ring-0 hover:no-underline";
     } else if (type === "brand-inverse") {
-      return "text-hc-brand-600 dark:text-hc-brand-400 bg-white dark:bg-hc-graydark-900 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0 hover:no-underline";
+      return "text-utility-brand-700-light dark:text-utility-gray-700-dark bg-primary-alt-light dark:bg-primary-alt-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark focus-within:ring-0 hover:no-underline";
     } else if (type === "error") {
-      return "text-hc-error-600 dark:text-hc-error-400 bg-white dark:bg-hc-graydark-900 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0 hover:no-underline";
+      return "text-utility-error-700-light dark:text-utility-error-700-dark bg-primary-alt-light dark:bg-primary-alt-dark hover:bg-primary-hover-light hover:dark:bg-primary-hover-dark border-utility-error-300-light dark:border-utility-error-200-dark focus-within:ring-0 hover:no-underline";
     }
   };
 
   const withSeperator = (configs) => {
     if (configs?.seperator && configs.seperator === true) {
-      return "pb-4 border-b border-hc-graylight-200 dark:border-hc-graydark-800";
+      return "pb-4 border-b border-primary-light dark:border-primary-dark";
     }
   };
 
@@ -151,14 +173,14 @@
 
 <div>
   <div
-    class={`flex items-center justify-between p-4 mt-6 border-t-2 border-x-2 border-primary-light dark:border-primary-dark rounded-t-lg ${withSeperator(configs)}`}
+    class={`flex items-center justify-between p-4 mt-6 ${configs?.isCategories ? "mb-4 rounded-lg bg-secondary-light dark:bg-secondary-dark" : "border-t border-x border-primary-light dark:border-primary-dark rounded-t-lg"} ${withSeperator(configs)}`}
   >
     {#if configs?.headers}
       <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-        >{$_(toCamelCase(configs.headers))}</Heading
+        >{configs?.isCategories ? configs?.headers : $_(toCamelCase(configs.headers))}</Heading
       >
     {/if}
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2">
       <div class="hidden lg:block">
         <Input
           id="search"
@@ -172,226 +194,260 @@
       </div>
       {#if configs?.actions && Object.keys(configs.actions).length > 0}
         {#each configs.actions as action (action.id)}
-          <Button
-            onclick={action.onclick}
-            color="light"
-            disabled={action?.disabled}
-            class={`${classActionType(action.type)} min-w-max p-2 md:px-2 md:py-3`}
-          >
-            {#if action?.icon}
-              {#if action.icon === "plus"}
-                <Icon.PlusOutline class="w-5 h-5" />&nbsp;
-              {/if}
-              {#if action.icon === "trash"}
-                <Icon.TrashBinOutline class="w-5 h-5" />&nbsp;
-              {/if}
-            {/if}
-            <div class="hidden lg:block">
-              {$_(toCamelCase(action.name))}
+          {#if action?.dropdown && action.dropdown === "delete"}
+            <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+              <Button
+                on:click={() => (dropdownActionOpen = !dropdownActionOpen)}
+                class="focus-within:ring-0 !p-0"
+                color="none"
+                size="xs"
+                ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
+              >
+              <div
+                class={`z-10 ${dropdownActionOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+              >
+                <ul class="py-2 grow text-sm">
+                  <button
+                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    onclick={() => {
+                      functDeleteCategories(), (dropdownActionOpen = !dropdownActionOpen);
+                    }}>{$_("delete")}</button
+                  >
+                </ul>
+              </div>
             </div>
-          </Button>
+          {:else}
+            <Button
+              onclick={action.onclick}
+              color="light"
+              disabled={action?.disabled}
+              class={`${classActionType(action.type)} min-w-max p-2 md:p-2.5 gap-1.5`}
+            >
+              {#if action?.icon}
+                {#if action.icon === "plus"}
+                  <FIlePlusIcon svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-gray-700-dark" />
+                {/if}
+                {#if action.icon === "trash"}
+                  <TrashIcon svgClass="w-5 h-5 text-utility-error-700-light dark:text-utility-error-700-dark" />
+                {/if}
+                {#if action.icon === "chevron"}
+                  {#if dropdownToggle === true}
+                    <ChevronDownIcon svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark" />
+                  {:else}
+                    <ChevronUpIcon svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark" />
+                  {/if}
+                {/if}
+              {/if}
+              {#if action?.name}
+                <div class="hidden lg:block">
+                  {$_(toCamelCase(action.name))}
+                </div>
+              {/if}
+            </Button>
+          {/if}
         {/each}
       {/if}
     </div>
   </div>
-  <div
-    class="[&>div]:sm:rounded-none [&>div]:sm:rounded-b-lg [&>div]:border-x-2 [&>div]:border-b-2 [&>div]:border-primary-light [&>div]:dark:border-primary-dark"
-  >
-    <Table class="font-jakarta dark:border-white">
-      <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
-        {#if datasChecked && datasChecked.length > 0}
-          <TableHeadCell class="!p-4">
-            <input
-              type="checkbox"
-              id="checkAll"
-              name="checkAll"
-              checked={allChecked}
-              on:click={() => {
-                handleCheckAll(allChecked);
-              }}
-              class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
-            />
-          </TableHeadCell>
-        {/if}
-        {#if datas.length > 0}
-          {#each Object.keys(datas[0]) as key}
-            {#if key !== "actions" && key !== "id"}
-              <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
-            {/if}
-          {/each}
-          {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
-            <TableHeadCell></TableHeadCell>
+  {#if dropdownToggle === true}
+    <div
+      class={`${configs?.isCategories ? "[&>div]:sm:rounded-t-lg" : ""} [&>div]:border [&>div]:border-primary-light [&>div]:dark:border-primary-dark`}
+    >
+      <Table class="font-jakarta dark:border-white">
+        <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
+          {#if datasChecked && datasChecked.length > 0}
+            <TableHeadCell class="!p-4">
+              <input
+                type="checkbox"
+                id="checkAll"
+                name="checkAll"
+                checked={allChecked}
+                onclick={() => {
+                  handleCheckAll(allChecked);
+                }}
+                class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
+              />
+            </TableHeadCell>
           {/if}
-        {/if}
-      </TableHead>
-      <TableBody>
-        {#each datas as data, index (data.id)}
-          <TableBodyRow
-            class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
-          >
-            {#if datasChecked}
-              <TableBodyCell class="!px-4">
-                <input
-                  type="checkbox"
-                  id={data.id}
-                  name={data.id}
-                  checked={getCheckedStatus(data.id)}
-                  on:click={() => {
-                    handleCheck(data.id);
-                  }}
-                  class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
-                />
-              </TableBodyCell>
-            {/if}
+          {#if datas.length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key !== "actions" && key !== "id"}
-                {#if typeof data[key] === "string" || typeof data[key] === "number"}
-                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                    {#if key === "upload_date"}
-                      {#if $locale === "id"}
-                        {$_("createOn")}
-                        {formatDistanceToNow(data[key], { addSuffix: true, locale: localeId })}
-                      {:else}
-                        {$_("createOn")}
-                        {formatDistanceToNow(data[key], { addSuffix: true, locale: localeEn })}
-                      {/if}
-                    {:else}
-                      {data[key]}
-                    {/if}
-                  </TableBodyCell>
-                {:else if typeof data[key] === "object"}
-                  {#if data[key]?.type !== "custom"}
-                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                      <div
-                        class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${getObjectDataTypeClass(data[key]?.type, data[key]?.color)}`}
-                      >
-                        {#if data[key]?.name}
-                          {data[key].name}
-                        {/if}
-                      </div>
-                    </TableBodyCell>
-                  {:else}
-                    <TableBodyCell
-                      class="text-hc-graylight-600 dark:text-hc-graydark-400 px-3 py-2 md:px-6 md:py-4 pe-8"
-                    >
-                      <div class="flex gap-2 items-center">
-                        {#if data[key]?.filename?.includes(".jpg") || data[key]?.filename?.includes(".JPG")}
-                          <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                        {:else if data[key]?.filename?.includes(".jpeg") || data[key]?.filename?.includes(".JPEG")}
-                          <img src={JPEGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                        {:else if data[key]?.filename?.includes(".png") || data[key]?.filename?.includes(".PNG")}
-                          <img src={PNGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                        {:else if data[key]?.filename?.includes(".pdf") || data[key]?.filename?.includes(".PDF")}
-                          <img src={PDFSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                        {:else if data[key]?.filename?.includes(".doc") || data[key]?.filename?.includes(".DOC")}
-                          <img src={DOCSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                        {:else if data[key]?.filename?.includes(".docx") || data[key]?.filename?.includes(".DOCX")}
-                          <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                        {/if}
-                        <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG") || data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
-                          <JpgIcon />
-                        {:else if data[key]?.type?.name?.includes(".png") || data[key]?.type?.name?.includes(".PNG")}
-                          <PngIcon />
-                        {:else if data[key]?.type?.name?.includes(".pdf") || data[key]?.type?.name?.includes(".PDF")}
-                          <PdfIcon />
-                        {/if} -->
-                        <!-- <JpgIcon /> -->
-                        <div class="flex flex-col min-w-40 md:min-w-64">
-                          <P class="line-clamp-2 fluid-sm">{data[key].name}</P>
-                          <P size="sm" class="text-hc-graylight-500">{data[key].size}</P>
-                        </div>
-                      </div>
-                    </TableBodyCell>
-                  {/if}
-                {/if}
+                <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
               {/if}
             {/each}
             {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
+              <TableHeadCell></TableHeadCell>
+            {/if}
+          {/if}
+        </TableHead>
+        <TableBody>
+          {#each datas as data, index (data.id)}
+            <TableBodyRow
+              class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
+            >
+              {#if datasChecked}
+                <TableBodyCell class="!px-4">
+                  <input
+                    type="checkbox"
+                    id={data.id}
+                    name={data.id}
+                    checked={getCheckedStatus(data.id)}
+                    onclick={() => {
+                      handleCheck(data.id);
+                    }}
+                    class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
+                  />
+                </TableBodyCell>
+              {/if}
               {#each Object.keys(datas[0]) as key}
-                {#if key === "actions"}
-                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                    <div class="flex justify-end gap-8">
-                      {#each datas[index].actions.objects as action (action.name)}
-                        {#if action.href}
-                          <a
-                            class="hover:no-underline text-hc-brand-600 font-semibold"
-                            href={action.href}>{$_(toCamelCase(action.name))}</a
-                          >
+                {#if key !== "actions" && key !== "id"}
+                  {#if typeof data[key] === "string" || typeof data[key] === "number"}
+                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                      {#if key === "upload_date"}
+                        {#if $locale === "id"}
+                          {$_("createOn")}
+                          {formatDistanceToNow(data[key], { addSuffix: true, locale: localeId })}
                         {:else}
-                          <button
-                            class="hover:no-underline text-hc-brand-600 font-semibold"
-                            on:click={() => action.function(datas[index].id)}
-                          >
-                            <!-- {$_(toCamelCase(action.name))} -->
-                            <Icon.DotsVerticalOutline /></button
-                          >
+                          {$_("createOn")}
+                          {formatDistanceToNow(data[key], { addSuffix: true, locale: localeEn })}
                         {/if}
-                      {/each}
-                    </div>
-                  </TableBodyCell>
+                      {:else}
+                        {data[key]}
+                      {/if}
+                    </TableBodyCell>
+                  {:else if typeof data[key] === "object"}
+                    {#if data[key]?.type !== "custom"}
+                      <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                        <div
+                          class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${getObjectDataTypeClass(data[key]?.type, data[key]?.color)}`}
+                        >
+                          {#if data[key]?.name}
+                            {data[key].name}
+                          {/if}
+                        </div>
+                      </TableBodyCell>
+                    {:else}
+                      <TableBodyCell
+                        class="text-hc-graylight-600 dark:text-hc-graydark-400 px-3 py-2 md:px-6 md:py-4 pe-8"
+                      >
+                        <div class="flex gap-2 items-center">
+                          {#if data[key]?.filename?.includes(".jpg") || data[key]?.filename?.includes(".JPG")}
+                            <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".jpeg") || data[key]?.filename?.includes(".JPEG")}
+                            <img src={JPEGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".png") || data[key]?.filename?.includes(".PNG")}
+                            <img src={PNGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".pdf") || data[key]?.filename?.includes(".PDF")}
+                            <img src={PDFSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".doc") || data[key]?.filename?.includes(".DOC")}
+                            <img src={DOCSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".docx") || data[key]?.filename?.includes(".DOCX")}
+                            <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {/if}
+                          <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG") || data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
+                            <JpgIcon />
+                          {:else if data[key]?.type?.name?.includes(".png") || data[key]?.type?.name?.includes(".PNG")}
+                            <PngIcon />
+                          {:else if data[key]?.type?.name?.includes(".pdf") || data[key]?.type?.name?.includes(".PDF")}
+                            <PdfIcon />
+                          {/if} -->
+                          <!-- <JpgIcon /> -->
+                          <div class="flex flex-col min-w-40 md:min-w-64">
+                            <P class="line-clamp-2 fluid-sm">{data[key].name}</P>
+                            <P size="sm" class="text-hc-graylight-500">{data[key].size}</P>
+                          </div>
+                        </div>
+                      </TableBodyCell>
+                    {/if}
+                  {/if}
                 {/if}
               {/each}
-            {/if}
-          </TableBodyRow>
-        {/each}
-      </TableBody>
-    </Table>
-  </div>
-</div>
-
-{#if configs?.pagination && Object.keys(configs.pagination).length > 0 && gettingDatas === false}
-  <div class="flex justify-between">
-    <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-      {$_("showing")}
-      <span
-        >{configs.pagination.page === 1
-          ? 1
-          : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
-      >
-      -
-      <!-- {$_("to")} -->
-      <span
-        >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
-          ? configs.pagination.total
-          : configs.pagination.page * configs.pagination.pageSize}</span
-      >
-      {$_("of")}
-      <span>{configs.pagination.total}</span>
-      <!-- {$_("entries")} -->
-    </div>
-    {#if configs.pagination.total > configs.pagination.pageSize}
-      <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-        {$_("page")}
-        <span>{configs.pagination.page}</span>
-        {$_("of")}
-        <span>{configs.pagination.pageCount}</span>
-      </div>
-    {/if}
-  </div>
-  {#if configs.pagination.total > configs.pagination.pageSize}
-    <div class="flex justify-end">
-      <Button
-        disabled={configs.pagination.page === 1}
-        on:click={previous}
-        color="light"
-        class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
-      >
-        <ArrowLeftIcon
-          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
-        />
-        {$_("previous")}
-      </Button>
-      <Button
-        disabled={configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total}
-        on:click={next}
-        color="light"
-        class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
-      >
-        {$_("next")}
-        <ArrowRightIcon
-          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
-        />
-      </Button>
+              {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
+                {#each Object.keys(datas[0]) as key}
+                  {#if key === "actions"}
+                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                      <div class="flex justify-end gap-8">
+                        {#each datas[index].actions.objects as action (action.name)}
+                          {#if action.href}
+                            <a
+                              class="hover:no-underline text-hc-brand-600 font-semibold"
+                              href={action.href}>{$_(toCamelCase(action.name))}</a
+                            >
+                          {:else}
+                            <button
+                              class="hover:no-underline text-hc-brand-600 font-semibold"
+                              onclick={() => action.function(datas[index].id)}
+                            >
+                              <!-- {$_(toCamelCase(action.name))} -->
+                              <Icon.DotsVerticalOutline /></button
+                            >
+                          {/if}
+                        {/each}
+                      </div>
+                    </TableBodyCell>
+                  {/if}
+                {/each}
+              {/if}
+            </TableBodyRow>
+          {/each}
+        </TableBody>
+      </Table>
+      {#if configs?.pagination && Object.keys(configs.pagination).length > 0 && gettingDatas === false}
+        <div class="flex justify-between !border-t-0 !rounded-t-none rounded-b-lg">
+          <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+            {$_("showing")}
+            <span
+              >{configs.pagination.page === 1
+                ? 1
+                : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
+            >
+            -
+            <!-- {$_("to")} -->
+            <span
+              >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
+                ? configs.pagination.total
+                : configs.pagination.page * configs.pagination.pageSize}</span
+            >
+            {$_("of")}
+            <span>{configs.pagination.total}</span>
+            <!-- {$_("entries")} -->
+          </div>
+          {#if configs.pagination.total > configs.pagination.pageSize}
+            <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+              {$_("page")}
+              <span>{configs.pagination.page}</span>
+              {$_("of")}
+              <span>{configs.pagination.pageCount}</span>
+            </div>
+          {/if}
+        </div>
+        {#if configs.pagination.total > configs.pagination.pageSize}
+          <div class="flex justify-end">
+            <Button
+              disabled={configs.pagination.page === 1}
+              on:click={previous}
+              color="light"
+              class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
+            >
+              <ArrowLeftIcon
+                svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+              />
+              {$_("previous")}
+            </Button>
+            <Button
+              disabled={configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total}
+              on:click={next}
+              color="light"
+              class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
+            >
+              {$_("next")}
+              <ArrowRightIcon
+                svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+              />
+            </Button>
+          </div>
+        {/if}
+      {/if}
     </div>
   {/if}
-{/if}
+</div>

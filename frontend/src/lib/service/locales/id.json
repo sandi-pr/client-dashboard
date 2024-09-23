@@ -554,5 +554,8 @@
   "noDocumnetAvailable": "Tidak ada dokumen",
   "additionalSettings": "Pengaturan Tambahan",
   "requiresLogin": "Membutuhkan Login",
-  "fileNotSupport": "File tidak didukung"
+  "fileNotSupport": "File tidak didukung",
+  "lists": "Daftar",
+  "byCategories": "Kategori",
+  "areYouSureYouWantToDeleteCategories": "Apakah Anda yakin ingin menghapus kategori?"
 }
