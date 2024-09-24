@@ -1212,7 +1212,12 @@ func transformConversationFromCsv(base64String string) U.List {
 		return U.List{}
 	}
 
+	firstLine := strings.Split(string(decoded), "\n")[0]
+	delimiter := detectDelimiter(firstLine)
+
 	reader := csv.NewReader(bytes.NewReader(decoded))
+	reader.Comma = delimiter
+
 	records, err := reader.ReadAll()
 	if err != nil {
 		fmt.Println("Error reading CSV:", err)
@@ -1282,7 +1287,12 @@ func transformDatasetFromCsv(base64String string, strapi *strapi.StrapiClassic, 
 		return U.List{}
 	}
 
+	firstLine := strings.Split(string(decoded), "\n")[0]
+	delimiter := detectDelimiter(firstLine)
+
 	reader := csv.NewReader(bytes.NewReader(decoded))
+	reader.Comma = delimiter
+
 	records, err := reader.ReadAll()
 	if err != nil {
 		fmt.Println("Error reading CSV:", err)
@@ -1440,6 +1450,16 @@ func transformData(allConversations U.Dict) U.List {
 	}
 
 	return result
+}
+
+func detectDelimiter(line string) rune {
+	delimiters := []rune{',', ';', '\t', '|'} // Daftar delimiter yang umum
+	for _, delim := range delimiters {
+		if strings.Count(line, string(delim)) > 0 {
+			return delim // Jika ditemukan, return delimiter
+		}
+	}
+	return ',' // Default ke koma jika tidak ada delimiter yang dikenali
 }
 
 // report

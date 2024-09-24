@@ -112,6 +112,11 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters collection_id")
 	}
 
+	category, ok := ctx.Params.GetString("category")
+	if !ok {
+		category = ""
+	}
+
 	var documents interface{}
 	err = json.Unmarshal([]byte(documentsString), &documents)
 
@@ -209,36 +214,28 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		var documents U.Dict
-
-		if description == "" {
-			status, documents, err = Strapi.Create("document-management-table", U.Dict{
-				"document_title":   document_title,
-				"document_type":    document_type,
-				"document":         id,
-				"collection_id":    collection_id,
-				"upload_by":        upload_by,
-				"file_size":        file_size,
-				"edited":           false,
-				"inserted":         false,
-				"reference_doc_id": reference_doc_id,
-				"project_doc_id":   project_doc_id,
-			})
-		} else {
-			status, documents, err = Strapi.Create("document-management-table", U.Dict{
-				"document_title":   document_title,
-				"document_type":    document_type,
-				"document":         id,
-				"collection_id":    collection_id,
-				"upload_by":        upload_by,
-				"file_size":        file_size,
-				"edited":           false,
-				"description":      description,
-				"inserted":         false,
-				"reference_doc_id": reference_doc_id,
-				"project_doc_id":   project_doc_id,
-			})
+		dataSend := U.Dict{
+			"document_title":   document_title,
+			"document_type":    document_type,
+			"document":         id,
+			"collection_id":    collection_id,
+			"upload_by":        upload_by,
+			"file_size":        file_size,
+			"edited":           false,
+			"inserted":         false,
+			"reference_doc_id": reference_doc_id,
+			"project_doc_id":   project_doc_id,
 		}
+
+		if category != "" {
+			dataSend["category"] = category
+		}
+
+		if description != "" {
+			dataSend["description"] = description
+		}
+
+		status, documents, err := Strapi.Create("document-management-table", dataSend)
 
 		fmt.Println("document", documents)
 
@@ -951,6 +948,258 @@ func GetDocumentsByCollectionIdWithFile(ctx *config.ConfigContext) (int, U.Dict,
 	return 200, U.Dict{"data": listDoc}, nil
 }
 
+func GetDocumentByCategories(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	collection_idStr, ok := ctx.Params.GetString("collection_id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters collection")
+	}
+
+	collection_id, err := strconv.Atoi(string(collection_idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters collection")
+	}
+
+	page := 1
+
+	var allCategories U.List
+
+	for {
+		status, documents, err := Strapi.Find("document-management-table", U.Dict{
+			"filters": U.Dict{
+				"collection_id": U.Dict{
+					"$eq": collection_id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"sort":     "id:desc",
+			"populate": "*",
+		})
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(documents)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := documents.GetList("data")
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) == 0 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			if dict, ok := list.GetDict(i); ok {
+				if attributes, ok := dict.GetDict("attributes"); ok {
+					if category, ok := attributes.GetString("category"); ok {
+
+						categories := strings.Split(string(category), ",")
+
+						for _, cat := range categories {
+							cat = strings.TrimSpace(cat)
+							exists := false
+							for j := 0; j < len(allCategories); j++ {
+								if cat == allCategories[j] {
+									exists = true
+									break
+								}
+							}
+
+							if !exists {
+								allCategories = append(allCategories, cat)
+							}
+						}
+					}
+				}
+			}
+		}
+
+		page++
+	}
+
+	if len(allCategories) == 0 {
+		return 200, U.Dict{"data": []U.Dict{}}, nil
+	}
+
+	allDocumentByCategories := U.List{}
+
+	for i := 0; i < len(allCategories); i++ {
+		status, documents, err := Strapi.Find("document-management-table", U.Dict{
+			"filters": U.Dict{
+				"category": U.Dict{
+					"$eq": allCategories[i],
+				},
+				"collection_id": U.Dict{
+					"$eq": collection_id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     1,
+				"pageSize": 10,
+			},
+			"sort":     "id:desc",
+			"populate": "*",
+		})
+
+		fmt.Println(allCategories[i], documents)
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(documents)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := documents.GetList("data")
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) == 0 {
+			continue
+		}
+
+		meta, ok := documents.GetDict("meta")
+
+		if !ok {
+			fmt.Println("meta not found")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		allDocumentByCategories = append(allDocumentByCategories, U.Dict{
+			"category": allCategories[i],
+			"data":     list,
+			"meta":     meta,
+		})
+	}
+
+	return 200, U.Dict{"data": allDocumentByCategories}, nil
+}
+
+func GetDocumentByCategory(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	collection_idStr, ok := ctx.Params.GetString("collection_id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters collection")
+	}
+
+	collection_id, err := strconv.Atoi(string(collection_idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters collection")
+	}
+
+	category, ok := ctx.Params.GetString("category")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters category")
+	}
+
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page_size = 10
+	}
+
+	search, ok := ctx.Params.GetString("search")
+	if !ok {
+		search = ""
+	}
+
+	status, documents, err := Strapi.Find("document-management-table", U.Dict{
+		"filters": U.Dict{
+			"category": U.Dict{
+				"$eq": category,
+			},
+			"collection_id": U.Dict{
+				"$eq": int64(collection_id),
+			},
+			"document_title": U.Dict{
+				"$contains": search,
+			},
+		},
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": page_size,
+		},
+		"sort":     "id:desc",
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, documents, nil
+}
+
 func GetDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
@@ -1548,4 +1797,91 @@ func DeleteDocumentCollectionByContract(ctx *config.ConfigContext) (int, U.Dict,
 	}
 
 	return 200, document, nil
+}
+
+func DeleteDocumentByCategories(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	category, ok := ctx.Params.GetString("category")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	page := 1
+	var ids []int64
+
+	for {
+		status, document, err := Strapi.Find("document-management-table", U.Dict{
+			"filters": U.Dict{
+				"category": U.Dict{
+					"$eq": category,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		data, ok := document.GetList("data")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(data) == 0 {
+			break
+		}
+
+		for _, dict := range data {
+			id, ok := dict.(U.Dict).GetFloat64("id")
+			if !ok {
+				return ctx.Error(500, "Internal Server Error")
+			}
+			ids = append(ids, int64(id))
+		}
+		page++
+	}
+
+	for _, id := range ids {
+		status, _, err := Strapi.Delete("document-management-table", int64(id))
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+		if status != 200 {
+			return ctx.Error(500, "Internal Server Error")
+		}
+	}
+
+	return 200, U.Dict{}, nil
 }

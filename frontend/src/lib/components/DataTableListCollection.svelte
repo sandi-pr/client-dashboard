@@ -59,7 +59,8 @@
   export let handleCheckAll;
   export let handleCheck;
   export let functDeleteCategories;
-  export let dropdownToggle = true;
+
+  let dropdownToggle = true;
 
   let dropdownActionOpen = false;
   let selectedAction = "";
@@ -146,7 +147,11 @@
 
   const handleSearch = (event) => {
     console.log(event.target.value);
-    configs?.searchHandler(event.target.value);
+    if (configs?.isCategories) {
+      configs?.searchHandler(event.target.value, configs?.headers);
+    } else {
+      configs?.searchHandler(event.target.value);
+    }
   };
 
   const getCheckedStatus = (id) => {
@@ -201,7 +206,9 @@
                 class="focus-within:ring-0 !p-0"
                 color="none"
                 size="xs"
-                ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
+                ><DotsVerticalIcon
+                  class="text-fg-quinary-light dark:text-fg-quinary-dark"
+                /></Button
               >
               <div
                 class={`z-10 ${dropdownActionOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
@@ -210,7 +217,8 @@
                   <button
                     class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                     onclick={() => {
-                      functDeleteCategories(), (dropdownActionOpen = !dropdownActionOpen);
+                      functDeleteCategories(configs?.headers),
+                        (dropdownActionOpen = !dropdownActionOpen);
                     }}>{$_("delete")}</button
                   >
                 </ul>
@@ -218,23 +226,33 @@
             </div>
           {:else}
             <Button
-              onclick={action.onclick}
+              onclick={action?.id === "expand"
+                ? () => (dropdownToggle = !dropdownToggle)
+                : action.onclick}
               color="light"
               disabled={action?.disabled}
               class={`${classActionType(action.type)} min-w-max p-2 md:p-2.5 gap-1.5`}
             >
               {#if action?.icon}
                 {#if action.icon === "plus"}
-                  <FIlePlusIcon svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-gray-700-dark" />
+                  <FIlePlusIcon
+                    svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-gray-700-dark"
+                  />
                 {/if}
                 {#if action.icon === "trash"}
-                  <TrashIcon svgClass="w-5 h-5 text-utility-error-700-light dark:text-utility-error-700-dark" />
+                  <TrashIcon
+                    svgClass="w-5 h-5 text-utility-error-700-light dark:text-utility-error-700-dark"
+                  />
                 {/if}
                 {#if action.icon === "chevron"}
                   {#if dropdownToggle === true}
-                    <ChevronDownIcon svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark" />
+                    <ChevronDownIcon
+                      svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark"
+                    />
                   {:else}
-                    <ChevronUpIcon svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark" />
+                    <ChevronUpIcon
+                      svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark"
+                    />
                   {/if}
                 {/if}
               {/if}
@@ -263,7 +281,11 @@
                 name="checkAll"
                 checked={allChecked}
                 onclick={() => {
-                  handleCheckAll(allChecked);
+                  if (configs?.isCategories) {
+                    handleCheckAll(configs?.headers, allChecked);
+                  } else {
+                    handleCheckAll(allChecked);
+                  }
                 }}
                 class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
               />
@@ -293,7 +315,11 @@
                     name={data.id}
                     checked={getCheckedStatus(data.id)}
                     onclick={() => {
-                      handleCheck(data.id);
+                      if (configs?.isCategories) {
+                        handleCheck(configs?.headers, data.id);
+                      } else {
+                        handleCheck(data.id);
+                      }
                     }}
                     class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
                   />
@@ -425,7 +451,7 @@
           <div class="flex justify-end">
             <Button
               disabled={configs.pagination.page === 1}
-              on:click={previous}
+              on:click={configs?.isCategories ? previous(configs?.headers) : previous}
               color="light"
               class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
             >
@@ -435,8 +461,9 @@
               {$_("previous")}
             </Button>
             <Button
-              disabled={configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total}
-              on:click={next}
+              disabled={configs.pagination.page * configs.pagination.pageSize >=
+                configs.pagination.total}
+              on:click={configs?.isCategories ? next(configs?.headers) : next}
               color="light"
               class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
             >

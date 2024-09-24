@@ -1603,6 +1603,10 @@
                     "name": "document_type",
                     "type": "string",
                     "required": true
+                },
+                {
+                    "name": "category",
+                    "type": "string"
                 }
             ]
         },
@@ -1762,6 +1766,57 @@
             ]
         },
         {
+            "name": "get-document-by-categories",
+            "path": "/get-document-by-categories",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDocumentByCategories"
+            },
+            "params": [
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-document-by-category",
+            "path": "/get-document-by-category",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDocumentByCategory"
+            },
+            "params": [
+                {
+                    "name": "collection_id",
+                    "type": "string"
+                },
+                {
+                    "name": "category",
+                    "type": "string"
+                },
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                },
+                {
+                    "name": "search",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "get-document",
             "path": "/get-document/:id",
             "method": "POST",
@@ -1797,6 +1852,24 @@
                 },
                 {
                     "name": "contract_doc_id",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-document-by-categories",
+            "path": "/delete-document-by-categories",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteDocumentByCategories"
+            },
+            "params": [
+                {
+                    "name": "category",
                     "type": "string",
                     "required": true
                 }
@@ -4490,6 +4563,9 @@
                     },
                     "project_doc_id": {
                         "type": "integer"
+                    },
+                    "category": {
+                        "type": "string"
                     }
                 }
             },

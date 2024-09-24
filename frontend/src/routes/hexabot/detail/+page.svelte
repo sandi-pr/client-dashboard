@@ -355,17 +355,17 @@
         console.log("models", response);
 
         if (response === null) {
-          if (isFrontend) {
-            platforms = [
-              {
-                id: 1,
-                name: "Llama3.1",
-                model: "llama3.1:8b",
-                description: "Llama3.1 Develop by Meta",
-                create_at: "2024-07-23",
-              },
-            ];
-          }
+          // if (isFrontend) {
+          platforms = [
+            {
+              id: 1,
+              name: "Llama3.1",
+              model: "llama3.1:8b",
+              description: "Llama3.1 Develop by Meta",
+              create_at: "2024-07-23",
+            },
+          ];
+          // }
         }
 
         if (response.status === 200) {
@@ -655,7 +655,6 @@
   }
 
   async function updateBot() {
-    console.log(users.logoOnly);
     let token = sessionStorage.getItem("token");
     if (token) {
       try {
@@ -803,12 +802,12 @@
         </div>
         <Divider />
         <div class="flex justify-end gap-3">
-          <Button onclick={() => {}} color="light" class="px-3 focus-within:!ring-1"
+          <Button on:click={() => {}} color="light" class="px-3 focus-within:!ring-1"
             >{$_("cancel")}</Button
           >
           <Button
             disabled={disabledButton}
-            onclick={() => {
+            on:click={() => {
               updateBot();
             }}
             class="px-3 focus-within:!ring-1">{$_("save")}</Button
@@ -868,11 +867,25 @@
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
-              <Toggle
+              <!-- <Toggle
                 checked={users.logoOnly}
-                onclick={() => (users.logoOnly = !users.logoOnly)}
+                on:click={() => (users.logoOnly = !users.logoOnly)}
                 class="w-max">{$_("logoOnly")}</Toggle
-              >
+              > -->
+              <label class="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  value=""
+                  bind:checked={users.logoOnly}
+                  class="sr-only peer"
+                />
+                <div
+                  class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+                ></div>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >{$_("logoOnly")}</span
+                >
+              </label>
             </div>
             <div class="col-span-2">
               <UploadFile
@@ -999,18 +1012,32 @@
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
-              <Toggle
+              <!-- <Toggle
                 checked={users.needAuth}
-                onclick={() => (users.needAuth = !users.needAuth)}
+                on:click={() => (users.needAuth = !users.needAuth)}
                 class="w-max">{$_("requiresLogin")}</Toggle
-              >
+              > -->
+              <label class="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  value=""
+                  bind:checked={users.needAuth}
+                  class="sr-only peer"
+                />
+                <div
+                  class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+                ></div>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >{$_("requiresLogin")}</span
+                >
+              </label>
             </div>
           </div>
         </div>
         <Divider />
         <div class="flex justify-end gap-3">
           <Button
-            onclick={async () => {
+            on:click={async () => {
               goto(await $call.getPage("client-dashboard", "hexabot-list"));
             }}
             color="light"
@@ -1018,7 +1045,7 @@
           >
           <Button
             disabled={disabledButton}
-            onclick={() => {
+            on:click={() => {
               updateBot();
             }}
             class="px-3 focus-within:!ring-1">{$_("save")}</Button
@@ -1035,7 +1062,7 @@
             propClass=""
           />
           <button
-            onclick={async function () {
+            on:click={async function () {
               goto(
                 (await $call.getPage("client-dashboard", "document-collection-list-document")) +
                   `?collectionId=${collectionId}`,
@@ -1108,7 +1135,7 @@
     />
     <svelte:fragment slot="footer">
       <Button
-        onclick={() => (users.primaryBrandColor = tmpThemeColor)}
+        on:click={() => (users.primaryBrandColor = tmpThemeColor)}
         class="px-3 w-full focus-within:!ring-1">{"Save"}</Button
       >
     </svelte:fragment>
@@ -1126,7 +1153,7 @@
     />
     <svelte:fragment slot="footer">
       <Button
-        onclick={() => (users.overlayColor = tmpOverlayColor)}
+        on:click={() => (users.overlayColor = tmpOverlayColor)}
         class="px-3 w-full focus-within:!ring-1">{"Save"}</Button
       >
     </svelte:fragment>

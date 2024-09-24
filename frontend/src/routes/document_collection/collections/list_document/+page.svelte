@@ -20,7 +20,7 @@ All Rights Reserved
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { id as localeId, enUS as localeEn } from "date-fns/locale";
-  import { Button, P, Modal, Tooltip, Indicator, Input, Alert, MultiSelect } from "flowbite-svelte";
+  import { Button, P, Modal, Tooltip, Indicator, Input, Alert, Select } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import {
     ExclamationCircleSolid,
@@ -62,19 +62,22 @@ All Rights Reserved
 
   let popupModal = $state(false);
 
+  let deleteCategory = $state(false);
+
   let deleteCategoriesModal = $state(false);
 
   let datasChecked = $state([]);
+  let selectCategories = $state(null);
 
-  let datasCategoriesChecked = $state([]);
+  let datasCategoriesChecked = $state({});
 
   let collection = $state({});
 
   let configs = $state({});
 
-  let configsCategories = $state([]);
+  let configsCategories = $state({});
 
-  let dropdownToggle = $state([true, false]);
+  // let dropdownToggle = $state([true, false]);
 
   let tabDatas = $state({
     selected: "By Categories",
@@ -94,17 +97,9 @@ All Rights Reserved
   let files = $state([]);
   let tmpDocumentType = $state("Documents");
   let tmpDocumentTitle = $state("");
-  let categories = $state([
-    {
-      value: "Category 1",
-      name: "Category 1",
-    },
-    {
-      value: "Category 2",
-      name: "Category 2",
-    },
-  ]);
-  let tmpCategories = $state([]);
+  let categories = $state([]);
+  let tmpCategories = $state("");
+  let otherCategory = $state("");
   let tmpDocumentDescription = $state("");
   let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
@@ -119,12 +114,20 @@ All Rights Reserved
   let page = $state(1);
 
   let searchTerm = $state("");
+  let searchTermCategory = $state({});
 
   const handleSearch = async (value) => {
     page = 1;
     searchTerm = value;
 
     await getDocuments();
+  };
+
+  const handleSearchCategory = async (value, category) => {
+    configsCategories[category].pagination.page = 1;
+    searchTermCategory = { ...searchTermCategory, [category]: value };
+
+    await getDocumentsByCategory(category);
   };
 
   const dummyData = {
@@ -183,39 +186,6 @@ All Rights Reserved
 
       console.log("ayam", response);
 
-      // let response = {
-      //   result: {
-      //     data: [
-      //       {
-      //         id: 1,
-      //         attributes: {
-      //           createdAt: new Date(),
-      //           document_title: "Document 1",
-      //           document_type: "GENERAL",
-      //           status: "PENDING",
-      //         },
-      //       },
-      //       {
-      //         id: 2,
-      //         attributes: {
-      //           createdAt: new Date(),
-      //           document_title: "Document 2",
-      //           document_type: "CONTRACT",
-      //           status: "APPROVED",
-      //         },
-      //       },
-      //     ],
-      //     meta: {
-      //       pagination: {
-      //         page: 1,
-      //         pageSize: 10,
-      //         pageCount: 1,
-      //         total: 2,
-      //       },
-      //     },
-      //   },
-      // };
-
       if (response.result?.status_rag) {
         statusRag = response.result.status_rag;
       }
@@ -236,6 +206,7 @@ All Rights Reserved
               disabled: datasChecked.find((data) => data.checked) ? false : true,
               onclick: () => {
                 if (datasChecked.find((data) => data.checked)) {
+                  deleteCategory = false;
                   popupModal = true;
                 }
               },
@@ -252,90 +223,7 @@ All Rights Reserved
             },
           ],
         };
-        configsCategories[0] = {
-          search: true,
-          searchHandler: handleSearch,
-          headers: "Categories 1",
-          pagination: response.result.meta.pagination,
-          isCategories: true,
-          dropdownToggle: dropdownToggle[true, false],
-          actions: [
-            {
-              id: "delete",
-              icon: "trash",
-              type: "error",
-              disabled: datasChecked.find((data) => data.checked) ? false : true,
-              onclick: () => {
-                if (datasChecked.find((data) => data.checked)) {
-                  popupModal = true;
-                }
-              },
-            },
-            {
-              id: "add_new",
-              name: "Add New",
-              icon: "plus",
-              type: "brand-inverse",
-              onclick: () => {
-                selectTypeCollection("Documents");
-                addDocumentsModal = true;
-              },
-            },
-            {
-              id: "expand",
-              icon: "chevron",
-              type: "info",
-              onclick: () => {
-                dropdownToggle[0] = !dropdownToggle[0];
-              },
-            },
-            {
-              id: "dots-vertical",
-              icon: "dots-vertical",
-              type: "info",
-              dropdown: "delete",
-            },
-          ],
-        }
-        configsCategories[1] = {
-          search: true,
-          searchHandler: handleSearch,
-          headers: "Categories 2",
-          pagination: response.result.meta.pagination,
-          isCategories: true,
-          dropdownToggle: dropdownToggle[true, false],
-          actions: [
-            {
-              id: "delete",
-              icon: "trash",
-              type: "error",
-              disabled: datasChecked.find((data) => data.checked) ? false : true,
-              onclick: () => {
-                if (datasChecked.find((data) => data.checked)) {
-                  popupModal = true;
-                }
-              },
-            },
-            {
-              id: "add_new",
-              name: "Add New",
-              icon: "plus",
-              type: "brand-inverse",
-              onclick: () => {
-                selectTypeCollection("Documents");
-                addDocumentsModal = true;
-              },
-            },
-            {
-              id: "expand",
-              icon: "chevron",
-              type: "info",
-              onclick: () => {
-                dropdownToggle[1] = !dropdownToggle[1];
-              },
-            },
-          ],
-        }
+
         let promises = response.result.data.map(async (document) => {
           let link = await $call.getPage("client-dashboard", "document-collection-detail");
           return {
@@ -388,13 +276,11 @@ All Rights Reserved
         });
 
         allData = await Promise.all(promises);
-        datas[0] = await Promise.all(promises);
-        datas[1] = [dummyData];
-        datasChecked = datas[0].map((data) => {
+        datasChecked = allData.map((data) => {
           return { id: data.id, checked: false };
         });
       } else {
-        datas = [];
+        allData = [];
         datasChecked = [];
         configs = {
           search: true,
@@ -427,7 +313,306 @@ All Rights Reserved
           ],
         };
       }
+
+      await getAllDocumentsByCategory();
+
       gettingDatas = false;
+    }
+  }
+
+  async function getAllDocumentsByCategory() {
+    let token = sessionStorage.getItem("token");
+    const response2 = await $call.call("client-dashboard", "get-document-by-categories", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {
+        collection_id: collectionId.toString(),
+      },
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    if (response2.status !== 200) {
+      console.log(response2);
+      triggerToast("error");
+      return;
+    }
+
+    console.log("ayam", response2);
+
+    let datasTmp = response2.result.data;
+
+    categories = datasTmp.map((document) => {
+      return {
+        value: document.category,
+        name: document.category,
+      };
+    });
+
+    datas = [];
+
+    for (let i = 0; i < datasTmp.length; i++) {
+      if (!datasCategoriesChecked[datasTmp[i].category]) {
+        datasCategoriesChecked[datasTmp[i].category] = [];
+      }
+
+      if (!searchTermCategory[datasTmp[i].category]) {
+        searchTermCategory[datasTmp[i].category] = "";
+      }
+
+      let promises = datasTmp[i].data.map(async (document) => {
+        datasCategoriesChecked[datasTmp[i].category].push({
+          id: document.id,
+          checked: false,
+        });
+
+        let link = await $call.getPage("client-dashboard", "document-collection-detail");
+        return {
+          id: document.id,
+          file_name: {
+            name: document.attributes.document_title,
+            filename: document.attributes.document.data.attributes.name,
+            type: "custom",
+            size:
+              document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
+          },
+          category: {
+            name: document.attributes.category,
+            type: "pill",
+            color: "info",
+          },
+          type: {
+            name: document.attributes.document_type,
+            type: "pill",
+            color: "brand",
+          },
+          file_size:
+            document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
+          upload_date: document.attributes.createdAt,
+
+          // uploaded_by:
+          //   document.attributes.upload_by.data === null
+          //     ? "Unknown"
+          //     : document.attributes.upload_by.data.attributes.fullname,
+          actions: {
+            objects: [
+              {
+                // href: "/document/document_collection/detail?documentId=1&collectionId=1",
+                href: `${link}` + "?documentId=" + document.id + "&collectionId=" + collectionId,
+                name: "View",
+              },
+              // {
+              //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
+              //   // `${await $call.getPage("client-dashboard", "document-collection-detail")}` +
+              //   // "?documentId=" +
+              //   // document.id +
+              //   // "&collectionId=" +
+              //   // collectionId,
+              //   function: handleTitikTiga,
+              //   name: "Titik tiga",
+              // },
+            ],
+          },
+        };
+      });
+
+      let category = datasTmp[i].category;
+
+      datas.push({
+        category: category,
+        data: await Promise.all(promises),
+      });
+
+      configsCategories = {
+        ...configsCategories,
+        [category]: {
+          search: true,
+          searchHandler: handleSearchCategory,
+          headers: category,
+          pagination: datasTmp[i].meta.pagination,
+          isCategories: true,
+          actions: [
+            {
+              id: "delete",
+              icon: "trash",
+              type: "error",
+              disabled: datasCategoriesChecked[category].find((data) => data.checked)
+                ? false
+                : true,
+              onclick: () => {
+                if (datasCategoriesChecked[category].find((data) => data.checked)) {
+                  deleteCategory = true;
+                  selectCategories = category;
+                  popupModal = true;
+                }
+              },
+            },
+            {
+              id: "add_new",
+              name: "Add New",
+              icon: "plus",
+              type: "brand-inverse",
+              onclick: () => {
+                selectTypeCollection("Documents");
+                addDocumentsModal = true;
+                tmpCategories = [];
+                tmpCategories = category;
+              },
+            },
+            {
+              id: "expand",
+              icon: "chevron",
+              type: "info",
+            },
+            {
+              id: "dots-vertical",
+              icon: "dots-vertical",
+              type: "info",
+              dropdown: "delete",
+            },
+          ],
+        },
+      };
+
+      // configsCategories.push({
+      //   // search: true,
+      //   // searchHandler: handleSearch,
+      //   headers: category,
+      //   pagination: datasTmp[i].meta.pagination,
+      //   isCategories: true,
+      //   actions: [
+      //     {
+      //       id: "delete",
+      //       icon: "trash",
+      //       type: "error",
+      //       disabled: datasCategoriesChecked[category].find((data) => data.checked)
+      //         ? false
+      //         : true,
+      //       onclick: () => {
+      //         if (datasCategoriesChecked[category].find((data) => data.checked)) {
+      //           deleteCategory = true;
+      //           selectCategories = category;
+      //           popupModal = true;
+      //         }
+      //       },
+      //     },
+      //     {
+      //       id: "add_new",
+      //       name: "Add New",
+      //       icon: "plus",
+      //       type: "brand-inverse",
+      //       onclick: () => {
+      //         selectTypeCollection("Documents");
+      //         addDocumentsModal = true;
+      //         tmpCategories = [];
+      //         tmpCategories = category;
+      //       },
+      //     },
+      //     {
+      //       id: "expand",
+      //       icon: "chevron",
+      //       type: "info",
+      //     },
+      //     {
+      //       id: "dots-vertical",
+      //       icon: "dots-vertical",
+      //       type: "info",
+      //       dropdown: "delete",
+      //     },
+      //   ],
+      // });
+    }
+  }
+
+  async function getDocumentsByCategory(category) {
+    let token = sessionStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "get-document-by-category", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            category: category,
+            collection_id: collectionId.toString(),
+            page: configsCategories[category].pagination.page,
+            page_size: configsCategories[category].pagination.pageSize,
+            search: searchTermCategory[category],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response);
+          triggerToast("error");
+          return;
+        }
+
+        console.log(response);
+
+        for (let i = 0; i < datas.length; i++) {
+          if (datas[i].category === category) {
+            datasCategoriesChecked[datas[i].category] = [];
+            let promises = response.result.data.map(async (document) => {
+              datasCategoriesChecked[category].push({
+                id: document.id,
+                checked: false,
+              });
+
+              let link = await $call.getPage("client-dashboard", "document-collection-detail");
+              return {
+                id: document.id,
+                file_name: {
+                  name: document.attributes.document_title,
+                  filename: document.attributes.document.data.attributes.name,
+                  type: "custom",
+                  size:
+                    document.attributes.file_size === null
+                      ? "Unknown"
+                      : document.attributes.file_size,
+                },
+                category: {
+                  name: document.attributes.category,
+                  type: "pill",
+                  color: "info",
+                },
+                type: {
+                  name: document.attributes.document_type,
+                  type: "pill",
+                  color: "brand",
+                },
+                file_size:
+                  document.attributes.file_size === null
+                    ? "Unknown"
+                    : document.attributes.file_size,
+                upload_date: document.attributes.createdAt,
+
+                actions: {
+                  objects: [
+                    {
+                      // href: "/document/document_collection/detail?documentId=1&collectionId=1",
+                      href:
+                        `${link}` + "?documentId=" + document.id + "&collectionId=" + collectionId,
+                      name: "View",
+                    },
+                  ],
+                },
+              };
+            });
+
+            datas[i].data = await Promise.all(promises);
+
+            break;
+          }
+        }
+
+        configsCategories[category].pagination = response.result.meta.pagination;
+        // gettingDatas = false;
+      } catch (error) {
+        console.log(error);
+        triggerToast("error");
+      }
     }
   }
 
@@ -496,6 +681,7 @@ All Rights Reserved
             documents: JSON.stringify(files),
             collection_id: collectionId,
             document_type: tmpDocumentType,
+            category: tmpCategories,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -581,6 +767,7 @@ All Rights Reserved
 
       tmpDocumentTitle = "";
       tmpDocumentDescription = "";
+      tmpCategories = [];
 
       addDocumentsModal = false;
       getDocuments();
@@ -590,11 +777,45 @@ All Rights Reserved
     }
   }
 
-  function functDeleteCategories() {
+  function functDeleteCategories(categories) {
     deleteCategoriesModal = true;
+    selectCategories = categories;
   }
 
   async function deleteCategories() {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      popupModal = false;
+      triggerLoading(true);
+      try {
+        const response = await $call.call("client-dashboard", "delete-document-by-categories", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            category: selectCategories,
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        await getCollection();
+        await getDocuments();
+        triggerToast("deleted");
+        triggerLoading(false);
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
   }
 
   async function deleteDocument() {
@@ -603,7 +824,14 @@ All Rights Reserved
     if (token !== null) {
       popupModal = false;
       triggerLoading(true);
-      let ids = datasChecked.filter((data) => data.checked).map((data) => data.id);
+      let ids = [];
+      if (deleteCategory === true) {
+        ids = datasCategoriesChecked[selectCategories]
+          .filter((data) => data.checked)
+          .map((data) => data.id);
+      } else {
+        ids = datasChecked.filter((data) => data.checked).map((data) => data.id);
+      }
       try {
         for (const id of ids) {
           let response = await $call.call("client-dashboard", "delete-document", {
@@ -740,14 +968,43 @@ All Rights Reserved
     getDocuments();
   }
 
+  async function nextByCategory(category) {
+    if (
+      configsCategories[category].pagination.page >=
+      configsCategories[category].pagination.pageCount
+    )
+      return;
+    configsCategories[category].pagination.page++;
+    getDocumentsByCategory(category);
+  }
+
+  async function previousByCategory(category) {
+    if (configsCategories[category].pagination.page <= 1) return;
+    configsCategories[category].pagination.page--;
+    getDocumentsByCategory(category);
+  }
+
   async function handleCheckAll(allChecked) {
     datasChecked = datasChecked.map((data) => {
       return { id: data.id, checked: allChecked ? false : true };
     });
   }
 
+  async function handleCheckAllCategories(category, allChecked) {
+    configsCategories[category].actions.find((config) => {
+      if (config.id === "delete") {
+        config.disabled = allChecked
+          ? datasCategoriesChecked[category].find((data) => data.checked)
+          : false;
+      }
+    });
+    datasCategoriesChecked[category] = datasCategoriesChecked[category].map((data) => {
+      return { id: data.id, checked: allChecked ? false : true };
+    });
+  }
+
   async function handleCheck(id) {
-    let datasCheckedCopy = JSON.parse(JSON.stringify(datasChecked));
+    let datasCheckedCopy = datasChecked;
     datasCheckedCopy = datasCheckedCopy.map((data) => {
       if (data.id === id) {
         return { id: data.id, checked: !data.checked };
@@ -755,6 +1012,40 @@ All Rights Reserved
       return data;
     });
     datasChecked = datasCheckedCopy;
+  }
+
+  async function handleCheckCategories(category, id) {
+    let datasCategoriesCheckedCopy = datasCategoriesChecked[category];
+    datasCategoriesCheckedCopy = datasCategoriesCheckedCopy.map((data) => {
+      if (data.id === id) {
+        if (!data.checked) {
+          if (
+            configsCategories[category]?.actions &&
+            configsCategories[category].headers === category
+          ) {
+            configsCategories[category].actions.find((config) => {
+              if (config.id === "delete") {
+                config.disabled = datasCategoriesChecked[category].find((data) => data.checked);
+              }
+            });
+          }
+        } else {
+          if (
+            configsCategories[category]?.actions &&
+            configsCategories[category].headers === category
+          ) {
+            configsCategories[category].actions.find((config) => {
+              if (config.id === "delete") {
+                config.disabled = true;
+              }
+            });
+          }
+        }
+        return { id: data.id, checked: !data.checked };
+      }
+      return data;
+    });
+    datasCategoriesChecked[category] = datasCategoriesCheckedCopy;
   }
 
   async function handleTitikTiga(id) {
@@ -948,29 +1239,19 @@ All Rights Reserved
           <!-- Categories Table Data -->
           {#if datas.length > 0 || searchTerm !== ""}
             {#if !gettingDatas}
-              <DataTableListCollection
-                bind:datas={datas[0]}
-                bind:datasChecked
-                bind:configs={configsCategories[0]}
-                bind:gettingDatas
-                bind:dropdownToggle={dropdownToggle[0]}
-                bind:next
-                bind:previous
-                bind:handleCheckAll
-                bind:handleCheck
-                bind:functDeleteCategories
-              />
-              <DataTableListCollection
-                bind:datas={datas[1]}
-                bind:datasChecked
-                bind:configs={configsCategories[1]}
-                bind:gettingDatas
-                bind:dropdownToggle={dropdownToggle[1]}
-                bind:next
-                bind:previous
-                bind:handleCheckAll
-                bind:handleCheck
-              />
+              {#each datas as data, index}
+                <DataTableListCollection
+                  bind:datas={data.data}
+                  bind:datasChecked={datasCategoriesChecked[data.category]}
+                  bind:configs={configsCategories[data.category]}
+                  bind:gettingDatas
+                  bind:next={nextByCategory}
+                  bind:previous={previousByCategory}
+                  bind:handleCheckAll={handleCheckAllCategories}
+                  bind:handleCheck={handleCheckCategories}
+                  bind:functDeleteCategories
+                />
+              {/each}
             {:else}
               <StateCard
                 illustration={IllustrationProgress}
@@ -1067,7 +1348,28 @@ All Rights Reserved
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}*`} />
-      <MultiSelect items={categories} bind:value={tmpCategories} />
+      <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
+      <Select class="mt-2" items={categories} bind:value={tmpCategories} />
+      <Input
+        placeholder={$_("enterOtherCategory")}
+        bind:value={otherCategory}
+        onkeydown={(e) => {
+          if (e.key === "Enter" && otherCategory !== "" && !tmpCategories.includes(otherCategory)) {
+            for (let i = 0; i < categories.length; i++) {
+              if (categories[i]?.other === true) {
+                categories.splice(i, 1);
+                break;
+              }
+            }
+            categories = [
+              ...categories,
+              { value: otherCategory, name: otherCategory, other: true },
+            ];
+            tmpCategories = otherCategory;
+            otherCategory = "";
+          }
+        }}
+      />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
