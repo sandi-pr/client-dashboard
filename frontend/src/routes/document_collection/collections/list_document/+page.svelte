@@ -108,6 +108,7 @@ All Rights Reserved
   let newModelName = $state("");
   let trainingModelModal = $state(false);
   let fileNotSupport = $state(false);
+  let addOtherCategory = $state(false);
 
   let timer;
 
@@ -1350,26 +1351,39 @@ All Rights Reserved
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}*`} />
       <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
       <Select class="mt-2" items={categories} bind:value={tmpCategories} />
-      <Input
-        placeholder={$_("enterOtherCategory")}
-        bind:value={otherCategory}
-        onkeydown={(e) => {
-          if (e.key === "Enter" && otherCategory !== "" && !tmpCategories.includes(otherCategory)) {
-            for (let i = 0; i < categories.length; i++) {
-              if (categories[i]?.other === true) {
-                categories.splice(i, 1);
-                break;
+      {#if !addOtherCategory}<p>
+          {$_("addOtherCategory")}<button
+            onclick={() => {
+              addOtherCategory = true;
+            }}>{$_("clickHere")}</button
+          >
+        </p>{/if}
+      {#if addOtherCategory}
+        <Input
+          placeholder={$_("enterOtherCategory")}
+          bind:value={otherCategory}
+          onkeydown={(e) => {
+            if (
+              e.key === "Enter" &&
+              otherCategory !== "" &&
+              !tmpCategories.includes(otherCategory)
+            ) {
+              for (let i = 0; i < categories.length; i++) {
+                if (categories[i]?.other === true) {
+                  categories.splice(i, 1);
+                  break;
+                }
               }
+              categories = [
+                ...categories,
+                { value: otherCategory, name: otherCategory, other: true },
+              ];
+              tmpCategories = otherCategory;
+              otherCategory = "";
             }
-            categories = [
-              ...categories,
-              { value: otherCategory, name: otherCategory, other: true },
-            ];
-            tmpCategories = otherCategory;
-            otherCategory = "";
-          }
-        }}
-      />
+          }}
+        />
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />

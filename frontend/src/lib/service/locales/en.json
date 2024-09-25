@@ -556,5 +556,8 @@
   "fileNotSupport": "File not support",
   "lists": "Lists",
   "byCategories": "By Categories",
-  "areYouSureYouWantToDeleteCategories": "Are you sure you want to delete categories?"
+  "areYouSureYouWantToDeleteCategories": "Are you sure you want to delete categories?",
+  "addOtherCategory": "Add Other Category",
+  "clickHere": "Click Here",
+  "enterOtherCategory": "Enter Other Category"
 }
