@@ -28,12 +28,12 @@ All Rights Reserved
   let isFirstTime = $state(true);
 
   const cards = [
-    // {
-    //   icon: "users",
-    //   title: "crmOverview",
-    //   description: "descCrm",
-    //   page: "crm-overview",
-    // },
+    {
+      icon: "users",
+      title: "crmOverview",
+      description: "descCrm",
+      page: "crm-overview",
+    },
     {
       icon: "box",
       title: "documentCollection",
@@ -46,18 +46,18 @@ All Rights Reserved
       description: "descDatasets",
       page: "datasets",
     },
-    // {
-    //   icon: "messageChat",
-    //   title: "hexabot",
-    //   description: "descCreateNewBots",
-    //   page: "hexabot",
-    // },
-    // {
-    //   icon: "userSquare",
-    //   title: "HR",
-    //   description: "descHr",
-    //   page: "hr-overview",
-    // },
+    {
+      icon: "messageChat",
+      title: "hexabot",
+      description: "descCreateNewBots",
+      page: "hexabot",
+    },
+    {
+      icon: "userSquare",
+      title: "HR",
+      description: "descHr",
+      page: "hr-overview",
+    },
   ];
 
   function setFristTime() {
