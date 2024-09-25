@@ -1310,8 +1310,13 @@ func GetCategoriesByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *confi
 
 	fmt.Println(me)
 
-	collection_id, ok := ctx.Params.GetFloat64("collection_id")
+	collection_idStr, ok := ctx.Params.GetString("collection_id")
 	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	collection_id, err := strconv.Atoi(string(collection_idStr))
+	if err != nil {
 		return ctx.Error(400, "invalid parameters")
 	}
 
