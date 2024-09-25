@@ -1885,3 +1885,103 @@ func DeleteDocumentByCategories(ctx *config.ConfigContext) (int, U.Dict, *config
 
 	return 200, U.Dict{}, nil
 }
+
+func getCategoriesByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	collection_id, ok := ctx.Params.GetFloat64("collection_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	page := 1
+
+	var allCategories U.List
+
+	for {
+		status, documents, err := Strapi.Find("document-management-table", U.Dict{
+			"filters": U.Dict{
+				"collection_id": U.Dict{
+					"$eq": collection_id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"sort":     "id:desc",
+			"populate": "*",
+		})
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(documents)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := documents.GetList("data")
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) == 0 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			if dict, ok := list.GetDict(i); ok {
+				if attributes, ok := dict.GetDict("attributes"); ok {
+					if category, ok := attributes.GetString("category"); ok {
+
+						categories := strings.Split(string(category), ",")
+
+						for _, cat := range categories {
+							cat = strings.TrimSpace(cat)
+							exists := false
+							for j := 0; j < len(allCategories); j++ {
+								if cat == allCategories[j] {
+									exists = true
+									break
+								}
+							}
+
+							if !exists {
+								allCategories = append(allCategories, cat)
+							}
+						}
+					}
+				}
+			}
+		}
+
+		page++
+	}
+
+	if len(allCategories) == 0 {
+		return 200, U.Dict{"categories": []U.Dict{}}, nil
+	}
+	return 200, U.Dict{"categories": allCategories}, nil
+}

@@ -1990,6 +1990,24 @@
             ]
         },
         {
+            "name": "get-categories-by-collection-id",
+            "path": "/get-categories-by-collection-id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "getCategoriesByCollectionId"
+            },
+            "params": [
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "create-employee",
             "path": "/create-employee",
             "method": "POST",
