@@ -33,6 +33,7 @@ All Rights Reserved
     isPreview = false,
     largePreview = false,
     srcAvatar = null,
+    disabled = false,
   } = $props();
 
   const textFileType = (type) => {
@@ -58,9 +59,9 @@ All Rights Reserved
         {/if}
       {/if}
       <Button
-        on:click={handleFileUploadWrapper}
+        on:click={disabled ? () => {} : handleFileUploadWrapper}
         color="light"
-        class={`grow rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-gray-800 gap-3 py-4 flex flex-col justify-start items-center`}
+        class={`grow rounded-xl ${disabled ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark gap-3 py-4 flex flex-col justify-start items-center`}
       >
         <div
           class="rounded-xl p-2.5 shadow border border-primary-light dark:border-primary-dark justify-center items-center"

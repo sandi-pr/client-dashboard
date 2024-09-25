@@ -24,7 +24,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
-  import { Button, Modal, Input, Alert } from "flowbite-svelte";
+  import { Button, Modal, Input, Alert, Select } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import {
@@ -82,6 +82,10 @@ All Rights Reserved
   let tmpCollectionName = $state("");
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
+  let categories = $state([]);
+  let otherCategory = $state("");
+  let addOtherCategory = $state(false);
+  let tmpCategories = $state("");
   let tmpDocumentType = $state("");
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
@@ -223,7 +227,9 @@ All Rights Reserved
         "document-collection-list-document",
       );
 
-      datas = collections.map((collection) => {
+      datas = collections.map(async (collection) => {
+        let categories = await getCategories(collection.id);
+
         const filteredDocuments = documents.filter(
           (document) => document.attributes.collection_id === collection.id,
         );
@@ -250,16 +256,16 @@ All Rights Reserved
         let collectionStatus;
 
         if (totalDocuments === 0) {
-          console.log("empty", collection.id);
+          // console.log("empty", collection.id);
           collectionStatus = "Empty";
         } else if (nullDocuments > 0) {
-          console.log("null", collection.id);
+          // console.log("null", collection.id);
           collectionStatus = null;
         } else if (numberDocuments === totalDocuments && totalDocuments > 0) {
-          console.log("read", collection.id);
+          // console.log("read", collection.id);
           collectionStatus = "Reading";
         } else if (readyDocuments === totalDocuments && totalDocuments > 0) {
-          console.log("ready", collection.id);
+          // console.log("ready", collection.id);
           collectionStatus = "Ready";
         }
         return {
@@ -268,6 +274,7 @@ All Rights Reserved
           collectionName: collection.attributes.collection_name,
           description: collection.attributes.description,
           totalDocuments: totalDocuments,
+          categories: categories,
           status: collectionStatus,
           href: `${collectionList}?collectionId=${collection.id}`,
           webchat: collection.attributes.webchat_tmp === true ? true : false,
@@ -391,6 +398,7 @@ All Rights Reserved
             documents: JSON.stringify(files),
             collection_id: tmpCollectionId.toString(),
             document_type: tmpDocumentType,
+            category: tmpCategories,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -707,6 +715,35 @@ All Rights Reserved
     );
   }
 
+  async function getCategories(id) {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-categories-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: id.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(id, response);
+        return;
+      }
+
+      return response.result.categories.map((category) => {
+        return {
+          name: category,
+          value: category,
+        };
+      });
+    }
+  }
+
   async function askToAI(id) {
     return (
       `${await $call.getPage("client-dashboard", "document-collection-chat")}` +
@@ -771,8 +808,10 @@ All Rights Reserved
                     }}
                     functAddDocuments={() => {
                       tmpCollectionId = document.collectionId;
+                      categories = document.categories;
                       selectTypeCollection("Documents");
                       addDocumentsModal = true;
+                      addOtherCategory = false;
                     }}
                     functEdit={() => {
                       tmpCollectionId = document.collectionId;
@@ -958,6 +997,45 @@ All Rights Reserved
           >
         </ul>
       </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
+      <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
+      <Select class="mt-2" items={categories} bind:value={tmpCategories} placeholder={$_("selectCategory")} />
+      {#if !addOtherCategory}
+        <p>
+          {$_("addOtherCategory")}
+          <button onclick={() => {addOtherCategory = true;}} class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline" >
+            {$_("clickHere")}
+          </button>
+        </p>
+      {/if}
+      {#if addOtherCategory}
+        <Input
+          placeholder={$_("enterOtherCategory")}
+          bind:value={otherCategory}
+          onkeydown={(e) => {
+            if (
+              e.key === "Enter" &&
+              otherCategory !== "" &&
+              !tmpCategories.includes(otherCategory)
+            ) {
+              for (let i = 0; i < categories.length; i++) {
+                if (categories[i]?.other === true) {
+                  categories.splice(i, 1);
+                  break;
+                }
+              }
+              categories = [
+                ...categories,
+                { value: otherCategory, name: otherCategory, other: true },
+              ];
+              tmpCategories = otherCategory;
+              otherCategory = "";
+            }
+          }}
+        />
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />

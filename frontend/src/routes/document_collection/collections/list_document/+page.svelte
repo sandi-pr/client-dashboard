@@ -224,6 +224,7 @@ All Rights Reserved
               onclick: () => {
                 selectTypeCollection("Documents");
                 addDocumentsModal = true;
+                addOtherCategory = false;
               },
             },
           ],
@@ -241,7 +242,7 @@ All Rights Reserved
                 document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
             },
             category: {
-              name: "",
+              name: document.attributes.category,
               type: "pill",
               color: "info",
             },
@@ -313,6 +314,7 @@ All Rights Reserved
               onclick: () => {
                 selectTypeCollection("Documents");
                 addDocumentsModal = true;
+                addOtherCategory = false;
               },
             },
           ],
@@ -464,6 +466,7 @@ All Rights Reserved
               onclick: () => {
                 selectTypeCollection("Documents");
                 addDocumentsModal = true;
+                addOtherCategory = false;
                 tmpCategories = [];
                 tmpCategories = category;
               },
@@ -1240,7 +1243,7 @@ All Rights Reserved
               illustration={IllustrationEmpty}
               description={$_("youDontHaveAnyDataYet")}
               actionText={$_("addNewDocument")}
-              funcButton={() => (addDocumentsModal = true)}
+              funcButton={() => {addDocumentsModal = true; addOtherCategory = false;}}
             />
           {/if}
         {:else if tabDatas.selected === "By Categories"}
@@ -1276,7 +1279,7 @@ All Rights Reserved
               illustration={IllustrationEmpty}
               description={$_("youDontHaveAnyDataYet")}
               actionText={$_("addNewDocument")}
-              funcButton={() => (addDocumentsModal = true)}
+              funcButton={() => {addDocumentsModal = true; addOtherCategory = false;}}
             />
           {/if}
         {:else if tabDatas.selected === "Information"}
@@ -1355,16 +1358,17 @@ All Rights Reserved
       </div>
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
       <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-      <Select class="mt-2" items={categories} bind:value={tmpCategories} />
-      {#if !addOtherCategory}<p>
-          {$_("addOtherCategory")}<button
-            onclick={() => {
-              addOtherCategory = true;
-            }}>{$_("clickHere")}</button
-          >
-        </p>{/if}
+      <Select class="mt-2" items={categories} bind:value={tmpCategories} placeholder={$_("selectCategory")} />
+      {#if !addOtherCategory}
+        <p>
+          {$_("addOtherCategory")}
+          <button onclick={() => {addOtherCategory = true;}} class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline" >
+            {$_("clickHere")}
+          </button>
+        </p>
+      {/if}
       {#if addOtherCategory}
         <Input
           placeholder={$_("enterOtherCategory")}

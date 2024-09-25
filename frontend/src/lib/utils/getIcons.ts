@@ -21,6 +21,7 @@ import BookOpenIcon from "../icon/book-open-02.svelte";
 import DistributeVertIcon from "../icon/distribute-spacing-vertical.svelte";
 import ChevronDownIcon from "../icon/chevron-down.svelte";
 import DataIcon from "../icon/data.svelte";
+import MessagePlus from "../icon/message-plus-square.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -70,6 +71,8 @@ let getIcons = (presetIcon: String) => {
       return ChevronDownIcon;
     case "data":
       return DataIcon;
+    case "messagePlus":
+      return MessagePlus;
     default:
       return "";
   }

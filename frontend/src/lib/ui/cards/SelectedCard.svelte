@@ -12,6 +12,7 @@
     widthFlex = "min-w-80",
     spacing = "",
     widgetIndicator,
+    disabled = false,
   }: {
     selectionData: any;
     selectedData?: any;
@@ -21,6 +22,7 @@
     widthFlex?: any;
     spacing?: any;
     widgetIndicator?: any;
+    disabled?: any;
   } = $props();
   const selectData = (id: any) => {
     selectedData = id;
@@ -34,13 +36,13 @@
   {#each selectionData as data, i}
     <Card
       horizontal={true}
-      class={`justify-between ${isFlex ? `gap-3 ${widthFlex}` : "w-full h-full"} ${spacing ? spacing : "!py-6 !pr-4"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark ${
+      class={`justify-between ${isFlex ? `gap-3 ${widthFlex}` : "w-full h-full"} ${spacing ? spacing : "!py-6 !pr-4"} bg-primary-light dark:bg-secondary-dark ${disabled ? "!cursor-default" : "hover:bg-primary-hover-light dark:hover:bg-secondary-hover-dark"} ${
         selectedData === data.id
           ? "border-brand-solid-light dark:border-brand-solid-dark"
           : "border-secondary-light dark:border-secondary-dark"
       } shadow-sm hover:no-underline cursor-pointer`}
       size="none"
-      on:click={() => selectData(data?.id)}
+      on:click={disabled ? () => {} : () => selectData(data?.id)}
     >
       <div class="flex items-center gap-4">
         {#if data.icon}
@@ -70,7 +72,7 @@
         </div>
       </div>
       {#if isRadio}
-        <Radio value={data.id} bind:group={selectedData}></Radio>
+        <Radio disabled={disabled} value={data.id} bind:group={selectedData}></Radio>
       {/if}
     </Card>
   {/each}

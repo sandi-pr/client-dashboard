@@ -20,7 +20,7 @@
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Eye from "$lib/icon/eye.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { Typography, call, triggerToast, StateCard } from "$lib";
+  import { Typography, SectionHeader, ActionCard, call, triggerToast, StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
@@ -38,25 +38,7 @@
     admin: false,
   };
 
-  const moduleMonitoringData = [
-    {
-      action: async () => {
-        goto(await $call.getPage("client-dashboard", "hexabot-create"));
-      },
-      icon: MessagePlus,
-      moduleName: "Create New Bots",
-      desc: "desc Create New Bots",
-    },
-    // {
-    //   href: "#",
-    //   action: () => {
-    //     deployStatusModal = true;
-    //   },
-    //   icon: Eye,
-    //   moduleName: "View bot deployment status",
-    //   desc: "desc View Bot Deployment Status",
-    // },
-  ];
+  let actionItems = $state([]);
 
   let Header;
 
@@ -83,6 +65,17 @@
       return "text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950 border-sky-200 dark:border-sky-800";
     }
   };
+
+  async function getActionItems() {
+    actionItems = [
+      {
+        href: await $call.getPage("client-dashboard", "hexabot-create"),
+        icon: "messagePlus",
+        actionName: "Create New Bots",
+        desc: "desc Create New Bots",
+      },
+    ];
+  }
 
   async function getBots() {
     let token = sessionStorage.getItem("token");
@@ -232,7 +225,17 @@
     }
   }
 
+  async function goToEditPage(botId) {
+    goto(
+      (await $call.getPage("client-dashboard", "hexabot-detail")) +
+        "?botId=" +
+        botId +
+        "&edit=true",
+    );
+  }
+
   onMount(() => {
+    getActionItems();
     getBots();
   });
 </script>
@@ -243,544 +246,285 @@
       <!-- <Navbar /> -->
 
       <div class="flex flex-col gap-8">
-        <!-- User Information -->
-        {#if !data.admin}
-          <Heading tag="h2" class="font-jakarta text-hc-graylight-900 dark:text-hc-graydark-50"
-            >{$_("hexaBots")}</Heading
-          >
 
-          <!-- Module Monitoring Data -->
-          <div>
-            <div
-              class="flex border-b border-hc-graylight-200 dark:border-hc-graydark-800 pb-4 mb-4"
+        <!-- User Information -->
+        <Typography
+          preset="Display sm/Semibold"
+          text={$_("hexaBots")}
+          propClass="fluid-xl"
+        />
+
+        <!-- Action Items -->
+        <div class="flex flex-col gap-4">
+          <SectionHeader title={$_("action")} />
+          <ActionCard {actionItems} />
+        </div>
+
+        <!-- Document Table Data -->
+        <div>
+          <div
+            class={`flex items-center justify-between pb-4 mb-4 border-b border-hc-graylight-200 dark:border-hc-graydark-800`}
+          >
+            <Heading
+              tag="h6"
+              class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
+              >{$_("recentDeployedBots")}</Heading
             >
-              <Heading tag="h6" class="font-jakarta text-hc-graylight-900 dark:text-hc-graydark-50"
-                >{$_("action")}</Heading
-              >
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
-              {#each moduleMonitoringData as { action, icon, moduleName, desc }}
-                <Card
-                  on:click={action}
-                  horizontal="true"
-                  class="cursor-pointer items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
-                  size="none"
-                >
-                  <Avatar class="!bg-hc-brand-100 dark:!bg-hc-brand-900 !p-2 !h-10"
-                    ><svelte:component
-                      this={icon}
-                      svgClass="w-5 h-5 text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                    /></Avatar
+            <Button
+              on:click={async () => {
+                goto(await $call.getPage("client-dashboard", "hexabot-list"));
+              }}
+              color="light"
+              class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
+              >{$_("viewAll")}</Button
+            >
+          </div>
+
+          {#if gettingDatas}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
+          {:else if bots.length === 0}
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+            />
+          {:else}
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+              {#each bots as bot, index (bot.botsID)}
+                <!-- {#if bot.deployStatus === "Done"} -->
+                <Card padding="none" class="shadow-none grow w-full">
+                  <div
+                    class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
                   >
-                  <div class="ml-4 gap[2px]">
-                    <P
-                      class="font-jakarta text-base font-semibold leading-normal text-hc-graylight-900 dark:text-hc-graydark-50"
-                      >{$_(toCamelCase(moduleName))}</P
+                    <div class="flex justify-between items-center">
+                      <div class="flex items-center gap-3">
+                        <Avatar src={bot.bot_profile ? bot.bot_profile : ""} />
+                        <div class="flex flex-col">
+                          <Typography
+                            preset="Text lg/Semibold"
+                            color="primary"
+                            text={bot.botsName}
+                          />
+                          <Typography
+                            preset="Text sm/Regular"
+                            color="secondary"
+                            text={bot.botDescription}
+                          />
+                        </div>
+                      </div>
+                      <div
+                        onfocusout={handleDropdownFocusLoss}
+                        class=" flex items-center relative"
+                      >
+                        <Button
+                          on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
+                          class="focus-within:ring-0 !p-0"
+                          color="none"
+                          size="xs"
+                          ><DotsVerticalIcon
+                            class="text-fg-quinary-light dark:text-fg-quinary-dark"
+                          /></Button
+                        >
+                        <div
+                          class={`z-10 ${dropdownOpen[index] ? "absolute top-9 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                        >
+                          <ul class="py-2 grow text-sm">
+                            <!-- <button
+                              class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                              onclick={goToEditPage(bot.botsID)}>{$_("edit")}</button
+                            > -->
+                            <button
+                              class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                              onclick={() => {
+                                popupModal = true;
+                                tmpId = bot.botsID;
+                                dropdownOpen[index] = !dropdownOpen[index];
+                              }}>{$_("delete")}</button
+                            >
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex gap-3 px-4 pt-4 pb-6">
+                    <div class="grid grow grid-cols-2 gap-3">
+                      <Button
+                        on:click={async () => {
+                          goto(
+                            (await $call.getPage("client-dashboard", "hexabot-detail")) +
+                              "?botId=" +
+                              bot.botsID,
+                          );
+                        }}
+                        outline
+                        class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
+                      >
+                        <Typography
+                          preset="Text sm/Semibold"
+                          text={$_("detail")}
+                          color="brand-secondary"
+                        />
+                      </Button>
+                      <Button
+                        on:click={() => {
+                          goto(bot.urlBot);
+                        }}
+                        outline
+                        class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
+                      >
+                        <Typography
+                          preset="Text sm/Semibold"
+                          text={$_("webchat")}
+                          color="secondary"
+                        />
+                        <ArrowUpRightIcon
+                          svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark"
+                        />
+                      </Button>
+                    </div>
+                    <button
+                      onclick={() => {
+                        navigator.clipboard
+                          .writeText(bot.urlBot)
+                          .then(() => {
+                            console.log("Text copied to clipboard");
+                            triggerToast("copyToClipboard");
+                          })
+                          .catch((err) => {
+                            console.error("Failed to copy: ", err);
+                          });
+                      }}
                     >
-                    <P
-                      class="font-jakarta text-sm font-normal leading-tight text-hc-graylight-700 dark:text-hc-graydark-300"
-                      >{$_(toCamelCase(desc))}</P
-                    >
+                      <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                    </button>
                   </div>
                 </Card>
-              {/each}
-            </div>
-          </div>
-
-          <!-- Document Monitoring Data -->
-          <!-- <div>
-          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
-            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
-              Reports
-            </Heading>
-          </div>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-center justify-center"
-          >
-            {#each docData as { href, dataName, value, change, changeType }, index ({ href, dataName, value, change, changeType })}
-              <Card
-                horizontal="true"
-                class="grid grid-cols-12 items-center !px-4 !py-0 min-h-28 justify-between bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark shadow-sm"
-                size="none"
-              >
-                <div class="space-y-2 col-span-6 sm:col-span-7 md:col-span-5">
-                  <div class="flex items-center gap-2">
-                    <P
-                      size="base"
-                      weight="semibold"
-                      color="text-secondary-light dark:text-secondary-dark"
-                      class="font-jakarta">{dataName}</P
-                    >
-                    <P
-                      size="sm"
-                      weight="bold"
-                      color={`${
-                        changeType === "decrease"
-                          ? "text-error-primary-light dark:text-error-primary-dark"
-                          : "text-success-primary-light dark:text-success-primary-dark"
-                      }`}
-                      class="font-jakarta leading-tight"
-                      >{`${changeType === "decrease" ? "-" : "+"}${change}`}</P
-                    >
-                  </div>
-                  <P
-                    size="xl"
-                    weight="semibold"
-                    color="text-gray-900"
-                    class="font-jakarta leading-[30px] text-primary-light dark:text-primary-dark"
-                    >{value}</P
-                  >
-                  <A
-                    {href}
-                    class="text-sm font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark font-jakarta leading-tight"
-                    >See All</A
-                  >
-                </div>
-                <div class="col-span-6 sm:col-span-5 md:col-span-7">
-                  {#if chartReady}
-                    {#if index === 0}
-                      <Chart dataChart={dataChartAll} />
-                    {:else if index === 1}
-                      <Chart dataChart={dataChartNeed} />
-                    {:else}
-                      <Chart dataChart={dataChartComplete} />
-                    {/if}
-                  {:else}
-                    <div></div>
-                  {/if}
-                </div>
-              </Card>
-            {/each}
-          </div>
-        </div> -->
-
-          <!-- Document Table Data -->
-          <div>
-            <div
-              class={`flex items-center justify-between pb-4 mb-4 border-b border-hc-graylight-200 dark:border-hc-graydark-800`}
-            >
-              <Heading
-                tag="h6"
-                class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-                >{$_("recentDeployedBots")}</Heading
-              >
-              <Button
-                on:click={async () => {
-                  goto(await $call.getPage("client-dashboard", "hexabot-list"));
-                }}
-                color="light"
-                class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
-                >{$_("viewAll")}</Button
-              >
-            </div>
-
-            {#if gettingDatas}
-              <StateCard
-                illustration={IllustrationProgress}
-                description={$_("fetchingDataPleaseWait")}
-              />
-            {:else if bots.length === 0}
-              <StateCard
-                illustration={IllustrationEmpty}
-                description={$_("youDontHaveAnyDataYet")}
-              />
-            {:else}
-              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-                {#each bots as bot, index (bot.botsID)}
-                  <!-- {#if bot.deployStatus === "Done"} -->
-                  <Card padding="none" class="shadow-none grow w-full">
+                <!-- <div class="span-col-1">
+                  <Card padding="none" size="md">
                     <div
-                      class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
+                      class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-3"
                     >
                       <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                          <Avatar src={bot.bot_profile ? bot.bot_profile : ""} />
-                          <div class="flex flex-col">
-                            <Typography
-                              preset="Text lg/Semibold"
-                              color="primary"
-                              text={bot.botsName}
-                            />
-                            <Typography
-                              preset="Text sm/Regular"
-                              color="secondary"
-                              text={bot.botDescription}
-                            />
+                        <div class="flex flex-col">
+                          <div class="flex items-center gap-2">
+                            <Heading
+                              tag="h6"
+                              class="!font-semibold text-primary-light dark:text-primary-dark"
+                              >{`${bot.botsName}`}</Heading
+                            >
+                            <div
+                              class={`px-2 py-0.5 rounded-full border justify-start items-center inline-flex text-center text-xs font-medium leading-[18px]
+                            ${classStatusType(bot.deployedPlatform)}`}
+                            >
+                              {bot.deployedPlatform}
+                            </div>
                           </div>
+                          <P size="sm" class="text-secondary-light dark:text-secondary-dark"
+                            >{`ID: ${bot.botsID}`}</P
+                          >
                         </div>
-                        <div
-                          onfocusout={handleDropdownFocusLoss}
-                          class=" flex items-center relative"
-                        >
-                          <Button
-                            on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
-                            class="focus-within:ring-0 !p-0"
-                            color="none"
-                            size="xs"
-                            ><DotsVerticalIcon
-                              class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                            /></Button
+                        <div class="flex items-center pl-2 gap-2">
+                          <A
+                            href="hexabot/detail"
+                            class="text-fg-brand-primary-light dark:text-fg-brand-primary-dark text-sm font-semibold"
+                            >{$_("view")}</A
                           >
-                          <div
-                            class={`z-10 ${dropdownOpen[index] ? "absolute top-10" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-                          >
-                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-                              <button
-                                class="flex p-2"
-                                onclick={() => {
-                                  popupModal = true;
-                                  tmpId = bot.botsID;
-                                  dropdownOpen[index] = !dropdownOpen[index];
-                                }}>{$_("delete")}</button
-                              >
-                            </ul>
+                          <div class="cursor-pointer flex items-center">
+                            <Button class="focus-within:ring-0 !p-0" color="none" size="xs"
+                              ><DotsVerticalOutline /></Button
+                            >
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div class="flex gap-3 px-4 pt-4 pb-6">
-                      <div class="grid grow grid-cols-2 gap-3">
-                        <Button
-                          on:click={async () => {
-                            goto(
-                              (await $call.getPage("client-dashboard", "hexabot-detail")) +
-                                "?botId=" +
-                                bot.botsID,
-                            );
-                          }}
-                          outline
-                          class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
-                        >
-                          <Typography
-                            preset="Text sm/Semibold"
-                            text={$_("view")}
-                            color="brand-secondary"
-                          />
-                        </Button>
-                        <Button
-                          on:click={() => {
-                            goto(bot.urlBot);
-                          }}
-                          outline
-                          class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
-                        >
-                          <Typography
-                            preset="Text sm/Semibold"
-                            text={$_("webchat")}
-                            color="secondary"
-                          />
-                          <ArrowUpRightIcon
-                            svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark"
-                          />
-                        </Button>
+                    <div
+                      class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
+                    >
+                      <div class="flex justify-between items-center">
+                        <div>
+                          <P
+                            size="sm"
+                            weight="semibold"
+                            class="text-primary-light dark:text-primary-dark">{$_("clientId")}</P
+                          >
+                          <P
+                            size="sm"
+                            weight="normal"
+                            class="text-secondary-light dark:text-secondary-dark line-clamp-1"
+                            >{bot.clientID}</P
+                          >
+                        </div>
+                        <div class="flex pl-2">
+                          <div class="cursor-pointer">
+                            <CopyIcon
+                              svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <button
-                        onclick={() => {
-                          navigator.clipboard
-                            .writeText(bot.urlBot)
-                            .then(() => {
-                              console.log("Text copied to clipboard");
-                              triggerToast("copyToClipboard");
-                            })
-                            .catch((err) => {
-                              console.error("Failed to copy: ", err);
-                            });
-                        }}
-                      >
-                        <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                      </button>
+                    </div>
+                    <div
+                      class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
+                    >
+                      <div class="flex justify-between items-center">
+                        <div>
+                          <P
+                            size="sm"
+                            weight="semibold"
+                            class="text-primary-light dark:text-primary-dark"
+                            >{$_("activation")}</P
+                          >
+                          <P
+                            size="sm"
+                            weight="normal"
+                            class="text-secondary-light dark:text-secondary-dark line-clamp-1"
+                            >{bot.activationTime}</P
+                          >
+                        </div>
+                        <div class="flex pl-2">
+                          <div class="cursor-pointer">
+                            <CopyIcon
+                              svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
+                    >
+                      <div class="flex justify-between items-center">
+                        <div>
+                          <P
+                            size="sm"
+                            weight="semibold"
+                            class="text-primary-light dark:text-primary-dark">{$_("urlBot")}</P
+                          >
+                          <P
+                            size="sm"
+                            weight="normal"
+                            class="text-secondary-light dark:text-secondary-dark line-clamp-1"
+                            >{bot.urlBot}</P
+                          >
+                        </div>
+                        <div class="flex pl-2">
+                          <div class="cursor-pointer">
+                            <CopyIcon
+                              svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </Card>
-                  <!-- <div class="span-col-1">
-                    <Card padding="none" size="md">
-                      <div
-                        class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-3"
-                      >
-                        <div class="flex justify-between items-center">
-                          <div class="flex flex-col">
-                            <div class="flex items-center gap-2">
-                              <Heading
-                                tag="h6"
-                                class="!font-semibold text-primary-light dark:text-primary-dark"
-                                >{`${bot.botsName}`}</Heading
-                              >
-                              <div
-                                class={`px-2 py-0.5 rounded-full border justify-start items-center inline-flex text-center text-xs font-medium leading-[18px]
-                              ${classStatusType(bot.deployedPlatform)}`}
-                              >
-                                {bot.deployedPlatform}
-                              </div>
-                            </div>
-                            <P size="sm" class="text-secondary-light dark:text-secondary-dark"
-                              >{`ID: ${bot.botsID}`}</P
-                            >
-                          </div>
-                          <div class="flex items-center pl-2 gap-2">
-                            <A
-                              href="hexabot/detail"
-                              class="text-fg-brand-primary-light dark:text-fg-brand-primary-dark text-sm font-semibold"
-                              >{$_("view")}</A
-                            >
-                            <div class="cursor-pointer flex items-center">
-                              <Button class="focus-within:ring-0 !p-0" color="none" size="xs"
-                                ><DotsVerticalOutline /></Button
-                              >
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                      >
-                        <div class="flex justify-between items-center">
-                          <div>
-                            <P
-                              size="sm"
-                              weight="semibold"
-                              class="text-primary-light dark:text-primary-dark">{$_("clientId")}</P
-                            >
-                            <P
-                              size="sm"
-                              weight="normal"
-                              class="text-secondary-light dark:text-secondary-dark line-clamp-1"
-                              >{bot.clientID}</P
-                            >
-                          </div>
-                          <div class="flex pl-2">
-                            <div class="cursor-pointer">
-                              <CopyIcon
-                                svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                      >
-                        <div class="flex justify-between items-center">
-                          <div>
-                            <P
-                              size="sm"
-                              weight="semibold"
-                              class="text-primary-light dark:text-primary-dark"
-                              >{$_("activation")}</P
-                            >
-                            <P
-                              size="sm"
-                              weight="normal"
-                              class="text-secondary-light dark:text-secondary-dark line-clamp-1"
-                              >{bot.activationTime}</P
-                            >
-                          </div>
-                          <div class="flex pl-2">
-                            <div class="cursor-pointer">
-                              <CopyIcon
-                                svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                      >
-                        <div class="flex justify-between items-center">
-                          <div>
-                            <P
-                              size="sm"
-                              weight="semibold"
-                              class="text-primary-light dark:text-primary-dark">{$_("urlBot")}</P
-                            >
-                            <P
-                              size="sm"
-                              weight="normal"
-                              class="text-secondary-light dark:text-secondary-dark line-clamp-1"
-                              >{bot.urlBot}</P
-                            >
-                          </div>
-                          <div class="flex pl-2">
-                            <div class="cursor-pointer">
-                              <CopyIcon
-                                svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  </div> -->
-                  <!-- {/if} -->
-                {/each}
-              </div>
-            {/if}
-          </div>
-        {:else}
-          <Heading tag="h2" class="font-jakarta text-hc-graylight-900 dark:text-hc-graydark-50"
-            >{$_("Hexa AI")}</Heading
-          >
-
-          <!-- Document Table Data -->
-          <div>
-            <div
-              class={`flex items-center justify-between pb-4 mb-4 border-b border-hc-graylight-200 dark:border-hc-graydark-800`}
-            >
-              <Heading
-                tag="h6"
-                class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-                >Bots</Heading
-              >
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
-              {#each bots as bot (bot.botsID)}
-                {#if bot.deployStatus === "Done"}
-                  <div class="span-col-1">
-                    <Card padding="none" size="md">
-                      <div
-                        class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-3"
-                      >
-                        <div class="flex justify-between items-center">
-                          <div class="flex flex-col">
-                            <div class="flex items-center gap-2">
-                              <Heading
-                                tag="h6"
-                                class="!font-semibold text-primary-light dark:text-primary-dark"
-                                >{`${bot.botsName}`}</Heading
-                              >
-                              <div
-                                class={`px-2 py-0.5 rounded-full border justify-start items-center inline-flex text-center text-xs font-medium leading-[18px]
-                              ${classStatusType(bot.deployedPlatform)}`}
-                              >
-                                {bot.deployedPlatform}
-                              </div>
-                            </div>
-                            <P size="sm" class="text-secondary-light dark:text-secondary-dark"
-                              >{`ID: ${bot.botsID}`}</P
-                            >
-                          </div>
-                          <div class="flex items-center pl-2 gap-2">
-                            <A
-                              href="#"
-                              class="text-fg-brand-primary-light dark:text-fg-brand-primary-dark text-sm font-semibold"
-                              >{$_("view")}</A
-                            >
-                            <div class="cursor-pointer flex items-center">
-                              <Button class="focus-within:ring-0 !p-0" color="none" size="xs"
-                                ><DotsVerticalOutline /></Button
-                              >
-                              <!-- <Dropdown>
-                                <DropdownItem>
-                                  <div class="flex">
-                                    <MessageChatSquare
-                                      svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                    />{$_("conversationLogs")}
-                                  </div>
-                                </DropdownItem>
-                                <DropdownItem>
-                                  <div class="flex">
-                                    <PencilLine
-                                      svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                    />{$_("editBotName")}
-                                  </div>
-                                </DropdownItem>
-                                <DropdownItem>
-                                  <div class="flex">
-                                    <FileAttachment_02
-                                      svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark mr-2"
-                                    />{$_("viewDocuments")}
-                                  </div>
-                                </DropdownItem>
-                              </Dropdown> -->
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                      >
-                        <div class="flex justify-between items-center">
-                          <div>
-                            <P
-                              size="sm"
-                              weight="semibold"
-                              class="text-primary-light dark:text-primary-dark">{$_("clientID")}</P
-                            >
-                            <P
-                              size="sm"
-                              weight="normal"
-                              class="text-secondary-light dark:text-secondary-dark line-clamp-1"
-                              >{bot.clientID}</P
-                            >
-                          </div>
-                          <div class="flex pl-2">
-                            <div class="cursor-pointer">
-                              <CopyIcon
-                                svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                      >
-                        <div class="flex justify-between items-center">
-                          <div>
-                            <P
-                              size="sm"
-                              weight="semibold"
-                              class="text-primary-light dark:text-primary-dark"
-                              >{$_("activation")}</P
-                            >
-                            <P
-                              size="sm"
-                              weight="normal"
-                              class="text-secondary-light dark:text-secondary-dark line-clamp-1"
-                              >{bot.activationTime}</P
-                            >
-                          </div>
-                          <div class="flex pl-2">
-                            <div class="cursor-pointer">
-                              <CopyIcon
-                                svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="pb-4 bg-primary-light dark:bg-primary-dark border-b border-secondary-light dark:border-secondary-dark p-4"
-                      >
-                        <div class="flex justify-between items-center">
-                          <div>
-                            <P
-                              size="sm"
-                              weight="semibold"
-                              class="text-primary-light dark:text-primary-dark">{$_("urlBot")}</P
-                            >
-                            <P
-                              size="sm"
-                              weight="normal"
-                              class="text-secondary-light dark:text-secondary-dark line-clamp-1"
-                              >{bot.urlBot}</P
-                            >
-                          </div>
-                          <div class="flex pl-2">
-                            <div class="cursor-pointer">
-                              <CopyIcon
-                                svgClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
-                {/if}
+                </div> -->
+                <!-- {/if} -->
               {/each}
             </div>
-          </div>
-        {/if}
+          {/if}
+        </div>
       </div>
     </div>
   </div>

@@ -438,42 +438,44 @@
             <span>{configs.pagination.total}</span>
             <!-- {$_("entries")} -->
           </div>
-          {#if configs.pagination.total > configs.pagination.pageSize}
-            <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-              {$_("page")}
-              <span>{configs.pagination.page}</span>
-              {$_("of")}
-              <span>{configs.pagination.pageCount}</span>
-            </div>
-          {/if}
-        </div>
-        {#if configs.pagination.total > configs.pagination.pageSize}
-          <div class="flex justify-end">
-            <Button
-              disabled={configs.pagination.page === 1}
-              on:click={configs?.isCategories ? previous(configs?.headers) : previous}
-              color="light"
-              class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
-            >
-              <ArrowLeftIcon
-                svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
-              />
-              {$_("previous")}
-            </Button>
-            <Button
-              disabled={configs.pagination.page * configs.pagination.pageSize >=
-                configs.pagination.total}
-              on:click={configs?.isCategories ? next(configs?.headers) : next}
-              color="light"
-              class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
-            >
-              {$_("next")}
-              <ArrowRightIcon
-                svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
-              />
-            </Button>
+          <div class="flex">
+            {#if configs.pagination.total > configs.pagination.pageSize}
+              <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+                {$_("page")}
+                <span>{configs.pagination.page}</span>
+                {$_("of")}
+                <span>{configs.pagination.pageCount}</span>
+              </div>
+            {/if}
+            {#if configs.pagination.total > configs.pagination.pageSize}
+              <div class="flex justify-end">
+                <Button
+                  disabled={configs.pagination.page === 1}
+                  on:click={configs?.isCategories ? previous(configs?.headers) : previous}
+                  color="light"
+                  class="fluid-sm gap-1 md:gap-2 rounded-l-lg border-0 rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
+                >
+                  <ArrowLeftIcon
+                    svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+                  />
+                  {$_("previous")}
+                </Button>
+                <Button
+                  disabled={configs.pagination.page * configs.pagination.pageSize >=
+                    configs.pagination.total}
+                  on:click={configs?.isCategories ? next(configs?.headers) : next}
+                  color="light"
+                  class="fluid-sm gap-1 md:gap-2 rounded-r-lg border-0 rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
+                >
+                  {$_("next")}
+                  <ArrowRightIcon
+                    svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+                  />
+                </Button>
+              </div>
+            {/if}
           </div>
-        {/if}
+        </div>
       {/if}
     </div>
   {/if}

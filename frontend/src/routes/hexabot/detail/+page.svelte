@@ -16,7 +16,7 @@
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import CopyIcon from "$lib/icon/copy-03.svelte";
-  import { ChevronDownOutline, DotsVerticalOutline } from "flowbite-svelte-icons";
+  import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
@@ -47,6 +47,11 @@
 
   const isFrontend = process.env.NODE_ENV === "development";
 
+  const params = new URLSearchParams(window.location.search);
+  const edit = params.get("edit");
+
+  let onEdit = false;
+
   let ready = false;
   let botId;
   let botFile = { name: "" };
@@ -58,6 +63,7 @@
   let modalThemeColor = false;
   let modalOverlayColor = false;
   let dropdownBgAlignOpen = false;
+  let modalDelete = false;
   let background_align = "center";
   let bgAlign = [
     { name: "Center", value: "center" },
@@ -686,6 +692,7 @@
         });
 
         console.log("update bot", response);
+        onEdit = false;
         triggerToast("updated");
       } catch (error) {
         console.log(error);
@@ -693,7 +700,39 @@
     }
   }
 
+  async function deleteBot(id) {
+    let token = sessionStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "delete-bot", {
+          URLQuery: {},
+          URLParams: {
+            id: id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        popupModal = false;
+        triggerToast("deleted");
+        goto(await $call.getPage("client-dashboard", "hexabot-list"));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
+    if (edit === "true") onEdit = true;
     triggerLoading(true);
     getModels();
     const unsubscribe = page.subscribe(async ($page) => {
@@ -722,18 +761,53 @@
 {#if ready}
   <div class="m-4 pb-12">
     <div class="sticky top-0 bg-primary-light dark:bg-primary-dark z-10">
-      <div class="flex justify-start items-center mx-4">
-        <Avatar
-          class="size-14 border-[1px] border-hc-graylight-200"
-          src={botFile.name ? botFile.imageResult : ""}
-          stacked
-        />
-        <div class="ml-4">
-          <div class="flex items-center gap-2">
-            <Typography preset="Display sm/Semibold" text={users.botName} color="primary" />
-            <Badge type={classStatusType(users.deployedPlatform)} text={users.deployedPlatform} />
+      <div class="flex justify-between items-center mx-4">
+        <div class="flex items-center">
+          <Avatar
+            class="size-14 border-[1px] border-hc-graylight-200"
+            src={botFile.name ? botFile.imageResult : ""}
+            stacked
+          />
+          <div class="ml-4">
+            <div class="flex items-center gap-2">
+              <Typography preset="Display sm/Semibold" text={users.botName} color="primary" />
+              <Badge type={classStatusType(users.deployedPlatform)} text={users.deployedPlatform} />
+            </div>
+            <Typography preset="Text md/Medium" text={formattedDate} color="quarterary" />
           </div>
-          <Typography preset="Text md/Medium" text={formattedDate} color="quarterary" />
+        </div>
+        <div class="flex gap-2">
+          {#if onEdit}
+            <Button
+              onclick={() => {
+                onEdit = false;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+            >
+            <Button on:click={() => updateBot()} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+          {:else}
+            <Button
+              onclick={async function () {
+                goto(await $call.getPage("client-dashboard", "hexabot"));
+                return;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("back")}</Button
+            >
+            <Button
+              onclick={() => (modalDelete = true)}
+              outline
+              color="red"
+              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+            >
+            <Button
+              onclick={() => {
+                onEdit = true;
+              }}
+              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+            >
+          {/if}
         </div>
       </div>
 
@@ -755,7 +829,7 @@
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
             <div class="flex flex-col gap-1.5 col-span-4">
               <Typography preset="Text sm/Medium" text={$_("botsName")} color="secondary" />
-              <InputRw bind:value={users.botName} onEdit />
+              <InputRw bind:value={users.botName} {onEdit} />
             </div>
             <div class="flex flex-col gap-1.5 col-span-4">
               <Typography
@@ -763,7 +837,7 @@
                 text={$_("descriptionOptional")}
                 color="secondary"
               />
-              <TextareaRw bind:value={users.description} onEdit />
+              <TextareaRw bind:value={users.description} {onEdit} />
             </div>
           </div>
         </div>
@@ -781,6 +855,7 @@
               bind:selectedData={users.platform}
               numGrid={3}
               isRadio
+              disabled={!onEdit}
             />
           </div>
         </div>
@@ -794,11 +869,11 @@
           />
           <div class="w-full md:w-3/4 flex flex-col gap-1.5">
             <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
-            <TextareaRw bind:value={users.additionalPrompts} onEdit />
+            <TextareaRw bind:value={users.additionalPrompts} {onEdit} />
           </div>
         </div>
         <Divider />
-        <div class="flex justify-end gap-3">
+        <!-- <div class="flex justify-end gap-3">
           <Button on:click={() => {}} color="light" class="px-3 focus-within:!ring-1"
             >{$_("cancel")}</Button
           >
@@ -809,7 +884,7 @@
             }}
             class="px-3 focus-within:!ring-1">{$_("save")}</Button
           >
-        </div>
+        </div> -->
       </div>
     {:else if tabDatas.selected === "Customization"}
       <div class="mt-6 space-y-6">
@@ -824,16 +899,16 @@
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="flex flex-col gap-1.5 col-span-4">
               <Typography preset="Text sm/Medium" text={$_("welcomeMessage")} color="secondary" />
-              <TextareaRw bind:value={users.welcomeMessage} onEdit />
+              <TextareaRw bind:value={users.welcomeMessage} {onEdit} />
             </div>
             <div class="flex gap-4 col-span-4">
               <div class="flex flex-col gap-1.5 grow">
                 <Typography preset="Text sm/Medium" text={$_("botsName")} color="secondary" />
-                <InputRw bind:value={users.botName} onEdit />
+                <InputRw bind:value={users.botName} {onEdit} />
               </div>
               <div class="flex flex-col gap-1.5 grow">
                 <Typography preset="Text sm/Medium" text={$_("userName")} color="secondary" />
-                <InputRw bind:value={users.username} onEdit />
+                <InputRw bind:value={users.username} {onEdit} />
               </div>
             </div>
             <div class="col-span-2">
@@ -842,6 +917,7 @@
                 handleFileUploadWrapper={() => handleInputFile("bot")}
                 isPreview
                 srcAvatar={botFile.name ? botFile.imageResult : ""}
+                disabled={!onEdit}
               />
             </div>
             <div class="col-span-2">
@@ -850,6 +926,7 @@
                 handleFileUploadWrapper={() => handleInputFile("user")}
                 isPreview
                 srcAvatar={userFile.name ? userFile.imageResult : ""}
+                disabled={!onEdit}
               />
             </div>
           </div>
@@ -871,10 +948,11 @@
               > -->
               <label class="inline-flex items-center cursor-pointer">
                 <input
+                  disabled={onEdit}
                   type="checkbox"
                   value=""
                   bind:checked={users.logoOnly}
-                  class="sr-only peer"
+                  class="sr-only peer overflow-hidden"
                 />
                 <div
                   class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
@@ -890,11 +968,12 @@
                 handleFileUploadWrapper={() => handleInputFile("logo")}
                 isPreview
                 srcAvatar={logoFile.name ? logoFile.imageResult : ""}
+                disabled={!onEdit}
               />
             </div>
             <div class="flex flex-col gap-1.5 col-span-2">
               <Typography preset="Text sm/Medium" text={$_("logoName")} color="secondary" />
-              <InputRw bind:value={users.logoName} onEdit />
+              <InputRw bind:value={users.logoName} {onEdit} />
             </div>
           </div>
         </div>
@@ -914,11 +993,11 @@
                 color="secondary"
               />
               <Button
-                on:click={() => {
+                on:click={!onEdit ? () => {} : () => {
                   tmpThemeColor = users.primaryBrandColor;
                   modalThemeColor = true;
                 }}
-                class="flex justify-between border-primary-light dark:border-primary-dark dark:bg-gray-800"
+                class={`flex justify-between ${!onEdit ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
                 color="light"
               >
                 <div class="flex items-center gap-2">
@@ -948,6 +1027,7 @@
               isRadio
               widthFlex="w-full"
               spacing="!p-4"
+              disabled={!onEdit}
             />
           </div>
         </div>
@@ -967,16 +1047,17 @@
                 isPreview
                 largePreview
                 srcAvatar={backgroundFile.name ? backgroundFile.imageResult : ""}
+                disabled={!onEdit}
               />
             </div>
             <div class="flex flex-col gap-1.5 col-span-2">
               <Typography preset="Text sm/Medium" text={$_("overlayColor")} color="secondary" />
               <Button
-                on:click={() => {
+                on:click={!onEdit ? () => {} : () => {
                   tmpOverlayColor = users.overlayColor;
                   modalOverlayColor = true;
                 }}
-                class="flex justify-between border-primary-light dark:border-primary-dark dark:bg-gray-800"
+                class={`flex justify-between ${!onEdit ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
                 color="light"
               >
                 <div class="flex items-center gap-2">
@@ -995,6 +1076,7 @@
                 bind:selectedItem={users.background_align}
                 items={bgAlign}
                 isOverlay={true}
+                disabled={!onEdit}
               />
             </div>
           </div>
@@ -1019,7 +1101,7 @@
                   type="checkbox"
                   value=""
                   bind:checked={users.needAuth}
-                  class="sr-only peer"
+                  class="sr-only peer overflow-hidden"
                 />
                 <div
                   class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
@@ -1032,7 +1114,7 @@
           </div>
         </div>
         <Divider />
-        <div class="flex justify-end gap-3">
+        <!-- <div class="flex justify-end gap-3">
           <Button
             on:click={async () => {
               goto(await $call.getPage("client-dashboard", "hexabot-list"));
@@ -1047,7 +1129,7 @@
             }}
             class="px-3 focus-within:!ring-1">{$_("save")}</Button
           >
-        </div>
+        </div> -->
       </div>
     {:else if tabDatas.selected === "Data"}
       <div class="md:flex">
@@ -1154,5 +1236,16 @@
         class="px-3 w-full focus-within:!ring-1">{"Save"}</Button
       >
     </svelte:fragment>
+  </Modal>
+
+  <Modal bind:open={modalDelete} size="xs" autoclose>
+    <div class="text-center">
+      <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+      <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+        {$_("areYouSureYouWantToDelete")}
+      </h3>
+      <Button onclick={() => deleteBot(botId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+      <Button color="alternative">{$_("noCancel")}</Button>
+    </div>
   </Modal>
 {/if}

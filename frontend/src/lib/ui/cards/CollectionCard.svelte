@@ -143,7 +143,11 @@
     <Button
       disabled={status === "Reading"}
       on:click={() => {
-        functButton();
+        if (status === "Empty") {
+          functAddDocuments();
+        } else {
+          functButton();
+        }
       }}
       color="light"
       class="flex w-full px-2 py-2 md:px-4 md:py-2.5 gap-1 md:gap-1.5 border-none fluid-xs md:fluid-sm"

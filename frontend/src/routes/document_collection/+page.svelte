@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input, P, Indicator, Alert } from "flowbite-svelte";
+  import { Modal, Button, Input, P, Indicator, Alert, Select } from "flowbite-svelte";
   import {
     StateCard,
     Typography,
@@ -71,6 +71,10 @@ All Rights Reserved
   let tmpCollectionName = $state("");
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
+  let categories = $state([]);
+  let otherCategory = $state("");
+  let addOtherCategory = $state(false);
+  let tmpCategories = $state("");
   let tmpDocumentType = $state("");
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
@@ -497,7 +501,8 @@ All Rights Reserved
         "document-collection-list-document",
       );
 
-      latestDocumentCollection = collections.map((collection) => {
+      latestDocumentCollection = collections.map(async (collection) => {
+        let categories = await getCategories(collection.id);
         const filteredDocuments = documents.filter(
           (document) => document.attributes.collection_id === collection.id,
         );
@@ -524,20 +529,18 @@ All Rights Reserved
         let collectionStatus;
         if (nullDocuments === totalDocuments) {
           if (totalDocuments === 0) {
-            console.log("empty", collection.id);
+            // console.log("empty", collection.id);
             collectionStatus = "Empty";
           } else {
-            console.log("null", collection.id);
+            // console.log("null", collection.id);
             collectionStatus = null;
           }
         } else if (nullDocuments > 0 || numberDocuments > 0) {
-          console.log("read", collection.id);
+          // console.log("read", collection.id);
           collectionStatus = "Reading";
         } else if (readyDocuments === totalDocuments) {
-          console.log("ready", collection.id);
+          // console.log("ready", collection.id);
           collectionStatus = "Ready";
-        } else {
-          console.log("else", collection.id);
         }
         return {
           collectionId: collection.id,
@@ -545,6 +548,7 @@ All Rights Reserved
           collectionName: collection.attributes.collection_name,
           description: collection.attributes.description,
           totalDocuments: totalDocuments,
+          categories: categories,
           status: collectionStatus,
           href: `${collectionList}?collectionId=${collection.id}`,
           webchat: collection.attributes.webchat_tmp === true ? true : false,
@@ -668,6 +672,7 @@ All Rights Reserved
             documents: JSON.stringify(files),
             collection_id: tmpCollectionId.toString(),
             document_type: tmpDocumentType,
+            category: tmpCategories,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -921,6 +926,35 @@ All Rights Reserved
     };
   }
 
+  async function getCategories(id) {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-categories-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: id.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(id, response);
+        return;
+      }
+
+      return response.result.categories.map((category) => {
+        return {
+          name: category,
+          value: category,
+        };
+      });
+    }
+  }
+
   async function selectCollection(collection) {
     console.log("ayam overview");
     triggerShowAI(true);
@@ -1003,7 +1037,9 @@ All Rights Reserved
                 }}
                 functAddDocuments={() => {
                   tmpCollectionId = document.collectionId;
+                  categories = document.categories;
                   selectTypeCollection("Documents");
+                  categories = document.categories;
                   addDocumentsModal = true;
                 }}
                 functEdit={() => {
@@ -1094,6 +1130,45 @@ All Rights Reserved
           >
         </ul>
       </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
+      <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
+      <Select class="mt-2" items={categories} bind:value={tmpCategories} placeholder={$_("selectCategory")} />
+      {#if !addOtherCategory}
+        <p>
+          {$_("addOtherCategory")}
+          <button onclick={() => {addOtherCategory = true;}} class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline" >
+            {$_("clickHere")}
+          </button>
+        </p>
+      {/if}
+      {#if addOtherCategory}
+        <Input
+          placeholder={$_("enterOtherCategory")}
+          bind:value={otherCategory}
+          onkeydown={(e) => {
+            if (
+              e.key === "Enter" &&
+              otherCategory !== "" &&
+              !tmpCategories.includes(otherCategory)
+            ) {
+              for (let i = 0; i < categories.length; i++) {
+                if (categories[i]?.other === true) {
+                  categories.splice(i, 1);
+                  break;
+                }
+              }
+              categories = [
+                ...categories,
+                { value: otherCategory, name: otherCategory, other: true },
+              ];
+              tmpCategories = otherCategory;
+              otherCategory = "";
+            }
+          }}
+        />
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
