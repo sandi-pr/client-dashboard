@@ -558,9 +558,7 @@
             attributes.overlay_color !== null
               ? themeColors.find((color) => color.value === attributes.overlay_color).id
               : 1,
-          platform: platforms.find(
-            (platform) => platform.model === attributes.ai_engine || "llama3.1:8b",
-          ).id,
+          platform: platforms.find((platform) => platform.model === attributes.ai_engine).id,
           layout:
             attributes.layout !== null
               ? layouts.find((layout) => layout.name === attributes.layout).id
