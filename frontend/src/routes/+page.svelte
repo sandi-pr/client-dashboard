@@ -46,12 +46,12 @@ All Rights Reserved
       description: "descDatasets",
       page: "datasets",
     },
-    {
-      icon: "messageChat",
-      title: "hexabot",
-      description: "descCreateNewBots",
-      page: "hexabot",
-    },
+    // {
+    //   icon: "messageChat",
+    //   title: "hexabot",
+    //   description: "descCreateNewBots",
+    //   page: "hexabot",
+    // },
     // {
     //   icon: "userSquare",
     //   title: "HR",

@@ -207,12 +207,12 @@ All Rights Reserved
         href: isFrontend ? "/datasets" : await call.getPage("client-dashboard", "datasets"),
         children: [],
       },
-      {
-        icon: "messageChat",
-        name: "hexabot",
-        href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-        children: [],
-      },
+      // {
+      //   icon: "messageChat",
+      //   name: "hexabot",
+      //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+      //   children: [],
+      // },
       // {
       //   icon: "fileAttachment",
       //   name: "documentSigning",
