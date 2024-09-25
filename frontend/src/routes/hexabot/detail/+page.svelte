@@ -74,6 +74,7 @@
   let datasChecked = [];
   let configs = {};
   let pagination = { page: 1, pageSize: 10, pageCount: 0, total: 0 };
+  let searchTerm = "";
 
   let tmpThemeColor = "";
   let tmpOverlayColor = "";
@@ -137,15 +138,11 @@
   }
 
   let timeoutId;
-  const handleSearch = (evt) => {
-    clearTimeout(timeoutId);
-    if (evt.keyCode !== 13) {
-      timeoutId = setTimeout(() => {
-        console.log(evt.target.value);
-      }, 500);
-    } else {
-      console.log(evt.target.value);
-    }
+  const handleSearch = async (value) => {
+    pagination.page = 1;
+    searchTerm = value;
+
+    await getDocuments(1);
   };
 
   let conversationDatas = [
@@ -436,6 +433,7 @@
           page: page,
           page_size: pagination.pageSize,
           collection_id: collectionId.toString(),
+          search: searchTerm,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -453,6 +451,7 @@
       if (response.result.data.length > 0) {
         configs = {
           search: true,
+          searchHandler: handleSearch,
           headers: "Files",
           pagination: response.result.meta.pagination,
         };

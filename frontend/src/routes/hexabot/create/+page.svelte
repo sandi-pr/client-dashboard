@@ -351,6 +351,7 @@
 
           platforms = await Promise.all(promise);
         } else {
+          triggerToast("error");
           console.log(response);
         }
       } catch (error) {
