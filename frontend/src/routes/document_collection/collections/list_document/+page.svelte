@@ -109,6 +109,7 @@ All Rights Reserved
   let trainingModelModal = $state(false);
   let fileNotSupport = $state(false);
   let addOtherCategory = $state(false);
+  let search = $state(false);
 
   let timer;
 
@@ -118,6 +119,7 @@ All Rights Reserved
   let searchTermCategory = $state({});
 
   const handleSearch = async (value) => {
+    search = true;
     page = 1;
     searchTerm = value;
 
@@ -164,7 +166,9 @@ All Rights Reserved
   async function getDocuments() {
     let token = sessionStorage.getItem("token");
     if (token !== null) {
-      gettingDatas = true;
+      if (!search) {
+        gettingDatas = true;
+      }
       let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
         URLQuery: {},
         URLParams: {},
@@ -315,9 +319,12 @@ All Rights Reserved
         };
       }
 
-      await getAllDocumentsByCategory();
+      if (!search) {
+        await getAllDocumentsByCategory();
+      }
 
       gettingDatas = false;
+      search = false;
     }
   }
 
