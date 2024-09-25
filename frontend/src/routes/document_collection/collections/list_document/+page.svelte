@@ -80,7 +80,7 @@ All Rights Reserved
   // let dropdownToggle = $state([true, false]);
 
   let tabDatas = $state({
-    selected: "By Categories",
+    selected: "Lists",
     data: [
       {
         name: "Lists",
@@ -468,6 +468,12 @@ All Rights Reserved
                 addDocumentsModal = true;
                 addOtherCategory = false;
                 tmpCategories = [];
+                for (let i = 0; i < categories.length; i++) {
+                  if (categories[i]?.other === true) {
+                    categories = categories.slice(0, i).concat(categories.slice(i + 1));
+                    break;
+                  }
+                }
                 tmpCategories = category;
               },
             },
@@ -1243,7 +1249,10 @@ All Rights Reserved
               illustration={IllustrationEmpty}
               description={$_("youDontHaveAnyDataYet")}
               actionText={$_("addNewDocument")}
-              funcButton={() => {addDocumentsModal = true; addOtherCategory = false;}}
+              funcButton={() => {
+                addDocumentsModal = true;
+                addOtherCategory = false;
+              }}
             />
           {/if}
         {:else if tabDatas.selected === "By Categories"}
@@ -1279,7 +1288,10 @@ All Rights Reserved
               illustration={IllustrationEmpty}
               description={$_("youDontHaveAnyDataYet")}
               actionText={$_("addNewDocument")}
-              funcButton={() => {addDocumentsModal = true; addOtherCategory = false;}}
+              funcButton={() => {
+                addDocumentsModal = true;
+                addOtherCategory = false;
+              }}
             />
           {/if}
         {:else if tabDatas.selected === "Information"}
@@ -1360,11 +1372,21 @@ All Rights Reserved
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
       <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-      <Select class="mt-2" items={categories} bind:value={tmpCategories} placeholder={$_("selectCategory")} />
+      <Select
+        class="mt-2"
+        items={categories}
+        bind:value={tmpCategories}
+        placeholder={$_("selectCategory")}
+      />
       {#if !addOtherCategory}
         <p>
           {$_("addOtherCategory")}
-          <button onclick={() => {addOtherCategory = true;}} class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline" >
+          <button
+            onclick={() => {
+              addOtherCategory = true;
+            }}
+            class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
+          >
             {$_("clickHere")}
           </button>
         </p>
@@ -1381,7 +1403,7 @@ All Rights Reserved
             ) {
               for (let i = 0; i < categories.length; i++) {
                 if (categories[i]?.other === true) {
-                  categories.splice(i, 1);
+                  categories = categories.slice(0, i).concat(categories.slice(i + 1));
                   break;
                 }
               }

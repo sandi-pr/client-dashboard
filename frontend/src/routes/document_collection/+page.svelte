@@ -501,8 +501,8 @@ All Rights Reserved
         "document-collection-list-document",
       );
 
-      latestDocumentCollection = collections.map(async (collection) => {
-        let categories = await getCategories(collection.id);
+      let promise = collections.map(async (collection) => {
+        let categoriesCollection = await getCategories(collection.id);
         const filteredDocuments = documents.filter(
           (document) => document.attributes.collection_id === collection.id,
         );
@@ -548,14 +548,16 @@ All Rights Reserved
           collectionName: collection.attributes.collection_name,
           description: collection.attributes.description,
           totalDocuments: totalDocuments,
-          categories: categories,
+          categories: categoriesCollection,
           status: collectionStatus,
           href: `${collectionList}?collectionId=${collection.id}`,
           webchat: collection.attributes.webchat_tmp === true ? true : false,
         };
       });
 
-      console.log("cek status", latestDocumentCollection);
+      latestDocumentCollection = await Promise.all(promise);
+
+      console.log("cek", collections);
 
       gettingDatas = false;
     }
@@ -1040,6 +1042,8 @@ All Rights Reserved
                   categories = document.categories;
                   selectTypeCollection("Documents");
                   categories = document.categories;
+                  otherCategory = "";
+                  addOtherCategory = false;
                   addDocumentsModal = true;
                 }}
                 functEdit={() => {
@@ -1134,11 +1138,21 @@ All Rights Reserved
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
       <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-      <Select class="mt-2" items={categories} bind:value={tmpCategories} placeholder={$_("selectCategory")} />
+      <Select
+        class="mt-2"
+        items={categories}
+        bind:value={tmpCategories}
+        placeholder={$_("selectCategory")}
+      />
       {#if !addOtherCategory}
         <p>
           {$_("addOtherCategory")}
-          <button onclick={() => {addOtherCategory = true;}} class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline" >
+          <button
+            onclick={() => {
+              addOtherCategory = true;
+            }}
+            class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
+          >
             {$_("clickHere")}
           </button>
         </p>
@@ -1155,7 +1169,7 @@ All Rights Reserved
             ) {
               for (let i = 0; i < categories.length; i++) {
                 if (categories[i]?.other === true) {
-                  categories.splice(i, 1);
+                  categories = categories.slice(0, i).concat(categories.slice(i + 1));
                   break;
                 }
               }
