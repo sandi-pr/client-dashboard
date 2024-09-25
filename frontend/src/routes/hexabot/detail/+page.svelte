@@ -358,17 +358,22 @@
         console.log("models", response);
 
         if (response === null) {
-          // if (isFrontend) {
-          platforms = [
-            {
-              id: 1,
-              name: "Llama3.1",
-              model: "llama3.1:8b",
-              description: "Llama3.1 Develop by Meta",
-              create_at: "2024-07-23",
-            },
-          ];
-          // }
+          if (isFrontend) {
+            platforms = [
+              {
+                id: 1,
+                name: "Llama3.1",
+                model: "llama3.1:8b",
+                description: "Llama3.1 Develop by Meta",
+                create_at: "2024-07-23",
+              },
+            ];
+          } else {
+            triggerLoading(false);
+            triggerToast("error");
+          }
+
+          return;
         }
 
         if (response.status === 200) {
@@ -384,8 +389,6 @@
           });
 
           platforms = await Promise.all(promise);
-        } else {
-          console.log(response);
         }
       } catch (error) {
         console.log(error);
@@ -734,7 +737,7 @@
   onMount(() => {
     if (edit === "true") onEdit = true;
     triggerLoading(true);
-    getModels();
+
     const unsubscribe = page.subscribe(async ($page) => {
       botId = $page.url.searchParams.get("botId");
       if (!botId) {
@@ -743,6 +746,7 @@
         goto(await $call.getPage("client-dashboard", "hexabot-list"));
         return;
       }
+      await getModels();
       getBot();
     });
     return () => unsubscribe();
@@ -785,7 +789,9 @@
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button on:click={() => updateBot()} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+            <Button on:click={() => updateBot()} class="px-3 focus-within:!ring-1"
+              >{$_("save")}</Button
+            >
           {:else}
             <Button
               onclick={async function () {
@@ -993,10 +999,12 @@
                 color="secondary"
               />
               <Button
-                on:click={!onEdit ? () => {} : () => {
-                  tmpThemeColor = users.primaryBrandColor;
-                  modalThemeColor = true;
-                }}
+                on:click={!onEdit
+                  ? () => {}
+                  : () => {
+                      tmpThemeColor = users.primaryBrandColor;
+                      modalThemeColor = true;
+                    }}
                 class={`flex justify-between ${!onEdit ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
                 color="light"
               >
@@ -1053,10 +1061,12 @@
             <div class="flex flex-col gap-1.5 col-span-2">
               <Typography preset="Text sm/Medium" text={$_("overlayColor")} color="secondary" />
               <Button
-                on:click={!onEdit ? () => {} : () => {
-                  tmpOverlayColor = users.overlayColor;
-                  modalOverlayColor = true;
-                }}
+                on:click={!onEdit
+                  ? () => {}
+                  : () => {
+                      tmpOverlayColor = users.overlayColor;
+                      modalOverlayColor = true;
+                    }}
                 class={`flex justify-between ${!onEdit ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
                 color="light"
               >

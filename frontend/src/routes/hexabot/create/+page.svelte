@@ -334,7 +334,11 @@
                 create_at: "2024-07-23",
               },
             ];
+          } else {
+            triggerLoading(false);
+            triggerToast("error");
           }
+          return;
         }
 
         if (response.status === 200) {
