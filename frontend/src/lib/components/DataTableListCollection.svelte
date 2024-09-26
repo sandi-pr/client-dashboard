@@ -146,7 +146,6 @@
   // });
 
   const handleSearch = (event) => {
-    console.log(event.target.value);
     if (configs?.isCategories) {
       configs?.searchHandler(event.target.value, configs?.headers);
     } else {
@@ -424,7 +423,9 @@
             {$_("showing")}
             <span
               >{configs.pagination.page === 1
-                ? 1
+                ? configs.pagination.total === 0
+                  ? 0
+                  : 1
                 : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
             >
             -

@@ -292,7 +292,7 @@ All Rights Reserved
           search: true,
           searchHandler: handleSearch,
           headers: "File Uploaded",
-          pagination: null,
+          pagination: response.result.meta.pagination,
           actions: [
             {
               id: "delete",
