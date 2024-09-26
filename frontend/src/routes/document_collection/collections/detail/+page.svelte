@@ -59,6 +59,9 @@ All Rights Reserved
   let base64 = $state(null);
   let fileUrl = $state("null");
   let pdfReady = $state(false);
+  let otherCategory = $state("");
+  let addOtherCategory = $state(false);
+  let categories = $state([]);
 
   let tabDatas = $state({
     selected: "Documents",
@@ -77,16 +80,16 @@ All Rights Reserved
   let data = $state({});
   let tmpData = $state({});
 
-  let categories = $state([
-    {
-      value: "GENERAL",
-      name: "General",
-    },
-    {
-      value: "CONTRACT",
-      name: "Contract",
-    },
-  ]);
+  // let categoriesTab = $state([
+  //   {
+  //     value: "GENERAL",
+  //     name: "General",
+  //   },
+  //   {
+  //     value: "CONTRACT",
+  //     name: "Contract",
+  //   },
+  // ]);
 
   let personClient = $state([]);
 
@@ -198,11 +201,14 @@ All Rights Reserved
           //   }
           // }
 
+          categories = await getCategories(collectionId);
+
           data = {
             id: documentData.id,
             createdAt: documentData.attributes.createdAt,
             document_title: documentData.attributes.document_title,
             description: documentData.attributes.description,
+            category: documentData.attributes.category,
             document_type: documentData.attributes.document_type,
             ext: documentData.attributes.document.data.attributes.ext,
             detectedText: documentData.attributes.detected_text
@@ -236,6 +242,7 @@ All Rights Reserved
             createdAt: documentData.attributes.createdAt,
             document_title: documentData.attributes.document_title,
             description: documentData.attributes.description,
+            category: documentData.attributes.category,
             document_type: documentData.attributes.document_type,
             ext: documentData.attributes.document.data.attributes.ext,
             detectedText: documentData.attributes.detected_text
@@ -257,6 +264,35 @@ All Rights Reserved
       }
     } else {
       // triggerToast("error");
+    }
+  }
+
+  async function getCategories(id) {
+    let token = sessionStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-categories-by-collection-id", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: id.toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(id, response);
+        return;
+      }
+
+      return response.result.categories.map((category) => {
+        return {
+          name: category,
+          value: category,
+        };
+      });
     }
   }
 
@@ -471,6 +507,7 @@ All Rights Reserved
             edited: true,
             document_title: data.document_title,
             description: data.description,
+            category: data.category,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -493,6 +530,7 @@ All Rights Reserved
           Params: {
             document_title: data.document_title,
             description: data.description,
+            category: data.category,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -649,6 +687,67 @@ All Rights Reserved
                   text={`${$_("description")}`}
                 />
                 <InputRw {onEdit} bind:value={data.description} />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <Typography
+                  preset="Text sm/medium"
+                  color="secondary"
+                  text={`${$_("categories")}`}
+                />
+                {#if !onEdit}
+                  <InputRw bind:value={data.category} />
+                {:else}
+                  <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
+                  <Select
+                    disabled={!onEdit}
+                    class="mt-2"
+                    items={categories}
+                    bind:value={data.category}
+                    placeholder={$_("selectCategory")}
+                  />
+                  {#if !addOtherCategory}
+                    <p>
+                      {$_("addOtherCategory")}
+                      <button
+                        onclick={() => {
+                          addOtherCategory = true;
+                        }}
+                        class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
+                      >
+                        {$_("clickHere")}
+                      </button>
+                    </p>
+                  {/if}
+                  {#if addOtherCategory}
+                    <Input
+                      placeholder={$_("enterOtherCategory")}
+                      bind:value={otherCategory}
+                      onkeydown={(e) => {
+                        if (
+                          e.key === "Enter" &&
+                          otherCategory !== "" &&
+                          !categories.includes(otherCategory)
+                        ) {
+                          if (categories.length > 0) {
+                            for (let i = 0; i < categories.length; i++) {
+                              if (categories[i]?.other === true) {
+                                categories = categories.slice(0, i).concat(categories.slice(i + 1));
+                                break;
+                              }
+                            }
+                          }
+
+                          categories = [
+                            ...categories,
+                            { value: otherCategory, name: otherCategory, other: true },
+                          ];
+                          data.category = otherCategory;
+                          otherCategory = "";
+                        }
+                      }}
+                    />
+                  {/if}
+                {/if}
               </div>
             </div>
           </div>

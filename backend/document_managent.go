@@ -1459,46 +1459,39 @@ func UpdateDocumentHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.
 		description = ""
 	}
 
-	if description == "" {
-		status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
-			"detected_text":  detected_text,
-			"result_trocr":   result_trocr_json,
-			"edited":         edited,
-			"document_title": document_title,
-		})
-		if err != nil {
-			fmt.Println(err)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		if status != 200 {
-			fmt.Println(document)
-			fmt.Println(status)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		return 200, document, nil
-	} else {
-		status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
-			"detected_text":  detected_text,
-			"result_trocr":   result_trocr_json,
-			"edited":         edited,
-			"document_title": document_title,
-			"description":    description,
-		})
-		if err != nil {
-			fmt.Println(err)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		if status != 200 {
-			fmt.Println(document)
-			fmt.Println(status)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		return 200, document, nil
+	category, ok := ctx.Params.GetString("category")
+	if !ok {
+		category = ""
 	}
+
+	dataSend := U.Dict{
+		"detected_text":  detected_text,
+		"result_trocr":   result_trocr_json,
+		"edited":         edited,
+		"document_title": document_title,
+	}
+
+	if category != "" {
+		dataSend["category"] = category
+	}
+
+	if description != "" {
+		dataSend["description"] = description
+	}
+
+	status, document, err := Strapi.Update("document-management-table", int64(id), dataSend)
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(document)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, document, nil
 }
 
 func UpdateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
@@ -1543,40 +1536,36 @@ func UpdateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		description = ""
 	}
 
-	if description == "" {
-		status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
-			"document_title": document_title,
-		})
-		if err != nil {
-			fmt.Println(err)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		if status != 200 {
-			fmt.Println(document)
-			fmt.Println(status)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		return 200, document, nil
-	} else {
-		status, document, err := Strapi.Update("document-management-table", int64(id), U.Dict{
-			"document_title": document_title,
-			"description":    description,
-		})
-		if err != nil {
-			fmt.Println(err)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		if status != 200 {
-			fmt.Println(document)
-			fmt.Println(status)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		return 200, document, nil
+	category, ok := ctx.Params.GetString("category")
+	if !ok {
+		category = ""
 	}
+
+	dataSend := U.Dict{
+		"document_title": document_title,
+	}
+
+	if category != "" {
+		dataSend["category"] = category
+	}
+
+	if description != "" {
+		dataSend["description"] = description
+	}
+
+	status, document, err := Strapi.Update("document-management-table", int64(id), dataSend)
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(document)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, document, nil
 }
 
 func DeleteDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
