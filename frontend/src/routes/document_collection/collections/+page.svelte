@@ -1009,7 +1009,7 @@ All Rights Reserved
         bind:value={tmpCategories}
         placeholder={$_("selectCategory")}
       />
-      {#if !addOtherCategory}
+      <!-- {#if !addOtherCategory}
         <p>
           {$_("addOtherCategory")}
           <button
@@ -1046,7 +1046,7 @@ All Rights Reserved
             }
           }}
         />
-      {/if}
+      {/if} -->
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />

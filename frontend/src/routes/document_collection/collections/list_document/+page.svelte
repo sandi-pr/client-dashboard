@@ -20,7 +20,17 @@ All Rights Reserved
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { id as localeId, enUS as localeEn } from "date-fns/locale";
-  import { Button, P, Modal, Tooltip, Indicator, Input, Alert, Select, MultiSelect } from "flowbite-svelte";
+  import {
+    Button,
+    P,
+    Modal,
+    Tooltip,
+    Indicator,
+    Input,
+    Alert,
+    Select,
+    MultiSelect,
+  } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import {
     ExclamationCircleSolid,
@@ -100,7 +110,7 @@ All Rights Reserved
   let tmpDocumentTitle = $state("");
   let categories = $state([]);
   let tmpCategories = $state([]);
-  let tmpSelectedCategories = $state(['ayam']);
+  let tmpSelectedCategories = $state(["ayam"]);
   let otherCategory = $state("");
   let tmpDocumentDescription = $state("");
   let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
@@ -814,6 +824,7 @@ All Rights Reserved
           URLParams: {},
           Params: {
             category: selectCategories,
+            collection_id: collectionId.toString(),
           },
           Headers: {
             Authorization: `Bearer ${token}`,
@@ -1143,6 +1154,84 @@ All Rights Reserved
       }
     }
   }
+
+  async function addCategories() {
+    let tmp = categories.map((category) => {
+      return category.name;
+    });
+
+    for (let i = 0; i < tmp.length; i++) {
+      if (tags.includes(tmp[i])) {
+        tags = tags.filter((tag) => {
+          return tag !== tmp[i];
+        });
+      }
+    }
+
+    let tmp2 = [...tags, ...tmp];
+
+    addCategoriesModal = false;
+    triggerLoading(true);
+    let token = sessionStorage.getItem("token");
+    try {
+      const response = await $call.call("client-dashboard", "update-categories", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_id: collectionId.toString(),
+          categories: JSON.stringify(tmp2),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        triggerLoading(false);
+        addCategoriesModal = true;
+        console.log(response);
+        triggerToast("error");
+        return;
+      }
+
+      await getAllDocumentsByCategory();
+      triggerLoading(false);
+      triggerToast("created");
+      tags = [];
+      addCategoriesModal = false;
+    } catch (error) {
+      console.log(error);
+      triggerToast("error");
+    }
+  }
+
+  let tags = $state([]); // Daftar tag yang sudah dimasukkan pengguna
+  let newTag = $state(""); // Menyimpan input dari pengguna
+  let inputRef;
+
+  // Fungsi untuk menambahkan tag
+  function addTag() {
+    if (newTag.trim() && !tags.includes(newTag)) {
+      tags = [...tags, newTag];
+      newTag = ""; // Reset input setelah menambahkan tag
+    }
+  }
+
+  // Fungsi untuk menghapus tag
+  function removeTag(tagToRemove) {
+    tags = tags.filter((tag) => tag !== tagToRemove);
+  }
+
+  // Fungsi untuk menambah tag saat menekan Enter
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      addTag();
+    }
+  }
+
+  function focusInput(input) {
+    input.focus();
+  }
 </script>
 
 <div class="flex dark:bg-primary-dark">
@@ -1187,7 +1276,16 @@ All Rights Reserved
                   {$_("trainingModel")}</Button
                 >
               {/if} -->
-              <Button onclick={() => {addCategoriesModal = true}} color="light" class="gap-2"><FolderPlusIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />{$_("addNewCategories")}</Button>
+              <Button
+                onclick={() => {
+                  addCategoriesModal = true;
+                }}
+                color="light"
+                class="gap-2"
+                ><FolderPlusIcon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />{$_("addNewCategories")}</Button
+              >
               <Button
                 disabled={datas.length === 0 || statusRag === "Reading"}
                 onclick={() => {
@@ -1287,27 +1385,25 @@ All Rights Reserved
               illustration={IllustrationProgress}
               description={$_("fetchingDataPleaseWait")}
             />
-          {:else}
-            {#if tabDatas.selected === "Lists"}
-              <StateCard
-                illustration={IllustrationEmpty}
-                description={$_("youDontHaveAnyDataYet")}
-                actionText={$_("addNewDocument")}
-                funcButton={() => {
-                  addDocumentsModal = true;
-                  addOtherCategory = false;
-                }}
-              />
-            {:else if tabDatas.selected === "By Categories"}
-              <StateCard
-                illustration={IllustrationEmpty}
-                description={$_("youDontHaveAnyDataYet")}
-                actionText={$_("addNewCategories")}
-                funcButton={() => {
-                  addCategoriesModal = true;
-                }}
-              />
-            {/if}
+          {:else if tabDatas.selected === "Lists"}
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+              actionText={$_("addNewDocument")}
+              funcButton={() => {
+                addDocumentsModal = true;
+                addOtherCategory = false;
+              }}
+            />
+          {:else if tabDatas.selected === "By Categories"}
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={$_("youDontHaveAnyDataYet")}
+              actionText={$_("addNewCategories")}
+              funcButton={() => {
+                addCategoriesModal = true;
+              }}
+            />
           {/if}
         {:else if tabDatas.selected === "Information"}
           <div class="flex flex-col gap-4 pt-4 md:pt-6">
@@ -1393,7 +1489,7 @@ All Rights Reserved
         bind:value={tmpCategories}
         placeholder={$_("selectCategory")}
       />
-      {#if !addOtherCategory}
+      <!-- {#if !addOtherCategory}
         <p>
           {$_("addOtherCategory")}
           <button
@@ -1431,7 +1527,7 @@ All Rights Reserved
             }
           }}
         />
-      {/if}
+      {/if} -->
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
@@ -1463,7 +1559,7 @@ All Rights Reserved
   </svelte:fragment>
 </Modal>
 
-<Modal title={$_("createNewCategories")} bind:open={addCategoriesModal} size="xs">
+<Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
@@ -1473,7 +1569,49 @@ All Rights Reserved
         items={tmpCategories}
         placeholder={$_("selectCategory")}
       /> -->
-      <MultiSelect disabled items={tmpCategories} bind:value={tmpSelectedCategories} />
+      <!-- buat class disable -->
+      <div class="flex">
+        <button
+          class="flex w-full flex-wrap items-center space-x-2 space-y-1 border rounded-lg p-2"
+          onclick={() => {
+            focusInput(inputRef);
+          }}
+        >
+          {#each tags as tag}
+            <span
+              class="flex items-center space-x-1 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2 py-1"
+            >
+              <span>{tag}</span>
+              <button
+                onclick={() => {
+                  removeTag(tag);
+                }}
+                class="text-brand-primary-light dark:text-brand-primary-dark">x</button
+              >
+            </span>
+          {/each}
+
+          <input
+            bind:this={inputRef}
+            type="text"
+            bind:value={newTag}
+            placeholder={`${tags.length < 1 ? $_("enterNewCategory") : ""}`}
+            onkeydown={handleKeyDown}
+            class={`border-none flex-grow focus:ring-transparent ${tags.length > 0 ? "max-w-min" : "w-full"}`}
+          />
+        </button>
+        <button
+          onclick={addTag}
+          class="bg-secondary-light dark:bg-secondary-dark text-primary-light dark:text-primary-dark px-4 py-1 rounded"
+        >
+          Add
+        </button>
+      </div>
+      <!-- <MultiSelect
+        class="no-pointer-events"
+        items={tmpCategories}
+        bind:value={tmpSelectedCategories}
+      />
       <Input
         placeholder={$_("enterNewCategory")}
         bind:value={otherCategory}
@@ -1489,11 +1627,11 @@ All Rights Reserved
             otherCategory = "";
           }
         }}
-      />
+      /> -->
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={() => (addCategoriesModal = false)} disabled={tmpCategories.length === 0} class="w-full"
+    <Button onclick={() => addCategories()} disabled={tags.length === 0} class="w-full"
       >{$_("addNewCategories")}</Button
     >
   </svelte:fragment>

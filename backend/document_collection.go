@@ -12,6 +12,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -599,4 +600,148 @@ func GetCollectionWebchatPublic(ctx *config.ConfigContext) (int, U.Dict, *config
 	}
 
 	return 404, U.Dict{}, nil
+}
+
+func GetCategoriesByCollectionId(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	collection_idStr, ok := ctx.Params.GetString("collection_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	collection_id, err := strconv.Atoi(string(collection_idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, collection, err := Strapi.Find("document-collection-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": collection_id,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	data, ok := collection.GetList("data")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(data) == 0 {
+		fmt.Println("collection not found")
+		return 500, U.Dict{}, nil
+	}
+
+	dict, ok := data.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	attributes, ok := dict.GetDict("attributes")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	categories, ok := attributes.GetList("categories")
+	if !ok {
+		return 200, U.Dict{"categories": []U.Dict{}}, nil
+	}
+
+	if len(categories) == 0 {
+		return 200, U.Dict{"categories": []U.Dict{}}, nil
+	}
+
+	return 200, U.Dict{"categories": categories}, nil
+}
+
+func UpdateCategories(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	collection_idStr, ok := ctx.Params.GetString("collection_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	collection_id, err := strconv.Atoi(string(collection_idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	categoriesStr, ok := ctx.Params.GetString("categories")
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	var categories interface{}
+	err = json.Unmarshal([]byte(categoriesStr), &categories)
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, _, err = Strapi.Update("document-collection-table", int64(collection_id), U.Dict{
+		"categories": categories,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{}, nil
 }

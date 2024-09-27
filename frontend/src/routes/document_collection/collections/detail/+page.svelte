@@ -587,14 +587,14 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{data.document_title}<Button
+              >{data.document_title}
+              <!-- <Button
                 outline
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <!-- <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" /> -->
-              </Button></Heading
-            >
+              </Button> -->
+            </Heading>
           </div>
           <P
             class="fluid-sm md:fluid-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
@@ -705,7 +705,7 @@ All Rights Reserved
                     bind:value={data.category}
                     placeholder={$_("selectCategory")}
                   />
-                  {#if !addOtherCategory}
+                  <!-- {#if !addOtherCategory}
                     <p>
                       {$_("addOtherCategory")}
                       <button
@@ -746,7 +746,7 @@ All Rights Reserved
                         }
                       }}
                     />
-                  {/if}
+                  {/if} -->
                 {/if}
               </div>
             </div>

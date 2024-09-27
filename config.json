@@ -1835,6 +1835,29 @@
             ]
         },
         {
+            "name": "update-categories",
+            "path": "/update-categories",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateCategories"
+            },
+            "params": [
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "categories",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "delete-document-collection-by-contract",
             "path": "/delete-document-collection-by-contract",
             "method": "POST",
@@ -1868,6 +1891,11 @@
                 "function": "DeleteDocumentByCategories"
             },
             "params": [
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": true
+                },
                 {
                     "name": "category",
                     "type": "string",
@@ -4615,6 +4643,9 @@
                     },
                     "webchat_tmp": {
                         "type": "boolean"
+                    },
+                    "categories": {
+                        "type": "json"
                     }
                 }
             },
