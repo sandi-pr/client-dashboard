@@ -947,25 +947,10 @@
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
-              <!-- <Toggle
-                checked={users.logoOnly}
-                on:click={() => (users.logoOnly = !users.logoOnly)}
-                class="w-max">{$_("logoOnly")}</Toggle
-              > -->
               <label class="inline-flex items-center cursor-pointer">
-                <input
-                  disabled={onEdit}
-                  type="checkbox"
-                  value=""
-                  bind:checked={users.logoOnly}
-                  class="sr-only peer overflow-hidden"
-                />
-                <div
-                  class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-                ></div>
-                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >{$_("logoOnly")}</span
-                >
+                <input disabled={!onEdit} type="checkbox" value="" class="hidden peer" bind:checked={users.logoOnly}>
+                <div class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"></div>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{$_("requiresLogin")}</span>
               </label>
             </div>
             <div class="col-span-2">
@@ -1101,24 +1086,10 @@
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
-              <!-- <Toggle
-                checked={users.needAuth}
-                on:click={() => (users.needAuth = !users.needAuth)}
-                class="w-max">{$_("requiresLogin")}</Toggle
-              > -->
               <label class="inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  value=""
-                  bind:checked={users.needAuth}
-                  class="sr-only peer overflow-hidden"
-                />
-                <div
-                  class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-                ></div>
-                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >{$_("requiresLogin")}</span
-                >
+                <input disabled={!onEdit} type="checkbox" value="" class="hidden peer" bind:checked={users.needAuth}>
+                <div class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"></div>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{$_("requiresLogin")}</span>
               </label>
             </div>
           </div>

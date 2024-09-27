@@ -40,22 +40,22 @@
   const isFrontend = process.env.NODE_ENV === "development";
 
   let dropdownCollectionOpen = false;
-  let collections = [];
-  let initCollections = [];
-  let documents = [];
+  let collections = $state([]);
+  let initCollections = $state([]);
+  let documents = $state([]);
 
-  let botName = "";
-  let description = "";
-  let fileImage = null;
-  let fileImageName = null;
-  let fileImageResult = null;
-  let selectedplatforms = null;
-  let selectedCollection = "";
-  let additionalPrompt = "";
-  let needAuth = false;
-  let modalOpen = false;
+  let botName = $state("");
+  let description = $state("");
+  let fileImage = $state(null);
+  let fileImageName = $state(null);
+  let fileImageResult = $state(null);
+  let selectedplatforms = $state(null);
+  let selectedCollection = $state("");
+  let additionalPrompt = $state("");
+  let needAuth = $state(false);
+  let modalOpen = $state(false);
 
-  let platforms = [];
+  let platforms = $state([]);
 
   let selectedDays = [
     {
@@ -95,7 +95,7 @@
     },
   ];
 
-  let screenWidth;
+  let screenWidth = $state(0);
   let params = [];
   let products_and_services = [];
 
@@ -529,9 +529,11 @@
       />
       <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="col-span-4">
-          <Toggle checked={needAuth} onclick={() => (needAuth = !needAuth)} class="w-max"
-            >{$_("requiresLogin")}</Toggle
-          >
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" value="" class="hidden peer" bind:checked={needAuth}>
+            <div class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{$_("requiresLogin")}</span>
+          </label>
         </div>
       </div>
     </div>

@@ -129,7 +129,7 @@
   class={` ${isHidden ? "hidden h-screen" : "fixed h-full"} !overflow-x-visible z-50 border-r border-secondary-light dark:border-secondary-dark lg:fixed lg:inset-y-0 lg:z-10 lg:flex ${$sidebarLargeClosed ? "w-20" : "w-80"} transition-all duration-300 ease-in-out`}
 >
   <SidebarWrapper
-    class="h-full lg:pt-6 lg:px-4 flex flex-col justify-between bg-white dark:bg-primary-dark"
+    class="h-full lg:pt-6 lg:px-4 flex flex-col grow justify-between bg-white dark:bg-primary-dark"
     divClass="overflow-y-hidden hover:overflow-y-auto no-scrollbar py-4 px-3 bg-gray-50 rounded dark:bg-gray-800"
   >
     <SidebarGroup>
@@ -187,8 +187,8 @@
           />
           <LanguageSelector isMobileScreen />
         </div>
-        <div class="hidden md:flex">
-          <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark mb-6" />
+        <div class="hidden md:flex pb-4">
+          <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark" />
         </div>
         {#each sidebarItems as item}
           {#if item.children.length > 0}
