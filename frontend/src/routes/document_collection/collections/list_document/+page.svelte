@@ -20,7 +20,7 @@ All Rights Reserved
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { id as localeId, enUS as localeEn } from "date-fns/locale";
-  import { Button, P, Modal, Tooltip, Indicator, Input, Alert, Select } from "flowbite-svelte";
+  import { Button, P, Modal, Tooltip, Indicator, Input, Alert, Select, MultiSelect } from "flowbite-svelte";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import {
     ExclamationCircleSolid,
@@ -29,6 +29,7 @@ All Rights Reserved
   } from "flowbite-svelte-icons";
   import PlusIcon from "$lib/icon/plus.svg";
   import MessageChatCircle from "$lib/icon/message-chat-circle.svelte";
+  import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import { goto } from "$app/navigation";
@@ -98,12 +99,14 @@ All Rights Reserved
   let tmpDocumentType = $state("Documents");
   let tmpDocumentTitle = $state("");
   let categories = $state([]);
-  let tmpCategories = $state("");
+  let tmpCategories = $state([]);
+  let tmpSelectedCategories = $state(['ayam']);
   let otherCategory = $state("");
   let tmpDocumentDescription = $state("");
   let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
   let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
   let addDocumentsModal = $state(false);
+  let addCategoriesModal = $state(false);
   let dropdownOpen = $state(false);
   let newModelName = $state("");
   let trainingModelModal = $state(false);
@@ -1184,6 +1187,7 @@ All Rights Reserved
                   {$_("trainingModel")}</Button
                 >
               {/if} -->
+              <Button onclick={() => {addCategoriesModal = true}} color="light" class="gap-2"><FolderPlusIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />{$_("addNewCategories")}</Button>
               <Button
                 disabled={datas.length === 0 || statusRag === "Reading"}
                 onclick={() => {
@@ -1284,15 +1288,26 @@ All Rights Reserved
               description={$_("fetchingDataPleaseWait")}
             />
           {:else}
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-              actionText={$_("addNewDocument")}
-              funcButton={() => {
-                addDocumentsModal = true;
-                addOtherCategory = false;
-              }}
-            />
+            {#if tabDatas.selected === "Lists"}
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+                actionText={$_("addNewDocument")}
+                funcButton={() => {
+                  addDocumentsModal = true;
+                  addOtherCategory = false;
+                }}
+              />
+            {:else if tabDatas.selected === "By Categories"}
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+                actionText={$_("addNewCategories")}
+                funcButton={() => {
+                  addCategoriesModal = true;
+                }}
+              />
+            {/if}
           {/if}
         {:else if tabDatas.selected === "Information"}
           <div class="flex flex-col gap-4 pt-4 md:pt-6">
@@ -1444,6 +1459,42 @@ All Rights Reserved
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
       >{$_("addNewDocument")}</Button
+    >
+  </svelte:fragment>
+</Modal>
+
+<Modal title={$_("createNewCategories")} bind:open={addCategoriesModal} size="xs">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
+      <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
+      <!-- <Select
+        class="mt-2"
+        items={tmpCategories}
+        placeholder={$_("selectCategory")}
+      /> -->
+      <MultiSelect disabled items={tmpCategories} bind:value={tmpSelectedCategories} />
+      <Input
+        placeholder={$_("enterNewCategory")}
+        bind:value={otherCategory}
+        onkeydown={(e) => {
+          if (
+            e.key === "Enter" &&
+            otherCategory !== "" &&
+            !tmpCategories.find((category) => category.value === otherCategory)
+          ) {
+            // Tambahkan otherCategory ke tmpCategories
+            tmpCategories = [...tmpCategories, { value: otherCategory, name: otherCategory }];
+            tmpSelectedCategories = [...tmpSelectedCategories, otherCategory];
+            otherCategory = "";
+          }
+        }}
+      />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={() => (addCategoriesModal = false)} disabled={tmpCategories.length === 0} class="w-full"
+      >{$_("addNewCategories")}</Button
     >
   </svelte:fragment>
 </Modal>

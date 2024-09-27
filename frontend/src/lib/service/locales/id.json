@@ -560,5 +560,8 @@
   "areYouSureYouWantToDeleteCategories": "Apakah Anda yakin ingin menghapus kategori?",
   "addOtherCategory": "Tambahkan kategori lain",
   "clickHere": "klik di sini",
-  "enterOtherCategory": "Masukkan kategori lain"
+  "enterOtherCategory": "Masukkan kategori lain",
+  "addNewCategories": "Tambahkan kategori baru",
+  "createNewCategories": "Buat kategori baru",
+  "enterNewCategory": "Masukkan kategori baru"
 }

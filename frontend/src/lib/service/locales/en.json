@@ -559,5 +559,8 @@
   "areYouSureYouWantToDeleteCategories": "Are you sure you want to delete categories?",
   "addOtherCategory": "Add other category",
   "clickHere": "click here",
-  "enterOtherCategory": "Enter other category"
+  "enterOtherCategory": "Enter other category",
+  "addNewCategories": "Add new categories",
+  "createNewCategories": "Create new categories",
+  "enterNewCategory": "Enter new category"
 }
