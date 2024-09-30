@@ -103,7 +103,7 @@
               functDelete(), (dropdownOpen = !dropdownOpen);
             }}>{$_("delete")}</button
           >
-          <button
+          <!-- <button
             disabled={totalDocuments === 0}
             class={`flex p-2 w-full ${totalDocuments === 0 ? 'text-disabled-light dark:text-disabled-dark' : 'text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark'}`}
             onclick={() => {
@@ -112,7 +112,7 @@
             ><div class={totalDocuments === 0 ? "text-disabled-light dark:text-disabled-dark" : ""}>
               {$_("selectCollectionWebchat")}
             </div></button
-          >
+          > -->
         </ul>
       </div>
     </div>
