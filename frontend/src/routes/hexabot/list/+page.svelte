@@ -321,7 +321,7 @@
                       </Button>
                       <Button
                         on:click={() => {
-                          goto(bot.urlBot);
+                          window.open(bot.urlBot, "_blank");
                         }}
                         outline
                         class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"

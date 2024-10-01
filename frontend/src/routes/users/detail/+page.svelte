@@ -134,13 +134,13 @@ All Rights Reserved
       }
 
       if (response.status !== 200) {
-        console.log(response);
+        console.log("status not 200", response);
         return;
       }
 
       goto(await $call.getPage("client-dashboard", "users"));
     } catch (error) {
-      console.log(error);
+      console.log("error", error);
     }
   }
 
@@ -342,7 +342,7 @@ All Rights Reserved
                         >
                           <Badge text="Admin" />
                         </button>
-                        <button
+                        <!-- <button
                           class="flex p-2"
                           onclick={() => {
                             data.authority = "Employee";
@@ -350,7 +350,7 @@ All Rights Reserved
                           }}
                         >
                           <Badge text="Employee" type="info" />
-                        </button>
+                        </button> -->
                         <button
                           class="flex p-2"
                           onclick={() => {
