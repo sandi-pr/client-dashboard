@@ -563,5 +563,6 @@
   "enterOtherCategory": "Masukkan kategori lain",
   "addNewCategories": "Tambahkan kategori baru",
   "createNewCategories": "Buat kategori baru",
-  "enterNewCategory": "Masukkan kategori baru"
+  "enterNewCategory": "Masukkan kategori baru",
+  "categoryIsEmptyAdd": "Kategori kosong, tambahkan"
 }

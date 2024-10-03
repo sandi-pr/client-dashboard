@@ -109,7 +109,7 @@ All Rights Reserved
   let tmpDocumentType = $state("Documents");
   let tmpDocumentTitle = $state("");
   let categories = $state([]);
-  let tmpCategories = $state([]);
+  let tmpCategories = $state([""]);
   let tmpSelectedCategories = $state(["ayam"]);
   let otherCategory = $state("");
   let tmpDocumentDescription = $state("");
@@ -1287,7 +1287,7 @@ All Rights Reserved
                 />{$_("addNewCategories")}</Button
               >
               <Button
-                disabled={datas.length === 0 || statusRag === "Reading"}
+                disabled={datas.length === 0 && statusRag === "Reading"}
                 onclick={() => {
                   selectCollection({
                     id: collectionId,
@@ -1489,6 +1489,21 @@ All Rights Reserved
         bind:value={tmpCategories}
         placeholder={$_("selectCategory")}
       />
+      {#if categories.length === 0}
+        <Alert color="yellow">
+          <InfoCircleSolid slot="icon" class="w-5 h-5" />
+          {$_("categoryIsEmptyAdd")}
+          <button
+            onclick={() => {
+              addDocumentsModal = false;
+              addCategoriesModal = true;
+            }}
+            class="font-semibold underline hover:text-yellow-800 dark:hover:text-yellow-900"
+            >{$_("inHere")}</button
+          >
+        </Alert>
+        <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
+      {/if}
       <!-- {#if !addOtherCategory}
         <p>
           {$_("addOtherCategory")}

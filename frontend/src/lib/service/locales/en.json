@@ -562,5 +562,6 @@
   "enterOtherCategory": "Enter other category",
   "addNewCategories": "Add new categories",
   "createNewCategories": "Create new categories",
-  "enterNewCategory": "Enter new category"
+  "enterNewCategory": "Enter new category",
+  "categoryIsEmptyAdd": "Category is empty, add"
 }

@@ -71,6 +71,7 @@ All Rights Reserved
   let tmpCollectionName = $state("");
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
+  let tmpHref = $state("");
   let categories = $state([]);
   let otherCategory = $state("");
   let addOtherCategory = $state(false);
@@ -1039,6 +1040,7 @@ All Rights Reserved
                 }}
                 functAddDocuments={() => {
                   tmpCollectionId = document.collectionId;
+                  tmpHref = document.href;
                   categories = document.categories;
                   selectTypeCollection("Documents");
                   categories = document.categories;
@@ -1144,6 +1146,21 @@ All Rights Reserved
         bind:value={tmpCategories}
         placeholder={$_("selectCategory")}
       />
+      {#if categories.length === 0}
+        <Alert color="yellow">
+          <InfoCircleSolid slot="icon" class="w-5 h-5" />
+          {$_("categoryIsEmptyAdd")}
+          <button
+            onclick={() => {
+              addDocumentsModal = false;
+              goto(tmpHref);
+            }}
+            class="font-semibold underline hover:text-yellow-800 dark:hover:text-yellow-900"
+            >{$_("inHere")}</button
+          >
+        </Alert>
+        <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
+      {/if}
       <!-- {#if !addOtherCategory}
         <p>
           {$_("addOtherCategory")}
