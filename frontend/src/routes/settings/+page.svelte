@@ -214,7 +214,7 @@
   }
 
   const getUser = async () => {
-    let me = JSON.parse(sessionStorage.getItem("user"));
+    let me = JSON.parse(localStorage.getItem("user"));
     user = {
       grid: 4,
       title: "My Details",
@@ -246,9 +246,9 @@
   };
 
   const updatePhotoUser = async () => {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
-      let me = JSON.parse(sessionStorage.getItem("user"));
+      let me = JSON.parse(localStorage.getItem("user"));
       const response = await $call.call("client-dashboard", "update-photo-user", {
         URLQuery: {},
         URLParams: {
@@ -278,7 +278,7 @@
   };
 
   const currentPasswordCheck = async () => {
-    let me = JSON.parse(sessionStorage.getItem("user"));
+    let me = JSON.parse(localStorage.getItem("user"));
     var resp = await $call.call("client-login", "login", {
       URLQuery: {},
       URLParams: {},
@@ -347,8 +347,8 @@
       return;
     }
 
-    let me = JSON.parse(sessionStorage.getItem("user"));
-    let token = sessionStorage.getItem("token");
+    let me = JSON.parse(localStorage.getItem("user"));
+    let token = localStorage.getItem("token");
     var resp = await $call.call("client-dashboard", "update-user", {
       URLQuery: {},
       URLParams: {
@@ -377,7 +377,7 @@
   };
 
   async function getCompanyType() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "get-company-type", {
         URLQuery: {},
@@ -447,7 +447,7 @@
   }
 
   async function updateCompanyType() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "update-company-type", {
         URLQuery: {},
@@ -472,7 +472,7 @@
   }
 
   async function updateTheme() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "update-theme", {
@@ -551,7 +551,7 @@
   }
 
   async function updateModelTrocr() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "update-model-trocr", {
         URLQuery: {},

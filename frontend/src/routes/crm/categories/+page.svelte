@@ -36,7 +36,7 @@ All Rights Reserved
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
   let datas = $state([]);
-  
+
   let gettingDatas = $state(false);
 
   let configs = $state({});
@@ -57,7 +57,7 @@ All Rights Reserved
 
   async function getCategories(page) {
     if (page > pagination.pageCount) return;
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-categories", {
@@ -153,7 +153,10 @@ All Rights Reserved
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else if gettingDatas}
-          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}

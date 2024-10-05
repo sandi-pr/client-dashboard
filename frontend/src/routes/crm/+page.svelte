@@ -365,7 +365,7 @@ All Rights Reserved
   }
 
   async function getPerson() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-persons", {
@@ -430,13 +430,13 @@ All Rights Reserved
 
         latestPersons = await Promise.all(promises);
       }
-      
+
       gettingDatas = false;
     }
   }
 
   async function getProducts() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-products", {
@@ -499,7 +499,7 @@ All Rights Reserved
     const today = new Date();
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     let tmpMonthlyPersonsCounts = [];
     let tmpMonthlyActivePersonsCounts = [];
@@ -622,7 +622,10 @@ All Rights Reserved
               {$_("reports")}
             </Heading>
           </div>
-          <ChartCard {chartAction} chartList={[dataChartTotalPersons, dataChartActivePersons, dataChartInactivePersons,]} />
+          <ChartCard
+            {chartAction}
+            chartList={[dataChartTotalPersons, dataChartActivePersons, dataChartInactivePersons]}
+          />
         </div>
 
         <div class="flex flex-col">

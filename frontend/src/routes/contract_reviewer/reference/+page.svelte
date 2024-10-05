@@ -139,7 +139,7 @@
     addBuyerDocumentModal = false;
     addSellerDocumentModal = false;
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       tmpFile.type = tmpDocumentName;
       files.push(tmpFile);
@@ -260,7 +260,7 @@
       if (files[index].id !== 0) tmpIdDeleted.push(files[index].id);
     }
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (tmpIdDeleted.length > 0) {
       for (let i = 0; i < tmpIdDeleted.length; i++) {
@@ -325,7 +325,7 @@
   }
 
   async function getReferences() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let page = 1;
       idUploaded = [];
@@ -385,7 +385,7 @@
   }
 
   async function getIndustries() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       let page = 1;
@@ -427,7 +427,7 @@
   }
 
   async function getStatusRag() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         let generated = [];

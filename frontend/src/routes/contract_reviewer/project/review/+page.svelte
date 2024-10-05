@@ -163,7 +163,7 @@
   async function getProjectResult() {
     triggerLoading(true);
     datas = [];
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "get-contract-project-result", {
@@ -325,7 +325,7 @@
   async function updateResult() {
     editModal = false;
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let index = tmpResult.findIndex((data) => data.title === tmpTitle);
       if (index !== -1) {

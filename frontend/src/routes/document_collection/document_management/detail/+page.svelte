@@ -71,7 +71,7 @@ All Rights Reserved
   let personClient = $state([]);
 
   async function getDocument() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "get-document", {
@@ -141,7 +141,7 @@ All Rights Reserved
   }
 
   async function deleteDocument() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (documentId !== "" && documentId !== null && documentId !== undefined) {
       try {
         let response = await $call.call("client-dashboard", "delete-document", {
@@ -172,7 +172,7 @@ All Rights Reserved
   }
 
   async function getPersons() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let page = 1;
       while (true) {

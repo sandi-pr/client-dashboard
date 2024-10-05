@@ -36,7 +36,7 @@ All Rights Reserved
   let configs = $state({});
 
   async function getDocuments(page) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       while (true) {
         let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {

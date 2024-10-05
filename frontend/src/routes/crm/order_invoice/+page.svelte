@@ -55,7 +55,7 @@ All Rights Reserved
   let invoiceReady = $state(false);
 
   async function getOrder() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       gettingDatas = true;
@@ -114,7 +114,7 @@ All Rights Reserved
   }
 
   async function getInvoice() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token != null) {
       gettingDatas = true;
@@ -205,7 +205,10 @@ All Rights Reserved
           {#if dataOrders.length > 0}
             <DataTable bind:datas={dataOrders} bind:configs={configsOrders} />
           {:else if gettingDatas}
-            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
           {:else}
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}
@@ -213,7 +216,10 @@ All Rights Reserved
           {#if dataInvoices.length > 0}
             <DataTable bind:datas={dataInvoices} bind:configs={configsInvoices} />
           {:else if gettingDatas}
-            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
           {:else}
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}

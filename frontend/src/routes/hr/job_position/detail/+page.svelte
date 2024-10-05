@@ -58,7 +58,7 @@ All Rights Reserved
   let employmentStatuses = $state([]);
 
   async function getPositionLevels() {
-    // let token = sessionStorage.getItem("token");
+    // let token = localStorage.getItem("token");
     // if (token) {
     //   try {
     //     const response = await $call.call("client-dashboard", "get-job-level", {
@@ -90,7 +90,7 @@ All Rights Reserved
   }
 
   async function getEmploymentStatuses() {
-    // let token = sessionStorage.getItem("token");
+    // let token = localStorage.getItem("token");
     // if (token) {
     //   try {
     //     const response = await $call.call("client-dashboard", "get-employment-status", {
@@ -151,7 +151,7 @@ All Rights Reserved
   }
 
   async function getPosition() {
-    // let token = sessionStorage.getItem("token");
+    // let token = localStorage.getItem("token");
     // try {
     //   let response = await $call.call("client-dashboard", "get-employee", {
     //     URLQuery: {},
@@ -198,7 +198,7 @@ All Rights Reserved
   }
 
   async function updateEmployee() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "update-employee", {
         URLQuery: {},
@@ -239,7 +239,7 @@ All Rights Reserved
   }
 
   async function deleteEmployee() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "delete-employee", {
         URLQuery: {},

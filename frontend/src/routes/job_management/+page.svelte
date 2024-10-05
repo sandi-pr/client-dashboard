@@ -103,7 +103,7 @@ All Rights Reserved
     //   triggerToast("error");
     //   return;
     // } else {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "create-job-level", {
@@ -131,7 +131,7 @@ All Rights Reserved
   }
 
   async function getJobLevels() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       gettingDatas = true;
       try {
@@ -159,7 +159,7 @@ All Rights Reserved
 
   async function getPositions(page) {
     if (page > pagination.pageCount) return;
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-job-position", {
@@ -220,7 +220,7 @@ All Rights Reserved
   }
 
   async function createJobPosition() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       datas.push({ id: Date.now(), job_position: tmpJobPosition, job_level: selectedJobLevel });
       try {
@@ -262,7 +262,7 @@ All Rights Reserved
         return data;
       }
     });
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "save-job-position", {
@@ -294,7 +294,7 @@ All Rights Reserved
 
   async function deleteJobPosition() {
     datas = datas.filter((data) => data.id !== tmpIdPosition);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "save-job-position", {

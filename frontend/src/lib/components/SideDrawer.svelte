@@ -82,7 +82,7 @@ All Rights Reserved
   };
 
   async function getCollections() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       let page = 1;
@@ -156,7 +156,7 @@ All Rights Reserved
   }
 
   async function getStatusRag() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     const callStatusRag = async () => {
       try {
         let rag = await $call.call("hexa-ai", "get-rag-status", {
@@ -240,7 +240,7 @@ All Rights Reserved
   };
 
   async function callColection() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
       URLQuery: {},

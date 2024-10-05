@@ -84,13 +84,13 @@ All Rights Reserved
       // console.log(resp_setup);
       // if (resp_setup.status === 200) {
       //   if (resp_setup.result.is_need_setup === true) {
-      //     if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
-      //     if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
+      //     if (localStorage.getItem("token") !== null) localStorage.removeItem("token");
+      //     if (localStorage.getItem("user") !== null) localStorage.removeItem("user");
       //     await $call.goToPage("hexapod-setup", "home-page");
       //     return;
       //   }
       // }
-      var token = sessionStorage.getItem("token");
+      var token = localStorage.getItem("token");
       if (token !== null) {
         var resp = await $call.call("client-login", "is-token-valid", {
           URLQuery: {},
@@ -103,7 +103,7 @@ All Rights Reserved
 
         if (resp.status === 200) {
           if (resp.result.confirmed === true && resp.result.blocked === false) {
-            sessionStorage.setItem("user", JSON.stringify(resp.result));
+            localStorage.setItem("user", JSON.stringify(resp.result));
             userData = resp.result;
           }
         }

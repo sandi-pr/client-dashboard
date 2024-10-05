@@ -36,7 +36,7 @@ All Rights Reserved
   async function createCategory() {
     if (data.category_name === "" || data.description === "") return;
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "create-category", {

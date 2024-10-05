@@ -86,7 +86,7 @@ All Rights Reserved
   }
 
   async function addDataFineTuning() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       if (images.length > 0) {

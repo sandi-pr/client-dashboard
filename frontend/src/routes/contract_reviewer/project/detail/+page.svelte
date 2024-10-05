@@ -74,7 +74,7 @@
     triggerLoading(true);
     const index = files.findIndex((file) => file.type === type);
     if (index !== -1) {
-      let token = sessionStorage.getItem("token");
+      let token = localStorage.getItem("token");
       if (token) {
         const response = await $call.call("client-dashboard", "delete-document-project", {
           URLQuery: {},
@@ -124,7 +124,7 @@
   }
 
   async function getRules() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       rulesTmp = [];
       let page = 1;
@@ -173,7 +173,7 @@
   async function getProject() {
     if (init) triggerLoading(true);
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-contract-project", {
@@ -247,7 +247,7 @@
   }
 
   async function getCountSection() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         let tmpCount = 0;
@@ -288,7 +288,7 @@
   }
 
   async function generatedAI(file) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("hexa-ai-contract-review", "generate-review", {
@@ -342,7 +342,7 @@
   }
 
   async function getDocumentContractProject() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       const response2 = await $call.call("client-dashboard", "get-document-contract-project", {
         URLQuery: {},
@@ -450,7 +450,7 @@
   }
 
   async function getStatusReference() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "check-reference-rag", {
@@ -485,7 +485,7 @@
   }
 
   async function getStatusGenerated() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         for (let i = 0; i < files.length; i++) {
@@ -644,7 +644,7 @@
   }
 
   async function deleteProject() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {

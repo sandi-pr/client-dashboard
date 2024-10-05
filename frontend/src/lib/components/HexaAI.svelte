@@ -120,7 +120,7 @@
 
   async function sendMessage() {
     disableInput = true;
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (messageInput.trim() !== "") {
       dataConversatonLogs = [
@@ -225,7 +225,7 @@
   }
 
   async function getMessage() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     let conversationId = sessionStorage.getItem("conversationId");
 

@@ -42,7 +42,7 @@ All Rights Reserved
   let tmpIndustryDescription = $state("");
 
   async function createIndustry() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "create-industry", {
         URLQuery: {},
@@ -68,7 +68,7 @@ All Rights Reserved
   }
 
   async function getIndustries() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-industries", {
         URLQuery: {},
@@ -129,7 +129,7 @@ All Rights Reserved
   }
 
   async function deleteIndustry() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "delete-industry", {
         URLQuery: {},
@@ -154,7 +154,7 @@ All Rights Reserved
   }
 
   async function updateIndustry() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       let response = await $call.call("client-dashboard", "update-industry", {

@@ -78,7 +78,7 @@
   }
 
   async function getBots() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token) {
       try {
@@ -194,7 +194,7 @@
   };
 
   async function deleteBot(id) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token) {
       try {
@@ -246,13 +246,8 @@
       <!-- <Navbar /> -->
 
       <div class="flex flex-col gap-8">
-
         <!-- User Information -->
-        <Typography
-          preset="Display sm/Semibold"
-          text={$_("hexaBots")}
-          propClass="fluid-xl"
-        />
+        <Typography preset="Display sm/Semibold" text={$_("hexaBots")} propClass="fluid-xl" />
 
         <!-- Action Items -->
         <div class="flex flex-col gap-4">
@@ -286,10 +281,7 @@
               description={$_("fetchingDataPleaseWait")}
             />
           {:else if bots.length === 0}
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-            />
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {:else}
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {#each bots as bot, index (bot.botsID)}
@@ -314,10 +306,7 @@
                           />
                         </div>
                       </div>
-                      <div
-                        onfocusout={handleDropdownFocusLoss}
-                        class=" flex items-center relative"
-                      >
+                      <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
                         <Button
                           on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
                           class="focus-within:ring-0 !p-0"

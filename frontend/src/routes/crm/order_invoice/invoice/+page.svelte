@@ -53,7 +53,7 @@ All Rights Reserved
       // }, 3000);
       return;
     }
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {
@@ -102,7 +102,7 @@ All Rights Reserved
   }
 
   async function deleteInvoice() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {

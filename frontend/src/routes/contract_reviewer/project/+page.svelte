@@ -60,7 +60,7 @@ All Rights Reserved
     // triggerLoading(true);
     await getRules();
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-contract-projects", {
@@ -122,7 +122,7 @@ All Rights Reserved
   }
 
   async function getRules() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       rulesTmp = [];
       let page = 1;
@@ -193,7 +193,7 @@ All Rights Reserved
   async function createProject() {
     addProjectModal = false;
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     let industry_id = sessionStorage.getItem("industry_id");
     if (industry_id === null) {
       triggerLoading(false);
@@ -266,7 +266,10 @@ All Rights Reserved
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs bind:next={nextPage} bind:previous={previousPage} />
         {:else if gettingDatas}
-          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}

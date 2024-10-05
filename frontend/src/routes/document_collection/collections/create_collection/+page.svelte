@@ -151,7 +151,7 @@ All Rights Reserved
 
   async function createCollection() {
     console.log(files);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       let response;

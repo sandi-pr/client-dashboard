@@ -83,7 +83,7 @@ All Rights Reserved
   }
 
   async function getCompanyType() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-company-type", {
@@ -111,7 +111,7 @@ All Rights Reserved
   async function createProject() {
     addProjectModal = false;
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     let industry_id = sessionStorage.getItem("industry_id");
     if (industry_id === null) {
       triggerLoading(false);
@@ -161,7 +161,7 @@ All Rights Reserved
   }
 
   async function getRules() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       rulesTmp = [];
       let page = 1;
@@ -211,7 +211,7 @@ All Rights Reserved
   };
 
   async function getProjectsLatest() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       gettingDatas = true;
       try {
@@ -319,7 +319,10 @@ All Rights Reserved
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs />
         {:else if gettingDatas}
-          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}

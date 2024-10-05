@@ -132,7 +132,7 @@ All Rights Reserved
     ) {
       return;
     }
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {
@@ -205,7 +205,7 @@ All Rights Reserved
   }
 
   async function getCategories() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-categories", {
         URLQuery: {},

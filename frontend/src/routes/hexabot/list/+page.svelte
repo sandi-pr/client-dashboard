@@ -54,7 +54,7 @@
   }
 
   async function getBots() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token) {
       try {
@@ -187,7 +187,7 @@
   };
 
   async function deleteBot(id) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token) {
       try {

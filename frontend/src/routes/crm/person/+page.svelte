@@ -41,7 +41,7 @@
 
   async function getPerson(page) {
     if (page > pagination.pageCount) return;
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-persons", {

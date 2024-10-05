@@ -44,7 +44,7 @@ All Rights Reserved
   let counter = $state(6);
 
   async function createOrder() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "create-order", {
@@ -125,7 +125,7 @@ All Rights Reserved
   }
 
   async function getProducts() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let page = 1;
       while (true) {
@@ -166,7 +166,7 @@ All Rights Reserved
   }
 
   async function getPersons() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let page = 1;
       while (true) {

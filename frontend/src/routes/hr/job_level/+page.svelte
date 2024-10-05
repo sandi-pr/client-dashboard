@@ -67,7 +67,7 @@ All Rights Reserved
       triggerToast("error");
       return;
     } else {
-      let token = sessionStorage.getItem("token");
+      let token = localStorage.getItem("token");
       if (token) {
         try {
           const response = await $call.call("client-dashboard", "create-job-level", {
@@ -95,7 +95,7 @@ All Rights Reserved
   }
 
   async function getJobLevels() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-job-level", {

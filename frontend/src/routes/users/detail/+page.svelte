@@ -58,7 +58,7 @@ All Rights Reserved
   }
 
   async function getUser() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "get-user", {
         URLQuery: {},
@@ -92,7 +92,7 @@ All Rights Reserved
   }
 
   async function updateUser() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     console.log("send", data);
     try {
       let response;
@@ -145,7 +145,7 @@ All Rights Reserved
   }
 
   async function deleteUser() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "delete-user", {
         URLQuery: {},

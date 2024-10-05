@@ -309,7 +309,7 @@ All Rights Reserved
   }
 
   async function getDocumentLatest() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-documents", {
         URLQuery: {},
@@ -373,7 +373,7 @@ All Rights Reserved
     const today = new Date();
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
         let response = await $call.call("client-dashboard", "get-count-documents-per-month", {

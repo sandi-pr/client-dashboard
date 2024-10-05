@@ -65,7 +65,7 @@ All Rights Reserved
     console.log("page", page);
     console.log("pagination", pagination.page);
     if (page > pagination.pageCount) return;
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-products", {
@@ -168,7 +168,10 @@ All Rights Reserved
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs bind:next bind:previous />
         {:else if gettingDatas}
-          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}

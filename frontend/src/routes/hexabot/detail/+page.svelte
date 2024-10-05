@@ -343,7 +343,7 @@
   let code = `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="http://webchat.hexacode.org/19ca7b92-4bfd-4c20-b6ab-048207e66258"></iframe>`;
 
   async function getModels() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         let response = await $call.call("hexa-ai-rag", "get-models", {
@@ -398,7 +398,7 @@
 
   async function getCollection() {
     // search collection using params collectionId here
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "get-collection-by-id", {
@@ -433,7 +433,7 @@
 
   async function getDocuments(page) {
     console.log("getDocuments", collectionId, page);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
         URLQuery: {},
@@ -518,7 +518,7 @@
   }
 
   async function getBot() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         let response = await $call.call("client-dashboard", "get-bot", {
@@ -661,7 +661,7 @@
   }
 
   async function updateBot() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         let response = await $call.call("client-dashboard", "update-bot", {
@@ -704,7 +704,7 @@
   }
 
   async function deleteBot(id) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token) {
       try {
@@ -947,10 +947,22 @@
           />
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
-              <label class={`inline-flex items-center ${!onEdit ? "cursor-default" : "cursor-pointer"}`}>
-                <input disabled={!onEdit} type="checkbox" value="" class="hidden peer" bind:checked={users.logoOnly}>
-                <div class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"></div>
-                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{$_("logoOnly")}</span>
+              <label
+                class={`inline-flex items-center ${!onEdit ? "cursor-default" : "cursor-pointer"}`}
+              >
+                <input
+                  disabled={!onEdit}
+                  type="checkbox"
+                  value=""
+                  class="hidden peer"
+                  bind:checked={users.logoOnly}
+                />
+                <div
+                  class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
+                ></div>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >{$_("logoOnly")}</span
+                >
               </label>
             </div>
             <div class="col-span-2">
@@ -1025,58 +1037,62 @@
           </div>
         </div>
         {#if users.layout === 2}
-        <Divider />
-        <div class="md:flex">
-          <Typography
-            preset="Text md/Semibold"
-            text={$_("background")}
-            color="secondary"
-            propClass="w-full md:w-1/4"
-          />
-          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="col-span-4">
-              <UploadFile
-                title={$_("backgroundPicture")}
-                handleFileUploadWrapper={() => handleInputFile("background")}
-                isPreview
-                largePreview
-                srcAvatar={backgroundFile.name ? backgroundFile.imageResult : ""}
-                disabled={!onEdit}
-              />
-            </div>
-            <div class="flex flex-col gap-1.5 col-span-2">
-              <Typography preset="Text sm/Medium" text={$_("overlayColor")} color="secondary" />
-              <Button
-                on:click={!onEdit
-                  ? () => {}
-                  : () => {
-                      tmpOverlayColor = users.overlayColor;
-                      modalOverlayColor = true;
-                    }}
-                class={`flex justify-between ${!onEdit ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
-                color="light"
-              >
-                <div class="flex items-center gap-2">
-                  <Indicator color={getBrandColorName(users.overlayColor)} />
-                  {getBrandColorName(users.overlayColor, "name")}
-                </div>
-                <ChevronDownOutline
-                  class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+          <Divider />
+          <div class="md:flex">
+            <Typography
+              preset="Text md/Semibold"
+              text={$_("background")}
+              color="secondary"
+              propClass="w-full md:w-1/4"
+            />
+            <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div class="col-span-4">
+                <UploadFile
+                  title={$_("backgroundPicture")}
+                  handleFileUploadWrapper={() => handleInputFile("background")}
+                  isPreview
+                  largePreview
+                  srcAvatar={backgroundFile.name ? backgroundFile.imageResult : ""}
+                  disabled={!onEdit}
                 />
-              </Button>
-            </div>
-            <div class="flex flex-col gap-1.5 col-span-2">
-              <Typography preset="Text sm/Medium" text={$_("backgroundAlign")} color="secondary" />
-              <Dropdown
-                dropdownOpen={dropdownBgAlignOpen}
-                bind:selectedItem={users.background_align}
-                items={bgAlign}
-                isOverlay={true}
-                disabled={!onEdit}
-              />
+              </div>
+              <div class="flex flex-col gap-1.5 col-span-2">
+                <Typography preset="Text sm/Medium" text={$_("overlayColor")} color="secondary" />
+                <Button
+                  on:click={!onEdit
+                    ? () => {}
+                    : () => {
+                        tmpOverlayColor = users.overlayColor;
+                        modalOverlayColor = true;
+                      }}
+                  class={`flex justify-between ${!onEdit ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
+                  color="light"
+                >
+                  <div class="flex items-center gap-2">
+                    <Indicator color={getBrandColorName(users.overlayColor)} />
+                    {getBrandColorName(users.overlayColor, "name")}
+                  </div>
+                  <ChevronDownOutline
+                    class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                  />
+                </Button>
+              </div>
+              <div class="flex flex-col gap-1.5 col-span-2">
+                <Typography
+                  preset="Text sm/Medium"
+                  text={$_("backgroundAlign")}
+                  color="secondary"
+                />
+                <Dropdown
+                  dropdownOpen={dropdownBgAlignOpen}
+                  bind:selectedItem={users.background_align}
+                  items={bgAlign}
+                  isOverlay={true}
+                  disabled={!onEdit}
+                />
+              </div>
             </div>
           </div>
-        </div>
         {/if}
         <Divider />
         <div class="md:flex">
@@ -1089,9 +1105,19 @@
           <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
               <label class="inline-flex items-center cursor-pointer">
-                <input disabled={!onEdit} type="checkbox" value="" class="hidden peer" bind:checked={users.needAuth}>
-                <div class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"></div>
-                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{$_("requiresLogin")}</span>
+                <input
+                  disabled={!onEdit}
+                  type="checkbox"
+                  value=""
+                  class="hidden peer"
+                  bind:checked={users.needAuth}
+                />
+                <div
+                  class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
+                ></div>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >{$_("requiresLogin")}</span
+                >
               </label>
             </div>
           </div>

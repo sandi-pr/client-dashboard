@@ -86,7 +86,7 @@ All Rights Reserved
     if (onEdit) {
       console.log(id);
       try {
-        let token = sessionStorage.getItem("token");
+        let token = localStorage.getItem("token");
         let response = await $call.call("client-dashboard", "delete-resource", {
           URLQuery: {},
           URLParams: { id: decodeUniqueId(id).toString() },
@@ -148,7 +148,7 @@ All Rights Reserved
       // }, 3000);
       return;
     }
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "get-product", {
         URLQuery: {},
@@ -206,7 +206,7 @@ All Rights Reserved
   }
 
   async function updateProduct() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response;
       if (tabDatas.selected === "Information") {
@@ -288,7 +288,7 @@ All Rights Reserved
   }
 
   async function deleteProduct() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "delete-product", {
         URLQuery: {},
@@ -317,7 +317,7 @@ All Rights Reserved
   }
 
   async function getCategories() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-categories", {
         URLQuery: {},

@@ -478,7 +478,7 @@
     }
 
     if (dateSame) {
-      let token = sessionStorage.getItem("token");
+      let token = localStorage.getItem("token");
       try {
         let response = await $call.call("client-dashboard", "create-schedule", {
           URLQuery: {},
@@ -534,7 +534,7 @@
       for (let i = 0; i < daysDifference; i++) {
         const currentDate = new Date(startDate);
         currentDate.setDate(startDate.getDate() + i);
-        let token = sessionStorage.getItem("token");
+        let token = localStorage.getItem("token");
         try {
           let response = await $call.call("client-dashboard", "create-schedule", {
             URLQuery: {},
@@ -793,7 +793,7 @@
 
     try {
       if (idCalendar === undefined) {
-        let token = sessionStorage.getItem("token");
+        let token = localStorage.getItem("token");
         let response = await $call.call("client-dashboard", "create-availability", {
           URLQuery: {},
           URLParams: {},
@@ -813,7 +813,7 @@
           triggerToast("error");
         }
       } else {
-        let token = sessionStorage.getItem("token");
+        let token = localStorage.getItem("token");
         let response = await $call.call("client-dashboard", "update-availability", {
           URLQuery: {},
           URLParams: {
@@ -865,7 +865,7 @@
       lastDayOfMonth.setDate(lastDayOfMonth.getDate() + (6 - lastDayOfWeek));
     }
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     try {
       if (!frontEndOnly) {
@@ -990,7 +990,7 @@
     console.log("Not yet implemented");
     console.log(selectedDate);
     let date = new Date(selectedDate);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     console.log(token);
     if (token !== null) {
       const response = await $call.call("client-dashboard", "delete-schedule", {
@@ -1051,7 +1051,7 @@
   };
 
   async function getPersons() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let page = 1;
       while (true) {

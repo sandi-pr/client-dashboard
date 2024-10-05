@@ -177,7 +177,7 @@ All Rights Reserved
   };
 
   async function getDocuments() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       if (!search) {
         gettingDatas = true;
@@ -344,7 +344,7 @@ All Rights Reserved
   }
 
   async function getAllDocumentsByCategory() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     const response2 = await $call.call("client-dashboard", "get-document-by-categories", {
       URLQuery: {},
       URLParams: {},
@@ -556,7 +556,7 @@ All Rights Reserved
   }
 
   async function getDocumentsByCategory(category) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "get-document-by-category", {
@@ -660,7 +660,7 @@ All Rights Reserved
 
   async function getCollection() {
     // search collection using params collectionId here
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "get-collection-by-id", {
@@ -698,7 +698,7 @@ All Rights Reserved
     files[0].document_title = tmpDocumentTitle;
     files[0].description = tmpDocumentDescription;
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {
@@ -813,7 +813,7 @@ All Rights Reserved
   }
 
   async function deleteCategories() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       popupModal = false;
@@ -850,7 +850,7 @@ All Rights Reserved
   }
 
   async function deleteDocument() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       popupModal = false;
@@ -1109,7 +1109,7 @@ All Rights Reserved
       try {
         trainingModelModal = false;
         triggerLoading(true);
-        let token = sessionStorage.getItem("token");
+        let token = localStorage.getItem("token");
         const response = await $call.call("hexa-ai-rag", "trocr-train", {
           URLQuery: {},
           URLParams: {},
@@ -1172,7 +1172,7 @@ All Rights Reserved
 
     addCategoriesModal = false;
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       const response = await $call.call("client-dashboard", "update-categories", {
         URLQuery: {},

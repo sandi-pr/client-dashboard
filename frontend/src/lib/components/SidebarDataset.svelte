@@ -134,7 +134,7 @@
   };
 
   async function importDatasetsWithCsv() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "import-datasets-with-csv", {
@@ -219,7 +219,7 @@
   };
 
   async function processDataset() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         const response = await $call.call("client-dashboard", "request-fine-tuning", {
@@ -242,7 +242,7 @@
   }
 
   async function getStatusRequest() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         const response = await $call.call("client-dashboard", "get-status-request-fine-tuning", {
@@ -330,7 +330,9 @@
           outline
           class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
         >
-          <AlignRightIcon svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark" />
+          <AlignRightIcon
+            svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
+          />
           &nbsp; &nbsp;
           <Typography preset="Text md/Semibold" text={$_("import")} color="brand-secondary" />
         </Button>

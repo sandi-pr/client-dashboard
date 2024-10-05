@@ -432,7 +432,7 @@ All Rights Reserved
   }
 
   async function getEmployee() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       gettingDatas = true;
       let response = await $call.call("client-dashboard", "get-employees", {
@@ -495,7 +495,7 @@ All Rights Reserved
   }
 
   async function getAttendance() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-attendances", {
         URLQuery: {},
@@ -534,7 +534,7 @@ All Rights Reserved
   }
 
   async function getRecruitment() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-recruitments", {
         URLQuery: {},
@@ -600,7 +600,7 @@ All Rights Reserved
     let earlyDateCurrentDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
     let lastDateCurrentDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     console.log(earlyDateCurrentDay.toISOString(), lastDateCurrentDay.toISOString());
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
         let response = await $call.call("client-dashboard", "get-count-employee-per-month", {
@@ -855,11 +855,17 @@ All Rights Reserved
               {#if latestEmployee.length > 0}
                 <DataTable bind:datas={latestEmployee} bind:configs />
               {:else if gettingDatas}
-                <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+                <StateCard
+                  illustration={IllustrationProgress}
+                  description={$_("fetchingDataPleaseWait")}
+                />
               {:else}
-                <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+                <StateCard
+                  illustration={IllustrationEmpty}
+                  description={$_("youDontHaveAnyDataYet")}
+                />
               {/if}
-            <!-- {:else if tabDatas.selected === "Attendance"}
+              <!-- {:else if tabDatas.selected === "Attendance"}
               {#if latestAttendance.length > 0}
                 <DataTable bind:datas={latestAttendance} bind:configs />
               {:else if gettingDatas}
@@ -871,9 +877,15 @@ All Rights Reserved
               {#if latestRecruitment.length > 0}
                 <DataTable bind:datas={latestRecruitment} bind:configs />
               {:else if gettingDatas}
-                <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+                <StateCard
+                  illustration={IllustrationProgress}
+                  description={$_("fetchingDataPleaseWait")}
+                />
               {:else}
-                <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+                <StateCard
+                  illustration={IllustrationEmpty}
+                  description={$_("youDontHaveAnyDataYet")}
+                />
               {/if}
             {/if}
           </div>

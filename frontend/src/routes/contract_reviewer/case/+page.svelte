@@ -41,7 +41,7 @@ All Rights Reserved
   async function createRules() {
     addRulesModal = false;
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "create-contract-rules", {
@@ -91,7 +91,7 @@ All Rights Reserved
 
   async function getRules() {
     // triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       gettingDatas = true;
       let rules = [];
@@ -201,7 +201,10 @@ All Rights Reserved
         {#if datas.length > 0}
           <DataTable bind:datas bind:configs next={nextPage} prev={prevPage} />
         {:else if gettingDatas}
-          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}

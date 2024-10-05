@@ -46,7 +46,7 @@ All Rights Reserved
       // }, 3000);
       return;
     }
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-category", {
         URLQuery: {},
@@ -75,7 +75,7 @@ All Rights Reserved
 
   async function updateCategory() {
     if (data.category_name === "" || data.description === "") return;
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "update-category", {
@@ -105,7 +105,7 @@ All Rights Reserved
   }
 
   async function deleteCategory() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "delete-category", {
         URLQuery: {},

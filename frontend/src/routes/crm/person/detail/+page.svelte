@@ -71,7 +71,7 @@ All Rights Reserved
       // }, 3000);
       return;
     }
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "get-person", {
         URLQuery: {},
@@ -107,7 +107,7 @@ All Rights Reserved
   }
 
   async function updatePerson() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "update-person", {
         URLQuery: {},
@@ -143,7 +143,7 @@ All Rights Reserved
   }
 
   async function deletePerson() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "delete-person", {
         URLQuery: {},

@@ -95,7 +95,7 @@ All Rights Reserved
 
   async function getDocument() {
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "get-document", {
@@ -268,7 +268,7 @@ All Rights Reserved
   }
 
   async function getCategories(id) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-categories-by-collection-id", {
@@ -297,7 +297,7 @@ All Rights Reserved
   }
 
   async function deleteDocument() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (documentId !== "" && documentId !== null && documentId !== undefined) {
       try {
         // let response2 = await $call.call("hexa-ai-rag", "delete-document-by-id", {
@@ -357,7 +357,7 @@ All Rights Reserved
   }
 
   async function getPersons() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let page = 1;
       while (true) {
@@ -463,7 +463,7 @@ All Rights Reserved
 
   // async function editDetectedText() {
   //   onEdit = false;
-  //   let token = sessionStorage.getItem("token");
+  //   let token = localStorage.getItem("token");
   //   if (token !== null) {
   //     let response = await $call.call("client-dashboard", "update-document", {
   //       URLQuery: {},
@@ -492,7 +492,7 @@ All Rights Reserved
 
   async function updateDocument() {
     onEdit = false;
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response;
       if (data.document_type === "Handwriting") {

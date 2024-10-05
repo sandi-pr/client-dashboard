@@ -1,9 +1,9 @@
 export function setUserDataSession(data) {
-  const user = sessionStorage.setItem("user", JSON.stringify(data));
+  const user = localStorage.setItem("user", JSON.stringify(data));
 }
 
 export function userDataSession() {
-  const user = sessionStorage.getItem("user");
+  const user = localStorage.getItem("user");
   return JSON.parse(user);
 }
 

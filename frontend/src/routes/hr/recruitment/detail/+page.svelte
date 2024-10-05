@@ -107,7 +107,7 @@ All Rights Reserved
   ]);
 
   async function getRecruitment() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-recruitment", {
         URLQuery: {},
@@ -161,7 +161,7 @@ All Rights Reserved
   }
 
   async function updateRecruitment() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (recruitmentId !== "" && recruitmentId !== null && recruitmentId !== undefined) {
       try {
         let response = await $call.call("client-dashboard", "update-recruitment", {
@@ -203,7 +203,7 @@ All Rights Reserved
   }
 
   async function deleteRecruitment() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (recruitmentId !== "" && recruitmentId !== null && recruitmentId !== undefined) {
       try {
         let response = await $call.call("client-dashboard", "delete-recruitment", {
@@ -271,7 +271,7 @@ All Rights Reserved
   }
 
   async function getJobLevels() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-job-level", {
@@ -297,7 +297,7 @@ All Rights Reserved
   }
 
   async function getJobPositions() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-job-position", {

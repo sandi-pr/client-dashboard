@@ -60,7 +60,7 @@
   }
 
   async function getEmployeeAttendance() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-employee-attendances", {
         URLQuery: {},
@@ -97,7 +97,7 @@
   }
 
   async function getEmployee() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       gettingDatas = true;
       let page = 1;
@@ -286,7 +286,7 @@
 
     console.log("payload", payload);
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token) {
       let response;
@@ -353,7 +353,7 @@
 
     let payload = await Promise.all(promise);
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token) {
       let response = await $call.call("client-dashboard", "update-attendance", {
@@ -405,7 +405,7 @@
 
     let payload = await Promise.all(promise);
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token) {
       let response;

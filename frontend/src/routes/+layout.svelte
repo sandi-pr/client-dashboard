@@ -312,7 +312,7 @@ All Rights Reserved
         URLParams: {},
         Params: {},
         Headers: {
-          Authorization: "Bearer " + sessionStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       });
 
@@ -340,13 +340,13 @@ All Rights Reserved
       console.log(resp_setup);
       if (resp_setup.status === 200) {
         if (resp_setup.result.is_need_setup === true) {
-          if (sessionStorage.getItem("token") !== null) sessionStorage.removeItem("token");
-          if (sessionStorage.getItem("user") !== null) sessionStorage.removeItem("user");
+          if (localStorage.getItem("token") !== null) localStorage.removeItem("token");
+          if (localStorage.getItem("user") !== null) localStorage.removeItem("user");
           await call.goToPage("hexapod-setup", "home-page");
           return;
         }
       }
-      let token = sessionStorage.getItem("token");
+      let token = localStorage.getItem("token");
       if (token !== null) {
         let resp = await call.call("client-login", "is-token-valid", {
           URLQuery: {},
@@ -364,7 +364,7 @@ All Rights Reserved
               globalThis.location.href = await call.getPage("lajnah", "home-page");
               return;
             }
-            sessionStorage.setItem("user", JSON.stringify(resp.result));
+            localStorage.setItem("user", JSON.stringify(resp.result));
             userData = resp.result;
             authority = resp.result.authority;
           }
@@ -388,7 +388,7 @@ All Rights Reserved
   }
 
   async function getModelsTrocr() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let resp = await call.call("client-dashboard", "get-model-trocr", {
         URLQuery: {},
@@ -422,7 +422,7 @@ All Rights Reserved
   }
 
   async function getIndustryId() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const response = await call.call("client-dashboard", "get-company-type", {
         URLQuery: {},
@@ -508,7 +508,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    if (sessionStorage.getItem("token") === null && isFrontend) {
+    if (localStorage.getItem("token") === null && isFrontend) {
       alert("Please insert token to session storage and refresh the page");
       return;
     }

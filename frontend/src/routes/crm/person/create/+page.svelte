@@ -58,7 +58,7 @@ All Rights Reserved
 
   async function createPerson() {
     console.log(data);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "create-person", {
         URLQuery: {},

@@ -280,7 +280,7 @@
   }
 
   async function getPersons() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let page = 1;
       while (true) {
@@ -333,7 +333,7 @@
     ];
     console.log(status);
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "create-contract", {
         URLQuery: {},

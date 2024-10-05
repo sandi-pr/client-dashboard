@@ -60,7 +60,7 @@ All Rights Reserved
       // }, 3000);
       return;
     }
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {
@@ -126,7 +126,7 @@ All Rights Reserved
   }
 
   // async function updateOrder() {
-  //   let token = sessionStorage.getItem("token");
+  //   let token = localStorage.getItem("token");
   //   try {
   //     let response = await $call.call("client-dashboard", "update-order", {
   //       URLQuery: {},
@@ -163,7 +163,7 @@ All Rights Reserved
   // }
 
   async function deleteOrder() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (invoiceId !== "" && invoiceId !== null && invoiceId !== undefined) {
       try {
         let response = await $call.call("client-dashboard", "delete-invoice", {

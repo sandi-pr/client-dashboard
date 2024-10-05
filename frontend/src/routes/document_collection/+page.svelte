@@ -357,7 +357,7 @@ All Rights Reserved
 
   async function createCollection() {
     console.log(files);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       let response = await $call.call("client-dashboard", "create-document-collection", {
@@ -411,7 +411,7 @@ All Rights Reserved
   }
 
   async function getCollections() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       gettingDatas = true;
@@ -565,7 +565,7 @@ All Rights Reserved
   }
 
   async function editCollectionName() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {
@@ -604,7 +604,7 @@ All Rights Reserved
   }
 
   async function deleteDocumentCollection() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {
@@ -663,7 +663,7 @@ All Rights Reserved
     files[0].document_title = tmpDocumentTitle;
     files[0].description = tmpDocumentDescription;
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {
@@ -849,7 +849,7 @@ All Rights Reserved
     const today = new Date();
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
@@ -930,7 +930,7 @@ All Rights Reserved
   }
 
   async function getCategories(id) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-categories-by-collection-id", {

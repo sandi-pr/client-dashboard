@@ -1,5 +1,5 @@
 const checkIsLoggedIn = () => {
-  return JSON.parse(sessionStorage.getItem("user"));
+  return JSON.parse(localStorage.getItem("user"));
 };
 
 export default checkIsLoggedIn;

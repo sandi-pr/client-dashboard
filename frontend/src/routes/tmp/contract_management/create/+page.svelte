@@ -156,7 +156,7 @@ All Rights Reserved
     // console.log(fileTextResultBlob);
     console.log(typeof base64Data);
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (token !== null) {
       if (data.document_type === "GENERAL") {
@@ -241,7 +241,7 @@ All Rights Reserved
   }
 
   async function getPersons() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       let page = 1;
       while (true) {

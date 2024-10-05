@@ -60,7 +60,7 @@ All Rights Reserved
   let jobPositions = $state([]);
 
   async function getJobLevels() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-job-level", {
@@ -86,7 +86,7 @@ All Rights Reserved
   }
 
   async function getJobPositions() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-job-position", {
@@ -122,7 +122,7 @@ All Rights Reserved
   }
 
   async function getEmployee() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "get-employee", {
         URLQuery: {},
@@ -164,7 +164,7 @@ All Rights Reserved
   }
 
   async function updateEmployee() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "update-employee", {
         URLQuery: {},
@@ -206,7 +206,7 @@ All Rights Reserved
   }
 
   async function deleteEmployee() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let response = await $call.call("client-dashboard", "delete-employee", {
         URLQuery: {},

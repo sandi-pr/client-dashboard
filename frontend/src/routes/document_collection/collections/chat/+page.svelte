@@ -39,7 +39,7 @@
   async function sendMessage() {
     disableInput = true;
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (messageInput.trim() !== "" && token) {
       dataConversatonLogs = [
         ...dataConversatonLogs,
@@ -110,7 +110,7 @@
   async function getMessages() {
     let conversationIdCollection = sessionStorage.getItem("conversationIdCollection");
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
       URLQuery: {},
@@ -197,7 +197,7 @@
   const callStatusRag = async () => {};
 
   async function getStatusRag() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     try {
       let rag = await $call.call("hexa-ai-rag", "get-rag-status", {
         URLQuery: {},

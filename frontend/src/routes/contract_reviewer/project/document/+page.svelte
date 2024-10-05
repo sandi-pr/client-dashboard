@@ -152,7 +152,7 @@
   async function createDocument() {
     triggerLoading(true);
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "create-document-project", {
         URLQuery: {},
@@ -221,7 +221,7 @@
   }
 
   async function getDocument(id) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call(
@@ -265,7 +265,7 @@
   }
 
   async function getCollections(id) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         const response = await $call.call("client-dashboard", "get-contract-project", {

@@ -91,7 +91,7 @@ All Rights Reserved
   });
 
   async function getCollections(name, id) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token !== null) {
       try {
         let response = await $call.call("client-dashboard", "get-collection-by-name", {
@@ -140,7 +140,7 @@ All Rights Reserved
 
   async function getRulesSections() {
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "get-contract-rule", {
@@ -237,7 +237,7 @@ All Rights Reserved
 
   async function createRulesSections(data) {
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "create-contract-rule-section", {
@@ -275,7 +275,7 @@ All Rights Reserved
   async function deleteSection() {
     deleteModal = false;
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "delete-contract-rule-section", {
@@ -309,7 +309,7 @@ All Rights Reserved
   async function editSection() {
     triggerLoading(true);
     init = false;
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
     if (token) {
       try {
@@ -345,7 +345,7 @@ All Rights Reserved
   }
 
   async function getReferences() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     let industry_id = sessionStorage.getItem("industry_id");
 
     if (industry_id === null) {
@@ -442,7 +442,7 @@ All Rights Reserved
   async function addOtherDocument() {
     addRefDocModal = false;
     triggerLoading(true);
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     let industry_id = sessionStorage.getItem("industry_id");
     console.log("industry_id", industry_id);
     if (industry_id === null) {
@@ -513,7 +513,7 @@ All Rights Reserved
     deleteModal = false;
     triggerLoading(true);
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
 
     if (tmpId !== 0) {
       const response = await $call.call("client-dashboard", "delete-references-document", {
@@ -562,7 +562,7 @@ All Rights Reserved
   }
 
   async function deleteCase() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await $call.call("client-dashboard", "delete-rules", {

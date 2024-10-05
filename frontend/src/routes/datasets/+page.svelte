@@ -164,7 +164,7 @@
 
       messageInput = "";
 
-      let token = sessionStorage.getItem("token");
+      let token = localStorage.getItem("token");
 
       if (token === null) {
         triggerToast("error");
@@ -289,7 +289,7 @@
         return chat;
       });
 
-      let token = sessionStorage.getItem("token");
+      let token = localStorage.getItem("token");
 
       const response = await $call.call("client-dashboard", "update-message", {
         URLQuery: {},
@@ -360,7 +360,7 @@
   }
 
   async function clearConversation() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "delete-conversation", {
         URLQuery: {},
@@ -470,7 +470,7 @@
   };
 
   async function getmessage(conversationId) {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const chatContainer = document.getElementById("chat-container");
 
@@ -547,7 +547,7 @@
   }
 
   async function updateTitle() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "update-title", {
         URLQuery: {},
@@ -574,7 +574,7 @@
   }
 
   async function getListConversations() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "get-conversations", {
         URLQuery: {},
@@ -664,7 +664,7 @@
   }
 
   async function importConversationWithCsv() {
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (token) {
       console.log(fileList);
       try {
@@ -730,7 +730,7 @@
     triggerShowAI(false);
     userData = isFrontend
       ? { username: "John Doe", email: "johndoe@gmail.com" }
-      : JSON.parse(sessionStorage.getItem("user"));
+      : JSON.parse(localStorage.getItem("user"));
 
     if (textarea) {
       autosize();
