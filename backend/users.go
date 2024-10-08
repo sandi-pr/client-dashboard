@@ -506,7 +506,7 @@ func GetCompanyType(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			},
 		},
 		"populate": "*",
-		"sort":     "id:asc",
+		"sort":     "id:desc",
 	})
 
 	if err != nil {

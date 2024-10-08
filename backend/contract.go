@@ -472,7 +472,7 @@ func GetReferenceDocumentById(ctx *config.ConfigContext) (int, U.Dict, *config.R
 			},
 		},
 		"populate": "*",
-		"sort":     "id:asc",
+		"sort":     "id:desc",
 	})
 
 	if err != nil {

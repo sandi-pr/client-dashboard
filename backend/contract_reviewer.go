@@ -1111,7 +1111,7 @@ func GetContractProjectResultWithDocumentId(ctx *config.ConfigContext) (int, U.D
 			},
 		},
 		"populate": "*",
-		"sort":     "id:asc",
+		"sort":     "id:desc",
 	})
 
 	if err != nil {

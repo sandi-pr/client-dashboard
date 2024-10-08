@@ -229,7 +229,7 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 			"pageSize": page_size,
 		},
 		"populate": "*",
-		"sort":     "updatedAt:asc",
+		"sort":     "updatedAt:desc",
 	})
 
 	if err != nil {

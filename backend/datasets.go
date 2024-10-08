@@ -832,7 +832,7 @@ func RequestFineTuning(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 				"pageSize": 25,
 			},
 			"populate": "*",
-			"sort":     "updatedAt:asc",
+			"sort":     "updatedAt:desc",
 		})
 
 		if err != nil {
