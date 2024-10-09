@@ -334,25 +334,25 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        for (const document of documents) {
-          if (document.attributes.collection_id === tmpCollectionId) {
-            let response = await $call.call("client-dashboard", "delete-document", {
-              URLQuery: {},
-              URLParams: {
-                id: document.id.toString(),
-              },
-              Params: {},
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-            if (response.status !== 200) {
-              console.log(response);
-              triggerToast("error");
-              return;
-            }
-          }
-        }
+        // for (const document of documents) {
+        //   if (document.attributes.collection_id === tmpCollectionId) {
+        //     let response = await $call.call("client-dashboard", "delete-document", {
+        //       URLQuery: {},
+        //       URLParams: {
+        //         id: document.id.toString(),
+        //       },
+        //       Params: {},
+        //       Headers: {
+        //         Authorization: "Bearer " + token,
+        //       },
+        //     });
+        //     if (response.status !== 200) {
+        //       console.log(response);
+        //       triggerToast("error");
+        //       return;
+        //     }
+        //   }
+        // }
         let response2 = await $call.call("client-dashboard", "delete-document-collection", {
           URLQuery: {},
           URLParams: {

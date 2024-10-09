@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 
+	"gitlab.hexacode.org/go-libs/cr3call"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
 	"gitlab.hexacode.org/go-libs/strapi"
@@ -440,6 +441,149 @@ func DeleteDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 	id, err := strconv.Atoi(string(idStr))
 	if err != nil {
 		return ctx.Error(400, "invalid parameters id")
+	}
+
+	var page = 1
+
+	var idsDoc U.List
+
+	for {
+		status, documents, err := Strapi.Find("document-management-table", U.Dict{
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"sort":     "id:desc",
+			"populate": "*",
+		})
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := documents.GetList("data")
+
+		if !ok {
+			fmt.Println(ok)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) < 1 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			if dict, ok := list.GetDict(i); ok {
+				if idDoc, ok := dict.GetFloat64("id"); ok {
+					idsDoc = append(idsDoc, idDoc)
+				}
+			}
+		}
+
+		page++
+	}
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	resp, err := CR3.Call("hexa-ai-rag", "delete-document-by-collection-id", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+		Params: U.Dict{
+			"collection_id": idStr,
+		},
+	}, false)
+
+	fmt.Println(resp)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	for i := 0; i < len(idsDoc); i++ {
+		if idDoc, ok := idsDoc.GetFloat64(i); ok {
+			status, document, err := Strapi.Delete("document-management-table", int64(idDoc))
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println(document)
+				fmt.Println(status)
+				return ctx.Error(500, "Internal Server Error")
+			}
+		}
+	}
+
+	var page2 = 1
+	var idsBot U.List
+
+	for {
+		status, data, err := Strapi.Find("hexabot-table", U.Dict{
+			"filters": U.Dict{
+				"collection_id": U.Dict{
+					"$eq": id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page2,
+				"pageSize": 25,
+			},
+			"populate": "*",
+			"sort":     "updatedAt:desc",
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := data.GetList("data")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) < 1 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			if dict, ok := list.GetDict(i); ok {
+				if idBot, ok := dict.GetFloat64("id"); ok {
+					idsBot = append(idsBot, idBot)
+				}
+			}
+		}
+
+		page2++
+	}
+
+	for i := 0; i < len(idsBot); i++ {
+		if idDoc, ok := idsBot.GetFloat64(i); ok {
+			status, document, err := Strapi.Delete("hexabot-table", int64(idDoc))
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println(document)
+				fmt.Println(status)
+				return ctx.Error(500, "Internal Server Error")
+			}
+		}
 	}
 
 	status, document, err := Strapi.Delete("document-collection-table", int64(id))
