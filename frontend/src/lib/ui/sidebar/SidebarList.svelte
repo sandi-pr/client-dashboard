@@ -102,7 +102,7 @@
       : await $call.getPage("client-dashboard", "job-management");
 
     let home = await $call.getPage("client-dashboard", "home-page");
-    sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
+    sidebarItems = [{ name: "library", href: home, icon: "bookClosed", children: [] }, ...sidebarAddition];
 
     // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
     let isOpenSession = JSON.parse(sessionStorage.getItem("isOpen"));
@@ -201,7 +201,7 @@
               <svelte:fragment slot="icon">
                 <svelte:component
                   this={getIcons(item.icon)}
-                  svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
+                  svgClass="w-5 h-5 text-hc-graylight-500 dark:text-hc-graydark-400"
                 />
               </svelte:fragment>
               {#each item.children as child}

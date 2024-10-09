@@ -16,6 +16,7 @@ All Rights Reserved
   import DataTable from "$lib/components/DataTable.svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { Button } from "flowbite-svelte";
+  import TabDetail from "$lib/components/TabDetail.svelte";
   import { StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -29,10 +30,13 @@ All Rights Reserved
   let actionItems = $state([]);
 
   let datas = $state([]);
+  let productServiceData = $state([]);
+  let categoriesData = $state([]);
 
   let gettingDatas = $state(false);
 
   let configs = $state({});
+  let configsCategories = $state({});
 
   // function getCategory(category) {
   //   return [
@@ -42,6 +46,18 @@ All Rights Reserved
   //     },
   //   ];
   // }
+
+  let tabDatas = $state({
+    selected: "Product & Services",
+    data: [
+      {
+        name: "Product & Services",
+      },
+      {
+        name: "Categories",
+      },
+    ],
+  });
 
   function getStatus(is_active) {
     if (is_active === "Yes") {
@@ -125,7 +141,68 @@ All Rights Reserved
           };
         });
 
-        datas = await Promise.all(promises);
+        productServiceData = await Promise.all(promises);
+      }
+
+      gettingDatas = false;
+    }
+  }
+
+  async function getCategories(page) {
+    if (page > pagination.pageCount) return;
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      gettingDatas = true;
+      let response = await $call.call("client-dashboard", "get-categories", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: page,
+          page_size: pagination.pageSize,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status === 200) {
+        pagination = response.result.meta.pagination;
+        configsCategories = {
+          search: true,
+          pagination: response.result.meta.pagination,
+        };
+        let promises = response.result.data.map(async (category) => {
+          return {
+            id: category.id,
+            category_name: category.attributes.category_name,
+            description: category.attributes.description,
+            status: getStatus(category.attributes.is_active),
+            actions: {
+              objects: [
+                {
+                  href:
+                    `${await $call.getPage("client-dashboard", "crm-category-detail")}` +
+                    "?catergoryId=" +
+                    category.id +
+                    "&edit=" +
+                    false,
+                  name: "View",
+                },
+                {
+                  href:
+                    `${await $call.getPage("client-dashboard", "crm-category-detail")}` +
+                    "?catergoryId=" +
+                    category.id +
+                    "&edit=" +
+                    true,
+                  name: "Edit",
+                },
+              ],
+            },
+          };
+        });
+
+        categoriesData = await Promise.all(promises);
       }
 
       gettingDatas = false;
@@ -137,6 +214,11 @@ All Rights Reserved
     return;
   }
 
+  async function addCategory() {
+    goto(await $call.getPage("client-dashboard", "crm-category-create"));
+    return;
+  }
+
   async function next() {
     getProducts(pagination.page + 1);
   }
@@ -145,8 +227,17 @@ All Rights Reserved
     getProducts(pagination.page - 1);
   }
 
+  async function nextCategory() {
+    getCategories(pagination.page + 1);
+  }
+
+  async function previousCategory() {
+    getCategories(pagination.page - 1);
+  }
+
   onMount(async () => {
     getProducts(pagination.page);
+    getCategories(pagination.page);
   });
 </script>
 
@@ -158,22 +249,43 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={$_("product&Service")} />
-          <Button onclick={addProduct} icon={PlusIcon}
-            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
-          >
+          <Typography preset="Display sm/Semibold" color="primary" text={tabDatas.selected === "Product & Services" ? $_("product&Service") : $_("manageCategories")} />
+          {#if tabDatas.selected === "Product & Services"}
+            <Button onclick={addProduct} icon={PlusIcon}
+              ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
+            >
+          {:else if tabDatas.selected === "Categories"}
+            <Button onclick={addCategory} icon={PlusIcon}
+              ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNewCategory")}</Button
+            >
+          {/if}
         </div>
 
-        <!-- Person Table Data -->
-        {#if datas.length > 0}
-          <DataTable bind:datas bind:configs bind:next bind:previous />
-        {:else if gettingDatas}
-          <StateCard
-            illustration={IllustrationProgress}
-            description={$_("fetchingDataPleaseWait")}
-          />
-        {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+        <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+
+        {#if tabDatas.selected === "Product & Services"}
+          <!-- Produc service Table Data -->
+          {#if productServiceData.length > 0}
+            <DataTable bind:datas={productServiceData} bind:configs bind:next bind:previous />
+          {:else if gettingDatas}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
+          {:else}
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          {/if}
+        {:else if tabDatas.selected === "Categories"}
+          {#if categoriesData.length > 0}
+            <DataTable bind:datas={categoriesData} bind:configs={configsCategories} bind:next={nextCategory} bind:previous={previousCategory} />
+          {:else if gettingDatas}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
+          {:else}
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          {/if}
         {/if}
       </div>
     </div>

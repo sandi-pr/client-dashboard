@@ -18,45 +18,72 @@ All Rights Reserved
   import { Alert, CloseButton, P } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { writable } from "svelte/store";
   import LoadingContainer from "../lib/components/LoadingContainer.svelte";
-  import { call } from "$lib";
+  import { call, showAI } from "$lib";
 
   let userData = $state({ username: "", email: "", brand: "" });
 
   let isFirstTime = $state(true);
 
-  const cards = [
+  const cardsBusiness = [
     {
-      icon: "users",
-      title: "crmOverview",
-      description: "descCrm",
-      page: "crm-overview",
+      icon: "user",
+      title: "person",
+      description: "descPerson",
+      page: "crm-person",
     },
     {
-      icon: "box",
+      icon: "faceHappy",
+      title: "HR",
+      description: "descHr",
+      page: "hr-overview",
+    },
+    {
+      icon: "package",
+      title: "product&Services",
+      description: "descProduct&Services",
+      page: "crm-product-service",
+    },
+    {
+      icon: "receipt",
+      title: "order&Invoice",
+      description: "descOrder&Invoice",
+      page: "crm-order-invoice",
+    },
+    {
+      icon: "calendar",
+      title: "calendar",
+      description: "descCalendar",
+      page: "crm-calendar",
+    },
+  ];
+
+  const cardsAi = [
+    {
+      icon: "messageChat",
+      title: "hexabot",
+      description: "descHexabot",
+      page: "hexabot",
+    },
+    {
+      icon: "archive",
       title: "documentCollection",
       description: "descDocumentCollection",
       page: "document-collection-overview",
+    },
+    {
+      icon: "fileCheck",
+      title: "contractReviewer",
+      description: "descContractReviewer",
+      page: "contract-reviewer-overview",
     },
     {
       icon: "data",
       title: "datasets",
       description: "descDatasets",
       page: "datasets",
-    },
-    {
-      icon: "messageChat",
-      title: "hexabot",
-      description: "descCreateNewBots",
-      page: "hexabot",
-    },
-    {
-      icon: "userSquare",
-      title: "HR",
-      description: "descHr",
-      page: "hr-overview",
     },
   ];
 
@@ -135,7 +162,7 @@ All Rights Reserved
   });
 </script>
 
-<div class="flex flex-col gap-4 px-4 md:py-8">
+<div class="flex flex-col gap-8 px-4 md:py-6">
   {#if isFirstTime}
     <Alert dismissable on:close={setFristTime} class="relative flex justify-center">
       <CloseButton
@@ -163,22 +190,37 @@ All Rights Reserved
     <div class="flex flex-col gap-1">
       <Typography
         preset="Display sm/Semibold"
-        text={$_("welcometoHexapod") + sessionStorage.getItem("sidebar_title")}
+        text={`${sessionStorage.getItem("sidebar_title")} ${$_("library")}`}
         color="primary"
       />
       <Typography text="{userData.username} - {userData.email}" color="tertiary" />
     </div>
   {/if}
-  <SectionHeader title={$_("availableModules")} />
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {#each cards as card}
-      <Card
-        icon={card.icon}
-        title={$_(card.title)}
-        description={$_(card.description)}
-        onclick={() => navigateToPage(card.page)}
-      />
-    {/each}
+  <div class="flex flex-col gap-4">
+    <SectionHeader title={$_("businessManagements")} />
+    <div class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}>
+      {#each cardsBusiness as card}
+        <Card
+          icon={card.icon}
+          title={$_(card.title)}
+          description={$_(card.description)}
+          onclick={() => navigateToPage(card.page)}
+        />
+      {/each}
+    </div>
+  </div>
+  <div class="flex flex-col gap-4">
+    <SectionHeader title={$_("aiManagements")} />
+    <div class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}>
+      {#each cardsAi as card}
+        <Card
+          icon={card.icon}
+          title={$_(card.title)}
+          description={$_(card.description)}
+          onclick={() => navigateToPage(card.page)}
+        />
+      {/each}
+    </div>
   </div>
 </div>
 

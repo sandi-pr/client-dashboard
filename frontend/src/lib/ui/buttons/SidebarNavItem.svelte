@@ -21,7 +21,7 @@
     classes = "flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700",
     classesActive = "flex w-full gap-3 items-center px-3 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700",
     icon = "",
-    classesSvg = "w-5 h-5 text-gray-700 dark:text-gray-400",
+    classesSvg = "w-5 h-5 text-hc-graylight-500 dark:text-hc-graydark-400",
     typographyData = {},
     collapse = false,
   } = $props();

@@ -22,6 +22,16 @@ import DistributeVertIcon from "../icon/distribute-spacing-vertical.svelte";
 import ChevronDownIcon from "../icon/chevron-down.svelte";
 import DataIcon from "../icon/data.svelte";
 import MessagePlus from "../icon/message-plus-square.svelte";
+import BookClosedIcon from "../icon/book-closed.svelte";
+import BriefcaseIcon from "../icon/briefcase-02.svelte";
+import UserIcon from "../icon/user-02.svelte";
+import FaceHappyIcon from "../icon/face-happy.svelte";
+import PackageIcon from "../icon/package.svelte";
+import ReceiptIcon from "../icon/receipt.svelte";
+import CalendarIcon from "../icon/calendar.svelte";
+import StarsIcon from "../icon/stars-01.svelte";
+import ArchiveIcon from "../icon/archive.svelte";
+import FileCheckIcon from "../icon/file-check-02.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -73,6 +83,26 @@ let getIcons = (presetIcon: String) => {
       return DataIcon;
     case "messagePlus":
       return MessagePlus;
+    case "bookClosed":
+      return BookClosedIcon;
+    case "briefcase":
+      return BriefcaseIcon;
+    case "user":
+      return UserIcon;
+    case "faceHappy":
+      return FaceHappyIcon;
+    case "package":
+      return PackageIcon;
+    case "receipt":
+      return ReceiptIcon;
+    case "calendar":
+      return CalendarIcon;
+    case "stars":
+      return StarsIcon;
+    case "archive":
+      return ArchiveIcon;
+    case "fileCheck":
+      return FileCheckIcon;
     default:
       return "";
   }

@@ -81,6 +81,7 @@
   {email}
   {brand}
   {logoUrl}
+  {isFrontend}
   isHidden={innerWidth < 1024}
   funcButton={() => (hidden2 = true)}
   {logout}

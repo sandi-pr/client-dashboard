@@ -194,7 +194,7 @@ All Rights Reserved
           />
 
           <Button onclick={addNew} icon={PlusIcon}
-            >Add new Order<img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
+            ><img class="me-1 w-4 h-4" src={PlusIcon} alt="plus-icon" /> {$_("addNewOrder")}</Button
           >
         </div>
 
