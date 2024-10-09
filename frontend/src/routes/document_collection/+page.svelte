@@ -838,6 +838,9 @@ All Rights Reserved
       selectedTypeCollection = "Handwriting (JPG, JPEG, PNG)";
       acceptedFileTypes = ".jpg, .jpeg, .png";
       // acceptedFileTypes = ".pdf, .jpg, .jpeg, .png, .webp, .img";
+    } else if (type === "CSV") {
+      selectedTypeCollection = "CSV";
+      acceptedFileTypes = ".csv";
     }
 
     files = [];
@@ -1117,22 +1120,28 @@ All Rights Reserved
       >
         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
           <button
-            class="flex p-2"
+            class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Documents");
             }}>Documents (TXT, PDF, DOC, DOCX)</button
           >
           <button
-            class="flex p-2"
+            class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Images");
             }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
           >
           <button
-            class="flex p-2"
+            class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Handwriting");
             }}>Handwriting (JPG, JPEG, PNG)</button
+          >
+          <button
+            class="flex p-2 w-full"
+            onclick={() => {
+              selectTypeCollection("CSV");
+            }}>CSV</button
           >
         </ul>
       </div>
