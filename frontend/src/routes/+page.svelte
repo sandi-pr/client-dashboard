@@ -28,36 +28,36 @@ All Rights Reserved
   let isFirstTime = $state(true);
 
   const cardsBusiness = [
-    {
-      icon: "user",
-      title: "person",
-      description: "descPerson",
-      page: "crm-person",
-    },
-    {
-      icon: "faceHappy",
-      title: "HR",
-      description: "descHr",
-      page: "hr-overview",
-    },
-    {
-      icon: "package",
-      title: "product&Services",
-      description: "descProduct&Services",
-      page: "crm-product-service",
-    },
-    {
-      icon: "receipt",
-      title: "order&Invoice",
-      description: "descOrder&Invoice",
-      page: "crm-order-invoice",
-    },
-    {
-      icon: "calendar",
-      title: "calendar",
-      description: "descCalendar",
-      page: "crm-calendar",
-    },
+    // {
+    //   icon: "user",
+    //   title: "person",
+    //   description: "descPerson",
+    //   page: "crm-person",
+    // },
+    // {
+    //   icon: "faceHappy",
+    //   title: "HR",
+    //   description: "descHr",
+    //   page: "hr-overview",
+    // },
+    // {
+    //   icon: "package",
+    //   title: "product&Services",
+    //   description: "descProduct&Services",
+    //   page: "crm-product-service",
+    // },
+    // {
+    //   icon: "receipt",
+    //   title: "order&Invoice",
+    //   description: "descOrder&Invoice",
+    //   page: "crm-order-invoice",
+    // },
+    // {
+    //   icon: "calendar",
+    //   title: "calendar",
+    //   description: "descCalendar",
+    //   page: "crm-calendar",
+    // },
   ];
 
   const cardsAi = [
@@ -73,12 +73,12 @@ All Rights Reserved
       description: "descDocumentCollection",
       page: "document-collection-overview",
     },
-    {
-      icon: "fileCheck",
-      title: "contractReviewer",
-      description: "descContractReviewer",
-      page: "contract-reviewer-overview",
-    },
+    // {
+    //   icon: "fileCheck",
+    //   title: "contractReviewer",
+    //   description: "descContractReviewer",
+    //   page: "contract-reviewer-overview",
+    // },
     {
       icon: "data",
       title: "datasets",
@@ -196,32 +196,40 @@ All Rights Reserved
       <Typography text="{userData.username} - {userData.email}" color="tertiary" />
     </div>
   {/if}
-  <div class="flex flex-col gap-4">
-    <SectionHeader title={$_("businessManagements")} />
-    <div class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}>
-      {#each cardsBusiness as card}
-        <Card
-          icon={card.icon}
-          title={$_(card.title)}
-          description={$_(card.description)}
-          onclick={() => navigateToPage(card.page)}
-        />
-      {/each}
+  {#if cardsBusiness.length > 0}
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("businessManagements")} />
+      <div
+        class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
+      >
+        {#each cardsBusiness as card}
+          <Card
+            icon={card.icon}
+            title={$_(card.title)}
+            description={$_(card.description)}
+            onclick={() => navigateToPage(card.page)}
+          />
+        {/each}
+      </div>
     </div>
-  </div>
-  <div class="flex flex-col gap-4">
-    <SectionHeader title={$_("aiManagements")} />
-    <div class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}>
-      {#each cardsAi as card}
-        <Card
-          icon={card.icon}
-          title={$_(card.title)}
-          description={$_(card.description)}
-          onclick={() => navigateToPage(card.page)}
-        />
-      {/each}
+  {/if}
+  {#if cardsAi.length > 0}
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("aiManagements")} />
+      <div
+        class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
+      >
+        {#each cardsAi as card}
+          <Card
+            icon={card.icon}
+            title={$_(card.title)}
+            description={$_(card.description)}
+            onclick={() => navigateToPage(card.page)}
+          />
+        {/each}
+      </div>
     </div>
-  </div>
+  {/if}
 </div>
 
 <!-- <LoadingContainer /> -->
