@@ -511,6 +511,30 @@ func GetBotPublic(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 		dict["background"] = base64Data
 	}
 
+	if attributes, ok := dict.GetDict("attributes"); ok {
+		if collection_id, ok := attributes.GetFloat64("collection_id"); ok {
+			status, collection, err := Strapi.FindOne("document-collection-table", int64(collection_id))
+
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println(status)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if data, ok := collection.GetDict("data"); ok {
+				if attributes, ok := data.GetDict("attributes"); ok {
+					if categories, ok := attributes.GetString("categories"); ok {
+						dict["categories"] = categories
+					}
+				}
+			}
+		}
+	}
+
 	return 200, dict, nil
 }
 
