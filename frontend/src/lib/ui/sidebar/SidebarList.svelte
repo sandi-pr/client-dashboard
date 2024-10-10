@@ -297,7 +297,8 @@
             </SidebarDropdownWrapper>
             <button
               onclick={async () => {
-                goto(await $call.getPage("client-dashboard", "settings"));
+                let url = await $call.getPage("client-dashboard", "settings");
+                goto(url);
                 // else goto("/settings");
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
