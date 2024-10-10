@@ -473,7 +473,7 @@ All Rights Reserved
             },
             {
               id: "add_new",
-              name: "Add New",
+              // name: "Add New",
               icon: "plus",
               type: "brand-inverse",
               onclick: () => {
@@ -491,6 +491,21 @@ All Rights Reserved
               },
             },
             {
+              id: "ai",
+              icon: "ai",
+              name: "ai",
+              type: "brand",
+              disabled: datasTmp[i].data.length === 0,
+              onclick: () => {
+                selectCollection({
+                  id: collectionId,
+                  name: collection.name,
+                  description: collection.description,
+                  totalDocuments: datas.length,
+                });
+              },
+            },
+            {
               id: "expand",
               icon: "chevron",
               type: "info",
@@ -499,7 +514,7 @@ All Rights Reserved
               id: "dots-vertical",
               icon: "dots-vertical",
               type: "info",
-              dropdown: "delete",
+              dropdown: "more",
             },
           ],
         },
@@ -1375,6 +1390,7 @@ All Rights Reserved
                   bind:handleCheckAll={handleCheckAllCategories}
                   bind:handleCheck={handleCheckCategories}
                   bind:functDeleteCategories
+                  bind:statusRag
                 />
               {/each}
             {:else}

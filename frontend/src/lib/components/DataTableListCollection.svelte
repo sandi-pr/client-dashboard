@@ -48,6 +48,10 @@
   import ChevronDownIcon from "$lib/icon/chevron-down.svelte";
   import ChevronUpIcon from "$lib/icon/chevron-up.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
+  import CheckCircleIcon from "$lib/icon/check-circle.svelte";
+  import MessageChatCircle from "$lib/icon/message-chat-circle.svelte";
+  import Stars03Icon from "$lib/icon/stars-03.svelte";
+  import { onMount } from "svelte";
   // import { toCamelCase } from "../utils/toCamelCase.js";
 
   export let datas;
@@ -59,8 +63,12 @@
   export let handleCheckAll;
   export let handleCheck;
   export let functDeleteCategories;
+  export let editCategories;
+  export let tmpCategoriesName;
+  export let statusRag;
 
   let dropdownToggle = true;
+  let isEdit = false;
 
   let dropdownActionOpen = false;
   let selectedAction = "";
@@ -168,6 +176,16 @@
     }
   };
 
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      editCategories();
+    }
+  }
+
+  onMount(() => {
+    tmpCategoriesName = configs?.headers;
+  });
+
   // onMount(() => {
   // Object.keys(datas[0]).forEach((key) => {
   //   console.log(key);
@@ -177,14 +195,21 @@
 
 <div>
   <div
-    class={`flex items-center justify-between p-4 mt-6 ${configs?.isCategories ? "mb-4 rounded-lg bg-secondary-light dark:bg-secondary-dark" : "border-t border-x border-primary-light dark:border-primary-dark rounded-t-lg"} ${withSeperator(configs)}`}
+    class={`flex items-center justify-between p-4 mt-6 gap-2 ${configs?.isCategories ? "mb-4 rounded-lg bg-secondary-light dark:bg-secondary-dark" : "border-t border-x border-primary-light dark:border-primary-dark rounded-t-lg"} ${withSeperator(configs)}`}
   >
     {#if configs?.headers}
-      <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-        >{configs?.isCategories ? configs?.headers : $_(toCamelCase(configs.headers))}</Heading
-      >
+      {#if configs?.isCategories && isEdit}
+        <Input id="categories" type="text" class="w-1/3" bind:value={tmpCategoriesName} on:keydown={handleKeyDown} />
+        <button onclick={() => {isEdit = false}}>
+          <CheckCircleIcon svgClass="w-6 h-6 text-success-primary-light dark:text-success-primary-dark" />
+        </button>
+      {:else}
+        <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
+          >{configs?.isCategories ? configs?.headers : $_(toCamelCase(configs.headers))}</Heading
+        >
+      {/if}
     {/if}
-    <div class="flex items-center gap-2">
+    <div class="flex items-center justify-end grow gap-2">
       <div class="hidden lg:block">
         <Input
           id="search"
@@ -198,7 +223,7 @@
       </div>
       {#if configs?.actions && Object.keys(configs.actions).length > 0}
         {#each configs.actions as action (action.id)}
-          {#if action?.dropdown && action.dropdown === "delete"}
+          {#if action?.dropdown && action.dropdown === "more"}
             <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
               <Button
                 on:click={() => (dropdownActionOpen = !dropdownActionOpen)}
@@ -213,8 +238,12 @@
                 class={`z-10 ${dropdownActionOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
               >
                 <ul class="py-2 grow text-sm">
+                  <!-- <button
+                    class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    onclick={() => {isEdit = true}}>{$_("edit")}</button
+                  > -->
                   <button
-                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                     onclick={() => {
                       functDeleteCategories(configs?.headers),
                         (dropdownActionOpen = !dropdownActionOpen);
@@ -224,43 +253,62 @@
               </div>
             </div>
           {:else}
-            <Button
-              onclick={action?.id === "expand"
-                ? () => (dropdownToggle = !dropdownToggle)
-                : action.onclick}
-              color="light"
-              disabled={action?.disabled}
-              class={`${classActionType(action.type)} min-w-max p-2 md:p-2.5 gap-1.5`}
-            >
-              {#if action?.icon}
-                {#if action.icon === "plus"}
-                  <FIlePlusIcon
-                    svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-gray-700-dark"
-                  />
-                {/if}
-                {#if action.icon === "trash"}
-                  <TrashIcon
-                    svgClass="w-5 h-5 text-utility-error-700-light dark:text-utility-error-700-dark"
-                  />
-                {/if}
-                {#if action.icon === "chevron"}
-                  {#if dropdownToggle === true}
-                    <ChevronDownIcon
-                      svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark"
-                    />
-                  {:else}
-                    <ChevronUpIcon
-                      svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark"
+            {#if !action?.disabled}
+              <Button
+                onclick={action?.id === "expand"
+                  ? () => (dropdownToggle = !dropdownToggle)
+                  : action.onclick}
+                color="light"
+                disabled={action?.disabled}
+                class={`${classActionType(action.type)} min-w-max p-2 md:p-2.5 gap-1.5`}
+              >
+                {#if action?.icon}
+                  {#if action.icon === "plus"}
+                    <FIlePlusIcon
+                      svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-gray-700-dark"
                     />
                   {/if}
+                  {#if action.icon === "trash"}
+                    <TrashIcon
+                      svgClass="w-5 h-5 text-utility-error-700-light dark:text-utility-error-700-dark"
+                    />
+                  {/if}
+                  {#if action.icon === "ai"}
+                    {#if statusRag === "Ready"}
+                      <MessageChatCircle svgClass="text-white w-5 h-5" />
+                    {:else}
+                      <Stars03Icon svgClass="text-white w-5 h-5" />
+                    {/if}
+                  {/if}
+                  {#if action.icon === "chevron"}
+                    {#if dropdownToggle === true}
+                      <ChevronUpIcon
+                        svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark"
+                      />
+                    {:else}
+                      <ChevronDownIcon
+                        svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark"
+                      />
+                    {/if}
+                  {/if}
                 {/if}
-              {/if}
-              {#if action?.name}
-                <div class="hidden lg:block">
-                  {$_(toCamelCase(action.name))}
-                </div>
-              {/if}
-            </Button>
+                {#if action?.name}
+                  <div class="hidden lg:block">
+                    {#if action?.name === "ai"}
+                      {#if statusRag === null}
+                        {$_("startReading")}
+                      {:else if statusRag === "Reading"}
+                        {$_("reading")}
+                      {:else if statusRag === "Ready"}
+                        {$_("askToAI")}
+                      {/if}
+                    {:else}
+                      {$_(toCamelCase(action.name))}
+                    {/if}
+                  </div>
+                {/if}
+              </Button>
+            {/if}
           {/if}
         {/each}
       {/if}

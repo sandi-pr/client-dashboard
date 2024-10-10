@@ -12,7 +12,7 @@ All Rights Reserved
 
 <script>
   import { CR3Call } from "hexacomponents-svelte";
-  import { Card, Typography, SectionHeader, triggerLoading } from "$lib";
+  import { Card, Typography, SectionHeader, triggerLoading, ChartCard } from "$lib";
   import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
   import { Alert, CloseButton, P } from "flowbite-svelte";
@@ -26,38 +26,44 @@ All Rights Reserved
   let userData = $state({ username: "", email: "", brand: "" });
 
   let isFirstTime = $state(true);
+  
+  let chartAction = $state([]);
+  let chartReady = $state(false);
+  let monthlyCollectionsCounts = $state([]);
+  let tmpMonthlyCollectionsCounts = $state([]);
+  let dataChartAllDocs = $state({});
 
   const cardsBusiness = [
-    // {
-    //   icon: "user",
-    //   title: "person",
-    //   description: "descPerson",
-    //   page: "crm-person",
-    // },
-    // {
-    //   icon: "faceHappy",
-    //   title: "HR",
-    //   description: "descHr",
-    //   page: "hr-overview",
-    // },
-    // {
-    //   icon: "package",
-    //   title: "product&Services",
-    //   description: "descProduct&Services",
-    //   page: "crm-product-service",
-    // },
-    // {
-    //   icon: "receipt",
-    //   title: "order&Invoice",
-    //   description: "descOrder&Invoice",
-    //   page: "crm-order-invoice",
-    // },
-    // {
-    //   icon: "calendar",
-    //   title: "calendar",
-    //   description: "descCalendar",
-    //   page: "crm-calendar",
-    // },
+    {
+      icon: "user",
+      title: "person",
+      description: "descPerson",
+      page: "crm-person",
+    },
+    {
+      icon: "faceHappy",
+      title: "HR",
+      description: "descHr",
+      page: "hr-overview",
+    },
+    {
+      icon: "package",
+      title: "product&Services",
+      description: "descProduct&Services",
+      page: "crm-product-service",
+    },
+    {
+      icon: "receipt",
+      title: "order&Invoice",
+      description: "descOrder&Invoice",
+      page: "crm-order-invoice",
+    },
+    {
+      icon: "calendar",
+      title: "calendar",
+      description: "descCalendar",
+      page: "crm-calendar",
+    },
   ];
 
   const cardsAi = [
@@ -86,6 +92,178 @@ All Rights Reserved
       page: "datasets",
     },
   ];
+
+  async function getChartAction(totalCollections) {
+    chartAction = [
+      {
+        icon: "archive",
+        title: "documentCollection",
+        description: "descDocumentCollection",
+        href: await $call.getPage("client-dashboard", "document-collection-overview"),
+        dataName: "Total Documents",
+        value: totalCollections.total,
+        change: totalCollections.change,
+        changeType: totalCollections.changeType,
+      },
+    ];
+  }
+
+  function generateChartData() {
+    const currentDate = new Date();
+    const twelveMonthsBefore = new Date();
+    twelveMonthsBefore.setMonth(currentDate.getMonth() - 12);
+
+    const formatDate = (date) => {
+      const options = { month: "short", year: "numeric" };
+      return new Intl.DateTimeFormat("en-US", options).format(date);
+    };
+
+    dataChartAllDocs = {
+      chart: {
+        type: "area",
+        height: '150px',
+        fontFamily: "Inter, sans-serif",
+        dropShadow: {
+          enabled: false,
+        },
+        toolbar: {
+          show: false,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        x: {
+          show: false,
+        },
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          opacityFrom: 0.55,
+          opacityTo: 0,
+          shade: "#17B169",
+          gradientToColors: ["#17B169"],
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        width: 2,
+      },
+      grid: {
+        show: false,
+        strokeDashArray: 4,
+        padding: {
+          left: 2,
+          right: 2,
+          top: 0,
+        },
+      },
+      series: [
+        {
+          name: "Total documents",
+          data: monthlyCollectionsCounts,
+          color: "#17B169",
+        },
+      ],
+      xaxis: {
+        categories: Array.from({ length: 12 }, (_, i) => {
+          const date = new Date(twelveMonthsBefore);
+          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
+          return formatDate(date);
+        }),
+        labels: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+      },
+      yaxis: {
+        show: false,
+      },
+    };
+
+    chartReady = true;
+  }
+
+  async function getCountDocumentsPerMonth() {
+    const today = new Date();
+    let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      for (let i = 0; i < 12; i++) {
+        let response = await $call.call("client-dashboard", "get-count-documents-per-month", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response.status);
+          console.log(response);
+          return;
+        }
+        // console.log(
+        //   "telor",
+        //   format(earlyDateCurrentMonth, "yyyy-MM-dd"),
+        //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
+        // );
+
+        tmpMonthlyCollectionsCounts.push(response.result.document.meta.pagination.total);
+
+        earlyDateCurrentMonth = new Date(
+          earlyDateCurrentMonth.getFullYear(),
+          earlyDateCurrentMonth.getMonth() - 1,
+          1,
+        );
+        lastDateCurrentMonth = new Date(
+          lastDateCurrentMonth.getFullYear(),
+          lastDateCurrentMonth.getMonth(),
+          0,
+        );
+      }
+
+      tmpMonthlyCollectionsCounts.reverse();
+
+      monthlyCollectionsCounts = tmpMonthlyCollectionsCounts;
+
+      let totalCollections = groupingDataChart(monthlyCollectionsCounts);
+
+      getChartAction(totalCollections);
+      generateChartData();
+    } else {
+      console.log("no token");
+    }
+  }
+
+  function groupingDataChart(data) {
+    let total = 0;
+    for (let i = 0; i < data.length; i++) {
+      total += data[i];
+    }
+
+    let change = data[data.length - 1] - data[data.length - 2];
+
+    let changeType = change > 0 ? "increase" : change < 0 ? "decrease" : "-";
+
+    return {
+      total: total,
+      change: change,
+      changeType: changeType,
+    };
+  }
 
   function setFristTime() {
     isFirstTime = false;
@@ -157,6 +335,7 @@ All Rights Reserved
     // setTimeout(async () => {
     //   triggerLoading(false);
     // }, 3000);
+    getCountDocumentsPerMonth();
     getFristTime();
     CheckSetup();
   });
@@ -211,6 +390,11 @@ All Rights Reserved
           />
         {/each}
       </div>
+      <ChartCard
+        isLibrary
+        {chartAction}
+        chartList={[dataChartAllDocs]}
+      />
     </div>
   {/if}
   {#if cardsAi.length > 0}

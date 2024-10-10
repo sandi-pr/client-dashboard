@@ -566,7 +566,7 @@
             attributes.overlay_color !== null
               ? themeColors.find((color) => color.value === attributes.overlay_color).id
               : 1,
-          platform: platforms.find((platform) => platform.model === attributes.ai_engine).id,
+          platform: platforms.find((platform) => platform.model === attributes.ai_engine)?.id || 1,
           layout:
             attributes.layout !== null
               ? layouts.find((layout) => layout.name === attributes.layout).id
@@ -748,6 +748,8 @@
       }
       await getModels();
       getBot();
+
+      triggerLoading(false);
     });
     return () => unsubscribe();
   });

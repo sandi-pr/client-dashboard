@@ -489,8 +489,8 @@ All Rights Reserved
         });
 
         latestEmployee = await Promise.all(promises);
-        gettingDatas = false;
       }
+      gettingDatas = false;
     }
   }
 
