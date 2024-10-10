@@ -96,13 +96,14 @@
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
 
-    hrefUser = isFrontend ? "/users" : await $call.getPage("client-dashboard", "users");
-    hrefJobLevels = isFrontend
-      ? "/job_management"
-      : await $call.getPage("client-dashboard", "job-management");
+    hrefUser = await $call.getPage("client-dashboard", "users");
+    hrefJobLevels = await $call.getPage("client-dashboard", "job-management");
 
     let home = await $call.getPage("client-dashboard", "home-page");
-    sidebarItems = [{ name: "library", href: home, icon: "bookClosed", children: [] }, ...sidebarAddition];
+    sidebarItems = [
+      { name: "library", href: home, icon: "bookClosed", children: [] },
+      ...sidebarAddition,
+    ];
 
     // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
     let isOpenSession = JSON.parse(sessionStorage.getItem("isOpen"));
@@ -296,8 +297,8 @@
             </SidebarDropdownWrapper>
             <button
               onclick={async () => {
-                if (!isFrontend) goto(await $call.getPage("client-dashboard", "settings"));
-                else goto("/settings");
+                goto(await $call.getPage("client-dashboard", "settings"));
+                // else goto("/settings");
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
