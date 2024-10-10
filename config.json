@@ -666,6 +666,29 @@
             ]
         },
         {
+            "name": "get-count-product-per-mount",
+            "path": "/get-count-product-per-mount",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountProductPerMount"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
+                    "type": "date",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "create-resource",
             "path": "/create-resource",
             "method": "POST",
@@ -1461,6 +1484,29 @@
                 {
                     "name": "id",
                     "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-count-order-per-mount",
+            "path": "/get-count-order-per-mount",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountOrderPerMount"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
+                    "type": "date",
                     "required": true
                 }
             ]
@@ -4020,6 +4066,29 @@
                 }
             ],
             "params": []
+        },
+        {
+            "name": "get-count-bot-per-mount",
+            "path": "/get-count-bot-per-mount",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountBotPerMount"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
+                    "type": "date",
+                    "required": true
+                }
+            ]
         },
         {
             "name": "send-report",
