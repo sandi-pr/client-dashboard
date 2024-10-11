@@ -20,7 +20,7 @@
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Eye from "$lib/icon/eye.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { Typography, SectionHeader, ActionCard, call, triggerToast, StateCard } from "$lib";
+  import { Typography, SectionHeader, ActionCard, ChartCard, call, triggerToast, StateCard } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
@@ -39,6 +39,13 @@
   };
 
   let actionItems = $state([]);
+
+  let chartAction = $state([]);
+  let dataChartCollections = $state({});
+  let monthlyCollectionReadyCounts = $state([]);
+  let tmpMonthlyCollectionReadyCounts = $state([]);
+
+  let chartReady = $state(false);
 
   let Header;
 
@@ -73,6 +80,174 @@
         icon: "messagePlus",
         actionName: "Create New Bots",
         desc: "desc Create New Bots",
+      },
+    ];
+  }
+
+  function generateChartData() {
+    const currentDate = new Date();
+    const twelveMonthsBefore = new Date();
+    twelveMonthsBefore.setMonth(currentDate.getMonth() - 12);
+
+    const formatDate = (date) => {
+      const options = { month: "short", year: "numeric" };
+      return new Intl.DateTimeFormat("en-US", options).format(date);
+    };
+
+    dataChartCollections = {
+      chart: {
+        type: "area",
+        fontFamily: "Inter, sans-serif",
+        dropShadow: {
+          enabled: false,
+        },
+        toolbar: {
+          show: false,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        x: {
+          show: false,
+        },
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          opacityFrom: 0.55,
+          opacityTo: 0,
+          shade: "#17B169",
+          gradientToColors: ["#17B169"],
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        width: 2,
+      },
+      grid: {
+        show: false,
+        strokeDashArray: 4,
+        padding: {
+          left: 2,
+          right: 2,
+          top: 0,
+        },
+      },
+      series: [
+        {
+          name: "Documents collection",
+          data: monthlyCollectionReadyCounts,
+          color: "#17B169",
+        },
+      ],
+      xaxis: {
+        categories: Array.from({ length: 12 }, (_, i) => {
+          const date = new Date(twelveMonthsBefore);
+          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
+          return formatDate(date);
+        }),
+        labels: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+      },
+      yaxis: {
+        show: false,
+      },
+    };
+
+    chartReady = true;
+  }
+
+  async function getCountDocumentsPerMonth() {
+    const today = new Date();
+    let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      for (let i = 0; i < 12; i++) {
+        let response = await $call.call("client-dashboard", "get-count-documents-per-month", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response.status);
+          console.log(response);
+          return;
+        }
+        // console.log(
+        //   "telor",
+        //   format(earlyDateCurrentMonth, "yyyy-MM-dd"),
+        //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
+        // );
+
+        tmpMonthlyCollectionReadyCounts.push(response.result.general.meta.pagination.total);
+
+        earlyDateCurrentMonth = new Date(
+          earlyDateCurrentMonth.getFullYear(),
+          earlyDateCurrentMonth.getMonth() - 1,
+          1,
+        );
+        lastDateCurrentMonth = new Date(
+          lastDateCurrentMonth.getFullYear(),
+          lastDateCurrentMonth.getMonth(),
+          0,
+        );
+      }
+
+      tmpMonthlyCollectionReadyCounts.reverse();
+
+      monthlyCollectionReadyCounts = tmpMonthlyCollectionReadyCounts;
+
+      let readyCollection = groupingDataChart(monthlyCollectionReadyCounts);
+
+      getChartAction(readyCollection);
+      generateChartData();
+    } else {
+      console.log("no token");
+    }
+  }
+
+  function groupingDataChart(data) {
+    let total = 0;
+    for (let i = 0; i < data.length; i++) {
+      total += data[i];
+    }
+
+    let change = data[data.length - 1] - data[data.length - 2];
+
+    let changeType = change > 0 ? "increase" : change < 0 ? "decrease" : "-";
+
+    return {
+      total: total,
+      change: change,
+      changeType: changeType,
+    };
+  }
+
+  async function getChartAction(readyCollection) {
+    chartAction = [
+      {
+        href: await $call.getPage("client-dashboard", "document-collection"),
+        dataName: "Document Collection",
+        value: readyCollection.total,
+        change: readyCollection.change,
+        changeType: readyCollection.changeType,
       },
     ];
   }
@@ -236,6 +411,7 @@
 
   onMount(() => {
     getActionItems();
+    getCountDocumentsPerMonth();
     getBots();
   });
 </script>
@@ -253,6 +429,12 @@
         <div class="flex flex-col gap-4">
           <SectionHeader title={$_("action")} />
           <ActionCard {actionItems} />
+        </div>
+
+        <!-- Reports Monitoring -->
+        <div class="flex flex-col gap-4">
+          <SectionHeader title={$_("reports")} />
+          <ChartCard {chartAction} chartList={[dataChartCollections]} />
         </div>
 
         <!-- Document Table Data -->

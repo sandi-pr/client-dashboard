@@ -11,22 +11,62 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
+  import { Heading, Button } from "flowbite-svelte";
+  import { StateCard, Typography, ChartCard, ActionCard } from "$lib";
   import { _ } from "svelte-i18n";
   import DataTable from "$lib/components/DataTable.svelte";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
-  import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { Button } from "flowbite-svelte";
-  import PlusIcon from "$lib/icon/plus.svg";
-  import { goto } from "$app/navigation";
-  import { StateCard } from "$lib";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import { goto } from "$app/navigation";
 
   import { call } from "$lib";
 
+  let { showAI = false } = $props();
+
+  let gettingDatas = $state(false);
+  let latestPersons = $state([]);
+  let configs = $state({});
+  let documentsReady = $state(false);
+  let personsIsEmpty = $state(true);
+  // let documents = [];
+  // let documentsNeed = [];
+  // let documentsComplete = [];
+  // let allUrls = [];
+  // let chart = true;
+  let monthlyPersonsCounts = $state([]);
+  let monthlyActivePersonsCounts = $state([]);
+  let monthlyInactivePersonsCounts = $state([]);
+  let dataChartTotalPersons = $state({});
+  let dataChartActivePersons = $state({});
+  let dataChartInactivePersons = $state({});
+  let chartReady = $state(false);
+  let actionItems = $state([]);
+  let chartAction = $state([]);
+  let productServiceData = $state([]);
+  let categoriesData = $state([]);
+  let configsCategories = $state({});
+
   let paginationOrders = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
   let paginationInvoices = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
+  
+  let dataOrders = $state([]);
+  let dataInvoices = $state([]);
+  let configsOrders = $state({ search: true });
+  let configsInvoices = $state({ search: true });
+
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
+
+  async function getActionItems() {
+    actionItems = [
+      {
+        href: await $call.getPage("client-dashboard", "crm-order-invoice-create"),
+        icon: "packagePlus",
+        actionName: "Create new Order Invoice",
+        desc: "desc Create new Order Invoice",
+      },
+    ];
+  }
 
   let tabDatas = $state({
     selected: "Orders",
@@ -40,19 +80,351 @@ All Rights Reserved
     ],
   });
 
-  let gettingDatas = $state(false);
+  function generateChartData() {
+    const currentDate = new Date();
+    const twelveMonthsBefore = new Date();
+    twelveMonthsBefore.setMonth(currentDate.getMonth() - 12);
 
-  let dataOrders = $state([]);
+    const formatDate = (date) => {
+      const options = { month: "short", year: "numeric" };
+      return new Intl.DateTimeFormat("en-US", options).format(date);
+    };
 
-  let dataInvoices = $state([]);
+    dataChartTotalPersons = {
+      chart: {
+        type: "area",
+        fontFamily: "Inter, sans-serif",
+        dropShadow: {
+          enabled: false,
+        },
+        toolbar: {
+          show: false,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        x: {
+          show: false,
+        },
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          opacityFrom: 0.55,
+          opacityTo: 0,
+          shade: "#17B169",
+          gradientToColors: ["#17B169"],
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        width: 2,
+      },
+      grid: {
+        show: false,
+        strokeDashArray: 4,
+        padding: {
+          left: 2,
+          right: 2,
+          top: 0,
+        },
+      },
+      series: [
+        {
+          name: "New users",
+          data: monthlyPersonsCounts,
+          color: "#17B169",
+        },
+      ],
+      xaxis: {
+        categories: Array.from({ length: 12 }, (_, i) => {
+          const date = new Date(twelveMonthsBefore);
+          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
+          return formatDate(date);
+        }),
+        labels: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+      },
+      yaxis: {
+        show: false,
+      },
+    };
 
-  let configsOrders = $state({ search: true });
+    dataChartActivePersons = {
+      chart: {
+        type: "area",
+        fontFamily: "Inter, sans-serif",
+        dropShadow: {
+          enabled: false,
+        },
+        toolbar: {
+          show: false,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        x: {
+          show: false,
+        },
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          opacityFrom: 0.55,
+          opacityTo: 0,
+          shade: "#17B169",
+          gradientToColors: ["#17B169"],
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        width: 2,
+      },
+      grid: {
+        show: false,
+        strokeDashArray: 4,
+        padding: {
+          left: 2,
+          right: 2,
+          top: 0,
+        },
+      },
+      series: [
+        {
+          name: "New users",
+          data: monthlyActivePersonsCounts,
+          color: "#17B169",
+        },
+      ],
+      xaxis: {
+        categories: Array.from({ length: 12 }, (_, i) => {
+          const date = new Date(twelveMonthsBefore);
+          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
+          return formatDate(date);
+        }),
+        labels: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+      },
+      yaxis: {
+        show: false,
+      },
+    };
 
-  let configsInvoices = $state({ search: true });
+    dataChartInactivePersons = {
+      chart: {
+        type: "area",
+        fontFamily: "Inter, sans-serif",
+        dropShadow: {
+          enabled: false,
+        },
+        toolbar: {
+          show: false,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        x: {
+          show: false,
+        },
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          opacityFrom: 0.55,
+          opacityTo: 0,
+          shade: "#17B169",
+          gradientToColors: ["#17B169"],
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        width: 2,
+      },
+      grid: {
+        show: false,
+        strokeDashArray: 4,
+        padding: {
+          left: 2,
+          right: 2,
+          top: 0,
+        },
+      },
+      series: [
+        {
+          name: "New users",
+          data: monthlyInactivePersonsCounts,
+          color: "#17B169",
+        },
+      ],
+      xaxis: {
+        categories: Array.from({ length: 12 }, (_, i) => {
+          const date = new Date(twelveMonthsBefore);
+          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
+          return formatDate(date);
+        }),
+        labels: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+      },
+      yaxis: {
+        show: false,
+      },
+    };
+    chartReady = true;
+  }
 
-  let orderReady = $state(false);
+  async function getChartAction(totalPersons, activePersons, inactivePersons) {
+    chartAction = [
+      {
+        href: await $call.getPage("client-dashboard", "crm-person-list"),
+        dataName: "Total Persons",
+        value: totalPersons.total,
+        change: totalPersons.change,
+        changeType: totalPersons.changeType,
+      },
+      {
+        href: await $call.getPage("client-dashboard", "crm-person-list"),
+        dataName: "Active Persons",
+        value: activePersons.total,
+        change: activePersons.change,
+        changeType: activePersons.changeType,
+      },
+    ];
+  }
 
-  let invoiceReady = $state(false);
+  async function viewAll() {
+    goto(await $call.getPage("client-dashboard", "crm-order-invoice-list"));
+  }
+
+  function getStatus(is_active) {
+    if (is_active === "Yes") {
+      return {
+        type: "success",
+        name: "Active",
+      };
+    }
+
+    if (is_active === "No") {
+      return {
+        type: "danger",
+        name: "Inactive",
+      };
+    }
+
+    return;
+  }
+
+  async function getCountPersonsPerMonth() {
+    const today = new Date();
+    let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    let token = localStorage.getItem("token");
+
+    let tmpMonthlyPersonsCounts = [];
+    let tmpMonthlyActivePersonsCounts = [];
+    let tmpMonthlyInactivePersonsCounts = [];
+
+    if (token !== null) {
+      for (let i = 0; i < 12; i++) {
+        let response = await $call.call("client-dashboard", "get-count-persons-per-month", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response.status);
+          console.log(response);
+          return;
+        }
+        // console.log(
+        //   "telor",
+        //   format(earlyDateCurrentMonth, "yyyy-MM-dd"),
+        //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
+        // );
+
+        tmpMonthlyPersonsCounts.push(response.result.persons.meta.pagination.total);
+        tmpMonthlyActivePersonsCounts.push(response.result.activePersons.meta.pagination.total);
+        tmpMonthlyInactivePersonsCounts.push(response.result.inactivePersons.meta.pagination.total);
+
+        earlyDateCurrentMonth = new Date(
+          earlyDateCurrentMonth.getFullYear(),
+          earlyDateCurrentMonth.getMonth() - 1,
+          1,
+        );
+        lastDateCurrentMonth = new Date(
+          lastDateCurrentMonth.getFullYear(),
+          lastDateCurrentMonth.getMonth(),
+          0,
+        );
+      }
+
+      tmpMonthlyPersonsCounts.reverse();
+      tmpMonthlyActivePersonsCounts.reverse();
+      tmpMonthlyInactivePersonsCounts.reverse();
+
+      monthlyPersonsCounts = tmpMonthlyPersonsCounts;
+      monthlyActivePersonsCounts = tmpMonthlyActivePersonsCounts;
+      monthlyInactivePersonsCounts = tmpMonthlyInactivePersonsCounts;
+
+      let totalPersons = groupingDataChart(monthlyPersonsCounts);
+      let activePersons = groupingDataChart(monthlyActivePersonsCounts);
+      let inactivePersons = groupingDataChart(monthlyInactivePersonsCounts);
+
+      getChartAction(totalPersons, activePersons, inactivePersons);
+      generateChartData();
+    } else {
+      console.log("no token");
+    }
+  }
+
+  function groupingDataChart(data) {
+    let total = 0;
+    for (let i = 0; i < data.length; i++) {
+      total += data[i];
+    }
+
+    let change = data[data.length - 1] - data[data.length - 2];
+
+    let changeType = change > 0 ? "increase" : change < 0 ? "decrease" : "-";
+
+    return {
+      total: total,
+      change: change,
+      changeType: changeType,
+    };
+  }
 
   async function getOrder() {
     let token = localStorage.getItem("token");
@@ -169,11 +541,9 @@ All Rights Reserved
     }
   }
 
-  async function addNew() {
-    goto(await $call.getPage("client-dashboard", "crm-order-invoice-create"));
-  }
-
-  onMount(() => {
+  onMount(async () => {
+    getCountPersonsPerMonth();
+    getActionItems();
     getOrder();
     getInvoice();
   });
@@ -181,49 +551,69 @@ All Rights Reserved
 
 <div class="flex dark:bg-primary-dark">
   <div class="w-full pb-10">
-    <div class="flex flex-col m-4 pt-2">
+    <div class="flex flex-col m-4">
       <!-- <Navbar /> -->
 
-      <div class="flex flex-col">
+      <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <div class="flex items-center justify-between pb-2">
-          <Typography
-            preset="Display sm/Semibold"
-            color="primary"
-            text={$_(toCamelCase(tabDatas.selected))}
-          />
+        <Typography preset="Display sm/Semibold" text={$_("orderInvoiceOverview")} propClass="fluid-xl" />
 
-          <Button onclick={addNew} icon={PlusIcon}
-            ><img class="me-1 w-4 h-4" src={PlusIcon} alt="plus-icon" /> {$_("addNewOrder")}</Button
-          >
+        <!-- Action Items -->
+        <div>
+          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
+            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
+              {$_("action")}
+            </Heading>
+          </div>
+          <ActionCard {actionItems} />
         </div>
 
-        <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+        <!-- Reports Monitoring -->
+        <div>
+          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
+            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
+              {$_("reports")}
+            </Heading>
+          </div>
+          <ChartCard
+            {chartAction}
+            chartList={[dataChartTotalPersons, dataChartActivePersons]}
+          />
+        </div>
 
-        <!-- Table Data -->
-        {#if tabDatas.selected === "Orders"}
-          {#if dataOrders.length > 0}
-            <DataTable bind:datas={dataOrders} bind:configs={configsOrders} />
-          {:else if gettingDatas}
-            <StateCard
-              illustration={IllustrationProgress}
-              description={$_("fetchingDataPleaseWait")}
-            />
-          {:else}
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+        <div class="flex flex-col">
+          <div class="flex justify-between">
+            <Typography preset="Text lg/Semibold" color="primary" text={tabDatas.selected === "Orders" ? $_("orders") : $_("invoices")} />
+            <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
+          </div>
+
+          <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+
+          <!-- Table Data -->
+          {#if tabDatas.selected === "Orders"}
+            {#if dataOrders.length > 0}
+              <DataTable bind:datas={dataOrders} bind:configs={configsOrders} />
+            {:else if gettingDatas}
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            {:else}
+              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+            {/if}
+          {:else if tabDatas.selected === "Invoices"}
+            {#if dataInvoices.length > 0}
+              <DataTable bind:datas={dataInvoices} bind:configs={configsInvoices} />
+            {:else if gettingDatas}
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            {:else}
+              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+            {/if}
           {/if}
-        {:else if tabDatas.selected === "Invoices"}
-          {#if dataInvoices.length > 0}
-            <DataTable bind:datas={dataInvoices} bind:configs={configsInvoices} />
-          {:else if gettingDatas}
-            <StateCard
-              illustration={IllustrationProgress}
-              description={$_("fetchingDataPleaseWait")}
-            />
-          {:else}
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          {/if}
-        {/if}
+        </div>
       </div>
     </div>
   </div>

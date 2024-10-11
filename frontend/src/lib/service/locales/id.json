@@ -570,11 +570,16 @@
   "aiManagements": "Manajemen AI",
   "addNewOrder": "Tambahkan pesanan baru",
   "addNewCategory": "Tambahkan kategori baru",
+  "descAddNewCategory": "Tambahan kategori baru di sini",
   "library": "Library",
   "descPerson": "Daftar dan manajemen kontak Anda",
   "descProduct&Services": "Daftar produk & layanan Anda",
   "descOrder&Invoice": "Menerima pesanan & membuat faktur",
   "descCalendar": "Lihat jadwal Anda",
   "descHexabot": "Buat bot khusus Anda sendiri",
-  "descContractReviewer": "AI-review kontrak"
+  "descContractReviewer": "AI-review kontrak",
+  "productServiceOverview": "Produk & Layanan",
+  "orderInvoiceOverview": "Pemesanan & Faktur",
+  "createNewOrderInvoice": "Buat pesanan & faktur baru",
+  "descCreateNewOrderInvoice": "Tambahan pesanan & faktur baru di sini"
 }

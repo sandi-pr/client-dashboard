@@ -569,11 +569,16 @@
   "aiManagements": "AI Managements",
   "addNewOrder": "Add new order",
   "addNewCategory": "Add new category",
+  "descAddNewCategory": "Add new category here",
   "library": "Library",
   "descPerson": "Register and manage your contacts",
   "descProduct&Services": "Register your products & services",
   "descOrder&Invoice": "Receive orders & make invoices",
   "descCalendar": "See your schedule",
   "descHexabot": "Deploy your own customized chatbots",
-  "descContractReviewer": "AI-reviewed contracts"
+  "descContractReviewer": "AI-reviewed contracts",
+  "productServiceOverview": "Product & Service Overview",
+  "orderInvoiceOverview": "Order & Invoice Overview",
+  "createNewOrderInvoice": "Create new order & invoice",
+  "descCreateNewOrderInvoice": "Create new order & invoice here"
 }
