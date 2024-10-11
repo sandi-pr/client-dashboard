@@ -1271,6 +1271,29 @@
             ]
         },
         {
+            "name": "get-count-schedule-per-mount",
+            "path": "/get-count-schedule-per-mount",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountSchedulePerMount"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
+                    "type": "date",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "create-availability",
             "path": "/create-availability",
             "method": "POST",
@@ -3821,6 +3844,29 @@
                 {
                     "name": "conversation_id",
                     "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-count-dataset-per-mount",
+            "path": "/get-count-dataset-per-mount",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountDatasetPerMount"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
+                    "type": "date",
                     "required": true
                 }
             ]

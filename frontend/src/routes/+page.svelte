@@ -26,12 +26,23 @@ All Rights Reserved
   let userData = $state({ username: "", email: "", brand: "" });
 
   let isFirstTime = $state(true);
-  
-  let chartAction = $state([]);
+
+  let chartActionBusiness = $state([]);
+  let chartActionAi = $state([]);
   let chartReady = $state(false);
+
+  let monthlyEmployeeCounts = $state([]);
+  let monthlyPersonsCounts = $state([]);
+  let monthlyProductCounts = $state([]);
+  let monthlyOrderCounts = $state([]);
+  let monthlyScheduleCounts = $state([]);
+
+  let monthlyBotCounts = $state([]);
   let monthlyCollectionsCounts = $state([]);
-  let tmpMonthlyCollectionsCounts = $state([]);
-  let dataChartAllDocs = $state({});
+  let monthlyDatasetCounts = $state([]);
+
+  let dataChartAllBusiness = $state([]);
+  let dataChartAllAi = $state([]);
 
   const cardsBusiness = [
     {
@@ -93,22 +104,73 @@ All Rights Reserved
     },
   ];
 
-  async function getChartAction(totalCollections) {
-    chartAction = [
-      {
-        icon: "archive",
-        title: "documentCollection",
-        description: "descDocumentCollection",
-        href: await $call.getPage("client-dashboard", "document-collection-overview"),
-        dataName: "Total Documents",
-        value: totalCollections.total,
-        change: totalCollections.change,
-        changeType: totalCollections.changeType,
-      },
-    ];
+  async function getChartAction(total, module) {
+    let type = "business";
+
+    let tmp = cardsBusiness.find((card) => card.title === module);
+    if (tmp === undefined) {
+      tmp = cardsAi.find((card) => card.title === module);
+      type = "ai";
+    }
+
+    if (tmp === undefined) {
+      console.log(module);
+      return;
+    }
+
+    let tmpName = "";
+    if (module === "person") {
+      tmpName = "Total Person";
+    } else if (module === "HR") {
+      tmpName = "Total Employee";
+    } else if (module === "product&Services") {
+      tmpName = "Total Product";
+    } else if (module === "order&Invoice") {
+      tmpName = "Total Order";
+    } else if (module === "calendar") {
+      tmpName = "Total Schedule";
+    } else if (module === "hexabot") {
+      tmpName = "Total Bot";
+    } else if (module === "documentCollection") {
+      tmpName = "Total Collection";
+    } else if (module === "datasets") {
+      tmpName = "Total Dataset";
+    }
+
+    if (type === "business") {
+      chartActionBusiness = [
+        ...chartActionBusiness,
+        {
+          icon: tmp.icon,
+          title: tmp.title,
+          description: tmp.description,
+          href: await $call.getPage("client-dashboard", tmp.page),
+          dataName: tmpName,
+          value: total.total,
+          change: total.change,
+          changeType: total.changeType,
+        },
+      ];
+    } else if (type === "ai") {
+      chartActionAi = [
+        ...chartActionAi,
+        {
+          icon: tmp.icon,
+          title: tmp.title,
+          description: tmp.description,
+          href: await $call.getPage("client-dashboard", tmp.page),
+          dataName: tmpName,
+          value: total.total,
+          change: total.change,
+          changeType: total.changeType,
+        },
+      ];
+    }
+
+    generateChartData(module, type);
   }
 
-  function generateChartData() {
+  function generateChartData(module, type) {
     const currentDate = new Date();
     const twelveMonthsBefore = new Date();
     twelveMonthsBefore.setMonth(currentDate.getMonth() - 12);
@@ -118,88 +180,202 @@ All Rights Reserved
       return new Intl.DateTimeFormat("en-US", options).format(date);
     };
 
-    dataChartAllDocs = {
-      chart: {
-        type: "area",
-        height: '150px',
-        fontFamily: "Inter, sans-serif",
-        dropShadow: {
-          enabled: false,
-        },
-        toolbar: {
-          show: false,
-        },
-      },
-      tooltip: {
-        enabled: true,
-        x: {
-          show: false,
-        },
-      },
-      fill: {
-        type: "gradient",
-        gradient: {
-          opacityFrom: 0.55,
-          opacityTo: 0,
-          shade: "#17B169",
-          gradientToColors: ["#17B169"],
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        width: 2,
-      },
-      grid: {
-        show: false,
-        strokeDashArray: 4,
-        padding: {
-          left: 2,
-          right: 2,
-          top: 0,
-        },
-      },
-      series: [
-        {
-          name: "Total documents",
-          data: monthlyCollectionsCounts,
-          color: "#17B169",
-        },
-      ],
-      xaxis: {
-        categories: Array.from({ length: 12 }, (_, i) => {
-          const date = new Date(twelveMonthsBefore);
-          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
-          return formatDate(date);
-        }),
-        labels: {
-          show: false,
-        },
-        axisBorder: {
-          show: false,
-        },
-        axisTicks: {
-          show: false,
-        },
-      },
-      yaxis: {
-        show: false,
-      },
-    };
+    let tmpName = "";
+    let tmpData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    if (module === "person") {
+      tmpName = "Total Person";
+      tmpData = monthlyPersonsCounts;
+    } else if (module === "HR") {
+      tmpName = "Total Employee";
+      tmpData = monthlyEmployeeCounts;
+    } else if (module === "product&Services") {
+      tmpName = "Total Product";
+      tmpData = monthlyProductCounts;
+    } else if (module === "order&Invoice") {
+      tmpName = "Total Order";
+      tmpData = monthlyOrderCounts;
+    } else if (module === "calendar") {
+      tmpName = "Total Schedule";
+      tmpData = monthlyScheduleCounts;
+    } else if (module === "hexabot") {
+      tmpName = "Total Bot";
+      tmpData = monthlyBotCounts;
+    } else if (module === "documentCollection") {
+      tmpName = "Total Collection";
+      tmpData = monthlyCollectionsCounts;
+    } else if (module === "datasets") {
+      tmpName = "Total Dataset";
+      tmpData = monthlyDatasetCounts;
+    }
 
-    chartReady = true;
+    if (type === "business") {
+      dataChartAllBusiness = [
+        ...dataChartAllBusiness,
+        {
+          chart: {
+            type: "area",
+            height: "150px",
+            fontFamily: "Inter, sans-serif",
+            dropShadow: {
+              enabled: false,
+            },
+            toolbar: {
+              show: false,
+            },
+          },
+          tooltip: {
+            enabled: true,
+            x: {
+              show: false,
+            },
+          },
+          fill: {
+            type: "gradient",
+            gradient: {
+              opacityFrom: 0.55,
+              opacityTo: 0,
+              shade: "#17B169",
+              gradientToColors: ["#17B169"],
+            },
+          },
+          dataLabels: {
+            enabled: false,
+          },
+          stroke: {
+            width: 2,
+          },
+          grid: {
+            show: false,
+            strokeDashArray: 4,
+            padding: {
+              left: 2,
+              right: 2,
+              top: 0,
+            },
+          },
+          series: [
+            {
+              name: tmpName,
+              data: tmpData,
+              color: "#17B169",
+            },
+          ],
+          xaxis: {
+            categories: Array.from({ length: 12 }, (_, i) => {
+              const date = new Date(twelveMonthsBefore);
+              date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
+              return formatDate(date);
+            }),
+            labels: {
+              show: false,
+            },
+            axisBorder: {
+              show: false,
+            },
+            axisTicks: {
+              show: false,
+            },
+          },
+          yaxis: {
+            show: false,
+          },
+        },
+      ];
+    } else if (type === "ai") {
+      dataChartAllAi = [
+        ...dataChartAllAi,
+        {
+          chart: {
+            type: "area",
+            height: "150px",
+            fontFamily: "Inter, sans-serif",
+            dropShadow: {
+              enabled: false,
+            },
+            toolbar: {
+              show: false,
+            },
+          },
+          tooltip: {
+            enabled: true,
+            x: {
+              show: false,
+            },
+          },
+          fill: {
+            type: "gradient",
+            gradient: {
+              opacityFrom: 0.55,
+              opacityTo: 0,
+              shade: "#17B169",
+              gradientToColors: ["#17B169"],
+            },
+          },
+          dataLabels: {
+            enabled: false,
+          },
+          stroke: {
+            width: 2,
+          },
+          grid: {
+            show: false,
+            strokeDashArray: 4,
+            padding: {
+              left: 2,
+              right: 2,
+              top: 0,
+            },
+          },
+          series: [
+            {
+              name: tmpName,
+              data: tmpData,
+              color: "#17B169",
+            },
+          ],
+          xaxis: {
+            categories: Array.from({ length: 12 }, (_, i) => {
+              const date = new Date(twelveMonthsBefore);
+              date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
+              return formatDate(date);
+            }),
+            labels: {
+              show: false,
+            },
+            axisBorder: {
+              show: false,
+            },
+            axisTicks: {
+              show: false,
+            },
+          },
+          yaxis: {
+            show: false,
+          },
+        },
+      ];
+    }
   }
 
-  async function getCountDocumentsPerMonth() {
+  async function getCountPerModulePerMonth() {
     const today = new Date();
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     let token = localStorage.getItem("token");
 
+    let tmpMonthlyPersonsCounts = [];
+    let tmpMonthlyEmployeeCounts = [];
+    let tmpMonthlyProductCounts = [];
+    let tmpMonthlyOrderCounts = [];
+    let tmpMonthlyScheduleCounts = [];
+
+    let tmpMonthlyBotCounts = [];
+    let tmpMonthlyCollectionsCounts = [];
+    let tmpMonthlyDatasetCounts = [];
+
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
-        let response = await $call.call("client-dashboard", "get-count-documents-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-persons-per-month", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -215,13 +391,141 @@ All Rights Reserved
           console.log(response);
           return;
         }
-        // console.log(
-        //   "telor",
-        //   format(earlyDateCurrentMonth, "yyyy-MM-dd"),
-        //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
-        // );
 
-        tmpMonthlyCollectionsCounts.push(response.result.document.meta.pagination.total);
+        tmpMonthlyPersonsCounts.push(response.result.persons.meta.pagination.total);
+
+        let response2 = await $call.call("client-dashboard", "get-count-employee-per-month", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response2.status !== 200) {
+          console.log(response2.status);
+          console.log(response2);
+          return;
+        }
+
+        tmpMonthlyEmployeeCounts.push(response2.result.employee.meta.pagination.total);
+
+        let response3 = await $call.call("client-dashboard", "get-count-product-per-mount", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response3.status !== 200) {
+          console.log(response3.status);
+          console.log(response3);
+          return;
+        }
+
+        tmpMonthlyProductCounts.push(response3.result.meta.pagination.total);
+
+        let response4 = await $call.call("client-dashboard", "get-count-order-per-mount", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response4.status !== 200) {
+          console.log(response4.status);
+          console.log(response4);
+          return;
+        }
+
+        tmpMonthlyOrderCounts.push(response4.result.meta.pagination.total);
+
+        let response5 = await $call.call("client-dashboard", "get-count-schedule-per-mount", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response5.status !== 200) {
+          console.log(response5.status);
+          console.log(response5);
+          return;
+        }
+
+        tmpMonthlyScheduleCounts.push(response5.result.meta.pagination.total);
+
+        let response6 = await $call.call("client-dashboard", "get-count-bot-per-mount", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response6.status !== 200) {
+          console.log(response6.status);
+          console.log(response6);
+          return;
+        }
+
+        tmpMonthlyBotCounts.push(response6.result.meta.pagination.total);
+
+        let response7 = await $call.call("client-dashboard", "get-count-documents-per-month", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response7.status !== 200) {
+          console.log(response7.status);
+          console.log(response7);
+          return;
+        }
+
+        tmpMonthlyCollectionsCounts.push(response7.result.document.meta.pagination.total);
+
+        let response8 = await $call.call("client-dashboard", "get-count-dataset-per-mount", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            earlyDate: earlyDateCurrentMonth.toISOString().split("T")[0],
+            lastDate: lastDateCurrentMonth.toISOString().split("T")[0],
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response8.status !== 200) {
+          console.log(response8.status);
+          console.log(response8);
+          return;
+        }
+
+        tmpMonthlyDatasetCounts.push(response8.result.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -235,14 +539,38 @@ All Rights Reserved
         );
       }
 
-      tmpMonthlyCollectionsCounts.reverse();
+      monthlyPersonsCounts = tmpMonthlyPersonsCounts.reverse();
+      monthlyEmployeeCounts = tmpMonthlyEmployeeCounts.reverse();
+      monthlyProductCounts = tmpMonthlyProductCounts.reverse();
+      monthlyOrderCounts = tmpMonthlyOrderCounts.reverse();
+      monthlyScheduleCounts = tmpMonthlyScheduleCounts.reverse();
 
-      monthlyCollectionsCounts = tmpMonthlyCollectionsCounts;
+      monthlyBotCounts = tmpMonthlyBotCounts.reverse();
+      monthlyCollectionsCounts = tmpMonthlyCollectionsCounts.reverse();
+      monthlyDatasetCounts = tmpMonthlyDatasetCounts.reverse();
 
+      let totalPersons = groupingDataChart(monthlyPersonsCounts);
+      let totalEmployees = groupingDataChart(monthlyEmployeeCounts);
+      let totalProducts = groupingDataChart(monthlyProductCounts);
+      let totalOrders = groupingDataChart(monthlyOrderCounts);
+      let totalSchedules = groupingDataChart(monthlyScheduleCounts);
+
+      let totalBots = groupingDataChart(monthlyBotCounts);
       let totalCollections = groupingDataChart(monthlyCollectionsCounts);
+      let totalDataset = groupingDataChart(monthlyDatasetCounts);
 
-      getChartAction(totalCollections);
-      generateChartData();
+      await getChartAction(totalPersons, "person");
+      await getChartAction(totalEmployees, "HR");
+      await getChartAction(totalProducts, "product&Services");
+      await getChartAction(totalOrders, "order&Invoice");
+      await getChartAction(totalSchedules, "calendar");
+
+      await getChartAction(totalBots, "hexabot");
+      await getChartAction(totalCollections, "documentCollection");
+      await getChartAction(totalDataset, "datasets");
+
+      chartReady = true;
+      // generateChartData();
     } else {
       console.log("no token");
     }
@@ -335,7 +663,7 @@ All Rights Reserved
     // setTimeout(async () => {
     //   triggerLoading(false);
     // }, 3000);
-    getCountDocumentsPerMonth();
+    getCountPerModulePerMonth();
     getFristTime();
     CheckSetup();
   });
@@ -378,38 +706,43 @@ All Rights Reserved
   {#if cardsBusiness.length > 0}
     <div class="flex flex-col gap-4">
       <SectionHeader title={$_("businessManagements")} />
+      {#if chartActionBusiness.length > 0}
+        <ChartCard isLibrary chartAction={chartActionBusiness} chartList={dataChartAllBusiness} />
+      {/if}
       <div
         class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
       >
         {#each cardsBusiness as card}
-          <Card
-            icon={card.icon}
-            title={$_(card.title)}
-            description={$_(card.description)}
-            onclick={() => navigateToPage(card.page)}
-          />
+          {#if !chartActionBusiness.find((item) => item.title === card.title)}
+            <Card
+              icon={card.icon}
+              title={$_(card.title)}
+              description={$_(card.description)}
+              onclick={() => navigateToPage(card.page)}
+            />
+          {/if}
         {/each}
       </div>
-      <ChartCard
-        isLibrary
-        {chartAction}
-        chartList={[dataChartAllDocs]}
-      />
     </div>
   {/if}
   {#if cardsAi.length > 0}
     <div class="flex flex-col gap-4">
       <SectionHeader title={$_("aiManagements")} />
+      {#if chartActionAi.length > 0}
+        <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
+      {/if}
       <div
         class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
       >
         {#each cardsAi as card}
-          <Card
-            icon={card.icon}
-            title={$_(card.title)}
-            description={$_(card.description)}
-            onclick={() => navigateToPage(card.page)}
-          />
+          {#if !chartActionAi.find((item) => item.title === card.title)}
+            <Card
+              icon={card.icon}
+              title={$_(card.title)}
+              description={$_(card.description)}
+              onclick={() => navigateToPage(card.page)}
+            />
+          {/if}
         {/each}
       </div>
     </div>

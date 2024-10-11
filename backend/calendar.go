@@ -438,3 +438,61 @@ func UpdateAvailability(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 
 	return 200, calendar, nil
 }
+
+func GetCountSchedulePerMount(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	earlyDate, ok := ctx.Params.GetString("earlyDate")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	lastDate, ok := ctx.Params.GetString("lastDate")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, booking, err := Strapi.Find("booking-table", U.Dict{
+		"filters": U.Dict{
+			"updatedAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+		},
+	})
+
+	fmt.Println(booking)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, booking, nil
+}
