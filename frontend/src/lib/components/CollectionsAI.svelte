@@ -154,7 +154,7 @@
       messageInput = "";
 
       let conversationIdCollection = sessionStorage.getItem(
-        "conversationIdCollection-" + $selectedCollection.id.toString(),
+        "conversationIdCollection-" + $selectedCollection.id.toString()
       );
 
       try {
@@ -179,36 +179,42 @@
           let aiMessage = chat.result.message.message;
           let aiRole = chat.result.message.role;
 
-          dataConversatonLogs = [
-            ...dataConversatonLogs,
-            {
-              role: aiRole,
-              message: "", // Mulai dengan pesan kosong
-            },
-          ];
+          console.log("aiMessage", aiMessage);
+          initChatDoc(1, {
+            role: aiRole,
+            message: aiMessage,
+          });
 
-          let i = 0;
+          // dataConversatonLogs = [
+          //   ...dataConversatonLogs,
+          //   {
+          //     role: aiRole,
+          //     message: "", // Mulai dengan pesan kosong
+          //   },
+          // ];
 
-          function typeWriter() {
-            if (i < aiMessage.length) {
-              // Update pesan terakhir yang merupakan jawaban AI
-              dataConversatonLogs = [
-                ...dataConversatonLogs.slice(0, -1), // Hapus pesan AI kosong terakhir
-                {
-                  role: aiRole,
-                  message:
-                    dataConversatonLogs[dataConversatonLogs.length - 1].message +
-                    aiMessage.charAt(i),
-                },
-              ];
-              i++;
-              setTimeout(typeWriter, 10); // Set interval penulisan huruf, sesuaikan kecepatannya di sini
-            } else {
-              disableInput = false; // Aktifkan input kembali setelah selesai
-            }
-          }
+          // let i = 0;
 
-          typeWriter();
+          // function typeWriter() {
+          //   if (i < aiMessage.length) {
+          //     // Update pesan terakhir yang merupakan jawaban AI
+          //     dataConversatonLogs = [
+          //       ...dataConversatonLogs.slice(0, -1), // Hapus pesan AI kosong terakhir
+          //       {
+          //         role: aiRole,
+          //         message:
+          //           dataConversatonLogs[dataConversatonLogs.length - 1].message +
+          //           aiMessage.charAt(i),
+          //       },
+          //     ];
+          //     i++;
+          //     setTimeout(typeWriter, 10); // Set interval penulisan huruf, sesuaikan kecepatannya di sini
+          //   } else {
+          //     disableInput = false; // Aktifkan input kembali setelah selesai
+          //   }
+          // }
+
+          // typeWriter();
         }
       } catch (error) {
         triggerToast("error");
@@ -252,7 +258,7 @@
     }
 
     let conversationIdCollection = sessionStorage.getItem(
-      "conversationIdCollection-" + $selectedCollection.id.toString(),
+      "conversationIdCollection-" + $selectedCollection.id.toString()
     );
 
     let token = localStorage.getItem("token");
@@ -295,6 +301,7 @@
           if (chat.result.messages.length > 0) {
             dataConversatonLogs = chat.result.messages;
           }
+          initChatDoc(0);
         }
 
         if (runningRAG === false) {
@@ -324,7 +331,7 @@
           conversationIdCollection = createConversationResponse.result.conversation_id;
           sessionStorage.setItem(
             "conversationIdCollection-" + $selectedCollection.id.toString(),
-            conversationIdCollection,
+            conversationIdCollection
           );
 
           if (runningRAG === false) {
@@ -340,6 +347,128 @@
         console.log(error);
       }
     }
+  }
+
+  function initChatDoc(init = 1, message) {
+    if (init === 0) {
+      dataConversatonLogs.forEach((log, index) => {
+        if (!log.processed && log.role === "assistant") {
+          log.message = convertMarkdownLinks(log.message);
+
+          log.processed = true;
+          dataConversatonLogs[index] = log;
+
+          console.log("Updated dataConversationLogs " + index + " :", dataConversatonLogs[index]);
+        }
+      });
+    } else {
+      let log = message;
+      if (!log.processed && log.role === "assistant") {
+        log.message = convertMarkdownLinks(log.message);
+        log.processed = true;
+
+        dataConversatonLogs = [
+          ...dataConversatonLogs,
+          {
+            role: log.role,
+            message: "",
+          },
+        ];
+
+        let i = 0;
+
+        function typeWriter() {
+          if (i < log.message[0].content.length) {
+            dataConversatonLogs = [
+              ...dataConversatonLogs.slice(0, -1),
+              {
+                role: log.role,
+                message:
+                  dataConversatonLogs[dataConversatonLogs.length - 1].message +
+                  log.message[0].content.charAt(i),
+              },
+            ];
+            i++;
+            setTimeout(typeWriter, 10);
+          } else {
+            // disableInput = false;
+            // if (fileListReady) {
+            //   process = true;
+            // } else {
+            // process = false;
+            dataConversatonLogs = [...dataConversatonLogs.slice(0, -1), log];
+            // }
+          }
+        }
+
+        typeWriter();
+      }
+    }
+  }
+
+  // Function to parse markdown link and convert to button format
+  function convertMarkdownLinks(message) {
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    let match;
+    let parts = [];
+    let lastIndex = 0;
+
+    while ((match = linkRegex.exec(message)) !== null) {
+      // Push text before the link
+      let textBeforeLink = message.slice(lastIndex, match.index);
+
+      // Check for specific text like "Reference:" and handle it separately
+      if (textBeforeLink.includes("Reference:")) {
+        const splitText = textBeforeLink.split("Reference:");
+
+        // Push any text before "Reference:"
+        if (splitText[0].trim()) {
+          parts.push({
+            type: "text",
+            content: splitText[0].trim(),
+          });
+        }
+
+        // Push "Reference:" as its own text part
+        parts.push({
+          type: "text",
+          content: "Reference:",
+        });
+
+        // Push any remaining text after "Reference:" and before the link
+        if (splitText[1].trim()) {
+          parts.push({
+            type: "text",
+            content: splitText[1].trim(),
+          });
+        }
+      } else {
+        // If no "Reference:", just push the text before the link
+        parts.push({
+          type: "text",
+          content: textBeforeLink,
+        });
+      }
+
+      // Push the button representation of the link
+      parts.push({
+        type: "button",
+        content: match[1],
+        url: match[2],
+      });
+
+      lastIndex = linkRegex.lastIndex;
+    }
+
+    // Push any remaining text after the last link
+    if (lastIndex < message.length) {
+      parts.push({
+        type: "text",
+        content: message.slice(lastIndex),
+      });
+    }
+
+    return parts;
   }
 
   async function getStatusRag() {
@@ -448,7 +577,7 @@
         } else {
           if (
             dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
-              "Your document is ready",
+              "Your document is ready"
             )
           ) {
             console.log("Already");
@@ -480,7 +609,7 @@
             "Processing... " + statusRAG;
         } else if (
           dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
-            "Your document is ready",
+            "Your document is ready"
           )
         ) {
           dataConversatonLogs[dataConversatonLogs.length - 1].message =

@@ -477,7 +477,7 @@ All Rights Reserved
 
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data.attributes.company_industry),
+        parseInt(response.result.data.attributes.company_industry)
       );
 
       if (response.result.data.attributes.sidebar_title !== null) {
@@ -579,11 +579,11 @@ All Rights Reserved
     toggleSidebarLargeClosed(
       localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024
         ? true
-        : false,
+        : false
     );
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));

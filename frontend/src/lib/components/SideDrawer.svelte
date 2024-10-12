@@ -8,7 +8,7 @@ All Rights Reserved
 -->
 
 <script>
-  import { Typography, TabBar } from "$lib";
+  import { Typography, TabBar, Icon } from "$lib";
   import { Pane } from "svelte-splitpanes";
   import DataflowIcon from "$lib/icon/dataflow-solid.svelte";
   import {
@@ -27,6 +27,7 @@ All Rights Reserved
   import RefreshCwIcon from "$lib/icon/refresh-cw-01.svelte";
   import HexaAi from "$lib/icon/hexa-ai.svelte";
   import HexaAIChat from "$lib/components/HexaAI.svelte";
+  import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
 
@@ -79,6 +80,16 @@ All Rights Reserved
 
   const changeTabbar = (tabName) => {
     tabDatas.selected = tabName;
+  };
+
+  let dropdownOpenSource = $state([{ id: 1, bool: false }]);
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    // make selection of buttons doesn't work
+    // dropdownOpenSource = dropdownOpenSource.map((item) => {
+    //   return { id: item.id, bool: false };
+    // });
   };
 
   async function getCollections() {
@@ -142,13 +153,33 @@ All Rights Reserved
 
         collections = initCollections.map((collection) => {
           let totalDocuments = documents.filter(
-            (document) => document.attributes.collection_id === collection.id,
+            (document) => document.attributes.collection_id === collection.id
           ).length;
+
+          let documentCategory = [
+            {
+              id: 1,
+              name: "Category 1",
+            },
+            {
+              id: 2,
+              name: "Category 2",
+            },
+          ];
+
+          if (documentCategory.length > 0) {
+            dropdownOpenSource = documentCategory.map((item) => {
+              return { id: item.id, bool: false };
+            });
+          }
+
           return {
             id: collection.id,
             name: collection.attributes.collection_name,
             description: collection.attributes.description,
             totalDocuments: totalDocuments,
+            category: documentCategory || [],
+            selectedCategory: { id: 1, name: "Category 1" } || null,
           };
         });
       }
@@ -489,7 +520,7 @@ All Rights Reserved
                 ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
                 : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 gap-3 cursor-pointer"
               size="xl"
-              on:click={() => selectCollection(item)}
+              on:click={item.totalDocuments > 0 ? () => selectCollection(item) : null}
             >
               <div class="flex flex-col gap-0.5">
                 <P
@@ -510,6 +541,84 @@ All Rights Reserved
                   >{item.totalDocuments} {$_("documents")}</Badge
                 >
               </div>
+              {#if item.category.length > 0}
+                <div class="flex gap-4 items-center">
+                  <P size="sm" class="text-secondary-light dark:text-secondary-dark"
+                    >{$_("category")}</P
+                  >
+                  <div onfocusout={handleDropdownFocusLoss} class="relative">
+                    <Button
+                      outline
+                      on:click={(event) => {
+                        event.stopPropagation();
+                        // turn dropdownOpenSource to true if item.id === dropdownOpenSource.id
+                        dropdownOpenSource = dropdownOpenSource.map((item2) => {
+                          if (item2.id === item.category[index].id) {
+                            return { id: item2.id, bool: !item2.bool };
+                          } else {
+                            return { id: item2.id, bool: false };
+                          }
+                        });
+                      }}
+                      class={`py-2 w-full justify-between gap-1 px-2.5 md:px-3 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark`}
+                    >
+                      <!-- {item.selectedCategory.name} -->
+                      <Typography
+                        preset="Text sm/Semibold"
+                        text={item.selectedCategory.name}
+                        color="secondary"
+                      />
+                      <Icon name="chevronDown" />
+                    </Button>
+
+                    <!-- Dropdown menu -->
+                    <div
+                      id={"dropdown-" + item.category[index].id}
+                      class={`z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700 ${
+                        dropdownOpenSource.find((item2) => item2.id === item.category[index].id)
+                          .bool
+                          ? "fixed"
+                          : "hidden"
+                      }`}
+                    >
+                      <ul
+                        class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                        aria-labelledby="dropdownDefaultButton"
+                      >
+                        {#each item.category as category (category)}
+                          <button
+                            class="flex p-2"
+                            onclick={(event) => {
+                              console.log("test before");
+                              event.stopPropagation();
+                              console.log("test");
+                              item.selectedCategory = category;
+                              dropdownOpenSource = dropdownOpenSource.map((item2) => {
+                                return { id: item2.id, bool: false };
+                              });
+                            }}
+                          >
+                            <P>{category.name}</P>
+                          </button>
+                        {/each}
+                      </ul>
+                    </div>
+                  </div>
+                  <Button
+                    on:click={(event) => {
+                      event.stopPropagation();
+                      window.open("", "_blank");
+                    }}
+                    outline
+                    class="!flex hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
+                  >
+                    <Typography preset="Text sm/Semibold" text={$_("detail")} color="secondary" />
+                    <ArrowUpRightIcon
+                      svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark"
+                    />
+                  </Button>
+                </div>
+              {/if}
             </Card>
           {/each}
         </div>
