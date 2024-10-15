@@ -19,6 +19,7 @@ All Rights Reserved
     Card,
     ChartCard,
     CollectionCard,
+    LibraryCard,
     triggerToast,
     UploadFile,
     ActionCard,
@@ -79,7 +80,7 @@ All Rights Reserved
   let tmpDocumentType = $state("");
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
-  let addCollectionsModal = $state(false);
+  let addLibraryModal = $state(false);
   let addDocumentsModal = $state(false);
   let editModal = $state(false);
   let deleteModal = $state(false);
@@ -94,8 +95,8 @@ All Rights Reserved
       {
         href: await $call.getPage("client-dashboard", "document-collection-create"),
         icon: "filePlus",
-        actionName: "Add new document collection",
-        desc: "desc Add new document collection",
+        actionName: "Add new library collection",
+        desc: "desc Add new library collection",
       },
     ];
   }
@@ -404,7 +405,7 @@ All Rights Reserved
 
       triggerToast("created");
 
-      addCollectionsModal = false;
+      addLibraryModal = false;
       getCollections();
       // goto(await $call.getPage("client-dashboard", "document-collection"));
     }
@@ -994,18 +995,18 @@ All Rights Reserved
 </script>
 
 <div class="flex dark:bg-primary-dark">
-  <div class="flex flex-col w-full pb-10 m-4 gap-3 md:gap-8">
+  <div class="flex flex-col w-full pb-20 m-4 gap-3 md:gap-8">
     <!-- User Information -->
     <Typography
       preset="Display sm/Semibold"
-      text={$_("documentCollectionOverview")}
+      text={$_("documentLibraryOverview")}
       propClass="fluid-xl"
     />
 
     <!-- Action Items -->
     <div class="flex flex-col gap-4">
       <SectionHeader title={$_("action")} />
-      <ActionCard {actionItems} onclick={() => (addCollectionsModal = true)} />
+      <ActionCard {actionItems} onclick={() => (addLibraryModal = true)} />
     </div>
 
     <!-- Reports Monitoring -->
@@ -1019,7 +1020,6 @@ All Rights Reserved
         class="flex items-center justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
       >
         <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")} />
-        <div></div>
         <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
       </div>
 
@@ -1029,7 +1029,7 @@ All Rights Reserved
             class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
           >
             {#each latestDocumentCollection as document}
-              <CollectionCard
+              <LibraryCard
                 collectionName={document.collectionName}
                 totalDocuments={document.totalDocuments}
                 status={document.status}
@@ -1080,16 +1080,15 @@ All Rights Reserved
   </div>
 </div>
 
-<Modal title={$_("createNewCollection")} bind:open={addCollectionsModal} size="xs" autoclose>
+<Modal title={$_("createNewLibrary")} bind:open={addLibraryModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography
         preset="Text sm/medium"
-        color="seaddCollectionsModal
-      addCollectionsModalcondary"
-        text={`${$_("collectionName")}*`}
+        color="secondary"
+        text={`${$_("libraryName")}*`}
       />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
@@ -1098,153 +1097,16 @@ All Rights Reserved
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={createCollection} disabled={!tmpCollectionName} class="w-full"
-      >{$_("addNewCollection")}</Button
+      >{$_("addNewLibrary")}</Button
     >
   </svelte:fragment>
 </Modal>
 
-<Modal title={$_("addDocuments")} bind:open={addDocumentsModal} size="xs">
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5 relative">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
-      <Button
-        color="light"
-        class="flex justify-between"
-        on:click={() => (dropdownOpen = !dropdownOpen)}
-      >
-        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
-      </Button>
-      <div
-        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-      >
-        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Documents");
-            }}>Documents (TXT, PDF, DOC, DOCX)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Images");
-            }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Handwriting");
-            }}>Handwriting (JPG, JPEG, PNG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("CSV");
-            }}>CSV</button
-          >
-        </ul>
-      </div>
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
-      <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-      <Select
-        class="mt-2"
-        items={categories}
-        bind:value={tmpCategories}
-        placeholder={$_("selectCategory")}
-      />
-      {#if categories.length === 0}
-        <Alert color="yellow">
-          <InfoCircleSolid slot="icon" class="w-5 h-5" />
-          {$_("categoryIsEmptyAdd")}
-          <button
-            onclick={() => {
-              addDocumentsModal = false;
-              goto(tmpHref);
-            }}
-            class="font-semibold underline hover:text-yellow-800 dark:hover:text-yellow-900"
-            >{$_("inHere")}</button
-          >
-        </Alert>
-        <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
-      {/if}
-      <!-- {#if !addOtherCategory}
-        <p>
-          {$_("addOtherCategory")}
-          <button
-            onclick={() => {
-              addOtherCategory = true;
-            }}
-            class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
-          >
-            {$_("clickHere")}
-          </button>
-        </p>
-      {/if}
-      {#if addOtherCategory}
-        <Input
-          placeholder={$_("enterOtherCategory")}
-          bind:value={otherCategory}
-          onkeydown={(e) => {
-            if (
-              e.key === "Enter" &&
-              otherCategory !== "" &&
-              !tmpCategories.includes(otherCategory)
-            ) {
-              for (let i = 0; i < categories.length; i++) {
-                if (categories[i]?.other === true) {
-                  categories = categories.slice(0, i).concat(categories.slice(i + 1));
-                  break;
-                }
-              }
-              categories = [
-                ...categories,
-                { value: otherCategory, name: otherCategory, other: true },
-              ];
-              tmpCategories = otherCategory;
-              otherCategory = "";
-            }
-          }}
-        />
-      {/if} -->
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-      <Input bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
-      <Input bind:value={tmpDocumentDescription} placeholder={$_("enterDocumentDescription")} />
-    </div>
-    <UploadFile
-      title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper()}
-      file={files[0]}
-      actionButton={true}
-      actionDelete={() => (files = [])}
-      isFlex
-    />
-    {#if fileNotSupport}
-      <Alert color="red">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("fileNotSupport")}
-      </Alert>
-    {/if}
-  </div>
-  <svelte:fragment slot="footer">
-    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-      >{$_("addNewDocument")}</Button
-    >
-  </svelte:fragment>
-</Modal>
-
-<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
+<Modal title={$_("editLibraryName")} bind:open={editModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
@@ -1252,7 +1114,7 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={editCollectionName} class="me-2">{$_("save")}</Button>
+    <Button onclick={editCollectionName} class="me-2 w-full">{$_("save")}</Button>
   </svelte:fragment>
 </Modal>
 

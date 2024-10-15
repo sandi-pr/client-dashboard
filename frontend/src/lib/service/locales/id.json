@@ -581,5 +581,15 @@
   "productServiceOverview": "Produk & Layanan",
   "orderInvoiceOverview": "Pemesanan & Faktur",
   "createNewOrderInvoice": "Buat pesanan & faktur baru",
-  "descCreateNewOrderInvoice": "Tambahan pesanan & faktur baru di sini"
+  "descCreateNewOrderInvoice": "Tambahan pesanan & faktur baru di sini",
+  "documentLibraryOverview": "Library Dokumen",
+  "addNewLibraryCollection": "Tambahkan library dokumen baru",
+  "descAddNewLibraryCollection": "Daftarkan library baru ke database",
+  "chatReady": "Chat Sudah Siap",
+  "editLibraryName": "Edit Nama Library",
+  "libraryName": "Nama Library",
+  "whatIsYourLibraryTitle": "Apa judul library Anda?",
+  "createNewLibrary": "Buat library baru",
+  "addNewLibrary": "Tambahkan library baru",
+  "libraryList": "Daftar Library"
 }

@@ -295,6 +295,7 @@ All Rights Reserved
         });
 
         allData = await Promise.all(promises);
+        console.log("all data", allData);
         datasChecked = allData.map((data) => {
           return { id: data.id, checked: false };
         });

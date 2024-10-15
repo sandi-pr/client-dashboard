@@ -600,7 +600,8 @@ All Rights Reserved
 
   function getFristTime() {
     if (typeof localStorage !== "undefined") {
-      isFirstTime = localStorage.getItem("isFirstTime") === "true" ? true : false;
+      isFirstTime = localStorage.getItem("isFirstTime") === "false" ? false : true;
+      console.log("isFirstTime", isFirstTime);
     } else {
       console.log("localstorage is undefined");
     }
@@ -683,7 +684,7 @@ All Rights Reserved
       <div class="flex flex-col justify-center items-center gap-1 pt-2">
         <Typography
           preset="Display sm/Semibold"
-          text={$_("welcometoHexapod") + sessionStorage.getItem("sidebar_title")}
+          text={$_("welcometoHexapod") + sessionStorage.getItem("sidebar_title") || "Hexapod"}
           color="primary"
         />
         <!-- <Typography
@@ -697,7 +698,7 @@ All Rights Reserved
     <div class="flex flex-col gap-1">
       <Typography
         preset="Display sm/Semibold"
-        text={`${sessionStorage.getItem("sidebar_title")} ${$_("library")}`}
+        text={`${$_("welcometoHexapod")} ${sessionStorage.getItem("sidebar_title") || "Hexapod"}`}
         color="primary"
       />
       <Typography text="{userData.username} - {userData.email}" color="tertiary" />

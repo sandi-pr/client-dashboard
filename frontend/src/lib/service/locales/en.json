@@ -580,5 +580,15 @@
   "productServiceOverview": "Product & Service Overview",
   "orderInvoiceOverview": "Order & Invoice Overview",
   "createNewOrderInvoice": "Create new order & invoice",
-  "descCreateNewOrderInvoice": "Create new order & invoice here"
+  "descCreateNewOrderInvoice": "Create new order & invoice here",
+  "documentLibraryOverview": "Document Library Overview",
+  "addNewLibraryCollection": "Add new library collection",
+  "descAddNewLibraryCollection": "Register new library to the database",
+  "chatReady": "Chat Ready",
+  "editLibraryName": "Edit Library Name",
+  "libraryName": "Library Name",
+  "whatIsYourLibraryTitle": "What is your library title?",
+  "createNewLibrary": "Create New Library",
+  "addNewLibrary": "Add new library",
+  "libraryList": "Library List"
 }

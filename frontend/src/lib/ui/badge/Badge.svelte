@@ -1,9 +1,11 @@
 <script lang="ts">
   import { Badge } from 'flowbite-svelte';
 
-  let { text, type = "brand" }: {
+  let { text, type = "brand", icon = null, iconClass = null }: {
     text: string;
     type?: string;
+    icon?: any;
+    iconClass?: string;
   } = $props();
 
   const classStatusType = (type) => {
@@ -21,11 +23,29 @@
       return "text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950 border-sky-200 dark:border-sky-800";
     }
   };
+
+  const getIconClass = (type) => {
+    if (type === "success") {
+      return "text-utility-success-500-light dark:text-utility-success-500-dark";
+    } else if (type === "error") {
+      return "text-utility-error-500-light dark:text-utility-error-500-dark";
+    } else if (type === "warning") {
+      return "text-utility-warning-500-light dark:text-utility-warning-500-dark";
+    } else if (type === "info") {
+      return "text-utility-gray-500-light dark:text-utility-gray-500-dark";
+    } else {
+      return "text-utility-brand-500-light dark:text-utility-brand-500-dark";
+    }
+  }
 </script>
 
 <p
-class={`py-[2px] px-2 border-[1px] text-xs font-medium rounded-xl text-center w-max h-max ${classStatusType(type)}`}
+class={`flex items-center gap-1 py-[2px] px-2 border-[1px] text-xs font-medium rounded-xl text-center w-max ${classStatusType(type)}`}
 >
+  {#if icon}
+    <!-- svelte-ignore svelte_component_deprecated -->
+    <svelte:component this={icon} svgClass={getIconClass(type) + " w-3 h-3"} />
+  {/if}
   {text}
 </p>
 

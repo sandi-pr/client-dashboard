@@ -12,9 +12,10 @@
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
+  import File_06 from "$lib/icon/file-06.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
-  import { triggerToast, selectedCollection, reload, triggerReload, call } from "$lib";
+  import { Badge, triggerToast, selectedCollection, reload, triggerReload, call } from "$lib";
 
   const plugins = [gfmPlugin()];
 
@@ -655,6 +656,14 @@
     window.location.reload();
   }
 
+  function getDocumentIdFromUrl(url) {
+    const urlObj = new URL(url, window.location.origin);
+
+    const documentId = urlObj.searchParams.get("documentId");
+
+    return documentId;
+  }
+
   // $effect(() => {
   //   if (selectedCollection !== null && statusRAG !== "Ready") {
   //   }
@@ -716,9 +725,40 @@
               >
             </div>
             <div
-              class="prose font-medium text-tertiary-light dark:text-primary-dark [&>p>a]:text-primary-light dark:[&>p>a]:text-primary-dark dark:[&>p>strong]:text-primary-dark dark:[&>ol>li>strong]:text-primary-dark"
+              class="prose max-w-none fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
             >
-              <Markdown md={qaPair.message} {plugins} />
+              {#if qaPair.role === "assistant"}
+                {#if Array.isArray(qaPair?.message)}
+                  {#each qaPair?.message as part}
+                    {#if part?.type === "text" && part?.content !== "Reference:"}
+                      <Markdown md={part?.content} {plugins} />
+                    {:else}
+                      <div class="inline-flex">
+                        {#if part?.content === "Reference:"}
+                          <p class="w-min pe-2 !mt-0 mb-1">Reference:</p>
+                        {:else if part?.type === "button"}
+                          <!-- svelte-ignore event_directive_deprecated -->
+                          <button
+                            on:click={async () => {
+                              var docId = getDocumentIdFromUrl(part?.url);
+                              let link = await $call.getPage("client-dashboard", "document-collection-detail");
+                              var url = `${link}` + "?documentId=" + docId + "&collectionId=" + $selectedCollection.id.toString();
+                              goto(url);
+                            }}
+                            class="pe-2 pb-2 [&>p]:!m-0"
+                          >
+                            <Badge icon={File_06} text={part?.content} />
+                          </button>
+                        {/if}
+                      </div>
+                    {/if}
+                  {/each}
+                {:else}
+                  <Markdown md={qaPair?.message} {plugins} />
+                {/if}
+              {:else}
+                <Markdown md={qaPair?.message} {plugins} />
+              {/if}
             </div>
           </div>
         </div>
@@ -748,6 +788,7 @@
     </div>
   </div>
   <div class="sticky bottom-0 right-0 bg-white dark:bg-primary-dark px-2 py-2 flex items-center">
+    <!-- svelte-ignore event_directive_deprecated -->
     <form on:submit|preventDefault={sendMessage} class="flex-grow">
       <!-- <Input
       bind:disabled={disableInput}

@@ -101,7 +101,7 @@
 
     let home = await $call.getPage("client-dashboard", "home-page");
     sidebarItems = [
-      { name: "library", href: home, icon: "bookClosed", children: [] },
+      { name: "home", href: home, icon: "home", children: [] },
       ...sidebarAddition,
     ];
 

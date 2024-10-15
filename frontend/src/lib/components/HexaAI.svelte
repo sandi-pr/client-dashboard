@@ -13,12 +13,13 @@
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { PaperPlaneOutline, TrashBinOutline, RefreshOutline } from "flowbite-svelte-icons";
+  import File_06 from "$lib/icon/file-06.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
 
   const plugins = [gfmPlugin()];
 
-  import { call } from "$lib";
+  import { call, Badge } from "$lib";
 
   let imageFileName = $state("");
   let imageUrl = $state(null);
@@ -455,9 +456,37 @@
               >
             </div>
             <div
-              class="prose font-medium text-tertiary-light dark:text-primary-dark [&>p>a]:text-primary-light dark:[&>p>a]:text-primary-dark dark:[&>p>strong]:text-primary-dark"
+              class="prose max-w-none fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
             >
-              <Markdown md={qaPair.message} {plugins} />
+              {#if qaPair.role === "assistant"}
+                {#if Array.isArray(qaPair?.message)}
+                  {#each qaPair?.message as part}
+                    {#if part?.type === "text" && part?.content !== "Reference:"}
+                      <Markdown md={part?.content} {plugins} />
+                    {:else}
+                      <div class="inline-flex">
+                        {#if part?.content === "Reference:"}
+                          <p class="w-min pe-2 !mt-0 mb-1">Reference:</p>
+                        {:else if part?.type === "button"}
+                          <!-- svelte-ignore event_directive_deprecated -->
+                          <button
+                            on:click={() => {
+                              goto(part?.url);
+                            }}
+                            class="pe-2 pb-2 [&>p]:!m-0"
+                          >
+                            <Badge icon={File_06} text={part?.content} />
+                          </button>
+                        {/if}
+                      </div>
+                    {/if}
+                  {/each}
+                {:else}
+                  <Markdown md={qaPair?.message} {plugins} />
+                {/if}
+              {:else}
+                <Markdown md={qaPair?.message} {plugins} />
+              {/if}
             </div>
           </div>
         </div>

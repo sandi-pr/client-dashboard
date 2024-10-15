@@ -16,6 +16,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import DataTable from "$lib/components/DataTable.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import { goto } from "$app/navigation";
 
   import { call } from "$lib";
@@ -561,6 +562,8 @@ All Rights Reserved
                   description={$_("fetchingDataPleaseWait")}
                 />
               </div>
+            {:else}
+              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
             {/if}
           </div>
         </div>

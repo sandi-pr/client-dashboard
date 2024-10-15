@@ -25,6 +25,7 @@ export { default as Card } from "$lib/ui/cards/Card.svelte";
 export { default as ChartCard } from "$lib/ui/cards/ChartCard.svelte";
 export { default as ActionCard } from "$lib/ui/cards/ActionCard.svelte";
 export { default as CollectionCard } from "$lib/ui/cards/CollectionCard.svelte";
+export { default as LibraryCard } from "$lib/ui/cards/LibraryCard.svelte";
 export { default as Footer } from "$lib/ui/footer/Footer.svelte";
 export { default as TabBar } from "$lib/ui/tab_bar/TabBar.svelte";
 export { default as Navbar } from "$lib/ui/navbar/Navbar.svelte";

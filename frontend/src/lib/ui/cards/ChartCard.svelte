@@ -13,7 +13,7 @@
 >
   {#each chartAction as { dataName, value, change, changeType, icon, title, description, href }, index}
     <Card
-      class={`${isLibrary ? "w-full !py-4" : "grid grid-cols-12 min-h-28 !py-0"} items-center !px-4 justify-between bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark shadow-sm`}
+      class={`${isLibrary ? "w-full !py-4" : "grid grid-cols-12 !min-h-28 !py-0"} items-center !px-4 justify-between bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark shadow-sm`}
       size="none"
       on:click={isLibrary ? goto(href) : () => {}}
     >
@@ -62,7 +62,9 @@
         <div class="col-span-6 sm:col-span-5 md:col-span-7">
           {#each chartList as chart, i}
             {#if i === index}
+            <div class="h-full">
               <Chart dataChart={chart} />
+            </div>
             {/if}
           {/each}
         </div>
