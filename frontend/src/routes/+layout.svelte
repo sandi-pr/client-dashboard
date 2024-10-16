@@ -546,8 +546,13 @@ All Rights Reserved
 
   onMount(async () => {
     if (localStorage.getItem("token") === null && isFrontend) {
-      alert("Please insert token to session storage and refresh the page");
-      return;
+      const token = prompt("Please insert your token:", "");
+      if (token) {
+        localStorage.setItem("token", token);
+        location.reload();
+      } else {
+        return;
+      }
     }
 
     await CheckSetup();
@@ -618,7 +623,7 @@ All Rights Reserved
         />
       </div>
       <div
-        class={`w-full h-screen pt-16 md:pt-20 lg:pt-0 flex border-l border-secondary-light dark:border-secondary-dark ${!$sidebarLargeClosed ? "lg:pl-80" : "lg:pl-20"} transition-all duration-300 ease-in-out`}
+        class={`w-full h-screen ${winInnerWidth > 1024 ? "pt-16 md:pt-20" : $showAI ? "pt-0" : "pt-16"} lg:pt-0 flex border-l border-secondary-light dark:border-secondary-dark ${!$sidebarLargeClosed ? "lg:pl-80" : "lg:pl-20"} transition-all duration-300 ease-in-out`}
       >
         <!-- Navbar -->
         <Splitpanes class="[&>*]:!bg-primary-light [&>*]:dark:!bg-primary-dark [&>*]:!border-none">

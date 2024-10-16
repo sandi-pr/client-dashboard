@@ -10,7 +10,7 @@
 -->
 
 <script lang="ts">
-  import { Typography } from "$lib";
+  import { Typography, showAI } from "$lib";
   import { Drawer, Button, CloseButton, P } from "flowbite-svelte";
   import SidebarList from "./SidebarList.svelte";
   import LogoIcon from "$lib/icon/Logomark.svg";
@@ -89,7 +89,7 @@
 />
 
 <!-- Appbar for Drawer -->
-{#if innerWidth < 1024}
+{#if innerWidth < 1024 && !$showAI}
   <div class="lg:hidden fixed top-0 w-full z-40 pl-4 pr-2 py-1 md:py-3 justify-between items-center flex">
     <div class="justify-between items-center gap-2 flex">
       <div class="w-8 h-8 justify-center items-center flex">

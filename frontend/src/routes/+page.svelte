@@ -45,36 +45,36 @@ All Rights Reserved
   let dataChartAllAi = $state([]);
 
   const cardsBusiness = [
-    {
-      icon: "user",
-      title: "person",
-      description: "descPerson",
-      page: "crm-person",
-    },
-    {
-      icon: "faceHappy",
-      title: "HR",
-      description: "descHr",
-      page: "hr-overview",
-    },
-    {
-      icon: "package",
-      title: "product&Services",
-      description: "descProduct&Services",
-      page: "crm-product-service",
-    },
-    {
-      icon: "receipt",
-      title: "order&Invoice",
-      description: "descOrder&Invoice",
-      page: "crm-order-invoice",
-    },
-    {
-      icon: "calendar",
-      title: "calendar",
-      description: "descCalendar",
-      page: "crm-calendar",
-    },
+    // {
+    //   icon: "user",
+    //   title: "person",
+    //   description: "descPerson",
+    //   page: "crm-person",
+    // },
+    // {
+    //   icon: "faceHappy",
+    //   title: "HR",
+    //   description: "descHr",
+    //   page: "hr-overview",
+    // },
+    // {
+    //   icon: "package",
+    //   title: "product&Services",
+    //   description: "descProduct&Services",
+    //   page: "crm-product-service",
+    // },
+    // {
+    //   icon: "receipt",
+    //   title: "order&Invoice",
+    //   description: "descOrder&Invoice",
+    //   page: "crm-order-invoice",
+    // },
+    // {
+    //   icon: "calendar",
+    //   title: "calendar",
+    //   description: "descCalendar",
+    //   page: "crm-calendar",
+    // },
   ];
 
   const cardsAi = [
