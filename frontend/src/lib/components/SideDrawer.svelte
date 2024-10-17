@@ -153,24 +153,30 @@ All Rights Reserved
 
         collections = initCollections.map((collection) => {
           let totalDocuments = documents.filter(
-            (document) => document.attributes.collection_id === collection.id
+            (document) => document.attributes.collection_id === collection.id,
           ).length;
 
-          let documentCategory = [
-            {
-              id: 1,
-              name: "Category 1",
-            },
-            {
-              id: 2,
-              name: "Category 2",
-            },
-          ];
+          console.log("=====================", collection.attributes);
 
-          if (documentCategory.length > 0) {
-            dropdownOpenSource = documentCategory.map((item) => {
-              return { id: item.id, bool: false };
-            });
+          // let documentCategory = [
+          //   {
+          //     id: 1,
+          //     name: "Category 1",
+          //   },
+          //   {
+          //     id: 2,
+          //     name: "Category 2",
+          //   },
+          // ];
+
+          if (
+            collection.attributes.categories !== null &&
+            collection.attributes.categories.length > 0
+          ) {
+            dropdownOpenSource ==
+              collection.attributes.categories.map((item) => {
+                return { id: item.id, bool: false };
+              });
           }
 
           return {
@@ -178,7 +184,7 @@ All Rights Reserved
             name: collection.attributes.collection_name,
             description: collection.attributes.description,
             totalDocuments: totalDocuments,
-            category: documentCategory || [],
+            category: collection.attributes.categories || [],
             selectedCategory: { id: 1, name: "Category 1" } || null,
           };
         });
@@ -319,6 +325,8 @@ All Rights Reserved
           tmpSelectedCollection = $selectedCollection;
           callColection();
         }
+      } else {
+        nameCollection = null;
       }
     }
   });
@@ -541,7 +549,7 @@ All Rights Reserved
                   >{item.totalDocuments} {$_("documents")}</Badge
                 >
               </div>
-              {#if item.category.length > 0}
+              <!-- {#if item.category.length > 0}
                 <div class="flex gap-4 items-center">
                   <P size="sm" class="text-secondary-light dark:text-secondary-dark"
                     >{$_("category")}</P
@@ -551,7 +559,6 @@ All Rights Reserved
                       outline
                       on:click={(event) => {
                         event.stopPropagation();
-                        // turn dropdownOpenSource to true if item.id === dropdownOpenSource.id
                         dropdownOpenSource = dropdownOpenSource.map((item2) => {
                           if (item2.id === item.category[index].id) {
                             return { id: item2.id, bool: !item2.bool };
@@ -562,7 +569,6 @@ All Rights Reserved
                       }}
                       class={`py-2 w-full justify-between gap-1 px-2.5 md:px-3 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark`}
                     >
-                      <!-- {item.selectedCategory.name} -->
                       <Typography
                         preset="Text sm/Semibold"
                         text={item.selectedCategory.name}
@@ -571,7 +577,9 @@ All Rights Reserved
                       <Icon name="chevronDown" />
                     </Button>
 
-                    <!-- Dropdown menu -->
+                    {#if item.category[index]?.id === undefined}
+                      {console.log(item.category)}
+                    {/if}
                     <div
                       id={"dropdown-" + item.category[index].id}
                       class={`z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700 ${
@@ -618,7 +626,7 @@ All Rights Reserved
                     />
                   </Button>
                 </div>
-              {/if}
+              {/if} -->
             </Card>
           {/each}
         </div>

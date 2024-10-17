@@ -15,7 +15,15 @@
   import File_06 from "$lib/icon/file-06.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import { _ } from "svelte-i18n";
-  import { Badge, triggerToast, selectedCollection, reload, triggerReload, call } from "$lib";
+  import {
+    Badge,
+    triggerToast,
+    triggerSelectCollection,
+    selectedCollection,
+    reload,
+    triggerReload,
+    call,
+  } from "$lib";
 
   const plugins = [gfmPlugin()];
 
@@ -155,7 +163,7 @@
       messageInput = "";
 
       let conversationIdCollection = sessionStorage.getItem(
-        "conversationIdCollection-" + $selectedCollection.id.toString()
+        "conversationIdCollection-" + $selectedCollection.id.toString(),
       );
 
       try {
@@ -259,7 +267,7 @@
     }
 
     let conversationIdCollection = sessionStorage.getItem(
-      "conversationIdCollection-" + $selectedCollection.id.toString()
+      "conversationIdCollection-" + $selectedCollection.id.toString(),
     );
 
     let token = localStorage.getItem("token");
@@ -332,7 +340,7 @@
           conversationIdCollection = createConversationResponse.result.conversation_id;
           sessionStorage.setItem(
             "conversationIdCollection-" + $selectedCollection.id.toString(),
-            conversationIdCollection
+            conversationIdCollection,
           );
 
           if (runningRAG === false) {
@@ -552,6 +560,7 @@
             role: "assistant",
             message: "Your collection is not found, please select another collection",
           });
+          triggerSelectCollection(null);
           return;
         } else {
           dataConversatonLogs.push({
@@ -578,7 +587,7 @@
         } else {
           if (
             dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
-              "Your document is ready"
+              "Your document is ready",
             )
           ) {
             console.log("Already");
@@ -610,7 +619,7 @@
             "Processing... " + statusRAG;
         } else if (
           dataConversatonLogs[dataConversatonLogs.length - 1].message.includes(
-            "Your document is ready"
+            "Your document is ready",
           )
         ) {
           dataConversatonLogs[dataConversatonLogs.length - 1].message =
@@ -741,8 +750,16 @@
                           <button
                             on:click={async () => {
                               var docId = getDocumentIdFromUrl(part?.url);
-                              let link = await $call.getPage("client-dashboard", "document-collection-detail");
-                              var url = `${link}` + "?documentId=" + docId + "&collectionId=" + $selectedCollection.id.toString();
+                              let link = await $call.getPage(
+                                "client-dashboard",
+                                "document-collection-detail",
+                              );
+                              var url =
+                                `${link}` +
+                                "?documentId=" +
+                                docId +
+                                "&collectionId=" +
+                                $selectedCollection.id.toString();
                               goto(url);
                             }}
                             class="pe-2 pb-2 [&>p]:!m-0"
