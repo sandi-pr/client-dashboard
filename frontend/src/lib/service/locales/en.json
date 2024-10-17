@@ -208,7 +208,7 @@
   "order&Invoice": "Order & Invoice",
   "orderInvoice": "Order & Invoice",
   "personsList": "Persons List",
-  "addNew": "Add new",
+  "addNew": "Add New",
   "emailNotValid": "Email not valid",
   "passwordNotValid": "Password not valid",
   "passwordInfo": "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character",
@@ -590,5 +590,7 @@
   "whatIsYourLibraryTitle": "What is your library title?",
   "createNewLibrary": "Create New Library",
   "addNewLibrary": "Add new library",
-  "libraryList": "Library List"
+  "libraryList": "Library List",
+  "addCollection": "Add Collection",
+  "collectionTitle": "Collection Title"
 }

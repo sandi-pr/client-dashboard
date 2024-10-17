@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import { _ } from "svelte-i18n";
-  import { toCamelCase } from "$lib"
+  import { toCamelCase } from "$lib";
   export let tabDatas;
   const dispatch = createEventDispatcher();
   function capitalizeFirstLetter(string) {

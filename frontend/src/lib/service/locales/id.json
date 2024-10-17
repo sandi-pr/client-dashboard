@@ -208,7 +208,7 @@
   "order&Invoice": "Pesanan & Faktur",
   "orderInvoice": "Pesanan & Faktur",
   "personsList": "Daftar Individu",
-  "addNew": "Tambahkan baru",
+  "addNew": "Tambahkan Baru",
   "emailNotValid": "Email tidak valid",
   "passwordNotValid": "Password tidak valid",
   "passwordInfo": "Password harus terdiri dari 8 karakter, memuat huruf kecil, huruf kapital, angka, dan simbol",
@@ -591,5 +591,7 @@
   "whatIsYourLibraryTitle": "Apa judul library Anda?",
   "createNewLibrary": "Buat library baru",
   "addNewLibrary": "Tambahkan library baru",
-  "libraryList": "Daftar Library"
+  "libraryList": "Daftar Library",
+  "addCollection": "Tambahkan Koleksi",
+  "collectionTitle": "Judul Koleksi"
 }
