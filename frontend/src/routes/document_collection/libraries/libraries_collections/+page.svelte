@@ -2,10 +2,19 @@
   import { _ } from "svelte-i18n";
   import { Button, Modal, Input, Alert, Select, P } from "flowbite-svelte";
 
-  import { Typography, ToastContainer, StateCard, triggerToast, InputRw, TextareaRw } from "$lib";
+  import { call } from "$lib";
+  import {
+    Typography,
+    ToastContainer,
+    StateCard,
+    triggerToast,
+    InputRw,
+    TextareaRw,
+    LibraryCard,
+  } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
 
-  import PlusIcon from "$lib/icon/plus.svg";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
@@ -15,8 +24,11 @@
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
   let addCollectionModal = false;
+  let editModal = false;
+  let deleteModal = false;
   let tmpCollectionName = "";
   let tmpDescription = "";
+  let tmpCollectionId = "";
   let collectionDatas = {
     title: "My Collections",
     description:
@@ -117,6 +129,101 @@
   const createCollection = (evt) => {
     console.log("clicked");
   };
+
+  async function editCollectionName() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "update-document-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
+          },
+          Params: {
+            collection_name: tmpCollectionName,
+            description: tmpDescription,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        tmpCollectionName = "";
+        tmpDescription = "";
+
+        editModal = false;
+        triggerToast("updated");
+        getCollections();
+      } catch (error) {
+        console.log(error);
+        triggerToast("error");
+      }
+    } else {
+      console.log("Token not found");
+    }
+  }
+
+  async function deleteDocumentCollection() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        for (const document of documents) {
+          if (document.attributes.collection_id === tmpCollectionId) {
+            let response = await $call.call("client-dashboard", "delete-document", {
+              URLQuery: {},
+              URLParams: {
+                id: document.id.toString(),
+              },
+              Params: {},
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
+            if (response.status !== 200) {
+              console.log(response);
+              triggerToast("error");
+              return;
+            }
+          }
+        }
+        let response2 = await $call.call("client-dashboard", "delete-document-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          triggerToast("error");
+          return;
+        }
+
+        console.log("ayam", response2);
+
+        triggerToast("deleted");
+
+        getCollections();
+        deleteModal = false;
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    } else {
+      console.log("Token not found");
+    }
+  }
 </script>
 
 <div class="flex dark:bg-primary-dark">
@@ -199,23 +306,45 @@
         <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
         {#if tabDatas.selected === "My Collections" && collectionListDatas.length > 0}
-          <div class="grid grid-cols-4 gap-4">
+          <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
             {#each collectionListDatas as collection}
-              <div
-                class="flex justify-between items-center p-4 rounded-md border-[1px] bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark mt-4 cursor-pointer"
-              >
-                <div class="flex items-center gap-2">
-                  <Folder svgClass="w-5 h-5 text-quarterary-light dark:text-quarterary-dark" />
-                  <Typography
-                    preset="Text sm/Semibold"
-                    color="secondary"
-                    text={collection.collectionName}
-                  />
-                </div>
-                <DotsVerticalIcon
-                  svgClass="w-5 h-5 text-quarterary-light dark:text-quarterary-dark cursor-pointer"
-                />
-              </div>
+              <LibraryCard
+                collectionName={collection.collectionName}
+                totalDocuments={collection.totalDocuments}
+                status={collection.status}
+                usedFor="libraries_collections"
+                functButton={() => {
+                  // selectCollection({
+                  //   id: collection.id,
+                  //   name: collection.collectionName,
+                  //   description: collection.description,
+                  //   totalDocuments: collection.totalDocuments,
+                  // });
+                }}
+                functAddDocuments={() => {
+                  // tmpCollectionId = collection.id;
+                  // tmpHref = collection.href;
+                  // categories = collection.categories;
+                  // selectTypeCollection("Documents");
+                  // categories = collection.categories;
+                  // otherCategory = "";
+                  // addOtherCategory = false;
+                  // addDocumentsModal = true;
+                }}
+                functEdit={() => {
+                  // tmpCollectionId = collection.id;
+                  // tmpCollectionName = collection.collectionName;
+                  // tmpDescription = collection.description;
+                  editModal = true;
+                }}
+                functDelete={() => {
+                  // tmpCollectionId = collection.id;
+                  deleteModal = true;
+                }}
+                funcDetailCollection={() => {
+                  // goto(collection.href);
+                }}
+              />
             {/each}
           </div>
         {:else if tabDatas.selected === "Information" && Object.keys(informationDatas).length > 0}
@@ -272,4 +401,31 @@
       >{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
+</Modal>
+
+<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button onclick={editCollectionName} class="me-2 w-full">{$_("save")}</Button>
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={deleteModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
+  </div>
 </Modal>
