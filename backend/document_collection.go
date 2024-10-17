@@ -449,6 +449,11 @@ func DeleteDocumentCollection(ctx *config.ConfigContext) (int, U.Dict, *config.R
 
 	for {
 		status, documents, err := Strapi.Find("document-management-table", U.Dict{
+			"filters": U.Dict{
+				"collection_id": U.Dict{
+					"$eq": id,
+				},
+			},
 			"pagination": U.Dict{
 				"page":     page,
 				"pageSize": 25,
