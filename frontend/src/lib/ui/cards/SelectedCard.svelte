@@ -31,7 +31,7 @@
 </script>
 
 <div
-  class={`${isFlex ? "flex !justify-start" : `grid grid-cols-${numGrid}`} w-full gap-4 items-center justify-center`}
+  class={`${isFlex ? "flex !justify-start" : `grid grid-cols-${numGrid - 1} md:grid-cols-${numGrid}`} w-full gap-4 items-center justify-center`}
 >
   {#each selectionData as data, i}
     <Card
@@ -72,7 +72,10 @@
         </div>
       </div>
       {#if isRadio}
+      
+      <div class="hidden md:flex items-center">
         <Radio disabled={disabled} value={data.id} bind:group={selectedData}></Radio>
+      </div>
       {/if}
     </Card>
   {/each}

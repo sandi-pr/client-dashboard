@@ -18,6 +18,7 @@
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import TabDetail from "$lib/components/TabDetail.svelte";
+  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
   import {
@@ -81,6 +82,7 @@
   let configs = {};
   let pagination = { page: 1, pageSize: 10, pageCount: 0, total: 0 };
   let searchTerm = "";
+  let dropdownOpen = false;
 
   let tmpThemeColor = "";
   let tmpOverlayColor = "";
@@ -312,6 +314,11 @@
         console.error("Failed to copy: ", err);
       });
   }
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
 
   async function next() {
     getDocuments(pagination.page + 1);
@@ -767,19 +774,19 @@
 {#if ready}
   <div class="m-4 pb-12">
     <div class="sticky top-0 bg-primary-light dark:bg-primary-dark z-10">
-      <div class="flex justify-between items-center mx-4">
-        <div class="flex items-center">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center ms-4">
           <Avatar
-            class="size-14 border-[1px] border-hc-graylight-200"
+            class="size-10 md:size-14 border-[1px] border-hc-graylight-200"
             src={botFile.name ? botFile.imageResult : ""}
             stacked
           />
-          <div class="ml-4">
+          <div class="ml-2 md:ml-4">
             <div class="flex items-center gap-2">
-              <Typography preset="Display sm/Semibold" text={users.botName} color="primary" />
+              <Typography preset="Display sm/Semibold" text={users.botName} color="primary" propClass="fluid-xl" />
               <Badge type={classStatusType(users.deployedPlatform)} text={users.deployedPlatform} />
             </div>
-            <Typography preset="Text md/Medium" text={formattedDate} color="quarterary" />
+            <Typography preset="Text md/Medium" text={formattedDate} color="quarterary" propClass="fluid-sm md:fluid-base" />
           </div>
         </div>
         <div class="flex gap-2">
@@ -795,26 +802,55 @@
               >{$_("save")}</Button
             >
           {:else}
-            <Button
-              onclick={async function () {
-                goto(await $call.getPage("client-dashboard", "hexabot"));
-                return;
-              }}
-              color="light"
-              class="px-3 focus-within:!ring-1">{$_("back")}</Button
-            >
-            <Button
-              onclick={() => (modalDelete = true)}
-              outline
-              color="red"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-            >
-            <Button
-              onclick={() => {
-                onEdit = true;
-              }}
-              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            <div class="hidden md:flex gap-2">
+              <Button
+                onclick={async function () {
+                  goto(await $call.getPage("client-dashboard", "hexabot"));
+                  return;
+                }}
+                color="light"
+                class="px-3 focus-within:!ring-1">{$_("back")}</Button
+              >
+              <Button
+                onclick={() => (modalDelete = true)}
+                outline
+                color="red"
+                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              >
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            </div>
+            <div on:focusout={handleDropdownFocusLoss} class="flex md:hidden items-center relative">
+              <Button
+                on:click={() => (dropdownOpen = !dropdownOpen)}
+                class="focus-within:ring-0 !p-0"
+                color="none"
+                size="xs"
+                ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
+              >
+              <div
+                class={`z-10 ${dropdownOpen ? "absolute top-0 right-6" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+              >
+                <ul class="py-2 grow text-sm">
+                  <button
+                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    on:click={() => {
+                      onEdit = true, (dropdownOpen = !dropdownOpen);
+                    }}>{$_("edit")}</button
+                  >
+                  <button
+                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    on:click={() => {
+                      modalDelete = true, (dropdownOpen = !dropdownOpen);
+                    }}>{$_("delete")}</button
+                  >
+                </ul>
+              </div>
+            </div>
           {/if}
         </div>
       </div>
@@ -850,7 +886,7 @@
           </div>
         </div>
         <Divider />
-        <div class="md:flex">
+        <div class="flex flex-col md:flex-row gap-1.5">
           <Typography
             preset="Text md/Semibold"
             text={$_("aiEngines")}
@@ -919,7 +955,7 @@
                 <InputRw bind:value={users.username} {onEdit} />
               </div>
             </div>
-            <div class="col-span-2">
+            <div class="col-span-4 md:col-span-2">
               <UploadFile
                 title={$_("botsProfilePicture")}
                 handleFileUploadWrapper={() => handleInputFile("bot")}
@@ -928,7 +964,7 @@
                 disabled={!onEdit}
               />
             </div>
-            <div class="col-span-2">
+            <div class="col-span-4 md:col-span-2">
               <UploadFile
                 title={$_("userprofilePicture")}
                 handleFileUploadWrapper={() => handleInputFile("user")}
@@ -940,14 +976,14 @@
           </div>
         </div>
         <Divider />
-        <div class="md:flex">
+        <div class="flex flex-col md:flex-row gap-1.5">
           <Typography
             preset="Text md/Semibold"
             text={$_("logo")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
-          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4">
             <div class="col-span-4">
               <label
                 class={`inline-flex items-center ${!onEdit ? "cursor-default" : "cursor-pointer"}`}
@@ -967,7 +1003,7 @@
                 >
               </label>
             </div>
-            <div class="col-span-2">
+            <div class="col-span-4 md:col-span-2">
               <UploadFile
                 title={$_("logo")}
                 handleFileUploadWrapper={() => handleInputFile("logo")}
@@ -976,7 +1012,7 @@
                 disabled={!onEdit}
               />
             </div>
-            <div class="flex flex-col gap-1.5 col-span-2">
+            <div class="flex flex-col gap-1.5 col-span-4 md:col-span-2">
               <Typography preset="Text sm/Medium" text={$_("logoName")} color="secondary" />
               <InputRw bind:value={users.logoName} {onEdit} />
             </div>

@@ -47,7 +47,7 @@
 </script>
 
 <div
-  class="flex whitespace-nowrap mt-2 mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden"
+  class="flex whitespace-nowrap mt-2 md:mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden"
 >
   {#each tabDatas.data as submenu (submenu)}
     <button

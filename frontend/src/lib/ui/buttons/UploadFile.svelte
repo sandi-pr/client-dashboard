@@ -48,11 +48,11 @@ All Rights Reserved
 <div class="relative flex flex-col gap-1.5">
   <Typography preset="Text sm/Medium" text={title} color="secondary" />
   {#if file === null}
-    <div class={`flex gap-3 ${isPreview ? "flex-row" : "flex-col"}`}>
+    <div class={`flex gap-3 ${isPreview ? largePreview ? "flex-col md:flex-row" : "flex-row" : "flex-col"}`}>
       {#if isPreview}
         {#if largePreview}
           {#if srcAvatar}
-            <img src={srcAvatar} class="h-32 rounded-xl" alt="preview" />
+            <img src={srcAvatar} class="h-32 rounded-xl object-cover" alt="preview" />
           {/if}
         {:else}
           <Avatar class="size-12  object-cover" src={srcAvatar} />
