@@ -126,7 +126,7 @@
             class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
             onclick={() => {
               functEdit(), (dropdownOpen = !dropdownOpen);
-            }}>{$_("editLibraryName")}</button
+            }}>{usedFor === "libraries_collections" ? $_("editCollectionName") : $_("editLibraryName")}</button
           >
           <button
             class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
