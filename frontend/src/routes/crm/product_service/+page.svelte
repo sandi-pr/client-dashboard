@@ -131,7 +131,7 @@ All Rights Reserved
       },
       series: [
         {
-          name: "New users",
+          name: "New products",
           data: monthlyPersonsCounts,
           color: "#17B169",
         },
@@ -157,161 +157,17 @@ All Rights Reserved
       },
     };
 
-    dataChartActivePersons = {
-      chart: {
-        type: "area",
-        fontFamily: "Inter, sans-serif",
-        dropShadow: {
-          enabled: false,
-        },
-        toolbar: {
-          show: false,
-        },
-      },
-      tooltip: {
-        enabled: true,
-        x: {
-          show: false,
-        },
-      },
-      fill: {
-        type: "gradient",
-        gradient: {
-          opacityFrom: 0.55,
-          opacityTo: 0,
-          shade: "#17B169",
-          gradientToColors: ["#17B169"],
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        width: 2,
-      },
-      grid: {
-        show: false,
-        strokeDashArray: 4,
-        padding: {
-          left: 2,
-          right: 2,
-          top: 0,
-        },
-      },
-      series: [
-        {
-          name: "New users",
-          data: monthlyActivePersonsCounts,
-          color: "#17B169",
-        },
-      ],
-      xaxis: {
-        categories: Array.from({ length: 12 }, (_, i) => {
-          const date = new Date(twelveMonthsBefore);
-          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
-          return formatDate(date);
-        }),
-        labels: {
-          show: false,
-        },
-        axisBorder: {
-          show: false,
-        },
-        axisTicks: {
-          show: false,
-        },
-      },
-      yaxis: {
-        show: false,
-      },
-    };
-
-    dataChartInactivePersons = {
-      chart: {
-        type: "area",
-        fontFamily: "Inter, sans-serif",
-        dropShadow: {
-          enabled: false,
-        },
-        toolbar: {
-          show: false,
-        },
-      },
-      tooltip: {
-        enabled: true,
-        x: {
-          show: false,
-        },
-      },
-      fill: {
-        type: "gradient",
-        gradient: {
-          opacityFrom: 0.55,
-          opacityTo: 0,
-          shade: "#17B169",
-          gradientToColors: ["#17B169"],
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        width: 2,
-      },
-      grid: {
-        show: false,
-        strokeDashArray: 4,
-        padding: {
-          left: 2,
-          right: 2,
-          top: 0,
-        },
-      },
-      series: [
-        {
-          name: "New users",
-          data: monthlyInactivePersonsCounts,
-          color: "#17B169",
-        },
-      ],
-      xaxis: {
-        categories: Array.from({ length: 12 }, (_, i) => {
-          const date = new Date(twelveMonthsBefore);
-          date.setMonth(twelveMonthsBefore.getMonth() + i + 1);
-          return formatDate(date);
-        }),
-        labels: {
-          show: false,
-        },
-        axisBorder: {
-          show: false,
-        },
-        axisTicks: {
-          show: false,
-        },
-      },
-      yaxis: {
-        show: false,
-      },
-    };
     chartReady = true;
   }
 
-  async function getChartAction(totalPersons, activePersons, inactivePersons) {
+  async function getChartAction(totalPersons) {
     chartAction = [
       {
-        href: await $call.getPage("client-dashboard", "crm-person-list"),
-        dataName: "Total Persons",
+        href: await $call.getPage("client-dashboard", "crm-product-service"),
+        dataName: "Total Product",
         value: totalPersons.total,
         change: totalPersons.change,
         changeType: totalPersons.changeType,
-      },
-      {
-        href: await $call.getPage("client-dashboard", "crm-person-list"),
-        dataName: "Active Persons",
-        value: activePersons.total,
-        change: activePersons.change,
-        changeType: activePersons.changeType,
       },
     ];
   }
@@ -354,7 +210,7 @@ All Rights Reserved
 
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
-        let response = await $call.call("client-dashboard", "get-count-persons-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-product-per-mount", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -376,9 +232,7 @@ All Rights Reserved
         //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
         // );
 
-        tmpMonthlyPersonsCounts.push(response.result.persons.meta.pagination.total);
-        tmpMonthlyActivePersonsCounts.push(response.result.activePersons.meta.pagination.total);
-        tmpMonthlyInactivePersonsCounts.push(response.result.inactivePersons.meta.pagination.total);
+        tmpMonthlyPersonsCounts.push(response.result.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -393,18 +247,12 @@ All Rights Reserved
       }
 
       tmpMonthlyPersonsCounts.reverse();
-      tmpMonthlyActivePersonsCounts.reverse();
-      tmpMonthlyInactivePersonsCounts.reverse();
 
       monthlyPersonsCounts = tmpMonthlyPersonsCounts;
-      monthlyActivePersonsCounts = tmpMonthlyActivePersonsCounts;
-      monthlyInactivePersonsCounts = tmpMonthlyInactivePersonsCounts;
 
       let totalPersons = groupingDataChart(monthlyPersonsCounts);
-      let activePersons = groupingDataChart(monthlyActivePersonsCounts);
-      let inactivePersons = groupingDataChart(monthlyInactivePersonsCounts);
 
-      getChartAction(totalPersons, activePersons, inactivePersons);
+      getChartAction(totalPersons);
       generateChartData();
     } else {
       console.log("no token");
@@ -591,7 +439,11 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Typography preset="Display sm/Semibold" text={$_("productServiceOverview")} propClass="fluid-xl" />
+        <Typography
+          preset="Display sm/Semibold"
+          text={$_("productServiceOverview")}
+          propClass="fluid-xl"
+        />
 
         <!-- Action Items -->
         <div>
@@ -610,15 +462,18 @@ All Rights Reserved
               {$_("reports")}
             </Heading>
           </div>
-          <ChartCard
-            {chartAction}
-            chartList={[dataChartTotalPersons, dataChartActivePersons]}
-          />
+          <ChartCard {chartAction} chartList={[dataChartTotalPersons, dataChartActivePersons]} />
         </div>
 
         <div class="flex flex-col">
           <div class="flex justify-between">
-            <Typography preset="Text lg/Semibold" color="primary" text={tabDatas.selected === "Product & Services" ? $_("product&Service") : $_("categories")} />
+            <Typography
+              preset="Text lg/Semibold"
+              color="primary"
+              text={tabDatas.selected === "Product & Services"
+                ? $_("product&Service")
+                : $_("categories")}
+            />
             <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
           </div>
 
@@ -634,18 +489,29 @@ All Rights Reserved
                 description={$_("fetchingDataPleaseWait")}
               />
             {:else}
-              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
             {/if}
           {:else if tabDatas.selected === "Categories"}
             {#if categoriesData.length > 0}
-              <DataTable bind:datas={categoriesData} bind:configs={configsCategories} bind:next={nextCategory} bind:previous={previousCategory} />
+              <DataTable
+                bind:datas={categoriesData}
+                bind:configs={configsCategories}
+                bind:next={nextCategory}
+                bind:previous={previousCategory}
+              />
             {:else if gettingDatas}
               <StateCard
                 illustration={IllustrationProgress}
                 description={$_("fetchingDataPleaseWait")}
               />
             {:else}
-              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
             {/if}
           {/if}
         </div>

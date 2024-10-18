@@ -20,7 +20,15 @@
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Eye from "$lib/icon/eye.svelte";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { Typography, SectionHeader, ActionCard, ChartCard, call, triggerToast, StateCard } from "$lib";
+  import {
+    Typography,
+    SectionHeader,
+    ActionCard,
+    ChartCard,
+    call,
+    triggerToast,
+    StateCard,
+  } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
@@ -137,7 +145,7 @@
       },
       series: [
         {
-          name: "Documents collection",
+          name: "New bot",
           data: monthlyCollectionReadyCounts,
           color: "#17B169",
         },
@@ -174,7 +182,7 @@
 
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
-        let response = await $call.call("client-dashboard", "get-count-documents-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-bot-per-mount", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -196,7 +204,7 @@
         //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
         // );
 
-        tmpMonthlyCollectionReadyCounts.push(response.result.general.meta.pagination.total);
+        tmpMonthlyCollectionReadyCounts.push(response.result.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -243,8 +251,8 @@
   async function getChartAction(readyCollection) {
     chartAction = [
       {
-        href: await $call.getPage("client-dashboard", "document-collection"),
-        dataName: "Document Collection",
+        href: await $call.getPage("client-dashboard", "hexabot"),
+        dataName: "Total Bot",
         value: readyCollection.total,
         change: readyCollection.change,
         changeType: readyCollection.changeType,
