@@ -593,5 +593,7 @@
   "addNewLibrary": "Tambahkan library baru",
   "libraryList": "Daftar Library",
   "addCollection": "Tambahkan Koleksi",
-  "collectionTitle": "Judul Koleksi"
+  "collectionTitle": "Judul Koleksi",
+  "labels": "Label",
+  "enterNewLabel": "Masukkan label baru"
 }

@@ -20,6 +20,7 @@ All Rights Reserved
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { id as localeId, enUS as localeEn } from "date-fns/locale";
+  import XCloseIcon from "$lib/icon/x-close.svelte";
   import {
     Button,
     P,
@@ -1507,9 +1508,50 @@ All Rights Reserved
       </div>
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
+      <div class="flex">
+        <button
+          class="flex w-full flex-wrap gap-2 items-center border border-primary-light dark:border-primary-dark rounded-lg py-2.5 px-2 bg-primary-light dark:bg-secondary-dark"
+          onclick={() => {
+            focusInput(inputRef);
+          }}
+        >
+          {#each tags as tag}
+            <span
+              class="flex items-center space-x-0.5 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2"
+            >
+              <span class="text-sm pb-0.5">{tag}</span>
+              <!-- svelte-ignore node_invalid_placement_ssr -->
+              <button
+                onclick={() => {
+                  removeTag(tag);
+                }}
+                class="text-brand-primary-light dark:text-brand-primary-dark"
+                ><XCloseIcon
+                  svgClass="w-3 h-3 text-utility-brand-400-light dark:text-utility-brand-400-dark"
+                /></button
+              >
+            </span>
+          {/each}
+
+          <input
+            bind:this={inputRef}
+            type="text"
+            bind:value={newTag}
+            placeholder={`${tags.length < 1 ? $_("enterNewLabel") : ""}`}
+            onkeydown={handleKeyDown}
+            class={`border-none flex-grow !pl-0 !py-0.5 text-sm bg-primary-light dark:bg-secondary-dark  focus:ring-transparent ${tags.length > 0 ? "max-w-min" : "w-full"}`}
+          />
+        </button>
+        <button
+          onclick={addTag}
+          class="bg-secondary-light dark:bg-secondary-dark text-primary-light dark:text-primary-dark px-4 py-1 rounded"
+        >
+          Add
+        </button>
+      </div>
       <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-      <Select
+      <!-- <Select
         class="mt-2"
         items={categories}
         bind:value={tmpCategories}
@@ -1528,55 +1570,15 @@ All Rights Reserved
             >{$_("inHere")}</button
           >
         </Alert>
-        <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
-      {/if}
-      <!-- {#if !addOtherCategory}
-        <p>
-          {$_("addOtherCategory")}
-          <button
-            onclick={() => {
-              addOtherCategory = true;
-            }}
-            class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
-          >
-            {$_("clickHere")}
-          </button>
-        </p>
-      {/if}
-      {#if addOtherCategory}
-        <Input
-          placeholder={$_("enterOtherCategory")}
-          bind:value={otherCategory}
-          onkeydown={(e) => {
-            if (
-              e.key === "Enter" &&
-              otherCategory !== "" &&
-              !tmpCategories.includes(otherCategory)
-            ) {
-              for (let i = 0; i < categories.length; i++) {
-                if (categories[i]?.other === true) {
-                  categories = categories.slice(0, i).concat(categories.slice(i + 1));
-                  break;
-                }
-              }
-              categories = [
-                ...categories,
-                { value: otherCategory, name: otherCategory, other: true },
-              ];
-              tmpCategories = otherCategory;
-              otherCategory = "";
-            }
-          }}
-        />
       {/if} -->
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-      <Input bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
+      <InputRw onEdit={true} bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
-      <Input bind:value={tmpDocumentDescription} placeholder={$_("enterDocumentDescription")} />
+      <InputRw onEdit={true} bind:value={tmpDocumentDescription} placeholder={$_("enterDocumentDescription")} />
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
@@ -1613,7 +1615,7 @@ All Rights Reserved
       <!-- buat class disable -->
       <div class="flex">
         <button
-          class="flex w-full flex-wrap items-center space-x-2 space-y-1 border rounded-lg p-2"
+          class="flex w-full flex-wrap gap-2 items-center border rounded-lg p-2"
           onclick={() => {
             focusInput(inputRef);
           }}

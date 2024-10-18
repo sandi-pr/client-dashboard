@@ -37,6 +37,7 @@ All Rights Reserved
   import { generateUniqueId } from "$lib";
   import { page } from "$app/stores";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
+  import XCloseIcon from "$lib/icon/x-close.svelte";
 
   let documentId, collectionId;
 
@@ -253,6 +254,10 @@ All Rights Reserved
               : "",
             result_trocr: documentData.attributes.result_trocr,
           };
+
+          tags = [documentData.attributes.category];
+
+          console.log("tags", documentData.attributes.category);
 
           fileReady = true;
           triggerLoading(false);
@@ -548,6 +553,34 @@ All Rights Reserved
     }
   }
 
+  let tags = $state([]); // Daftar tag yang sudah dimasukkan pengguna
+  let newTag = $state(""); // Menyimpan input dari pengguna
+  let inputRef;
+
+  // Fungsi untuk menambahkan tag
+  function addTag() {
+    if (newTag.trim() && !tags.includes(newTag)) {
+      tags = [...tags, newTag];
+      newTag = ""; // Reset input setelah menambahkan tag
+    }
+  }
+
+  // Fungsi untuk menghapus tag
+  function removeTag(tagToRemove) {
+    tags = tags.filter((tag) => tag !== tagToRemove);
+  }
+
+  // Fungsi untuk menambah tag saat menekan Enter
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      addTag();
+    }
+  }
+
+  function focusInput(input) {
+    input.focus();
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
@@ -694,18 +727,67 @@ All Rights Reserved
                   color="secondary"
                   text={`${$_("categories")}`}
                 />
-                {#if !onEdit}
+                <!-- {#if !onEdit}
                   <InputRw bind:value={data.category} />
-                {:else}
-                  <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-                  <Select
+                {:else} -->
+                <div class="flex">
+                  <button
+                    class="flex w-full flex-wrap gap-2 items-center border rounded-lg py-2.5 px-2"
+                    onclick={onEdit
+                      ? () => {
+                          focusInput(inputRef);
+                        }
+                      : () => {}}
+                  >
+                    {#each tags as tag}
+                      <span
+                        class="flex items-center space-x-0.5 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2"
+                      >
+                        <span class="text-sm pb-0.5">{tag}</span>
+                        <!-- svelte-ignore node_invalid_placement_ssr -->
+
+                        {#if onEdit}
+                          <button
+                            onclick={() => {
+                              removeTag(tag);
+                            }}
+                            class="text-brand-primary-light dark:text-brand-primary-dark"
+                            ><XCloseIcon
+                              svgClass="w-3 h-3 text-utility-brand-400-light dark:text-utility-brand-400-dark"
+                            /></button
+                          >
+                        {/if}
+                      </span>
+                    {/each}
+                    {#if onEdit}
+                      <input
+                        bind:this={inputRef}
+                        type="text"
+                        bind:value={newTag}
+                        placeholder={`${tags.length < 1 ? $_("enterNewLabel") : ""}`}
+                        onkeydown={handleKeyDown}
+                        class={`border-none flex-grow !pl-0 !py-0.5 text-sm focus:ring-transparent ${tags.length > 0 ? "max-w-min" : "w-full"}`}
+                      />
+                    {/if}
+                  </button>
+                  {#if onEdit}
+                    <button
+                      onclick={addTag}
+                      class="bg-secondary-light dark:bg-secondary-dark text-primary-light dark:text-primary-dark px-4 py-1 rounded"
+                    >
+                      Add
+                    </button>
+                  {/if}
+                </div>
+                <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
+                <!-- <Select
                     disabled={!onEdit}
                     class="mt-2"
                     items={categories}
                     bind:value={data.category}
                     placeholder={$_("selectCategory")}
-                  />
-                  <!-- {#if !addOtherCategory}
+                  /> -->
+                <!-- {#if !addOtherCategory}
                     <p>
                       {$_("addOtherCategory")}
                       <button
@@ -747,7 +829,7 @@ All Rights Reserved
                       }}
                     />
                   {/if} -->
-                {/if}
+                <!-- {/if} -->
               </div>
             </div>
           </div>

@@ -592,5 +592,7 @@
   "addNewLibrary": "Add new library",
   "libraryList": "Library List",
   "addCollection": "Add Collection",
-  "collectionTitle": "Collection Title"
+  "collectionTitle": "Collection Title",
+  "labels": "Labels",
+  "enterNewLabel": "Enter new label"
 }
