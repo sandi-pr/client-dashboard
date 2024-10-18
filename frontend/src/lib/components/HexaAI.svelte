@@ -427,8 +427,8 @@
 </script>
 
 <div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
-  <div class="flex h-full flex-col px-4 pb-72 lg:pb-[210px] pt-4">
-    <div bind:this={div} class="flex flex-col gap-4 overflow-y-hidden hover:overflow-y-auto">
+  <div class="flex h-full flex-col px-4 pb-[210px] pt-4">
+    <div bind:this={div} class="flex flex-col gap-4 overflow-auto md:overflow-y-hidden md:hover:overflow-y-auto">
       <!-- <P
         size="xl"
         weight="bold"
