@@ -33,9 +33,14 @@
     Typography,
     InputRw,
     TextareaRw,
+    StateCard,
   } from "$lib";
+  import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { goto } from "$app/navigation";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+    import { tr } from "date-fns/locale";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -54,6 +59,15 @@
   let additionalPrompt = $state("");
   let needAuth = $state(false);
   let modalOpen = $state(false);
+  let isSelectedLibrary = $state(false);
+  let allData = $state([]);
+  let searchTerm = $state("");
+  let search = $state(false);
+  let page = $state(1);
+  let datasChecked = $state([]);
+  let configs = $state({});
+  let gettingDatas = $state(false);
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
 
   let platforms = $state([]);
 
@@ -186,6 +200,120 @@
       },
     },
   ];
+
+  async function dummyGetCollections() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      if (!search) {
+        gettingDatas = true;
+      }
+      let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: page,
+          page_size: pagination.pageSize,
+          collection_id: '137',
+          search: searchTerm,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        gettingDatas = false;
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        pagination = response.result.meta.pagination;
+        configs = {
+          search: true,
+          searchHandler: handleSearch,
+          pagination: response.result.meta.pagination,
+          space: "p-4",
+          actionInLeft: true,
+          actions: [
+            {
+              id: "deselect_all",
+              name: "Deselect All",
+              onclick: () => {
+                handleCheckAll(true);
+              },
+            },
+            {
+              id: "select_all",
+              name: "Select All",
+              type: "brand-inverse",
+              onclick: () => {
+                handleCheckAll(false);
+              },
+            },
+          ],
+        };
+
+        let promises = response.result.data.map(async (document) => {
+          return {
+            id: document.id,
+            collection_name: document.attributes.document_title,
+          };
+        });
+
+        allData = await Promise.all(promises);
+        console.log("all data", allData);
+        datasChecked = allData.map((data) => {
+          return { id: data.id, checked: false };
+        });
+      } else {
+        allData = [];
+        datasChecked = [];
+        configs = {
+          search: true,
+          searchHandler: handleSearch,
+          headers: "File Uploaded",
+          pagination: response.result.meta.pagination,
+          // actions: [
+          //   {
+          //     id: "delete",
+          //     name: "Delete",
+          //     icon: "trash",
+          //     type: "error",
+          //     disabled: datasChecked.find((data) => data.checked) ? false : true,
+          //     onclick: () => {
+          //       if (datasChecked.find((data) => data.checked)) {
+          //         popupModal = true;
+          //       }
+          //     },
+          //   },
+          //   {
+          //     id: "add_new",
+          //     name: "Add New",
+          //     icon: "plus",
+          //     type: "brand-inverse",
+          //     onclick: () => {
+          //       selectTypeCollection("Documents");
+          //       addDocumentsModal = true;
+          //       addOtherCategory = false;
+          //     },
+          //   },
+          // ],
+        };
+      }
+
+      gettingDatas = false;
+      search = false;
+    }
+  }
+
+  const handleSearch = async (value) => {
+    search = true;
+    page = 1;
+    searchTerm = value;
+
+    // await getDocuments();
+  };
 
   function handleDragOver(event) {
     event.preventDefault();
@@ -404,9 +532,45 @@
     }
   }
 
+  async function handleCheckAll(allChecked) {
+    datasChecked = datasChecked.map((data) => {
+      return { id: data.id, checked: allChecked ? false : true };
+    });
+
+    console.log("datasChecked", datasChecked.length);
+  }
+
+  async function handleCheck(id) {
+    let datasCheckedCopy = datasChecked;
+    datasCheckedCopy = datasCheckedCopy.map((data) => {
+      if (data.id === id) {
+        return { id: data.id, checked: !data.checked };
+      }
+      return data;
+    });
+    datasChecked = datasCheckedCopy;
+  }
+
+  function areAllUnchecked() {
+    return datasChecked.every(item => item.checked === false);
+  }
+
+  async function next() {
+    if (page >= pagination.pageCount) return;
+    page++;
+    // getDocuments();
+  }
+
+  async function previous() {
+    if (page <= 1) return;
+    page--;
+    // getDocuments();
+  }
+
   onMount(() => {
     getCollections();
     getModels();
+    dummyGetCollections();
   });
 </script>
 
@@ -481,7 +645,7 @@
     <div class="md:flex">
       <Typography
         preset="Text md/Semibold"
-        text={$_("documentCollection")}
+        text={$_("knowledgeSource")}
         color="secondary"
         propClass="w-full md:w-1/4"
       />
@@ -496,7 +660,7 @@
               preset="Text md/Semibold"
               text={selectedCollection
                 ? collections.find((item) => item.value === selectedCollection)?.name
-                : $_("chooseCollection")}
+                : $_("configure")}
               color="secondary"
             />
             <ChevronDownOutline
@@ -544,10 +708,23 @@
   </div>
 </div>
 
-<Modal title={$_("chooseSource")} bind:open={modalOpen} autoclose outsideclose>
-  <div class="flex flex-col justify-center gap-4">
-    <div class="flex flex-col justify-center mt-3 gap-3">
-      <Typography preset="Text sm/Medium" text={$_("recentCollections")} color="quaterary" />
+<Modal bind:open={modalOpen} outsideclose>
+  <svelte:fragment slot="header">
+    <div class="flex gap-4 me-6 grow w-full">
+      <div class="grow pt-2 border-t-4 border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark">
+        <Typography preset="Text md/Bold" text={$_("chooseDocumentsLibrary")} color={!isSelectedLibrary ? "brand-secondary" : "secondary"} />
+        <Typography preset="Text sm/Regular" text={$_("documentLibraryAsThePrimarySource")} color={!isSelectedLibrary ? "brand-tertiary" : "tertiary"} />
+      </div>
+
+      <div class={`grow pt-2 border-t-4 ${isSelectedLibrary ? "border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark" : "border-utility-gray-200-light dark:border-utility-gray-200-dark"}`}>
+        <Typography preset="Text md/Bold" text={$_("chooseWhichCollections")} color={isSelectedLibrary ? "brand-secondary" : "secondary"} />
+        <Typography preset="Text sm/Regular" text={$_("chooseTheOneYouWantToInclude")} color={isSelectedLibrary ? "brand-tertiary" : "tertiary"} />
+      </div>
+    </div>
+  </svelte:fragment>
+  {#if !isSelectedLibrary}
+    <div class="flex flex-col justify-center gap-4">
+      <Typography preset="Text sm/Medium" text={$_("latestDocumentLibrary")} color="quaterary" />
 
       <SelectedCard
         selectionData={collections}
@@ -556,9 +733,45 @@
         isRadio
       />
     </div>
-  </div>
+  {:else}
+    {#if allData.length > 0 || searchTerm !== ""}
+      {#if !gettingDatas}
+        <DataTableListCollection
+          bind:datas={allData}
+          bind:datasChecked
+          bind:configs
+          bind:gettingDatas
+          bind:next
+          bind:previous
+          bind:handleCheckAll
+          bind:handleCheck
+        />
+      {:else}
+        <StateCard
+          illustration={IllustrationProgress}
+          description={$_("fetchingDataPleaseWait")}
+        />
+      {/if}
+    {:else if gettingDatas}
+      <StateCard
+        illustration={IllustrationProgress}
+        description={$_("fetchingDataPleaseWait")}
+      />
+    {:else}
+      <StateCard
+        illustration={IllustrationEmpty}
+        description={$_("youDontHaveAnyDataYet")}
+      />
+    {/if}
+  {/if}
   <svelte:fragment slot="footer">
-    <Button on:click={() => {}} class="w-full" disabled={!selectedCollection}>{$_("select")}</Button
-    >
+    {#if !isSelectedLibrary}
+    <Button on:click={() => {isSelectedLibrary = true}} class="w-full" disabled={!selectedCollection}>{$_("next")}</Button>
+    {:else}
+    <div class="flex gap-4 w-full">
+      <button onclick={() => {isSelectedLibrary = false}} class="px-5">{$_("goBack")}</button>
+      <Button on:click={() => {}} class="grow" disabled={areAllUnchecked()}>{$_("finish")}</Button>
+    </div>
+    {/if}
   </svelte:fragment>
 </Modal>

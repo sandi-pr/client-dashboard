@@ -80,9 +80,18 @@
   let gettingDatas = false;
   let datasChecked = [];
   let configs = {};
+  let configsChecked = [];
   let pagination = { page: 1, pageSize: 10, pageCount: 0, total: 0 };
   let searchTerm = "";
   let dropdownOpen = false;
+  let modalOpen = false;
+  let collections = [];
+  let selectedCollection = "";
+  let initCollections = [];
+  let isSelectedLibrary = false;
+  let allData = [];
+  let search = false;
+  let pages = 1;
 
   let tmpThemeColor = "";
   let tmpOverlayColor = "";
@@ -207,6 +216,159 @@
       total: 5,
     },
   };
+
+  async function getCollections() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let page = 1;
+      initCollections = [];
+      while (true) {
+        let response = await $call.call("client-dashboard", "get-document-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          initCollections = initCollections.concat(response.result.data);
+          page++;
+        } else {
+          break;
+        }
+      }
+
+      collections = initCollections.map((collection) => {
+        return {
+          value: collection.id,
+          id: collection.id,
+          name: collection.attributes.collection_name,
+          description: collection.attributes.description,
+        };
+      });
+    }
+  }
+
+  async function dummyGetCollections() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      if (!search) {
+        gettingDatas = true;
+      }
+      let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: pages,
+          page_size: pagination.pageSize,
+          collection_id: '137',
+          search: searchTerm,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        gettingDatas = false;
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        pagination = response.result.meta.pagination;
+        configsChecked = {
+          search: true,
+          searchHandler: handleSearch,
+          pagination: response.result.meta.pagination,
+          space: "p-4",
+          actionInLeft: true,
+          actions: [
+            {
+              id: "deselect_all",
+              name: "Deselect All",
+              onclick: () => {
+                handleCheckAll(true);
+              },
+            },
+            {
+              id: "select_all",
+              name: "Select All",
+              type: "brand-inverse",
+              onclick: () => {
+                handleCheckAll(false);
+              },
+            },
+          ],
+        };
+
+        let promises = response.result.data.map(async (document) => {
+          return {
+            id: document.id,
+            collection_name: document.attributes.document_title,
+          };
+        });
+
+        allData = await Promise.all(promises);
+        console.log("all data", allData);
+        datasChecked = allData.map((data) => {
+          return { id: data.id, checked: false };
+        });
+      } else {
+        allData = [];
+        datasChecked = [];
+        configs = {
+          search: true,
+          searchHandler: handleSearch,
+          headers: "File Uploaded",
+          pagination: response.result.meta.pagination,
+          // actions: [
+          //   {
+          //     id: "delete",
+          //     name: "Delete",
+          //     icon: "trash",
+          //     type: "error",
+          //     disabled: datasChecked.find((data) => data.checked) ? false : true,
+          //     onclick: () => {
+          //       if (datasChecked.find((data) => data.checked)) {
+          //         popupModal = true;
+          //       }
+          //     },
+          //   },
+          //   {
+          //     id: "add_new",
+          //     name: "Add New",
+          //     icon: "plus",
+          //     type: "brand-inverse",
+          //     onclick: () => {
+          //       selectTypeCollection("Documents");
+          //       addDocumentsModal = true;
+          //       addOtherCategory = false;
+          //     },
+          //   },
+          // ],
+        };
+      }
+
+      gettingDatas = false;
+      search = false;
+    }
+  }
+
+  function areAllUnchecked() {
+    return datasChecked.every(item => item.checked === false);
+  }
 
   const classStatusType = (type) => {
     if (type === "Done") {
@@ -573,7 +735,7 @@
             attributes.overlay_color !== null
               ? themeColors.find((color) => color.value === attributes.overlay_color).id
               : 1,
-          platform: platforms.find((platform) => platform.model === attributes.ai_engine)?.id || 1,
+          platform: platforms.find((platform) => platform.model === attributes.ai_engine).id,
           layout:
             attributes.layout !== null
               ? layouts.find((layout) => layout.name === attributes.layout).id
@@ -744,6 +906,8 @@
   onMount(() => {
     if (edit === "true") onEdit = true;
     triggerLoading(true);
+    getCollections();
+    dummyGetCollections();
 
     const unsubscribe = page.subscribe(async ($page) => {
       botId = $page.url.searchParams.get("botId");
@@ -824,7 +988,7 @@
                 class="px-3 focus-within:!ring-1">{$_("edit")}</Button
               >
             </div>
-            <div on:focusout={handleDropdownFocusLoss} class="flex md:hidden items-center relative">
+            <div onfocusout={handleDropdownFocusLoss} class="flex md:hidden items-center relative">
               <Button
                 on:click={() => (dropdownOpen = !dropdownOpen)}
                 class="focus-within:ring-0 !p-0"
@@ -838,13 +1002,13 @@
                 <ul class="py-2 grow text-sm">
                   <button
                     class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    on:click={() => {
+                    onclick={() => {
                       onEdit = true, (dropdownOpen = !dropdownOpen);
                     }}>{$_("edit")}</button
                   >
                   <button
                     class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    on:click={() => {
+                    onclick={() => {
                       modalDelete = true, (dropdownOpen = !dropdownOpen);
                     }}>{$_("delete")}</button
                   >
@@ -901,6 +1065,35 @@
               isRadio
               disabled={!onEdit}
             />
+          </div>
+        </div>
+        <Divider />
+        <div class="md:flex">
+          <Typography
+            preset="Text md/Semibold"
+            text={$_("knowledgeSource")}
+            color="secondary"
+            propClass="w-full md:w-1/4"
+          />
+          <div class="w-full md:w-3/4">
+            <div class="flex items-center gap-4">
+              <Button
+                on:click={() => (modalOpen = true)}
+                color="light"
+                class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
+              >
+                <Typography
+                  preset="Text md/Semibold"
+                  text={selectedCollection
+                    ? collections.find((item) => item.value === selectedCollection)?.name
+                    : $_("configure")}
+                  color="secondary"
+                />
+                <ChevronDownOutline
+                  class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                />
+              </Button>
+            </div>
           </div>
         </div>
         <Divider />
@@ -1188,7 +1381,7 @@
             propClass=""
           />
           <button
-            on:click={async function () {
+            onclick={async function () {
               goto(
                 (await $call.getPage("client-dashboard", "document-collection-list-document")) +
                   `?collectionId=${collectionId}`,
@@ -1294,5 +1487,73 @@
       <Button onclick={() => deleteBot(botId)} color="red" class="me-2">{$_("yesImSure")}</Button>
       <Button color="alternative">{$_("noCancel")}</Button>
     </div>
+  </Modal>
+
+  <Modal bind:open={modalOpen} outsideclose>
+    <svelte:fragment slot="header">
+      <div class="flex gap-4 me-6 grow w-full">
+        <div class="grow pt-2 border-t-4 border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark">
+          <Typography preset="Text md/Bold" text={$_("chooseDocumentsLibrary")} color={!isSelectedLibrary ? "brand-secondary" : "secondary"} />
+          <Typography preset="Text sm/Regular" text={$_("documentLibraryAsThePrimarySource")} color={!isSelectedLibrary ? "brand-tertiary" : "tertiary"} />
+        </div>
+  
+        <div class={`grow pt-2 border-t-4 ${isSelectedLibrary ? "border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark" : "border-utility-gray-200-light dark:border-utility-gray-200-dark"}`}>
+          <Typography preset="Text md/Bold" text={$_("chooseWhichCollections")} color={isSelectedLibrary ? "brand-secondary" : "secondary"} />
+          <Typography preset="Text sm/Regular" text={$_("chooseTheOneYouWantToInclude")} color={isSelectedLibrary ? "brand-tertiary" : "tertiary"} />
+        </div>
+      </div>
+    </svelte:fragment>
+    {#if !isSelectedLibrary}
+      <div class="flex flex-col justify-center gap-4">
+        <Typography preset="Text sm/Medium" text={$_("latestDocumentLibrary")} color="quaterary" />
+  
+        <SelectedCard
+          selectionData={collections}
+          bind:selectedData={selectedCollection}
+          numGrid={2}
+          isRadio
+        />
+      </div>
+    {:else}
+      {#if allData.length > 0 || searchTerm !== ""}
+        {#if !gettingDatas}
+          <DataTableListCollection
+            bind:datas={allData}
+            bind:datasChecked
+            bind:configs={configsChecked}
+            bind:gettingDatas
+            bind:next
+            bind:previous
+            bind:handleCheckAll
+            bind:handleCheck
+          />
+        {:else}
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
+        {/if}
+      {:else if gettingDatas}
+        <StateCard
+          illustration={IllustrationProgress}
+          description={$_("fetchingDataPleaseWait")}
+        />
+      {:else}
+        <StateCard
+          illustration={IllustrationEmpty}
+          description={$_("youDontHaveAnyDataYet")}
+        />
+      {/if}
+    {/if}
+    <svelte:fragment slot="footer">
+      {#if !isSelectedLibrary}
+      <Button on:click={() => {isSelectedLibrary = true}} class="w-full" disabled={!selectedCollection}>{$_("next")}</Button>
+      {:else}
+      <div class="flex gap-4 w-full">
+        <button onclick={() => {isSelectedLibrary = false}} class="px-5">{$_("goBack")}</button>
+        <Button on:click={() => {}} class="grow" disabled={areAllUnchecked()}>{$_("finish")}</Button>
+      </div>
+      {/if}
+    </svelte:fragment>
   </Modal>
 {/if}

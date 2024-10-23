@@ -594,5 +594,15 @@
   "addCollection": "Add Collection",
   "collectionTitle": "Collection Title",
   "labels": "Labels",
-  "enterNewLabel": "Enter new label"
+  "enterNewLabel": "Enter new label",
+  "knowledgeSource": "Knowledge Source",
+  "chooseDocumentsLibrary": "Choose Documents Library",
+  "documentLibraryAsThePrimarySource": "Document Library as the primary source",
+  "chooseWhichCollections": "Choose which collections",
+  "chooseTheOneYouWantToInclude": "Choose the one you want to include",
+  "latestDocumentLibrary": "Latest Document Library",
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All",
+  "goBack": "Go Back",
+  "finish": "Finish"
 }

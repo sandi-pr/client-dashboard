@@ -195,7 +195,7 @@
 
 <div>
   <div
-    class={`flex items-center justify-between p-4 mt-6 gap-2 ${configs?.isCategories ? "mb-4 rounded-lg bg-secondary-light dark:bg-secondary-dark" : "border-t border-x border-primary-light dark:border-primary-dark rounded-t-lg"} ${withSeperator(configs)}`}
+    class={`flex items-center justify-between ${configs?.space ? configs.space : "p-4 mt-6"} gap-2 ${configs?.isCategories ? "mb-4 rounded-lg bg-secondary-light dark:bg-secondary-dark" : "border-t border-x border-primary-light dark:border-primary-dark rounded-t-lg"} ${withSeperator(configs)}`}
   >
     {#if configs?.headers}
       {#if configs?.isCategories && isEdit}
@@ -209,18 +209,20 @@
         >
       {/if}
     {/if}
-    <div class="flex items-center justify-end grow gap-2">
-      <div class="hidden lg:block">
-        <Input
-          id="search"
-          type="search"
-          class="bg-white dark:bg-hc-graydark-950 py-3"
-          placeholder={$_("search")}
-          on:change={handleSearch}
-        >
-          <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-        </Input>
-      </div>
+    <div class={`flex items-center ${configs?.actionInLeft ? "justify-start" : "justify-end"} grow gap-2`}>
+      {#if !configs?.actionInLeft}
+        <div class="hidden lg:block">
+          <Input
+            id="search"
+            type="search"
+            class="bg-white dark:bg-hc-graydark-950 py-3"
+            placeholder={$_("search")}
+            on:change={handleSearch}
+          >
+            <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          </Input>
+        </div>
+      {/if}
       {#if configs?.actions && Object.keys(configs.actions).length > 0}
         {#each configs.actions as action (action.id)}
           {#if action?.dropdown && action.dropdown === "more"}
@@ -312,6 +314,19 @@
           {/if}
         {/each}
       {/if}
+      {#if configs?.actionInLeft}
+        <div class="hidden lg:block grow">
+          <Input
+            id="search"
+            type="search"
+            class="bg-white dark:bg-hc-graydark-950"
+            placeholder={$_("search")}
+            on:change={handleSearch}
+          >
+            <Icon.SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          </Input>
+        </div>
+      {/if}
     </div>
   </div>
   {#if dropdownToggle === true}
@@ -355,7 +370,7 @@
               class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
             >
               {#if datasChecked}
-                <TableBodyCell class="!px-4">
+                <TableBodyCell class="!px-4 w-10">
                   <input
                     type="checkbox"
                     id={data.id}

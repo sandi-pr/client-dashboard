@@ -595,5 +595,15 @@
   "addCollection": "Tambahkan Koleksi",
   "collectionTitle": "Judul Koleksi",
   "labels": "Label",
-  "enterNewLabel": "Masukkan label baru"
+  "enterNewLabel": "Masukkan label baru",
+  "knowledgeSource": "Sumber Pengetahuan",
+  "chooseDocumentsLibrary": "Pilih Library Dokumen",
+  "documentLibraryAsThePrimarySource": "Library Dokumen sebagai sumber utama",
+  "chooseWhichCollections": "Pilih koleksi",
+  "chooseTheOneYouWantToInclude": "Pilih salah satu yang ingin Anda tambahkan",
+  "latestDocumentLibrary": "Dokumen Library Terbaru",
+  "selectAll": "Pilih Semua",
+  "deselectAll": "Batal Pilih Semua",
+  "goBack": "Kembali",
+  "finish": "Selesai"
 }
