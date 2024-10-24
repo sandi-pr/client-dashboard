@@ -116,13 +116,13 @@ All Rights Reserved
           console.log(response);
           if (collectionId !== null) {
             goto(
-              (await $call.getPage("client-dashboard", "document-library")) +
+              (await $call.getPage("client-dashboard", "document-collection")) +
                 "?collectionId=" +
                 collectionId,
             );
             return;
           } else {
-            goto(await $call.getPage("client-dashboard", "document-library"));
+            goto(await $call.getPage("client-dashboard", "document-collection"));
             return;
           }
         }
@@ -343,7 +343,7 @@ All Rights Reserved
         triggerToast("deleted");
         // setTimeout(async () => {
         goto(
-          (await $call.getPage("client-dashboard", "document-library-documents")) +
+          (await $call.getPage("client-dashboard", "document-collection-list-document")) +
             "?collectionId=" +
             collectionId,
         );
@@ -665,7 +665,7 @@ All Rights Reserved
             <Button
               onclick={async function () {
                 goto(
-                  (await $call.getPage("client-dashboard", "document-library-documents")) +
+                  (await $call.getPage("client-dashboard", "document-collection-list-document")) +
                     `?collectionId=${collectionId}`,
                 );
                 return;

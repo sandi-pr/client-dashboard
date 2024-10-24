@@ -245,7 +245,7 @@ All Rights Reserved
         };
 
         let promises = response.result.data.map(async (document) => {
-          let link = await $call.getPage("client-dashboard", "document-library-detail");
+          let link = await $call.getPage("client-dashboard", "document-collection-detail");
           return {
             id: document.id,
             file_name: {
@@ -392,7 +392,7 @@ All Rights Reserved
           checked: false,
         });
 
-        let link = await $call.getPage("client-dashboard", "document-library-detail");
+        let link = await $call.getPage("client-dashboard", "document-collection-detail");
         return {
           id: document.id,
           file_name: {
@@ -607,7 +607,7 @@ All Rights Reserved
                 checked: false,
               });
 
-              let link = await $call.getPage("client-dashboard", "document-library-detail");
+              let link = await $call.getPage("client-dashboard", "document-collection-detail");
               return {
                 id: document.id,
                 file_name: {
@@ -693,7 +693,7 @@ All Rights Reserved
         if (response.status !== 200) {
           console.log(response);
           triggerToast("error");
-          goto(await $call.getPage("client-dashboard", "document-library"));
+          goto(await $call.getPage("client-dashboard", "document-collection"));
           return;
         }
 

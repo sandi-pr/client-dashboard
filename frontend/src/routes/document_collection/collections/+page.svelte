@@ -223,7 +223,10 @@ All Rights Reserved
         }
       }
 
-      let collectionList = await $call.getPage("client-dashboard", "document-library-documents");
+      let collectionList = await $call.getPage(
+        "client-dashboard",
+        "document-collection-list-document",
+      );
 
       let promise = collections.map(async (collection) => {
         let categoriesCollection = await getCategories(collection.id);

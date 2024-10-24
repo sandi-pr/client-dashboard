@@ -183,10 +183,17 @@ All Rights Reserved
           },
           {
             icon: "archive",
-            name: "documentCollection",
+            name: "documentLibrary(OnDev)",
             href: isFrontend
               ? "/document_collection"
               : await call.getPage("client-dashboard", "document-collection-overview"),
+          },
+          {
+            icon: "archive",
+            name: "documentCollection",
+            href: isFrontend
+              ? "/document_collection/collections"
+              : await call.getPage("client-dashboard", "document-collection"),
           },
           // {
           //   icon: "fileCheck",
