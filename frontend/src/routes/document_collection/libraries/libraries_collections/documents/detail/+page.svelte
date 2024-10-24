@@ -863,7 +863,7 @@ All Rights Reserved
             >
               {#if data.ext === ".pdf"}
                 {#if pdfReady}
-                  <!-- <PdfjsViewer pdfFile={base64} /> -->
+                  <PdfjsViewer pdfFile={base64} />
                 {/if}
               {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
                 <div class="flex justify-center">
