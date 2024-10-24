@@ -245,7 +245,7 @@ All Rights Reserved
         };
 
         let promises = response.result.data.map(async (document) => {
-          let link = await $call.getPage("client-dashboard", "document-collection-detail");
+          let link = await $call.getPage("client-dashboard", "document-library-detail");
           return {
             id: document.id,
             file_name: {
@@ -282,7 +282,7 @@ All Rights Reserved
                 },
                 // {
                 //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
-                //   // `${await $call.getPage("client-dashboard", "document-collection-detail")}` +
+                //   // `${await $call.getPage("client-dashboard", "document-library-detail")}` +
                 //   // "?documentId=" +
                 //   // document.id +
                 //   // "&collectionId=" +
@@ -392,7 +392,7 @@ All Rights Reserved
           checked: false,
         });
 
-        let link = await $call.getPage("client-dashboard", "document-collection-detail");
+        let link = await $call.getPage("client-dashboard", "document-library-detail");
         return {
           id: document.id,
           file_name: {
@@ -429,7 +429,7 @@ All Rights Reserved
               },
               // {
               //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
-              //   // `${await $call.getPage("client-dashboard", "document-collection-detail")}` +
+              //   // `${await $call.getPage("client-dashboard", "document-library-detail")}` +
               //   // "?documentId=" +
               //   // document.id +
               //   // "&collectionId=" +
@@ -607,7 +607,7 @@ All Rights Reserved
                 checked: false,
               });
 
-              let link = await $call.getPage("client-dashboard", "document-collection-detail");
+              let link = await $call.getPage("client-dashboard", "document-library-detail");
               return {
                 id: document.id,
                 file_name: {
@@ -693,7 +693,7 @@ All Rights Reserved
         if (response.status !== 200) {
           console.log(response);
           triggerToast("error");
-          goto(await $call.getPage("client-dashboard", "document-collection"));
+          goto(await $call.getPage("client-dashboard", "document-library"));
           return;
         }
 
@@ -1578,7 +1578,11 @@ All Rights Reserved
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
-      <InputRw onEdit={true} bind:value={tmpDocumentDescription} placeholder={$_("enterDocumentDescription")} />
+      <InputRw
+        onEdit={true}
+        bind:value={tmpDocumentDescription}
+        placeholder={$_("enterDocumentDescription")}
+      />
     </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}

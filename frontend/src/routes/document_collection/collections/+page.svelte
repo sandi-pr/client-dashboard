@@ -157,7 +157,7 @@ All Rights Reserved
 
       addCollectionsModal = false;
       getCollections();
-      // goto(await $call.getPage("client-dashboard", "document-collection"));
+      // goto(await $call.getPage("client-dashboard", "document-library"));
     }
   }
 
@@ -223,10 +223,7 @@ All Rights Reserved
         }
       }
 
-      let collectionList = await $call.getPage(
-        "client-dashboard",
-        "document-collection-list-document",
-      );
+      let collectionList = await $call.getPage("client-dashboard", "document-library-documents");
 
       let promise = collections.map(async (collection) => {
         let categoriesCollection = await getCategories(collection.id);
@@ -715,7 +712,7 @@ All Rights Reserved
 
   async function getDocumentCollectionDetail(id) {
     return (
-      `${await $call.getPage("client-dashboard", "document-collection-list-document")}` +
+      `${await $call.getPage("client-dashboard", "document-library-documents")}` +
       "?collectionId=" +
       id
     );

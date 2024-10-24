@@ -207,7 +207,7 @@ All Rights Reserved
 
       console.log(response2);
 
-      goto(await $call.getPage("client-dashboard", "document-collection"));
+      goto(await $call.getPage("client-dashboard", "document-library"));
     }
   }
 </script>
@@ -231,7 +231,7 @@ All Rights Reserved
         <div class="flex gap-2">
           <Button
             onclick={async function () {
-              goto(await $call.getPage("client-dashboard", "document-collection"));
+              goto(await $call.getPage("client-dashboard", "document-library"));
               return;
             }}
             color="light"

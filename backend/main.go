@@ -20,6 +20,7 @@ import (
 var MODULE_MANAGER_URL = ""
 var STRAPI_URL = ""
 var STRAPI_TOKEN = ""
+var DOCUMENT_PATH = ""
 
 func init() {
 	MODULE_MANAGER_URL = os.Getenv("MODULE_MANAGER_URL")
@@ -35,6 +36,11 @@ func init() {
 	STRAPI_TOKEN = os.Getenv("STRAPI_TOKEN")
 	if STRAPI_TOKEN == "" {
 		panic(errors.New("Environment STRAPI_TOKEN is empty"))
+	}
+
+	DOCUMENT_PATH = os.Getenv("DOCUMENT_PATH")
+	if DOCUMENT_PATH == "" {
+		panic(errors.New("Environment DOCUMENT_PATH is empty"))
 	}
 
 	config.Schedule("", MODULE_MANAGER_URL)

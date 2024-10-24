@@ -706,7 +706,10 @@
 
 <div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
   <div class="flex h-full flex-col px-4 pb-[210px] pt-4">
-    <div bind:this={div} class="flex flex-col gap-4 overflow-auto md:overflow-y-hidden md:hover:overflow-y-auto">
+    <div
+      bind:this={div}
+      class="flex flex-col gap-4 overflow-auto md:overflow-y-hidden md:hover:overflow-y-auto"
+    >
       <!-- <P
         size="xl"
         weight="bold"
@@ -752,7 +755,7 @@
                               var docId = getDocumentIdFromUrl(part?.url);
                               let link = await $call.getPage(
                                 "client-dashboard",
-                                "document-collection-detail",
+                                "document-library-detail",
                               );
                               var url =
                                 `${link}` +

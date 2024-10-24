@@ -13,6 +13,9 @@
     LibraryCard,
   } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
+  import { onMount, onDestroy } from "svelte";
+  import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
 
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
@@ -22,20 +25,25 @@
   import Folder from "$lib/icon/folder.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  import { format } from "date-fns";
 
-  let addCollectionModal = false;
-  let editModal = false;
-  let deleteModal = false;
-  let tmpCollectionName = "";
-  let tmpDescription = "";
-  let tmpCollectionId = "";
-  let collectionDatas = {
-    title: "My Collections",
-    description:
-      "You can manage your collections here. You can add, edit, and delete your collections. You can also see the details of your collections.",
-    createdAt: "2021-08-12",
-  };
-  let tabDatas = {
+  let addCollectionModal = $state(false);
+  let editModal = $state(false);
+  let deleteModal = $state(false);
+  let tmpCollectionName = $state("");
+  let tmpDescription = $state("");
+  let tmpCollectionId = $state("");
+  let libraryId;
+
+  let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
+
+  let collectionDatas = $state({
+    title: "",
+    description: "",
+    createdAt: "",
+  });
+
+  let tabDatas = $state({
     selected: "My Collections",
     data: [
       {
@@ -45,79 +53,8 @@
         name: "Information",
       },
     ],
-  };
-  let collectionListDatas = [
-    {
-      id: "1",
-      collectionName: "Bakrie’s Handwriting",
-      totalDocuments: 2,
-      type: "",
-      status: "ready",
-    },
-    {
-      id: "2",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "3",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "4",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "5",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "6",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "7",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "8",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "9",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-    {
-      id: "10",
-      collectionName: "Study Scriptures of Qur’an Tafsir",
-      totalDocuments: 2,
-      type: "",
-      status: "reading",
-    },
-  ];
+  });
+  let collectionListDatas = $state([]);
   let informationDatas = {
     id: "1",
     collectionName: "Bakrie’s Handwriting",
@@ -126,16 +63,140 @@
     status: "ready",
   };
 
-  const createCollection = (evt) => {
-    console.log("clicked");
-  };
+  async function getLibrary() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-library", {
+        URLQuery: {},
+        URLParams: {
+          id: libraryId,
+        },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("library", response);
+
+      collectionDatas = {
+        title: response.result.attributes.name,
+        description: response.result.attributes.meta.description,
+        createdAt: format(new Date(response.result.attributes.createdAt), "dd-MM-yyyy"),
+      };
+    }
+  }
+
+  async function getCollections() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      getLibrary();
+
+      let response = await $call.call("client-dashboard", "get-library-collections", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: pagination.page,
+          page_size: pagination.pageSize,
+          parent_id: parseInt(libraryId),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      // id: "4",
+      // collectionName: "Study Scriptures of Qur’an Tafsir",
+      // totalDocuments: 2,
+      // type: "",
+      // status: "reading",
+
+      let link = await $call.getPage("client-dashboard", "document-library-documents");
+
+      let promise = response.result.data.map(async (collection) => {
+        return {
+          id: collection.id,
+          collectionName: collection.attributes.name,
+          description: collection.attributes.meta.description,
+          type: collection.attributes.type,
+          href: link + "?collectionId=" + collection.id,
+        };
+      });
+
+      collectionListDatas = await Promise.all(promise);
+    }
+  }
+
+  async function createCollection() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "create-library-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_name: tmpCollectionName,
+          description: tmpDescription,
+          parent_id: parseInt(libraryId),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        triggerToast("error");
+        return;
+      }
+
+      console.log(response);
+
+      // RAG Proccessing
+
+      // let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      //   URLQuery: {},
+      //   URLParams: {},
+      //   Params: {
+      //     collection_id: response.result.data.id.toString(),
+      //   },
+      //   Headers: {
+      //     Authorization: "Bearer " + token,
+      //   },
+      // });
+
+      // if (response2.status !== 200) {
+      //   console.log(response2);
+      //   triggerToast("error");
+      //   return;
+      // }
+
+      // console.log(response2);
+
+      tmpCollectionName = "";
+      tmpDescription = "";
+
+      triggerToast("success");
+
+      addCollectionModal = false;
+      getCollections();
+      // goto(await $call.getPage("client-dashboard", "document-library"));
+    }
+  }
 
   async function editCollectionName() {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
       try {
-        let response = await $call.call("client-dashboard", "update-document-collection", {
+        let response = await $call.call("client-dashboard", "update-library-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -174,26 +235,7 @@
 
     if (token !== null) {
       try {
-        for (const document of documents) {
-          if (document.attributes.collection_id === tmpCollectionId) {
-            let response = await $call.call("client-dashboard", "delete-document", {
-              URLQuery: {},
-              URLParams: {
-                id: document.id.toString(),
-              },
-              Params: {},
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-            if (response.status !== 200) {
-              console.log(response);
-              triggerToast("error");
-              return;
-            }
-          }
-        }
-        let response2 = await $call.call("client-dashboard", "delete-document-collection", {
+        let response2 = await $call.call("client-dashboard", "delete-library-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -224,6 +266,30 @@
       console.log("Token not found");
     }
   }
+
+  onMount(() => {
+    const unsubscribe = page.subscribe(async ($page) => {
+      libraryId = $page.url.searchParams.get("libraryId");
+      if (libraryId === null) {
+        goto(await $call.getPage("client-dashboard", "document-library"));
+        return;
+      }
+      getCollections();
+    });
+    return () => unsubscribe();
+  });
+
+  // $effect(() => {
+  //   const unsubscribe = page.subscribe(async ($page) => {
+  //     libraryId = $page.url.searchParams.get("libraryId");
+  //     if (libraryId === null) {
+  //       goto(await $call.getPage("client-dashboard", "document-library"));
+  //       return;
+  //     }
+  //     getCollections();
+  //   });
+  //   onDestroy(() => unsubscribe());
+  // });
 </script>
 
 <div class="flex dark:bg-primary-dark">
@@ -310,8 +376,6 @@
             {#each collectionListDatas as collection}
               <LibraryCard
                 collectionName={collection.collectionName}
-                totalDocuments={collection.totalDocuments}
-                status={collection.status}
                 usedFor="libraries_collections"
                 functButton={() => {
                   // selectCollection({
@@ -322,27 +386,27 @@
                   // });
                 }}
                 functAddDocuments={() => {
-                  // tmpCollectionId = collection.id;
+                  tmpCollectionId = collection.id;
                   // tmpHref = collection.href;
                   // categories = collection.categories;
                   // selectTypeCollection("Documents");
                   // categories = collection.categories;
                   // otherCategory = "";
                   // addOtherCategory = false;
-                  // addDocumentsModal = true;
+                  addDocumentsModal = true;
                 }}
                 functEdit={() => {
-                  // tmpCollectionId = collection.id;
-                  // tmpCollectionName = collection.collectionName;
-                  // tmpDescription = collection.description;
+                  tmpCollectionId = collection.id;
+                  tmpCollectionName = collection.collectionName;
+                  tmpDescription = collection.description;
                   editModal = true;
                 }}
                 functDelete={() => {
-                  // tmpCollectionId = collection.id;
+                  tmpCollectionId = collection.id;
                   deleteModal = true;
                 }}
                 funcDetailCollection={() => {
-                  // goto(collection.href);
+                  goto(collection.href);
                 }}
               />
             {/each}
@@ -392,13 +456,15 @@
       <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createCollection} disabled={!tmpCollectionName} class="w-full"
-      >{$_("addNewCollection")}</Button
+    <Button
+      onclick={createCollection}
+      disabled={!tmpCollectionName || !tmpDescription}
+      class="w-full">{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
 </Modal>
@@ -415,7 +481,11 @@
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={editCollectionName} class="me-2 w-full">{$_("save")}</Button>
+    <Button
+      onclick={editCollectionName}
+      disabled={!tmpCollectionName || !tmpDescription}
+      class="me-2 w-full">{$_("save")}</Button
+    >
   </svelte:fragment>
 </Modal>
 

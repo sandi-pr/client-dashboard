@@ -228,7 +228,7 @@ func Reset(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		"company-profile",
 		"booking",
 		"document-management",
-		"document-collection",
+		"document-library",
 		"references-document",
 		"industries",
 		"contract-rules",

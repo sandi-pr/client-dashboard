@@ -136,23 +136,28 @@
         },
         {
             "name": "document-collection-overview",
-            "path": "/document_collection",
+            "path": "/document_library",
             "file_path": "template/document_collection.html"
         },
         {
-            "name": "document-collection",
-            "path": "/document_collection/collections",
-            "file_path": "template/document_collection/collections.html"
+            "name": "document-library",
+            "path": "/document_library/libraries",
+            "file_path": "template/document_collection/libraries.html"
         },
         {
-            "name": "document-collection-list-document",
-            "path": "/document_collection/collections/list_document",
-            "file_path": "template/document_collection/collections/list_document.html"
+            "name": "document-library-collections",
+            "path": "/document_library/libraries/collections",
+            "file_path": "template/document_collection/libraries/libraries_collections.html"
         },
         {
-            "name": "document-collection-detail",
-            "path": "/document_collection/collections/detail",
-            "file_path": "template/document_collection/collections/detail.html"
+            "name": "document-library-documents",
+            "path": "/document_library/libraries/collections/documents",
+            "file_path": "template/document_collection/libraries/libraries_collections/documents.html"
+        },
+        {
+            "name": "document-library-detail",
+            "path": "/document_library/libraries/collections/documents/detail",
+            "file_path": "template/document_collection/libraries/libraries_collections/documents/detail.html"
         },
         {
             "name": "document-collection-chat",
@@ -1669,6 +1674,11 @@
                     "required": true
                 },
                 {
+                    "name": "library_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
                     "name": "document_type",
                     "type": "string",
                     "required": true
@@ -2107,6 +2117,401 @@
             "params": [
                 {
                     "name": "collection_id",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "create-library",
+            "path": "/create-library",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateLibrary"
+            },
+            "params": [
+                {
+                    "name": "library_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "create-library-collection",
+            "path": "/create-library-collection",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateLibraryCollection"
+            },
+            "params": [
+                {
+                    "name": "collection_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "create-library-document",
+            "path": "/create-library-document",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateLibraryDocument"
+            },
+            "params": [
+                {
+                    "name": "document_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                },
+                {
+                    "name": "documents",
+                    "type": "string"
+                },
+                {
+                    "name": "document_type",
+                    "type": "string"
+                },
+                {
+                    "name": "category",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "get-librarys",
+            "path": "/get-librarys",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibrarys"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-library-collections",
+            "path": "/get-library-collections",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibraryCollections"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-library-documents",
+            "path": "/get-library-documents",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibraryDocuments"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-library",
+            "path": "/get-library/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibrary"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-library-collection",
+            "path": "/get-library-collection/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibraryCollection"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-library-document",
+            "path": "/get-library-document/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibraryDocument"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "update-library",
+            "path": "/update-library/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateLibrary"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "library_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-library-collection",
+            "path": "/update-library-collection/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateLibraryCollection"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "collection_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-library-document",
+            "path": "/update-library-document/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateLibraryDocument"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "document_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "detected_text",
+                    "type": "string"
+                },
+                {
+                    "name": "category",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delete-library",
+            "path": "/delete-library/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteLibrary"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-library-collection",
+            "path": "/delete-library-collection/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteLibraryCollection"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "delete-library-document",
+            "path": "/delete-library-document/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteLibraryDocument"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-status-library",
+            "path": "/get-status-library/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetStatusLibrary"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-count-libraries-per-month",
+            "path": "/get-count-libraries-per-month",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCountLibrariesPerMonth"
+            },
+            "params": [
+                {
+                    "name": "earlyDate",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "lastDate",
                     "type": "string",
                     "required": true
                 }
@@ -4735,11 +5140,17 @@
                     },
                     "category": {
                         "type": "string"
+                    },
+                    "document_path": {
+                        "type": "string"
+                    },
+                    "library_id": {
+                        "type": "integer"
                     }
                 }
             },
             {
-                "name": "document-collection",
+                "name": "document-library",
                 "label": "Document Collection",
                 "fields": {
                     "collection_name": {
@@ -4760,6 +5171,34 @@
                         "type": "boolean"
                     },
                     "categories": {
+                        "type": "json"
+                    },
+                    "library_id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            {
+                "name": "document-library",
+                "label": "Document Library",
+                "fields": {
+                    "type": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "unique": true,
+                        "required": true
+                    },
+                    "path": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "parent_id": {
+                        "type": "integer"
+                    },
+                    "meta": {
                         "type": "json"
                     }
                 }
@@ -5203,6 +5642,9 @@
                     },
                     "color_theme": {
                         "type": "string"
+                    },
+                    "library_id": {
+                        "type": "integer"
                     },
                     "collection_id": {
                         "type": "integer"

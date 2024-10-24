@@ -13,6 +13,7 @@
   } from "flowbite-svelte";
 
   import { _ } from "svelte-i18n";
+  import { goto } from "$app/navigation";
 
   import EyeIcon from "$lib/icon/eye.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
@@ -70,23 +71,23 @@
 
   let pages = pagesGenerator();
 
-  const filesizePostprocessing = (filesize) => {
-    let size = filesize;
-    let unit = "B";
-    if (size >= 1024) {
-      size = size / 1024;
-      unit = "KB";
-    }
-    if (size >= 1024) {
-      size = size / 1024;
-      unit = "MB";
-    }
-    if (size >= 1024) {
-      size = size / 1024;
-      unit = "GB";
-    }
-    return `${size.toFixed(2)} ${unit}`;
-  };
+  // const filesizePostprocessing = (filesize) => {
+  //   let size = filesize;
+  //   let unit = "B";
+  //   if (size >= 1024) {
+  //     size = size / 1024;
+  //     unit = "KB";
+  //   }
+  //   if (size >= 1024) {
+  //     size = size / 1024;
+  //     unit = "MB";
+  //   }
+  //   if (size >= 1024) {
+  //     size = size / 1024;
+  //     unit = "GB";
+  //   }
+  //   return `${size.toFixed(2)} ${unit}`;
+  // };
 
   // console.log(collectionListDatas);
 </script>
@@ -169,11 +170,13 @@
               {collectionListData.type}
             </div></TableBodyCell
           >
-          <TableBodyCell>{filesizePostprocessing(collectionListData.filesize)}</TableBodyCell>
+          <TableBodyCell>{collectionListData.filesize}</TableBodyCell>
           <TableBodyCell>{collectionListData.createdAt}</TableBodyCell>
           <TableBodyCell>
             <Button
-              href="/"
+              on:click={() => {
+                goto(collectionListData.href);
+              }}
               color="white"
               class="!p-2 focus-within:!ring-1 text-brand-tertiary-light dark:text-brand-tertiary-dark"
               size="lg"

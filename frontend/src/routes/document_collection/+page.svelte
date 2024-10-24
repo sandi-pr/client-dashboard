@@ -320,24 +320,24 @@ All Rights Reserved
     chartReady = true;
   }
 
-  async function getChartAction(totalCollections, readyCollection, dataCollecting) {
+  async function getChartAction(totalCollections) {
     chartAction = [
       {
-        href: await $call.getPage("client-dashboard", "document-collection"),
-        dataName: "Total Documents",
+        href: await $call.getPage("client-dashboard", "document-library"),
+        dataName: "Total Library",
         value: totalCollections.total,
         change: totalCollections.change,
         changeType: totalCollections.changeType,
       },
-      {
-        href: await $call.getPage("client-dashboard", "document-collection"),
-        dataName: "Document Collection",
-        value: readyCollection.total,
-        change: readyCollection.change,
-        changeType: readyCollection.changeType,
-      },
       // {
-      //   href: await $call.getPage("client-dashboard", "document-collection"),
+      //   href: await $call.getPage("client-dashboard", "document-library"),
+      //   dataName: "Document Collection",
+      //   value: readyCollection.total,
+      //   change: readyCollection.change,
+      //   changeType: readyCollection.changeType,
+      // },
+      // {
+      //   href: await $call.getPage("client-dashboard", "document-library"),
       //   dataName: "Collecting Data",
       //   value: dataCollecting.total,
       //   change: dataCollecting.change,
@@ -353,7 +353,7 @@ All Rights Reserved
   let gettingDatas = $state(false);
 
   async function viewAll() {
-    goto(await $call.getPage("client-dashboard", "document-collection"));
+    goto(await $call.getPage("client-dashboard", "document-library"));
   }
 
   async function createCollection() {
@@ -361,11 +361,11 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      let response = await $call.call("client-dashboard", "create-document-collection", {
+      let response = await $call.call("client-dashboard", "create-library", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          collection_name: tmpCollectionName,
+          library_name: tmpCollectionName,
           description: tmpDescription,
         },
         Headers: {
@@ -381,24 +381,26 @@ All Rights Reserved
 
       console.log(response);
 
-      let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: response.result.data.id.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      // RAG Proccessing
 
-      if (response2.status !== 200) {
-        console.log(response2);
-        triggerToast("error");
-        return;
-      }
+      // let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
+      //   URLQuery: {},
+      //   URLParams: {},
+      //   Params: {
+      //     collection_id: response.result.data.id.toString(),
+      //   },
+      //   Headers: {
+      //     Authorization: "Bearer " + token,
+      //   },
+      // });
 
-      console.log(response2);
+      // if (response2.status !== 200) {
+      //   console.log(response2);
+      //   triggerToast("error");
+      //   return;
+      // }
+
+      // console.log(response2);
 
       tmpCollectionName = "";
       tmpDescription = "";
@@ -407,7 +409,8 @@ All Rights Reserved
 
       addLibraryModal = false;
       getCollections();
-      // goto(await $call.getPage("client-dashboard", "document-collection"));
+      getCountDocumentsPerMonth();
+      // goto(await $call.getPage("client-dashboard", "document-library"));
     }
   }
 
@@ -418,7 +421,7 @@ All Rights Reserved
       gettingDatas = true;
       collections = [];
       documents = [];
-      let response = await $call.call("client-dashboard", "get-document-collections", {
+      let response = await $call.call("client-dashboard", "get-librarys", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -467,99 +470,45 @@ All Rights Reserved
       //   }
       // }
 
-      for (const collection of collections) {
-        let page = 1;
-        while (true) {
-          let response3 = await $call.call("client-dashboard", "get-documents-by-collectionid", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_id: collection.id.toString(),
-              page: page,
-              page_size: 25,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response3.status !== 200) {
-            console.log(response3);
-            gettingDatas = false;
-            return;
-          }
-
-          if (response3.result.data.length > 0) {
-            documents = documents.concat(response3.result.data);
-            page++;
-          } else {
-            break;
-          }
-        }
-      }
-
-      let collectionList = await $call.getPage(
-        "client-dashboard",
-        "document-collection-list-document",
-      );
+      let collectionList = await $call.getPage("client-dashboard", "document-library-collections");
 
       let promise = collections.map(async (collection) => {
-        let categoriesCollection = await getCategories(collection.id);
-        const filteredDocuments = documents.filter(
-          (document) => document.attributes.collection_id === collection.id,
-        );
+        console.log("collection", collection);
+        let response4 = await $call.call("client-dashboard", "get-status-library", {
+          URLQuery: {},
+          URLParams: {
+            id: collection.id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-        // Hitung total dokumen
-        const totalDocuments = filteredDocuments.length;
-
-        // Hitung jumlah dokumen dengan status null
-        const nullDocuments = filteredDocuments.filter(
-          (document) => document.attributes.status === null,
-        ).length;
-
-        // Hitung jumlah dokumen dengan status angka
-        const numberDocuments = filteredDocuments.filter((document) =>
-          document.attributes.status?.includes("Reading"),
-        ).length;
-
-        // Hitung total dokumen yang Ready
-        const readyDocuments = filteredDocuments.filter(
-          (document) => document.attributes.status === "Ready",
-        ).length;
-
-        // Tentukan status koleksi berdasarkan kondisi yang diberikan
-        let collectionStatus;
-        if (nullDocuments === totalDocuments) {
-          if (totalDocuments === 0) {
-            // console.log("empty", collection.id);
-            collectionStatus = "Empty";
-          } else {
-            // console.log("null", collection.id);
-            collectionStatus = null;
-          }
-        } else if (nullDocuments > 0 || numberDocuments > 0) {
-          // console.log("read", collection.id);
-          collectionStatus = "Reading";
-        } else if (readyDocuments === totalDocuments) {
-          // console.log("ready", collection.id);
-          collectionStatus = "Ready";
+        if (response4.status !== 200) {
+          console.log(response4);
+          gettingDatas = false;
+          return;
         }
+
+        console.log("status", response4);
+
+        let collectionStatus = response4.result.status;
+
         return {
           collectionId: collection.id,
           activationTime: format(collection.attributes.createdAt, "dd-MM-yyyy HH:mm"),
-          collectionName: collection.attributes.collection_name,
-          description: collection.attributes.description,
-          totalDocuments: totalDocuments,
-          categories: categoriesCollection,
+          collectionName: collection.attributes.name,
+          description: collection.attributes.meta.description,
+          // totalDocuments: totalDocuments,
+          // categories: categoriesCollection,
           status: collectionStatus,
-          href: `${collectionList}?collectionId=${collection.id}`,
-          webchat: collection.attributes.webchat_tmp === true ? true : false,
+          href: `${collectionList}?libraryId=${collection.id}`,
+          // webchat: collection.attributes.webchat_tmp === true ? true : false,
         };
       });
 
       latestDocumentCollection = await Promise.all(promise);
-
-      console.log("cek", collections);
 
       gettingDatas = false;
     }
@@ -570,13 +519,13 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await $call.call("client-dashboard", "update-document-collection", {
+        let response = await $call.call("client-dashboard", "update-library", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
           },
           Params: {
-            collection_name: tmpCollectionName,
+            library_name: tmpCollectionName,
             description: tmpDescription,
           },
           Headers: {
@@ -609,26 +558,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        for (const document of documents) {
-          if (document.attributes.collection_id === tmpCollectionId) {
-            let response = await $call.call("client-dashboard", "delete-document", {
-              URLQuery: {},
-              URLParams: {
-                id: document.id.toString(),
-              },
-              Params: {},
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-            if (response.status !== 200) {
-              console.log(response);
-              triggerToast("error");
-              return;
-            }
-          }
-        }
-        let response2 = await $call.call("client-dashboard", "delete-document-collection", {
+        let response2 = await $call.call("client-dashboard", "delete-library", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -647,6 +577,7 @@ All Rights Reserved
 
         console.log("ayam", response2);
 
+        tmpCollectionId = "";
         triggerToast("deleted");
 
         getCollections();
@@ -660,196 +591,9 @@ All Rights Reserved
     }
   }
 
-  async function addDocumentByCollection() {
-    files[0].document_title = tmpDocumentTitle;
-    files[0].description = tmpDocumentDescription;
-
-    let token = localStorage.getItem("token");
-
-    if (token !== null) {
-      try {
-        triggerLoading(true);
-        let response = await $call.call("client-dashboard", "create-document", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            documents: JSON.stringify(files),
-            collection_id: tmpCollectionId.toString(),
-            document_type: tmpDocumentType,
-            category: tmpCategories,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          console.log(response);
-          triggerToast("error");
-          triggerLoading(false);
-          return;
-        }
-
-        console.log(response);
-
-        if (tmpDocumentType === "Handwriting") {
-          for (let i = 0; i < files.length; i++) {
-            let response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                image: files[i].base64,
-                model: sessionStorage.getItem("model_trocr"),
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-
-            if (response3.status !== 200) {
-              triggerToast("error");
-              triggerLoading(false);
-              console.log(response3);
-              return;
-            }
-
-            console.log("trocr-predict", response3);
-
-            if (response3?.result?.text !== null) {
-              const response4 = await $call.call(
-                "client-dashboard",
-                "update-document-handwriting",
-                {
-                  URLQuery: {},
-                  URLParams: {
-                    id: response.result.data[i].id.toString(),
-                  },
-                  Params: {
-                    detected_text: response3.result.text,
-                    result_trocr: JSON.stringify(response3.result),
-                    edited: false,
-                    document_title: tmpDocumentTitle,
-                    description: tmpDocumentDescription,
-                  },
-                  Headers: {
-                    Authorization: "Bearer " + token,
-                  },
-                },
-              );
-
-              if (response4.status !== 200) {
-                triggerToast("error");
-                triggerLoading(false);
-                console.log(response4);
-                return;
-              }
-
-              console.log("ayam", response4);
-            }
-          }
-        }
-      } catch (error) {
-        triggerToast("error");
-        triggerLoading(false);
-        console.log(error);
-      }
-
-      tmpCollectionId = "";
-      getCollections();
-      triggerLoading(false);
-      addDocumentsModal = false;
-
-      triggerToast("created");
-    }
-  }
-
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  const handleFileUploadWrapper = () => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.accept = acceptedFileTypes;
-    inputElement.multiple = false;
-
-    inputElement.addEventListener("change", async (event) => {
-      const file = event.target.files[0];
-
-      const fileTypeRegex = new RegExp(
-        acceptedFileTypes
-          .split(",")
-          .map((type) => type.trim().replace(".", "\\."))
-          .join("|") + "$",
-        "i",
-      );
-
-      console.log(fileTypeRegex.test(file.name));
-
-      if (file && fileTypeRegex.test(file.name)) {
-        fileNotSupport = false;
-        const base64Data = await readFileAsBase64(file);
-        files.push({
-          name: file.name,
-          document_title: tmpDocumentTitle,
-          description: tmpDocumentDescription,
-          size: formatBytes(file.size),
-          base64: base64Data,
-        });
-      } else {
-        fileNotSupport = true;
-      }
-    });
-
-    inputElement.click();
-  };
-
-  async function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const base64Data = reader.result.split(",")[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-
-      reader.readAsDataURL(file);
-    });
-  }
-
-  const selectTypeCollection = (type) => {
-    tmpDocumentType = type;
-
-    if (type === "Documents") {
-      selectedTypeCollection = "Documents (TXT, PDF, DOC, DOCX)";
-      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
-    } else if (type === "Images") {
-      selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Handwriting") {
-      selectedTypeCollection = "Handwriting (JPG, JPEG, PNG)";
-      acceptedFileTypes = ".jpg, .jpeg, .png";
-      // acceptedFileTypes = ".pdf, .jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "CSV") {
-      selectedTypeCollection = "CSV";
-      acceptedFileTypes = ".csv";
-    }
-
-    files = [];
-
-    dropdownOpen = false;
-  };
-
   async function getCountDocumentsPerMonth() {
+    tmpMonthlyCollectionsCounts = [];
+
     const today = new Date();
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -857,7 +601,7 @@ All Rights Reserved
 
     if (token !== null) {
       for (let i = 0; i < 12; i++) {
-        let response = await $call.call("client-dashboard", "get-count-documents-per-month", {
+        let response = await $call.call("client-dashboard", "get-count-libraries-per-month", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -879,11 +623,7 @@ All Rights Reserved
         //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
         // );
 
-        tmpMonthlyCollectionsCounts.push(response.result.document.meta.pagination.total);
-        // TODO: adjust response to collection ready
-        tmpMonthlyCollectionReadyCounts.push(response.result.general.meta.pagination.total);
-        // TODO: adjust response to collecting data
-        tmpMonthlyCollectingDataCounts.push(response.result.contract.meta.pagination.total);
+        tmpMonthlyCollectionsCounts.push(response.result.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -898,18 +638,12 @@ All Rights Reserved
       }
 
       tmpMonthlyCollectionsCounts.reverse();
-      tmpMonthlyCollectionReadyCounts.reverse();
-      tmpMonthlyCollectingDataCounts.reverse();
 
       monthlyCollectionsCounts = tmpMonthlyCollectionsCounts;
-      monthlyCollectionReadyCounts = tmpMonthlyCollectionReadyCounts;
-      monthlyCollectingDataCounts = tmpMonthlyCollectingDataCounts;
 
       let totalCollections = groupingDataChart(monthlyCollectionsCounts);
-      let readyCollection = groupingDataChart(monthlyCollectionReadyCounts);
-      let dataCollecting = groupingDataChart(monthlyCollectingDataCounts);
 
-      getChartAction(totalCollections, readyCollection, dataCollecting);
+      getChartAction(totalCollections);
       generateChartData();
     } else {
       console.log("no token");
@@ -931,35 +665,6 @@ All Rights Reserved
       change: change,
       changeType: changeType,
     };
-  }
-
-  async function getCategories(id) {
-    let token = localStorage.getItem("token");
-
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-categories-by-collection-id", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: id.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(id, response);
-        return;
-      }
-
-      return response.result.categories.map((category) => {
-        return {
-          name: category,
-          value: category,
-        };
-      });
-    }
   }
 
   async function selectCollection(collection) {
@@ -1031,22 +736,21 @@ All Rights Reserved
             {#each latestDocumentCollection as document}
               <LibraryCard
                 collectionName={document.collectionName}
-                totalDocuments={document.totalDocuments}
                 status={document.status}
                 functButton={() => {
-                  selectCollection({
-                    id: document.collectionId,
-                    name: document.collectionName,
-                    description: document.description,
-                    totalDocuments: document.totalDocuments,
-                  });
+                  // selectCollection({
+                  //   id: document.collectionId,
+                  //   name: document.collectionName,
+                  //   description: document.description,
+                  //   // totalDocuments: document.totalDocuments,
+                  // });
                 }}
                 functAddDocuments={() => {
                   tmpCollectionId = document.collectionId;
                   tmpHref = document.href;
-                  categories = document.categories;
-                  selectTypeCollection("Documents");
-                  categories = document.categories;
+                  // categories = document.categories;
+                  // selectTypeCollection("Documents");
+                  // categories = document.categories;
                   otherCategory = "";
                   addOtherCategory = false;
                   addDocumentsModal = true;
@@ -1083,21 +787,19 @@ All Rights Reserved
 <Modal title={$_("createNewLibrary")} bind:open={addLibraryModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography
-        preset="Text sm/medium"
-        color="secondary"
-        text={`${$_("libraryName")}*`}
-      />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
       <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createCollection} disabled={!tmpCollectionName} class="w-full"
-      >{$_("addNewLibrary")}</Button
+    <Button
+      onclick={createCollection}
+      disabled={!tmpCollectionName || !tmpDescription}
+      class="w-full">{$_("addNewLibrary")}</Button
     >
   </svelte:fragment>
 </Modal>
@@ -1114,7 +816,11 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={editCollectionName} class="me-2 w-full">{$_("save")}</Button>
+    <Button
+      onclick={editCollectionName}
+      disabled={!tmpCollectionName || !tmpDescription}
+      class="me-2 w-full">{$_("save")}</Button
+    >
   </svelte:fragment>
 </Modal>
 
