@@ -605,5 +605,7 @@
   "selectAll": "Pilih Semua",
   "deselectAll": "Batal Pilih Semua",
   "goBack": "Kembali",
-  "finish": "Selesai"
+  "finish": "Selesai",
+  "documentOptions": "Opsi Dokumen",
+  "documentLibrary(OnDev)": "Library Dokumen (OnDev)"
 }

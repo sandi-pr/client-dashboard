@@ -604,5 +604,7 @@
   "selectAll": "Select All",
   "deselectAll": "Deselect All",
   "goBack": "Go Back",
-  "finish": "Finish"
+  "finish": "Finish",
+  "documentOptions": "Document Options",
+  "documentLibrary(OnDev)": "Document Library (OnDev)"
 }

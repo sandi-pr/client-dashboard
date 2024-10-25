@@ -40,6 +40,7 @@ export { default as Icon } from "$lib/ui/avatar/Icon.svelte";
 export { default as StateCard } from "$lib/ui/cards/StateCard.svelte";
 export { default as SelectedCard } from "$lib/ui/cards/SelectedCard.svelte";
 export { default as Toast } from "$lib/ui/toast/Toast.svelte";
+export { default as Toggle } from "$lib/ui/buttons/Toggle.svelte";
 export { default as ToastContainer } from "$lib/ui/toast/ToastContainer.svelte";
 export { default as CR3Call } from "$lib/utils/cr3call";
 export { default as getTextColors } from "$lib/utils/getTextColors";
