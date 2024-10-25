@@ -117,7 +117,10 @@
           id: collection.id,
           filename: collection.attributes.name,
           fileext: collection.attributes.path.split(".").pop(),
-          label: collection.attributes.meta.category.split(","),
+          label:
+            collection.attributes.meta.category === undefined
+              ? []
+              : collection.attributes.meta.category.split(","),
           type: collection.attributes.meta.document_type,
           filesize: collection.attributes.meta.file_size,
           createdAt: format(new Date(collection.attributes.createdAt), "yyyy-mm-dd"),
