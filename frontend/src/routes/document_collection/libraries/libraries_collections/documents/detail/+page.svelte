@@ -211,7 +211,8 @@ All Rights Reserved
           result_trocr: documentData.meta.result_trocr,
         };
 
-        tags = documentData.meta.category.split(",");
+        tags =
+          documentData.meta.category === undefined ? [] : documentData.meta.category.split(",");
 
         fileReady = true;
         triggerLoading(false);
