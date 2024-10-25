@@ -101,7 +101,7 @@
   const handleFileUploadWrapper = (type, role) => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    inputElement.accept = ".pdf, .doc, .docx";
+    inputElement.accept = ".pdf";
 
     inputElement.addEventListener("change", async (event) => {
       const uploadedFile = event.target.files[0];

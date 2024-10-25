@@ -236,7 +236,7 @@
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     // inputElement.accept = ".txt";
-    inputElement.accept = ".pdf, .doc, .docx";
+    inputElement.accept = ".pdf, .docx";
 
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];

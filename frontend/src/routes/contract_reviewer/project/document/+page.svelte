@@ -41,13 +41,13 @@
   let tmpDocumentType = $state("Documents");
   let tmpSelected = $state("Documents");
   let selectedTypeCollection = $state("Documents");
-  let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
+  let acceptedFileTypes = $state(".txt, .pdf, .docx");
   let fileUrl = $state("");
   let collectionId = $state(null);
   let projectName = $state("");
   let documentTypes = $state([
     {
-      name: "Documents (TXT, PDF, DOC, DOCX)",
+      name: "Documents (TXT, PDF)",
       value: "Documents",
     },
     {
@@ -71,7 +71,7 @@
 
     if (type === "Documents") {
       selectedTypeCollection = "Documents";
-      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
+      acceptedFileTypes = ".txt, .pdf, .docx";
     } else if (type === "Images") {
       selectedTypeCollection = "Images";
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
@@ -206,7 +206,7 @@
       };
 
       selectedTypeCollection = "Documents";
-      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
+      acceptedFileTypes = ".txt, .pdf";
       file = null;
 
       setTimeout(async () => {

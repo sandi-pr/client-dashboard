@@ -85,8 +85,8 @@ All Rights Reserved
   let editModal = $state(false);
   let deleteModal = $state(false);
   let dropdownOpen = $state(false);
-  let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
-  let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
+  let acceptedFileTypes = $state(".txt, .pdf");
+  let selectedTypeCollection = $state("Documents (TXT, PDF)");
   let timer;
   let fileNotSupport = $state(false);
 

@@ -43,7 +43,7 @@ All Rights Reserved
 
   const textFileType = (type) => {
     if (type === "document") {
-      return "PDF, DOC, DOCX (Max. 15MB)";
+      return "PDF (Max. 15MB)";
     } else {
       return "";
     }

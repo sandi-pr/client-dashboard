@@ -96,7 +96,7 @@ All Rights Reserved
   const handleFileUploadWrapper = () => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    inputElement.accept = ".pdf, .doc, .docx";
+    inputElement.accept = ".pdf";
     inputElement.multiple = true;
 
     inputElement.addEventListener("change", async (event) => {
@@ -310,7 +310,7 @@ All Rights Reserved
                   <P class="pointer-events-none">
                   </P>
                 </div>
-                <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P>
+                <P class="pointer-events-none">PDF (Max. 15MB)</P>
               </Button>
             </div> -->
             <!-- Display uploaded file names -->

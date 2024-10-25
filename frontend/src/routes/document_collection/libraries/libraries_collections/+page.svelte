@@ -29,11 +29,16 @@
 
   let addCollectionModal = $state(false);
   let editModal = $state(false);
+  let editLibraryModal = $state(false);
   let deleteModal = $state(false);
+  let deleteLibraryModal = $state(false);
   let tmpCollectionName = $state("");
   let tmpDescription = $state("");
+  let tmpLibraryName = $state("");
+  let tmpDescLibrary = $state("");
   let tmpCollectionId = $state("");
-  let libraryId;
+  let libraryId = $state("");
+  let dropdownOpen = $state(false);
 
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
 
@@ -191,6 +196,45 @@
     }
   }
 
+  async function editLibraryName() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "update-library", {
+          URLQuery: {},
+          URLParams: {
+            id: libraryId.toString(),
+          },
+          Params: {
+            library_name: tmpLibraryName,
+            description: tmpDescLibrary,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        tmpLibraryName = "";
+        tmpDescLibrary = "";
+
+        editLibraryModal = false;
+        triggerToast("updated");
+        getCollections();
+      } catch (error) {
+        console.log(error);
+        triggerToast("error");
+      }
+    } else {
+      console.log("Token not found");
+    }
+  }
+
   async function editCollectionName() {
     let token = localStorage.getItem("token");
 
@@ -224,6 +268,62 @@
       } catch (error) {
         console.log(error);
         triggerToast("error");
+      }
+    } else {
+      console.log("Token not found");
+    }
+  }
+
+  async function deleteLibrary() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        // for (const document of documents) {
+        //   if (document.attributes.collection_id === tmpCollectionId) {
+        //     let response = await $call.call("client-dashboard", "delete-document", {
+        //       URLQuery: {},
+        //       URLParams: {
+        //         id: document.id.toString(),
+        //       },
+        //       Params: {},
+        //       Headers: {
+        //         Authorization: "Bearer " + token,
+        //       },
+        //     });
+        //     if (response.status !== 200) {
+        //       console.log(response);
+        //       triggerToast("error");
+        //       return;
+        //     }
+        //   }
+        // }
+        let response2 = await $call.call("client-dashboard", "delete-library", {
+          URLQuery: {},
+          URLParams: {
+            id: libraryId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          triggerToast("error");
+          return;
+        }
+
+        console.log("ayam", response2);
+
+        triggerToast("deleted");
+
+        getCollections();
+        deleteLibraryModal = false;
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
       }
     } else {
       console.log("Token not found");
@@ -266,6 +366,11 @@
       console.log("Token not found");
     }
   }
+  
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
 
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
@@ -332,7 +437,7 @@
             >
           </div>
 
-          <div class="flex gap-4">
+          <div class="flex gap-2">
             <Button
               on:click={() => {
                 addCollectionModal = true;
@@ -356,16 +461,48 @@
               <Stars03Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("startReading")}</div>
             </Button>
-            <Button
+            <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+              <Button
+                on:click={() => (dropdownOpen = !dropdownOpen)}
+                color="light"
+                class="p-2"
+              >
+                <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+              </Button>
+              <div
+                class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+              >
+                <ul class="py-2 grow text-sm">
+                  <button
+                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    onclick={() => {
+                      dropdownOpen = !dropdownOpen;
+                      tmpLibraryName = collectionDatas.title;
+                      tmpDescLibrary = collectionDatas.description;
+                      editLibraryModal = true;
+                    }}>{$_("editLibraryName")}</button
+                  >
+                  <button
+                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    onclick={() => {
+                      dropdownOpen = !dropdownOpen;
+                      deleteLibraryModal = true;
+                    }}>{$_("delete")}</button
+                  >
+                </ul>
+              </div>
+            </div>
+            <!-- <Button
               on:click={() => {
                 // addLibraryModal = true;
                 // tmpCollectionName = "";
                 // tmpDescription = "";
               }}
-              class="p-2 md:px-3 md:py-2"
+              color="light"
+              class="p-2"
             >
               <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-            </Button>
+            </Button> -->
           </div>
         </div>
 
@@ -489,6 +626,26 @@
   </svelte:fragment>
 </Modal>
 
+<Modal title={$_("editLibraryName")} bind:open={editLibraryModal} size="xs" autoclose>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
+      <Input bind:value={tmpLibraryName} placeholder={$_("whatIsYourLibraryTitle")} />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Input bind:value={tmpDescLibrary} placeholder={$_("egDescription")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button
+      onclick={editLibraryName}
+      disabled={!tmpLibraryName || !tmpDescLibrary}
+      class="me-2 w-full">{$_("save")}</Button
+    >
+  </svelte:fragment>
+</Modal>
+
 <Modal bind:open={deleteModal} size="xs" autoclose>
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
@@ -497,5 +654,16 @@
     </h3>
     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
+  </div>
+</Modal>
+
+<Modal bind:open={deleteLibraryModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteLibrary} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative" onclick={() => (deleteLibraryModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>

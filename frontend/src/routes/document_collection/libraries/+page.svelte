@@ -100,9 +100,9 @@ All Rights Reserved
   let pagination = $state({});
   let fileNotSupport = $state(false);
 
-  let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
+  let acceptedFileTypes = $state(".txt, .pdf");
 
-  let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
+  let selectedTypeCollection = $state("Documents (TXT, PDF)");
 
   let statusRAG = $state("");
   let timer;

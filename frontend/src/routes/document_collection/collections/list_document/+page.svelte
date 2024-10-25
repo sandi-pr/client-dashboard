@@ -114,8 +114,8 @@ All Rights Reserved
   let tmpSelectedCategories = $state(["ayam"]);
   let otherCategory = $state("");
   let tmpDocumentDescription = $state("");
-  let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
-  let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
+  let selectedTypeCollection = $state("Documents (TXT, PDF)");
+  let acceptedFileTypes = $state(".txt, .pdf");
   let addDocumentsModal = $state(false);
   let addCategoriesModal = $state(false);
   let dropdownOpen = $state(false);
@@ -979,8 +979,8 @@ All Rights Reserved
     tmpDocumentType = type;
 
     if (type === "Documents") {
-      selectedTypeCollection = "Documents (TXT, PDF, DOC, DOCX)";
-      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
+      selectedTypeCollection = "Documents (TXT, PDF)";
+      acceptedFileTypes = ".txt, .pdf";
     } else if (type === "Images") {
       selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
@@ -1484,7 +1484,7 @@ All Rights Reserved
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Documents");
-            }}>Documents (TXT, PDF, DOC, DOCX)</button
+            }}>Documents (TXT, PDF)</button
           >
           <button
             class="flex p-2 w-full"

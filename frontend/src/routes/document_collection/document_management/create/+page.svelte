@@ -97,7 +97,7 @@ All Rights Reserved
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     // inputElement.accept = ".txt";
-    inputElement.accept = ".txt, .pdf, .doc, .docx, .csv";
+    inputElement.accept = ".txt, .pdf, .csv";
 
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
@@ -403,7 +403,7 @@ All Rights Reserved
                     </P>
                   </div>
                   <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none">PDF, DOC, DOCX, CSV, TXT (Max. 15MB)</P>
+                  <P class="pointer-events-none">PDF, CSV, TXT (Max. 15MB)</P>
                 {/if}
               </Button>
             </div>

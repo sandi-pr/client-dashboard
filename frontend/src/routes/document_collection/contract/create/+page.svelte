@@ -213,7 +213,7 @@
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     // inputElement.accept = ".txt";
-    inputElement.accept = ".pdf, .doc, .docx";
+    inputElement.accept = ".pdf";
 
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
@@ -405,7 +405,7 @@
             </P>
           </div>
           <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-          <P class="pointer-events-none">PDF, DOC, DOCX (Max. 15MB)</P>
+          <P class="pointer-events-none">PDF (Max. 15MB)</P>
         {/if}
       </Button>
     </div>
