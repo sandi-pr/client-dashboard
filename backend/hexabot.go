@@ -116,7 +116,12 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		return ctx.Error(400, "invalid parameters ai_engine")
 	}
 
-	collection_id, ok := ctx.Params.GetFloat64("collection_id")
+	library_id, ok := ctx.Params.GetFloat64("library_id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	collection_id, ok := ctx.Params.GetString("collection_id")
 	if !ok {
 		return ctx.Error(500, "Internal Server Error")
 	}
@@ -138,7 +143,8 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"bot_id":           uuid.New().String(),
 		"bot_name":         bot_name,
 		"ai_engine":        ai_engine,
-		"collection_id":    int64(collection_id),
+		"library_id":       int64(library_id),
+		"collection_id":    collection_id,
 		"background_align": "center",
 		"color_theme":      "purple",
 		"layout":           "Modern Minimalism",
@@ -156,7 +162,7 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 	// }
 
 	if bot_profileStr != "" {
-		data["bot_profile"] = int64(bot_profile_id)
+		data["bot_profile"] = bot_profile_id
 	}
 
 	if additional_prompt != "" {
@@ -172,6 +178,13 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 
 	if status != 200 {
 		fmt.Println(status)
+
+		if err2, ok := bot.GetDict("error"); ok {
+			if message, ok := err2.GetString("message"); ok {
+				return ctx.Error(status, string(message))
+			}
+		}
+
 		return ctx.Error(500, "Internal Server Error")
 	}
 

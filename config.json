@@ -2263,6 +2263,10 @@
                 {
                     "name": "parent_id",
                     "type": "number"
+                },
+                {
+                    "name": "search",
+                    "type": "string"
                 }
             ]
         },
@@ -4345,6 +4349,11 @@
                     "required": true
                 },
                 {
+                    "name": "library_id",
+                    "type": "number",
+                    "required": true
+                },
+                {
                     "name": "collection_id",
                     "type": "string",
                     "required": true
@@ -5662,7 +5671,7 @@
                         "type": "integer"
                     },
                     "collection_id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "additional_prompt": {
                         "type": "text"

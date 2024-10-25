@@ -537,7 +537,12 @@ func GetLibraryCollections(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		page_size = 10
 	}
 
-	status, documentLibrarys, err := Strapi.Find("document-library-table", U.Dict{
+	search, ok := ctx.Params.GetString("search")
+	if !ok {
+		search = ""
+	}
+
+	data := U.Dict{
 		"filters": U.Dict{
 			"parent_id": U.Dict{
 				"$eq": int64(parent_id),
@@ -552,7 +557,17 @@ func GetLibraryCollections(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		},
 		"sort":     "id:desc",
 		"populate": "*",
-	})
+	}
+
+	if search != "" {
+		data["filters"].(U.Dict)["name"] = U.Dict{
+			"$containsi": search,
+		}
+	}
+
+	fmt.Println("data", data)
+
+	status, documentLibrarys, err := Strapi.Find("document-library-table", data)
 
 	if err != nil {
 		fmt.Println(err)

@@ -52,52 +52,56 @@
   const params = new URLSearchParams(window.location.search);
   const edit = params.get("edit");
 
-  let onEdit = false;
+  let onEdit = $state(false);
 
-  let ready = false;
+  let ready = $state(false);
   let botId;
-  let botFile = { name: "" };
-  let userFile = { name: "" };
-  let logoFile = { name: "" };
-  let backgroundFile = {
+  let botFile = $state({ name: "" });
+  let userFile = $state({ name: "" });
+  let logoFile = $state({ name: "" });
+  let backgroundFile = $state({
     name: "",
-  };
-  let modalThemeColor = false;
-  let modalOverlayColor = false;
-  let dropdownBgAlignOpen = false;
-  let modalDelete = false;
-  let background_align = "center";
-  let bgAlign = [
+  });
+  let modalThemeColor = $state(false);
+  let modalOverlayColor = $state(false);
+  let dropdownBgAlignOpen = $state(false);
+  let modalDelete = $state(false);
+  let background_align = $state("center");
+  let bgAlign = $state([
     { name: "Center", value: "center" },
     { name: "Left", value: "left" },
     { name: "Right", value: "right" },
-  ];
+  ]);
 
-  let users = {};
+  let users = $state({});
 
-  let collectionId = null;
-  let collection = {};
-  let datas = [];
-  let gettingDatas = false;
-  let datasChecked = [];
-  let configs = {};
-  let configsChecked = [];
-  let pagination = { page: 1, pageSize: 10, pageCount: 0, total: 0 };
-  let searchTerm = "";
-  let dropdownOpen = false;
-  let modalOpen = false;
-  let collections = [];
-  let selectedCollection = "";
-  let initCollections = [];
-  let isSelectedLibrary = false;
-  let allData = [];
-  let search = false;
-  let pages = 1;
+  let collectionId = $state(null);
+  let collection = $state({});
+  let datas = $state([]);
+  let gettingDatas = $state(false);
+  let datasChecked = $state([]);
+  let configs = $state({});
+  let configsChecked = $state({});
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
+  let paginationDocs = $state([]);
+  let searchTerm = $state("");
+  let dropdownOpen = $state(false);
+  let modalOpen = $state(false);
+  let collections = $state([]);
+  let selectedCollection = $state("");
+  let oldSelectedCollection = $state("");
+  let initCollections = $state([]);
+  let isSelectedLibrary = $state(false);
+  let allData = $state([]);
+  let search = $state(false);
+  let pages = $state(1);
+  let disabledButton = $state(false);
+  let collectionsChecked = $state([]);
 
-  let tmpThemeColor = "";
-  let tmpOverlayColor = "";
+  let tmpThemeColor = $state("");
+  let tmpOverlayColor = $state("");
 
-  let tabDatas = {
+  let tabDatas = $state({
     selected: "Information",
     data: [
       {
@@ -113,11 +117,11 @@
         name: "Widget Embed",
       },
     ],
-  };
+  });
 
-  let platforms = [];
+  let platforms = $state([]);
 
-  let layouts = [
+  let layouts = $state([
     {
       id: 1,
       name: "Modern Minimalism",
@@ -126,9 +130,9 @@
       id: 2,
       name: "Modern with Background",
     },
-  ];
+  ]);
 
-  let themeColors = [
+  let themeColors = $state([
     {
       id: 1,
       name: "Purple",
@@ -144,7 +148,7 @@
       name: "Green",
       value: "green",
     },
-  ];
+  ]);
 
   function getBrandColorName(selectedId, value) {
     const selectedColor = themeColors.find((color) => color.id === selectedId);
@@ -222,14 +226,14 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      let page = 1;
+      let pageNow = 1;
       initCollections = [];
       while (true) {
-        let response = await $call.call("client-dashboard", "get-document-collections", {
+        let response = await $call.call("client-dashboard", "get-librarys", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            page: page,
+            page: pageNow,
             page_size: 25,
           },
           Headers: {
@@ -244,36 +248,38 @@
 
         if (response.result.data.length > 0) {
           initCollections = initCollections.concat(response.result.data);
-          page++;
+          pageNow++;
         } else {
           break;
         }
       }
 
+      console.log("libraries", initCollections);
+
       collections = initCollections.map((collection) => {
         return {
           value: collection.id,
           id: collection.id,
-          name: collection.attributes.collection_name,
-          description: collection.attributes.description,
+          name: collection.attributes.name,
+          description: collection.attributes.meta.description,
         };
       });
     }
   }
 
-  async function dummyGetCollections() {
+  async function dummyGetCollections(id) {
     let token = localStorage.getItem("token");
     if (token !== null) {
       if (!search) {
         gettingDatas = true;
       }
-      let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
+      let response = await $call.call("client-dashboard", "get-library-collections", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          page: pages,
+          page: pagination.page,
           page_size: pagination.pageSize,
-          collection_id: '137',
+          parent_id: id,
           search: searchTerm,
         },
         Headers: {
@@ -286,6 +292,8 @@
         gettingDatas = false;
         return;
       }
+
+      console.log("collections", response);
 
       if (response.result.data.length > 0) {
         pagination = response.result.meta.pagination;
@@ -313,27 +321,54 @@
             },
           ],
         };
-
         let promises = response.result.data.map(async (document) => {
           return {
             id: document.id,
-            collection_name: document.attributes.document_title,
+            collection_name: document.attributes.name,
           };
         });
-
         allData = await Promise.all(promises);
         console.log("all data", allData);
         datasChecked = allData.map((data) => {
-          return { id: data.id, checked: false };
+          return {
+            id: data.id,
+            checked: false,
+          };
+        });
+
+        datasChecked = datasChecked.map((data) => {
+          if (collectionsChecked.includes(data.id)) {
+            data.checked = true;
+          }
+          return data;
         });
       } else {
+        pagination = response.result.meta.pagination;
         allData = [];
         datasChecked = [];
-        configs = {
+        configsChecked = {
           search: true,
           searchHandler: handleSearch,
-          headers: "File Uploaded",
           pagination: response.result.meta.pagination,
+          space: "p-4",
+          actionInLeft: true,
+          actions: [
+            {
+              id: "deselect_all",
+              name: "Deselect All",
+              onclick: () => {
+                handleCheckAll(true);
+              },
+            },
+            {
+              id: "select_all",
+              name: "Select All",
+              type: "brand-inverse",
+              onclick: () => {
+                handleCheckAll(false);
+              },
+            },
+          ],
           // actions: [
           //   {
           //     id: "delete",
@@ -368,7 +403,7 @@
   }
 
   function areAllUnchecked() {
-    return datasChecked.every(item => item.checked === false);
+    return datasChecked.every((item) => item.checked === false);
   }
 
   const classStatusType = (type) => {
@@ -601,88 +636,101 @@
     }
   }
 
-  async function getDocuments(page) {
-    console.log("getDocuments", collectionId, page);
+  async function getDocuments() {
     let token = localStorage.getItem("token");
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-documents-by-collectionid", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: page,
-          page_size: pagination.pageSize,
-          collection_id: collectionId.toString(),
-          search: searchTerm,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        gettingDatas = false;
-        return;
-      }
-
-      console.log("ayam", response);
-
-      if (response.result.data.length > 0) {
-        configs = {
-          search: true,
-          searchHandler: handleSearch,
-          headers: "Files",
-          pagination: response.result.meta.pagination,
+    for (let i = 0; i < collectionId.length; i++) {
+      console.log("collectionId", collectionId[i]);
+      if (paginationDocs[collectionId[i]] === undefined) {
+        paginationDocs[collectionId[i]] = {
+          page: 1,
+          pageSize: 10,
+          pageCount: 0,
+          total: 0,
         };
-        let promises = response.result.data.map(async (document) => {
-          let link = await $call.getPage("client-dashboard", "document-collection-detail");
-          return {
-            id: document.id,
-            file_name: {
-              name: document.attributes.document_title,
-              filename: document.attributes.document.data.attributes.name,
-              type: "custom",
-              size:
-                document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
-            },
-            type: {
-              name: document.attributes.document_type,
-              type: "pill",
-              color: "brand",
-            },
-            upload_date: document.attributes.createdAt,
-            actions: {
-              objects: [
-                {
-                  // href: "/document/document_collection/detail?documentId=1&collectionId=1",
-                  href: `${link}` + "?documentId=" + document.id + "&collectionId=" + collectionId,
-                  name: "View",
-                },
-                // {
-                //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
-                //   // `${await $call.getPage("client-dashboard", "document-collection-detail")}` +
-                //   // "?documentId=" +
-                //   // document.id +
-                //   // "&collectionId=" +
-                //   // collectionId,
-                //   function: handleTitikTiga,
-                //   name: "Titik tiga",
-                // },
-              ],
-            },
+      }
+      if (token !== null) {
+        let response = await $call.call("client-dashboard", "get-library-documents", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: paginationDocs[collectionId[i]].page,
+            page_size: paginationDocs[collectionId[i]].pageSize,
+            parent_id: parseInt(collectionId[i]),
+            search: searchTerm,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          gettingDatas = false;
+          return;
+        }
+
+        console.log("ayam", response);
+
+        if (response.result.data.length > 0) {
+          configs = {
+            search: true,
+            searchHandler: handleSearch,
+            headers: "Files",
+            pagination: response.result.meta.pagination,
           };
-        });
+          let promises = response.result.data.map(async (document) => {
+            let link = await $call.getPage("client-dashboard", "document-library-detail");
+            return {
+              id: document.id,
+              file_name: {
+                name: document.attributes.name,
+                filename:
+                  document.attributes.name + "." + document.attributes.path.split(".").pop(),
+                type: "custom",
+                size:
+                  document.attributes.meta.file_size === null
+                    ? "Unknown"
+                    : document.attributes.meta.file_size,
+              },
+              type: {
+                name: document.attributes.meta.document_type,
+                type: "pill",
+                color: "brand",
+              },
+              upload_date: document.attributes.createdAt,
+              actions: {
+                objects: [
+                  {
+                    // href: "/document/document_collection/detail?documentId=1&collectionId=1",
+                    href: `${link}` + "?documentId=" + document.id,
+                    name: "View",
+                  },
+                  // {
+                  //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
+                  //   // `${await $call.getPage("client-dashboard", "document-collection-detail")}` +
+                  //   // "?documentId=" +
+                  //   // document.id +
+                  //   // "&collectionId=" +
+                  //   // collectionId,
+                  //   function: handleTitikTiga,
+                  //   name: "Titik tiga",
+                  // },
+                ],
+              },
+            };
+          });
 
-        datas = await Promise.all(promises);
-        datasChecked = datas.map((data) => {
-          return { id: data.id, checked: false };
-        });
+          datas = await Promise.all(promises);
+          // datasChecked = datas.map((data) => {
+          //   return { id: data.id, checked: false };
+          // });
 
-        gettingDatas = false;
-      } else {
-        datas = [];
-        datasChecked = [];
-        gettingDatas = false;
+          gettingDatas = false;
+        } else {
+          datas = [];
+          datasChecked = [];
+          gettingDatas = false;
+        }
       }
     }
   }
@@ -715,9 +763,16 @@
 
         let urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + attributes.bot_id;
 
-        collectionId = attributes.collection_id;
-        await getCollection();
-        await getDocuments(1);
+        // collectionId = attributes.collection_id;
+        collectionsChecked = attributes.collection_id.split(",").map(Number);
+        collectionId = collectionsChecked;
+        selectedCollection = attributes?.library_id;
+        // datasChecked = collections.map((data) => {
+        //   return { id: data, checked: true };
+        // });
+
+        // await getCollection();
+        await getDocuments();
 
         users = {
           botName: attributes.bot_name,
@@ -909,7 +964,7 @@
     if (edit === "true") onEdit = true;
     triggerLoading(true);
     getCollections();
-    dummyGetCollections();
+    // dummyGetCollections();
 
     const unsubscribe = page.subscribe(async ($page) => {
       botId = $page.url.searchParams.get("botId");
@@ -927,7 +982,22 @@
     return () => unsubscribe();
   });
 
-  $: disabledButton = users.botName === "" || users.username === "";
+  $effect(() => {
+    if (selectedCollection) {
+      if (typeof selectedCollection === "number" && selectedCollection !== oldSelectedCollection) {
+        oldSelectedCollection = selectedCollection;
+        dummyGetCollections(selectedCollection);
+      }
+    }
+  });
+
+  // $: disabledButton = users.botName === "" || users.username === "";
+
+  $effect(() => {
+    if (disabledButton) {
+      disabledButton = users.botName === "" || users.username === "";
+    }
+  });
 </script>
 
 <!-- <svelte:head>
@@ -949,10 +1019,20 @@
           />
           <div class="ml-2 md:ml-4">
             <div class="flex items-center gap-2">
-              <Typography preset="Display sm/Semibold" text={users.botName} color="primary" propClass="fluid-xl" />
+              <Typography
+                preset="Display sm/Semibold"
+                text={users.botName}
+                color="primary"
+                propClass="fluid-xl"
+              />
               <Badge type={classStatusType(users.deployedPlatform)} text={users.deployedPlatform} />
             </div>
-            <Typography preset="Text md/Medium" text={formattedDate} color="quarterary" propClass="fluid-sm md:fluid-base" />
+            <Typography
+              preset="Text md/Medium"
+              text={formattedDate}
+              color="quarterary"
+              propClass="fluid-sm md:fluid-base"
+            />
           </div>
         </div>
         <div class="flex gap-2">
@@ -996,7 +1076,9 @@
                 class="focus-within:ring-0 !p-0"
                 color="none"
                 size="xs"
-                ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
+                ><DotsVerticalIcon
+                  class="text-fg-quinary-light dark:text-fg-quinary-dark"
+                /></Button
               >
               <div
                 class={`z-10 ${dropdownOpen ? "absolute top-0 right-6" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
@@ -1005,13 +1087,13 @@
                   <button
                     class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                     onclick={() => {
-                      onEdit = true, (dropdownOpen = !dropdownOpen);
+                      (onEdit = true), (dropdownOpen = !dropdownOpen);
                     }}>{$_("edit")}</button
                   >
                   <button
                     class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                     onclick={() => {
-                      modalDelete = true, (dropdownOpen = !dropdownOpen);
+                      (modalDelete = true), (dropdownOpen = !dropdownOpen);
                     }}>{$_("delete")}</button
                   >
                 </ul>
@@ -1081,6 +1163,7 @@
             <div class="flex items-center gap-4">
               <Button
                 on:click={() => (modalOpen = true)}
+                disabled={!onEdit}
                 color="light"
                 class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
               >
@@ -1467,21 +1550,41 @@
   <Modal bind:open={modalOpen} outsideclose>
     <svelte:fragment slot="header">
       <div class="flex gap-4 me-6 grow w-full">
-        <div class="grow pt-2 border-t-4 border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark">
-          <Typography preset="Text md/Bold" text={$_("chooseDocumentsLibrary")} color={!isSelectedLibrary ? "brand-secondary" : "secondary"} />
-          <Typography preset="Text sm/Regular" text={$_("documentLibraryAsThePrimarySource")} color={!isSelectedLibrary ? "brand-tertiary" : "tertiary"} />
+        <div
+          class="grow pt-2 border-t-4 border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark"
+        >
+          <Typography
+            preset="Text md/Bold"
+            text={$_("chooseDocumentsLibrary")}
+            color={!isSelectedLibrary ? "brand-secondary" : "secondary"}
+          />
+          <Typography
+            preset="Text sm/Regular"
+            text={$_("documentLibraryAsThePrimarySource")}
+            color={!isSelectedLibrary ? "brand-tertiary" : "tertiary"}
+          />
         </div>
-  
-        <div class={`grow pt-2 border-t-4 ${isSelectedLibrary ? "border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark" : "border-utility-gray-200-light dark:border-utility-gray-200-dark"}`}>
-          <Typography preset="Text md/Bold" text={$_("chooseWhichCollections")} color={isSelectedLibrary ? "brand-secondary" : "secondary"} />
-          <Typography preset="Text sm/Regular" text={$_("chooseTheOneYouWantToInclude")} color={isSelectedLibrary ? "brand-tertiary" : "tertiary"} />
+
+        <div
+          class={`grow pt-2 border-t-4 ${isSelectedLibrary ? "border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark" : "border-utility-gray-200-light dark:border-utility-gray-200-dark"}`}
+        >
+          <Typography
+            preset="Text md/Bold"
+            text={$_("chooseWhichCollections")}
+            color={isSelectedLibrary ? "brand-secondary" : "secondary"}
+          />
+          <Typography
+            preset="Text sm/Regular"
+            text={$_("chooseTheOneYouWantToInclude")}
+            color={isSelectedLibrary ? "brand-tertiary" : "tertiary"}
+          />
         </div>
       </div>
     </svelte:fragment>
     {#if !isSelectedLibrary}
       <div class="flex flex-col justify-center gap-4">
         <Typography preset="Text sm/Medium" text={$_("latestDocumentLibrary")} color="quaterary" />
-  
+
         <SelectedCard
           selectionData={collections}
           bind:selectedData={selectedCollection}
@@ -1489,45 +1592,51 @@
           isRadio
         />
       </div>
-    {:else}
-      {#if allData.length > 0 || searchTerm !== ""}
-        {#if !gettingDatas}
-          <DataTableListCollection
-            bind:datas={allData}
-            bind:datasChecked
-            bind:configs={configsChecked}
-            bind:gettingDatas
-            bind:next
-            bind:previous
-            bind:handleCheckAll
-            bind:handleCheck
-          />
-        {:else}
-          <StateCard
-            illustration={IllustrationProgress}
-            description={$_("fetchingDataPleaseWait")}
-          />
-        {/if}
-      {:else if gettingDatas}
-        <StateCard
-          illustration={IllustrationProgress}
-          description={$_("fetchingDataPleaseWait")}
+    {:else if allData.length > 0 || searchTerm !== ""}
+      {#if !gettingDatas}
+        <DataTableListCollection
+          bind:datas={allData}
+          bind:datasChecked
+          bind:configs={configsChecked}
+          bind:gettingDatas
+          bind:next
+          bind:previous
+          bind:handleCheckAll
+          bind:handleCheck
         />
       {:else}
-        <StateCard
-          illustration={IllustrationEmpty}
-          description={$_("youDontHaveAnyDataYet")}
-        />
+        <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
       {/if}
+    {:else if gettingDatas}
+      <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+    {:else}
+      <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
     {/if}
     <svelte:fragment slot="footer">
       {#if !isSelectedLibrary}
-      <Button on:click={() => {isSelectedLibrary = true}} class="w-full" disabled={!selectedCollection}>{$_("next")}</Button>
+        <Button
+          on:click={() => {
+            isSelectedLibrary = true;
+          }}
+          class="w-full"
+          disabled={!selectedCollection}>{$_("next")}</Button
+        >
       {:else}
-      <div class="flex gap-4 w-full">
-        <button onclick={() => {isSelectedLibrary = false}} class="px-5">{$_("goBack")}</button>
-        <Button on:click={() => {}} class="grow" disabled={areAllUnchecked()}>{$_("finish")}</Button>
-      </div>
+        <div class="flex gap-4 w-full">
+          <button
+            onclick={() => {
+              isSelectedLibrary = false;
+            }}
+            class="px-5">{$_("goBack")}</button
+          >
+          <Button
+            on:click={() => {
+              modalOpen = false;
+            }}
+            class="grow"
+            disabled={areAllUnchecked()}>{$_("finish")}</Button
+          >
+        </div>
       {/if}
     </svelte:fragment>
   </Modal>
