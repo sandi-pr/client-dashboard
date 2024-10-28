@@ -2292,6 +2292,10 @@
                 {
                     "name": "parent_id",
                     "type": "number"
+                },
+                {
+                    "name": "search",
+                    "type": "string"
                 }
             ]
         },
@@ -4520,6 +4524,10 @@
                 {
                     "name": "need_auth",
                     "type": "boolean"
+                },
+                {
+                    "name": "collection_id",
+                    "type": "string"
                 }
             ]
         },

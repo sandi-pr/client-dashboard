@@ -689,6 +689,12 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		need_auth = false
 	}
 
+	collection_id, ok := ctx.Params.GetString("collection_id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters collection_id")
+	}
+
 	var background_id int64
 
 	if backgroundStr != "" {
@@ -765,6 +771,7 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"deployed_platform": deployed_platform,
 		"username":          username,
 		"need_auth":         need_auth,
+		"collection_id":     collection_id,
 	}
 
 	if backgroundStr != "" {

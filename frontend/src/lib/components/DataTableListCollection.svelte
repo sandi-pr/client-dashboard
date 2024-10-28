@@ -156,6 +156,8 @@
   const handleSearch = (event) => {
     if (configs?.isCategories) {
       configs?.searchHandler(event.target.value, configs?.headers);
+    } else if (configs?.collectionId) {
+      configs?.searchHandler(event.target.value, configs?.collectionId);
     } else {
       configs?.searchHandler(event.target.value);
     }
@@ -358,6 +360,8 @@
                 onclick={() => {
                   if (configs?.isCategories) {
                     handleCheckAll(configs?.headers, allChecked);
+                  } else if (configs?.collectionId) {
+                    handleCheckAll(configs?.collectionId, allChecked);
                   } else {
                     handleCheckAll(allChecked);
                   }
@@ -392,6 +396,8 @@
                     onclick={() => {
                       if (configs?.isCategories) {
                         handleCheck(configs?.headers, data.id);
+                      } else if (configs?.collectionId) {
+                        handleCheck(configs?.collectionId, allChecked);
                       } else {
                         handleCheck(data.id);
                       }
@@ -528,7 +534,11 @@
               <div class="flex justify-end">
                 <Button
                   disabled={configs.pagination.page === 1}
-                  on:click={configs?.isCategories ? previous(configs?.headers) : previous}
+                  on:click={configs?.isCategories
+                    ? configs?.collectionId
+                      ? previous(configs?.collectionId)
+                      : previous(configs?.headers)
+                    : previous}
                   color="light"
                   class="fluid-sm gap-1 md:gap-2 rounded-l-lg border-0 rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
                 >
@@ -540,7 +550,11 @@
                 <Button
                   disabled={configs.pagination.page * configs.pagination.pageSize >=
                     configs.pagination.total}
-                  on:click={configs?.isCategories ? next(configs?.headers) : next}
+                  on:click={configs?.isCategories
+                    ? next(configs?.headers)
+                    : configs?.collectionId
+                      ? next(configs?.collectionId)
+                      : next}
                   color="light"
                   class="fluid-sm gap-1 md:gap-2 rounded-r-lg border-0 rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
                 >

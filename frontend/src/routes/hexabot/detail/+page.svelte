@@ -94,6 +94,7 @@
   let isSelectedLibrary = $state(false);
   let allData = $state([]);
   let search = $state(false);
+  let searchCategory = $state(false);
   let pages = $state(1);
   let disabledButton = $state(false);
   let collectionsChecked = $state([]);
@@ -676,12 +677,6 @@
         console.log("ayam", response);
 
         if (response.result.data.length > 0) {
-          configs = {
-            search: true,
-            searchHandler: handleSearch,
-            headers: "Files",
-            pagination: response.result.meta.pagination,
-          };
           let promises = response.result.data.map(async (document) => {
             let link = await $call.getPage("client-dashboard", "document-library-detail");
             return {
@@ -705,112 +700,144 @@
               actions: {
                 objects: [
                   {
-                    // href: "/document/document_collection/detail?documentId=1&collectionId=1",
                     href: `${link}` + "?documentId=" + document.id,
                     name: "View",
                   },
-                  // {
-                  //   // href: "localhost:5173/client-dashboard/document-collection-detail?documentId=1&collectionId=1",
-                  //   // `${await $call.getPage("client-dashboard", "document-collection-detail")}` +
-                  //   // "?documentId=" +
-                  //   // document.id +
-                  //   // "&collectionId=" +
-                  //   // collectionId,
-                  //   function: handleTitikTiga,
-                  //   name: "Titik tiga",
-                  // },
                 ],
               },
             };
           });
 
-          datas = await Promise.all(promises);
-          // datasChecked = datas.map((data) => {
-          //   return { id: data.id, checked: false };
-          // });
-
-          let category = 
-
-          configsCategories = {
-            ...configsCategories,
-            [category]: {
-              search: true,
-              searchHandler: handleSearchCategory,
-              headers: category,
-              pagination: datasTmp[i].meta.pagination,
-              isCategories: true,
-              actions: [
-                {
-                  id: "delete",
-                  icon: "trash",
-                  type: "error",
-                  disabled: datasCategoriesChecked[category].find((data) => data.checked)
-                    ? false
-                    : true,
-                  onclick: () => {
-                    if (datasCategoriesChecked[category].find((data) => data.checked)) {
-                      deleteCategory = true;
-                      selectCategories = category;
-                      popupModal = true;
-                    }
-                  },
-                },
-                {
-                  id: "add_new",
-                  // name: "Add New",
-                  icon: "plus",
-                  type: "brand-inverse",
-                  onclick: () => {
-                    selectTypeCollection("Documents");
-                    addDocumentsModal = true;
-                    addOtherCategory = false;
-                    tmpCategories = [];
-                    for (let i = 0; i < categories.length; i++) {
-                      if (categories[i]?.other === true) {
-                        categories = categories.slice(0, i).concat(categories.slice(i + 1));
-                        break;
-                      }
-                    }
-                    tmpCategories = category;
-                  },
-                },
-                {
-                  id: "ai",
-                  icon: "ai",
-                  name: "ai",
-                  type: "brand",
-                  disabled: datasTmp[i].data.length === 0,
-                  onclick: () => {
-                    selectCollection({
-                      id: collectionId,
-                      name: collection.name,
-                      description: collection.description,
-                      totalDocuments: datas.length,
-                    });
-                  },
-                },
-                {
-                  id: "expand",
-                  icon: "chevron",
-                  type: "info",
-                },
-                {
-                  id: "dots-vertical",
-                  icon: "dots-vertical",
-                  type: "info",
-                  dropdown: "more",
-                },
-              ],
-            },
-          };
-
-          gettingDatas = false;
+          datas = [...datas, { [collectionId[i]]: await Promise.all(promises) }];
         } else {
-          datas = [];
-          datasChecked = [];
-          gettingDatas = false;
+          datas = [...datas, { [collectionId[i]]: [] }];
         }
+
+        datasCategoriesChecked = {
+          ...datasCategoriesChecked,
+          id: datas.map((data) => {
+            return { id: data.id, checked: false };
+          }),
+        };
+
+        searchTermCategory = {
+          ...searchTermCategory,
+          id: "",
+        };
+
+        let response2 = await $call.call("client-dashboard", "get-library-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: collectionId[i].toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          gettingDatas = false;
+          return;
+        }
+
+        console.log("cekkkkk", response2);
+
+        configsCategories = {
+          ...configsCategories,
+          [collectionId[i]]: {
+            search: true,
+            searchHandler: handleSearchCategory,
+            headers: "Files",
+            name: response2.result.attributes.name,
+            pagination: response.result.meta.pagination,
+            // isCategories: true,
+            collectionId: collectionId[i],
+            actions: [
+              {
+                id: "expand",
+                icon: "chevron",
+                type: "info",
+              },
+            ],
+          },
+        };
       }
+    }
+    gettingDatas = false;
+  }
+
+  async function getDocument(id) {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-library-documents", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: paginationDocs[id].page,
+          page_size: paginationDocs[id].pageSize,
+          parent_id: parseInt(id),
+          search: searchTermCategory[id],
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        gettingDatas = false;
+        return;
+      }
+
+      console.log("ayam", response);
+
+      let promises = response.result.data.map(async (document) => {
+        let link = await $call.getPage("client-dashboard", "document-library-detail");
+        return {
+          id: document.id,
+          file_name: {
+            name: document.attributes.name,
+            filename: document.attributes.name + "." + document.attributes.path.split(".").pop(),
+            type: "custom",
+            size:
+              document.attributes.meta.file_size === null
+                ? "Unknown"
+                : document.attributes.meta.file_size,
+          },
+          type: {
+            name: document.attributes.meta.document_type,
+            type: "pill",
+            color: "brand",
+          },
+          upload_date: document.attributes.createdAt,
+          actions: {
+            objects: [
+              {
+                href: `${link}` + "?documentId=" + document.id,
+                name: "View",
+              },
+            ],
+          },
+        };
+      });
+
+      datas = await Promise.all(
+        datas.map(async (data) => {
+          if (parseInt(Object.keys(data)[0]) === id) {
+            return { [id]: await Promise.all(promises) };
+          } else {
+            return data;
+          }
+        }),
+      );
+
+      // datasChecked = datas.map((data) => {
+      //   return { id: data.id, checked: false };
+      // });
+
+      configsCategories[id].pagination = response.result.meta.pagination;
     }
   }
 
@@ -845,6 +872,7 @@
         // collectionId = attributes.collection_id;
         collectionsChecked = attributes.collection_id.split(",").map(Number);
         collectionId = collectionsChecked;
+        console.log("dihh", attributes.collection_id);
         selectedCollection = attributes?.library_id;
         // datasChecked = collections.map((data) => {
         //   return { id: data, checked: true };
@@ -993,6 +1021,7 @@
             deployed_platform: users.deployedPlatform,
             username: users.username,
             need_auth: users.needAuth,
+            collection_id: datasChecked.map((item) => item.id).join(","),
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -1039,11 +1068,14 @@
     }
   }
 
+  async function getDocumentsByCategory() {}
+
   const handleSearchCategory = async (value, category) => {
+    searchCategory = true;
     configsCategories[category].pagination.page = 1;
     searchTermCategory = { ...searchTermCategory, [category]: value };
 
-    await getDocumentsByCategory(category);
+    await getDocument(category);
   };
 
   async function nextByCategory(category) {
@@ -1584,15 +1616,15 @@
           <div class="w-full md:w-1/4 mt-6">
             <Typography
               preset="Text md/Semibold"
-              text={collection.name}
+              text={configsCategories[collectionId[index]].name}
               color="secondary"
               propClass=""
             />
             <button
               onclick={async function () {
                 goto(
-                  (await $call.getPage("client-dashboard", "document-collection-list-document")) +
-                    `?collectionId=${collectionId}`,
+                  (await $call.getPage("client-dashboard", "document-library-documents")) +
+                    `?collectionId=${collectionId[index]}`,
                 );
                 return;
               }}
@@ -1602,29 +1634,22 @@
             </button>
           </div>
           <div class="w-full md:w-3/4">
-            {#if data.length > 0}
+            {#if data[collectionId[index]].length > 0 || searchCategory}
               <!-- <DataTableListCollection bind:datas bind:configs bind:next bind:previous /> -->
-                <DataTableListCollection
-                  bind:datas={datas}
-                  bind:datasChecked={datasCategoriesChecked[data.category]}
-                  bind:configs={configsCategories[data.category]}
-                  bind:gettingDatas
-                  bind:next={nextByCategory}
-                  bind:previous={previousByCategory}
-                  bind:handleCheckAll={handleCheckAllCategories}
-                  bind:handleCheck={handleCheckCategories}
-                />
+              <DataTableListCollection
+                bind:datas={data[collectionId[index]]}
+                bind:datasChecked={datasCategoriesChecked[collectionId[index]]}
+                bind:configs={configsCategories[collectionId[index]]}
+                bind:gettingDatas
+                bind:next={nextByCategory}
+                bind:previous={previousByCategory}
+                bind:handleCheckAll={handleCheckAllCategories}
+                bind:handleCheck={handleCheckCategories}
+              />
             {:else if gettingDatas}
               <StateCard
                 illustration={IllustrationProgress}
                 description={$_("fetchingDataPleaseWait")}
-              />
-            {:else}
-              <StateCard
-                illustration={IllustrationEmpty}
-                description={$_("youDontHaveAnyDataYet")}
-                actionText={$_("goToDocumentCollection")}
-                funcButton={() => {}}
               />
             {/if}
           </div>
