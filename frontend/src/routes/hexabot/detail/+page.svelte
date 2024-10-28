@@ -97,6 +97,10 @@
   let pages = $state(1);
   let disabledButton = $state(false);
   let collectionsChecked = $state([]);
+  let selectCategories = $state(null);
+  let datasCategoriesChecked = $state({});
+  let configsCategories = $state({});
+  let searchTermCategory = $state({});
 
   let tmpThemeColor = $state("");
   let tmpOverlayColor = $state("");
@@ -725,6 +729,81 @@
           //   return { id: data.id, checked: false };
           // });
 
+          let category = 
+
+          configsCategories = {
+            ...configsCategories,
+            [category]: {
+              search: true,
+              searchHandler: handleSearchCategory,
+              headers: category,
+              pagination: datasTmp[i].meta.pagination,
+              isCategories: true,
+              actions: [
+                {
+                  id: "delete",
+                  icon: "trash",
+                  type: "error",
+                  disabled: datasCategoriesChecked[category].find((data) => data.checked)
+                    ? false
+                    : true,
+                  onclick: () => {
+                    if (datasCategoriesChecked[category].find((data) => data.checked)) {
+                      deleteCategory = true;
+                      selectCategories = category;
+                      popupModal = true;
+                    }
+                  },
+                },
+                {
+                  id: "add_new",
+                  // name: "Add New",
+                  icon: "plus",
+                  type: "brand-inverse",
+                  onclick: () => {
+                    selectTypeCollection("Documents");
+                    addDocumentsModal = true;
+                    addOtherCategory = false;
+                    tmpCategories = [];
+                    for (let i = 0; i < categories.length; i++) {
+                      if (categories[i]?.other === true) {
+                        categories = categories.slice(0, i).concat(categories.slice(i + 1));
+                        break;
+                      }
+                    }
+                    tmpCategories = category;
+                  },
+                },
+                {
+                  id: "ai",
+                  icon: "ai",
+                  name: "ai",
+                  type: "brand",
+                  disabled: datasTmp[i].data.length === 0,
+                  onclick: () => {
+                    selectCollection({
+                      id: collectionId,
+                      name: collection.name,
+                      description: collection.description,
+                      totalDocuments: datas.length,
+                    });
+                  },
+                },
+                {
+                  id: "expand",
+                  icon: "chevron",
+                  type: "info",
+                },
+                {
+                  id: "dots-vertical",
+                  icon: "dots-vertical",
+                  type: "info",
+                  dropdown: "more",
+                },
+              ],
+            },
+          };
+
           gettingDatas = false;
         } else {
           datas = [];
@@ -958,6 +1037,76 @@
         console.log(error);
       }
     }
+  }
+
+  const handleSearchCategory = async (value, category) => {
+    configsCategories[category].pagination.page = 1;
+    searchTermCategory = { ...searchTermCategory, [category]: value };
+
+    await getDocumentsByCategory(category);
+  };
+
+  async function nextByCategory(category) {
+    if (
+      configsCategories[category].pagination.page >=
+      configsCategories[category].pagination.pageCount
+    )
+      return;
+    configsCategories[category].pagination.page++;
+    getDocumentsByCategory(category);
+  }
+
+  async function previousByCategory(category) {
+    if (configsCategories[category].pagination.page <= 1) return;
+    configsCategories[category].pagination.page--;
+    getDocumentsByCategory(category);
+  }
+
+  async function handleCheckAllCategories(category, allChecked) {
+    configsCategories[category].actions.find((config) => {
+      if (config.id === "delete") {
+        config.disabled = allChecked
+          ? datasCategoriesChecked[category].find((data) => data.checked)
+          : false;
+      }
+    });
+    datasCategoriesChecked[category] = datasCategoriesChecked[category].map((data) => {
+      return { id: data.id, checked: allChecked ? false : true };
+    });
+  }
+
+  async function handleCheckCategories(category, id) {
+    let datasCategoriesCheckedCopy = datasCategoriesChecked[category];
+    datasCategoriesCheckedCopy = datasCategoriesCheckedCopy.map((data) => {
+      if (data.id === id) {
+        if (!data.checked) {
+          if (
+            configsCategories[category]?.actions &&
+            configsCategories[category].headers === category
+          ) {
+            configsCategories[category].actions.find((config) => {
+              if (config.id === "delete") {
+                config.disabled = datasCategoriesChecked[category].find((data) => data.checked);
+              }
+            });
+          }
+        } else {
+          if (
+            configsCategories[category]?.actions &&
+            configsCategories[category].headers === category
+          ) {
+            configsCategories[category].actions.find((config) => {
+              if (config.id === "delete") {
+                config.disabled = true;
+              }
+            });
+          }
+        }
+        return { id: data.id, checked: !data.checked };
+      }
+      return data;
+    });
+    datasCategoriesChecked[category] = datasCategoriesCheckedCopy;
   }
 
   onMount(() => {
@@ -1430,45 +1579,57 @@
         </div> -->
       </div>
     {:else if tabDatas.selected === "Data"}
-      <div class="md:flex">
-        <div class="w-full md:w-1/4 mt-6">
-          <Typography
-            preset="Text md/Semibold"
-            text={collection.name}
-            color="secondary"
-            propClass=""
-          />
-          <button
-            onclick={async function () {
-              goto(
-                (await $call.getPage("client-dashboard", "document-collection-list-document")) +
-                  `?collectionId=${collectionId}`,
-              );
-              return;
-            }}
-            class="text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
-          >
-            {$_("goToDocumentCollection")}
-          </button>
-        </div>
-        <div class="w-full md:w-3/4">
-          {#if datas.length > 0}
-            <DataTableListCollection bind:datas bind:configs bind:next bind:previous />
-          {:else if gettingDatas}
-            <StateCard
-              illustration={IllustrationProgress}
-              description={$_("fetchingDataPleaseWait")}
+      {#each datas as data, index}
+        <div class="md:flex">
+          <div class="w-full md:w-1/4 mt-6">
+            <Typography
+              preset="Text md/Semibold"
+              text={collection.name}
+              color="secondary"
+              propClass=""
             />
-          {:else}
-            <StateCard
-              illustration={IllustrationEmpty}
-              description={$_("youDontHaveAnyDataYet")}
-              actionText={$_("goToDocumentCollection")}
-              funcButton={() => {}}
-            />
-          {/if}
+            <button
+              onclick={async function () {
+                goto(
+                  (await $call.getPage("client-dashboard", "document-collection-list-document")) +
+                    `?collectionId=${collectionId}`,
+                );
+                return;
+              }}
+              class="text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
+            >
+              {$_("goToDocumentCollection")}
+            </button>
+          </div>
+          <div class="w-full md:w-3/4">
+            {#if data.length > 0}
+              <!-- <DataTableListCollection bind:datas bind:configs bind:next bind:previous /> -->
+                <DataTableListCollection
+                  bind:datas={datas}
+                  bind:datasChecked={datasCategoriesChecked[data.category]}
+                  bind:configs={configsCategories[data.category]}
+                  bind:gettingDatas
+                  bind:next={nextByCategory}
+                  bind:previous={previousByCategory}
+                  bind:handleCheckAll={handleCheckAllCategories}
+                  bind:handleCheck={handleCheckCategories}
+                />
+            {:else if gettingDatas}
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            {:else}
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+                actionText={$_("goToDocumentCollection")}
+                funcButton={() => {}}
+              />
+            {/if}
+          </div>
         </div>
-      </div>
+      {/each}
     {:else if tabDatas.selected === "Widget Embed"}
       <div class="mt-6 space-y-6">
         <div class="md:flex">
