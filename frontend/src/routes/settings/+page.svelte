@@ -22,9 +22,20 @@
   import MarketIcon from "$lib/icon/building-02.svelte";
   import OfficeIcon from "$lib/icon/building-06.svelte";
   import BankIcon from "$lib/icon/bank.svelte";
+  import BanksIcon from "$lib/icon/banks.svelte";
   import UserIcon from "$lib/icon/user-03.svelte";
   import SignalIcon from "$lib/icon/signal-01.svelte";
   import OilGas from "$lib/icon/oil-gas.svelte";
+  import BoxesIcon from "$lib/icon/boxes.svelte";
+  import EducationIcon from "$lib/icon/education.svelte";
+  import FinancialServicesIcon from "$lib/icon/financial-services.svelte";
+  import HealthCareIcon from "$lib/icon/health-care.svelte";
+  import HospitalityIcon from "$lib/icon/hospitality.svelte";
+  import ManufactureIcon from "$lib/icon/manufacture.svelte";
+  import RealEstateIcon from "$lib/icon/real-estate.svelte";
+  import RetailIcon from "$lib/icon/retail.svelte";
+  import TechIcon from "$lib/icon/tech.svelte";
+  import TelecomIcon from "$lib/icon/telecom.svelte";
   import SlidersIcon from "$lib/icon/sliders-04.svelte";
   import { datas, informationFormDatas, configs } from "./dummy";
   import { setPrimaryColor } from "$lib/utils/colorTheme";
@@ -101,7 +112,7 @@
     },
     {
       id: 3,
-      icon: BankIcon,
+      icon: BanksIcon,
       name: "Large Enterprises  (>500 employees)",
       desc: "Maximize your impact with streamlined operations and resource management.",
     },
@@ -116,18 +127,63 @@
   let industryType = [
     {
       id: 1,
-      icon: SignalIcon,
+      icon: TechIcon,
       name: "Tech",
     },
     {
       id: 2,
+      icon: BankIcon,
+      name: "Bank",
+    },
+    {
+      id: 3,
       icon: OilGas,
       name: "Oil & Gas",
     },
     {
-      id: 3,
-      icon: SlidersIcon,
-      name: "Other",
+      id: 4,
+      icon: RetailIcon,
+      name: "Retail",
+    },
+    {
+      id: 5,
+      icon: HealthCareIcon,
+      name: "Healthcare",
+    },
+    {
+      id: 6,
+      icon: EducationIcon,
+      name: "Education",
+    },
+    {
+      id: 7,
+      icon: FinancialServicesIcon,
+      name: "Financial Services",
+    },
+    {
+      id: 8,
+      icon: HospitalityIcon,
+      name: "Hospitality",
+    },
+    {
+      id: 9,
+      icon: ManufactureIcon,
+      name: "Manufacturing",
+    },
+    {
+      id: 10,
+      icon: BoxesIcon,
+      name: "Logistics",
+    },
+    {
+      id: 11,
+      icon: TelecomIcon,
+      name: "Telecommunication",
+    },
+    {
+      id: 12,
+      icon: RealEstateIcon,
+      name: "Real Estate",
     },
   ];
 
@@ -728,6 +784,7 @@
             isRadio
             widthFlex="w-max"
           />
+          <div class="pb-8"></div>
         </div>
       {:else if tabDatas.selected === "Theme"}
         <div class="mx-4 mt-4">

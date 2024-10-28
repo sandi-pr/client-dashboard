@@ -13,6 +13,7 @@
     spacing = "",
     widgetIndicator,
     disabled = false,
+    flexWrap = false,
   }: {
     selectionData: any;
     selectedData?: any;
@@ -23,6 +24,7 @@
     spacing?: any;
     widgetIndicator?: any;
     disabled?: any;
+    flexWrap?: any;
   } = $props();
   const selectData = (id: any) => {
     selectedData = id;
@@ -31,7 +33,7 @@
 </script>
 
 <div
-  class={`${isFlex ? "flex !justify-start" : `grid grid-cols-${numGrid - 1} md:grid-cols-${numGrid}`} w-full gap-4 items-center justify-center`}
+  class={`${isFlex ? "flex flex-wrap !justify-start" : `grid grid-cols-${numGrid - 1} md:grid-cols-${numGrid}`} w-full gap-4 items-center justify-center`}
 >
   {#each selectionData as data, i}
     <Card
@@ -46,13 +48,12 @@
     >
       <div class="flex items-center gap-4">
         {#if data.icon}
-          <svelte:component
-            this={data.icon}
-            svgClass={`w-7 h-7 ${selectedData === data.id ? "text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark" : "text-utility-gray-500-light dark:text-utility-gray-500-dark"}`}
+          <data.icon
+            svgClass={`w-7 h-7 ${selectedData === data.id ? "text-fg-brand-primary-light dark:text-fg-brand-primary-dark" : "text-utility-gray-500-light dark:text-utility-gray-500-dark"}`}
           />
         {/if}
         {#if widgetIndicator}
-          <svelte:component this={widgetIndicator} color={data.value} size="lg" />
+          <widgetIndicator color={data.value} size="lg"> </widgetIndicator>
         {/if}
         <div class="flex-col">
           <div class="flex flex-col gap-[2px]">
