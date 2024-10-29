@@ -524,6 +524,8 @@
       sessionStorage.setItem("industry_id", selectedIndustryType);
 
       triggerToast("updated");
+
+      window.location.reload();
     }
   }
 

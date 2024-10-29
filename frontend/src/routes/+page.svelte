@@ -12,7 +12,15 @@ All Rights Reserved
 
 <script>
   import { CR3Call } from "hexacomponents-svelte";
-  import { Card, Typography, SectionHeader, triggerLoading, ChartCard, ActionCard, industryData } from "$lib";
+  import {
+    Card,
+    Typography,
+    SectionHeader,
+    triggerLoading,
+    ChartCard,
+    ActionCard,
+    industryData,
+  } from "$lib";
   import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
   import { Alert, CloseButton, P } from "flowbite-svelte";
@@ -109,16 +117,61 @@ All Rights Reserved
 
   async function getIndustryPoints(industryId) {
     // Find the industry object by id
+    if (typeof industryId === "string") {
+      industryId = parseInt(industryId);
+    }
     const industry = industryData.find((item) => item.id === industryId);
     if (!industry) return [];
 
-    // Format each point for the docAiCard
-    return industry.points.map((point) => ({
+    let industryLibrary = industry.points.map((point) => ({
+      actionName: point.title,
+      desc: point.desc,
+    }));
+
+    // return industry.points.map((point) => ({
+    //   href: "",
+    //   icon: "bookClosed",
+    //   actionName: point.title,
+    //   desc: `desc ${point.title}`,
+    // }));
+
+    let initIndustryLibrary = industry.points.map((point) => ({
       href: "",
       icon: "bookClosed",
       actionName: point.title,
       desc: `desc ${point.title}`,
     }));
+
+    for (const point of industryLibrary) {
+      let token = localStorage.getItem("token");
+      if (token) {
+        const response = await $call.call("client-dashboard", "find-create-library-by-name", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            library_name: point.actionName,
+            description: point.desc,
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        let link =
+          (await $call.getPage("client-dashboard", "document-library-collections")) +
+          "?libraryId=" +
+          response.result.id;
+
+        initIndustryLibrary.find((item) => item.actionName === point.actionName).href = link;
+      }
+    }
+
+    return initIndustryLibrary;
   }
 
   async function getActionItems() {
@@ -129,7 +182,7 @@ All Rights Reserved
         actionName: "Document library",
         desc: "desc Document library",
       },
-      ...await getIndustryPoints(selectedIndustryType),
+      ...(await getIndustryPoints(sessionStorage.getItem("industry_id"))),
     ];
   }
 
@@ -709,12 +762,12 @@ All Rights Reserved
     }
   };
 
-  onMount( async () => {
+  onMount(async () => {
     // triggerLoading(true);
     // setTimeout(async () => {
     //   triggerLoading(false);
     // }, 3000);
-    await getCompanyType();
+    // await getCompanyType();
     getActionItems();
     getCountPerModulePerMonth();
     getFristTime();

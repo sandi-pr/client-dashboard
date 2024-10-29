@@ -26,6 +26,7 @@ All Rights Reserved
     triggerSelectCollection,
     triggerReload,
     triggerToast,
+    industryData,
   } from "$lib";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -172,6 +173,7 @@ All Rights Reserved
       //     },
       //   ],
       // },
+      await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
       {
         icon: "stars",
         name: "aiManagement",
@@ -465,6 +467,60 @@ All Rights Reserved
     }
   }
 
+  async function checkLibrariesIndustry(industryId) {
+    const industry = industryData.find((item) => item.id === parseInt(industryId));
+    if (!industry) return;
+
+    let industryLibrary = industry.points.map((point) => ({
+      name: point.title,
+      desc: point.desc,
+    }));
+
+    let initIndustryLibrary = industry.points.map((point) => ({
+      href: "",
+      name: point.title,
+    }));
+
+    for (const point of industryLibrary) {
+      let token = localStorage.getItem("token");
+      if (token) {
+        const response = await call.call("client-dashboard", "find-create-library-by-name", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            library_name: point.name,
+            description: point.desc,
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        let link =
+          (await call.getPage("client-dashboard", "document-library-collections")) +
+          "?libraryId=" +
+          response.result.id;
+
+        initIndustryLibrary.find((item) => item.name === point.name).href = link;
+      }
+    }
+
+    const useCase = {
+      icon: "stars",
+      name: "documentAi",
+      children: [...initIndustryLibrary],
+    };
+
+    console.log("usecase", useCase);
+
+    return useCase;
+  }
+
   async function getIndustryId() {
     let token = localStorage.getItem("token");
     if (token) {
@@ -486,6 +542,8 @@ All Rights Reserved
         "industry_id",
         parseInt(response.result.data.attributes.company_industry),
       );
+
+      // await checkLibrariesIndustry(response.result.data.attributes.company_industry);
 
       if (response.result.data.attributes.sidebar_title !== null) {
         sessionStorage.setItem("sidebar_title", response.result.data.attributes.sidebar_title);

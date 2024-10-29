@@ -74,6 +74,7 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		"meta": U.Dict{
 			"description": description,
 		},
+		"library_industry": false,
 	}
 
 	status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
@@ -476,6 +477,9 @@ func GetLibrarys(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		"filters": U.Dict{
 			"type": U.Dict{
 				"$eq": "library",
+			},
+			"library_industry": U.Dict{
+				"$eq": false,
 			},
 		},
 		"pagination": U.Dict{
@@ -2118,4 +2122,112 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 
 	return 200, libraries, nil
 
+}
+
+func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	name, ok := ctx.Params.GetString("library_name")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters library_name")
+	}
+
+	description, ok := ctx.Params.GetString("description")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters description")
+	}
+
+	status, library, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"type": U.Dict{
+				"$eq": "library",
+			},
+			"name": U.Dict{
+				"$eq": name,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if list, ok := library.GetList("data"); ok {
+		if len(list) > 0 {
+			if dict, ok := list.GetDict(0); ok {
+				if id, ok := dict.GetFloat64("id"); ok {
+					return 200, U.Dict{
+						"id": id,
+					}, nil
+				}
+			}
+		} else {
+			document_path := DOCUMENT_PATH + "/" + string(name)
+
+			dir := filepath.Dir(document_path)
+
+			err = os.MkdirAll(dir, os.ModePerm)
+			if err != nil {
+				fmt.Println("Gagal membuat direktori:", err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			status, _, err = Strapi.Create("document-library-table", U.Dict{
+				"type": "library",
+				"name": name,
+				"path": document_path,
+				"meta": U.Dict{
+					"description": description,
+				},
+				"library_industry": true,
+			})
+
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println(status)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if data, ok := library.GetDict("data"); ok {
+				if id, ok := data.GetFloat64("id"); ok {
+					return 200, U.Dict{
+						"id": id,
+					}, nil
+				}
+			}
+		}
+	}
+
+	return ctx.Error(500, "Internal Server Error")
 }

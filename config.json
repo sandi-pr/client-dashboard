@@ -2541,6 +2541,29 @@
             ]
         },
         {
+            "name": "find-create-library-by-name",
+            "path": "/find-create-library-by-name",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "FindCreateLibraryByName"
+            },
+            "params": [
+                {
+                    "name": "library_name",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "text",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "create-employee",
             "path": "/create-employee",
             "method": "POST",
@@ -5232,6 +5255,9 @@
                     },
                     "meta": {
                         "type": "json"
+                    },
+                    "library_industry": {
+                        "type": "boolean"
                     }
                 }
             },
