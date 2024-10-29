@@ -2242,6 +2242,27 @@
             ]
         },
         {
+            "name": "get-librarys-without-usecase",
+            "path": "/get-librarys",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibrarysWithoutUsecase"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
             "name": "get-library-collections",
             "path": "/get-library-collections",
             "method": "POST",

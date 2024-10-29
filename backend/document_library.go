@@ -478,6 +478,66 @@ func GetLibrarys(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 			"type": U.Dict{
 				"$eq": "library",
 			},
+		},
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": page_size,
+		},
+		"sort":     "id:desc",
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return status, documentLibrarys, nil
+}
+
+func GetLibrarysWithoutUsecase(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		page_size = 10
+	}
+
+	status, documentLibrarys, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"type": U.Dict{
+				"$eq": "library",
+			},
 			"library_industry": U.Dict{
 				"$eq": false,
 			},
