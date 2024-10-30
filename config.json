@@ -2243,7 +2243,7 @@
         },
         {
             "name": "get-librarys-without-usecase",
-            "path": "/get-librarys",
+            "path": "/get-librarys-without-usecase",
             "method": "POST",
             "content_type": "application/json",
             "response_type": "application/json",
