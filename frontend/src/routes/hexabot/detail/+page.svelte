@@ -80,6 +80,7 @@
   let datas = $state([]);
   let gettingDatas = $state(false);
   let datasChecked = $state([]);
+  let tmpDatasChecked = $state([]);
   let configs = $state({});
   let configsChecked = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
@@ -89,6 +90,7 @@
   let modalOpen = $state(false);
   let collections = $state([]);
   let selectedCollection = $state("");
+  let tmpSelectedCollection = $state("");
   let oldSelectedCollection = $state("");
   let initCollections = $state([]);
   let isSelectedLibrary = $state(false);
@@ -98,6 +100,7 @@
   let pages = $state(1);
   let disabledButton = $state(false);
   let collectionsChecked = $state([]);
+  let checkAll = $state(false);
   let selectCategories = $state(null);
   let datasCategoriesChecked = $state({});
   let configsCategories = $state({});
@@ -313,7 +316,7 @@
               id: "deselect_all",
               name: "Deselect All",
               onclick: () => {
-                handleCheckAll(true);
+                handleCheckAllCollection(false);
               },
             },
             {
@@ -321,7 +324,7 @@
               name: "Select All",
               type: "brand-inverse",
               onclick: () => {
-                handleCheckAll(false);
+                handleCheckAllCollection(true);
               },
             },
           ],
@@ -341,12 +344,29 @@
           };
         });
 
-        datasChecked = datasChecked.map((data) => {
-          if (collectionsChecked.includes(data.id)) {
-            data.checked = true;
+        if (checkAll) {
+          datasChecked = allData.map((data) => {
+            return { id: data.id, checked: true };
+          });
+        } else {
+          if (tmpDatasChecked[pagination.page] === undefined) {
+            if (selectedCollection === tmpSelectedCollection) {
+              tmpSelectedCollection = null;
+              datasChecked = datasChecked.map((data) => {
+                if (collectionsChecked.includes(data.id)) {
+                  data.checked = true;
+                }
+                return data;
+              });
+            } else {
+              datasChecked = allData.map((data) => {
+                return { id: data.id, checked: false };
+              });
+            }
+          } else {
+            datasChecked = tmpDatasChecked[pagination.page];
           }
-          return data;
-        });
+        }
       } else {
         pagination = response.result.meta.pagination;
         allData = [];
@@ -362,7 +382,7 @@
               id: "deselect_all",
               name: "Deselect All",
               onclick: () => {
-                handleCheckAll(true);
+                handleCheckAllCollection(false);
               },
             },
             {
@@ -370,7 +390,7 @@
               name: "Select All",
               type: "brand-inverse",
               onclick: () => {
-                handleCheckAll(false);
+                handleCheckAllCollection(true);
               },
             },
           ],
@@ -524,17 +544,62 @@
   };
 
   async function next() {
-    getDocuments(pagination.page + 1);
+    if (pagination.page >= pagination.pageCount) return;
+
+    let pageNow = pagination.page;
+    if (tmpDatasChecked[pageNow] === undefined) {
+      tmpDatasChecked = {
+        ...tmpDatasChecked,
+        [pageNow]: datasChecked,
+      };
+
+      console.log(tmpDatasChecked);
+    } else {
+      tmpDatasChecked[pageNow] = datasChecked;
+    }
+
+    pagination.page = pagination.page + 1;
+    console.log(pagination.page);
+    // getDocuments();
+    dummyGetCollections(selectedCollection);
   }
 
   async function previous() {
-    getDocuments(pagination.page - 1);
+    if (pagination.page <= 1) return;
+
+    let pageNow = pagination.page;
+    if (tmpDatasChecked[pageNow] === undefined) {
+      tmpDatasChecked = {
+        ...tmpDatasChecked,
+        [pageNow]: datasChecked,
+      };
+    } else {
+      tmpDatasChecked[pageNow] = datasChecked;
+    }
+
+    pagination.page = pagination.page - 1;
+    // getDocuments();
+    dummyGetCollections(selectedCollection);
   }
 
   async function handleCheckAll(allChecked) {
     datasChecked = datasChecked.map((data) => {
       return { id: data.id, checked: allChecked ? false : true };
     });
+  }
+
+  async function handleCheckAllCollection(allChecked) {
+    if (allChecked) {
+      checkAll = true;
+    } else {
+      checkAll = false;
+    }
+
+    datasChecked = datasChecked.map((data) => {
+      return { id: data.id, checked: allChecked };
+    });
+
+    console.log("datasChecked", datasChecked.length);
   }
 
   async function handleCheck(id) {
@@ -873,6 +938,7 @@
         collectionsChecked = attributes.collection_id.split(",").map(Number);
         collectionId = collectionsChecked;
         console.log("dihh", attributes.collection_id);
+        tmpSelectedCollection = attributes?.library_id;
         selectedCollection = attributes?.library_id;
         // datasChecked = collections.map((data) => {
         //   return { id: data, checked: true };
@@ -1021,7 +1087,8 @@
             deployed_platform: users.deployedPlatform,
             username: users.username,
             need_auth: users.needAuth,
-            collection_id: datasChecked.map((item) => item.id).join(","),
+            collection_id: checkAll ? "all" : datasChecked.map((item) => item.id).join(","),
+            library_id: selectedCollection,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -1085,13 +1152,13 @@
     )
       return;
     configsCategories[category].pagination.page++;
-    getDocumentsByCategory(category);
+    getDocument(category);
   }
 
   async function previousByCategory(category) {
     if (configsCategories[category].pagination.page <= 1) return;
     configsCategories[category].pagination.page--;
-    getDocumentsByCategory(category);
+    getDocument(category);
   }
 
   async function handleCheckAllCategories(category, allChecked) {
@@ -1167,6 +1234,7 @@
     if (selectedCollection) {
       if (typeof selectedCollection === "number" && selectedCollection !== oldSelectedCollection) {
         oldSelectedCollection = selectedCollection;
+        tmpDatasChecked = [];
         dummyGetCollections(selectedCollection);
       }
     }
@@ -1221,6 +1289,7 @@
             <Button
               onclick={() => {
                 onEdit = false;
+                getBot();
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button

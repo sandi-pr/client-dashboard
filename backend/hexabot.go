@@ -126,6 +126,15 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
+	if collection_id == "all" {
+		collection_id, err = getAllIdCollection(int(library_id), Strapi)
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+	}
+
 	additional_prompt, ok := ctx.Params.GetString("additional_prompt")
 
 	if !ok {
@@ -689,10 +698,24 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		need_auth = false
 	}
 
+	library_id, ok := ctx.Params.GetFloat64("library_id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	collection_id, ok := ctx.Params.GetString("collection_id")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters collection_id")
+	}
+
+	if collection_id == "all" {
+		collection_id, err = getAllIdCollection(int(library_id), Strapi)
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
 	}
 
 	var background_id int64
@@ -928,4 +951,70 @@ func GetCountBotPerMount(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 	}
 
 	return 200, bots, nil
+}
+
+func getAllIdCollection(library_id int, strapi *strapi.StrapiClassic) (U.String, error) {
+	var allIds U.List
+	page := 1
+
+	for {
+		status, documentLibrarys, err := strapi.Find("document-library-table", U.Dict{
+			"filters": U.Dict{
+				"parent_id": U.Dict{
+					"$eq": int64(library_id),
+				},
+				"type": U.Dict{
+					"$eq": "collection",
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return "", err
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return "", err
+		}
+
+		if list, ok := documentLibrarys.GetList("data"); ok {
+			if len(list) < 1 {
+				break
+			}
+
+			for i := 0; i < len(list); i++ {
+				if dict, ok := list.GetDict(i); ok {
+					if id, ok := dict.GetFloat64("id"); ok {
+						allIds = append(allIds, id)
+						page = page + 1
+					} else {
+						return "", err
+					}
+				} else {
+					return "", err
+				}
+			}
+		} else {
+
+			return "", err
+		}
+	}
+
+	var strNums []string
+	for i := 0; i < len(allIds); i++ {
+		if num, ok := allIds.GetFloat64(i); ok {
+			strNums = append(strNums, strconv.Itoa(int(num)))
+		}
+	}
+
+	var result U.String
+	result = U.String(strings.Join(strNums, ","))
+
+	return result, nil
 }

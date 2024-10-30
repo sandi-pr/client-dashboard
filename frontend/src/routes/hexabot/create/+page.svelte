@@ -64,8 +64,10 @@
   let allData = $state([]);
   let searchTerm = $state("");
   let search = $state(false);
-  let page = $state(1);
+  // let page = $state(1);
+  let checkAll = $state(false);
   let datasChecked = $state([]);
+  let tmpDatasChecked = $state({});
   let configs = $state({});
   let gettingDatas = $state(false);
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
@@ -212,7 +214,7 @@
         URLQuery: {},
         URLParams: {},
         Params: {
-          page: page,
+          page: pagination.page,
           page_size: pagination.pageSize,
           parent_id: id,
           search: searchTerm,
@@ -243,7 +245,7 @@
               id: "deselect_all",
               name: "Deselect All",
               onclick: () => {
-                handleCheckAll(true);
+                handleCheckAllCollection(false);
               },
             },
             {
@@ -251,7 +253,7 @@
               name: "Select All",
               type: "brand-inverse",
               onclick: () => {
-                handleCheckAll(false);
+                handleCheckAllCollection(true);
               },
             },
           ],
@@ -264,9 +266,26 @@
         });
         allData = await Promise.all(promises);
         console.log("all data", allData);
-        datasChecked = allData.map((data) => {
-          return { id: data.id, checked: false };
-        });
+
+        if (checkAll) {
+          datasChecked = allData.map((data) => {
+            return { id: data.id, checked: true };
+          });
+        } else {
+          if (tmpDatasChecked[pagination.page] === undefined) {
+            datasChecked = allData.map((data) => {
+              return { id: data.id, checked: false };
+            });
+          } else {
+            datasChecked = tmpDatasChecked[pagination.page];
+          }
+        }
+
+        // if (checkAll) {
+        //   datasChecked = datasChecked.map((data) => {
+        //     return { id: data.id, checked: true };
+        //   });
+        // }
       } else {
         pagination = response.result.meta.pagination;
         allData = [];
@@ -282,7 +301,7 @@
               id: "deselect_all",
               name: "Deselect All",
               onclick: () => {
-                handleCheckAll(true);
+                handleCheckAllCollection(false);
               },
             },
             {
@@ -290,7 +309,7 @@
               name: "Select All",
               type: "brand-inverse",
               onclick: () => {
-                handleCheckAll(false);
+                handleCheckAllCollection(true);
               },
             },
           ],
@@ -523,7 +542,7 @@
         description: description,
         ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
         library_id: selectedCollection,
-        collection_id: collections,
+        collection_id: checkAll ? "all" : collections,
         additional_prompt: additionalPrompt,
         need_auth: needAuth,
       };
@@ -569,10 +588,27 @@
     console.log("datasChecked", datasChecked.length);
   }
 
+  async function handleCheckAllCollection(allChecked) {
+    if (allChecked) {
+      checkAll = true;
+    } else {
+      checkAll = false;
+    }
+
+    datasChecked = datasChecked.map((data) => {
+      return { id: data.id, checked: allChecked };
+    });
+
+    console.log("datasChecked", datasChecked.length);
+  }
+
   async function handleCheck(id) {
     let datasCheckedCopy = datasChecked;
     datasCheckedCopy = datasCheckedCopy.map((data) => {
       if (data.id === id) {
+        if (!data.checked) {
+          checkAll = false;
+        }
         return { id: data.id, checked: !data.checked };
       }
       return data;
@@ -585,15 +621,42 @@
   }
 
   async function next() {
-    if (page >= pagination.pageCount) return;
-    page++;
+    if (pagination.page >= pagination.pageCount) return;
+
+    let pageNow = pagination.page;
+    if (tmpDatasChecked[pageNow] === undefined) {
+      tmpDatasChecked = {
+        ...tmpDatasChecked,
+        [pageNow]: datasChecked,
+      };
+
+      console.log(tmpDatasChecked);
+    } else {
+      tmpDatasChecked[pageNow] = datasChecked;
+    }
+
+    pagination.page = pagination.page + 1;
+    console.log(pagination.page);
     // getDocuments();
+    dummyGetCollections(selectedCollection);
   }
 
   async function previous() {
-    if (page <= 1) return;
-    page--;
+    if (pagination.page <= 1) return;
+
+    let pageNow = pagination.page;
+    if (tmpDatasChecked[pageNow] === undefined) {
+      tmpDatasChecked = {
+        ...tmpDatasChecked,
+        [pageNow]: datasChecked,
+      };
+    } else {
+      tmpDatasChecked[pageNow] = datasChecked;
+    }
+
+    pagination.page = pagination.page - 1;
     // getDocuments();
+    dummyGetCollections(selectedCollection);
   }
 
   onMount(() => {
