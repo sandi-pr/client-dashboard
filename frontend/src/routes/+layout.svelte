@@ -468,6 +468,7 @@ All Rights Reserved
   }
 
   async function checkLibrariesIndustry(industryId) {
+    console.log("checkLibrariesIndustry", industryId);
     const industry = industryData.find((item) => item.id === parseInt(industryId));
     if (!industry) return;
 
