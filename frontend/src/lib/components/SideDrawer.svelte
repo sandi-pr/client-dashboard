@@ -526,7 +526,7 @@ All Rights Reserved
             <Card
               class="{tmpSelectedCollection === item
                 ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
-                : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 gap-3 cursor-pointer"
+                : ''}bg-hc-graylight-50 {item.totalDocuments > 0 ? 'hover:bg-hc-brand-50 cursor-pointer' : 'opacity-50'} gap-3"
               size="xl"
               on:click={item.totalDocuments > 0 ? () => selectCollection(item) : null}
             >

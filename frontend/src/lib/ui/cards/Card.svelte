@@ -41,7 +41,7 @@
     {:else}
       <div class="gap-[2px]">
         <Typography preset="Text md/Semibold" text={title} color="primary" />
-        <Typography preset="Text sm/Regular" text={description} color="secondary" />
+        <Typography preset="Text sm/Regular" text={description} color="secondary" propClass="!leading-tight" />
       </div>
     {/if}
   </Card>

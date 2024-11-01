@@ -480,6 +480,7 @@ All Rights Reserved
     let initIndustryLibrary = industry.points.map((point) => ({
       href: "",
       name: point.title,
+      icon: "bookClosed",
     }));
 
     for (const point of industryLibrary) {

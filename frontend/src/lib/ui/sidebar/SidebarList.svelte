@@ -11,7 +11,7 @@
 
 <script>
   import { page } from "$app/stores";
-  import { LogoBrand, SidebarNavItem, Typography, getIcons, LanguageSelector } from "$lib";
+  import { LogoBrand, SidebarNavItem, Typography, getIcons, LanguageSelector, toCamelCase } from "$lib";
   import { goto } from "$app/navigation";
   import { CR3Call } from "hexacomponents-svelte";
   import {
@@ -42,7 +42,6 @@
 
   let {
     getModule,
-    toCamelCase,
     name = $bindable(""),
     email = $bindable(""),
     brand = $bindable(""),
@@ -195,6 +194,7 @@
           {#if item.children.length > 0}
             <SidebarDropdownWrapper
               bind:isOpen={isOpen[item.name]}
+              ulClass="!space-y-0"
               spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
               btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
               label={$_(item.name)}
@@ -211,11 +211,11 @@
                   href={child.href}
                   {activeUrl}
                   icon={child.icon}
-                  classes="flex w-full gap-3 items-center px-11 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                  classesActive="flex w-full gap-3 items-center px-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  classes="flex w-full gap-3 items-center pl-11 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  classesActive="flex w-full gap-3 items-center pl-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                   typographyData={{
                     preset: "Text md/Regular",
-                    text: $_(child.name),
+                    text: $_(toCamelCase(child.name)),
                     color: "secondary",
                   }}
                   collapse={false}
