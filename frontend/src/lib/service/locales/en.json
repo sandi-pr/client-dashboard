@@ -496,8 +496,8 @@
   "pleaseAddJobLevelFirst": "Please add job level first",
   "pleaseAddJobPositionFirst": "Please add job position first",
   "fileUploaded": "File uploaded",
-  "fileName": "File name",
-  "fileSize": "File size",
+  "fileName": "File Name",
+  "fileSize": "File Size",
   "uploadedBy": "Uploaded by",
   "datasets": "Datasets",
   "allDatasets": "All Datasets",
@@ -677,5 +677,13 @@
   "descPropertyManagement": "Centralize maintenance logs and property records for easy access, improving efficiency in property management.",
   "marketAnalysis": "Market Analysis",
   "descMarketAnalysis": "Analyze real estate market reports, providing insights to guide investment and marketing strategies.",
-  "documentAi": "Document AI"
+  "documentAi": "Document AI",
+  "addNewUser": "Add New User",
+  "label": "Label",
+  "dateUpload": "Date Upload",
+  "roles": "Roles",
+  "manageUsers": "Manage Users",
+  "myCollections": "My Collections",
+  "usersList": "Users List",
+  "roles&Permissions": "Roles & Permissions"
 }

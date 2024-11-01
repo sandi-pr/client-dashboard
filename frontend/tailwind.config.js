@@ -2,14 +2,14 @@
  * CR3 Client Dashboard
  * Package: gitlab.hexacode.org/cr3/client-dashboard
  * Maintainer: Azzis Arswendo <azzis@hexacode.org>
- * 
+ *
  * Copyright (C) 2024 Hexacode Teknologi Indonesia
  * All Rights Reserved
  */
 
 /** @type {import('tailwindcss').Config}*/
 
-const { createThemes } = require('tw-colors');
+const { createThemes } = require("tw-colors");
 
 const config = {
   content: [
@@ -18,17 +18,17 @@ const config = {
   ],
 
   plugins: [
-    require("flowbite/plugin"), 
-    require("@tailwindcss/typography"), 
+    require("flowbite/plugin"),
+    require("@tailwindcss/typography"),
     require("tailwind-fluid-typography"),
     createThemes({
       forest: {
-        primary: '#2A9D8F',
-        'secondary': '#E9C46A',
-        'brand': '#264653',
-        ontest: '#E9C46A',
+        primary: "#2A9D8F",
+        secondary: "#E9C46A",
+        brand: "#264653",
+        ontest: "#E9C46A",
       },
-    })
+    }),
   ],
 
   darkMode: "class",
@@ -41,17 +41,17 @@ const config = {
     extend: {
       colors: {
         primary: {
-          50: 'var(--primary-50)',
-          100: 'var(--primary-100)',
-          200: 'var(--primary-200)',
-          300: 'var(--primary-300)',
-          400: 'var(--primary-400)',
-          500: 'var(--primary-500)',
-          600: 'var(--primary-600)',
-          700: 'var(--primary-700)',
-          800: 'var(--primary-800)',
-          900: 'var(--primary-900)',
-          950: 'var(--primary-950)',
+          50: "var(--primary-50)",
+          100: "var(--primary-100)",
+          200: "var(--primary-200)",
+          300: "var(--primary-300)",
+          400: "var(--primary-400)",
+          500: "var(--primary-500)",
+          600: "var(--primary-600)",
+          700: "var(--primary-700)",
+          800: "var(--primary-800)",
+          900: "var(--primary-900)",
+          950: "var(--primary-950)",
         },
         hc: {
           graylight: {
@@ -83,17 +83,17 @@ const config = {
             950: "#0C111D",
           },
           brand: {
-            50: 'var(--primary-50)',
-            100: 'var(--primary-100)',
-            200: 'var(--primary-200)',
-            300: 'var(--primary-300)',
-            400: 'var(--primary-400)',
-            500: 'var(--primary-500)',
-            600: 'var(--primary-600)',
-            700: 'var(--primary-700)',
-            800: 'var(--primary-800)',
-            900: 'var(--primary-900)',
-            950: 'var(--primary-950)',
+            50: "var(--primary-50)",
+            100: "var(--primary-100)",
+            200: "var(--primary-200)",
+            300: "var(--primary-300)",
+            400: "var(--primary-400)",
+            500: "var(--primary-500)",
+            600: "var(--primary-600)",
+            700: "var(--primary-700)",
+            800: "var(--primary-800)",
+            900: "var(--primary-900)",
+            950: "var(--primary-950)",
           },
           error: {
             25: "#FFFBFA",
@@ -189,16 +189,16 @@ const config = {
           },
           brand: {
             primary: {
-              light: 'var(--primary-600)',
-              dark: 'var(--primary-500)',
+              light: "var(--primary-600)",
+              dark: "var(--primary-500)",
               alt: {
-                light: 'var(--primary-500)',
+                light: "var(--primary-500)",
                 dark: "#CECFD2",
               },
             },
             secondary: {
-              light: 'var(--primary-500)',
-              dark: 'var(--primary-500)',
+              light: "var(--primary-500)",
+              dark: "var(--primary-500)",
             },
           },
           error: {
@@ -277,48 +277,48 @@ const config = {
           },
           brand: {
             50: {
-              light: 'var(--primary-50)',
-              dark: 'var(--primary-950)',
+              light: "var(--primary-50)",
+              dark: "var(--primary-950)",
             },
             100: {
-              light: 'var(--primary-100)',
-              dark: 'var(--primary-900)',
+              light: "var(--primary-100)",
+              dark: "var(--primary-900)",
             },
             200: {
-              light: 'var(--primary-200)',
-              dark: 'var(--primary-800)',
+              light: "var(--primary-200)",
+              dark: "var(--primary-800)",
             },
             300: {
-              light: 'var(--primary-300)',
-              dark: 'var(--primary-700)',
+              light: "var(--primary-300)",
+              dark: "var(--primary-700)",
             },
             400: {
-              light: 'var(--primary-400)',
-              dark: 'var(--primary-600)',
+              light: "var(--primary-400)",
+              dark: "var(--primary-600)",
             },
             500: {
-              light: 'var(--primary-500)',
-              dark: 'var(--primary-500)',
+              light: "var(--primary-500)",
+              dark: "var(--primary-500)",
               alt: {
-                light: 'var(--primary-500)',
+                light: "var(--primary-500)",
                 dark: "#667085",
               },
             },
             600: {
-              light: 'var(--primary-600)',
-              dark: 'var(--primary-400)',
+              light: "var(--primary-600)",
+              dark: "var(--primary-400)",
             },
             700: {
-              light: 'var(--primary-700)',
-              dark: 'var(--primary-300)',
+              light: "var(--primary-700)",
+              dark: "var(--primary-300)",
             },
             800: {
-              light: 'var(--primary-800)',
-              dark: 'var(--primary-200)',
+              light: "var(--primary-800)",
+              dark: "var(--primary-200)",
             },
             900: {
-              light: 'var(--primary-900)',
-              dark: 'var(--primary-100)',
+              light: "var(--primary-900)",
+              dark: "var(--primary-100)",
             },
           },
           error: {
@@ -447,12 +447,40 @@ const config = {
               dark: "#ECFDF3",
             },
           },
+          blue: {
+            50: {
+              light: "#F0F9FF",
+              dark: "#F0F9FF",
+            },
+            200: {
+              light: "#B9E6FE",
+              dark: "#B9E6FE",
+            },
+            700: {
+              light: "#026AA2",
+              dark: "#026AA2",
+            },
+          },
+          orange: {
+            50: {
+              light: "#FEF6EE",
+              dark: "#FEF6EE",
+            },
+            200: {
+              light: "#F9DBAF",
+              dark: "#F9DBAF",
+            },
+            700: {
+              light: "#B93815",
+              dark: "#B93815",
+            },
+          },
           bg: {
             primary: {
               light: "#FFFFFF",
               dark: "#0C111D",
             },
-          }
+          },
         },
       },
       textColor: {
@@ -472,7 +500,7 @@ const config = {
             dark: "#CECFD2",
           },
           onbrand: {
-            light: 'var(--primary-200)',
+            light: "var(--primary-200)",
             dark: "#CECFD2",
           },
         },
@@ -484,7 +512,7 @@ const config = {
             dark: "#CECFD2",
           },
           onbrand: {
-            light: 'var(--primary-200)',
+            light: "var(--primary-200)",
             dark: "#94969C",
           },
         },
@@ -492,7 +520,7 @@ const config = {
           light: "#667085",
           dark: "#94969C",
           onbrand: {
-            light: 'var(--primary-200)',
+            light: "var(--primary-200)",
             dark: "#94969C",
           },
         },
@@ -510,18 +538,18 @@ const config = {
         },
         brand: {
           primary: {
-            light: 'var(--primary-900)',
+            light: "var(--primary-900)",
             dark: "#F5F5F6",
           },
           secondary: {
-            light: 'var(--primary-700)',
+            light: "var(--primary-700)",
             dark: "#CECFD2",
           },
           tertiary: {
-            light: 'var(--primary-600)',
+            light: "var(--primary-600)",
             dark: "#94969C",
             alt: {
-              light: 'var(--primary-600)',
+              light: "var(--primary-600)",
               dark: "#F5F5F6",
             },
           },
@@ -567,13 +595,13 @@ const config = {
           },
         },
         brand: {
-          light: 'var(--primary-300)',
-          dark: 'var(--primary-400)',
+          light: "var(--primary-300)",
+          dark: "var(--primary-400)",
           solid: {
-            light: 'var(--primary-600)',
-            dark: 'var(--primary-500)',
+            light: "var(--primary-600)",
+            dark: "var(--primary-500)",
             alt: {
-              light: 'var(--primary-600)',
+              light: "var(--primary-600)",
               dark: "#333741",
             },
           },
@@ -650,30 +678,30 @@ const config = {
         },
         brand: {
           primary: {
-            light: 'var(--primary-50)',
-            dark: 'var(--primary-500)',
+            light: "var(--primary-50)",
+            dark: "var(--primary-500)",
             alt: {
-              light: 'var(--primary-50)',
+              light: "var(--primary-50)",
               dark: "#1F242F",
             },
           },
           secondary: {
-            light: 'var(--primary-100)',
-            dark: 'var(--primary-600)',
+            light: "var(--primary-100)",
+            dark: "var(--primary-600)",
           },
           solid: {
-            light: 'var(--primary-600)',
-            dark: 'var(--primary-600)',
+            light: "var(--primary-600)",
+            dark: "var(--primary-600)",
             hover: {
-              light: 'var(--primary-700)',
-              dark: 'var(--primary-500)',
+              light: "var(--primary-700)",
+              dark: "var(--primary-500)",
             },
           },
           section: {
-            light: 'var(--primary-800)',
+            light: "var(--primary-800)",
             dark: "#1F242F",
             subtle: {
-              light: 'var(--primary-700)',
+              light: "var(--primary-700)",
               dark: "#0C111D",
             },
           },

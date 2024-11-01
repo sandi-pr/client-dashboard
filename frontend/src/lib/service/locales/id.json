@@ -678,5 +678,13 @@
   "descPropertyManagement": "Sentralisasi catatan pemeliharaan dan catatan properti untuk akses mudah, meningkatkan efisiensi dalam manajemen properti.",
   "marketAnalysis": "Analisis Pasar",
   "descMarketAnalysis": "Analisis laporan pasar real estate, memberikan wawasan untuk membimbing investasi dan strategi pemasaran.",
-  "documentAi": "AI Dokumen"
+  "documentAi": "AI Dokumen",
+  "addNewUser": "Tambahkan Pengguna Baru",
+  "label": "Label",
+  "dateUpload": "Tanggal Unggah",
+  "roles": "Peran",
+  "manageUsers": "Kelola Pengguna",
+  "myCollections": "Koleksi Saya",
+  "usersList": "Daftar Pengguna",
+  "roles&Permissions": "Peran & Izin"
 }

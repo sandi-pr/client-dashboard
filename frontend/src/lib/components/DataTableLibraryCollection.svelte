@@ -112,11 +112,11 @@
           <Checkbox on:click={checkAll} />
         {/if}
       </TableHeadCell>
-      <TableHeadCell>File name</TableHeadCell>
-      <TableHeadCell>Label</TableHeadCell>
-      <TableHeadCell>Type</TableHeadCell>
-      <TableHeadCell>File size</TableHeadCell>
-      <TableHeadCell>Date Upload</TableHeadCell>
+      <TableHeadCell>{$_("fileName")}</TableHeadCell>
+      <TableHeadCell>{$_("label")}</TableHeadCell>
+      <TableHeadCell>{$_("type")}</TableHeadCell>
+      <TableHeadCell>{$_("fileSize")}</TableHeadCell>
+      <TableHeadCell>{$_("dateUpload")}</TableHeadCell>
       <TableHeadCell></TableHeadCell>
       <TableHeadCell></TableHeadCell>
     </TableHead>
@@ -226,8 +226,7 @@
                   <button
                     class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                     on:click={() => {
-                      functDeleteCategories(),
-                        (dropdownActionOpen = !dropdownActionOpen);
+                      functDeleteCategories(), (dropdownActionOpen = !dropdownActionOpen);
                     }}>{$_("delete")}</button
                   >
                 </ul>
