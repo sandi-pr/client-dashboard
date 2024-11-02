@@ -173,23 +173,23 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
+      // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
       {
         icon: "stars",
         name: "aiManagement",
         children: [
-          {
-            icon: "messageChat",
-            name: "hexabot",
-            href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-          },
-          {
-            icon: "archive",
-            name: "documentLibrary(OnDev)",
-            href: isFrontend
-              ? "/document_collection"
-              : await call.getPage("client-dashboard", "document-collection-overview"),
-          },
+          // {
+          //   icon: "messageChat",
+          //   name: "hexabot",
+          //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+          // },
+          // {
+          //   icon: "archive",
+          //   name: "documentLibrary(OnDev)",
+          //   href: isFrontend
+          //     ? "/document_collection"
+          //     : await call.getPage("client-dashboard", "document-collection-overview"),
+          // },
           {
             icon: "archive",
             name: "documentCollection",
@@ -406,10 +406,10 @@ All Rights Reserved
         if (resp.status === 200) {
           if (resp.result.confirmed === true && resp.result.blocked === false) {
             console.log("is token valid");
-            if (resp.result.authority === "User") {
-              globalThis.location.href = await call.getPage("lajnah", "home-page");
-              return;
-            }
+            // if (resp.result.authority === "User") {
+            //   globalThis.location.href = await call.getPage("lajnah", "home-page");
+            //   return;
+            // }
             localStorage.setItem("user", JSON.stringify(resp.result));
             userData = resp.result;
             authority = resp.result.authority;
@@ -542,7 +542,7 @@ All Rights Reserved
 
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data.attributes.company_industry)
+        parseInt(response.result.data.attributes.company_industry),
       );
 
       // await checkLibrariesIndustry(response.result.data.attributes.company_industry);
@@ -651,11 +651,11 @@ All Rights Reserved
     toggleSidebarLargeClosed(
       localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024
         ? true
-        : false
+        : false,
     );
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));

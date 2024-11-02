@@ -76,7 +76,7 @@
         </div>
         {#each permission.data as data (data.name)}
           <div class="py-6 self-center place-self-center col-span-2">
-            <Checkbox bind:checked={data.granted} />
+            <Checkbox disabled checked={data.granted} />
           </div>
         {/each}
       {:else}

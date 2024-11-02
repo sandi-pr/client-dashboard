@@ -217,7 +217,9 @@ All Rights Reserved
                   >
                     <Badge
                       text={data.authority}
-                      type={data.authority === "Super Admin" || data.authority === "Admin"
+                      type={data.authority === "Super Admin" ||
+                      data.authority === "Admin" ||
+                      data.authority === "Manager"
                         ? "brand"
                         : "info"}
                     />
@@ -246,15 +248,15 @@ All Rights Reserved
                       >
                         <Badge text="Admin" />
                       </button>
-                      <!-- <button
+                      <button
                         class="flex p-2"
                         onclick={() => {
-                          data.authority = "Employee";
+                          data.authority = "Manager";
                           dropdownOpen = false;
                         }}
                       >
                         <Badge text="Employee" type="info" />
-                      </button> -->
+                      </button>
                       <button
                         class="flex p-2"
                         onclick={() => {

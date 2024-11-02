@@ -16,7 +16,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { SearchOutline } from "flowbite-svelte-icons";
 
-  import { StateCard, call } from "$lib";
+  import { StateCard, call, checkOr } from "$lib";
   import { Typography } from "hexacomponents-svelte";
   import DataTableUser from "$lib/components/DataTableUsersList.svelte";
   import GridListPermissions from "$lib/components/GridListPermissions.svelte";
@@ -31,44 +31,7 @@ All Rights Reserved
 
   let gettingDatas = $state(false);
 
-  let userListDatas = $state([
-    {
-      id: 15,
-      fullname: "admin hexacode",
-      username: "adminHexa",
-      email: "johndoe@gmail.com",
-      role: "Super Admin",
-      status: "Active",
-      href: "#",
-    },
-    {
-      id: 16,
-      fullname: "admin hexacode",
-      username: "adminHexa",
-      email: "janedoe@gmail.com",
-      role: "Admin",
-      status: "Active",
-      href: "#",
-    },
-    {
-      id: 17,
-      fullname: "admin hexacode",
-      username: "adminHexa",
-      email: "holograph@gmail.com",
-      role: "Manager",
-      status: "Active",
-      href: "#",
-    },
-    {
-      id: 18,
-      fullname: "admin hexacode",
-      username: "adminHexa",
-      email: "yeahidunno@gmail.com",
-      role: "User",
-      status: "Active",
-      href: "#",
-    },
-  ]);
+  let userListDatas = $state([]);
 
   let permissionListDatas = $state([
     {
@@ -77,17 +40,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Actions",
-      data: [
-        {
-          name: "User",
-        },
-        {
-          name: "Manager",
-        },
-        {
-          name: "Admin",
-        },
-      ],
+      data: [{ name: "User" }, { name: "Manager" }, { name: "Admin" }],
     },
     {
       id: 2,
@@ -102,20 +55,11 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Create New Document Library",
+      title: "Create New Document",
       data: [
-        {
-          name: "user",
-          granted: true,
-        },
-        {
-          name: "manager",
-          granted: true,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
       ],
     },
     {
@@ -123,20 +67,11 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Delete Document Library",
+      title: "Read Documents",
       data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: true,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
+        { name: "user", granted: true },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
       ],
     },
     {
@@ -144,20 +79,11 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Create New Collections Inside Document Library",
+      title: "Update Document",
       data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: false,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
       ],
     },
     {
@@ -165,57 +91,47 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Delete Collections Inside Document Library",
+      title: "Delete Document",
       data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: false,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
+        { name: "user", granted: false },
+        { name: "manager", granted: false },
+        { name: "admin", granted: true },
       ],
     },
     {
       id: 7,
-      type: "section",
-      icon: "star",
+      type: "content",
+      icon: "",
       level: 0,
-      title: "AI Management",
-      data: [],
+      title: "Create New Collection",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
     },
     {
       id: 8,
-      type: "section",
-      icon: "chat",
-      level: 1,
-      title: "Hexa Bots",
-      data: [],
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Read Collections",
+      data: [
+        { name: "user", granted: true },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
     },
     {
       id: 9,
       type: "content",
       icon: "",
       level: 0,
-      title: "Deploy New Bots",
+      title: "Update Collection",
       data: [
-        {
-          name: "user",
-          granted: true,
-        },
-        {
-          name: "manager",
-          granted: true,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
       ],
     },
     {
@@ -223,164 +139,213 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Customize Theme Of The Bots",
+      title: "Delete Collection",
       data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: true,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
+        { name: "user", granted: false },
+        { name: "manager", granted: false },
+        { name: "admin", granted: true },
       ],
     },
-    {
-      id: 11,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change Settings Of The Bots",
-      data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: false,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
-      ],
-    },
-    {
-      id: 12,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete Deployed Bots",
-      data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: false,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
-      ],
-    },
-    {
-      id: 13,
-      type: "section",
-      icon: "star",
-      level: 0,
-      title: "AI Management",
-      data: [],
-    },
-    {
-      id: 14,
-      type: "section",
-      icon: "chat",
-      level: 1,
-      title: "Hexa Bots",
-      data: [],
-    },
-    {
-      id: 15,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Deploy New Bots",
-      data: [
-        {
-          name: "user",
-          granted: true,
-        },
-        {
-          name: "manager",
-          granted: true,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
-      ],
-    },
-    {
-      id: 16,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Customize Theme Of The Bots",
-      data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: true,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
-      ],
-    },
-    {
-      id: 17,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change Settings Of The Bots",
-      data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: false,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
-      ],
-    },
-    {
-      id: 18,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete Deployed Bots",
-      data: [
-        {
-          name: "user",
-          granted: false,
-        },
-        {
-          name: "manager",
-          granted: false,
-        },
-        {
-          name: "admin",
-          granted: true,
-        },
-      ],
-    },
+    // {
+    //   id: 7,
+    //   type: "section",
+    //   icon: "star",
+    //   level: 0,
+    //   title: "AI Management",
+    //   data: [],
+    // },
+    // {
+    //   id: 8,
+    //   type: "section",
+    //   icon: "chat",
+    //   level: 1,
+    //   title: "Hexa Bots",
+    //   data: [],
+    // },
+    // {
+    //   id: 9,
+    //   type: "content",
+    //   icon: "",
+    //   level: 0,
+    //   title: "Deploy New Bots",
+    //   data: [
+    //     {
+    //       name: "user",
+    //       granted: true,
+    //     },
+    //     {
+    //       name: "manager",
+    //       granted: true,
+    //     },
+    //     {
+    //       name: "admin",
+    //       granted: true,
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 10,
+    //   type: "content",
+    //   icon: "",
+    //   level: 0,
+    //   title: "Customize Theme Of The Bots",
+    //   data: [
+    //     {
+    //       name: "user",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "manager",
+    //       granted: true,
+    //     },
+    //     {
+    //       name: "admin",
+    //       granted: true,
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 11,
+    //   type: "content",
+    //   icon: "",
+    //   level: 0,
+    //   title: "Change Settings Of The Bots",
+    //   data: [
+    //     {
+    //       name: "user",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "manager",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "admin",
+    //       granted: true,
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 12,
+    //   type: "content",
+    //   icon: "",
+    //   level: 0,
+    //   title: "Delete Deployed Bots",
+    //   data: [
+    //     {
+    //       name: "user",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "manager",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "admin",
+    //       granted: true,
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 13,
+    //   type: "section",
+    //   icon: "star",
+    //   level: 0,
+    //   title: "AI Management",
+    //   data: [],
+    // },
+    // {
+    //   id: 14,
+    //   type: "section",
+    //   icon: "chat",
+    //   level: 1,
+    //   title: "Hexa Bots",
+    //   data: [],
+    // },
+    // {
+    //   id: 15,
+    //   type: "content",
+    //   icon: "",
+    //   level: 0,
+    //   title: "Deploy New Bots",
+    //   data: [
+    //     {
+    //       name: "user",
+    //       granted: true,
+    //     },
+    //     {
+    //       name: "manager",
+    //       granted: true,
+    //     },
+    //     {
+    //       name: "admin",
+    //       granted: true,
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 16,
+    //   type: "content",
+    //   icon: "",
+    //   level: 0,
+    //   title: "Customize Theme Of The Bots",
+    //   data: [
+    //     {
+    //       name: "user",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "manager",
+    //       granted: true,
+    //     },
+    //     {
+    //       name: "admin",
+    //       granted: true,
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 17,
+    //   type: "content",
+    //   icon: "",
+    //   level: 0,
+    //   title: "Change Settings Of The Bots",
+    //   data: [
+    //     {
+    //       name: "user",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "manager",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "admin",
+    //       granted: true,
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 18,
+    //   type: "content",
+    //   icon: "",
+    //   level: 0,
+    //   title: "Delete Deployed Bots",
+    //   data: [
+    //     {
+    //       name: "user",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "manager",
+    //       granted: false,
+    //     },
+    //     {
+    //       name: "admin",
+    //       granted: true,
+    //     },
+    //   ],
+    // },
   ]);
 
   let tabDatas = $state({
@@ -452,34 +417,40 @@ All Rights Reserved
             fullname: user.fullname || "No Name",
             username: user.username,
             email: user.email,
-            authority: getAuthority(user.authority) || "No Authority",
-            // status: user.is_active === "Yes" ? "Admin" : "User",
-            actions: {
-              objects: [
-                {
-                  href:
-                    `${await $call.getPage("client-dashboard", "user-detail")}` +
-                    "?userId=" +
-                    user.id +
-                    "&edit=" +
-                    false,
-                  name: "View",
-                },
-                {
-                  href:
-                    `${await $call.getPage("client-dashboard", "user-detail")}` +
-                    "?userId=" +
-                    user.id +
-                    "&edit=" +
-                    true,
-                  name: "Edit",
-                },
-              ],
-            },
+            role: user.authority || "No Authority",
+            status: user.blocked === true ? "Inactive" : "Active",
+            href:
+              `${await $call.getPage("client-dashboard", "user-detail")}` +
+              "?userId=" +
+              user.id +
+              "&edit=" +
+              false,
+            // actions: {
+            //   objects: [
+            //     {
+            //       href:
+            //         `${await $call.getPage("client-dashboard", "user-detail")}` +
+            //         "?userId=" +
+            //         user.id +
+            //         "&edit=" +
+            //         false,
+            //       name: "View",
+            //     },
+            //     {
+            //       href:
+            //         `${await $call.getPage("client-dashboard", "user-detail")}` +
+            //         "?userId=" +
+            //         user.id +
+            //         "&edit=" +
+            //         true,
+            //       name: "Edit",
+            //     },
+            //   ],
+            // },
           };
         });
 
-        datas = await Promise.all(promises);
+        userListDatas = await Promise.all(promises);
       }
       gettingDatas = false;
     }
@@ -518,7 +489,7 @@ All Rights Reserved
         {#if tabDatas.selected === "Users List"}
           <div class="flex items-center justify-between">
             <Typography preset="Display sm/Semibold" color="primary" text="Users List" />
-            <Button onclick={addUser} icon={PlusIcon}
+            <Button disabled={!checkOr(["Admin", "Manager"])} onclick={addUser} icon={PlusIcon}
               >{$_("addNewUser")}<img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
             >
           </div>
@@ -526,8 +497,8 @@ All Rights Reserved
           <div class="flex items-center justify-between">
             <Typography preset="Display sm/Semibold" color="primary" text="Roles & Permissions" />
             <div class="flex gap-3">
-              <Button outline color="light" onclick={addUser}>{$_("edit")}</Button>
-              <Button onclick={addUser}>{$_("save")}</Button>
+              <!-- <Button outline color="light" onclick={addUser}>{$_("edit")}</Button>
+              <Button onclick={addUser}>{$_("save")}</Button> -->
             </div>
           </div>
         {:else}
@@ -554,7 +525,7 @@ All Rights Reserved
             </div>
             <DataTableUser {userListDatas} {metadata} {nextPage} {prevPage} />
           {:else if tabDatas.selected === "Roles & Permissions"}
-            <GridListPermissions {permissionListDatas} />
+            <GridListPermissions {permissionListDatas} readonly />
           {:else}
             <!-- else content here -->
           {/if}

@@ -1,6 +1,6 @@
 <script>
   import { Button, Card, Indicator, Dropdown, DropdownItem } from "flowbite-svelte";
-  import { Typography, Badge } from "$lib";
+  import { Typography, Badge, checkOr } from "$lib";
   import { _ } from "svelte-i18n";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
@@ -66,44 +66,47 @@
   <div
     class="flex justify-between px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
-    <button onclick={funcDetailCollection}>
+    <button disabled={!checkOr(["Admin", "Manager", "User"])} onclick={funcDetailCollection}>
       <Typography
         preset="Text md/Semibold"
         text={webchat ? collectionName + " (Webchat)" : collectionName}
         propClass="hover:underline line-clamp-1 md:line-clamp-2 fluid-sm"
       />
     </button>
-    <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-      <Button
-        on:click={() => (dropdownOpen = !dropdownOpen)}
-        class="focus-within:ring-0 !p-0"
-        color="none"
-        size="xs"
-        ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
-      >
-      <div
-        class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-      >
-        <ul class="py-2 grow text-sm">
-          <button
-            class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-            onclick={() => {
-              functAddDocuments(), (dropdownOpen = !dropdownOpen);
-            }}>{$_("addDocuments")}</button
-          >
-          <button
-            class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-            onclick={() => {
-              functEdit(), (dropdownOpen = !dropdownOpen);
-            }}>{$_("editCollectionName")}</button
-          >
-          <button
-            class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-            onclick={() => {
-              functDelete(), (dropdownOpen = !dropdownOpen);
-            }}>{$_("delete")}</button
-          >
-          <!-- <button
+    {#if checkOr(["Admin", "Manager"])}
+      <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+        <Button
+          on:click={() => (dropdownOpen = !dropdownOpen)}
+          class="focus-within:ring-0 !p-0"
+          color="none"
+          size="xs"
+          ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
+        >
+        <div
+          class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+        >
+          <ul class="py-2 grow text-sm">
+            <button
+              class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+              onclick={() => {
+                functAddDocuments(), (dropdownOpen = !dropdownOpen);
+              }}>{$_("addDocuments")}</button
+            >
+            <button
+              class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+              onclick={() => {
+                functEdit(), (dropdownOpen = !dropdownOpen);
+              }}>{$_("editCollectionName")}</button
+            >
+            {#if checkOr(["Admin"])}
+              <button
+                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                onclick={() => {
+                  functDelete(), (dropdownOpen = !dropdownOpen);
+                }}>{$_("delete")}</button
+              >
+            {/if}
+            <!-- <button
             disabled={totalDocuments === 0}
             class={`flex p-2 w-full ${totalDocuments === 0 ? 'text-disabled-light dark:text-disabled-dark' : 'text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark'}`}
             onclick={() => {
@@ -113,35 +116,61 @@
               {$_("selectCollectionWebchat")}
             </div></button
           > -->
-        </ul>
+          </ul>
+        </div>
       </div>
-    </div>
+    {/if}
   </div>
-  <Card
-    on:click={funcDetailCollection}
-    class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-2 md:pb-6 pt-2"
-  >
-    <div class="relative">
-      <FileTypeIcon
-        svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark w-16 h-16 md:w-20 md:h-20"
+
+  {#if checkOr(["Admin", "Manager", "User"])}
+    <Card
+      on:click={funcDetailCollection}
+      class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-2 md:pb-6 pt-2"
+    >
+      <div class="relative">
+        <FileTypeIcon
+          svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark w-16 h-16 md:w-20 md:h-20"
+        />
+        {#if totalDocuments > 0}
+          <Indicator
+            border
+            placement="center-right"
+            class="!w-6 !h-6 !md:w-8 !md:h-8 text-white bg-utility-brand-600-light dark:bg-utility-brand-600-dark fluid-xs font-semibold p-2 md:p-4"
+            >+{totalDocuments}</Indicator
+          >
+        {/if}
+      </div>
+      <Badge
+        text={$_(getTextStatus(status))}
+        type={`${status === "Ready" ? "success" : status === "Reading" ? "warning" : "info"}`}
       />
-      {#if totalDocuments > 0}
-        <Indicator
-          border
-          placement="center-right"
-          class="!w-6 !h-6 !md:w-8 !md:h-8 text-white bg-utility-brand-600-light dark:bg-utility-brand-600-dark fluid-xs font-semibold p-2 md:p-4"
-          >+{totalDocuments}</Indicator
-        >
-      {/if}
-    </div>
-    <Badge
-      text={$_(getTextStatus(status))}
-      type={`${status === "Ready" ? "success" : status === "Reading" ? "warning" : "info"}`}
-    />
-  </Card>
+    </Card>
+  {:else}
+    <Card
+      class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-2 md:pb-6 pt-2"
+    >
+      <div class="relative">
+        <FileTypeIcon
+          svgClass="text-utility-brand-600-light dark:text-utility-brand-600-dark w-16 h-16 md:w-20 md:h-20"
+        />
+        {#if totalDocuments > 0}
+          <Indicator
+            border
+            placement="center-right"
+            class="!w-6 !h-6 !md:w-8 !md:h-8 text-white bg-utility-brand-600-light dark:bg-utility-brand-600-dark fluid-xs font-semibold p-2 md:p-4"
+            >+{totalDocuments}</Indicator
+          >
+        {/if}
+      </div>
+      <Badge
+        text={$_(getTextStatus(status))}
+        type={`${status === "Ready" ? "success" : status === "Reading" ? "warning" : "info"}`}
+      />
+    </Card>
+  {/if}
   <div class="flex justify-center border-t border-secondary-light dark:border-secondary-dark">
     <Button
-      disabled={status === "Reading"}
+      disabled={status === "Reading" || !checkOr(["Admin", "Manager", "User"])}
       on:click={() => {
         if (status === "Empty") {
           functAddDocuments();

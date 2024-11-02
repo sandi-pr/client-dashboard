@@ -28,7 +28,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast } from "$lib";
+  import { triggerToast, checkOr } from "$lib";
 
   import { call } from "$lib";
 
@@ -40,17 +40,7 @@ All Rights Reserved
   let dropdownOpenStatus = $state(false);
   let popupModal = $state(false);
 
-  let data = $state({
-    id: 1,
-    fullname: "admin hexacode",
-    username: "adminHexa",
-    email: "johndoe@gmail.com",
-    createdAt: "2024-08-30T12:36:06.570Z",
-    role: "Admin",
-    status: "Active",
-    company: 0,
-    photo: "",
-  });
+  let data = $state({});
 
   function formatDate(inputDate) {
     const date = new Date(inputDate);
@@ -94,8 +84,8 @@ All Rights Reserved
         username: response.result.user.username,
         email: response.result.user.email,
         createdAt: formatDate(response.result.user.createdAt),
-        role: response.result.user.role === "Admin" ? "Admin" : "User",
-        status: !response.result.user.Blocked,
+        role: response.result.user.authority,
+        status: !response.result.user.blocked,
         company: response.result.user.company,
       };
     } catch (error) {
@@ -117,7 +107,7 @@ All Rights Reserved
             username: data.username,
             email: data.email,
             company: data.company,
-            blocked: !data.status,
+            blocked: data.status,
             role: data.role,
             // status: data.status ? "Yes" : "No",
           },
@@ -181,7 +171,11 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    if (edit === "true") onEdit = true;
+    if (userId === null || userId === undefined) {
+      triggerToast("error");
+      goto(await $call.getPage("client-dashboard", "users"));
+    }
+    // if (edit === "true") onEdit = true;
     // getUser();
   });
 
@@ -221,20 +215,38 @@ All Rights Reserved
           {#if onEdit}
             <Button
               onclick={async function () {
-                goto(await $call.getPage("client-dashboard", "users"));
-                return;
+                await getUser();
+                onEdit = false;
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
-            <Button onclick={updateUser} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
-          {:else if data.role !== "Super Admin"}
+            <Button
+              disabled={data.fullname === "" ||
+                data.username === "" ||
+                data.email === "" ||
+                data.password === "" ||
+                data.role === "" ||
+                !checkOr(["Admin", "Manager"])}
+              onclick={updateUser}
+              class="px-3 focus-within:!ring-1">{$_("save")}</Button
+            >
+          {:else if checkOr(["Admin", "Manager"])}
+            {#if checkOr["Admin"]}
+              <Button
+                onclick={() => {
+                  popupModal = true;
+                }}
+                color="red"
+                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              >
+            {/if}
             <Button
               onclick={() => {
-                popupModal = true;
+                onEdit = true;
               }}
               color="light"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
             >
           {/if}
         </div>
@@ -329,7 +341,7 @@ All Rights Reserved
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownDefaultButton"
                     >
-                      {#if data.role === "Super Admin"}
+                      <!-- {#if data.role === "Admin"}
                         <button
                           class="flex p-2"
                           onclick={() => {
@@ -337,20 +349,32 @@ All Rights Reserved
                             dropdownOpenRole = false;
                           }}
                         >
-                          <!-- <Badge text="Super Admin" /> -->
                           <P>Super Admin</P>
                         </button>
-                      {:else}
-                        <button
-                          class="flex p-2"
-                          onclick={() => {
-                            data.role = "Admin";
-                            dropdownOpenRole = false;
-                          }}
-                        >
-                          <P>Admin</P>
-                          <!-- <Badge text="Admin" /> -->
-                        </button>
+                      {:else} -->
+                      {#if checkOr(["Admin", "Manager"])}
+                        {#if checkOr(["Admin"])}
+                          <button
+                            class="flex p-2"
+                            onclick={() => {
+                              data.role = "Admin";
+                              dropdownOpenRole = false;
+                            }}
+                          >
+                            <P>Admin</P>
+                            <!-- <Badge text="Admin" /> -->
+                          </button>
+                          <button
+                            class="flex p-2"
+                            onclick={() => {
+                              data.role = "Manager";
+                              dropdownOpenRole = false;
+                            }}
+                          >
+                            <P>Manager</P>
+                            <!-- <Badge text="Admin" /> -->
+                          </button>
+                        {/if}
                         <button
                           class="flex p-2"
                           onclick={() => {
@@ -382,7 +406,7 @@ All Rights Reserved
                       text={data.status}
                       type={data.status === "Active" ? "brand" : "warning"}
                     /> -->
-                    <P class="font-semibold">{data.status}</P>
+                    <P class="font-semibold">{data.status ? "Active" : "Deactive"}</P>
                     <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
                   </Button>
                   <div
@@ -393,11 +417,11 @@ All Rights Reserved
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownDefaultButton"
                     >
-                      {#if data.status === "Active"}
+                      {#if data.status}
                         <button
                           class="flex p-2"
                           onclick={() => {
-                            data.status = "Deactive";
+                            data.status = false;
                             dropdownOpenStatus = false;
                           }}
                         >
@@ -408,7 +432,7 @@ All Rights Reserved
                         <button
                           class="flex p-2"
                           onclick={() => {
-                            data.status = "Active";
+                            data.status = true;
                             dropdownOpenStatus = false;
                           }}
                         >

@@ -19,6 +19,7 @@ All Rights Reserved
     TextareaRw,
     Typography,
     triggerLoading,
+    checkOr,
   } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -512,7 +513,7 @@ All Rights Reserved
             edited: true,
             document_title: data.document_title,
             description: data.description,
-            category: data.category,
+            // category: data.category,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -674,6 +675,7 @@ All Rights Reserved
               class="hidden md:block px-3 focus-within:!ring-1">{$_("back")}</Button
             >
             <Button
+              disabled={!checkOr(["Admin"])}
               onclick={() => (popupModal = true)}
               outline
               color="red"
@@ -681,6 +683,7 @@ All Rights Reserved
             >
             <!-- {#if data.document_type !== "Handwriting"} -->
             <Button
+              disabled={!checkOr(["Admin", "Manager"])}
               onclick={() => {
                 onEdit = true;
               }}
@@ -721,15 +724,12 @@ All Rights Reserved
                 />
                 <InputRw {onEdit} bind:value={data.description} />
               </div>
-              <div class="flex flex-col gap-1.5">
+              <!-- <div class="flex flex-col gap-1.5">
                 <Typography
                   preset="Text sm/medium"
                   color="secondary"
                   text={`${$_("categories")}`}
                 />
-                <!-- {#if !onEdit}
-                  <InputRw bind:value={data.category} />
-                {:else} -->
                 <div class="flex">
                   <button
                     class="flex w-full flex-wrap gap-2 items-center border rounded-lg py-2.5 px-2"
@@ -744,7 +744,6 @@ All Rights Reserved
                         class="flex items-center space-x-0.5 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2"
                       >
                         <span class="text-sm pb-0.5">{tag}</span>
-                        <!-- svelte-ignore node_invalid_placement_ssr -->
 
                         {#if onEdit}
                           <button
@@ -779,58 +778,7 @@ All Rights Reserved
                     </button>
                   {/if}
                 </div>
-                <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-                <!-- <Select
-                    disabled={!onEdit}
-                    class="mt-2"
-                    items={categories}
-                    bind:value={data.category}
-                    placeholder={$_("selectCategory")}
-                  /> -->
-                <!-- {#if !addOtherCategory}
-                    <p>
-                      {$_("addOtherCategory")}
-                      <button
-                        onclick={() => {
-                          addOtherCategory = true;
-                        }}
-                        class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
-                      >
-                        {$_("clickHere")}
-                      </button>
-                    </p>
-                  {/if}
-                  {#if addOtherCategory}
-                    <Input
-                      placeholder={$_("enterOtherCategory")}
-                      bind:value={otherCategory}
-                      onkeydown={(e) => {
-                        if (
-                          e.key === "Enter" &&
-                          otherCategory !== "" &&
-                          !categories.includes(otherCategory)
-                        ) {
-                          if (categories.length > 0) {
-                            for (let i = 0; i < categories.length; i++) {
-                              if (categories[i]?.other === true) {
-                                categories = categories.slice(0, i).concat(categories.slice(i + 1));
-                                break;
-                              }
-                            }
-                          }
-
-                          categories = [
-                            ...categories,
-                            { value: otherCategory, name: otherCategory, other: true },
-                          ];
-                          data.category = otherCategory;
-                          otherCategory = "";
-                        }
-                      }}
-                    />
-                  {/if} -->
-                <!-- {/if} -->
-              </div>
+              </div> -->
             </div>
           </div>
           <Divider />

@@ -56,3 +56,4 @@ export { toCamelCase } from "$lib/utils/toCamelCase";
 export { getIndustryPoints, industryData } from "$lib/utils/getIndustry";
 export { isHome, setHome } from "$lib/utils/home";
 export { selectedConversation, setSelectedConversation } from "$lib/utils/selectedConversation";
+export { check, checkAnd, checkOr } from "$lib/utils/permissions";

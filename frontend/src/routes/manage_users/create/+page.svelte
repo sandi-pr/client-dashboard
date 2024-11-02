@@ -18,9 +18,10 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast } from "$lib";
+  import { triggerToast, checkOr } from "$lib";
 
   import { call } from "$lib";
+  import { da } from "date-fns/locale";
 
   const params = new URLSearchParams(window.location.search);
   const personId = params.get("personId");
@@ -33,7 +34,7 @@ All Rights Reserved
     email: "",
     password: "",
     createdAt: "",
-    authority: "User",
+    role: checkOr(["Admin", "Manager"]) ? "User" : "",
     is_active: true,
   });
 
@@ -58,7 +59,7 @@ All Rights Reserved
           email: data.email,
           username: data.username,
           password: data.password,
-          authority: data.authority,
+          authority: data.role,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -105,6 +106,9 @@ All Rights Reserved
 
   onMount(async () => {
     // getPerson();
+    if (!checkOr(["Admin", "Manager"])) {
+      goto(await $call.getPage("client-dashboard", "users"));
+    }
   });
 
   // let dropdownOpen = false;
@@ -131,7 +135,16 @@ All Rights Reserved
             <Button onclick={backPage} color="light" class="px-3 focus-within:!ring-1"
               >{$_("cancel")}</Button
             >
-            <Button onclick={createPerson} class="px-3 focus-within:!ring-1">{$_("create")}</Button>
+            <Button
+              disabled={data.fullname === "" ||
+                data.username === "" ||
+                data.email === "" ||
+                data.password === "" ||
+                data.role === "" ||
+                !checkOr(["Admin", "Manager"])}
+              onclick={createPerson}
+              class="px-3 focus-within:!ring-1">{$_("create")}</Button
+            >
           {/if}
         </div>
       </div>
@@ -206,7 +219,7 @@ All Rights Reserved
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
-                  {$_("authority")}
+                  {$_("role")}
                 </P>
                 <div class="my-auto">
                   <Button
@@ -216,8 +229,10 @@ All Rights Reserved
                     id="dropdownDefaultButton"
                   >
                     <Badge
-                      text={data.authority}
-                      type={data.authority === "Super Admin" || data.authority === "Admin"
+                      text={data.role}
+                      type={data.role === "Super Admin" ||
+                      data.role === "Admin" ||
+                      data.role === "Manager"
                         ? "brand"
                         : "info"}
                     />
@@ -233,42 +248,46 @@ All Rights Reserved
                     >
                       <!-- <button
                         class="flex p-2"
-                        onclick={() => (data.authority = "Super Admin")((dropdownOpen = false))}
+                        onclick={() => (data.role = "Super Admin")((dropdownOpen = false))}
                       >
                         <Badge text="Super Admin" type="info" />
                       </button> -->
-                      <button
-                        class="flex p-2"
-                        onclick={() => {
-                          data.authority = "Admin";
-                          dropdownOpen = false;
-                        }}
-                      >
-                        <Badge text="Admin" />
-                      </button>
-                      <!-- <button
-                        class="flex p-2"
-                        onclick={() => {
-                          data.authority = "Employee";
-                          dropdownOpen = false;
-                        }}
-                      >
-                        <Badge text="Employee" type="info" />
-                      </button> -->
-                      <button
-                        class="flex p-2"
-                        onclick={() => {
-                          data.authority = "User";
-                          dropdownOpen = false;
-                        }}
-                      >
-                        <Badge text="User" type="info" />
-                      </button>
+                      {#if checkOr(["Admin", "Manager"])}
+                        {#if checkOr(["Admin"])}
+                          <button
+                            class="flex p-2"
+                            onclick={() => {
+                              data.role = "Admin";
+                              dropdownOpen = false;
+                            }}
+                          >
+                            <Badge text="Admin" />
+                          </button>
+                          <button
+                            class="flex p-2"
+                            onclick={() => {
+                              data.role = "Manager";
+                              dropdownOpen = false;
+                            }}
+                          >
+                            <Badge text="Manager" />
+                          </button>
+                        {/if}
+                        <button
+                          class="flex p-2"
+                          onclick={() => {
+                            data.role = "User";
+                            dropdownOpen = false;
+                          }}
+                        >
+                          <Badge text="User" type="info" />
+                        </button>
+                      {/if}
                     </ul>
                   </div>
                 </div>
                 <!-- <div class="my-auto">
-                    <Badge text={data.authority} />
+                    <Badge text={data.role} />
                   </div>  -->
               </div>
               <div class="flex flex-col gap-2 w-max">

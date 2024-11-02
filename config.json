@@ -51,18 +51,18 @@
         },
         {
             "name": "users",
-            "path": "/users",
-            "file_path": "template/users.html"
+            "path": "/manage_users",
+            "file_path": "template/manage_users.html"
         },
         {
             "name": "user-detail",
-            "path": "/users/detail",
-            "file_path": "template/users/detail.html"
+            "path": "/manage_users/detail",
+            "file_path": "template/manage_users/detail.html"
         },
         {
             "name": "user-create",
-            "path": "/users/create",
-            "file_path": "template/users/create.html"
+            "path": "/manage_users/create",
+            "file_path": "template/manage_users/create.html"
         },
         {
             "name": "settings",

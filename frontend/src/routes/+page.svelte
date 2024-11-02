@@ -87,12 +87,12 @@ All Rights Reserved
   ];
 
   const cardsAi = [
-    {
-      icon: "messageChat",
-      title: "hexabot",
-      description: "descHexabot",
-      page: "hexabot",
-    },
+    // {
+    //   icon: "messageChat",
+    //   title: "hexabot",
+    //   description: "descHexabot",
+    //   page: "hexabot",
+    // },
     {
       icon: "archive",
       title: "documentCollection",

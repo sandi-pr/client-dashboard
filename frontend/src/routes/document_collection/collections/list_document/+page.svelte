@@ -50,6 +50,7 @@ All Rights Reserved
     triggerSelectDropdown,
     triggerLoading,
     triggerReload,
+    checkOr,
   } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
@@ -97,9 +98,9 @@ All Rights Reserved
       {
         name: "Lists",
       },
-      {
-        name: "By Categories",
-      },
+      // {
+      //   name: "By Categories",
+      // },
       {
         name: "Information",
       },
@@ -218,7 +219,7 @@ All Rights Reserved
           pagination: response.result.meta.pagination,
           isCategories: false,
           actions: [
-            {
+            checkOr(["Admin"]) && {
               id: "delete",
               icon: "trash",
               type: "error",
@@ -230,7 +231,7 @@ All Rights Reserved
                 }
               },
             },
-            {
+            checkOr(["Admin", "Manager"]) && {
               id: "add_new",
               name: "Add New",
               icon: "plus",
@@ -241,7 +242,7 @@ All Rights Reserved
                 addOtherCategory = false;
               },
             },
-          ],
+          ].filter(Boolean),
         };
 
         let promises = response.result.data.map(async (document) => {
@@ -255,11 +256,11 @@ All Rights Reserved
               size:
                 document.attributes.file_size === null ? "Unknown" : document.attributes.file_size,
             },
-            category: {
-              name: document.attributes.category,
-              type: "pill",
-              color: "info",
-            },
+            // category: {
+            //   name: document.attributes.category,
+            //   type: "pill",
+            //   color: "info",
+            // },
             type: {
               name: document.attributes.document_type,
               type: "pill",
@@ -275,7 +276,7 @@ All Rights Reserved
             //     : document.attributes.upload_by.data.attributes.fullname,
             actions: {
               objects: [
-                {
+                checkOr(["Admin", "Manager", "User"]) && {
                   // href: "/document/document_collection/detail?documentId=1&collectionId=1",
                   href: `${link}` + "?documentId=" + document.id + "&collectionId=" + collectionId,
                   name: "View",
@@ -290,7 +291,7 @@ All Rights Reserved
                 //   function: handleTitikTiga,
                 //   name: "Titik tiga",
                 // },
-              ],
+              ].filter(Boolean),
             },
           };
         });
@@ -337,7 +338,7 @@ All Rights Reserved
       }
 
       if (!search) {
-        await getAllDocumentsByCategory();
+        // await getAllDocumentsByCategory();
       }
 
       gettingDatas = false;
@@ -1214,7 +1215,7 @@ All Rights Reserved
         return;
       }
 
-      await getAllDocumentsByCategory();
+      // await getAllDocumentsByCategory();
       triggerLoading(false);
       triggerToast("created");
       tags = [];
@@ -1296,7 +1297,7 @@ All Rights Reserved
                   {$_("trainingModel")}</Button
                 >
               {/if} -->
-              <Button
+              <!-- <Button
                 onclick={() => {
                   addCategoriesModal = true;
                 }}
@@ -1305,9 +1306,10 @@ All Rights Reserved
                 ><FolderPlusIcon
                   svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
                 />{$_("addNewCategories")}</Button
-              >
+              > -->
               <Button
-                disabled={datas.length === 0 && statusRag === "Reading"}
+                disabled={(datas.length === 0 && statusRag === "Reading") ||
+                  !checkOr(["Admin", "Manager", "User"])}
                 onclick={() => {
                   selectCollection({
                     id: collectionId,
@@ -1378,7 +1380,6 @@ All Rights Reserved
             />
           {/if}
         {:else if tabDatas.selected === "By Categories"}
-          <!-- Categories Table Data -->
           {#if datas.length > 0 || searchTerm !== ""}
             {#if !gettingDatas}
               {#each datas as data, index}
