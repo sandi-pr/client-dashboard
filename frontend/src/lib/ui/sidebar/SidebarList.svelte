@@ -299,8 +299,8 @@
               <SidebarDropdownItem
                 onclick={() => {
                   dropdownUser = !dropdownUser;
-                  goto(hrefUser);
                 }}
+                href={hrefUser}
                 class="!ps-14"
                 label={$_("users")}
               />
