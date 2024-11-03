@@ -1369,7 +1369,7 @@ All Rights Reserved
               illustration={IllustrationProgress}
               description={$_("fetchingDataPleaseWait")}
             />
-          {:else}
+          {:else if checkOr(["Admin", "Manager"])}
             <StateCard
               illustration={IllustrationEmpty}
               description={$_("youDontHaveAnyDataYet")}
@@ -1379,6 +1379,8 @@ All Rights Reserved
                 addOtherCategory = false;
               }}
             />
+          {:else}
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}
         {:else if tabDatas.selected === "By Categories"}
           {#if datas.length > 0 || searchTerm !== ""}

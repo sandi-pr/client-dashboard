@@ -22,6 +22,7 @@ All Rights Reserved
     triggerToast,
     UploadFile,
     ActionCard,
+    checkOr,
   } from "$lib";
   import { _ } from "svelte-i18n";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -1002,11 +1003,13 @@ All Rights Reserved
       propClass="fluid-xl"
     />
 
-    <!-- Action Items -->
-    <div class="flex flex-col gap-4">
-      <SectionHeader title={$_("action")} />
-      <ActionCard {actionItems} onclick={() => (addCollectionsModal = true)} />
-    </div>
+    {#if checkOr(["Admin", "Manager"])}
+      <!-- Action Items -->
+      <div class="flex flex-col gap-4">
+        <SectionHeader title={$_("action")} />
+        <ActionCard {actionItems} onclick={() => (addCollectionsModal = true)} />
+      </div>
+    {/if}
 
     <!-- Reports Monitoring -->
     <div class="flex flex-col gap-4">
