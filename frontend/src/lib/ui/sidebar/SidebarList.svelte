@@ -11,7 +11,14 @@
 
 <script>
   import { page } from "$app/stores";
-  import { LogoBrand, SidebarNavItem, Typography, getIcons, LanguageSelector, toCamelCase } from "$lib";
+  import {
+    LogoBrand,
+    SidebarNavItem,
+    Typography,
+    getIcons,
+    LanguageSelector,
+    toCamelCase,
+  } from "$lib";
   import { goto } from "$app/navigation";
   import { CR3Call } from "hexacomponents-svelte";
   import {
@@ -99,10 +106,7 @@
     hrefJobLevels = await $call.getPage("client-dashboard", "job-management");
 
     let home = await $call.getPage("client-dashboard", "home-page");
-    sidebarItems = [
-      { name: "home", href: home, icon: "home", children: [] },
-      ...sidebarAddition,
-    ];
+    sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
 
     // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
     let isOpenSession = JSON.parse(sessionStorage.getItem("isOpen"));
@@ -292,11 +296,19 @@
               <svelte:fragment slot="icon">
                 <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
               </svelte:fragment>
-              <SidebarDropdownItem href={hrefUser} class="!ps-14" label={$_("users")} />
+              <SidebarDropdownItem
+                onclick={() => {
+                  dropdownUser = !dropdownUser;
+                  goto(hrefUser);
+                }}
+                class="!ps-14"
+                label={$_("users")}
+              />
               <!-- <SidebarDropdownItem href={hrefJobLevels} class="!ps-14" label={$_("job")} /> -->
             </SidebarDropdownWrapper>
             <button
               onclick={async () => {
+                dropdownUser = !dropdownUser;
                 let url = await $call.getPage("client-dashboard", "settings");
                 goto(url);
                 // else goto("/settings");

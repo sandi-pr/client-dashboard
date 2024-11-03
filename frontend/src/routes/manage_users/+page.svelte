@@ -420,11 +420,7 @@ All Rights Reserved
             role: user.authority || "No Authority",
             status: user.blocked === true ? "Inactive" : "Active",
             href:
-              `${await $call.getPage("client-dashboard", "user-detail")}` +
-              "?userId=" +
-              user.id +
-              "&edit=" +
-              false,
+              `${await $call.getPage("client-dashboard", "user-detail")}` + "?userId=" + user.id,
             // actions: {
             //   objects: [
             //     {

@@ -170,7 +170,9 @@
   {/if}
   <div class="flex justify-center border-t border-secondary-light dark:border-secondary-dark">
     <Button
-      disabled={status === "Reading" || !checkOr(["Admin", "Manager", "User"])}
+      disabled={status === "Reading" || status === "Empty"
+        ? !checkOr(["Admin", "Manager"])
+        : !checkOr(["Admin", "Manager", "User"])}
       on:click={() => {
         if (status === "Empty") {
           functAddDocuments();

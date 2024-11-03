@@ -151,7 +151,7 @@
         },
         {
             "name": "document-collection-overview",
-            "path": "/document_library",
+            "path": "/document_collection",
             "file_path": "template/document_collection.html"
         },
         {

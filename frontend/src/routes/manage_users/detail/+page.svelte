@@ -28,7 +28,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, checkOr } from "$lib";
+  import { triggerToast, checkOr, generateUniqueId } from "$lib";
 
   import { call } from "$lib";
 
@@ -79,7 +79,7 @@ All Rights Reserved
       console.log("ayam", response);
 
       data = {
-        userId: response.result.user.id,
+        userId: generateUniqueId(response.result.user.id, "user"),
         fullname: response.result.user.fullname !== null ? response.result.user.fullname : "",
         username: response.result.user.username,
         email: response.result.user.email,
@@ -108,7 +108,7 @@ All Rights Reserved
             email: data.email,
             company: data.company,
             blocked: data.status,
-            role: data.role,
+            authority: data.role,
             // status: data.status ? "Yes" : "No",
           },
           Headers: {
@@ -126,7 +126,7 @@ All Rights Reserved
             email: data.email,
             company: data.company,
             blocked: !data.status,
-            role: data.role,
+            authority: data.role,
             // status: data.status ? "Yes" : "No",
           },
           Headers: {
@@ -136,11 +136,15 @@ All Rights Reserved
       }
 
       if (response.status !== 200) {
+        triggerToast("error");
         console.log("status not 200", response);
         return;
       }
 
-      goto(await $call.getPage("client-dashboard", "users"));
+      triggerToast("updated");
+      getUser();
+
+      // goto(await $call.getPage("client-dashboard", "users"));
     } catch (error) {
       console.log("error", error);
     }
@@ -170,13 +174,16 @@ All Rights Reserved
     }
   }
 
+  let me = $state({ id: 0 });
+
   onMount(async () => {
+    me = JSON.parse(localStorage.getItem("user"));
     if (userId === null || userId === undefined) {
       triggerToast("error");
       goto(await $call.getPage("client-dashboard", "users"));
     }
     // if (edit === "true") onEdit = true;
-    // getUser();
+    getUser();
   });
 
   // let dropdownOpenRole = false;
@@ -232,7 +239,7 @@ All Rights Reserved
               class="px-3 focus-within:!ring-1">{$_("save")}</Button
             >
           {:else if checkOr(["Admin", "Manager"])}
-            {#if checkOr["Admin"]}
+            {#if checkOr(["Admin"]) && me?.id.toString() !== userId}
               <Button
                 onclick={() => {
                   popupModal = true;
@@ -297,7 +304,7 @@ All Rights Reserved
                 </P>
                 <Input
                   readonly
-                  bind:value={data.id}
+                  bind:value={data.userId}
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>

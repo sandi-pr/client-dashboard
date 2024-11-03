@@ -71,6 +71,7 @@ All Rights Reserved
         goto(await $call.getPage("client-dashboard", "users"));
         return;
       } else {
+        triggerToast("error");
         console.log("status not 200", response);
       }
     } catch (error) {

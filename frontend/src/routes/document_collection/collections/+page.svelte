@@ -1014,69 +1014,6 @@ All Rights Reserved
       </div>
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
-      <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-      <Select
-        class="mt-2"
-        items={categories}
-        bind:value={tmpCategories}
-        placeholder={$_("selectCategory")}
-      />
-      {#if categories.length === 0}
-        <Alert color="yellow">
-          <InfoCircleSolid slot="icon" class="w-5 h-5" />
-          {$_("categoryIsEmptyAdd")}
-          <button
-            onclick={() => {
-              addDocumentsModal = false;
-              goto(tmpHref);
-            }}
-            class="font-semibold underline hover:text-yellow-800 dark:hover:text-yellow-900"
-            >{$_("inHere")}</button
-          >
-        </Alert>
-        <!-- <Helper class="text-sm !text-red-400">{$_("pleaseAddCategoryFirst")}</Helper> -->
-      {/if}
-      <!-- {#if !addOtherCategory}
-        <p>
-          {$_("addOtherCategory")}
-          <button
-            onclick={() => {
-              addOtherCategory = true;
-            }}
-            class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
-          >
-            {$_("clickHere")}
-          </button>
-        </p>
-      {/if}
-      {#if addOtherCategory}
-        <Input
-          placeholder={$_("enterOtherCategory")}
-          bind:value={otherCategory}
-          onkeydown={(e) => {
-            if (e.key === "Enter" && otherCategory !== "" && !categories.includes(otherCategory)) {
-              if (categories.length > 0) {
-                for (let i = 0; i < categories.length; i++) {
-                  if (categories[i]?.other === true) {
-                    categories = categories.slice(0, i).concat(categories.slice(i + 1));
-                    break;
-                  }
-                }
-              }
-
-              categories = [
-                ...categories,
-                { value: otherCategory, name: otherCategory, other: true },
-              ];
-              tmpCategories = otherCategory;
-              otherCategory = "";
-            }
-          }}
-        />
-      {/if} -->
-    </div>
-    <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
       <Input bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
     </div>
