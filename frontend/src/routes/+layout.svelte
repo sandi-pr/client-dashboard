@@ -195,7 +195,7 @@ All Rights Reserved
             name: "documentCollection",
             href: isFrontend
               ? "/document_collection/collections"
-              : await call.getPage("client-dashboard", "document-collection"),
+              : await call.getPage("client-dashboard", "document-collection-overview"),
           },
           // {
           //   icon: "fileCheck",
