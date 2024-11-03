@@ -5137,6 +5137,7 @@
                         "type": "enumeration",
                         "enum": [
                             "Admin",
+                            "Manager",
                             "User"
                         ],
                         "configurable": false
