@@ -1,5 +1,6 @@
 <script>
   import { P, Checkbox } from "flowbite-svelte";
+  import { getIcons, toCamelCase } from "$lib";
   import { _ } from "svelte-i18n";
 
   import BookOpen2Icon from "$lib/icon/book-open-02.svelte";
@@ -40,7 +41,7 @@
     >
       {#if permission.type === "header"}
         <div class={"py-4 self-center col-span-" + mainColSpan}>
-          <P class="text-lg text-tertiary-light dark:text-tertiary-dark">{permission.title}</P>
+          <P class="text-lg text-tertiary-light dark:text-tertiary-dark">{$_(toCamelCase(permission.title))}</P>
         </div>
         {#each permission.data as data (data.name)}
           <div class="py-4 self-center place-self-center col-span-2">
@@ -54,26 +55,21 @@
             " " +
             leftPaddingFromLevel(permission.level)}
         >
-          <div class="flex gap-3">
-            {#if permission.icon === "book"}
-              <BookOpen2Icon svgClass="w-7 h-7 text-tertiary-light dark:text-tertiary-dark" />
-            {:else if permission.icon === "star"}
-              <Stars01Icon svgClass="w-7 h-7 text-tertiary-light dark:text-tertiary-dark" />
-            {:else if permission.icon === "chat"}
-              <MessageChatCircleIcon
-                svgClass="w-7 h-7 text-tertiary-light dark:text-tertiary-dark"
+          <div class="flex gap-3 items-center">
+            {#if permission.icon}
+              <svelte:component
+                this={getIcons(permission.icon)}
+                svgClass="w-5 h-5 text-hc-graylight-500 dark:text-hc-graydark-400"
               />
-            {:else}
-              <!-- else content here -->
             {/if}
             <P class="text-lg font-bold text-tertiary-light dark:text-tertiary-dark"
-              >{permission.title}</P
+              >{$_(toCamelCase(permission.title))}</P
             >
           </div>
         </div>
       {:else if permission.type === "content"}
         <div class={"py-6 self-center col-span-" + mainColSpan}>
-          <P class="text-tertiary-light dark:text-tertiary-dark">{permission.title}</P>
+          <P class="text-tertiary-light dark:text-tertiary-dark">{$_(toCamelCase(permission.title))}</P>
         </div>
         {#each permission.data as data (data.name)}
           <div class="py-6 self-center place-self-center col-span-2">

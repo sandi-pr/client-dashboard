@@ -47,18 +47,17 @@ All Rights Reserved
     {
       id: 2,
       type: "section",
-      icon: "book",
+      icon: "userUp",
       level: 0,
-      title: "Documents AI",
+      title: "Manage User",
       data: [],
     },
-
     {
       id: 3,
       type: "content",
       icon: "",
       level: 0,
-      title: "Create new document collection",
+      title: "Create new user",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: true },
@@ -70,10 +69,10 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Read document collections",
+      title: "Delete existing user",
       data: [
-        { name: "user", granted: true },
-        { name: "manager", granted: true },
+        { name: "user", granted: false },
+        { name: "manager", granted: false },
         { name: "admin", granted: true },
       ],
     },
@@ -82,9 +81,9 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Update document collection",
+      title: "View user information",
       data: [
-        { name: "user", granted: false },
+        { name: "user", granted: true },
         { name: "manager", granted: true },
         { name: "admin", granted: true },
       ],
@@ -94,19 +93,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Delete document collection",
-      data: [
-        { name: "user", granted: false },
-        { name: "manager", granted: false },
-        { name: "admin", granted: true },
-      ],
-    },
-    {
-      id: 7,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new document inside document collection",
+      title: "Edit user information",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: true },
@@ -114,11 +101,19 @@ All Rights Reserved
       ],
     },
     {
+      id: 7,
+      type: "section",
+      icon: "messageChat",
+      level: 0,
+      title: "Webchat",
+      data: [],
+    },
+    {
       id: 8,
       type: "content",
       icon: "",
       level: 0,
-      title: "Read documents inside document collection",
+      title: "Chat to Ai",
       data: [
         { name: "user", granted: true },
         { name: "manager", granted: true },
@@ -130,7 +125,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Update document inside document collection",
+      title: "Upload documents",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: true },
@@ -139,13 +134,181 @@ All Rights Reserved
     },
     {
       id: 10,
+      type: "section",
+      icon: "stars",
+      level: 0,
+      title: "Ai Management",
+      data: [],
+    },
+    {
+      id: 11,
+      type: "section",
+      icon: "box",
+      level: 1,
+      title: "Document Collection",
+      data: [],
+    },
+    {
+      id: 12,
       type: "content",
       icon: "",
       level: 0,
-      title: "Delete document inside document collection",
+      title: "Create new collection",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 13,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View collection",
+      data: [
+        { name: "user", granted: true },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 14,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Edit collection information",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 15,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete collection",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: false },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 16,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Upload documents into collection",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 17,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Edit documents information",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 18,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View documents information",
+      data: [
+        { name: "user", granted: true },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 19,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete documents from collection",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: false },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 20,
+      type: "section",
+      icon: "data",
+      level: 1,
+      title: "Datasets",
+      data: [],
+    },
+    {
+      id: 21,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Create new datasets",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 22,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View datasets",
+      data: [
+        { name: "user", granted: true },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 23,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Edit datasets information",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 24,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete datasets",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: false },
+        { name: "admin", granted: true },
+      ],
+    },
+    {
+      id: 25,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Proccess datasets",
+      data: [
+        { name: "user", granted: false },
+        { name: "manager", granted: true },
         { name: "admin", granted: true },
       ],
     },
@@ -305,7 +468,7 @@ All Rights Reserved
           </div>
         {:else if tabDatas.selected === "Roles & Permissions"}
           <div class="flex items-center justify-between">
-            <Typography preset="Display sm/Semibold" color="primary" text="Roles & Permissions" />
+            <Typography preset="Display sm/Semibold" color="primary" text={$_("rolesAndPermissions")} />
             <!-- <div class="flex gap-3">
               {#if !editRoles}
                 <Button

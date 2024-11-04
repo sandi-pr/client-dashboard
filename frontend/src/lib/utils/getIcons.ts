@@ -32,6 +32,7 @@ import CalendarIcon from "../icon/calendar.svelte";
 import StarsIcon from "../icon/stars-01.svelte";
 import ArchiveIcon from "../icon/archive.svelte";
 import FileCheckIcon from "../icon/file-check-02.svelte";
+import UserUpIcon from "../icon/user-up.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -103,6 +104,8 @@ let getIcons = (presetIcon: String) => {
       return ArchiveIcon;
     case "fileCheck":
       return FileCheckIcon;
+    case "userUp":
+      return UserUpIcon;
     default:
       return "";
   }
