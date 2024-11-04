@@ -1308,9 +1308,7 @@ All Rights Reserved
                 />{$_("addNewCategories")}</Button
               > -->
               <Button
-                disabled={datas.length === 0 ||
-                  statusRag === "Reading" ||
-                  !checkOr(["Admin", "Manager", "User"])}
+                disabled={allData.length === 0 || statusRag === "Reading"}
                 onclick={() => {
                   selectCollection({
                     id: collectionId,

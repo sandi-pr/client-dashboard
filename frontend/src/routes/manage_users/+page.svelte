@@ -29,6 +29,8 @@ All Rights Reserved
 
   let datas = $state([]);
 
+  let editRoles = $state(false);
+
   let gettingDatas = $state(false);
 
   let userListDatas = $state([]);
@@ -50,12 +52,13 @@ All Rights Reserved
       title: "Documents AI",
       data: [],
     },
+
     {
       id: 3,
       type: "content",
       icon: "",
       level: 0,
-      title: "Create New Document",
+      title: "Create new document collection",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: true },
@@ -67,7 +70,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Read Documents",
+      title: "Read document collections",
       data: [
         { name: "user", granted: true },
         { name: "manager", granted: true },
@@ -79,7 +82,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Update Document",
+      title: "Update document collection",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: true },
@@ -91,7 +94,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Delete Document",
+      title: "Delete document collection",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: false },
@@ -103,7 +106,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Create New Collection",
+      title: "Create new document inside document collection",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: true },
@@ -115,7 +118,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Read Collections",
+      title: "Read documents inside document collection",
       data: [
         { name: "user", granted: true },
         { name: "manager", granted: true },
@@ -127,7 +130,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Update Collection",
+      title: "Update document inside document collection",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: true },
@@ -139,213 +142,13 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Delete Collection",
+      title: "Delete document inside document collection",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: false },
         { name: "admin", granted: true },
       ],
     },
-    // {
-    //   id: 7,
-    //   type: "section",
-    //   icon: "star",
-    //   level: 0,
-    //   title: "AI Management",
-    //   data: [],
-    // },
-    // {
-    //   id: 8,
-    //   type: "section",
-    //   icon: "chat",
-    //   level: 1,
-    //   title: "Hexa Bots",
-    //   data: [],
-    // },
-    // {
-    //   id: 9,
-    //   type: "content",
-    //   icon: "",
-    //   level: 0,
-    //   title: "Deploy New Bots",
-    //   data: [
-    //     {
-    //       name: "user",
-    //       granted: true,
-    //     },
-    //     {
-    //       name: "manager",
-    //       granted: true,
-    //     },
-    //     {
-    //       name: "admin",
-    //       granted: true,
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 10,
-    //   type: "content",
-    //   icon: "",
-    //   level: 0,
-    //   title: "Customize Theme Of The Bots",
-    //   data: [
-    //     {
-    //       name: "user",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "manager",
-    //       granted: true,
-    //     },
-    //     {
-    //       name: "admin",
-    //       granted: true,
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 11,
-    //   type: "content",
-    //   icon: "",
-    //   level: 0,
-    //   title: "Change Settings Of The Bots",
-    //   data: [
-    //     {
-    //       name: "user",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "manager",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "admin",
-    //       granted: true,
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 12,
-    //   type: "content",
-    //   icon: "",
-    //   level: 0,
-    //   title: "Delete Deployed Bots",
-    //   data: [
-    //     {
-    //       name: "user",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "manager",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "admin",
-    //       granted: true,
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 13,
-    //   type: "section",
-    //   icon: "star",
-    //   level: 0,
-    //   title: "AI Management",
-    //   data: [],
-    // },
-    // {
-    //   id: 14,
-    //   type: "section",
-    //   icon: "chat",
-    //   level: 1,
-    //   title: "Hexa Bots",
-    //   data: [],
-    // },
-    // {
-    //   id: 15,
-    //   type: "content",
-    //   icon: "",
-    //   level: 0,
-    //   title: "Deploy New Bots",
-    //   data: [
-    //     {
-    //       name: "user",
-    //       granted: true,
-    //     },
-    //     {
-    //       name: "manager",
-    //       granted: true,
-    //     },
-    //     {
-    //       name: "admin",
-    //       granted: true,
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 16,
-    //   type: "content",
-    //   icon: "",
-    //   level: 0,
-    //   title: "Customize Theme Of The Bots",
-    //   data: [
-    //     {
-    //       name: "user",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "manager",
-    //       granted: true,
-    //     },
-    //     {
-    //       name: "admin",
-    //       granted: true,
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 17,
-    //   type: "content",
-    //   icon: "",
-    //   level: 0,
-    //   title: "Change Settings Of The Bots",
-    //   data: [
-    //     {
-    //       name: "user",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "manager",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "admin",
-    //       granted: true,
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 18,
-    //   type: "content",
-    //   icon: "",
-    //   level: 0,
-    //   title: "Delete Deployed Bots",
-    //   data: [
-    //     {
-    //       name: "user",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "manager",
-    //       granted: false,
-    //     },
-    //     {
-    //       name: "admin",
-    //       granted: true,
-    //     },
-    //   ],
-    // },
   ]);
 
   let tabDatas = $state({
@@ -467,6 +270,17 @@ All Rights Reserved
   onMount(async () => {
     // getActionItems();
     getUsers();
+
+    // // test
+    // const test = await $call.call("module-manager", "get-roles", {
+    //   URLQuery: {},
+    //   URLParams: {},
+    //   Params: {},
+    //   Headers: {
+    //     Authorization: "Bearer " + localStorage.getItem("token"),
+    //   },
+    // });
+    // console.log("===================", test);
   });
 
   async function addUser() {
@@ -492,10 +306,24 @@ All Rights Reserved
         {:else if tabDatas.selected === "Roles & Permissions"}
           <div class="flex items-center justify-between">
             <Typography preset="Display sm/Semibold" color="primary" text="Roles & Permissions" />
-            <div class="flex gap-3">
-              <!-- <Button outline color="light" onclick={addUser}>{$_("edit")}</Button>
-              <Button onclick={addUser}>{$_("save")}</Button> -->
-            </div>
+            <!-- <div class="flex gap-3">
+              {#if !editRoles}
+                <Button
+                  outline
+                  color="light"
+                  onclick={() => {
+                    editRoles = true;
+                  }}>{$_("edit")}</Button
+                >
+              {:else}
+                <Button
+                  onclick={() => {
+                    console.log(permissionListDatas);
+                    // editRoles = false;
+                  }}>{$_("save")}</Button
+                >
+              {/if}
+            </div> -->
           </div>
         {:else}
           <!-- else content here -->
@@ -521,7 +349,7 @@ All Rights Reserved
             </div>
             <DataTableUser {userListDatas} {metadata} {nextPage} {prevPage} />
           {:else if tabDatas.selected === "Roles & Permissions"}
-            <GridListPermissions {permissionListDatas} readonly />
+            <GridListPermissions bind:permissionListDatas bind:edit={editRoles} />
           {:else}
             <!-- else content here -->
           {/if}
