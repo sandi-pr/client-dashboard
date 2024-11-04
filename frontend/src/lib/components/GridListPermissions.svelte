@@ -7,6 +7,7 @@
   import MessageChatCircleIcon from "$lib/icon/message-chat-circle.svelte";
 
   export let permissionListDatas;
+  export let edit;
 
   let mainColSpan = 12 - permissionListDatas[0].data.length * 2;
 
@@ -76,7 +77,14 @@
         </div>
         {#each permission.data as data (data.name)}
           <div class="py-6 self-center place-self-center col-span-2">
-            <Checkbox disabled checked={data.granted} />
+            <Checkbox
+              disabled={!edit}
+              checked={data.granted}
+              on:click={() => {
+                data.granted = !data.granted;
+                console.log(data.granted);
+              }}
+            />
           </div>
         {/each}
       {:else}
