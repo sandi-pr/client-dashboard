@@ -998,7 +998,7 @@
             <DarkMode
               btnClass="text-brand-secondary-light dark:text-brand-secondary-dark bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark focus:outline-none rounded-lg px-3 py-2 border border-primary-light dark:border-primary-dark"
             />
-            {#if checkOr(["Admin", "Manager"])}
+            {#if checkOr(["Admin"])}
               <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
                 <Button
                   outline
