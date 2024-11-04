@@ -26,6 +26,7 @@
     call,
     triggerShowAI,
     triggerLoading,
+    checkOr,
   } from "$lib";
   import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
   import StateCard from "$lib/ui/cards/StateCard.svelte";
@@ -69,7 +70,7 @@
   const isFrontend = process.env.NODE_ENV === "development";
 
   let innerWidth = $state(0);
-  let disableInput = $state(false);
+  let disableInput = $state(!checkOr(["Admin", "Manager"]));
   let hideSidebar = $state(true);
   let documentListModal = $state(false);
   let pageListDocument = $state(false);
@@ -961,6 +962,7 @@
             <button on:click={importConversationWithCsv}>Upload</button> -->
             <Button
               outline
+              disabled={!checkOr(["Admin", "Manager"])}
               on:click={() => {
                 editTitle = true;
               }}
@@ -979,6 +981,7 @@
             </Button>
             <Button
               outline
+              disabled={!checkOr(["Admin", "Manager"])}
               on:click={handleUploadWrapper}
               class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
             >
@@ -995,33 +998,35 @@
             <DarkMode
               btnClass="text-brand-secondary-light dark:text-brand-secondary-dark bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark focus:outline-none rounded-lg px-3 py-2 border border-primary-light dark:border-primary-dark"
             />
-            <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
-              <Button
-                outline
-                on:click={() => {
-                  dropdownOpen = !dropdownOpen;
-                }}
-                class="gap-1 p-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark border-primary-light dark:border-primary-dark"
-              >
-                <DotsVerticalIcon
-                  svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
-                />
-                <!-- <Typography preset="Text md/Semibold" text="Clear Conversation" color="secondary" /> -->
-              </Button>
-              <div
-                class={`z-50 ${dropdownOpen ? "absolute -bottom-16 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-              >
-                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-                  <button
-                    class="flex p-2"
-                    on:click={() => {
-                      clearConversation();
-                      dropdownOpen = false;
-                    }}>{$_("delete")}</button
-                  >
-                </ul>
+            {#if checkOr(["Admin", "Manager"])}
+              <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
+                <Button
+                  outline
+                  on:click={() => {
+                    dropdownOpen = !dropdownOpen;
+                  }}
+                  class="gap-1 p-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark border-primary-light dark:border-primary-dark"
+                >
+                  <DotsVerticalIcon
+                    svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
+                  />
+                  <!-- <Typography preset="Text md/Semibold" text="Clear Conversation" color="secondary" /> -->
+                </Button>
+                <div
+                  class={`z-50 ${dropdownOpen ? "absolute -bottom-16 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                >
+                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                    <button
+                      class="flex p-2"
+                      on:click={() => {
+                        clearConversation();
+                        dropdownOpen = false;
+                      }}>{$_("delete")}</button
+                    >
+                  </ul>
+                </div>
               </div>
-            </div>
+            {/if}
           </div>
         </div>
       </div>
@@ -1103,7 +1108,7 @@
             </div>
           </div>
         {/each}
-        {#if disableInput}
+        <!-- {#if disableInput}
           <div
             class="flex w-full bg-secondary-light dark:bg-secondary-dark rounded-2xl p-4 md:px-8 md:py-6 items-start gap-4"
           >
@@ -1139,7 +1144,7 @@
               </div>
             </div>
           </div>
-        {/if}
+        {/if} -->
       </div>
     </div>
   </div>

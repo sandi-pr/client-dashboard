@@ -65,16 +65,19 @@
   >
     <div class="">
       <Button
+        disabled={disableInput}
         class="w-full !px-0 bg-transparentv dark:bg-transparent hover:bg-transparent text-tertiary-light dark:text-tertiary-dark font-bold focus:ring-0"
         >{dropdownCurrentlySelected()}
         &nbsp;
         <ChevronDownOutline class="w-6 h-6 text-tertiary-light dark:text-tertiary-dark" />
       </Button>
-      <Dropdown bind:open={dropdownOpen}>
-        {#each dropdownItem as item}
-          <DropdownItem on:click={handleDropdown} value={item.value}>{item.name}</DropdownItem>
-        {/each}
-      </Dropdown>
+      {#if disableInput}
+        <Dropdown bind:open={dropdownOpen}>
+          {#each dropdownItem as item}
+            <DropdownItem on:click={handleDropdown} value={item.value}>{item.name}</DropdownItem>
+          {/each}
+        </Dropdown>
+      {/if}
     </div>
     <div class="grow">
       <textarea
@@ -92,6 +95,7 @@
     </div>
     <div class="">
       <Button
+        disabled={disableInput}
         on:click={onclickSend}
         class="w-max p-3 bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
       >
