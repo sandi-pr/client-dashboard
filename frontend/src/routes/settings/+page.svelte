@@ -433,6 +433,8 @@
     }
 
     triggerToast("updated");
+
+    onEditPassword = false;
   };
 
   async function getCompanyType() {
@@ -528,6 +530,8 @@
 
       triggerToast("updated");
 
+      onEditCompanyType = false;
+
       window.location.reload();
     }
   }
@@ -558,6 +562,8 @@
         }
 
         triggerToast("updated");
+        
+        onEditTheme = false;
 
         window.location.reload();
       } catch (error) {
@@ -898,6 +904,7 @@
                 class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
                 on:click={() => {
                   onEditTheme = false;
+                  getCompanyType();
                 }}>{$_("cancel")}</Button
               >
               <Button
