@@ -722,27 +722,8 @@ All Rights Reserved
       try {
         addDocumentsModal = false;
         triggerLoading(true);
-        let response = await $call.call("client-dashboard", "create-document", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            documents: JSON.stringify(files),
-            collection_id: collectionId,
-            document_type: tmpDocumentType,
-            category: tmpCategories,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
 
-        if (response.status !== 200) {
-          addDocumentsModal = true;
-          console.log(response);
-          triggerToast("error");
-          triggerLoading(false);
-          return;
-        }
+        let dataSend = null;
 
         if (tmpDocumentType === "Handwriting") {
           for (let i = 0; i < files.length; i++) {
@@ -768,39 +749,58 @@ All Rights Reserved
               return;
             }
 
-            if (response3?.result?.text !== null) {
-              const response4 = await $call.call(
-                "client-dashboard",
-                "update-document-handwriting",
-                {
-                  URLQuery: {},
-                  URLParams: {
-                    id: response.result.data[i].id.toString(),
-                  },
-                  Params: {
-                    detected_text: response3.result.text,
-                    result_trocr: JSON.stringify(response3.result),
-                    edited: false,
-                    document_title: tmpDocumentTitle,
-                    description: tmpDocumentDescription,
-                  },
-                  Headers: {
-                    Authorization: "Bearer " + token,
-                  },
-                },
-              );
+            dataSend = {
+              documents: JSON.stringify(files),
+              collection_id: collectionId,
+              document_type: tmpDocumentType,
+              category: tmpCategories,
+              detected_text: response3.result.text,
+              result_trocr: JSON.stringify(response3.result),
+              edited: false,
+            };
 
-              if (response3.status !== 200) {
-                addDocumentsModal = true;
-                triggerToast("error");
-                triggerLoading(false);
-                console.log(response4);
-                return;
-              }
+            let response = await $call.call("client-dashboard", "create-document", {
+              URLQuery: {},
+              URLParams: {},
+              Params: dataSend,
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            });
 
-              console.log("ayam", response4);
+            if (response.status !== 200) {
+              addDocumentsModal = true;
+              console.log(response);
+              triggerToast("error");
               triggerLoading(false);
+              return;
             }
+          }
+        } else {
+          if (dataSend === null) {
+            dataSend = {
+              documents: JSON.stringify(files),
+              collection_id: collectionId,
+              document_type: tmpDocumentType,
+              category: tmpCategories,
+            };
+          }
+
+          let response = await $call.call("client-dashboard", "create-document", {
+            URLQuery: {},
+            URLParams: {},
+            Params: dataSend,
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status !== 200) {
+            addDocumentsModal = true;
+            console.log(response);
+            triggerToast("error");
+            triggerLoading(false);
+            return;
           }
         }
       } catch (error) {

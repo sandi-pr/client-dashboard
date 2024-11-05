@@ -227,6 +227,35 @@ func CreateDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 			"project_doc_id":   project_doc_id,
 		}
 
+		if document_type == "Handwriting" || document_type == "Document Images" {
+			detected_text, ok := ctx.Params.GetString("detected_text")
+			if !ok {
+				return ctx.Error(400, "invalid parameters detected_text")
+			}
+
+			result_trocr, ok := ctx.Params.GetString("result_trocr")
+			if !ok {
+				return ctx.Error(400, "invalid parameters result_trocr")
+			}
+
+			edited, ok := ctx.Params.GetBool("edited")
+			if !ok {
+				return ctx.Error(400, "invalid parameters edited")
+			}
+
+			var result_trocr_json interface{}
+			err = json.Unmarshal([]byte(result_trocr), &result_trocr_json)
+
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			dataSend["detected_text"] = detected_text
+			dataSend["result_trocr"] = result_trocr_json
+			dataSend["edited"] = edited
+		}
+
 		if category != "" {
 			dataSend["category"] = category
 		}

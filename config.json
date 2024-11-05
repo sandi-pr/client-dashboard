@@ -1680,27 +1680,35 @@
             "params": [
                 {
                     "name": "documents",
-                    "type": "string",
-                    "required": true
+                    "type": "string"
                 },
                 {
                     "name": "collection_id",
-                    "type": "string",
-                    "required": true
+                    "type": "string"
                 },
                 {
                     "name": "library_id",
-                    "type": "string",
-                    "required": true
+                    "type": "string"
                 },
                 {
                     "name": "document_type",
-                    "type": "string",
-                    "required": true
+                    "type": "string"
                 },
                 {
                     "name": "category",
                     "type": "string"
+                },
+                {
+                    "name": "detected_text",
+                    "type": "string"
+                },
+                {
+                    "name": "result_trocr",
+                    "type": "string"
+                },
+                {
+                    "name": "edited",
+                    "type": "boolean"
                 }
             ]
         },
