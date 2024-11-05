@@ -25,7 +25,7 @@ All Rights Reserved
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import PlusIcon from "$lib/icon/plus.svg";
 
-  let metadata = { page: 1, pageSize: 25, pageCount: 1, total: 25 };
+  let metadata = $state({ page: 1, pageSize: 25, pageCount: 0, total: 0 });
 
   let datas = $state([]);
 
@@ -34,6 +34,8 @@ All Rights Reserved
   let gettingDatas = $state(false);
 
   let userListDatas = $state([]);
+
+  let tmpUserListDatas = $state([]);
 
   let permissionListDatas = $state([
     {
@@ -387,47 +389,68 @@ All Rights Reserved
             status: user.blocked === true ? "Inactive" : "Active",
             href:
               `${await $call.getPage("client-dashboard", "user-detail")}` + "?userId=" + user.id,
-            // actions: {
-            //   objects: [
-            //     {
-            //       href:
-            //         `${await $call.getPage("client-dashboard", "user-detail")}` +
-            //         "?userId=" +
-            //         user.id +
-            //         "&edit=" +
-            //         false,
-            //       name: "View",
-            //     },
-            //     {
-            //       href:
-            //         `${await $call.getPage("client-dashboard", "user-detail")}` +
-            //         "?userId=" +
-            //         user.id +
-            //         "&edit=" +
-            //         true,
-            //       name: "Edit",
-            //     },
-            //   ],
-            // },
           };
         });
 
-        userListDatas = await Promise.all(promises);
+        tmpUserListDatas = await Promise.all(promises);
+
+        metadata.total = tmpUserListDatas.length;
+        metadata.pageCount = Math.ceil(metadata.total / metadata.pageSize);
+
+        let start = (metadata.page - 1) * metadata.pageSize;
+        let end = metadata.page * metadata.pageSize;
+        userListDatas = tmpUserListDatas.slice(start, end);
       }
       gettingDatas = false;
     }
   }
 
-  const nextPage = (evt) => {
-    console.log("next page");
+  const nextPage = () => {
+    if (metadata.page < metadata.pageCount) {
+      metadata.page++;
+      let start = (metadata.page - 1) * metadata.pageSize;
+      let end = metadata.page * metadata.pageSize;
+      userListDatas = tmpUserListDatas.slice(start, end);
+    }
   };
 
-  const prevPage = (evt) => {
-    console.log("prev page");
+  const prevPage = () => {
+    if (metadata.page > 1) {
+      metadata.page--;
+      let start = (metadata.page - 1) * metadata.pageSize;
+      let end = metadata.page * metadata.pageSize;
+      userListDatas = tmpUserListDatas.slice(start, end);
+    }
   };
 
   const handleSearch = (evt) => {
-    console.log("clicked");
+    const searchTerm = evt.target.value;
+    if (searchTerm.trim() === "") {
+      // Jika pencarian kosong, tampilkan data pada halaman saat ini
+      let start = (metadata.page - 1) * metadata.pageSize;
+      let end = metadata.page * metadata.pageSize;
+      userListDatas = tmpUserListDatas.slice(start, end);
+
+      metadata.total = tmpUserListDatas.length;
+      metadata.pageCount = Math.ceil(metadata.total / metadata.pageSize);
+    } else {
+      // Filter data berdasarkan term pencarian
+      userListDatas = tmpUserListDatas.filter(
+        (user) =>
+          user.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.role.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+
+      // Update metadata untuk data yang difilter
+      metadata.total = userListDatas.length;
+      metadata.pageCount = Math.ceil(metadata.total / metadata.pageSize);
+
+      // Reset ke halaman pertama setelah pencarian
+      metadata.page = 1;
+      userListDatas = userListDatas.slice(0, metadata.pageSize);
+    }
   };
 
   onMount(async () => {
@@ -468,7 +491,11 @@ All Rights Reserved
           </div>
         {:else if tabDatas.selected === "Roles & Permissions"}
           <div class="flex items-center justify-between">
-            <Typography preset="Display sm/Semibold" color="primary" text={$_("rolesAndPermissions")} />
+            <Typography
+              preset="Display sm/Semibold"
+              color="primary"
+              text={$_("rolesAndPermissions")}
+            />
             <!-- <div class="flex gap-3">
               {#if !editRoles}
                 <Button
@@ -510,7 +537,7 @@ All Rights Reserved
                 <SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </Input>
             </div>
-            <DataTableUser {userListDatas} {metadata} {nextPage} {prevPage} />
+            <DataTableUser {userListDatas} {metadata} next={nextPage} previous={prevPage} />
           {:else if tabDatas.selected === "Roles & Permissions"}
             <GridListPermissions bind:permissionListDatas bind:edit={editRoles} />
           {:else}
