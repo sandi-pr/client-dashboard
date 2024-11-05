@@ -678,7 +678,7 @@
   "marketAnalysis": "Market Analysis",
   "descMarketAnalysis": "Analyze real estate market reports, providing insights to guide investment and marketing strategies.",
   "documentAi": "Document AI",
-  "addNewUser": "Add New User",
+  "addNewUser": "Add new user",
   "label": "Label",
   "dateUpload": "Date Upload",
   "roles": "Roles",
@@ -704,5 +704,8 @@
   "editDatasetsInformation": "Edit datasets information",
   "deleteDatasets": "Delete datasets",
   "processDatasets": "Process datasets",
-  "rolesAndPermissions": "Roles & Permissions"
+  "rolesAndPermissions": "Roles & Permissions",
+  "addNewRoles": "Add new roles",
+  "editCompany": "Edit Company",
+  "editTheme": "Edit Theme"
 }

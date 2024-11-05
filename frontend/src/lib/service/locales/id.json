@@ -679,7 +679,7 @@
   "marketAnalysis": "Analisis Pasar",
   "descMarketAnalysis": "Analisis laporan pasar real estate, memberikan wawasan untuk membimbing investasi dan strategi pemasaran.",
   "documentAi": "AI Dokumen",
-  "addNewUser": "Tambahkan Pengguna Baru",
+  "addNewUser": "Tambahkan pengguna baru",
   "label": "Label",
   "dateUpload": "Tanggal Unggah",
   "roles": "Peran",
@@ -705,5 +705,8 @@
   "editDatasetsInformation": "Edit informasi dataset",
   "deleteDatasets": "Hapus dataset",
   "processDatasets": "Proses dataset",
-  "rolesAndPermissions": "Peran & Izin"
+  "rolesAndPermissions": "Peran & Izin",
+  "addNewRoles": "Tambahkan peran baru",
+  "editCompany": "Edit Perusahaan",
+  "editTheme": "Edit Tema"
 }

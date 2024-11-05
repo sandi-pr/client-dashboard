@@ -96,6 +96,9 @@
       // },
     ],
   };
+  let onEditPassword = false;
+  let onEditCompanyType = false;
+  let onEditTheme = false;
 
   let companyTypes = [
     {
@@ -657,10 +660,10 @@
           disabled={JSON.stringify(user) === JSON.stringify(userCopy)}
           on:click={updatePhotoUser}>Save</Button
         > -->
-        <div class="hidden flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none">
+        <!-- <div class="hidden flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none">
           <SearchOutline class="w-4 h-4 text-primary-light dark:text-primary-dark" />
         </div>
-        <Input class="ps-10 bg-primary-light dark:bg-primary-dark" placeholder="Search" />
+        <Input class="ps-10 bg-primary-light dark:bg-primary-dark" placeholder="Search" /> -->
       </div>
     </div>
 
@@ -671,11 +674,11 @@
     {#if isAdmin}
       {#if tabDatas.selected === "My Profile"}
         <div class="mx-4 mt-4">
-          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+          <div class="pt-4 pb-5 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text={$_("personalInfo")} />
             <Typography preset="Text sm/Reguler" text={$_("descPersonalInfo")} />
           </div>
-          <div class="py-8 border-b border-secondary-light dark:border-secondary-dark">
+          <div class="py-4 border-b border-secondary-light dark:border-secondary-dark">
             <InformationForm datas={user} {screenWidth} />
           </div>
           <!-- <div class="py-8">
@@ -718,45 +721,58 @@
       {:else if tabDatas.selected === "Password"}
         <div class="mx-4 mt-4">
           <!-- <DataTable {datas} {configs} /> -->
-          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+          <div class="pt-4 pb-5 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text={$_("changePassword")} />
             <Typography preset="Text sm/Reguler" text={$_("descPassword")} />
           </div>
-          <div class="py-8">
-            <div class="flex flex-col w-full">
+          <div class="flex flex-col py-4 gap-4">
+            <div class="flex flex-col w-full gap-1.5">
               <Typography preset="Text sm/Semibold" text={$_("currentPassword")} />
-              <Input
-                type="password"
-                bind:value={passwordObject.currentPassword}
-                on:input={currentPasswordCheck}
-                class="mt-2 bg-primary-light dark:bg-primary-dark"
-              />
+              <InputRw type="password" bind:value={passwordObject.currentPassword} onEdit={onEditPassword} oninput={currentPasswordCheck} />
               {#if !currentPasswordMatch && passwordObject.currentPassword.length > 0}
-                <Typography preset="Text sm/Reguler" text={$_("passwordNotMatch")} />
+                <Typography preset="Text sm/Reguler" text={$_("passwordNotMatch")} color="warning-primary" />
               {/if}
             </div>
-            <div class="flex flex-col w-full mt-4">
+            <div class="flex flex-col w-full gap-1.5">
               <Typography preset="Text sm/Semibold" text={$_("newPassword")} />
-              <Input
-                type="password"
-                disabled={!currentPasswordMatch}
-                bind:value={passwordObject.newPassword}
-                on:change={() => {}}
-                class="mt-2 bg-primary-light dark:bg-primary-dark"
-              />
+              <InputRw type="password" bind:value={passwordObject.newPassword} onEdit={onEditPassword} disabled={!currentPasswordMatch} />
               {#if !passwordCheck() && passwordObject.newPassword.length > 0}
                 <Typography preset="Text sm/Reguler" text={$_("hintPassword")} />
               {/if}
             </div>
-            <div class="flex flex-col w-full mt-4">
+            <div class="flex flex-col w-full gap-1.5">
               <Typography preset="Text sm/Semibold" text={$_("confirmPassword")} />
-              <Input
-                type="password"
-                disabled={!currentPasswordMatch}
-                bind:value={passwordObject.confirmPassword}
-                class="mt-2 bg-primary-light dark:bg-primary-dark"
-              />
+              <InputRw type="password" bind:value={passwordObject.confirmPassword} onEdit={onEditPassword} disabled={!currentPasswordMatch} />
             </div>
+          </div>
+          <div class="flex w-full justify-end">
+            {#if onEditPassword}
+              <Button
+                class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
+                on:click={() => {
+                  passwordObject = {
+                    currentPassword: "",
+                    newPassword: "",
+                    confirmPassword: "",
+                  };
+                  currentPasswordMatch = false;
+                  onEditPassword = false;
+                }}>{$_("cancel")}</Button
+              >
+              <Button
+                class="bg-hc-brand-600 hover:bg-hc-brand-700"
+                on:click={() => {updatePassword()}}
+              >
+                {$_("save")}
+              </Button>
+            {:else}
+              <Button
+                onclick={() => {
+                  onEditPassword = true;
+                }}
+                class="bg-hc-brand-600 hover:bg-hc-brand-700">{$_("changePassword")}</Button
+              >
+            {/if}
           </div>
         </div>
       {:else if tabDatas.selected === "Company Type"}
@@ -765,28 +781,50 @@
             <Typography preset="Text lg/Semibold" text={$_("companySize")} />
             <Typography preset="Text sm/Reguler" text={$_("descCompanySize")} />
           </div>
-          <Divider />
-          <div class="pb-4"></div>
-          <SelectedCard
-            selectionData={companyTypes}
-            bind:selectedData={selectedCompanyType}
-            numGrid={2}
-            isRadio
-          />
-          <div class="pt-8 pb-5 border-b border-secondary-light dark:border-secondary-dark">
-            <Typography preset="Text lg/Semibold" text={$_("industryType")} />
-            <Typography preset="Text sm/Reguler" text={$_("decIndustry")} />
+          <div class="flex flex-col py-4 gap-4">
+            <SelectedCard
+              disabled={!onEditCompanyType}
+              selectionData={companyTypes}
+              bind:selectedData={selectedCompanyType}
+              numGrid={2}
+              isRadio
+            />
+            <div class="pt-4 pb-4 border-b border-secondary-light dark:border-secondary-dark">
+              <Typography preset="Text lg/Semibold" text={$_("industryType")} />
+              <Typography preset="Text sm/Reguler" text={$_("decIndustry")} />
+            </div>
+            <SelectedCard
+              disabled={!onEditCompanyType}
+              selectionData={industryType}
+              bind:selectedData={selectedIndustryType}
+              isFlex
+              isRadio
+              widthFlex="w-max"
+            />
           </div>
-          <Divider />
-          <div class="pb-4"></div>
-          <SelectedCard
-            selectionData={industryType}
-            bind:selectedData={selectedIndustryType}
-            isFlex
-            isRadio
-            widthFlex="w-max"
-          />
-          <div class="pb-8"></div>
+          <div class="flex w-full justify-end">
+            {#if onEditCompanyType}
+              <Button
+                class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
+                on:click={() => {
+                  onEditCompanyType = false;
+                }}>{$_("cancel")}</Button
+              >
+              <Button
+                class="bg-hc-brand-600 hover:bg-hc-brand-700"
+                on:click={() => {updateCompanyType();}}
+              >
+                {$_("save")}
+              </Button>
+            {:else}
+              <Button
+                onclick={() => {
+                  onEditCompanyType = true;
+                }}
+                class="bg-hc-brand-600 hover:bg-hc-brand-700">{$_("editCompany")}</Button
+              >
+            {/if}
+          </div>
         </div>
       {:else if tabDatas.selected === "Theme"}
         <div class="mx-4 mt-4">
@@ -796,7 +834,7 @@
                 <Typography preset="Text lg/Semibold" text={$_("sidebarTitle")} />
               </div>
               <div class="col-span-3 flex w-full">
-                <InputRw bind:value={sidebarTitle} onEdit />
+                <InputRw bind:value={sidebarTitle} onEdit={onEditTheme} />
               </div>
             </div>
           </div>
@@ -809,6 +847,7 @@
                 <Avatar class="size-12" src={fileImageName ? fileImageResult : ""} />
                 <div class="grow ml-3">
                   <Button
+                    disabled={!onEditTheme}
                     ondragover={handleDragOver}
                     ondragleave={handleDragLeave}
                     ondrop={handleDrop}
@@ -848,9 +887,33 @@
                   items={themes}
                   isOverlay={true}
                   widget={Indicator}
+                  disabled={!onEditTheme}
                 />
               </div>
             </div>
+          </div>
+          <div class="flex w-full justify-end">
+            {#if onEditTheme}
+              <Button
+                class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
+                on:click={() => {
+                  onEditTheme = false;
+                }}>{$_("cancel")}</Button
+              >
+              <Button
+                class="bg-hc-brand-600 hover:bg-hc-brand-700"
+                on:click={() => {updateTheme();}}
+              >
+                {$_("save")}
+              </Button>
+            {:else}
+              <Button
+                onclick={() => {
+                  onEditTheme = true;
+                }}
+                class="bg-hc-brand-600 hover:bg-hc-brand-700">{$_("editTheme")}</Button
+              >
+            {/if}
           </div>
         </div>
       {:else if tabDatas.selected === "Configuration AI"}
@@ -879,7 +942,7 @@
       {/if}
 
       <!-- action buttons -->
-      {#if tabDatas.selected !== "My Profile"}
+      <!-- {#if tabDatas.selected !== "My Profile"}
         <div class="flex w-full px-4 justify-end">
           {#if tabDatas.selected !== "Configuration AI"}
             <Button
@@ -921,7 +984,7 @@
             {/if}
           </Button>
         </div>
-      {/if}
+      {/if} -->
     {:else}
       hello user
     {/if}
