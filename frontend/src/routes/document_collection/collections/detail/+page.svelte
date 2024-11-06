@@ -786,7 +786,11 @@ All Rights Reserved
             <div class="flex flex-col md:flex-row gap-4 md:gap-6">
               <div class="w-60">
                 <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                  {$_("handwritingInformation")}
+                  {#if data.document_type === "Handwriting"}
+                    {$_("handwritingInformation")}
+                  {:else}
+                    {$_("documentInformation")}
+                  {/if}
                 </P>
                 <!-- <div class="pt-2">
                   {#if onEdit}
