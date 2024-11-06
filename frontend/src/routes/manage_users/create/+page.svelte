@@ -60,6 +60,7 @@ All Rights Reserved
           username: data.username,
           password: data.password,
           authority: data.role,
+          blocked: !data.is_active,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -268,7 +269,11 @@ All Rights Reserved
                               dropdownOpen = false;
                             }}
                           >
-                            <Typography preset="Text sm/Regular" text={$_("admin")} color="secondary" />
+                            <Typography
+                              preset="Text sm/Regular"
+                              text={$_("admin")}
+                              color="secondary"
+                            />
                             <!-- <Badge text="Admin" /> -->
                           </button>
                           <button
@@ -278,7 +283,11 @@ All Rights Reserved
                               dropdownOpen = false;
                             }}
                           >
-                            <Typography preset="Text sm/Regular" text={$_("manager")} color="secondary" />
+                            <Typography
+                              preset="Text sm/Regular"
+                              text={$_("manager")}
+                              color="secondary"
+                            />
                             <!-- <Badge text="Manager" /> -->
                           </button>
                         {/if}
@@ -289,7 +298,11 @@ All Rights Reserved
                             dropdownOpen = false;
                           }}
                         >
-                          <Typography preset="Text sm/Regular" text={$_("user")} color="secondary" />
+                          <Typography
+                            preset="Text sm/Regular"
+                            text={$_("user")}
+                            color="secondary"
+                          />
                           <!-- <Badge text="User" type="info" /> -->
                         </button>
                       {/if}

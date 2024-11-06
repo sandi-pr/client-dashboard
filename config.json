@@ -849,6 +849,10 @@
                     "name": "authority",
                     "type": "text",
                     "required": true
+                },
+                {
+                    "name": "blocked",
+                    "type": "boolean"
                 }
             ]
         },
