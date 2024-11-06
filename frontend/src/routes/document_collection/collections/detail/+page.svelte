@@ -782,7 +782,7 @@ All Rights Reserved
             </div>
           </div>
           <Divider />
-          {#if data.document_type === "Handwriting"}
+          {#if data.document_type === "Handwriting" || data.document_type === "Document Images"}
             <div class="flex flex-col md:flex-row gap-4 md:gap-6">
               <div class="w-60">
                 <P class="font-semibold text-secondary-light dark:text-secondary-dark">

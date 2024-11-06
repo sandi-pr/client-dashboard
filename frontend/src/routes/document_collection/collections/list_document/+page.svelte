@@ -986,10 +986,10 @@ All Rights Reserved
       selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
     } else if (type === "Document Images") {
-      selectedTypeCollection = "Document Images (PDF, JPG, JPEG, PNG, WEBP, IMG)";
+      selectedTypeCollection = "Document Images (JPG, JPEG, PNG)";
       acceptedFileTypes = ".jpg, .jpeg, .png";
     } else if (type === "Handwriting") {
-      selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
+      selectedTypeCollection = "Handwriting (JPG, JPEG, PNG)";
       acceptedFileTypes = ".jpg, .jpeg, .png";
     } else if (type === "CSV") {
       selectedTypeCollection = "CSV";
