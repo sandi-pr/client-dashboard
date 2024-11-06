@@ -297,6 +297,12 @@ func UpdateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	blocked, ok := ctx.Params.GetBool("blocked")
+
+	if !ok {
+		blocked = false
+	}
+
 	updateData := U.Dict{
 		"username":  username,
 		"email":     email,
@@ -305,6 +311,7 @@ func UpdateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		"roles":     1,
 		"company":   company,
 		"authority": authority,
+		"blocked":   blocked,
 	}
 
 	password, ok := ctx.Params.GetString("password")

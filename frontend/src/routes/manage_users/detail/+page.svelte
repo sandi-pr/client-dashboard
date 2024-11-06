@@ -10,16 +10,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import {
-    P,
-    Heading,
-    Input,
-    Button,
-    Select,
-    Textarea,
-    Modal,
-    Avatar,
-  } from "flowbite-svelte";
+  import { P, Heading, Input, Button, Select, Textarea, Modal, Avatar } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -98,7 +89,6 @@ All Rights Reserved
 
   async function updateUser() {
     let token = localStorage.getItem("token");
-    console.log("send", data);
     try {
       let response;
       if (data.password === "") {
@@ -110,7 +100,7 @@ All Rights Reserved
             username: data.username,
             email: data.email,
             company: data.company,
-            blocked: data.status,
+            blocked: !data.status,
             authority: data.role,
             // status: data.status ? "Yes" : "No",
           },
@@ -371,7 +361,11 @@ All Rights Reserved
                               dropdownOpenRole = false;
                             }}
                           >
-                            <Typography preset="Text sm/Regular" text={$_("admin")} color="secondary" />
+                            <Typography
+                              preset="Text sm/Regular"
+                              text={$_("admin")}
+                              color="secondary"
+                            />
                             <!-- <Badge text="Admin" /> -->
                           </button>
                           <button
@@ -381,7 +375,11 @@ All Rights Reserved
                               dropdownOpenRole = false;
                             }}
                           >
-                            <Typography preset="Text sm/Regular" text={$_("manager")} color="secondary" />
+                            <Typography
+                              preset="Text sm/Regular"
+                              text={$_("manager")}
+                              color="secondary"
+                            />
                             <!-- <Badge text="Admin" /> -->
                           </button>
                         {/if}
@@ -392,7 +390,11 @@ All Rights Reserved
                             dropdownOpenRole = false;
                           }}
                         >
-                          <Typography preset="Text sm/Regular" text={$_("user")} color="secondary" />
+                          <Typography
+                            preset="Text sm/Regular"
+                            text={$_("user")}
+                            color="secondary"
+                          />
                           <!-- <Badge text="User" /> -->
                         </button>
                       {/if}
