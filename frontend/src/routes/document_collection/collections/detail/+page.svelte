@@ -825,7 +825,12 @@ All Rights Reserved
                   <div class="flex flex-col gap-2">
                     <P
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                      >{$_("Handwriting text")}</P
+                      >
+                      {#if data.document_type === "Handwriting"}
+                        {$_("handwritingText")}
+                      {:else}
+                        {$_("documentText")}
+                      {/if}</P
                     >
                     <TextareaRw {onEdit} bind:value={data.detectedText} />
                     <!-- <P

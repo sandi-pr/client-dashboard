@@ -18,7 +18,7 @@
 
 {#if $toastLoading}
 <div
-  class="absolute bottom-0 left-0 right-0 top-0 z-50 flex items-center justify-center bg-white dark:bg-black backdrop-blur-sm bg-opacity-40"
+  class="absolute bottom-0 left-0 right-0 top-0 z-40 flex items-center justify-center bg-white dark:bg-black backdrop-blur-sm bg-opacity-40"
 >
   <div class="rounded-lg p-8">
     <div class="flex justify-center">

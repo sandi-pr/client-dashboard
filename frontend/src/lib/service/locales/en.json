@@ -712,5 +712,12 @@
   "roleName": "Role Name",
   "inputRoleName": "Input role name",
   "addNewRole": "Add new role",
-  "deactive": "Deactive"
+  "deactive": "Deactive",
+  "roleId": "Role ID",
+  "createdDate": "Created Date",
+  "allow": "Allow",
+  "documentsAi": "Document AI",
+  "businessManagement": "Business Management",
+  "handwritingText": "Handwriting Text",
+  "documentText": "Document Text"
 }

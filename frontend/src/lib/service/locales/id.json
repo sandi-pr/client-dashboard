@@ -355,7 +355,7 @@
   "startReading": "Mulai Membaca",
   "inHere": "di sini",
   "addMoreFiles": "Tambahkan berkas",
-  "handwritingInformation": "Informasi Handwriting",
+  "handwritingInformation": "Informasi Tulisan Tangan",
   "detectedText": "Teks Terdeteksi",
   "viewer": "Pratinjau",
   "wrongDetectedText": "Teks yang terdeteksi salah?",
@@ -713,5 +713,12 @@
   "roleName": "Nama Peran",
   "inputRoleName": "Masukkan nama peran",
   "addNewRole": "Tambahkan peran baru",
-  "deactive": "Nonaktif"
+  "deactive": "Nonaktif",
+  "roleId": "ID Role",
+  "createdDate": "Tanggal Dibuat",
+  "allow": "Izinkan",
+  "documentsAi": "AI Dokumen",
+  "businessManagement": "Manajemen Bisnis",
+  "handwritingText": "Teks Tulisan Tangan",
+  "documentText": "Teks Dokumen"
 }
