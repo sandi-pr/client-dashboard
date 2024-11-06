@@ -673,7 +673,7 @@ All Rights Reserved
 
         let dataSend = null;
 
-        if (tmpDocumentType === "Handwriting") {
+        if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
           for (let i = 0; i < files.length; i++) {
             let response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
               URLQuery: {},
@@ -838,6 +838,9 @@ All Rights Reserved
     } else if (type === "Images") {
       selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
+    } else if (type === "Document Images") {
+      selectedTypeCollection = "Document Images (JPG, JPEG, PNG)";
+      acceptedFileTypes = ".jpg, .jpeg, .png";
     } else if (type === "Handwriting") {
       selectedTypeCollection = "Handwriting (JPG, JPEG, PNG)";
       acceptedFileTypes = ".jpg, .jpeg, .png";
@@ -1136,6 +1139,12 @@ All Rights Reserved
             onclick={() => {
               selectTypeCollection("Images");
             }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
+          >
+          <button
+            class="flex p-2 w-full"
+            onclick={() => {
+              selectTypeCollection("Document Images");
+            }}>Document Images (JPG, JPEG, PNG)</button
           >
           <button
             class="flex p-2 w-full"
