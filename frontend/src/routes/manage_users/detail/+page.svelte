@@ -134,6 +134,7 @@ All Rights Reserved
         return;
       }
 
+      onEdit = false;
       triggerToast("updated");
       getUser();
 
