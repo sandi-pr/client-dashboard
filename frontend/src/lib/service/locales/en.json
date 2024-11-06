@@ -707,5 +707,10 @@
   "rolesAndPermissions": "Roles & Permissions",
   "addNewRoles": "Add new roles",
   "editCompany": "Edit Company",
-  "editTheme": "Edit Theme"
+  "editTheme": "Edit Theme",
+  "createNewRole": "Create new Role",
+  "roleName": "Role Name",
+  "inputRoleName": "Input role name",
+  "addNewRole": "Add new role",
+  "deactive": "Deactive"
 }

@@ -105,6 +105,11 @@ All Rights Reserved
     dispatch("passwordChange", { password: newPassword, passwordValid });
   }
 
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
+
   onMount(async () => {
     // getPerson();
     if (!checkOr(["Admin", "Manager"])) {
@@ -151,7 +156,7 @@ All Rights Reserved
       </div>
       <div class="flex flex-col gap-4 pt-8">
         <!-- general information -->
-        <div class="flex gap-6">
+        <div class="flex flex-col md:flex-row gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
@@ -216,27 +221,28 @@ All Rights Reserved
                   <Helper class="text-sm !text-red-400 pt-2">{$_("passwordInfo")}</Helper>
                 {/if}
               </div>
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col col-span-2 lg:col-span-1 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
                   {$_("role")}
                 </P>
-                <div class="my-auto">
+                <div class="my-auto w-full" onfocusout={handleDropdownFocusLoss}>
                   <Button
                     color="light"
-                    class="py-[9px] px-3"
+                    class="py-[9px] px-3 w-full justify-between"
                     on:click={() => (dropdownOpen = !dropdownOpen)}
                     id="dropdownDefaultButton"
                   >
-                    <Badge
+                    <Typography preset="Text sm/Regular" text={$_(data.role)} color="secondary" />
+                    <!-- <Badge
                       text={data.role}
                       type={data.role === "Super Admin" ||
                       data.role === "Admin" ||
                       data.role === "Manager"
                         ? "brand"
                         : "info"}
-                    />
+                    /> -->
                     <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
                   </Button>
                   <div
@@ -262,7 +268,8 @@ All Rights Reserved
                               dropdownOpen = false;
                             }}
                           >
-                            <Badge text="Admin" />
+                            <Typography preset="Text sm/Regular" text={$_("admin")} color="secondary" />
+                            <!-- <Badge text="Admin" /> -->
                           </button>
                           <button
                             class="flex p-2"
@@ -271,7 +278,8 @@ All Rights Reserved
                               dropdownOpen = false;
                             }}
                           >
-                            <Badge text="Manager" />
+                            <Typography preset="Text sm/Regular" text={$_("manager")} color="secondary" />
+                            <!-- <Badge text="Manager" /> -->
                           </button>
                         {/if}
                         <button
@@ -281,7 +289,8 @@ All Rights Reserved
                             dropdownOpen = false;
                           }}
                         >
-                          <Badge text="User" type="info" />
+                          <Typography preset="Text sm/Regular" text={$_("user")} color="secondary" />
+                          <!-- <Badge text="User" type="info" /> -->
                         </button>
                       {/if}
                     </ul>

@@ -708,5 +708,10 @@
   "rolesAndPermissions": "Peran & Izin",
   "addNewRoles": "Tambahkan peran baru",
   "editCompany": "Edit Perusahaan",
-  "editTheme": "Edit Tema"
+  "editTheme": "Edit Tema",
+  "createNewRole": "Buat Peran baru",
+  "roleName": "Nama Peran",
+  "inputRoleName": "Masukkan nama peran",
+  "addNewRole": "Tambahkan peran baru",
+  "deactive": "Nonaktif"
 }

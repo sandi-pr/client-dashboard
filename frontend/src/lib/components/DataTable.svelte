@@ -222,7 +222,7 @@
     </div>
   {/if}
 
-  <Table shadow class="font-jakarta dark:border-white">
+  <Table shadow class="font-jakarta border dark:border-primary-dark">
     {#if configs?.doubleHeader}
       <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
         <TableHeadCell class="flex items-center">
@@ -306,7 +306,7 @@
           {#if datas[0]?.status && Object.keys(datas[0].status).length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key === "status"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400"
+                <TableBodyCell class={`text-hc-graylight-600 dark:text-hc-graydark-400 ${configs?.widthStatus} `}
                   ><p
                     class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
                       data.status.type,
@@ -454,7 +454,7 @@
           {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key === "actions"}
-                <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                <TableBodyCell class={`text-hc-graylight-600 dark:text-hc-graydark-400 ${configs?.widthActions} `}>
                   <div class="flex justify-end gap-8">
                     {#each datas[index].actions.objects as action (action.name)}
                       {#if action?.iconOnly && action.iconOnly === true}
