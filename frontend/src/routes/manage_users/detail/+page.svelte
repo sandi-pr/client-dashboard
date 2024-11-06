@@ -168,6 +168,11 @@ All Rights Reserved
     }
   }
 
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpenRole = false;
+  };
+
   let me = $state({ id: 0 });
 
   onMount(async () => {
@@ -320,7 +325,7 @@ All Rights Reserved
                 >
                   {$_("role")}
                 </P>
-                <div class="my-auto">
+                <div class="my-auto" onfocusout={handleDropdownFocusLoss}>
                   <Button
                     color="light"
                     class="py-[9px] px-3 w-full justify-between"
