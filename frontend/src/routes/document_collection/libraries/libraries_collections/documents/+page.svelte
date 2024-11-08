@@ -307,6 +307,9 @@
     } else if (type === "Handwriting") {
       selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png";
+    } else if (type === "Document Audio") {
+      selectedTypeCollection = "Document Audio (MP3)";
+      acceptedFileTypes = ".mp3";
     } else if (type === "CSV") {
       selectedTypeCollection = "CSV";
       acceptedFileTypes = ".csv";
@@ -346,6 +349,7 @@
           size: formatBytes(file.size),
           base64: base64Data,
         });
+        tmpDocumentTitle = file.name.split('.').slice(0, -1).join('.');
       } else {
         fileNotSupport = true;
       }
@@ -578,8 +582,20 @@
           <button
             class="flex p-2 w-full"
             onclick={() => {
+              selectTypeCollection("Document Images");
+            }}>Document Images (JPG, JPEG, PNG)</button
+          >
+          <button
+            class="flex p-2 w-full"
+            onclick={() => {
               selectTypeCollection("Handwriting");
             }}>Handwriting (JPG, JPEG, PNG)</button
+          >
+          <button
+            class="flex p-2 w-full"
+            onclick={() => {
+              selectTypeCollection("Document Audio");
+            }}>Document Audio (MP3)</button
           >
           <button
             class="flex p-2 w-full"
@@ -590,6 +606,34 @@
         </ul>
       </div>
     </div>
+    <UploadFile
+      title={`${$_("uploadDocuments")}*`}
+      handleFileUploadWrapper={() => handleFileUploadWrapper()}
+      file={files[0]}
+      actionButton={true}
+      actionDelete={() => (files = [])}
+      isFlex
+    />
+    {#if fileNotSupport}
+      <Alert color="red">
+        <InfoCircleSolid slot="icon" class="w-5 h-5" />
+        {$_("fileNotSupport")}
+      </Alert>
+    {/if}
+    {#if files.length > 0}
+      <div class="flex flex-col gap-1.5">
+        <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
+        <InputRw onEdit={true} bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+        <InputRw
+          onEdit={true}
+          bind:value={tmpDocumentDescription}
+          placeholder={$_("enterDocumentDescription")}
+        />
+      </div>
+    {/if}
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
       <div class="flex">
@@ -655,32 +699,6 @@
         </Alert>
       {/if} -->
     </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-      <InputRw onEdit={true} bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
-      <InputRw
-        onEdit={true}
-        bind:value={tmpDocumentDescription}
-        placeholder={$_("enterDocumentDescription")}
-      />
-    </div>
-    <UploadFile
-      title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper()}
-      file={files[0]}
-      actionButton={true}
-      actionDelete={() => (files = [])}
-      isFlex
-    />
-    {#if fileNotSupport}
-      <Alert color="red">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("fileNotSupport")}
-      </Alert>
-    {/if}
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"

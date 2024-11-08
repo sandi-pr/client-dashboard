@@ -39,6 +39,11 @@ All Rights Reserved
   import { page } from "$app/stores";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import XCloseIcon from "$lib/icon/x-close.svelte";
+  import AudioPlayer from '$lib/components/AudioPlayer.svelte';
+  import ExampleAudio from '$lib/components/strauss.mp3';
+
+  let audioFile = $state(null); // menyimpan file audio sebagai base64
+  let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
 
   let documentId, collectionId;
 
@@ -211,7 +216,8 @@ All Rights Reserved
             document_title: documentData.attributes.document_title,
             description: documentData.attributes.description,
             category: documentData.attributes.category,
-            document_type: documentData.attributes.document_type,
+            // document_type: documentData.attributes.document_type,
+            document_type: "Handwriting",
             ext: documentData.attributes.document.data.attributes.ext,
             detectedText: documentData.attributes.detected_text
               ? documentData.attributes.detected_text
@@ -245,7 +251,8 @@ All Rights Reserved
             document_title: documentData.attributes.document_title,
             description: documentData.attributes.description,
             category: documentData.attributes.category,
-            document_type: documentData.attributes.document_type,
+            // document_type: documentData.attributes.document_type,
+            document_type: "Handwriting",
             ext: documentData.attributes.document.data.attributes.ext,
             detectedText: documentData.attributes.detected_text
               ? documentData.attributes.detected_text
@@ -582,6 +589,33 @@ All Rights Reserved
     input.focus();
   }
 
+  // Fungsi untuk mengunggah file audio dan mengonversinya menjadi base64
+  async function handleAudioUpload(event) {
+    const file = event.target.files[0];
+    if (file && (file.type.includes("audio") || file.name.endsWith(".mp3"))) {
+      // Baca file sebagai base64
+      const base64Audio = await convertToBase64(file);
+      audioFile = base64Audio;
+
+      // Membuat URL blob untuk diputar di audio player
+      audioUrl = URL.createObjectURL(new Blob([file], { type: 'audio/mp3' }));
+
+      console.log("audioUrl: ", audioUrl);
+    } else {
+      alert("Please upload a valid MP3 file.");
+    }
+  }
+
+  // Fungsi konversi file ke Base64
+  function convertToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
@@ -724,6 +758,17 @@ All Rights Reserved
                 />
                 <InputRw {onEdit} bind:value={data.description} />
               </div>
+
+              <div>
+                <input type="file" accept="audio/mp3" on:change={handleAudioUpload} />
+              
+                {#if audioUrl}
+                  <AudioPlayer src={audioUrl} />
+                {/if}
+              </div>
+              <!-- {#each audioTracks as src}
+                <AudioPlayer {src} />
+              {/each} -->
               <!-- <div class="flex flex-col gap-1.5">
                 <Typography
                   preset="Text sm/medium"

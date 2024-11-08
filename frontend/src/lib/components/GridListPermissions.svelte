@@ -35,25 +35,22 @@
 <div class="w-full rounded-lg border-2 border-secondary-light dark:border-secondary-dark">
   {#each permissionListDatas as permission, index (permission.id)}
     <div
-      class={"grid px-8 grid-cols-12 " +
+      class={"flex px-8 w-full " +
         borderInsideGrid(index) +
         backgroundFromType(permission.type)}
     >
       {#if permission.type === "header"}
-        <div class={"py-4 self-center col-span-" + mainColSpan}>
+        <div class={`py-4 self-center grow`}>
           <P class="text-lg text-tertiary-light dark:text-tertiary-dark">{$_(toCamelCase(permission.title))}</P>
         </div>
         {#each permission.data as data (data.name)}
-          <div class="py-4 self-center place-self-center col-span-2">
-            <P class="font-semibold text-tertiary-light dark:text-tertiary-dark">{data.name}</P>
+          <div class="py-4 flex justify-center w-20">
+            <P class="font-semibold text-tertiary-light dark:text-tertiary-dark">{$_(toCamelCase(data.name))}</P>
           </div>
         {/each}
       {:else if permission.type === "section"}
         <div
-          class={"py-4 self-center col-span-" +
-            mainColSpan +
-            " " +
-            leftPaddingFromLevel(permission.level)}
+          class={`py-4 self-center grow ${leftPaddingFromLevel(permission.level)}`}
         >
           <div class="flex gap-3 items-center">
             {#if permission.icon}
@@ -68,11 +65,11 @@
           </div>
         </div>
       {:else if permission.type === "content"}
-        <div class={"py-6 self-center col-span-" + mainColSpan}>
+        <div class={`py-6 self-center grow`}>
           <P class="text-tertiary-light dark:text-tertiary-dark">{$_(toCamelCase(permission.title))}</P>
         </div>
         {#each permission.data as data (data.name)}
-          <div class="py-6 self-center place-self-center col-span-2">
+          <div class="py-6 flex justify-center w-20">
             <Checkbox
               disabled={!edit}
               checked={data.granted}

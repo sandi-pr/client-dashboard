@@ -38,6 +38,11 @@ All Rights Reserved
   import { page } from "$app/stores";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import XCloseIcon from "$lib/icon/x-close.svelte";
+  import AudioPlayer from '$lib/components/AudioPlayer.svelte';
+  import ExampleAudio from '$lib/components/strauss.mp3';
+
+  let audioFile = $state(null); // menyimpan file audio sebagai base64
+  let audioUrl = $state(ExampleAudio); // menyimpan URL blob untuk pemutaran audio
 
   let documentId, collectionId;
 
@@ -191,8 +196,10 @@ All Rights Reserved
           document_title: documentData.name,
           description: documentData.meta.description,
           category: documentData.meta.category,
-          document_type: documentData.meta.document_type,
-          ext: response.result.ext,
+          // document_type: documentData.meta.document_type,
+          // ext: response.result.ext,
+          document_type: "Document Audio",
+          ext: ".mp3",
           detectedText: documentData.meta.detected_text ? documentData.meta.detected_text : "",
           slices: documentData.meta.result_trocr ? documentData.meta.result_trocr.slices : "",
           result_trocr: documentData.meta.result_trocr,
@@ -204,8 +211,10 @@ All Rights Reserved
           document_title: documentData.name,
           description: documentData.meta.description,
           category: documentData.meta.category,
-          document_type: documentData.meta.document_type,
-          ext: response.result.ext,
+          // document_type: documentData.meta.document_type,
+          // ext: response.result.ext,
+          document_type: "Document Audio",
+          ext: ".mp3",
           detectedText: documentData.meta.detected_text ? documentData.meta.detected_text : "",
           slices: documentData.meta.result_trocr ? documentData.meta.result_trocr.slices : "",
           result_trocr: documentData.meta.result_trocr,
@@ -540,6 +549,33 @@ All Rights Reserved
     input.focus();
   }
 
+  // Fungsi untuk mengunggah file audio dan mengonversinya menjadi base64
+  async function handleAudioUpload(event) {
+    const file = event.target.files[0];
+    if (file && (file.type.includes("audio") || file.name.endsWith(".mp3"))) {
+      // Baca file sebagai base64
+      const base64Audio = await convertToBase64(file);
+      audioFile = base64Audio;
+
+      // Membuat URL blob untuk diputar di audio player
+      audioUrl = URL.createObjectURL(new Blob([file], { type: 'audio/mp3' }));
+
+      console.log("audioUrl: ", audioUrl);
+    } else {
+      alert("Please upload a valid MP3 file.");
+    }
+  }
+
+  // Fungsi konversi file ke Base64
+  function convertToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   onMount(() => {
     const unsubscribe = page.subscribe(($page) => {
       documentId = $page.url.searchParams.get("documentId");
@@ -792,61 +828,34 @@ All Rights Reserved
             </div>
           </div>
           <Divider />
-          {#if data.document_type === "Handwriting"}
+          {#if data.document_type === "Handwriting" || data.document_type === "Document Images" || data.document_type === "Document Audio"}
             <div class="flex flex-col md:flex-row gap-4 md:gap-6">
               <div class="w-60">
                 <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                  {$_("handwritingInformation")}
-                </P>
-                <!-- <div class="pt-2">
-                  {#if onEdit}
-                    <div class="flex gap-2">
-                      <button
-                        onclick={() => (onEdit = false)}
-                        class="text-start text-sm text-tertiary-light dark:text-tertiary-dark"
-                        >{$_("cancel")}</button
-                      >
-                      <button
-                        onclick={editDetectedText}
-                        class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
-                        >{$_("confirm")}</button
-                      >
-                    </div>
-                  {:else}
-                    <Typography
-                      preset="Text sm/Regular"
-                      color="quarterary"
-                      text={$_("wrongDetectedText")}
-                    />
-                    <button
-                      onclick={() => (onEdit = true)}
-                      class="text-start text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
-                      >{$_("correctHere")}</button
-                    >
+                  {#if data.document_type === "Handwriting"}
+                    {$_("handwritingInformation")}
+                  {:else if data.document_type === "Document Images"}
+                    {$_("documentInformation")}
+                  {:else if data.document_type === "Document Audio"}
+                    {$_("audioInformation")}
                   {/if}
-                </div> -->
+                </P>
               </div>
               <div class="flex flex-col grow gap-4 md:gap-6">
                 <div class="grid grid-cols-1">
                   <div class="flex flex-col gap-2">
                     <P
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                      >{$_("Handwriting text")}</P
+                      >
+                      {#if data.document_type === "Handwriting"}
+                        {$_("handwritingText")}
+                      {:else if data.document_type === "Document Images"}
+                        {$_("documentText")}
+                      {:else if data.document_type === "Document Audio"}
+                        {$_("audioText")}
+                      {/if}</P
                     >
                     <TextareaRw {onEdit} bind:value={data.detectedText} />
-                    <!-- <P
-                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                      >{$_("Result slice image")}</P
-                    >
-                    {#each data.slices as slice}
-                      <div class="relative">
-                        <img src={slice.image} alt="Dynamic Image" class="w-full h-auto" />
-                        <P
-                          class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                          >{slice.text}</P
-                        >
-                      </div>
-                    {/each} -->
                   </div>
                 </div>
               </div>
@@ -860,7 +869,7 @@ All Rights Reserved
               </P>
             </div>
             <div
-              class="flex flex-col relative items-center grow py-4 md:py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+              class={`flex flex-col relative ${data.document_type === "Document Audio" ? "items-start ps-8" : "items-center"} grow py-4 md:py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark`}
             >
               {#if data.ext === ".pdf"}
                 {#if pdfReady}
@@ -870,6 +879,10 @@ All Rights Reserved
                 <div class="flex justify-center">
                   <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
                 </div>
+              {:else if data.ext === ".mp3"}
+                {#if audioUrl}
+                  <AudioPlayer src={audioUrl} />
+                {/if}
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}
                   <p class="dark:text-white">{paragraphs}</p>
