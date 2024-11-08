@@ -16,7 +16,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { SearchOutline } from "flowbite-svelte-icons";
 
-  import { StateCard, call, checkOr, InputRw } from "$lib";
+  import { StateCard, call, checkOr, InputRw, Toggle } from "$lib";
   import { Typography } from "hexacomponents-svelte";
   import DataTableUser from "$lib/components/DataTableUsersList.svelte";
   import GridListPermissions from "$lib/components/GridListPermissions.svelte";
@@ -745,6 +745,327 @@ All Rights Reserved
     },
   ]);
 
+  let permissionBusinessManagement = $state([
+    {
+      id: 1,
+      type: "header",
+      icon: "",
+      level: 0,
+      title: "Actions",
+      data: [{ name: "allow" }],
+    },
+    {
+      id: 2,
+      type: "section",
+      icon: "userUp",
+      level: 0,
+      title: "Person",
+      data: [],
+    },
+    {
+      id: 3,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Create new persons",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 4,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Change persons information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 5,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View persons information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 6,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete persons",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 7,
+      type: "section",
+      icon: "users",
+      level: 0,
+      title: "Hr",
+      data: [],
+    },
+    {
+      id: 8,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Check employee attendance",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 9,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Create new employees",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 10,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Change employees information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 11,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View employees information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 12,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete employees",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 13,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Create new recruitments",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 14,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Change recruitments information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 15,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View recruitments information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 16,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete recruitments",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 17,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Manage job level",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 18,
+      type: "section",
+      icon: "box",
+      level: 0,
+      title: "Products Services",
+      data: [],
+    },
+    {
+      id: 19,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Create new products services",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 20,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Change products services information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 21,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View products services information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 22,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete products services",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 23,
+      type: "section",
+      icon: "fileText",
+      level: 0,
+      title: "Order Invoice",
+      data: [],
+    },
+    {
+      id: 24,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Create new order invoices",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 25,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Change order invoices information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 26,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View order invoices information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 27,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete order invoices",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 28,
+      type: "section",
+      icon: "calendar",
+      level: 0,
+      title: "Calendar",
+      data: [],
+    },
+    {
+      id: 29,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Create new event",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 30,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Change event information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 31,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "View event information",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 32,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Delete event",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    },
+    {
+      id: 33,
+      type: "content",
+      icon: "",
+      level: 0,
+      title: "Change availability slots",
+      data: [
+        { name: "allow", granted: false }
+      ],
+    }
+  ]);
+
   let tabDatas = $state({
     selected: "Information",
     data: [
@@ -922,6 +1243,39 @@ All Rights Reserved
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text="Manager" />
+          <div class="flex gap-2">
+            {#if onEdit}
+              <Button
+                onclick={() => {
+                  onEdit = false;
+                }}
+                color="light"
+                class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+              >
+              <Button onclick={() => (onEdit = false)} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+            {:else}
+              <Button
+                onclick={async function () {
+                  goto(await $call.getPage("client-dashboard", ""));
+                  return;
+                }}
+                color="light"
+                class="px-3 focus-within:!ring-1">{$_("back")}</Button
+              >
+              <Button
+                onclick={() => (popupModal = true)}
+                outline
+                color="red"
+                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              >
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            {/if}
+          </div>
         </div>
 
         <div class="mt-2 mb-4">
@@ -967,56 +1321,13 @@ All Rights Reserved
                       </P>
                       <InputRw {onEdit} bind:value={role.createdDate} />
                     </div>
-                    <div class="flex flex-col w-1/5 gap-2">
+                    <div class="flex flex-col gap-2 w-max">
                       <P
                         class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                         >{$_("status")}</P
                       >
                       <div class="my-auto">
-                        <Button
-                          color="light"
-                          class="py-[9px] px-3 w-full justify-between"
-                          on:click={() => (dropdownOpenStatus = !dropdownOpenStatus)}
-                          id="dropdownDefaultButton"
-                        >
-                          <!-- <Badge
-                            text={data.status}
-                            type={data.status === "Active" ? "brand" : "warning"}
-                          /> -->
-                          <Typography preset="Text sm/Regular" text={role.status ? $_("active") : $_("deactive")} color="secondary" />
-                          <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
-                        </Button>
-                        <div
-                          id="dropdown"
-                          class={`z-10 ${dropdownOpenStatus ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-                        >
-                          <ul
-                            class="py-2 text-sm text-gray-700 dark:text-gray-700"
-                            aria-labelledby="dropdownDefaultButton"
-                          >
-                            {#if role.status}
-                              <button
-                                class="flex p-2"
-                                onclick={() => {
-                                  role.status = false;
-                                  dropdownOpenStatus = false;
-                                }}
-                              >
-                                <Typography preset="Text sm/Regular" text={$_("deactive")} color="secondary" />
-                              </button>
-                            {:else}
-                              <button
-                                class="flex p-2"
-                                onclick={() => {
-                                  role.status = true;
-                                  dropdownOpenStatus = false;
-                                }}
-                              >
-                                <Typography preset="Text sm/Regular" text={$_("active")} color="secondary" />
-                              </button>
-                            {/if}
-                          </ul>
-                        </div>
+                        <Toggle {onEdit} bind:checked={role.status} />
                       </div>
                     </div>
                   </div>
@@ -1029,6 +1340,8 @@ All Rights Reserved
             <GridListPermissions bind:permissionListDatas={permissionDocumentAi} bind:edit={editRoles} />
           {:else if tabDatas.selected === "Ai Management"}
             <GridListPermissions bind:permissionListDatas={permissionAiManagement} bind:edit={editRoles} />
+          {:else if tabDatas.selected === "Business Management"}
+            <GridListPermissions bind:permissionListDatas={permissionBusinessManagement} bind:edit={editRoles} />
           {:else}
             <!-- else content here -->
           {/if}

@@ -10,7 +10,17 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Modal, Avatar } from "flowbite-svelte";
+  import {
+    P,
+    Heading,
+    Input,
+    Button,
+    Select,
+    Textarea,
+    Toggle,
+    Modal,
+    Avatar,
+  } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -18,7 +28,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, checkOr, generateUniqueId, Toggle } from "$lib";
+  import { triggerToast, checkOr, generateUniqueId } from "$lib";
 
   import { call } from "$lib";
 
@@ -30,9 +40,7 @@ All Rights Reserved
   let dropdownOpenStatus = $state(false);
   let popupModal = $state(false);
 
-  let data = $state({
-    status: false,
-  });
+  let data = $state({});
 
   function formatDate(inputDate) {
     const date = new Date(inputDate);
@@ -80,8 +88,6 @@ All Rights Reserved
         status: !response.result.user.blocked,
         company: response.result.user.company,
       };
-
-      console.log("cek", data.status);
     } catch (error) {
       console.log(error);
     }
@@ -89,6 +95,7 @@ All Rights Reserved
 
   async function updateUser() {
     let token = localStorage.getItem("token");
+    console.log("send", data);
     try {
       let response;
       if (data.password === "") {
@@ -100,7 +107,7 @@ All Rights Reserved
             username: data.username,
             email: data.email,
             company: data.company,
-            blocked: !data.status,
+            blocked: data.status,
             authority: data.role,
             // status: data.status ? "Yes" : "No",
           },
@@ -134,7 +141,6 @@ All Rights Reserved
         return;
       }
 
-      onEdit = false;
       triggerToast("updated");
       getUser();
 
@@ -167,11 +173,6 @@ All Rights Reserved
       console.log(error);
     }
   }
-
-  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    dropdownOpenRole = false;
-  };
 
   let me = $state({ id: 0 });
 
@@ -263,7 +264,7 @@ All Rights Reserved
       ></div>
       <div class="flex flex-col gap-4 pt-8">
         <!-- general information -->
-        <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
@@ -307,7 +308,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-3 md:col-span-4 gap-2">
+              <div class="flex flex-col col-span-4 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -319,13 +320,13 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
+              <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
                   {$_("role")}
                 </P>
-                <div class="my-auto" onfocusout={handleDropdownFocusLoss}>
+                <div class="my-auto">
                   <Button
                     color="light"
                     class="py-[9px] px-3 w-full justify-between"
@@ -336,7 +337,7 @@ All Rights Reserved
                       text={data.role}
                       type={data.role === "Super Admin" || data.role === "Admin" ? "brand" : "info"}
                     /> -->
-                    <Typography preset="Text sm/Regular" text={$_(data.role)} color="secondary" />
+                    <P class="font-semibold">{data.role}</P>
                     <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
                   </Button>
                   <div
@@ -367,11 +368,7 @@ All Rights Reserved
                               dropdownOpenRole = false;
                             }}
                           >
-                            <Typography
-                              preset="Text sm/Regular"
-                              text={$_("admin")}
-                              color="secondary"
-                            />
+                            <P>Admin</P>
                             <!-- <Badge text="Admin" /> -->
                           </button>
                           <button
@@ -381,11 +378,7 @@ All Rights Reserved
                               dropdownOpenRole = false;
                             }}
                           >
-                            <Typography
-                              preset="Text sm/Regular"
-                              text={$_("manager")}
-                              color="secondary"
-                            />
+                            <P>Manager</P>
                             <!-- <Badge text="Admin" /> -->
                           </button>
                         {/if}
@@ -396,11 +389,7 @@ All Rights Reserved
                             dropdownOpenRole = false;
                           }}
                         >
-                          <Typography
-                            preset="Text sm/Regular"
-                            text={$_("user")}
-                            color="secondary"
-                          />
+                          <P>User</P>
                           <!-- <Badge text="User" /> -->
                         </button>
                       {/if}
@@ -408,13 +397,58 @@ All Rights Reserved
                   </div>
                 </div>
               </div>
-              <div class="flex flex-col gap-2 w-max">
+              <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("active")}</P
+                  >{$_("status")}</P
                 >
                 <div class="my-auto">
-                  <Toggle {onEdit} bind:checked={data.status} />
+                  <Button
+                    color="light"
+                    class="py-[9px] px-3 w-full justify-between"
+                    on:click={() => (dropdownOpenStatus = !dropdownOpenStatus)}
+                    id="dropdownDefaultButton"
+                  >
+                    <!-- <Badge
+                      text={data.status}
+                      type={data.status === "Active" ? "brand" : "warning"}
+                    /> -->
+                    <P class="font-semibold">{data.status ? "Active" : "Deactive"}</P>
+                    <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
+                  </Button>
+                  <div
+                    id="dropdown"
+                    class={`z-10 ${dropdownOpenStatus && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+                  >
+                    <ul
+                      class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                      aria-labelledby="dropdownDefaultButton"
+                    >
+                      {#if data.status}
+                        <button
+                          class="flex p-2"
+                          onclick={() => {
+                            data.status = false;
+                            dropdownOpenStatus = false;
+                          }}
+                        >
+                          <P>Deactive</P>
+                          <!-- <Badge text="Deactive" /> -->
+                        </button>
+                      {:else}
+                        <button
+                          class="flex p-2"
+                          onclick={() => {
+                            data.status = true;
+                            dropdownOpenStatus = false;
+                          }}
+                        >
+                          <P>Active</P>
+                          <!-- <Badge text="Active" /> -->
+                        </button>
+                      {/if}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>

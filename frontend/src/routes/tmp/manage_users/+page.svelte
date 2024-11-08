@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { Button, Input, Modal } from "flowbite-svelte";
+  import { Button, Input } from "flowbite-svelte";
   import { goto } from "$app/navigation";
   import { _ } from "svelte-i18n";
   import { SearchOutline } from "flowbite-svelte-icons";
@@ -19,41 +19,23 @@ All Rights Reserved
   import { StateCard, call, checkOr } from "$lib";
   import { Typography } from "hexacomponents-svelte";
   import DataTableUser from "$lib/components/DataTableUsersList.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
   import GridListPermissions from "$lib/components/GridListPermissions.svelte";
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import PlusIcon from "$lib/icon/plus.svg";
 
-  let metadata = { page: 1, pageSize: 25, pageCount: 1, total: 25 };
+  let metadata = $state({ page: 1, pageSize: 25, pageCount: 0, total: 0 });
 
-  let datas = $state([
-    {
-      id: 1,
-      rolename: "Admin",
-      status: {
-        type: "success",
-        name: "Active",
-      },
-      actions: {
-        objects: [
-          {
-            href: "/tmp/manage_users/role" + "?roleId=" + 1,
-            name: "Detail",
-          },
-        ],
-      },
-    },
-  ]);
+  let datas = $state([]);
 
   let editRoles = $state(false);
 
   let gettingDatas = $state(false);
 
   let userListDatas = $state([]);
-  let addRoleModal = $state(false);
-  let tmpRoleName = $state("");
+
+  let tmpUserListDatas = $state([]);
 
   let permissionListDatas = $state([
     {
@@ -325,7 +307,7 @@ All Rights Reserved
       type: "content",
       icon: "",
       level: 0,
-      title: "Process datasets",
+      title: "Proccess datasets",
       data: [
         { name: "user", granted: false },
         { name: "manager", granted: true },
@@ -335,22 +317,20 @@ All Rights Reserved
   ]);
 
   let tabDatas = $state({
-    selected: "Roles",
+    selected: "Users List",
     data: [
       {
         name: "Users List",
       },
       {
-        name: "Roles",
+        name: "Roles & Permissions",
       },
     ],
   });
 
-  let configs = $state({
+  let configs = {
     search: true,
-    widthActions: "w-20",
-    widthStatus: "w-32",
-  });
+  };
 
   function getAuthority(authority) {
     if (authority === "Admin") {
@@ -395,6 +375,10 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
+        configs = {
+          search: true,
+          // pagination: response.result.meta.pagination,
+        };
         let promises = response.result.data.map(async (user, index) => {
           return {
             id: user.id,
@@ -405,98 +389,68 @@ All Rights Reserved
             status: user.blocked === true ? "Inactive" : "Active",
             href:
               `${await $call.getPage("client-dashboard", "user-detail")}` + "?userId=" + user.id,
-            // actions: {
-            //   objects: [
-            //     {
-            //       href:
-            //         `${await $call.getPage("client-dashboard", "user-detail")}` +
-            //         "?userId=" +
-            //         user.id +
-            //         "&edit=" +
-            //         false,
-            //       name: "View",
-            //     },
-            //     {
-            //       href:
-            //         `${await $call.getPage("client-dashboard", "user-detail")}` +
-            //         "?userId=" +
-            //         user.id +
-            //         "&edit=" +
-            //         true,
-            //       name: "Edit",
-            //     },
-            //   ],
-            // },
           };
         });
 
-        userListDatas = await Promise.all(promises);
+        tmpUserListDatas = await Promise.all(promises);
+
+        metadata.total = tmpUserListDatas.length;
+        metadata.pageCount = Math.ceil(metadata.total / metadata.pageSize);
+
+        let start = (metadata.page - 1) * metadata.pageSize;
+        let end = metadata.page * metadata.pageSize;
+        userListDatas = tmpUserListDatas.slice(start, end);
       }
       gettingDatas = false;
     }
   }
 
-  async function getRoles() {
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      gettingDatas = true;
-      let response = await $call.call("client-dashboard", "get-roles", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        gettingDatas = false;
-        return;
-      }
-
-      if (response.result.data.length > 0) {
-        configs = {
-          search: true,
-          widthActions: "w-20",
-          widthStatus: "w-32",
-          // pagination: response.result.meta.pagination,
-        };
-        let promises = response.result.data.map(async (role, index) => {
-          return {
-            id: role.id,
-            rolename: role.name,
-            status: {
-              type: "success",
-              name: role.is_active === true ? "Inactive" : "Active",
-            },
-            actions: {
-              objects: [
-                {
-                  href: "/tmp/manage_users/role" + "?roleId=" + role.id,
-                  name: "Detail",
-                },
-              ],
-            },
-          };
-        });
-
-        datas = await Promise.all(promises);
-      }
-      gettingDatas = false;
+  const nextPage = () => {
+    if (metadata.page < metadata.pageCount) {
+      metadata.page++;
+      let start = (metadata.page - 1) * metadata.pageSize;
+      let end = metadata.page * metadata.pageSize;
+      userListDatas = tmpUserListDatas.slice(start, end);
     }
-  }
-
-  const nextPage = (evt) => {
-    console.log("next page");
   };
 
-  const prevPage = (evt) => {
-    console.log("prev page");
+  const prevPage = () => {
+    if (metadata.page > 1) {
+      metadata.page--;
+      let start = (metadata.page - 1) * metadata.pageSize;
+      let end = metadata.page * metadata.pageSize;
+      userListDatas = tmpUserListDatas.slice(start, end);
+    }
   };
 
   const handleSearch = (evt) => {
-    console.log("clicked");
+    const searchTerm = evt.target.value;
+    if (searchTerm.trim() === "") {
+      // Jika pencarian kosong, tampilkan data pada halaman saat ini
+      let start = (metadata.page - 1) * metadata.pageSize;
+      let end = metadata.page * metadata.pageSize;
+      userListDatas = tmpUserListDatas.slice(start, end);
+
+      metadata.total = tmpUserListDatas.length;
+      metadata.pageCount = Math.ceil(metadata.total / metadata.pageSize);
+    } else {
+      // Filter data berdasarkan term pencarian
+      userListDatas = tmpUserListDatas.filter(
+        (user) =>
+          user.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.role.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+
+      // Update metadata untuk data yang difilter
+      metadata.total = userListDatas.length;
+      metadata.pageCount = Math.ceil(metadata.total / metadata.pageSize);
+
+      // Reset ke halaman pertama setelah pencarian
+      metadata.page = 1;
+      userListDatas = userListDatas.slice(0, metadata.pageSize);
+    }
   };
 
   onMount(async () => {
@@ -530,17 +484,36 @@ All Rights Reserved
         <!-- User Information -->
         {#if tabDatas.selected === "Users List"}
           <div class="flex items-center justify-between">
-            <Typography preset="Display sm/Semibold" color="primary" text={$_("usersList")} />
-            <Button class="gap-1" disabled={!checkOr(["Admin", "Manager"])} onclick={addUser} icon={PlusIcon}
-              ><img class="w-4 h-4" src={PlusIcon} alt="plus-icon" />{$_("addNewUser")}</Button
+            <Typography preset="Display sm/Semibold" color="primary" text="Users List" />
+            <Button disabled={!checkOr(["Admin", "Manager"])} onclick={addUser} icon={PlusIcon}
+              >{$_("addNewUser")}<img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
             >
           </div>
-        {:else if tabDatas.selected === "Roles"}
+        {:else if tabDatas.selected === "Roles & Permissions"}
           <div class="flex items-center justify-between">
-            <Typography preset="Display sm/Semibold" color="primary" text={$_("roles")} />
-            <Button class="gap-1" disabled={!checkOr(["Admin", "Manager"])} onclick={() => {addRoleModal = true}} icon={PlusIcon}
-              ><img class="w-4 h-4" src={PlusIcon} alt="plus-icon" />{$_("addNewRoles")}</Button
-            >
+            <Typography
+              preset="Display sm/Semibold"
+              color="primary"
+              text={$_("rolesAndPermissions")}
+            />
+            <!-- <div class="flex gap-3">
+              {#if !editRoles}
+                <Button
+                  outline
+                  color="light"
+                  onclick={() => {
+                    editRoles = true;
+                  }}>{$_("edit")}</Button
+                >
+              {:else}
+                <Button
+                  onclick={() => {
+                    console.log(permissionListDatas);
+                    // editRoles = false;
+                  }}>{$_("save")}</Button
+                >
+              {/if}
+            </div> -->
           </div>
         {:else}
           <!-- else content here -->
@@ -565,18 +538,8 @@ All Rights Reserved
               </Input>
             </div>
             <DataTableUser {userListDatas} {metadata} next={nextPage} previous={prevPage} />
-          {:else if tabDatas.selected === "Roles"}
-            <!-- <GridListPermissions bind:permissionListDatas bind:edit={editRoles} /> -->
-            {#if datas.length > 0}
-              <DataTable bind:datas bind:configs />
-            {:else if gettingDatas}
-              <StateCard
-                illustration={IllustrationProgress}
-                description={$_("fetchingDataPleaseWait")}
-              />
-            {:else}
-              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-            {/if}
+          {:else if tabDatas.selected === "Roles & Permissions"}
+            <GridListPermissions bind:permissionListDatas bind:edit={editRoles} />
           {:else}
             <!-- else content here -->
           {/if}
@@ -592,21 +555,3 @@ All Rights Reserved
     </div>
   </div>
 </div>
-
-<Modal title={$_("createNewRole")} bind:open={addRoleModal} size="xs" autoclose>
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5">
-      <Typography
-        preset="Text sm/medium"
-        color="secondary"
-        text={`${$_("roleName")}*`}
-      />
-      <Input bind:value={tmpRoleName} placeholder={$_("inputRoleName")} />
-    </div>
-  </div>
-  <svelte:fragment slot="footer">
-    <Button onclick={() => {}} disabled={!tmpRoleName} class="w-full"
-      >{$_("addNewRole")}</Button
-    >
-  </svelte:fragment>
-</Modal>

@@ -60,7 +60,6 @@ All Rights Reserved
           username: data.username,
           password: data.password,
           authority: data.role,
-          blocked: !data.is_active,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -157,7 +156,7 @@ All Rights Reserved
       </div>
       <div class="flex flex-col gap-4 pt-8">
         <!-- general information -->
-        <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
@@ -222,7 +221,7 @@ All Rights Reserved
                   <Helper class="text-sm !text-red-400 pt-2">{$_("passwordInfo")}</Helper>
                 {/if}
               </div>
-              <div class="flex flex-col col-span-2 lg:col-span-1 gap-2">
+              <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -248,7 +247,7 @@ All Rights Reserved
                   </Button>
                   <div
                     id="dropdown"
-                    class={`z-10 ${dropdownOpen && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+                    class={`z-10 ${dropdownOpen ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
                   >
                     <ul
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
