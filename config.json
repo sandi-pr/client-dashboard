@@ -65,6 +65,11 @@
             "file_path": "template/manage_users/create.html"
         },
         {
+            "name": "user-role",
+            "path": "/manage_users/role",
+            "file_path": "template/manage_users/role.html"
+        },
+        {
             "name": "settings",
             "path": "/settings",
             "file_path": "template/settings.html"
@@ -5162,12 +5167,7 @@
                         "configurable": false
                     },
                     "authority": {
-                        "type": "enumeration",
-                        "enum": [
-                            "Admin",
-                            "Manager",
-                            "User"
-                        ],
+                        "type": "string",
                         "configurable": false
                     },
                     "photo": {

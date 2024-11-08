@@ -316,8 +316,8 @@
       selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png";
     } else if (type === "Document Audio") {
-      selectedTypeCollection = "Document Audio (MP3)";
-      acceptedFileTypes = ".mp3";
+      selectedTypeCollection = "Document Audio (MP3, WAV, OGG)";
+      acceptedFileTypes = ".mp3, .wav, .ogg";
     } else if (type === "CSV") {
       selectedTypeCollection = "CSV";
       acceptedFileTypes = ".csv";

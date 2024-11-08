@@ -23,19 +23,18 @@ All Rights Reserved
   import TabBar from "$lib/components/TabBar.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import PlusIcon from "$lib/icon/plus.svg";
+  import { page } from "$app/stores";
 
   let metadata = $state({ page: 1, pageSize: 25, pageCount: 0, total: 0 });
 
-  let role = $state(
-    {
-      id: 1,
-      rolename: "Admin",
-      status: true,
-      createdDate: "04/11/2024",
-    }
-  );
+  let roleId = $state(null);
+
+  let role = $state({
+    id: 1,
+    rolename: "Admin",
+    status: true,
+    createdDate: "04/11/2024",
+  });
 
   let editRoles = $state(true);
 
@@ -71,9 +70,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new user",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 4,
@@ -81,9 +78,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete existing user",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 5,
@@ -91,9 +86,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View user information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 6,
@@ -101,9 +94,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit user information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
   ]);
 
@@ -130,9 +121,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new library",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 4,
@@ -140,9 +129,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View library",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 5,
@@ -150,9 +137,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit libraries information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 6,
@@ -160,9 +145,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete libraries",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 7,
@@ -170,9 +153,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 8,
@@ -180,9 +161,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 9,
@@ -190,9 +169,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit collection information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 10,
@@ -200,9 +177,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 11,
@@ -210,9 +185,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Upload documents into collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 12,
@@ -220,9 +193,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit documents information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 13,
@@ -230,9 +201,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View documents information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 14,
@@ -240,9 +209,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete documents from collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 15,
@@ -258,9 +225,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 17,
@@ -268,9 +233,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 18,
@@ -278,9 +241,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit collection information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 19,
@@ -288,9 +249,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 20,
@@ -298,9 +257,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Upload documents into collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 21,
@@ -308,9 +265,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit documents information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 22,
@@ -318,9 +273,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View documents information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 23,
@@ -328,9 +281,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete documents from collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 24,
@@ -346,9 +297,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 26,
@@ -356,9 +305,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 27,
@@ -366,9 +313,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit collection information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 28,
@@ -376,9 +321,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 29,
@@ -386,9 +329,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Upload documents into collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 30,
@@ -396,9 +337,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit documents information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 31,
@@ -406,9 +345,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View documents information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 32,
@@ -416,9 +353,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete documents from collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 33,
@@ -434,9 +369,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 35,
@@ -444,9 +377,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 36,
@@ -454,9 +385,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit collection information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 37,
@@ -464,9 +393,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 38,
@@ -474,9 +401,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Upload documents into collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 39,
@@ -484,9 +409,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit documents information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 40,
@@ -494,9 +417,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View documents information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 41,
@@ -504,9 +425,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete documents from collection",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
   ]);
 
@@ -533,9 +452,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new bots",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 4,
@@ -543,9 +460,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Change bots information knowledge source and other configurations",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 5,
@@ -553,9 +468,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View bots information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 6,
@@ -563,9 +476,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View conversation logs",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 7,
@@ -573,9 +484,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete deployed bots",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 8,
@@ -591,9 +500,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Add new projects",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 10,
@@ -601,9 +508,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Add new documents to project",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 11,
@@ -611,9 +516,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View projects information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 12,
@@ -621,9 +524,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit projects information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 13,
@@ -631,9 +532,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete projects",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 14,
@@ -641,9 +540,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new cases",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 15,
@@ -651,9 +548,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Add delete new rules",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 16,
@@ -661,9 +556,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Add delete referenced documents",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 17,
@@ -671,9 +564,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View cases information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 18,
@@ -681,9 +572,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit cases rules",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 19,
@@ -699,9 +588,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new datasets",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 21,
@@ -709,9 +596,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View datasets",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 22,
@@ -719,9 +604,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Edit datasets information",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 23,
@@ -729,9 +612,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete datasets",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 24,
@@ -739,9 +620,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Process datasets",
-      data: [
-        { name: "allow", granted: false },
-      ],
+      data: [{ name: "allow", granted: false }],
     },
   ]);
 
@@ -768,9 +647,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new persons",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 4,
@@ -778,9 +655,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Change persons information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 5,
@@ -788,9 +663,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View persons information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 6,
@@ -798,9 +671,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete persons",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 7,
@@ -816,9 +687,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Check employee attendance",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 9,
@@ -826,9 +695,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new employees",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 10,
@@ -836,9 +703,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Change employees information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 11,
@@ -846,9 +711,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View employees information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 12,
@@ -856,9 +719,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete employees",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 13,
@@ -866,9 +727,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new recruitments",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 14,
@@ -876,9 +735,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Change recruitments information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 15,
@@ -886,9 +743,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View recruitments information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 16,
@@ -896,9 +751,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete recruitments",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 17,
@@ -906,9 +759,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Manage job level",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 18,
@@ -924,9 +775,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new products services",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 20,
@@ -934,9 +783,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Change products services information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 21,
@@ -944,9 +791,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View products services information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 22,
@@ -954,9 +799,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete products services",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 23,
@@ -972,9 +815,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new order invoices",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 25,
@@ -982,9 +823,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Change order invoices information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 26,
@@ -992,9 +831,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View order invoices information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 27,
@@ -1002,9 +839,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete order invoices",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 28,
@@ -1020,9 +855,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Create new event",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 30,
@@ -1030,9 +863,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Change event information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 31,
@@ -1040,9 +871,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "View event information",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 32,
@@ -1050,9 +879,7 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Delete event",
-      data: [
-        { name: "allow", granted: false }
-      ],
+      data: [{ name: "allow", granted: false }],
     },
     {
       id: 33,
@@ -1060,10 +887,8 @@ All Rights Reserved
       icon: "",
       level: 0,
       title: "Change availability slots",
-      data: [
-        { name: "allow", granted: false }
-      ],
-    }
+      data: [{ name: "allow", granted: false }],
+    },
   ]);
 
   let tabDatas = $state({
@@ -1111,6 +936,149 @@ All Rights Reserved
         type: "brand",
         name: "Brand",
       };
+    }
+  }
+
+  async function getRole() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await $call.call("module-manager", "get-role", {
+          URLQuery: {},
+          URLParams: {
+            role: roleId,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        console.log("response", response);
+
+        let response2 = await $call.call("module-manager", "get-permissions", {
+          URLQuery: {},
+          URLParams: {
+            role: roleId,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          return;
+        }
+
+        console.log("response2", response2);
+
+        // {
+        //   id: 18,
+        //   type: "section",
+        //   icon: "box",
+        //   level: 0,
+        //   title: "Products Services",
+        //   data: [],
+        // },
+
+        // {
+        //   id: 33,
+        //   type: "content",
+        //   icon: "",
+        //   level: 0,
+        //   title: "Change availability slots",
+        //   data: [{ name: "allow", granted: false }],
+        // },
+
+        for (let i = 0; i < response2.result.permissions.length; i++) {
+          if (response.result.role.role === admin) {
+            for (let j = 0; j < permissionGeneral.length; j++) {
+              if (response2.result.permissions[i].permission.key.includes("general")) {
+                permissionGeneral = [
+                  ...permissionGeneral,
+                  {
+                    id: j + 1,
+                    type: "content",
+                    icon: "",
+                    level: 0,
+                    title: permissionGeneral[j].name,
+                    data: [
+                      {
+                        name: "allow",
+                        granted: true,
+                      },
+                    ],
+                  },
+                ];
+              } else if (response2.result.permissions[i].permission.key.includes("documentAi")) {
+                permissionDocumentAi = [
+                  ...permissionDocumentAi,
+                  {
+                    id: j + 1,
+                    type: "content",
+                    icon: "",
+                    level: 0,
+                    title: permissionDocumentAi[j].name,
+                    data: [
+                      {
+                        name: "allow",
+                        granted: true,
+                      },
+                    ],
+                  },
+                ];
+              } else if (response2.result.permissions[i].permission.key.includes("aiManagement")) {
+                permissionAiManagement = [
+                  ...permissionAiManagement,
+                  {
+                    id: j + 1,
+                    type: "content",
+                    icon: "",
+                    level: 0,
+                    title: permissionAiManagement[j].name,
+                    data: [
+                      {
+                        name: "allow",
+                        granted: true,
+                      },
+                    ],
+                  },
+                ];
+              } else if (
+                response2.result.permissions[i].permission.key.includes("businessManagement")
+              ) {
+                permissionBusinessManagement = [
+                  ...permissionBusinessManagement,
+                  {
+                    id: j + 1,
+                    type: "content",
+                    icon: "",
+                    level: 0,
+                    title: permissionBusinessManagement[j].name,
+                    data: [
+                      {
+                        name: "allow",
+                        granted: true,
+                      },
+                    ],
+                  },
+                ];
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("no token");
     }
   }
 
@@ -1213,19 +1181,16 @@ All Rights Reserved
   };
 
   onMount(async () => {
-    // getActionItems();
-    getUsers();
-
-    // // test
-    // const test = await $call.call("module-manager", "get-roles", {
-    //   URLQuery: {},
-    //   URLParams: {},
-    //   Params: {},
-    //   Headers: {
-    //     Authorization: "Bearer " + localStorage.getItem("token"),
-    //   },
-    // });
-    // console.log("===================", test);
+    // getUsers();
+    const unsubscribe = page.subscribe(async ($page) => {
+      roleId = $page.url.searchParams.get("id");
+      if (roleId === null) {
+        goto(await $call.getPage("client-dashboard", "users"));
+        return;
+      }
+      getRole();
+    });
+    return () => unsubscribe();
   });
 
   async function addUser() {
@@ -1252,7 +1217,9 @@ All Rights Reserved
                 color="light"
                 class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
               >
-              <Button onclick={() => (onEdit = false)} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
+              <Button onclick={() => (onEdit = false)} class="px-3 focus-within:!ring-1"
+                >{$_("save")}</Button
+              >
             {:else}
               <Button
                 onclick={async function () {
@@ -1335,13 +1302,25 @@ All Rights Reserved
               </div>
             </div>
           {:else if tabDatas.selected === "General"}
-            <GridListPermissions bind:permissionListDatas={permissionGeneral} bind:edit={editRoles} />
+            <GridListPermissions
+              bind:permissionListDatas={permissionGeneral}
+              bind:edit={editRoles}
+            />
           {:else if tabDatas.selected === "Documents Ai"}
-            <GridListPermissions bind:permissionListDatas={permissionDocumentAi} bind:edit={editRoles} />
+            <GridListPermissions
+              bind:permissionListDatas={permissionDocumentAi}
+              bind:edit={editRoles}
+            />
           {:else if tabDatas.selected === "Ai Management"}
-            <GridListPermissions bind:permissionListDatas={permissionAiManagement} bind:edit={editRoles} />
+            <GridListPermissions
+              bind:permissionListDatas={permissionAiManagement}
+              bind:edit={editRoles}
+            />
           {:else if tabDatas.selected === "Business Management"}
-            <GridListPermissions bind:permissionListDatas={permissionBusinessManagement} bind:edit={editRoles} />
+            <GridListPermissions
+              bind:permissionListDatas={permissionBusinessManagement}
+              bind:edit={editRoles}
+            />
           {:else}
             <!-- else content here -->
           {/if}
