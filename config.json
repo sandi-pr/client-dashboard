@@ -2233,6 +2233,18 @@
                 {
                     "name": "category",
                     "type": "string"
+                },
+                {
+                    "name": "detected_text",
+                    "type": "string"
+                },
+                {
+                    "name": "result_trocr",
+                    "type": "string"
+                },
+                {
+                    "name": "edited",
+                    "type": "boolean"
                 }
             ]
         },

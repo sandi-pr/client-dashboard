@@ -190,45 +190,43 @@
       try {
         addDocumentsModal = false;
         triggerLoading(true);
-        let response = await $call.call("client-dashboard", "create-library-document", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            document_name: tmpDocumentTitle,
-            description: tmpDocumentDescription,
-            parent_id: parseInt(collectionId),
-            documents: JSON.stringify(files),
-            document_type: tmpDocumentType,
-            category: tags.join(","),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
 
-        if (response.status !== 200) {
-          addDocumentsModal = true;
-          console.log(response);
-          triggerToast("error");
-          triggerLoading(false);
-          return;
-        }
+        for (let i = 0; i < files.length; i++) {
+          let dataSend = null;
 
-        if (tmpDocumentType === "Handwriting") {
-          for (let i = 0; i < files.length; i++) {
-            let response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
-              URLQuery: {},
-              URLParams: {},
-              Params: {
-                image: files[i].base64,
-                model: sessionStorage.getItem("model_trocr"),
-              },
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-
-            console.log("trocr-predict", response3);
+          if (
+            tmpDocumentType === "Handwriting" ||
+            tmpDocumentType === "Document Images" ||
+            tmpDocumentType === "Document Audio"
+          ) {
+            let response3;
+            if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
+              response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  image: files[i].base64,
+                  model: sessionStorage.getItem("model_trocr"),
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              });
+              console.log("trocr-predict", response3);
+            } else {
+              response3 = await $call.call("hexa-ai-rag", "audio-predict", {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  audio_file: files[i].base64,
+                  ext: files.name.split(".").pop(),
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              });
+              console.log("audio-predict", response3);
+            }
 
             if (response3.status !== 200) {
               addDocumentsModal = true;
@@ -239,38 +237,48 @@
             }
 
             if (response3?.result?.text !== null) {
-              const response4 = await $call.call(
-                "client-dashboard",
-                "update-document-handwriting",
-                {
-                  URLQuery: {},
-                  URLParams: {
-                    id: response.result.data[i].id.toString(),
-                  },
-                  Params: {
-                    detected_text: response3.result.text,
-                    result_trocr: JSON.stringify(response3.result),
-                    edited: false,
-                    document_title: tmpDocumentTitle,
-                    description: tmpDocumentDescription,
-                  },
-                  Headers: {
-                    Authorization: "Bearer " + token,
-                  },
-                },
-              );
+              dataSend = {
+                document_name: tmpDocumentTitle,
+                description: tmpDocumentDescription,
+                parent_id: parseInt(collectionId),
+                documents: JSON.stringify(files),
+                document_type: tmpDocumentType,
+                category: tags.join(","),
+                detected_text: response3.result.text,
+                result_trocr: JSON.stringify(response3.result),
+                edited: false,
+              };
 
-              if (response3.status !== 200) {
-                addDocumentsModal = true;
-                triggerToast("error");
-                triggerLoading(false);
-                console.log(response4);
-                return;
-              }
-
-              console.log("ayam", response4);
               triggerLoading(false);
             }
+          }
+
+          if (dataSend === null) {
+            dataSend = {
+              document_name: tmpDocumentTitle,
+              description: tmpDocumentDescription,
+              parent_id: parseInt(collectionId),
+              documents: JSON.stringify(files),
+              document_type: tmpDocumentType,
+              category: tags.join(","),
+            };
+          }
+
+          let response = await $call.call("client-dashboard", "create-library-document", {
+            URLQuery: {},
+            URLParams: {},
+            Params: dataSend,
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status !== 200) {
+            addDocumentsModal = true;
+            console.log(response);
+            triggerToast("error");
+            triggerLoading(false);
+            return;
           }
         }
       } catch (error) {
@@ -349,7 +357,7 @@
           size: formatBytes(file.size),
           base64: base64Data,
         });
-        tmpDocumentTitle = file.name.split('.').slice(0, -1).join('.');
+        tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
       } else {
         fileNotSupport = true;
       }
@@ -623,7 +631,11 @@
     {#if files.length > 0}
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        <InputRw onEdit={true} bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
+        <InputRw
+          onEdit={true}
+          bind:value={tmpDocumentTitle}
+          placeholder={$_("enterDocumentTitle")}
+        />
       </div>
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
