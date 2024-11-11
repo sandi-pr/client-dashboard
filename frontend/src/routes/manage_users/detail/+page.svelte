@@ -33,8 +33,8 @@ All Rights Reserved
   import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
-  const userId = params.get("userId");
   const edit = params.get("edit");
+  let userId = $state("");
   let onEdit = $state(false);
   let dropdownOpenRole = $state(false);
   let dropdownOpenStatus = $state(false);
@@ -178,7 +178,8 @@ All Rights Reserved
 
   onMount(async () => {
     me = JSON.parse(localStorage.getItem("user"));
-    if (userId === null || userId === undefined) {
+    userId = params.get("userId");
+    if (userId === null || userId === undefined || userId === "") {
       triggerToast("error");
       goto(await $call.getPage("client-dashboard", "users"));
     }
