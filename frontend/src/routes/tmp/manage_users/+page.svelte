@@ -16,7 +16,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { SearchOutline } from "flowbite-svelte-icons";
 
-  import { StateCard, call, checkOr } from "$lib";
+  import { StateCard, call, check } from "$lib";
   import { Typography } from "hexacomponents-svelte";
   import DataTableUser from "$lib/components/DataTableUsersList.svelte";
   import GridListPermissions from "$lib/components/GridListPermissions.svelte";
@@ -485,7 +485,7 @@ All Rights Reserved
         {#if tabDatas.selected === "Users List"}
           <div class="flex items-center justify-between">
             <Typography preset="Display sm/Semibold" color="primary" text="Users List" />
-            <Button disabled={!checkOr(["Admin", "Manager"])} onclick={addUser} icon={PlusIcon}
+            <Button disabled={!check("general.user:create")} onclick={addUser} icon={PlusIcon}
               >{$_("addNewUser")}<img class="w-4 h-4" src={PlusIcon} alt="plus-icon" /></Button
             >
           </div>

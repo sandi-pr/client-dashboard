@@ -10,7 +10,17 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { P, Heading, Input, Button, Select, Textarea, Modal, Avatar } from "flowbite-svelte";
+  import {
+    P,
+    Heading,
+    Input,
+    Button,
+    Select,
+    Textarea,
+    Toggle,
+    Modal,
+    Avatar,
+  } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -18,21 +28,52 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, checkOr, generateUniqueId, Toggle } from "$lib";
+  import { triggerToast, check, generateUniqueId } from "$lib";
 
   import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
-  const userId = params.get("userId");
   const edit = params.get("edit");
+  let userId = $state("");
   let onEdit = $state(false);
   let dropdownOpenRole = $state(false);
   let dropdownOpenStatus = $state(false);
   let popupModal = $state(false);
 
-  let data = $state({
-    status: false,
-  });
+  let data = $state({});
+
+  let roles = $state([]);
+
+  async function getRoles() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("module-manager", "get-roles", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("response", response);
+
+      if (response.result.roles.length > 0) {
+        let promises = response.result.roles.map(async (role) => {
+          return {
+            name: role.name,
+          };
+        });
+
+        roles = await Promise.all(promises);
+      }
+    }
+  }
 
   function formatDate(inputDate) {
     const date = new Date(inputDate);
@@ -80,8 +121,6 @@ All Rights Reserved
         status: !response.result.user.blocked,
         company: response.result.user.company,
       };
-
-      console.log("cek", data.status);
     } catch (error) {
       console.log(error);
     }
@@ -89,6 +128,7 @@ All Rights Reserved
 
   async function updateUser() {
     let token = localStorage.getItem("token");
+    console.log("send", data);
     try {
       let response;
       if (data.password === "") {
@@ -100,7 +140,7 @@ All Rights Reserved
             username: data.username,
             email: data.email,
             company: data.company,
-            blocked: !data.status,
+            blocked: data.status,
             authority: data.role,
             // status: data.status ? "Yes" : "No",
           },
@@ -134,7 +174,6 @@ All Rights Reserved
         return;
       }
 
-      onEdit = false;
       triggerToast("updated");
       getUser();
 
@@ -168,21 +207,18 @@ All Rights Reserved
     }
   }
 
-  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    dropdownOpenRole = false;
-  };
-
   let me = $state({ id: 0 });
 
   onMount(async () => {
     me = JSON.parse(localStorage.getItem("user"));
-    if (userId === null || userId === undefined) {
+    userId = params.get("userId");
+    if (userId === null || userId === undefined || userId === "") {
       triggerToast("error");
       goto(await $call.getPage("client-dashboard", "users"));
     }
     // if (edit === "true") onEdit = true;
     getUser();
+    getRoles();
   });
 
   // let dropdownOpenRole = false;
@@ -233,12 +269,12 @@ All Rights Reserved
                 data.email === "" ||
                 data.password === "" ||
                 data.role === "" ||
-                !checkOr(["Admin", "Manager"])}
+                !check("general.user:update")}
               onclick={updateUser}
               class="px-3 focus-within:!ring-1">{$_("save")}</Button
             >
-          {:else if checkOr(["Admin", "Manager"])}
-            {#if checkOr(["Admin"]) && me?.id.toString() !== userId}
+          {:else}
+            {#if check("general.user:delete") && me?.id.toString() !== userId}
               <Button
                 onclick={() => {
                   popupModal = true;
@@ -247,13 +283,15 @@ All Rights Reserved
                 class="px-3 focus-within:!ring-1">{$_("delete")}</Button
               >
             {/if}
-            <Button
-              onclick={() => {
-                onEdit = true;
-              }}
-              color="light"
-              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            {#if check("general.user:update")}
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                color="light"
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            {/if}
           {/if}
         </div>
       </div>
@@ -263,7 +301,7 @@ All Rights Reserved
       ></div>
       <div class="flex flex-col gap-4 pt-8">
         <!-- general information -->
-        <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
@@ -307,7 +345,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-3 md:col-span-4 gap-2">
+              <div class="flex flex-col col-span-4 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -319,13 +357,13 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
+              <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
                   {$_("role")}
                 </P>
-                <div class="my-auto" onfocusout={handleDropdownFocusLoss}>
+                <div class="my-auto">
                   <Button
                     color="light"
                     class="py-[9px] px-3 w-full justify-between"
@@ -336,7 +374,7 @@ All Rights Reserved
                       text={data.role}
                       type={data.role === "Super Admin" || data.role === "Admin" ? "brand" : "info"}
                     /> -->
-                    <Typography preset="Text sm/Regular" text={$_(data.role)} color="secondary" />
+                    <P class="font-semibold">{data.role}</P>
                     <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
                   </Button>
                   <div
@@ -347,32 +385,25 @@ All Rights Reserved
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownDefaultButton"
                     >
-                      <!-- {#if data.role === "Admin"}
+                      {#each roles as role}
                         <button
                           class="flex p-2"
                           onclick={() => {
-                            data.role = "Super Admin";
-                            dropdownOpenRole = false;
+                            data.role = role.name;
+                            dropdownOpen = false;
                           }}
                         >
-                          <P>Super Admin</P>
+                          <Typography preset="Text sm/Regular" text={role.name} color="secondary" />
                         </button>
-                      {:else} -->
-                      {#if checkOr(["Admin", "Manager"])}
-                        {#if checkOr(["Admin"])}
-                          <button
+                      {/each}
+                      <!-- <button
                             class="flex p-2"
                             onclick={() => {
                               data.role = "Admin";
                               dropdownOpenRole = false;
                             }}
                           >
-                            <Typography
-                              preset="Text sm/Regular"
-                              text={$_("admin")}
-                              color="secondary"
-                            />
-                            <!-- <Badge text="Admin" /> -->
+                            <P>Admin</P>
                           </button>
                           <button
                             class="flex p-2"
@@ -381,14 +412,8 @@ All Rights Reserved
                               dropdownOpenRole = false;
                             }}
                           >
-                            <Typography
-                              preset="Text sm/Regular"
-                              text={$_("manager")}
-                              color="secondary"
-                            />
-                            <!-- <Badge text="Admin" /> -->
+                            <P>Manager</P>
                           </button>
-                        {/if}
                         <button
                           class="flex p-2"
                           onclick={() => {
@@ -396,25 +421,64 @@ All Rights Reserved
                             dropdownOpenRole = false;
                           }}
                         >
-                          <Typography
-                            preset="Text sm/Regular"
-                            text={$_("user")}
-                            color="secondary"
-                          />
-                          <!-- <Badge text="User" /> -->
-                        </button>
-                      {/if}
+                          <P>User</P>
+                        </button> -->
                     </ul>
                   </div>
                 </div>
               </div>
-              <div class="flex flex-col gap-2 w-max">
+              <div class="flex flex-col gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("active")}</P
+                  >{$_("status")}</P
                 >
                 <div class="my-auto">
-                  <Toggle {onEdit} bind:checked={data.status} />
+                  <Button
+                    color="light"
+                    class="py-[9px] px-3 w-full justify-between"
+                    on:click={() => (dropdownOpenStatus = !dropdownOpenStatus)}
+                    id="dropdownDefaultButton"
+                  >
+                    <!-- <Badge
+                      text={data.status}
+                      type={data.status === "Active" ? "brand" : "warning"}
+                    /> -->
+                    <P class="font-semibold">{data.status ? "Active" : "Deactive"}</P>
+                    <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
+                  </Button>
+                  <div
+                    id="dropdown"
+                    class={`z-10 ${dropdownOpenStatus && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+                  >
+                    <ul
+                      class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                      aria-labelledby="dropdownDefaultButton"
+                    >
+                      {#if data.status}
+                        <button
+                          class="flex p-2"
+                          onclick={() => {
+                            data.status = false;
+                            dropdownOpenStatus = false;
+                          }}
+                        >
+                          <P>Deactive</P>
+                          <!-- <Badge text="Deactive" /> -->
+                        </button>
+                      {:else}
+                        <button
+                          class="flex p-2"
+                          onclick={() => {
+                            data.status = true;
+                            dropdownOpenStatus = false;
+                          }}
+                        >
+                          <P>Active</P>
+                          <!-- <Badge text="Active" /> -->
+                        </button>
+                      {/if}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>

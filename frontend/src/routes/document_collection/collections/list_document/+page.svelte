@@ -50,7 +50,7 @@ All Rights Reserved
     triggerSelectDropdown,
     triggerLoading,
     triggerReload,
-    checkOr,
+    check,
   } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
@@ -219,7 +219,7 @@ All Rights Reserved
           pagination: response.result.meta.pagination,
           isCategories: false,
           actions: [
-            checkOr(["Admin"]) && {
+            check("documentAi.documentLibrary.document:delete") && {
               id: "delete",
               icon: "trash",
               type: "error",
@@ -231,7 +231,7 @@ All Rights Reserved
                 }
               },
             },
-            checkOr(["Admin", "Manager"]) && {
+            check("documentAi.documentLibrary.document:create") && {
               id: "add_new",
               name: "Add New",
               icon: "plus",
@@ -276,7 +276,7 @@ All Rights Reserved
             //     : document.attributes.upload_by.data.attributes.fullname,
             actions: {
               objects: [
-                checkOr(["Admin", "Manager", "User"]) && {
+                check("documentAi.documentLibrary.document:view") && {
                   // href: "/document/document_collection/detail?documentId=1&collectionId=1",
                   href: `${link}` + "?documentId=" + document.id + "&collectionId=" + collectionId,
                   name: "View",
@@ -1370,7 +1370,7 @@ All Rights Reserved
               illustration={IllustrationProgress}
               description={$_("fetchingDataPleaseWait")}
             />
-          {:else if checkOr(["Admin", "Manager"])}
+          {:else if check("documentAi.documentLibrary.document:create")}
             <StateCard
               illustration={IllustrationEmpty}
               description={$_("youDontHaveAnyDataYet")}

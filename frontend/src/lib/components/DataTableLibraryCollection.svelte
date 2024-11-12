@@ -14,6 +14,7 @@
 
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
+  import { check } from "$lib";
 
   import EyeIcon from "$lib/icon/eye.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
@@ -182,6 +183,7 @@
           <TableBodyCell>{collectionListData.createdAt}</TableBodyCell>
           <TableBodyCell>
             <Button
+              disabled={!check("documentAi.documentLibrary.document:view")}
               on:click={() => {
                 goto(collectionListData.href);
               }}
@@ -205,33 +207,36 @@
             >
               <DotsVerticalIcon svgClass="w-5 h-5 !text-quinary-light !dark:text-quinary-dark" />
             </Button> -->
-            <div on:focusout={handleDropdownFocusLoss} class=" flex items-center relative">
-              <Button
-                on:click={() => (dropdownActionOpen = !dropdownActionOpen)}
-                class="focus-within:ring-0 !p-0"
-                color="none"
-                size="xs"
-                ><DotsVerticalIcon
-                  class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                /></Button
-              >
-              <div
-                class={`z-10 ${dropdownActionOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-              >
-                <ul class="py-2 grow text-sm">
-                  <!-- <button
+
+            {#if check("documentAi.documentLibrary.document:delete")}
+              <div on:focusout={handleDropdownFocusLoss} class=" flex items-center relative">
+                <Button
+                  on:click={() => (dropdownActionOpen = !dropdownActionOpen)}
+                  class="focus-within:ring-0 !p-0"
+                  color="none"
+                  size="xs"
+                  ><DotsVerticalIcon
+                    class="text-fg-quinary-light dark:text-fg-quinary-dark"
+                  /></Button
+                >
+                <div
+                  class={`z-10 ${dropdownActionOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                >
+                  <ul class="py-2 grow text-sm">
+                    <!-- <button
                     class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                     onclick={() => {isEdit = true}}>{$_("edit")}</button
                   > -->
-                  <button
-                    class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    on:click={() => {
-                      functDeleteCategories(), (dropdownActionOpen = !dropdownActionOpen);
-                    }}>{$_("delete")}</button
-                  >
-                </ul>
+                    <button
+                      class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                      on:click={() => {
+                        functDeleteCategories(), (dropdownActionOpen = !dropdownActionOpen);
+                      }}>{$_("delete")}</button
+                    >
+                  </ul>
+                </div>
               </div>
-            </div>
+            {/if}
           </TableBodyCell>
         </TableBodyRow>
       {/each}

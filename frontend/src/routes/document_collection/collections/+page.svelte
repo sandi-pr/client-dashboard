@@ -20,7 +20,7 @@ All Rights Reserved
     triggerToast,
     ToastContainer,
     UploadFile,
-    checkOr,
+    check,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -781,7 +781,7 @@ All Rights Reserved
             propClass="fluid-xl"
           />
           <Button
-            disabled={!checkOr(["Admin", "Manager"])}
+            disabled={!check("documentAi.documentLibrary.collection:create")}
             on:click={() => {
               addCollectionsModal = true;
               tmpCollectionName = "";

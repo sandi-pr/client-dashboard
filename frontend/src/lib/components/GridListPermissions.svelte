@@ -9,6 +9,7 @@
 
   export let permissionListDatas;
   export let edit;
+  export let change;
 
   let mainColSpan = 12 - permissionListDatas[0].data.length * 2;
 
@@ -35,23 +36,23 @@
 <div class="w-full rounded-lg border-2 border-secondary-light dark:border-secondary-dark">
   {#each permissionListDatas as permission, index (permission.id)}
     <div
-      class={"flex px-8 w-full " +
-        borderInsideGrid(index) +
-        backgroundFromType(permission.type)}
+      class={"flex px-8 w-full " + borderInsideGrid(index) + backgroundFromType(permission.type)}
     >
       {#if permission.type === "header"}
         <div class={`py-4 self-center grow`}>
-          <P class="text-lg text-tertiary-light dark:text-tertiary-dark">{$_(toCamelCase(permission.title))}</P>
+          <P class="text-lg text-tertiary-light dark:text-tertiary-dark"
+            >{$_(toCamelCase(permission.title))}</P
+          >
         </div>
         {#each permission.data as data (data.name)}
           <div class="py-4 flex justify-center w-20">
-            <P class="font-semibold text-tertiary-light dark:text-tertiary-dark">{$_(toCamelCase(data.name))}</P>
+            <P class="font-semibold text-tertiary-light dark:text-tertiary-dark"
+              >{$_(toCamelCase(data.name))}</P
+            >
           </div>
         {/each}
       {:else if permission.type === "section"}
-        <div
-          class={`py-4 self-center grow ${leftPaddingFromLevel(permission.level)}`}
-        >
+        <div class={`py-4 self-center grow ${leftPaddingFromLevel(permission.level)}`}>
           <div class="flex gap-3 items-center">
             {#if permission.icon}
               <svelte:component
@@ -66,7 +67,9 @@
         </div>
       {:else if permission.type === "content"}
         <div class={`py-6 self-center grow`}>
-          <P class="text-tertiary-light dark:text-tertiary-dark">{$_(toCamelCase(permission.title))}</P>
+          <P class="text-tertiary-light dark:text-tertiary-dark"
+            >{$_(toCamelCase(permission.title))}</P
+          >
         </div>
         {#each permission.data as data (data.name)}
           <div class="py-6 flex justify-center w-20">
@@ -76,6 +79,7 @@
               on:click={() => {
                 data.granted = !data.granted;
                 console.log(data.granted);
+                change();
               }}
             />
           </div>

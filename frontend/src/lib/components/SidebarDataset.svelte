@@ -11,7 +11,7 @@
     Indicator,
     ListPlaceholder,
   } from "flowbite-svelte";
-  import { Typography, checkOr } from "$lib";
+  import { Typography, check } from "$lib";
   import { format, isToday, isYesterday, set } from "date-fns";
   import SunIcon from "$lib/icon/sun.svg";
   // import Lajnah from "$lib/icon/lajnah.svg";
@@ -302,7 +302,7 @@
     </div>
     <div class="flex flex-col gap-2 w-full">
       <Button
-        disabled={!checkOr(["Admin", "Manager"])}
+        disabled={!check("aiManagement.datasets:create")}
         on:click={newChat}
         class="!flex self-stretch h-12 !text-white dark:!text-white rounded-2xl"
       >
@@ -312,7 +312,7 @@
       </Button>
       <div class="grid grid-cols-2 gap-2">
         <Button
-          disabled={statusRequest === "process" || !checkOr(["Admin", "Manager"])}
+          disabled={statusRequest === "process" || !check("aiManagement.datasets:process")}
           on:click={() => {
             processDataset();
           }}
@@ -326,7 +326,7 @@
           <Typography preset="Text md/Semibold" text={$_("process")} color="brand-secondary" />
         </Button>
         <Button
-          disabled={statusRequest === "process" || !checkOr(["Admin", "Manager"])}
+          disabled={statusRequest === "process" || !check("aiManagement.datasets:create")}
           on:click={handleUploadWrapper}
           outline
           class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"

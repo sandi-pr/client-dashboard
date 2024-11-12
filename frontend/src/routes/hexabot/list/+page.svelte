@@ -20,6 +20,7 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { check } from "$lib";
 
   let searchTerm = $state("");
   let gettingDatas = $state(true);
@@ -273,36 +274,42 @@
                           />
                         </div>
                       </div>
-                      <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                        <Button
-                          on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
-                          class="focus-within:ring-0 !p-0"
-                          color="none"
-                          size="xs"
-                          ><DotsVerticalIcon
-                            class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                          /></Button
-                        >
+                      {#if check("aiManagement.hexabots:delete")}
                         <div
-                          class={`z-10 ${dropdownOpen[index] ? "absolute top-10" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                          onfocusout={handleDropdownFocusLoss}
+                          class=" flex items-center relative"
                         >
-                          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-                            <button
-                              class="flex p-2"
-                              onclick={() => {
-                                popupModal = true;
-                                tmpId = bot.botsID;
-                                dropdownOpen[index] = !dropdownOpen[index];
-                              }}>{$_("delete")}</button
-                            >
-                          </ul>
+                          <Button
+                            on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
+                            class="focus-within:ring-0 !p-0"
+                            color="none"
+                            size="xs"
+                            ><DotsVerticalIcon
+                              class="text-fg-quinary-light dark:text-fg-quinary-dark"
+                            /></Button
+                          >
+                          <div
+                            class={`z-10 ${dropdownOpen[index] ? "absolute top-10" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                          >
+                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                              <button
+                                class="flex p-2"
+                                onclick={() => {
+                                  popupModal = true;
+                                  tmpId = bot.botsID;
+                                  dropdownOpen[index] = !dropdownOpen[index];
+                                }}>{$_("delete")}</button
+                              >
+                            </ul>
+                          </div>
                         </div>
-                      </div>
+                      {/if}
                     </div>
                   </div>
                   <div class="flex gap-3 px-4 pt-4 pb-6">
                     <div class="grid grow grid-cols-2 gap-3">
                       <Button
+                        disabled={!check("aiManagement.hexabots:view")}
                         on:click={async () => {
                           goto(
                             (await $call.getPage("client-dashboard", "hexabot-detail")) +

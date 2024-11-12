@@ -9,13 +9,15 @@
   class={`grid ${$showAI ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 lg:grid-cols-" + numGrid} gap-2 md:gap-4 w-full items-center justify-center`}
 >
   {#each actionItems as item}
-    <Card
-      href={onclick ? null : item.href}
-      onclick={onclick ?? null}
-      icon={item.icon}
-      title={$_(toCamelCase(item.actionName))}
-      description={$_(toCamelCase(item.desc))}
-    />
+    {#if !item?.disabled}
+      <Card
+        href={onclick ? null : item.href}
+        onclick={onclick ?? null}
+        icon={item.icon}
+        title={$_(toCamelCase(item.actionName))}
+        description={$_(toCamelCase(item.desc))}
+      />
+    {/if}
   {/each}
 </div>
 

@@ -1,6 +1,6 @@
 <script>
   import { Button, Card, Indicator, Dropdown, DropdownItem } from "flowbite-svelte";
-  import { Typography, Badge, checkOr } from "$lib";
+  import { Typography, Badge, check } from "$lib";
   import { _ } from "svelte-i18n";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
@@ -66,14 +66,17 @@
   <div
     class="flex justify-between px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
-    <button disabled={!checkOr(["Admin", "Manager", "User"])} onclick={funcDetailCollection}>
+    <button
+      disabled={!check("documentAi.documentLibrary.collection:view")}
+      onclick={funcDetailCollection}
+    >
       <Typography
         preset="Text md/Semibold"
         text={webchat ? collectionName + " (Webchat)" : collectionName}
         propClass="hover:underline line-clamp-1 md:line-clamp-2 fluid-sm"
       />
     </button>
-    {#if checkOr(["Admin", "Manager"])}
+    {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
       <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
         <Button
           on:click={() => (dropdownOpen = !dropdownOpen)}
@@ -86,19 +89,23 @@
           class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
         >
           <ul class="py-2 grow text-sm">
-            <button
-              class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-              onclick={() => {
-                functAddDocuments(), (dropdownOpen = !dropdownOpen);
-              }}>{$_("addDocuments")}</button
-            >
-            <button
-              class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-              onclick={() => {
-                functEdit(), (dropdownOpen = !dropdownOpen);
-              }}>{$_("editCollectionName")}</button
-            >
-            {#if checkOr(["Admin"])}
+            {#if check("documentAi.documentLibrary.document:create")}
+              <button
+                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                onclick={() => {
+                  functAddDocuments(), (dropdownOpen = !dropdownOpen);
+                }}>{$_("addDocuments")}</button
+              >
+            {/if}
+            {#if check("documentAi.documentLibrary.collection:edit")}
+              <button
+                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                onclick={() => {
+                  functEdit(), (dropdownOpen = !dropdownOpen);
+                }}>{$_("editCollectionName")}</button
+              >
+            {/if}
+            {#if check("documentAi.documentLibrary.collection:delete")}
               <button
                 class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                 onclick={() => {
@@ -122,7 +129,7 @@
     {/if}
   </div>
 
-  {#if checkOr(["Admin", "Manager", "User"])}
+  {#if check("documentAi.documentLibrary.collection:view")}
     <Card
       on:click={funcDetailCollection}
       class="flex hover:cursor-pointer flex-col items-center border-none shadow-none gap-2.5 px-6 pb-2 md:pb-6 pt-2"
@@ -171,8 +178,8 @@
   <div class="flex justify-center border-t border-secondary-light dark:border-secondary-dark">
     <Button
       disabled={status === "Reading" || status === "Empty"
-        ? !checkOr(["Admin", "Manager"])
-        : !checkOr(["Admin", "Manager", "User"])}
+        ? !check("documentAi.documentLibrary.document:create")
+        : false}
       on:click={() => {
         if (status === "Empty") {
           functAddDocuments();

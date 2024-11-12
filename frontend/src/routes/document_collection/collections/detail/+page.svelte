@@ -19,7 +19,7 @@ All Rights Reserved
     TextareaRw,
     Typography,
     triggerLoading,
-    checkOr,
+    check,
   } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -39,8 +39,8 @@ All Rights Reserved
   import { page } from "$app/stores";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import XCloseIcon from "$lib/icon/x-close.svelte";
-  import AudioPlayer from '$lib/components/AudioPlayer.svelte';
-  import ExampleAudio from '$lib/components/strauss.mp3';
+  import AudioPlayer from "$lib/components/AudioPlayer.svelte";
+  import ExampleAudio from "$lib/components/strauss.mp3";
 
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
@@ -598,7 +598,7 @@ All Rights Reserved
       audioFile = base64Audio;
 
       // Membuat URL blob untuk diputar di audio player
-      audioUrl = URL.createObjectURL(new Blob([file], { type: 'audio/mp3' }));
+      audioUrl = URL.createObjectURL(new Blob([file], { type: "audio/mp3" }));
 
       console.log("audioUrl: ", audioUrl);
     } else {
@@ -709,7 +709,7 @@ All Rights Reserved
               class="hidden md:block px-3 focus-within:!ring-1">{$_("back")}</Button
             >
             <Button
-              disabled={!checkOr(["Admin"])}
+              disabled={!check("documentAi.documentLibrary.collection:delete")}
               onclick={() => (popupModal = true)}
               outline
               color="red"
@@ -717,7 +717,7 @@ All Rights Reserved
             >
             <!-- {#if data.document_type !== "Handwriting"} -->
             <Button
-              disabled={!checkOr(["Admin", "Manager"])}
+              disabled={!check("documentAi.documentLibrary.document:edit")}
               onclick={() => {
                 onEdit = true;
               }}
@@ -761,7 +761,7 @@ All Rights Reserved
 
               <div>
                 <input type="file" accept="audio/mp3" on:change={handleAudioUpload} />
-              
+
                 {#if audioUrl}
                   <AudioPlayer src={audioUrl} />
                 {/if}
@@ -870,7 +870,7 @@ All Rights Reserved
                   <div class="flex flex-col gap-2">
                     <P
                       class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                      >
+                    >
                       {#if data.document_type === "Handwriting"}
                         {$_("handwritingText")}
                       {:else}

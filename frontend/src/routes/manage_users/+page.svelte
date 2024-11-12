@@ -16,7 +16,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { SearchOutline } from "flowbite-svelte-icons";
 
-  import { StateCard, call, checkOr, triggerToast } from "$lib";
+  import { StateCard, call, check, triggerToast } from "$lib";
   import { Typography } from "hexacomponents-svelte";
   import DataTableUser from "$lib/components/DataTableUsersList.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -237,7 +237,7 @@ All Rights Reserved
           URLQuery: {},
           URLParams: {},
           Params: {
-            role: tmpRoleName.toLowerCase(),
+            role: tmpRoleName.toLowerCase().replace(/\s+/g, "_"),
             name: tmpRoleName,
           },
           Headers: {
@@ -274,7 +274,7 @@ All Rights Reserved
             <Typography preset="Display sm/Semibold" color="primary" text={$_("usersList")} />
             <Button
               class="gap-1"
-              disabled={!checkOr(["Admin", "Manager"])}
+              disabled={!check("general.user:create")}
               onclick={addUser}
               icon={PlusIcon}
               ><img class="w-4 h-4" src={PlusIcon} alt="plus-icon" />{$_("addNewUser")}</Button
@@ -285,7 +285,7 @@ All Rights Reserved
             <Typography preset="Display sm/Semibold" color="primary" text={$_("roles")} />
             <Button
               class="gap-1"
-              disabled={!checkOr(["Admin", "Manager"])}
+              disabled={!check("general.role:create")}
               onclick={() => {
                 addRoleModal = true;
               }}

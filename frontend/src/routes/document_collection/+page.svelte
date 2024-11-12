@@ -23,7 +23,7 @@ All Rights Reserved
     triggerToast,
     UploadFile,
     ActionCard,
-    checkOr,
+    check,
   } from "$lib";
   import { _ } from "svelte-i18n";
   import PlusIcon from "$lib/icon/plus.svg";
@@ -699,7 +699,7 @@ All Rights Reserved
       propClass="fluid-xl"
     />
 
-    {#if checkOr(["Admin", "Manager"])}
+    {#if check("documentAi.documentLibrary:create")}
       <!-- Action Items -->
       <div class="flex flex-col gap-4">
         <SectionHeader title={$_("action")} />

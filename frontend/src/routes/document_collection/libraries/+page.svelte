@@ -21,6 +21,7 @@ All Rights Reserved
     triggerToast,
     ToastContainer,
     UploadFile,
+    check,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -429,6 +430,7 @@ All Rights Reserved
             propClass="fluid-xl"
           />
           <Button
+            disabled={!check("documentAi.documentLibrary:create")}
             on:click={() => {
               addLibraryModal = true;
               tmpCollectionName = "";

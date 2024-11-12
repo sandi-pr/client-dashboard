@@ -28,6 +28,7 @@
     call,
     triggerToast,
     StateCard,
+    check,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -84,6 +85,7 @@
   async function getActionItems() {
     actionItems = [
       {
+        disabled: !check("aiManagement.hexabots:create"),
         href: await $call.getPage("client-dashboard", "hexabot-create"),
         icon: "messagePlus",
         actionName: "Create New Bots",
@@ -435,7 +437,9 @@
 
         <!-- Action Items -->
         <div class="flex flex-col gap-4">
-          <SectionHeader title={$_("action")} />
+          {#if actionItems.some((item) => item.disabled === false)}
+            <SectionHeader title={$_("action")} />
+          {/if}
           <ActionCard {actionItems} />
         </div>
 
@@ -496,40 +500,46 @@
                           />
                         </div>
                       </div>
-                      <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                        <Button
-                          on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
-                          class="focus-within:ring-0 !p-0"
-                          color="none"
-                          size="xs"
-                          ><DotsVerticalIcon
-                            class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                          /></Button
-                        >
+                      {#if check("aiManagement.hexabots:delete")}
                         <div
-                          class={`z-10 ${dropdownOpen[index] ? "absolute top-9 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                          onfocusout={handleDropdownFocusLoss}
+                          class=" flex items-center relative"
                         >
-                          <ul class="py-2 grow text-sm">
-                            <!-- <button
+                          <Button
+                            on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
+                            class="focus-within:ring-0 !p-0"
+                            color="none"
+                            size="xs"
+                            ><DotsVerticalIcon
+                              class="text-fg-quinary-light dark:text-fg-quinary-dark"
+                            /></Button
+                          >
+                          <div
+                            class={`z-10 ${dropdownOpen[index] ? "absolute top-9 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                          >
+                            <ul class="py-2 grow text-sm">
+                              <!-- <button
                               class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                               onclick={goToEditPage(bot.botsID)}>{$_("edit")}</button
                             > -->
-                            <button
-                              class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                              onclick={() => {
-                                popupModal = true;
-                                tmpId = bot.botsID;
-                                dropdownOpen[index] = !dropdownOpen[index];
-                              }}>{$_("delete")}</button
-                            >
-                          </ul>
+                              <button
+                                class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                                onclick={() => {
+                                  popupModal = true;
+                                  tmpId = bot.botsID;
+                                  dropdownOpen[index] = !dropdownOpen[index];
+                                }}>{$_("delete")}</button
+                              >
+                            </ul>
+                          </div>
                         </div>
-                      </div>
+                      {/if}
                     </div>
                   </div>
                   <div class="flex gap-3 px-4 pt-4 pb-6">
                     <div class="grid grow grid-cols-2 gap-3">
                       <Button
+                        disabled={!check("aiManagement.hexabots:view")}
                         on:click={async () => {
                           goto(
                             (await $call.getPage("client-dashboard", "hexabot-detail")) +

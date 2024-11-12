@@ -11,12 +11,12 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { Button, Input, P } from "flowbite-svelte";
+  import { Button, Input, P, Modal } from "flowbite-svelte";
   import { goto } from "$app/navigation";
   import { _ } from "svelte-i18n";
-  import { SearchOutline } from "flowbite-svelte-icons";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
 
-  import { StateCard, call, checkOr, InputRw, Toggle } from "$lib";
+  import { StateCard, call, check, InputRw, Toggle, generateUniqueId, triggerToast } from "$lib";
   import { Typography } from "hexacomponents-svelte";
   import DataTableUser from "$lib/components/DataTableUsersList.svelte";
   import GridListPermissions from "$lib/components/GridListPermissions.svelte";
@@ -24,21 +24,24 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { page } from "$app/stores";
+  import { format } from "date-fns";
 
   let metadata = $state({ page: 1, pageSize: 25, pageCount: 0, total: 0 });
 
   let roleId = $state(null);
 
   let role = $state({
-    id: 1,
-    rolename: "Admin",
-    status: true,
-    createdDate: "04/11/2024",
+    id: 0,
+    rolename: "",
+    status: false,
+    createdDate: "",
   });
 
   let editRoles = $state(true);
 
   let gettingDatas = $state(false);
+  let tmpPermissions = $state([]);
+  let disabledButton = $state(true);
 
   let userListDatas = $state([]);
 
@@ -46,6 +49,7 @@ All Rights Reserved
   let dropdownOpenStatus = $state(false);
 
   let onEdit = $state(false);
+  let popupModal = $state(false);
 
   let permissionGeneral = $state([
     {
@@ -55,46 +59,6 @@ All Rights Reserved
       level: 0,
       title: "Actions",
       data: [{ name: "allow" }],
-    },
-    {
-      id: 2,
-      type: "section",
-      icon: "userUp",
-      level: 0,
-      title: "Manage User",
-      data: [],
-    },
-    {
-      id: 3,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new user",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 4,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete existing user",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 5,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View user information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 6,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit user information",
-      data: [{ name: "allow", granted: false }],
     },
   ]);
 
@@ -107,326 +71,6 @@ All Rights Reserved
       title: "Actions",
       data: [{ name: "allow" }],
     },
-    {
-      id: 2,
-      type: "section",
-      icon: "bookOpen",
-      level: 0,
-      title: "Document Library",
-      data: [],
-    },
-    {
-      id: 3,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new library",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 4,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View library",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 5,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit libraries information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 6,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete libraries",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 7,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 8,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 9,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit collection information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 10,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 11,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Upload documents into collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 12,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit documents information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 13,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View documents information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 14,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete documents from collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 15,
-      type: "section",
-      icon: "bookClosed",
-      level: 0,
-      title: "Sop Compliance",
-      data: [],
-    },
-    {
-      id: 16,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 17,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 18,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit collection information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 19,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 20,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Upload documents into collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 21,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit documents information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 22,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View documents information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 23,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete documents from collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 24,
-      type: "section",
-      icon: "bookClosed",
-      level: 0,
-      title: "Contracts Agreement",
-      data: [],
-    },
-    {
-      id: 25,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 26,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 27,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit collection information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 28,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 29,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Upload documents into collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 30,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit documents information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 31,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View documents information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 32,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete documents from collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 33,
-      type: "section",
-      icon: "bookClosed",
-      level: 0,
-      title: "Customer Data Privacy",
-      data: [],
-    },
-    {
-      id: 34,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 35,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 36,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit collection information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 37,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 38,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Upload documents into collection",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 39,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit documents information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 40,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View documents information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 41,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete documents from collection",
-      data: [{ name: "allow", granted: false }],
-    },
   ]);
 
   let permissionAiManagement = $state([
@@ -438,190 +82,6 @@ All Rights Reserved
       title: "Actions",
       data: [{ name: "allow" }],
     },
-    {
-      id: 2,
-      type: "section",
-      icon: "messageChat",
-      level: 0,
-      title: "Hexa Bots",
-      data: [],
-    },
-    {
-      id: 3,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new bots",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 4,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change bots information knowledge source and other configurations",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 5,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View bots information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 6,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View conversation logs",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 7,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete deployed bots",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 8,
-      type: "section",
-      icon: "fileCheck",
-      level: 0,
-      title: "Contract Reviewer",
-      data: [],
-    },
-    {
-      id: 9,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Add new projects",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 10,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Add new documents to project",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 11,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View projects information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 12,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit projects information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 13,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete projects",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 14,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new cases",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 15,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Add delete new rules",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 16,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Add delete referenced documents",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 17,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View cases information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 18,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit cases rules",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 19,
-      type: "section",
-      icon: "data",
-      level: 0,
-      title: "Datasets",
-      data: [],
-    },
-    {
-      id: 20,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new datasets",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 21,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View datasets",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 22,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Edit datasets information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 23,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete datasets",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 24,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Process datasets",
-      data: [{ name: "allow", granted: false }],
-    },
   ]);
 
   let permissionBusinessManagement = $state([
@@ -632,262 +92,6 @@ All Rights Reserved
       level: 0,
       title: "Actions",
       data: [{ name: "allow" }],
-    },
-    {
-      id: 2,
-      type: "section",
-      icon: "userUp",
-      level: 0,
-      title: "Person",
-      data: [],
-    },
-    {
-      id: 3,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new persons",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 4,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change persons information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 5,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View persons information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 6,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete persons",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 7,
-      type: "section",
-      icon: "users",
-      level: 0,
-      title: "Hr",
-      data: [],
-    },
-    {
-      id: 8,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Check employee attendance",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 9,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new employees",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 10,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change employees information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 11,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View employees information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 12,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete employees",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 13,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new recruitments",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 14,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change recruitments information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 15,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View recruitments information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 16,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete recruitments",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 17,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Manage job level",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 18,
-      type: "section",
-      icon: "box",
-      level: 0,
-      title: "Products Services",
-      data: [],
-    },
-    {
-      id: 19,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new products services",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 20,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change products services information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 21,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View products services information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 22,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete products services",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 23,
-      type: "section",
-      icon: "fileText",
-      level: 0,
-      title: "Order Invoice",
-      data: [],
-    },
-    {
-      id: 24,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new order invoices",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 25,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change order invoices information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 26,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View order invoices information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 27,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete order invoices",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 28,
-      type: "section",
-      icon: "calendar",
-      level: 0,
-      title: "Calendar",
-      data: [],
-    },
-    {
-      id: 29,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Create new event",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 30,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change event information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 31,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "View event information",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 32,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Delete event",
-      data: [{ name: "allow", granted: false }],
-    },
-    {
-      id: 33,
-      type: "content",
-      icon: "",
-      level: 0,
-      title: "Change availability slots",
-      data: [{ name: "allow", granted: false }],
     },
   ]);
 
@@ -961,6 +165,21 @@ All Rights Reserved
 
         console.log("response", response);
 
+        role = {
+          id: generateUniqueId(
+            response.result.role?.id === undefined ? 0 : response.result.role?.id,
+            "role",
+          ),
+          rolename: response.result.role.name,
+          status: response.result.role?.status === undefined ? true : response.result.role?.status,
+          createdDate: format(
+            response.result.role?.created === undefined
+              ? new Date()
+              : new Date(response.result.role?.created),
+            "dd/MM/yyyy",
+          ),
+        };
+
         let response2 = await $call.call("module-manager", "get-permissions", {
           URLQuery: {},
           URLParams: {
@@ -997,83 +216,180 @@ All Rights Reserved
         //   data: [{ name: "allow", granted: false }],
         // },
 
+        if (response.result.role.role === "admin") {
+          editRoles = false;
+        }
+
+        permissionGeneral = [];
+        permissionDocumentAi = [];
+        permissionAiManagement = [];
+        permissionBusinessManagement = [];
+
         for (let i = 0; i < response2.result.permissions.length; i++) {
-          if (response.result.role.role === admin) {
-            for (let j = 0; j < permissionGeneral.length; j++) {
-              if (response2.result.permissions[i].permission.key.includes("general")) {
-                permissionGeneral = [
-                  ...permissionGeneral,
-                  {
-                    id: j + 1,
-                    type: "content",
-                    icon: "",
-                    level: 0,
-                    title: permissionGeneral[j].name,
-                    data: [
-                      {
-                        name: "allow",
-                        granted: true,
-                      },
-                    ],
-                  },
-                ];
-              } else if (response2.result.permissions[i].permission.key.includes("documentAi")) {
-                permissionDocumentAi = [
-                  ...permissionDocumentAi,
-                  {
-                    id: j + 1,
-                    type: "content",
-                    icon: "",
-                    level: 0,
-                    title: permissionDocumentAi[j].name,
-                    data: [
-                      {
-                        name: "allow",
-                        granted: true,
-                      },
-                    ],
-                  },
-                ];
-              } else if (response2.result.permissions[i].permission.key.includes("aiManagement")) {
-                permissionAiManagement = [
-                  ...permissionAiManagement,
-                  {
-                    id: j + 1,
-                    type: "content",
-                    icon: "",
-                    level: 0,
-                    title: permissionAiManagement[j].name,
-                    data: [
-                      {
-                        name: "allow",
-                        granted: true,
-                      },
-                    ],
-                  },
-                ];
-              } else if (
-                response2.result.permissions[i].permission.key.includes("businessManagement")
-              ) {
-                permissionBusinessManagement = [
-                  ...permissionBusinessManagement,
-                  {
-                    id: j + 1,
-                    type: "content",
-                    icon: "",
-                    level: 0,
-                    title: permissionBusinessManagement[j].name,
-                    data: [
-                      {
-                        name: "allow",
-                        granted: true,
-                      },
-                    ],
-                  },
-                ];
-              }
+          if (response2.result.permissions[i].key.includes("general")) {
+            if (response2.result.permissions[i]?.icon) {
+              permissionGeneral = [
+                ...permissionGeneral,
+                {
+                  id: permissionGeneral.length + 1,
+                  type: "section",
+                  icon: "",
+                  level: 0,
+                  title: response2.result.permissions[i].name,
+                  data: [],
+                },
+              ];
+            } else {
+              permissionGeneral = [
+                ...permissionGeneral,
+                {
+                  id: permissionGeneral.length + 1,
+                  type: "content",
+                  icon: "",
+                  level: 0,
+                  title: response2.result.permissions[i].name,
+                  data: [
+                    {
+                      name: "allow",
+                      granted:
+                        response.result.role.role === "admin"
+                          ? true
+                          : response.result.role.permissions.some(
+                              (permission) => permission === response2.result.permissions[i].key,
+                            ),
+                    },
+                  ],
+                  key: response2.result.permissions[i].key,
+                },
+              ];
+            }
+          } else if (response2.result.permissions[i].key.includes("documentAi")) {
+            if (response2.result.permissions[i]?.icon) {
+              permissionDocumentAi = [
+                ...permissionDocumentAi,
+                {
+                  id: permissionDocumentAi.length + 1,
+                  type: "section",
+                  icon: "",
+                  level: 0,
+                  title: response2.result.permissions[i].name,
+                  data: [],
+                },
+              ];
+            } else {
+              permissionDocumentAi = [
+                ...permissionDocumentAi,
+                {
+                  id: permissionDocumentAi.length + 1,
+                  type: "content",
+                  icon: "",
+                  level: 0,
+                  title: response2.result.permissions[i].name,
+                  data: [
+                    {
+                      name: "allow",
+                      granted:
+                        response.result.role.role === "admin"
+                          ? true
+                          : response.result.role.permissions.some(
+                              (permission) => permission === response2.result.permissions[i].key,
+                            ),
+                    },
+                  ],
+                  key: response2.result.permissions[i].key,
+                },
+              ];
+            }
+          } else if (response2.result.permissions[i].key.includes("aiManagement")) {
+            if (response2.result.permissions[i]?.icon) {
+              permissionAiManagement = [
+                ...permissionAiManagement,
+                {
+                  id: permissionAiManagement.length + 1,
+                  type: "section",
+                  icon: "",
+                  level: 0,
+                  title: response2.result.permissions[i].name,
+                  data: [],
+                },
+              ];
+            } else {
+              permissionAiManagement = [
+                ...permissionAiManagement,
+                {
+                  id: permissionAiManagement.length + 1,
+                  type: "content",
+                  icon: "",
+                  level: 0,
+                  title: response2.result.permissions[i].name,
+                  data: [
+                    {
+                      name: "allow",
+                      granted:
+                        response.result.role.role === "admin"
+                          ? true
+                          : response.result.role.permissions.some(
+                              (permission) => permission === response2.result.permissions[i].key,
+                            ),
+                    },
+                  ],
+                  key: response2.result.permissions[i].key,
+                },
+              ];
+            }
+          } else if (response2.result.permissions[i].key.includes("businessManagement")) {
+            if (response2.result.permissions[i]?.icon) {
+              permissionBusinessManagement = [
+                ...permissionBusinessManagement,
+                {
+                  id: permissionBusinessManagement.length + 1,
+                  type: "section",
+                  icon: "",
+                  level: 0,
+                  title: response2.result.permissions[i].name,
+                  data: [],
+                },
+              ];
+            } else {
+              permissionBusinessManagement = [
+                ...permissionBusinessManagement,
+                {
+                  id: permissionBusinessManagement.length + 1,
+                  type: "content",
+                  icon: "",
+                  level: 0,
+                  title: response2.result.permissions[i].name,
+                  data: [
+                    {
+                      name: "allow",
+                      granted:
+                        response.result.role.role === "admin"
+                          ? true
+                          : response.result.role.permissions.some(
+                              (permission) => permission === response2.result.permissions[i].key,
+                            ),
+                    },
+                  ],
+                  key: response2.result.permissions[i].key,
+                },
+              ];
             }
           }
         }
+
+        tmpPermissions = JSON.parse(
+          JSON.stringify([
+            ...permissionGeneral,
+            ...permissionDocumentAi,
+            ...permissionAiManagement,
+            ...permissionBusinessManagement,
+          ]),
+        );
+
+        // console.log("permissionGeneral", permissionGeneral);
+        // console.log("permissionDocumentAi", permissionDocumentAi);
+        // console.log("permissionAiManagement", permissionAiManagement);
+        // console.log("permissionBusinessManagement", permissionBusinessManagement);
       } catch (error) {
         console.log(error);
       }
@@ -1180,6 +496,86 @@ All Rights Reserved
     }
   };
 
+  async function deleteRole() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("module-manager", "delete-role", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          role: roleId,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (response.status !== 200) {
+        triggerToast("error");
+        return;
+      }
+      triggerToast("deleted");
+      goto(await $call.getPage("client-dashboard", "users"));
+    } else {
+      console.log("no token");
+    }
+  }
+
+  async function savePermission() {
+    let token = localStorage.getItem("token");
+
+    let dataSend = "";
+
+    let allData = [
+      ...permissionGeneral,
+      ...permissionDocumentAi,
+      ...permissionAiManagement,
+      ...permissionBusinessManagement,
+    ];
+
+    dataSend = allData
+      .filter((permission) =>
+        permission.data.some((item) => item.name === "allow" && item.granted === true),
+      )
+      .map((permission) => permission.key)
+      .join(",");
+
+    if (token !== null) {
+      let response = await $call.call("module-manager", "set-role-permissions", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          role: roleId,
+          permissions: dataSend,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (response.status !== 200) {
+        triggerToast("error");
+        return;
+      }
+      triggerToast("updated");
+      getRole();
+    } else {
+      console.log("no token");
+    }
+  }
+
+  function change() {
+    let allData = [
+      ...permissionGeneral,
+      ...permissionDocumentAi,
+      ...permissionAiManagement,
+      ...permissionBusinessManagement,
+    ];
+    disabledButton = JSON.stringify(tmpPermissions) === JSON.stringify(allData);
+    console.log(JSON.stringify(tmpPermissions) === JSON.stringify(allData));
+    console.log(JSON.stringify(tmpPermissions[3]));
+    console.log(JSON.stringify(allData[3]));
+    console.log(disabledButton);
+  }
+
   onMount(async () => {
     // getUsers();
     const unsubscribe = page.subscribe(async ($page) => {
@@ -1207,7 +603,7 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text="Manager" />
+          <Typography preset="Display sm/Semibold" color="primary" text={role.rolename} />
           <div class="flex gap-2">
             {#if onEdit}
               <Button
@@ -1223,24 +619,33 @@ All Rights Reserved
             {:else}
               <Button
                 onclick={async function () {
-                  goto(await $call.getPage("client-dashboard", ""));
+                  goto(await $call.getPage("client-dashboard", "users"));
                   return;
                 }}
                 color="light"
                 class="px-3 focus-within:!ring-1">{$_("back")}</Button
               >
-              <Button
-                onclick={() => (popupModal = true)}
-                outline
-                color="red"
-                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-              >
-              <Button
-                onclick={() => {
-                  onEdit = true;
-                }}
-                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-              >
+              {#if role.rolename !== "Admin"}
+                {#if check("general.user:delete")}
+                  <Button
+                    onclick={() => (popupModal = true)}
+                    outline
+                    color="red"
+                    class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+                  >
+                {/if}
+                {#if check("general.user:update")}
+                  <Button
+                    disabled={disabledButton}
+                    onclick={() => {
+                      // onEdit = true;
+                      // console.log("save", permissionGeneral);
+                      savePermission();
+                    }}
+                    class="px-3 focus-within:!ring-1">{$_("save")}</Button
+                  >
+                {/if}
+              {/if}
             {/if}
           </div>
         </div>
@@ -1305,21 +710,25 @@ All Rights Reserved
             <GridListPermissions
               bind:permissionListDatas={permissionGeneral}
               bind:edit={editRoles}
+              bind:change
             />
           {:else if tabDatas.selected === "Documents Ai"}
             <GridListPermissions
               bind:permissionListDatas={permissionDocumentAi}
               bind:edit={editRoles}
+              bind:change
             />
           {:else if tabDatas.selected === "Ai Management"}
             <GridListPermissions
               bind:permissionListDatas={permissionAiManagement}
               bind:edit={editRoles}
+              bind:change
             />
           {:else if tabDatas.selected === "Business Management"}
             <GridListPermissions
               bind:permissionListDatas={permissionBusinessManagement}
               bind:edit={editRoles}
+              bind:change
             />
           {:else}
             <!-- else content here -->
@@ -1336,3 +745,14 @@ All Rights Reserved
     </div>
   </div>
 </div>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteRole} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>

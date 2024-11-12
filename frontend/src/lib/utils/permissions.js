@@ -1,6 +1,20 @@
-export function check(role) {
+export function check(permission) {
   const user = JSON.parse(localStorage.getItem("user"));
-  return user.authority === role;
+  if (user.authority === "Admin") {
+    return true;
+  }
+
+  const permissions = JSON.parse(localStorage.getItem("permissions"));
+
+  for (const p of permissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  return false;
+  // const user = JSON.parse(localStorage.getItem("user"));
+  // return user.authority === role;
 }
 
 export function checkAnd(roles) {

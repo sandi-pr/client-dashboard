@@ -411,6 +411,7 @@ All Rights Reserved
             //   return;
             // }
             localStorage.setItem("user", JSON.stringify(resp.result));
+            await getPermissions(resp.result.authority.toLowerCase().replace(/\s+/g, "_"));
             userData = resp.result;
             authority = resp.result.authority;
           }
@@ -591,6 +592,30 @@ All Rights Reserved
     }
   }
 
+  async function getPermissions(role) {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const response = await call.call("module-manager", "get-role", {
+        URLQuery: {},
+        URLParams: {
+          role: role,
+        },
+        Params: {},
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("itu", response.result.role.permissions);
+      localStorage.setItem("permissions", JSON.stringify(response.result.role.permissions));
+    }
+  }
+
   function base64toBlob(base64Data, fileType) {
     const byteCharacters = atob(base64Data);
     const byteArrays = [];
@@ -623,6 +648,7 @@ All Rights Reserved
     }
 
     await CheckSetup();
+    // await getPermissions();
     if (localStorage.getItem("lang") !== null) {
       locale.set(localStorage.getItem("lang"));
     }

@@ -16,6 +16,7 @@
     triggerToast,
     triggerLoading,
     UploadFile,
+    check,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import {
@@ -522,6 +523,7 @@
               <div class="hidden md:block">{$_("delete")}</div>
             </Button>
             <Button
+              disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={() => {
                 addDocumentsModal = true;
                 tags = [];

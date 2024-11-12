@@ -18,7 +18,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, checkOr } from "$lib";
+  import { triggerToast, check } from "$lib";
 
   import { call } from "$lib";
   import { da } from "date-fns/locale";
@@ -34,9 +34,42 @@ All Rights Reserved
     email: "",
     password: "",
     createdAt: "",
-    role: checkOr(["Admin", "Manager"]) ? "User" : "",
+    role: check("general.user:create") ? "User" : "",
     is_active: true,
   });
+
+  let roles = $state([]);
+
+  async function getRoles() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("module-manager", "get-roles", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("response", response);
+
+      if (response.result.roles.length > 0) {
+        let promises = response.result.roles.map(async (role) => {
+          return {
+            name: role.name,
+          };
+        });
+
+        roles = await Promise.all(promises);
+      }
+    }
+  }
 
   function deleteResource(id) {
     // resources = resources.filter(resource => resource.id !== id);
@@ -112,8 +145,10 @@ All Rights Reserved
 
   onMount(async () => {
     // getPerson();
-    if (!checkOr(["Admin", "Manager"])) {
+    if (!check("general.user:create")) {
       goto(await $call.getPage("client-dashboard", "users"));
+    } else {
+      getRoles();
     }
   });
 
@@ -147,7 +182,7 @@ All Rights Reserved
                 data.email === "" ||
                 data.password === "" ||
                 data.role === "" ||
-                !checkOr(["Admin", "Manager"])}
+                !check("general.user:create")}
               onclick={createPerson}
               class="px-3 focus-within:!ring-1">{$_("create")}</Button
             >
@@ -253,58 +288,48 @@ All Rights Reserved
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownDefaultButton"
                     >
-                      <!-- <button
-                        class="flex p-2"
-                        onclick={() => (data.role = "Super Admin")((dropdownOpen = false))}
-                      >
-                        <Badge text="Super Admin" type="info" />
-                      </button> -->
-                      {#if checkOr(["Admin", "Manager"])}
-                        {#if checkOr(["Admin"])}
-                          <button
-                            class="flex p-2"
-                            onclick={() => {
-                              data.role = "Admin";
-                              dropdownOpen = false;
-                            }}
-                          >
-                            <Typography
-                              preset="Text sm/Regular"
-                              text={$_("admin")}
-                              color="secondary"
-                            />
-                            <!-- <Badge text="Admin" /> -->
-                          </button>
-                          <button
-                            class="flex p-2"
-                            onclick={() => {
-                              data.role = "Manager";
-                              dropdownOpen = false;
-                            }}
-                          >
-                            <Typography
-                              preset="Text sm/Regular"
-                              text={$_("manager")}
-                              color="secondary"
-                            />
-                            <!-- <Badge text="Manager" /> -->
-                          </button>
-                        {/if}
+                      {#each roles as role}
                         <button
                           class="flex p-2"
                           onclick={() => {
-                            data.role = "User";
+                            data.role = role.name;
                             dropdownOpen = false;
                           }}
                         >
-                          <Typography
-                            preset="Text sm/Regular"
-                            text={$_("user")}
-                            color="secondary"
-                          />
-                          <!-- <Badge text="User" type="info" /> -->
+                          <Typography preset="Text sm/Regular" text={role.name} color="secondary" />
                         </button>
-                      {/if}
+                      {/each}
+                      <!-- <button
+                        class="flex p-2"
+                        onclick={() => {
+                          data.role = "Admin";
+                          dropdownOpen = false;
+                        }}
+                      >
+                        <Typography preset="Text sm/Regular" text={$_("admin")} color="secondary" />
+                      </button>
+                      <button
+                        class="flex p-2"
+                        onclick={() => {
+                          data.role = "Manager";
+                          dropdownOpen = false;
+                        }}
+                      >
+                        <Typography
+                          preset="Text sm/Regular"
+                          text={$_("manager")}
+                          color="secondary"
+                        />
+                      </button>
+                      <button
+                        class="flex p-2"
+                        onclick={() => {
+                          data.role = "User";
+                          dropdownOpen = false;
+                        }}
+                      >
+                        <Typography preset="Text sm/Regular" text={$_("user")} color="secondary" />
+                      </button> -->
                     </ul>
                   </div>
                 </div>

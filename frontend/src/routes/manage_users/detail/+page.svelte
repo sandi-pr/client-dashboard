@@ -28,7 +28,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, checkOr, generateUniqueId } from "$lib";
+  import { triggerToast, check, generateUniqueId } from "$lib";
 
   import { call } from "$lib";
 
@@ -41,6 +41,39 @@ All Rights Reserved
   let popupModal = $state(false);
 
   let data = $state({});
+
+  let roles = $state([]);
+
+  async function getRoles() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("module-manager", "get-roles", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("response", response);
+
+      if (response.result.roles.length > 0) {
+        let promises = response.result.roles.map(async (role) => {
+          return {
+            name: role.name,
+          };
+        });
+
+        roles = await Promise.all(promises);
+      }
+    }
+  }
 
   function formatDate(inputDate) {
     const date = new Date(inputDate);
@@ -179,12 +212,13 @@ All Rights Reserved
   onMount(async () => {
     me = JSON.parse(localStorage.getItem("user"));
     userId = params.get("userId");
-    if (userId === null || userId === undefined || userId === "") {
+    if (userId === null || userId === undefined) {
       triggerToast("error");
       goto(await $call.getPage("client-dashboard", "users"));
     }
     // if (edit === "true") onEdit = true;
     getUser();
+    getRoles();
   });
 
   // let dropdownOpenRole = false;
@@ -235,12 +269,12 @@ All Rights Reserved
                 data.email === "" ||
                 data.password === "" ||
                 data.role === "" ||
-                !checkOr(["Admin", "Manager"])}
+                !check("general.user:update")}
               onclick={updateUser}
               class="px-3 focus-within:!ring-1">{$_("save")}</Button
             >
-          {:else if checkOr(["Admin", "Manager"])}
-            {#if checkOr(["Admin"]) && me?.id.toString() !== userId}
+          {:else}
+            {#if check("general.user:delete") && me?.id.toString() !== userId}
               <Button
                 onclick={() => {
                   popupModal = true;
@@ -249,13 +283,15 @@ All Rights Reserved
                 class="px-3 focus-within:!ring-1">{$_("delete")}</Button
               >
             {/if}
-            <Button
-              onclick={() => {
-                onEdit = true;
-              }}
-              color="light"
-              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            {#if check("general.user:update")}
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                color="light"
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            {/if}
           {/if}
         </div>
       </div>
@@ -349,20 +385,18 @@ All Rights Reserved
                       class="py-2 text-sm text-gray-700 dark:text-gray-200"
                       aria-labelledby="dropdownDefaultButton"
                     >
-                      <!-- {#if data.role === "Admin"}
+                      {#each roles as role}
                         <button
                           class="flex p-2"
                           onclick={() => {
-                            data.role = "Super Admin";
-                            dropdownOpenRole = false;
+                            data.role = role.name;
+                            dropdownOpen = false;
                           }}
                         >
-                          <P>Super Admin</P>
+                          <Typography preset="Text sm/Regular" text={role.name} color="secondary" />
                         </button>
-                      {:else} -->
-                      {#if checkOr(["Admin", "Manager"])}
-                        {#if checkOr(["Admin"])}
-                          <button
+                      {/each}
+                      <!-- <button
                             class="flex p-2"
                             onclick={() => {
                               data.role = "Admin";
@@ -370,7 +404,6 @@ All Rights Reserved
                             }}
                           >
                             <P>Admin</P>
-                            <!-- <Badge text="Admin" /> -->
                           </button>
                           <button
                             class="flex p-2"
@@ -380,9 +413,7 @@ All Rights Reserved
                             }}
                           >
                             <P>Manager</P>
-                            <!-- <Badge text="Admin" /> -->
                           </button>
-                        {/if}
                         <button
                           class="flex p-2"
                           onclick={() => {
@@ -391,9 +422,7 @@ All Rights Reserved
                           }}
                         >
                           <P>User</P>
-                          <!-- <Badge text="User" /> -->
-                        </button>
-                      {/if}
+                        </button> -->
                     </ul>
                   </div>
                 </div>

@@ -26,7 +26,7 @@
     call,
     triggerShowAI,
     triggerLoading,
-    checkOr,
+    check,
   } from "$lib";
   import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
   import StateCard from "$lib/ui/cards/StateCard.svelte";
@@ -70,7 +70,7 @@
   const isFrontend = process.env.NODE_ENV === "development";
 
   let innerWidth = $state(0);
-  let disableInput = $state(!checkOr(["Admin", "Manager"]));
+  let disableInput = $state(!check("aiManagement.datasets:create"));
   let hideSidebar = $state(true);
   let documentListModal = $state(false);
   let pageListDocument = $state(false);
@@ -962,7 +962,7 @@
             <button on:click={importConversationWithCsv}>Upload</button> -->
             <Button
               outline
-              disabled={!checkOr(["Admin", "Manager"])}
+              disabled={!check("aiManagement.datasets:edit")}
               on:click={() => {
                 editTitle = true;
               }}
@@ -981,7 +981,7 @@
             </Button>
             <Button
               outline
-              disabled={!checkOr(["Admin", "Manager"])}
+              disabled={!check("aiManagement.datasets:create")}
               on:click={handleUploadWrapper}
               class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
             >
@@ -998,7 +998,7 @@
             <DarkMode
               btnClass="text-brand-secondary-light dark:text-brand-secondary-dark bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark focus:outline-none rounded-lg px-3 py-2 border border-primary-light dark:border-primary-dark"
             />
-            {#if checkOr(["Admin"])}
+            {#if check("aiManagement.datasets:delete")}
               <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
                 <Button
                   outline

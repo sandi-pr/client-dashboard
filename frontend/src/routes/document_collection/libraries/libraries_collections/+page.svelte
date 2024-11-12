@@ -11,6 +11,7 @@
     InputRw,
     TextareaRw,
     LibraryCard,
+    check,
   } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
   import { onMount, onDestroy } from "svelte";
@@ -366,7 +367,7 @@
       console.log("Token not found");
     }
   }
-  
+
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
     dropdownOpen = false;
@@ -439,6 +440,7 @@
 
           <div class="flex gap-2">
             <Button
+              disabled={!check("documentAi.documentLibrary.collection:create")}
               on:click={() => {
                 addCollectionModal = true;
                 tmpCollectionName = "";
@@ -461,37 +463,39 @@
               <Stars03Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("startReading")}</div>
             </Button>
-            <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-              <Button
-                on:click={() => (dropdownOpen = !dropdownOpen)}
-                color="light"
-                class="p-2"
-              >
-                <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-              </Button>
-              <div
-                class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-              >
-                <ul class="py-2 grow text-sm">
-                  <button
-                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    onclick={() => {
-                      dropdownOpen = !dropdownOpen;
-                      tmpLibraryName = collectionDatas.title;
-                      tmpDescLibrary = collectionDatas.description;
-                      editLibraryModal = true;
-                    }}>{$_("editLibraryName")}</button
-                  >
-                  <button
-                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    onclick={() => {
-                      dropdownOpen = !dropdownOpen;
-                      deleteLibraryModal = true;
-                    }}>{$_("delete")}</button
-                  >
-                </ul>
+            {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
+              <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+                <Button on:click={() => (dropdownOpen = !dropdownOpen)} color="light" class="p-2">
+                  <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                </Button>
+                <div
+                  class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                >
+                  <ul class="py-2 grow text-sm">
+                    {#if check("documentAi.documentLibrary.collection:edit")}
+                      <button
+                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                        onclick={() => {
+                          dropdownOpen = !dropdownOpen;
+                          tmpLibraryName = collectionDatas.title;
+                          tmpDescLibrary = collectionDatas.description;
+                          editLibraryModal = true;
+                        }}>{$_("editLibraryName")}</button
+                      >
+                    {/if}
+                    {#if check("documentAi.documentLibrary.collection:delete")}
+                      <button
+                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                        onclick={() => {
+                          dropdownOpen = !dropdownOpen;
+                          deleteLibraryModal = true;
+                        }}>{$_("delete")}</button
+                      >
+                    {/if}
+                  </ul>
+                </div>
               </div>
-            </div>
+            {/if}
             <!-- <Button
               on:click={() => {
                 // addLibraryModal = true;
@@ -664,6 +668,8 @@
       {$_("areYouSureYouWantToDelete")}
     </h3>
     <Button onclick={deleteLibrary} color="red" class="me-2">{$_("yesImSure")}</Button>
-    <Button color="alternative" onclick={() => (deleteLibraryModal = false)}>{$_("noCancel")}</Button>
+    <Button color="alternative" onclick={() => (deleteLibraryModal = false)}
+      >{$_("noCancel")}</Button
+    >
   </div>
 </Modal>
