@@ -16,8 +16,17 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { createEventDispatcher } from "svelte";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
 
   const dispatch = createEventDispatcher();
+
+  onMount(() => {
+    if (check("businessManagement.person:create") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
+  });
 
   import { CR3Call } from "hexacomponents-svelte";
 

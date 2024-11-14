@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { Heading, Button } from "flowbite-svelte";
-  import { StateCard, Typography, ChartCard, ActionCard } from "$lib";
+  import { StateCard, Typography, ChartCard, ActionCard, check } from "$lib";
   import { _ } from "svelte-i18n";
   import DataTable from "$lib/components/DataTable.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
@@ -60,6 +60,7 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
+        disabled: !check("businessManagement.order_invoice:create"),
         href: await $call.getPage("client-dashboard", "crm-order-invoice-create"),
         icon: "packagePlus",
         actionName: "Create new Order Invoice",
@@ -308,14 +309,14 @@ All Rights Reserved
                   data.attributes.order_status[data.attributes.order_status.length - 1].status,
                 actions: {
                   objects: [
-                    {
+                    check("businessManagement.order_invoice:view") && {
                       href:
                         `${await $call.getPage("client-dashboard", "crm-order-invoice-order")}` +
                         "?orderId=" +
                         data.id,
                       name: "View",
                     },
-                  ],
+                  ].filter(Boolean),
                 },
               };
             });
@@ -367,14 +368,14 @@ All Rights Reserved
                 data.attributes.payment_status[data.attributes.payment_status.length - 1].status,
               actions: {
                 objects: [
-                  {
+                  check("businessManagement.order_invoice:view") && {
                     href:
                       `${await $call.getPage("client-dashboard", "crm-order-invoice-invoice")}` +
                       "?invoiceId=" +
                       data.id,
                     name: "View",
                   },
-                ],
+                ].filter(Boolean),
               },
             };
           });
@@ -388,6 +389,10 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (check("businessManagement.order_invoice:view") === false) {
+      window.history.back();
+      return;
+    }
     getCountPersonsPerMonth();
     getActionItems();
     getOrder();
@@ -410,11 +415,13 @@ All Rights Reserved
 
         <!-- Action Items -->
         <div>
-          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
-            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
-              {$_("action")}
-            </Heading>
-          </div>
+          {#if actionItems.some((item) => item.disabled === false)}
+            <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
+              <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
+                {$_("action")}
+              </Heading>
+            </div>
+          {/if}
           <ActionCard {actionItems} />
         </div>
 

@@ -578,8 +578,17 @@ All Rights Reserved
   }
 
   onMount(() => {
-    const unsubscribe = page.subscribe(($page) => {
+    if (check("documentAi.documentLibrary:view") === false) {
+      window.history.back();
+      return;
+    }
+    const unsubscribe = page.subscribe(async ($page) => {
       documentId = $page.url.searchParams.get("documentId");
+      if (documentId === null || documentId === undefined) {
+        triggerToast("error");
+        goto(await $call.getPage("client-dashboard", "document-library"));
+        return;
+      }
       base64 = null;
       pdfReady = false;
       getDocument();

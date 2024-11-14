@@ -728,6 +728,10 @@
   }
 
   onMount(() => {
+    if (check("aiManagement.datasets:view") === false) {
+      window.history.back();
+      return;
+    }
     triggerShowAI(false);
     userData = isFrontend
       ? { username: "John Doe", email: "johndoe@gmail.com" }

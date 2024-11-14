@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Select, Helper, Modal, Toggle } from "flowbite-svelte";
-  import { ToastContainer, triggerToast, InputRw, Typography } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, Typography, check } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
@@ -167,7 +167,12 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    if (edit === "true") onEdit = true;
+    if (check("businessManagement.person:view") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
+    if (edit === "true" && check("businessManagement.person:edit")) onEdit = true;
     getPerson();
   });
 
@@ -220,18 +225,22 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("back")}</Button
             >
-            <Button
-              onclick={() => (popupModal = true)}
-              outline
-              color="red"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-            >
-            <Button
-              onclick={() => {
-                onEdit = true;
-              }}
-              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            {#if check("businessManagement.person:delete")}
+              <Button
+                onclick={() => (popupModal = true)}
+                outline
+                color="red"
+                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              >
+            {/if}
+            {#if check("businessManagement.person:edit")}
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            {/if}
           {/if}
         </div>
       </div>

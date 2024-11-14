@@ -35,7 +35,7 @@
   } from "flowbite-svelte-icons";
   import AutoComplete from "simple-svelte-autocomplete";
   // import DatePicker from "$lib/components/DatePicker.svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, check } from "$lib";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Switch from "$lib/components/Switch.svelte";
   import { CR3Call } from "hexacomponents-svelte";
@@ -1094,6 +1094,10 @@
   }
 
   onMount(() => {
+    if (check("businessManagement.calendar:view") === false) {
+      window.history.back();
+      return;
+    }
     getSchedule();
     getPersons();
     observer = new MutationObserver((mutations) => {
@@ -1124,6 +1128,7 @@
       {$_("calendar")}
     </Heading>
     <Button
+      disabled={!check("businessManagement.calendar:create")}
       class="text-nowrap gap-1"
       on:click={() => {
         modalMode = "form";
@@ -1356,9 +1361,11 @@
               <div class="flex gap-3">
                 {#each dayAvailable as available, index}
                   <button
+                    disabled={!check("businessManagement.calendar:edit")}
                     type="button"
-                    class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
+                    class={`size-10 rounded-full text-center content-center font-semibold ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
                     on:click={() => {
+                      console.log(dayAvailable);
                       dayAvailable[index] = !dayAvailable[index];
                       checkConfigChange();
                     }}
@@ -1372,6 +1379,7 @@
             <!-- time availability selector -->
             <div class="flex mt-8 w-[30rem]">
               <Input
+                disabled={!check("businessManagement.calendar:edit")}
                 type="text"
                 placeholder={format(new Date(), "kk:mm")}
                 value={timeAvailable[0]}
@@ -1387,6 +1395,7 @@
               </Input>
               <P class="mx-4 text-center content-center">-</P>
               <Input
+                disabled={!check("businessManagement.calendar:edit")}
                 type="text"
                 placeholder={format(new Date(), "kk:mm")}
                 value={timeAvailable[1]}
@@ -1407,6 +1416,7 @@
               {#each dayAvailable as available, index}
                 <div class="flex">
                   <button
+                    disabled={!check("businessManagement.calendar:edit")}
                     type="button"
                     class={`size-10 rounded-full text-center content-center font-semibold cursor-pointer ${!available ? "text-disabled-light dark:text-disabled-dark bg-quarterary-light dark:bg-quarterary-dark" : "text-white bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"}`}
                     on:click={() => {
@@ -1418,6 +1428,7 @@
                   </button>
                   <div class="flex mx-4 w-full">
                     <Input
+                      disabled={!check("businessManagement.calendar:edit")}
                       type="text"
                       placeholder={format(new Date(), "kk:mm")}
                       value={timeAvailableIndividual[index].start}
@@ -1457,6 +1468,7 @@
 
         <!-- individual time toggle -->
         <Switch
+          disabled={!check("businessManagement.calendar:edit")}
           bind:value={timeAvailableIndividualMode}
           label="Set individual hour"
           fontSize={16}
@@ -1466,9 +1478,15 @@
         <!-- save config -->
         <div class="flex justify-end">
           {#if checkConfigChange() === true}
-            <Button on:click={handleSaveConfig}>Save</Button>
+            <Button
+              disabled={!check("businessManagement.calendar:edit")}
+              on:click={handleSaveConfig}>Save</Button
+            >
           {:else}
-            <Button disabled>Save</Button>
+            <Button
+              disabled={!check("businessManagement.calendar:edit")}
+              on:click={handleSaveConfig}>Save</Button
+            >
           {/if}
         </div>
       </div>
@@ -1691,13 +1709,15 @@
           />
 
           <div class="flex justify-end mt-2">
-            <Button
-              class="text-nowrap"
-              color="red"
-              on:click={() => {
-                handleDeleteSchedule(event);
-              }}><TrashBinOutline class="size-6" /> Delete Schedule</Button
-            >
+            {#if check("businessManagement.calendar:delete")}
+              <Button
+                class="text-nowrap"
+                color="red"
+                on:click={() => {
+                  handleDeleteSchedule(event);
+                }}><TrashBinOutline class="size-6" /> Delete Schedule</Button
+              >
+            {/if}
           </div>
         </div>
       {/each}
@@ -1715,13 +1735,15 @@
     {:else if modalMode === "event"}
       <!-- view detail event modal -->
       {#if !notAvailableBookings}
-        <Button
-          class="text-nowrap"
-          on:click={() => {
-            modalMode = "form";
-            modal = true;
-          }}><PlusOutline class="size-5" /> Add new booking</Button
-        >
+        {#if check("businessManagement.calendar:create")}
+          <Button
+            class="text-nowrap"
+            on:click={() => {
+              modalMode = "form";
+              modal = true;
+            }}><PlusOutline class="size-5" /> Add new booking</Button
+          >
+        {/if}
       {/if}
     {:else}
       <!-- place holder -->

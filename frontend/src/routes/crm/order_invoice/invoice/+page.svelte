@@ -19,7 +19,7 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { goto } from "$app/navigation";
-  import { generateUniqueId } from "$lib";
+  import { generateUniqueId, check } from "$lib";
 
   import { call } from "$lib";
 
@@ -91,7 +91,7 @@ All Rights Reserved
                 invoice.attributes.payment_status[invoice.attributes.payment_status.length - 1]
                   .status,
               notes: invoice.attributes.note,
-              orderId: generateUniqueId(invoice.attributes.order_booking?.data.id),
+              orderId: generateUniqueId(invoice.attributes.order_booking?.data.id, "order"),
             };
           }
         }
@@ -136,6 +136,10 @@ All Rights Reserved
   }
 
   onMount(() => {
+    if (check("businessManagement.order_invoice:view") === false) {
+      window.history.back();
+      return;
+    }
     getInvoice();
   });
 </script>
@@ -179,9 +183,11 @@ All Rights Reserved
             >
             <Button onclick={() => {}} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
           {:else}
-            <Button onclick={deleteInvoice} color="light" class="px-3 focus-within:!ring-1"
-              >{$_("delete")}</Button
-            >
+            {#if check("businessManagement.order_invoice:delete")}
+              <Button onclick={deleteInvoice} color="light" class="px-3 focus-within:!ring-1"
+                >{$_("delete")}</Button
+              >
+            {/if}
             <!-- <Button
               onclick={() => {
                 onEdit = true;

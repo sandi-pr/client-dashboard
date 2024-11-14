@@ -671,6 +671,10 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (check("documentAi.documentLibrary:view") === false) {
+      window.history.back();
+      return;
+    }
     getActionItems();
     getCountDocumentsPerMonth();
     getCollections();

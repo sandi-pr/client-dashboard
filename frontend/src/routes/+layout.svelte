@@ -126,53 +126,53 @@ All Rights Reserved
 
   const getModules = async () => {
     return [
-      // {
-      //   icon: "briefcase",
-      //   name: "crmOverview",
-      //   children: [
-      //     // {
-      //     //   href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-      //     //   name: "overview",
-      //     // },
-      //     {
-      //       icon: "user",
-      //       href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
-      //       name: "persons",
-      //     },
-      //     {
-      //       icon: "faceHappy",
-      //       href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
-      //       name: "HR",
-      //     },
-      //     {
-      //       icon: "package",
-      //       href: isFrontend
-      //         ? "/crm/product_service"
-      //         : await call.getPage("client-dashboard", "crm-product-service"),
-      //       name: "product&Services",
-      //     },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/crm/categories"
-      //     //     : await call.getPage("client-dashboard", "crm-categories"),
-      //     //   name: "categories",
-      //     // },
-      //     {
-      //       icon: "receipt",
-      //       href: isFrontend
-      //         ? "/crm/order_invoice"
-      //         : await call.getPage("client-dashboard", "crm-order-invoice"),
-      //       name: "order&Invoice",
-      //     },
-      //     {
-      //       icon: "calendar",
-      //       href: isFrontend
-      //         ? "/crm/calendar"
-      //         : await call.getPage("client-dashboard", "crm-calendar"),
-      //       name: "calendar",
-      //     },
-      //   ],
-      // },
+      {
+        icon: "briefcase",
+        name: "crmOverview",
+        children: [
+          // {
+          //   href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+          //   name: "overview",
+          // },
+          {
+            icon: "user",
+            href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
+            name: "persons",
+          },
+          {
+            icon: "faceHappy",
+            href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
+            name: "hR",
+          },
+          {
+            icon: "package",
+            href: isFrontend
+              ? "/crm/product_service"
+              : await call.getPage("client-dashboard", "crm-product-service"),
+            name: "product&Services",
+          },
+          // {
+          //   href: isFrontend
+          //     ? "/crm/categories"
+          //     : await call.getPage("client-dashboard", "crm-categories"),
+          //   name: "categories",
+          // },
+          {
+            icon: "receipt",
+            href: isFrontend
+              ? "/crm/order_invoice"
+              : await call.getPage("client-dashboard", "crm-order-invoice"),
+            name: "order&Invoice",
+          },
+          {
+            icon: "calendar",
+            href: isFrontend
+              ? "/crm/calendar"
+              : await call.getPage("client-dashboard", "crm-calendar"),
+            name: "calendar",
+          },
+        ],
+      },
       // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
       {
         icon: "stars",
@@ -183,13 +183,13 @@ All Rights Reserved
           //   name: "hexabot",
           //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
           // },
-          // {
-          //   icon: "archive",
-          //   name: "documentLibrary(OnDev)",
-          //   href: isFrontend
-          //     ? "/document_collection"
-          //     : await call.getPage("client-dashboard", "document-collection-overview"),
-          // },
+          {
+            icon: "archive",
+            name: "documentLibrary(OnDev)",
+            href: isFrontend
+              ? "/document_collection"
+              : await call.getPage("client-dashboard", "document-collection-overview"),
+          },
           {
             icon: "archive",
             name: "documentCollection",

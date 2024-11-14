@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Textarea, Select, MultiSelect } from "flowbite-svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, check } from "$lib";
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
   import { onMount } from "svelte";
@@ -209,6 +209,10 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (check("businessManagement.order_invoice:create") === false) {
+      window.history.back();
+      return;
+    }
     getProducts();
     getPersons();
   });

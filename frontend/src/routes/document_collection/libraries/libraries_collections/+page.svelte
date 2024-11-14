@@ -374,6 +374,10 @@
   };
 
   onMount(() => {
+    if (check("documentAi.documentLibrary:view") === false) {
+      window.history.back();
+      return;
+    }
     const unsubscribe = page.subscribe(async ($page) => {
       libraryId = $page.url.searchParams.get("libraryId");
       if (libraryId === null) {

@@ -22,7 +22,7 @@ All Rights Reserved
     Alert,
   } from "flowbite-svelte";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, check } from "$lib";
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
@@ -249,6 +249,10 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (check("businessManagement.products_services:create") === false) {
+      window.history.back();
+      return;
+    }
     getCategories();
   });
 

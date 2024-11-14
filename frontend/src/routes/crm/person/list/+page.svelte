@@ -6,7 +6,7 @@
   import { Button } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import { _ } from "svelte-i18n";
-  import { StateCard } from "$lib";
+  import { StateCard, check } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { goto } from "$app/navigation";
@@ -83,13 +83,15 @@
             status: getStatus(person.attributes.is_active),
             actions: {
               objects: [
-                {
+                check("businessManagement.person:view") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-person-detail")}` +
-                    `?personId=${person.id}&edit=false`,
+                    "?personId=" +
+                    person.id +
+                    "&edit=false",
                   name: "View",
                 },
-                {
+                check("businessManagement.person:edit") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-person-detail")}` +
                     "?personId=" +
@@ -97,7 +99,7 @@
                     "&edit=true",
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean), // Filter out false values in the array
             },
           };
         });
@@ -123,6 +125,11 @@
   }
 
   onMount(async () => {
+    if (check("businessManagement.person:view") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     getPerson(pagination.page);
   });
 </script>
@@ -136,7 +143,10 @@
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text={$_("personsList")} />
-          <Button onclick={addPerson} icon={PlusIcon}
+          <Button
+            disabled={!check("businessManagement.person:create")}
+            onclick={addPerson}
+            icon={PlusIcon}
             ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
           >
         </div>

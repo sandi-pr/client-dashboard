@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button } from "flowbite-svelte";
-  import { ToastContainer, triggerToast, InputRw } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, check } from "$lib";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -227,6 +227,10 @@ All Rights Reserved
   }
 
   onMount(() => {
+    if (check("businessManagement.order_invoice:view")) {
+      window.history.back();
+      return;
+    }
     getOrder();
   });
 </script>
@@ -269,17 +273,17 @@ All Rights Reserved
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
             >
             <Button onclick={updateOrder} class="px-3 focus-within:!ring-1">{$_("save")}</Button>
-          {:else}
+          {:else if check("businessManagement.order_invoice:delete")}
             <Button onclick={deleteOrder} color="light" class="px-3 focus-within:!ring-1"
               >{$_("delete")}</Button
             >
-            <!-- <Button
+          {/if}
+          <!-- <Button
               onclick={() => {
                 onEdit = true;
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
             > -->
-          {/if}
         </div>
       </div>
       <Divider />

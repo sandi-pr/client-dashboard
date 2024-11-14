@@ -11,10 +11,18 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Textarea, Toggle } from "flowbite-svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, check } from "$lib";
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    if (check("businessManagement.products_services:create") === false) {
+      window.history.back();
+      return;
+    }
+  });
 
   import { call } from "$lib";
 

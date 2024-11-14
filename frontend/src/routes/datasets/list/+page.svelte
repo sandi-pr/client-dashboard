@@ -23,7 +23,7 @@ All Rights Reserved
   import PlusIcon from "$lib/icon/plus.svg";
   import { goto } from "$app/navigation";
 
-  import { call } from "$lib";
+  import { call, check } from "$lib";
 
   let tmpRulesName = $state("");
   let addRulesModal = $state(false);
@@ -144,6 +144,10 @@ All Rights Reserved
   }
 
   onMount(() => {
+    if (check("aiManagement.datasets:view") === false) {
+      window.history.back();
+      return;
+    }
     getListConversations();
   });
 </script>

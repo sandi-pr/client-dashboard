@@ -11,6 +11,7 @@
   export let options = [];
   export let fontSize = 16;
   export let value = "on";
+  export let disabled = false;
 
   let checked = false;
 
@@ -33,6 +34,7 @@
   <div class="s s--inner">
     <span id={`switch-${uniqueID}`}>{label}</span>
     <button
+      {disabled}
       role="switch"
       aria-checked={checked}
       aria-labelledby={`switch-${uniqueID}`}
@@ -45,6 +47,7 @@
 {:else if design == "slider"}
   <div class="s s--slider" style="font-size:{fontSize}px">
     <button
+      {disabled}
       role="switch"
       aria-checked={checked}
       aria-labelledby={`switch-${uniqueID}`}

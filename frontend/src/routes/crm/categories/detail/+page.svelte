@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { P, Heading, Input, Button, Select, Textarea, Toggle, Modal } from "flowbite-svelte";
-  import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, TextareaRw, check } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
@@ -129,7 +129,11 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    if (edit === "true") onEdit = true;
+    if (check("businessManagement.products_services:view") === false) {
+      window.history.back();
+      return;
+    }
+    if (edit === "true" && check("businessManagement.products_services:edit")) onEdit = true;
     getCategory();
   });
 
@@ -183,18 +187,23 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("back")}</Button
             >
-            <Button
-              onclick={() => (popupModal = true)}
-              outline
-              color="red"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-            >
-            <Button
-              onclick={() => {
-                onEdit = true;
-              }}
-              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            {#if check("businessManagement.products_services:delete")}
+              <Button
+                onclick={() => (popupModal = true)}
+                outline
+                color="red"
+                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              >
+            {/if}
+
+            {#if check("businessManagement.products_services:edit")}
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            {/if}
           {/if}
         </div>
       </div>

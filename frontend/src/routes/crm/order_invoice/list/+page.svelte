@@ -19,7 +19,7 @@ All Rights Reserved
   import { Button } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import { goto } from "$app/navigation";
-  import { StateCard } from "$lib";
+  import { StateCard, check } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
@@ -90,14 +90,14 @@ All Rights Reserved
                   data.attributes.order_status[data.attributes.order_status.length - 1].status,
                 actions: {
                   objects: [
-                    {
+                    check("businessManagement.order_invoice:view") && {
                       href:
                         `${await $call.getPage("client-dashboard", "crm-order-invoice-order")}` +
                         "?orderId=" +
                         data.id,
                       name: "View",
                     },
-                  ],
+                  ].filter(Boolean),
                 },
               };
             });
@@ -149,14 +149,14 @@ All Rights Reserved
                 data.attributes.payment_status[data.attributes.payment_status.length - 1].status,
               actions: {
                 objects: [
-                  {
+                  check("businessManagement.order_invoice:view") && {
                     href:
                       `${await $call.getPage("client-dashboard", "crm-order-invoice-invoice")}` +
                       "?invoiceId=" +
                       data.id,
                     name: "View",
                   },
-                ],
+                ].filter(Boolean),
               },
             };
           });
@@ -174,6 +174,10 @@ All Rights Reserved
   }
 
   onMount(() => {
+    if (!check("businessManagement.order_invoice:view")) {
+      window.history.back();
+      return;
+    }
     getOrder();
     getInvoice();
   });
@@ -193,7 +197,10 @@ All Rights Reserved
             text={$_(toCamelCase(tabDatas.selected))}
           />
 
-          <Button onclick={addNew} icon={PlusIcon}
+          <Button
+            disabled={!check("businessManagement.order_invoice:create")}
+            onclick={addNew}
+            icon={PlusIcon}
             ><img class="me-1 w-4 h-4" src={PlusIcon} alt="plus-icon" /> {$_("addNewOrder")}</Button
           >
         </div>

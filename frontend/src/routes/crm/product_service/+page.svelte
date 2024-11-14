@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { Heading, Button } from "flowbite-svelte";
-  import { StateCard, Typography, ChartCard, ActionCard } from "$lib";
+  import { StateCard, Typography, ChartCard, ActionCard, check } from "$lib";
   import { _ } from "svelte-i18n";
   import DataTable from "$lib/components/DataTable.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
@@ -52,12 +52,14 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
+        disabled: !check("businessManagement.products_services:create"),
         href: await $call.getPage("client-dashboard", "crm-product-service-create"),
         icon: "packagePlus",
         actionName: "Create new Product & Services",
         desc: "desc Create New Product & Services",
       },
       {
+        disabled: !check("businessManagement.products_services:create"),
         href: await $call.getPage("client-dashboard", "crm-category-create"),
         icon: "packageSearch",
         actionName: "Add new Category",
@@ -317,7 +319,7 @@ All Rights Reserved
             status: getStatus(product.attributes.is_active),
             actions: {
               objects: [
-                {
+                check("businessManagement.products_services:view") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
@@ -326,7 +328,7 @@ All Rights Reserved
                     false,
                   name: "View",
                 },
-                {
+                check("businessManagement.products_services:edit") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
@@ -335,7 +337,7 @@ All Rights Reserved
                     true,
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean),
             },
           };
         });
@@ -378,7 +380,7 @@ All Rights Reserved
             status: getStatus(category.attributes.is_active),
             actions: {
               objects: [
-                {
+                check("businessManagement.products_services:view") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-category-detail")}` +
                     "?catergoryId=" +
@@ -387,7 +389,7 @@ All Rights Reserved
                     false,
                   name: "View",
                 },
-                {
+                check("businessManagement.products_services:edit") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-category-detail")}` +
                     "?catergoryId=" +
@@ -396,7 +398,7 @@ All Rights Reserved
                     true,
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean),
             },
           };
         });
@@ -425,6 +427,10 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (check("businessManagement.products_services:view") === false) {
+      window.history.back();
+      return;
+    }
     getCountPersonsPerMonth();
     getActionItems();
     getProducts(pagination.page);
@@ -447,11 +453,13 @@ All Rights Reserved
 
         <!-- Action Items -->
         <div>
-          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
-            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
-              {$_("action")}
-            </Heading>
-          </div>
+          {#if actionItems.some((item) => item.disabled === false)}
+            <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
+              <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
+                {$_("action")}
+              </Heading>
+            </div>
+          {/if}
           <ActionCard {actionItems} />
         </div>
 

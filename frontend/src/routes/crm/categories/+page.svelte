@@ -21,7 +21,7 @@ All Rights Reserved
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { Button } from "flowbite-svelte";
-  import { StateCard } from "$lib";
+  import { StateCard, check } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
@@ -130,6 +130,10 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (check("businessManagement.products_services:view") === false) {
+      window.history.back();
+      return;
+    }
     // getActionItems();
     getCategories(pagination.page);
   });

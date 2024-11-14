@@ -357,6 +357,10 @@ All Rights Reserved
 
   onMount(async () => {
     // await getStatusRag();
+    if (check("documentAi.documentLibrary:view") === false) {
+      window.history.back();
+      return;
+    }
     await getCollections();
   });
 

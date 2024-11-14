@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { Heading, Button } from "flowbite-svelte";
-  import { StateCard, Typography, ChartCard, ActionCard } from "$lib";
+  import { StateCard, Typography, ChartCard, ActionCard, check } from "$lib";
   import { _ } from "svelte-i18n";
   import DataTable from "$lib/components/DataTable.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -46,6 +46,7 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
+        disabled: !check("businessManagement.person:create"),
         href: await $call.getPage("client-dashboard", "crm-person-create"),
         icon: "userPlus",
         actionName: "Create new persons",
@@ -388,7 +389,7 @@ All Rights Reserved
             status: getStatus(person.attributes.is_active),
             actions: {
               objects: [
-                {
+                check("businessManagement.person:view") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-person-detail")}` +
                     "?personId=" +
@@ -396,7 +397,7 @@ All Rights Reserved
                     "&edit=false",
                   name: "View",
                 },
-                {
+                check("businessManagement.person:edit") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-person-detail")}` +
                     "?personId=" +
@@ -404,7 +405,7 @@ All Rights Reserved
                     "&edit=true",
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean), // Filter out false values in the array
             },
           };
         });
@@ -502,7 +503,12 @@ All Rights Reserved
     };
   }
 
-  onMount(async () => {
+  onMount(() => {
+    if (check("businessManagement.person:view") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     getCountPersonsPerMonth();
     getActionItems();
     getPerson();
@@ -520,11 +526,13 @@ All Rights Reserved
 
         <!-- Action Items -->
         <div>
-          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
-            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
-              {$_("action")}
-            </Heading>
-          </div>
+          {#if actionItems.some((item) => item.disabled === false)}
+            <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
+              <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
+                {$_("action")}
+              </Heading>
+            </div>
+          {/if}
           <ActionCard {actionItems} />
         </div>
 
@@ -543,11 +551,7 @@ All Rights Reserved
 
         <div class="flex flex-col">
           <div class="flex justify-between">
-            <Typography
-              preset="Text lg/Semibold"
-              color="primary"
-              text={$_("persons")}
-            />
+            <Typography preset="Text lg/Semibold" color="primary" text={$_("persons")} />
             <div></div>
             <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
           </div>
@@ -563,7 +567,10 @@ All Rights Reserved
                 />
               </div>
             {:else}
-              <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
             {/if}
           </div>
         </div>

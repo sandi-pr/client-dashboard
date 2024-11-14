@@ -17,7 +17,7 @@ All Rights Reserved
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import { Button } from "flowbite-svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
-  import { StateCard } from "$lib";
+  import { StateCard, check } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { goto } from "$app/navigation";
@@ -118,7 +118,7 @@ All Rights Reserved
             status: getStatus(product.attributes.is_active),
             actions: {
               objects: [
-                {
+                check("businessManagement.products_services:view") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
@@ -127,7 +127,7 @@ All Rights Reserved
                     false,
                   name: "View",
                 },
-                {
+                check("businessManagement.products_services:edit") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-product-service-detail")}` +
                     "?productId=" +
@@ -136,7 +136,7 @@ All Rights Reserved
                     true,
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean),
             },
           };
         });
@@ -179,7 +179,7 @@ All Rights Reserved
             status: getStatus(category.attributes.is_active),
             actions: {
               objects: [
-                {
+                check("businessManagement.products_services:view") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-category-detail")}` +
                     "?catergoryId=" +
@@ -188,7 +188,7 @@ All Rights Reserved
                     false,
                   name: "View",
                 },
-                {
+                check("businessManagement.products_services:edit") && {
                   href:
                     `${await $call.getPage("client-dashboard", "crm-category-detail")}` +
                     "?catergoryId=" +
@@ -197,7 +197,7 @@ All Rights Reserved
                     true,
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean),
             },
           };
         });
@@ -236,6 +236,10 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (check("businessManagement.products_services:view") === false) {
+      window.history.back();
+      return;
+    }
     getProducts(pagination.page);
     getCategories(pagination.page);
   });
@@ -249,14 +253,27 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={tabDatas.selected === "Product & Services" ? $_("product&Service") : $_("manageCategories")} />
+          <Typography
+            preset="Display sm/Semibold"
+            color="primary"
+            text={tabDatas.selected === "Product & Services"
+              ? $_("product&Service")
+              : $_("manageCategories")}
+          />
           {#if tabDatas.selected === "Product & Services"}
-            <Button onclick={addProduct} icon={PlusIcon}
+            <Button
+              disabled={!check("businessManagement.products_services:create")}
+              onclick={addProduct}
+              icon={PlusIcon}
               ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
             >
           {:else if tabDatas.selected === "Categories"}
-            <Button onclick={addCategory} icon={PlusIcon}
-              ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNewCategory")}</Button
+            <Button
+              disabled={!check("businessManagement.products_services:create")}
+              onclick={addCategory}
+              icon={PlusIcon}
+              ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
+              {$_("addNewCategory")}</Button
             >
           {/if}
         </div>
@@ -277,7 +294,12 @@ All Rights Reserved
           {/if}
         {:else if tabDatas.selected === "Categories"}
           {#if categoriesData.length > 0}
-            <DataTable bind:datas={categoriesData} bind:configs={configsCategories} bind:next={nextCategory} bind:previous={previousCategory} />
+            <DataTable
+              bind:datas={categoriesData}
+              bind:configs={configsCategories}
+              bind:next={nextCategory}
+              bind:previous={previousCategory}
+            />
           {:else if gettingDatas}
             <StateCard
               illustration={IllustrationProgress}
