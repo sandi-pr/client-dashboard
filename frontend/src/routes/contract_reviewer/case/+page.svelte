@@ -11,19 +11,15 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { Modal, Button, Input, Pagination } from "flowbite-svelte";
-  import { Typography, triggerToast, StateCard, triggerLoading } from "$lib";
-  import * as Icon from "flowbite-svelte-icons";
+  import { Typography, triggerToast, StateCard, triggerLoading, call, check } from "$lib";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { _ } from "svelte-i18n";
-  import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import { goto } from "$app/navigation";
-
-  import { call } from "$lib";
 
   let tmpRulesName = $state("");
   let addRulesModal = $state(false);
@@ -132,11 +128,12 @@ All Rights Reserved
               case_name: rule.attributes.rule_name,
               actions: {
                 objects: [
+                  check("businessManagement.hr.recruitment:view") &&
                   {
                     href: link + "?caseId=" + rule.id,
                     name: "View",
                   },
-                ],
+                ].filter(Boolean),
               },
             };
           });
@@ -185,16 +182,18 @@ All Rights Reserved
         <!-- User Information -->
         <div class="flex justify-between">
           <Typography preset="Display sm/Semibold" text={$_("caseList")} />
-          <Button
-            onclick={() => (addRulesModal = true)}
-            class="flex gap-2 items-center"
-            color="primary"
-            variant="contained"
-            size="sm"
-          >
-            <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" />
-            {$_("addNew")}
-          </Button>
+          {#if check("aiManagement.contractreviewer.case:create")}
+            <Button
+              onclick={() => (addRulesModal = true)}
+              class="flex gap-2 items-center"
+              color="primary"
+              variant="contained"
+              size="sm"
+            >
+              <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" />
+              {$_("addNew")}
+            </Button>
+          {/if}
         </div>
 
         <!-- table latest -->

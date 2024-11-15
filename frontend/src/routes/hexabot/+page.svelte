@@ -437,7 +437,7 @@
 
         <!-- Action Items -->
         <div class="flex flex-col gap-4">
-          {#if actionItems.some((item) => item.disabled === false)}
+          {#if actionItems.some((item) => item.disabled !== true)}
             <SectionHeader title={$_("action")} />
           {/if}
           <ActionCard {actionItems} />

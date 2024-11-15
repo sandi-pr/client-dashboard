@@ -172,6 +172,11 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (check("businessManagement.hr:create") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     getJobLevels();
     getJobPositions();
   });

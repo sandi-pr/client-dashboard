@@ -22,7 +22,7 @@ All Rights Reserved
     Helper,
     Alert,
   } from "flowbite-svelte";
-  import { ToastContainer, triggerToast } from "$lib";
+  import { ToastContainer, triggerToast, check } from "$lib";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Divider from "$lib/components/Divider.svelte";
@@ -112,7 +112,7 @@ All Rights Reserved
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     // inputElement.accept = ".txt";
-    inputElement.accept = ".txt, .pdf, .csv";
+    inputElement.accept = ".txt, .pdf";
 
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
@@ -288,6 +288,11 @@ All Rights Reserved
   }
 
   onMount(() => {
+    if (check("businessManagement.hr.recruitment:create") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     getJobLevels();
     getJobPositions();
   });
@@ -504,7 +509,7 @@ All Rights Reserved
                     >
                   </div>
                   <!-- <P class="pointer-events-none">SVG, PNG, JPG, or GIF (max. 800x400px)</P> -->
-                  <P class="pointer-events-none">PDF, CSV, TXT (Max. 15MB)</P>
+                  <P class="pointer-events-none">PDF, TXT (Max. 15MB)</P>
                 {/if}
               </Button>
             </div>

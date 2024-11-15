@@ -233,6 +233,7 @@
   "back": "Kembali",
   "hrOverview": "Manajemen HR",
   "hR": "HR",
+  "hr": "HR",
   "descHr": "Manajemen karyawan dan kehadiran karyawan",
   "attendance": "Kehadiran",
   "employee": "Karyawan",
@@ -391,6 +392,7 @@
   "projectName": "Nama Proyek",
   "project": "Proyek",
   "createNewProject": "Buat proyek baru",
+  "createNewProjects": "Buat proyek baru",
   "whatIsYourProjectTitle": "Apa judul proyek Anda?",
   "selectIndustry": "Pilih industri",
   "pickADate": "Pilih tanggal",
@@ -734,10 +736,10 @@
   "viewProjectsInformation": "Lihat informasi proyek",
   "editProjectsInformation": "Edit informasi proyek",
   "deleteProjects": "Hapus proyek",
-  "addDeleteNewRules": "Tambah & hapus aturan baru",
-  "addDeleteReferencedDocuments": "Tambah & hapus dokumen referensi",
+  "createDeleteNewRules": "Tambah & hapus aturan baru",
+  "createDeleteReferencedDocuments": "Tambah & hapus dokumen referensi",
   "viewCasesInformation": "Lihat informasi kasus",
-  "editCases&Rules": "Edit kasus & aturan",
+  "editCasesRules": "Edit kasus & aturan",
   "audioInformation": "Informasi Audio",
   "audioText": "Teks Audio",
   "libraries": "Pustaka",
@@ -768,5 +770,6 @@
   "viewEventInformation": "Lihat informasi acara",
   "deleteEvent": "Hapus acara",
   "changeAvailabilitySlots": "Ubah slot ketersediaan",
-  "productsServices": "Produk & Layanan"
+  "productsServices": "Produk & Layanan",
+  "createNewDocumentsToProject": "Buat dokumen baru ke proyek"
 }

@@ -8,6 +8,8 @@
     Dropdown,
     DocumentProject,
     triggerLoading,
+    call,
+    check,
   } from "$lib";
   import { Button, Modal, Input } from "flowbite-svelte";
   import { DatePicker } from "@svelte-plugins/datepicker";
@@ -24,8 +26,6 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { breadcrumbLastName } from "$lib/stores/breadcrumbLastName.js";
-
-  import { call } from "$lib";
 
   let projectId = $state(null);
 
@@ -674,6 +674,11 @@
   }
 
   onMount(() => {
+    if (check("aiManagement.contractreviewer.project:view") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     const unsubscribe = page.subscribe(async ($page) => {
       projectId = $page.url.searchParams.get("projectId");
       if (projectId !== null) {
@@ -707,18 +712,20 @@
           color="quarterary"
         />
       </div>
-      <div class="flex flex-col gap-2">
-        <div class="flex flex-col">
-          <Button
-            on:click={() => {
-              projectDelete = true;
-              typeTmp = null;
-              deleteModal = true;
-            }}
-            color="light">{$_("delete")}</Button
-          >
+      {#if check("aiManagement.contractreviewer.project:delete")}
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
+            <Button
+              on:click={() => {
+                projectDelete = true;
+                typeTmp = null;
+                deleteModal = true;
+              }}
+              color="light">{$_("delete")}</Button
+            >
+          </div>
         </div>
-      </div>
+      {/if}
     </div>
     <Divider />
     <!-- section form -->
@@ -782,98 +789,100 @@
         </div>
       </div>
     </div>
-    <Divider />
-    <div class="flex gap-3">
-      <div class="w-60">
-        <Typography preset="Text md/Semibold" text={`${$_("documentUploads")}`} color="secondary" />
-        <!-- <button
-          onclick={() => {
-            getStatusGenerated();
-          }}
-          class="text-brand-secondary-light dark:text-brand-secondary-dark"
-          >{$_("checkStatus")}</button
-        > -->
-      </div>
-      <div class="flex flex-col grow gap-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- form upload -->
-          {#each files as file}
-            <DocumentProject
-              title={file.type}
-              handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
-              file={getFileByType(file.type)}
-              bind:status={file.status_generated}
+    {#if check("aiManagement.contractreviewer.document:create")}
+      <Divider />
+      <div class="flex gap-3">
+        <div class="w-60">
+          <Typography preset="Text md/Semibold" text={`${$_("documentUploads")}`} color="secondary" />
+          <!-- <button
+            onclick={() => {
+              getStatusGenerated();
+            }}
+            class="text-brand-secondary-light dark:text-brand-secondary-dark"
+            >{$_("checkStatus")}</button
+          > -->
+        </div>
+        <div class="flex flex-col grow gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- form upload -->
+            {#each files as file}
+              <DocumentProject
+                title={file.type}
+                handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
+                file={getFileByType(file.type)}
+                bind:status={file.status_generated}
+                actionButton={true}
+                isLoading={file.status !== "FINISH"}
+                actionView={async () => {
+                  goto(
+                    (await $call.getPage("client-dashboard", "contract-project-detail-document")) +
+                      "?projectDocumentId=" +
+                      file.id,
+                  );
+                  // (documentViewModal = true), (selectedFile = getFileByType(file.type));
+                }}
+                actionDelete={() => {
+                  typeTmp = file.type;
+
+                  projectDelete = false;
+                  deleteModal = true;
+                }}
+                actionGenerate={async () => {
+                  if (file.status_generated !== "FINISH" && file.status_generated !== "GENERATING") {
+                    generatedAI(file);
+                  } else {
+                    if (file.result_id !== undefined) {
+                      goto(
+                        (await $call.getPage("client-dashboard", "contract-project-review")) +
+                          "?projectDocumentId=" +
+                          file.result_id,
+                      );
+                    } else {
+                      console.log("gamasuk");
+                      console.log(idResults);
+                      let index = idResults.findIndex((result) => result.id_doc === file.id);
+                      console.log(index);
+                      console.log(idResults[index]);
+                      goto(
+                        (await $call.getPage("client-dashboard", "contract-project-review")) +
+                          "?projectDocumentId=" +
+                          idResults[index].id,
+                      );
+                    }
+                  }
+                }}
+              />
+            {/each}
+            <!-- {#each otherDocType as docType}
+            <UploadFile
+              title={docType.title}
+              handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "other")}
+              file={getFileByType(docType.type, "other")}
               actionButton={true}
-              isLoading={file.status !== "FINISH"}
-              actionView={async () => {
+              actionView={() => (
+                (documentViewModal = true), (selectedFile = getFileByType(docType.type, "other"))
+              )}
+              actionDelete={() => deleteFileByType(docType.type, "other")}
+            />
+          {/each} -->
+            <Button
+              class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
+              on:click={async () => {
                 goto(
                   (await $call.getPage("client-dashboard", "contract-project-detail-document")) +
-                    "?projectDocumentId=" +
-                    file.id,
+                    "?projectId=" +
+                    projectId,
                 );
-                // (documentViewModal = true), (selectedFile = getFileByType(file.type));
               }}
-              actionDelete={() => {
-                typeTmp = file.type;
-
-                projectDelete = false;
-                deleteModal = true;
-              }}
-              actionGenerate={async () => {
-                if (file.status_generated !== "FINISH" && file.status_generated !== "GENERATING") {
-                  generatedAI(file);
-                } else {
-                  if (file.result_id !== undefined) {
-                    goto(
-                      (await $call.getPage("client-dashboard", "contract-project-review")) +
-                        "?projectDocumentId=" +
-                        file.result_id,
-                    );
-                  } else {
-                    console.log("gamasuk");
-                    console.log(idResults);
-                    let index = idResults.findIndex((result) => result.id_doc === file.id);
-                    console.log(index);
-                    console.log(idResults[index]);
-                    goto(
-                      (await $call.getPage("client-dashboard", "contract-project-review")) +
-                        "?projectDocumentId=" +
-                        idResults[index].id,
-                    );
-                  }
-                }
-              }}
-            />
-          {/each}
-          <!-- {#each otherDocType as docType}
-          <UploadFile
-            title={docType.title}
-            handleFileUploadWrapper={() => handleFileUploadWrapper(docType.type, "other")}
-            file={getFileByType(docType.type, "other")}
-            actionButton={true}
-            actionView={() => (
-              (documentViewModal = true), (selectedFile = getFileByType(docType.type, "other"))
-            )}
-            actionDelete={() => deleteFileByType(docType.type, "other")}
-          />
-        {/each} -->
-          <Button
-            class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
-            on:click={async () => {
-              goto(
-                (await $call.getPage("client-dashboard", "contract-project-detail-document")) +
-                  "?projectId=" +
-                  projectId,
-              );
-            }}
-            color="light"
-          >
-            <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-            {$_("addComplianceDocs")}
-          </Button>
+              color="light"
+            >
+              <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
+              {$_("addComplianceDocs")}
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    {/if}
   </div>
 {/if}
 

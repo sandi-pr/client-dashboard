@@ -8,7 +8,7 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { Typography, StateCard, Dropdown, triggerToast, triggerLoading } from "$lib";
+  import { Typography, StateCard, Dropdown, triggerToast, triggerLoading, call, check } from "$lib";
   import { Button, Modal, Input, Textarea } from "flowbite-svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -19,9 +19,6 @@ All Rights Reserved
   import { format } from "date-fns";
   import { DatePicker } from "@svelte-plugins/datepicker";
   import { onMount } from "svelte";
-  import { CR3Call } from "hexacomponents-svelte";
-
-  import { call } from "$lib";
 
   let tmpProjectName = $state("");
   let tmpProjectDescription = $state("");
@@ -96,11 +93,11 @@ All Rights Reserved
               end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
               actions: {
                 objects: [
-                  {
+                  check("aiManagement.contractreviewer.project:view") && {
                     href: url + `?projectId=${project.id}&title=${project.attributes.project_name}`,
                     name: "View",
                   },
-                ],
+                ].filter(Boolean),
               },
             };
           });
@@ -256,10 +253,12 @@ All Rights Reserved
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text={$_("projectList")} />
-          <Button onclick={() => (addProjectModal = true)}>
-            <img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
-            {$_("addNew")}
-          </Button>
+          {#if check("aiManagement.contractreviewer.project:create")}
+            <Button onclick={() => (addProjectModal = true)}>
+              <img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
+              {$_("addNew")}
+            </Button>
+          {/if}
         </div>
 
         <!-- Document Table Data -->

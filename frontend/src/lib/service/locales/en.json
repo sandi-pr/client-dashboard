@@ -233,6 +233,7 @@
   "back": "Back",
   "hrOverview": "HR Management",
   "hR": "HR",
+  "hr": "HR",
   "descHr": "Manage your employees and their attendances",
   "attendance": "Attendance",
   "employee": "Employee",
@@ -391,6 +392,7 @@
   "projectName": "Project Name",
   "project": "Project",
   "createNewProject": "Create new project",
+  "createNewProjects": "Create new project",
   "whatIsYourProjectTitle": "What is your project title?",
   "selectIndustry": "Select industry",
   "pickADate": "Pick a date",
@@ -733,10 +735,10 @@
   "viewProjectsInformation": "View projects information",
   "editProjectsInformation": "Edit projects information",
   "deleteProjects": "Delete projects",
-  "addDeleteNewRules": "Add & delete new rules",
-  "addDeleteReferencedDocuments": "Add & delete referenced documents",
+  "createDeleteNewRules": "Add & delete new rules",
+  "createDeleteReferencedDocuments": "Add & delete referenced documents",
   "viewCasesInformation": "View cases information",
-  "editCases&Rules": "Edit cases & rules",
+  "editCasesRules": "Edit cases & rules",
   "audioInformation": "Audio Information",
   "audioText": "Audio Text",
   "libraries": "Libraries",
@@ -768,5 +770,6 @@
   "changeEventInformation": "Change event information",
   "viewEventInformation": "View event information",
   "deleteEvent": "Delete event",
-  "changeAvailabilitySlots": "Change availability slots"
+  "changeAvailabilitySlots": "Change availability slots",
+  "createNewDocumentsToProject": "Create new documents to project"
 }

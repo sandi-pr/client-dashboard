@@ -23,21 +23,17 @@ All Rights Reserved
     Helper,
   } from "flowbite-svelte";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { ToastContainer, triggerToast, InputRw, TextareaRw } from "$lib";
+  import { ToastContainer, triggerToast, InputRw, TextareaRw, check, call, generateUniqueId } from "$lib";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import TabDetail from "$lib/components/TabDetail.svelte";
-  import { CR3Call } from "hexacomponents-svelte";
   import { format, formatDistanceToNow } from "date-fns";
   import { goto } from "$app/navigation";
   import { createEventDispatcher } from "svelte";
-  import Badge from "$lib/ui/badge/Badge.svelte";
-  import { generateUniqueId } from "$lib";
-
-  import { call } from "$lib";
+  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
 
   const params = new URLSearchParams(window.location.search);
   const recruitmentId = params.get("recruitmentId");
@@ -335,7 +331,12 @@ All Rights Reserved
   }
 
   onMount(() => {
-    if (edit === "true") onEdit = true;
+    if (check("businessManagement.hr.recruitment:view") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
+    if (edit === "true" && check("businessManagement.hr.recruitment:edit")) onEdit = true;
     console.log("id", recruitmentId);
     getRecruitment();
     getJobLevels();
@@ -399,18 +400,22 @@ All Rights Reserved
               color="light"
               class="px-3 focus-within:!ring-1">{$_("back")}</Button
             >
-            <Button
-              onclick={() => (popupModal = true)}
-              outline
-              color="red"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-            >
-            <Button
-              onclick={() => {
-                onEdit = true;
-              }}
-              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            {#if check("businessManagement.hr.recruitment:delete")}
+              <Button
+                onclick={() => (popupModal = true)}
+                outline
+                color="red"
+                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              >
+            {/if}
+            {#if check("businessManagement.hr.recruitment:edit")}
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            {/if}
             <!-- <Button
               onclick={() => {
                 onEdit = true;
@@ -446,7 +451,7 @@ All Rights Reserved
           >
             {#if pdfReady}
               {#if data.ext === ".pdf"}
-                <iframe title="" class="w-full h-screen" src={`${fileUrl}`}></iframe>
+                <PdfjsViewer pdfFile={base64} />
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}
                   <p class="dark:text-white">{paragraphs}</p>

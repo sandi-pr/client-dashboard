@@ -9,7 +9,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { Modal, Button, Input, Textarea } from "flowbite-svelte";
+  import { Modal, Button, Input, Textarea, Heading } from "flowbite-svelte";
   import {
     Typography,
     SectionHeader,
@@ -18,6 +18,8 @@ All Rights Reserved
     triggerToast,
     StateCard,
     triggerLoading,
+    ActionCard,
+    check,
   } from "$lib";
   import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -68,12 +70,14 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: "#",
+        disabled: !check("aiManagement.contractreviewer.project:create"),
+        onclick: () => (addProjectModal = true),
         icon: "packagePlus",
         actionName: "Add new project",
         desc: "desc Add new project",
       },
       {
+        disabled: !check("aiManagement.contractreviewer.case:view"),
         href: await $call.getPage("client-dashboard", "contract-case"),
         icon: "bookOpen",
         actionName: "Manage cases",
@@ -295,24 +299,18 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Typography preset="Display sm/Semibold" text={$_("contractReviewerOverview")} />
+        <Typography preset="Display sm/Semibold" text={$_("contractReviewerOverview")} propClass="fluid-xl" />
 
         <!-- Action Items -->
-        <div class="flex flex-col gap-4">
-          <SectionHeader title={$_("action")} />
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
-            {#each actionItems as item}
-              <Card
-                onclick={() => {
-                  if (item.href === "#") addProjectModal = true;
-                  else goto(item.href);
-                }}
-                icon={item.icon}
-                title={$_(toCamelCase(item.actionName))}
-                description={$_(toCamelCase(item.desc))}
-              />
-            {/each}
-          </div>
+        <div>
+          {#if actionItems.some((item) => item.disabled !== true)}
+            <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
+              <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
+                {$_("action")}
+              </Heading>
+            </div>
+          {/if}
+          <ActionCard {actionItems} />
         </div>
 
         <!-- table latest -->

@@ -51,6 +51,7 @@ All Rights Reserved
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
   import { call } from "$lib";
+    import { on } from "svelte/events";
 
   // let { showAI = true } = $props();
   // let showAI = $state(false);
@@ -94,7 +95,8 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
-        href: await $call.getPage("client-dashboard", "document-collection-create"),
+        onclick: () => (addLibraryModal = true),
+        // href: await $call.getPage("client-dashboard", "document-collection-create"),
         icon: "filePlus",
         actionName: "Add new library collection",
         desc: "desc Add new library collection",
@@ -707,7 +709,7 @@ All Rights Reserved
       <!-- Action Items -->
       <div class="flex flex-col gap-4">
         <SectionHeader title={$_("action")} />
-        <ActionCard {actionItems} onclick={() => (addLibraryModal = true)} />
+        <ActionCard {actionItems} />
       </div>
     {/if}
 

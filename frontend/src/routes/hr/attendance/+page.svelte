@@ -2,16 +2,13 @@
   import { onMount } from "svelte";
   import { Input } from "flowbite-svelte";
   import DataTable from "$lib/components/DataTable.svelte";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
   import { Button } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import { _ } from "svelte-i18n";
-  import { StateCard } from "$lib";
+  import { Typography, StateCard, check, call } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
-
-  import { call } from "$lib";
 
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
@@ -449,6 +446,11 @@
   }
 
   onMount(async () => {
+    if (check("businessManagement.hr:attendance") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     getEmployee();
   });
 

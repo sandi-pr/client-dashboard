@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { P, Heading, Input, Button, Alert, Modal } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
-  import { ToastContainer, triggerToast, StateCard, Typography } from "$lib";
+  import { ToastContainer, triggerToast, StateCard, Typography, check, call } from "$lib";
   import { fly } from "svelte/transition";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
@@ -22,10 +22,7 @@ All Rights Reserved
   import DotsGridIcon from "$lib/icon/dots-grid.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
-  import { CR3Call } from "hexacomponents-svelte";
   import { InfoCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-
-  import { call } from "$lib";
 
   let tmpIdPosition = $state("");
   let tmpJobLevel = $state("");
@@ -341,6 +338,11 @@ All Rights Reserved
   });
 
   onMount(async () => {
+    if (check("businessManagement.hr.joblevel:manage") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     getJobLevels();
     getPositions();
   });

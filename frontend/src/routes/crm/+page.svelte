@@ -597,7 +597,7 @@ All Rights Reserved
 
         <!-- Action Items -->
         <div>
-          {#if actionItems.some((item) => item.disabled === false)}
+          {#if actionItems.some((item) => item.disabled !== true)}
             <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
               <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
                 {$_("action")}

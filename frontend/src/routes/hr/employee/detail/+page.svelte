@@ -18,14 +18,11 @@ All Rights Reserved
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { onMount, createEventDispatcher } from "svelte";
-  import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
-  import { generateUniqueId } from "$lib";
+  import { generateUniqueId, check, call } from "$lib";
   import { formatDistanceToNow } from "date-fns";
 
   const dispatch = createEventDispatcher();
-
-  import { call } from "$lib";
 
   const params = new URLSearchParams(window.location.search);
   const employeeId = params.get("employeeId");
@@ -235,7 +232,12 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    if (edit === "true") onEdit = true;
+    if (check("businessManagement.hr:view") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
+    if (edit === "true" && check("businessManagement.hr:edit")) onEdit = true;
     getEmployee();
     getJobLevels();
     getJobPositions();
@@ -295,18 +297,22 @@ All Rights Reserved
             <Button onclick={backPage} color="light" class="px-3 focus-within:!ring-1"
               >{$_("back")}</Button
             >
-            <Button
-              onclick={() => (popupModal = true)}
-              outline
-              color="red"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-            >
-            <Button
-              onclick={() => {
-                onEdit = true;
-              }}
-              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-            >
+            {#if check("businessManagement.hr:delete")}
+              <Button
+                onclick={() => (popupModal = true)}
+                outline
+                color="red"
+                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              >
+            {/if}
+            {#if check("businessManagement.hr:edit")}
+              <Button
+                onclick={() => {
+                  onEdit = true;
+                }}
+                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              >
+            {/if}
             <!-- <Button
               onclick={() => {
                 onEdit = true;

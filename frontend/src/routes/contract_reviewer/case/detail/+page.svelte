@@ -19,12 +19,13 @@ All Rights Reserved
     triggerLoading,
     InputRw,
     TextareaRw,
+    call,
+    check,
   } from "$lib";
   import Divider from "$lib/components/Divider.svelte";
   import { PlusOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { _ } from "svelte-i18n";
-  import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -33,8 +34,6 @@ All Rights Reserved
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-
-  import { call } from "$lib";
 
   let ruleId = $state(null);
   let addRulesSectionsModal = $state(false);
@@ -66,13 +65,13 @@ All Rights Reserved
   let tabDatas = $state({
     selected: "Referenced Documents",
     data: [
-      {
+      check("aiManagement.contractreviewer.document:create_delete") && {
         name: "Referenced Documents",
       },
-      {
+      check("aiManagement.contractreviewer.rule:create_delete") && {
         name: "Rules",
       },
-    ],
+    ].filter(Boolean),
   });
 
   let datas = $state({
@@ -589,6 +588,11 @@ All Rights Reserved
   }
 
   onMount(() => {
+    if (check("aiManagement.contractreviewer.rule:create_delete") === false && check("aiManagement.contractreviewer.document:create_delete") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     const unsubscribe = page.subscribe(async ($page) => {
       ruleId = $page.url.searchParams.get("caseId");
       triggerLoading(true);
@@ -627,24 +631,26 @@ All Rights Reserved
               >{$_("createOn")}{` ${datas.createdAt}`}</P
             >
           </div>
-          <div class="flex flex-col gap-2">
-            <div class="flex flex-col">
-              <Button
-                onclick={() => {
-                  caseDelete = true;
-                  tmpId = null;
-                  deleteModal = true;
-                }}
-                color="light">{$_("delete")}</Button
-              >
+          {#if check("aiManagement.contractreviewer.case:delete")}
+            <div class="flex flex-col gap-2">
+              <div class="flex flex-col">
+                <Button
+                  onclick={() => {
+                    caseDelete = true;
+                    tmpId = null;
+                    deleteModal = true;
+                  }}
+                  color="light">{$_("delete")}</Button
+                >
+              </div>
             </div>
-          </div>
+          {/if}
         </div>
 
         <!-- Tab Bar -->
         <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
-        {#if tabDatas.selected === "Referenced Documents"}
+        {#if tabDatas.selected === "Referenced Documents" && check("aiManagement.contractreviewer.document:create_delete")}
           <div>
             <!-- header -->
             <div class="flex justify-between pt-3 pb-6">
@@ -706,7 +712,7 @@ All Rights Reserved
               </div>
             </div>
           </div>
-        {:else if tabDatas.selected === "Rules"}
+        {:else if tabDatas.selected === "Rules" && check("aiManagement.contractreviewer.rule:create_delete")}
           <div>
             <!-- header -->
             <div class="flex justify-between pt-3 pb-6">

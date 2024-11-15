@@ -12,7 +12,7 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { P, Card, Avatar, Heading, A, Button } from "flowbite-svelte";
-  import { StateCard } from "$lib";
+  import { StateCard, ActionCard, check, call } from "$lib";
   import { _ } from "svelte-i18n";
   import UserPlusIcon from "$lib/icon/user-plus-02.svelte";
   import PackagePlusIcon from "$lib/icon/package-plus.svelte";
@@ -25,8 +25,6 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
-
-  import { call } from "$lib";
 
   let { showAI = false } = $props();
 
@@ -101,23 +99,23 @@ All Rights Reserved
   async function getActionItems() {
     actionItems = [
       {
+        disabled: !check("businessManagement.hr:attendance"),
         href: await $call.getPage("client-dashboard", "hr-attendance"),
-        // href: "/hr/employee/attendance",
-        icon: UserPlusIcon,
+        icon: "userPlus",
         actionName: "Employee Attendance",
         desc: "desc Employee Attendance",
       },
       {
+        disabled: !check("businessManagement.hr:create"),
         href: await $call.getPage("client-dashboard", "hr-employee-create"),
-        // href: "/hr/employee/create",
-        icon: PackagePlusIcon,
+        icon: "packagePlus",
         actionName: "Add New Employee",
         desc: "desc Add New Employee",
       },
       {
+        disabled: !check("businessManagement.hr.recruitment:create"),
         href: await $call.getPage("client-dashboard", "hr-recruitment"),
-        // href: "/hr/recruitment",
-        icon: PackageSearchIcon,
+        icon: "packageSearch",
         actionName: "Add New Recruitment",
         desc: "desc Add New Recruitment",
       },
@@ -127,17 +125,28 @@ All Rights Reserved
   let tabDatas = $state({
     selected: "Employee",
     data: [
-      // {
-      //   name: "Attendance",
-      // },
-      {
+      check("businessManagement.hr:view") && {
         name: "Employee",
       },
-      {
+      check("businessManagement.hr.recruitment:view") && {
         name: "Recruitment",
       },
-    ],
+    ].filter(Boolean),
   });
+
+  async function getTabData() {
+    tabDatas = {
+      selected: "Employee",
+      data: [
+        check("businessManagement.hr:view") && {
+          name: "Employee",
+        },
+        check("businessManagement.hr.recruitment:view") && {
+          name: "Recruitment",
+        },
+      ].filter(Boolean),
+    };
+  }
 
   function generateChartData() {
     const currentDate = new Date();
@@ -469,13 +478,13 @@ All Rights Reserved
             employment_status: employee.attributes.employment_status,
             actions: {
               objects: [
-                {
+                check("businessManagement.hr:view") && {
                   href:
                     `${await $call.getPage("client-dashboard", "hr-employee-detail")}` +
                     `?employeeId=${employee.id}&edit=false`,
                   name: "View",
                 },
-                {
+                check("businessManagement.hr:edit") && {
                   href:
                     `${await $call.getPage("client-dashboard", "hr-employee-detail")}` +
                     "?employeeId=" +
@@ -483,7 +492,7 @@ All Rights Reserved
                     "&edit=true",
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean),
             },
           };
         });
@@ -568,13 +577,13 @@ All Rights Reserved
             email: recruitment.attributes.email,
             actions: {
               objects: [
-                {
+                check("businessManagement.hr.recruitment:view") && {
                   href:
                     `${await $call.getPage("client-dashboard", "hr-recruitment-detail")}` +
                     `?recruitmentId=${recruitment.id}&edit=false`,
                   name: "View",
                 },
-                {
+                check("businessManagement.hr.recruitment:edit") && {
                   href:
                     `${await $call.getPage("client-dashboard", "hr-recruitment-detail")}` +
                     "?recruitmentId=" +
@@ -582,7 +591,7 @@ All Rights Reserved
                     "&edit=true",
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean),
             },
           };
         });
@@ -725,47 +734,18 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Heading tag="h2" class="font-jakarta text-primary-light dark:text-primary-dark">
-          {$_("hrOverview")}
-        </Heading>
+        <Typography preset="Display sm/Semibold" text={$_("hrOverview")} propClass="fluid-xl" />
 
         <!-- Action Items -->
         <div>
-          <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
-            <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
-              {$_("action")}
-            </Heading>
-          </div>
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-center justify-center">
-            {#each actionItems as item}
-              <Card
-                href={item.href}
-                horizontal="true"
-                class="cursor-pointer items-center w-full !p-4 min-h-28 bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark border-brand-light dark:border-brand-dark shadow-sm hover:no-underline"
-                size="none"
-              >
-                <Avatar
-                  size="sm"
-                  border
-                  class="!ring-0 bg-brand-secondary-light dark:bg-brand-secondary-dark !p-2 !h-10 !w-10"
-                  ><svelte:component
-                    this={item.icon}
-                    svgClass="w-5 h-5 text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
-                  /></Avatar
-                >
-                <div class="ml-4 gap[2px]">
-                  <P
-                    class="font-jakarta text-base font-semibold leading-normal text-primary-light dark:text-primary-dark"
-                    >{$_(toCamelCase(item.actionName))}</P
-                  >
-                  <P
-                    class="font-jakarta text-sm font-normal leading-tight text-secondary-light dark:text-secondary-dark"
-                    >{$_(toCamelCase(item.desc))}</P
-                  >
-                </div>
-              </Card>
-            {/each}
-          </div>
+          {#if actionItems.some((item) => item.disabled !== true)}
+            <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
+              <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
+                {$_("action")}
+              </Heading>
+            </div>
+          {/if}
+          <ActionCard {actionItems} />
         </div>
 
         <!-- Reports Monitoring -->
@@ -813,11 +793,6 @@ All Rights Reserved
                     class="font-jakarta leading-[30px] text-primary-light dark:text-primary-dark"
                     >{value}</P
                   >
-                  <A
-                    {href}
-                    class="text-sm font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark font-jakarta leading-tight"
-                    >{$_("seeAll")}</A
-                  >
                 </div>
                 <div class="col-span-6 sm:col-span-5 md:col-span-7">
                   {#if chartReady}
@@ -838,19 +813,21 @@ All Rights Reserved
         </div>
 
         <div class="flex flex-col">
-          <div class="flex justify-between">
-            <Typography
-              preset="Text lg/Semibold"
-              color="primary"
-              text={$_(toCamelCase(tabDatas.selected))}
-            />
-            <div></div>
-            <!-- <Button on:click={() => viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button> -->
-          </div>
-          <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+          {#if tabDatas.data.length > 0}
+            <div class="flex justify-between">
+              <Typography
+                preset="Text lg/Semibold"
+                color="primary"
+                text={$_(toCamelCase(tabDatas.selected))}
+              />
+              <div></div>
+              <Button on:click={() => viewAll(tabDatas.selected)} color="light">{$_("seeAll")}</Button>
+            </div>
+            <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+          {/if}
 
           <div>
-            {#if tabDatas.selected === "Employee"}
+            {#if tabDatas.selected === "Employee" && check("businessManagement.hr:view")}
               <!-- Person Table Data -->
               {#if latestEmployee.length > 0}
                 <DataTable bind:datas={latestEmployee} bind:configs />
@@ -873,7 +850,7 @@ All Rights Reserved
               {:else}
                 <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
               {/if} -->
-            {:else if tabDatas.selected === "Recruitment"}
+            {:else if tabDatas.selected === "Recruitment" && check("businessManagement.hr.recruitment:view")}
               {#if latestRecruitment.length > 0}
                 <DataTable bind:datas={latestRecruitment} bind:configs />
               {:else if gettingDatas}

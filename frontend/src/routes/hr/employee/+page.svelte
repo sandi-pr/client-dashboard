@@ -2,16 +2,13 @@
   import { onMount } from "svelte";
   import { Heading } from "flowbite-svelte";
   import DataTable from "$lib/components/DataTable.svelte";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
   import { Button } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import { _ } from "svelte-i18n";
-  import { StateCard } from "$lib";
+  import { Typography, StateCard, check, call } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { goto } from "$app/navigation";
-
-  import { call } from "$lib";
 
   let pagination = $state({ page: 1, pageSize: 5, pageCount: 1, total: 0 });
 
@@ -60,12 +57,14 @@
             employment_status: employee.attributes.employment_status,
             actions: {
               objects: [
+                check("businessManagement.hr:view") &&
                 {
                   href:
                     `${await $call.getPage("client-dashboard", "hr-employee-detail")}` +
                     `?employeeId=${employee.id}&edit=false`,
                   name: "View",
                 },
+                check("businessManagement.hr:edit") &&
                 {
                   href:
                     `${await $call.getPage("client-dashboard", "hr-employee-detail")}` +
@@ -74,7 +73,7 @@
                     "&edit=true",
                   name: "Edit",
                 },
-              ],
+              ].filter(Boolean),
             },
           };
         });
@@ -100,6 +99,11 @@
   }
 
   onMount(async () => {
+    if (check("businessManagement.hr:view") === false) {
+      console.log("no access");
+      window.history.back();
+      return;
+    }
     getEmployees(pagination.page);
   });
 </script>
@@ -113,9 +117,11 @@
         <!-- User Information -->
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" color="primary" text={$_("employeeList")} />
-          <Button onclick={addEmployee} icon={PlusIcon}
-            ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
-          >
+          {#if check("businessManagement.hr:create")}
+            <Button onclick={addEmployee} icon={PlusIcon}
+              ><img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" /> {$_("addNew")}</Button
+            >
+          {/if}
         </div>
 
         <!-- Document Table Data -->
