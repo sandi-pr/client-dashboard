@@ -43,7 +43,7 @@ All Rights Reserved
   import ExampleAudio from "$lib/components/strauss.mp3";
 
   let audioFile = $state(null); // menyimpan file audio sebagai base64
-  let audioUrl = $state(ExampleAudio); // menyimpan URL blob untuk pemutaran audio
+  let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
 
   let documentId, collectionId;
 
@@ -197,10 +197,10 @@ All Rights Reserved
           document_title: documentData.name,
           description: documentData.meta.description,
           category: documentData.meta.category,
-          // document_type: documentData.meta.document_type,
-          // ext: response.result.ext,
-          document_type: "Document Audio",
-          ext: ".mp3",
+          document_type: documentData.meta.document_type,
+          ext: response.result.ext,
+          // document_type: "Document Audio",
+          // ext: ".mp3",
           detectedText: documentData.meta.detected_text ? documentData.meta.detected_text : "",
           slices: documentData.meta.result_trocr ? documentData.meta.result_trocr.slices : "",
           result_trocr: documentData.meta.result_trocr,
@@ -212,10 +212,10 @@ All Rights Reserved
           document_title: documentData.name,
           description: documentData.meta.description,
           category: documentData.meta.category,
-          // document_type: documentData.meta.document_type,
-          // ext: response.result.ext,
-          document_type: "Document Audio",
-          ext: ".mp3",
+          document_type: documentData.meta.document_type,
+          ext: response.result.ext,
+          // document_type: "Document Audio",
+          // ext: ".mp3",
           detectedText: documentData.meta.detected_text ? documentData.meta.detected_text : "",
           slices: documentData.meta.result_trocr ? documentData.meta.result_trocr.slices : "",
           result_trocr: documentData.meta.result_trocr,
@@ -891,7 +891,7 @@ All Rights Reserved
                 <div class="flex justify-center">
                   <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
                 </div>
-              {:else if data.ext === ".mp3"}
+              {:else if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}
                 {#if audioUrl}
                   <AudioPlayer src={audioUrl} />
                 {/if}
