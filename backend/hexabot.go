@@ -10,8 +10,10 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"gitlab.hexacode.org/go-libs/hctypes"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
+	"gitlab.hexacode.org/go-libs/requests"
 	"gitlab.hexacode.org/go-libs/strapi"
 )
 
@@ -148,8 +150,10 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 
 	var data U.Dict
 
+	bot_id := uuid.New().String()
+
 	data = U.Dict{
-		"bot_id":           uuid.New().String(),
+		"bot_id":           bot_id,
 		"bot_name":         bot_name,
 		"ai_engine":        ai_engine,
 		"library_id":       int64(library_id),
@@ -194,6 +198,22 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 			}
 		}
 
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	http := requests.NewHttp(hctypes.Dict{
+		"Content-type": "application/json",
+	})
+
+	resp, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "create-knowledge"), nil, hctypes.Dict{
+		"knowledge_id":  bot_id,
+		"system_prompt": additional_prompt,
+	}.ToJson())
+
+	fmt.Println("create-knowledge", resp)
+
+	if err != nil {
+		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")
 	}
 

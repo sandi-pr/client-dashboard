@@ -5259,7 +5259,7 @@
                 }
             },
             {
-                "name": "document-library",
+                "name": "document-collection",
                 "label": "Document Collection",
                 "fields": {
                     "collection_name": {
@@ -5312,6 +5312,15 @@
                     },
                     "library_industry": {
                         "type": "boolean"
+                    },
+                    "inserted": {
+                        "type": "boolean"
+                    },
+                    "edited": {
+                        "type": "boolean"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },

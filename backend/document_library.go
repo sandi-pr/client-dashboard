@@ -400,11 +400,11 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 								"collection_id":    idCollection,
 								"upload_by":        upload_by,
 								"file_size":        file_size,
-								"edited":           false,
-								"inserted":         false,
 								"reference_doc_id": reference_doc_id,
 								"project_doc_id":   project_doc_id,
 							},
+							"edited":   false,
+							"inserted": false,
 						}
 
 						if category != "" {
@@ -449,6 +449,13 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 						if status != 200 {
 							fmt.Println(status)
+
+							if err2, ok := documentLibrary.GetDict("error"); ok {
+								if message, ok := err2.GetString("message"); ok {
+									return ctx.Error(status, string(message))
+								}
+							}
+
 							return ctx.Error(500, "Internal Server Error")
 						}
 
@@ -1316,8 +1323,6 @@ func UpdateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		"collection_id":    meta["collection_id"],
 		"upload_by":        meta["upload_by"],
 		"file_size":        meta["file_size"],
-		"edited":           true,
-		"inserted":         meta["inserted"],
 		"reference_doc_id": meta["reference_doc_id"],
 		"project_doc_id":   meta["project_doc_id"],
 	}
@@ -1335,8 +1340,9 @@ func UpdateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	}
 
 	dataSend := U.Dict{
-		"name": document_name,
-		"meta": meta,
+		"name":   document_name,
+		"meta":   meta,
+		"edited": true,
 	}
 
 	status, document2, err := Strapi.Update("document-library-table", int64(id), dataSend)
