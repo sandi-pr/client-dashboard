@@ -622,7 +622,7 @@
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Document Audio");
-            }}>Document Audio (MP3)</button
+            }}>Document Audio (MP3, WAV, OGG)</button
           >
           <button
             class="flex p-2 w-full"
