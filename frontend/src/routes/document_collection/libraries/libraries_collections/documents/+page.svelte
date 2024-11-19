@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, Alert, Select, P } from "flowbite-svelte";
+  import { Button, Modal, Input, Alert, Select, P, Helper } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { format } from "date-fns";
@@ -50,6 +50,7 @@
   let tags = $state([]);
   let newTag = $state("");
   let files = $state([]);
+  let attributeNotUnique = $state(false);
 
   let collectionDatas = $state({
     title: "",
@@ -275,9 +276,19 @@
           });
 
           if (response.status !== 200) {
+            if (response && response.errors) {
+              const errors = response.errors.flatMap((error) =>
+                error.errors.flatMap((subError) => subError.message)
+              );
+
+              if (errors.includes("This attribute must be unique")) {
+                attributeNotUnique = true;
+              } else {
+                console.log("Pesan error :", errors);
+                triggerToast("error");
+              }
+            }
             addDocumentsModal = true;
-            console.log(response);
-            triggerToast("error");
             triggerLoading(false);
             return;
           }
@@ -295,6 +306,7 @@
       tmpDocumentTitle = "";
       tmpDocumentDescription = "";
       tags = [];
+      attributeNotUnique = false;
 
       addDocumentsModal = false;
       getDocuments();
@@ -533,6 +545,7 @@
                 tags = [];
                 tmpDocumentTitle = "";
                 tmpDocumentDescription = "";
+                attributeNotUnique = false;
               }}
               class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
             >
@@ -637,11 +650,23 @@
     {#if files.length > 0}
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        <InputRw
+        {#if attributeNotUnique}
+          <InputRw
+            onEdit={true}
+            bind:value={tmpDocumentTitle}
+            placeholder={$_("enterDocumentTitle")}
+          />
+        {:else}
+          <Input id="error" color="red" bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
+          <Helper color="red">
+            <span class="font-medium">{$_("nameAlreadyExist")}</span>
+          </Helper>
+        {/if}
+        <!-- <InputRw
           onEdit={true}
           bind:value={tmpDocumentTitle}
           placeholder={$_("enterDocumentTitle")}
-        />
+        /> -->
       </div>
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />

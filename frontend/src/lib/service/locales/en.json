@@ -771,5 +771,6 @@
   "viewEventInformation": "View event information",
   "deleteEvent": "Delete event",
   "changeAvailabilitySlots": "Change availability slots",
-  "createNewDocumentsToProject": "Create new documents to project"
+  "createNewDocumentsToProject": "Create new documents to project",
+  "nameAlreadyExist": "Name already exists"
 }

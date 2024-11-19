@@ -11,7 +11,7 @@ All Rights Reserved
  -->
 
 <script>
-  import { P, Heading, Input, Textarea, Button, Select, Modal } from "flowbite-svelte";
+  import { P, Heading, Input, Textarea, Button, Select, Modal, Helper } from "flowbite-svelte";
   import {
     ToastContainer,
     triggerToast,
@@ -57,6 +57,7 @@ All Rights Reserved
   let base64 = $state(null);
   let fileUrl = $state("null");
   let pdfReady = $state(false);
+  let attributeNotUnique = $state(false);
 
   let tabDatas = $state({
     selected: "Documents",
@@ -482,13 +483,25 @@ All Rights Reserved
           },
         });
         if (response.status !== 200) {
+          if (response && response.errors) {
+            const errors = response.errors.flatMap((error) =>
+              error.errors.flatMap((subError) => subError.message)
+            );
+
+            if (errors.includes("This attribute must be unique")) {
+              attributeNotUnique = true;
+            } else {
+              console.log("Pesan error :", errors);
+              triggerToast("error");
+            }
+          }
           triggerLoading(false);
           onEdit = true;
-          console.log(response);
           return;
         }
 
         console.log(response);
+        attributeNotUnique = false;
         triggerToast("updated");
         triggerLoading(false);
         getDocument();
@@ -653,6 +666,7 @@ All Rights Reserved
               onclick={() => {
                 onEdit = false;
                 data = { ...tmpData };
+                attributeNotUnique = false;
                 console.log(tmpData);
               }}
               color="light"

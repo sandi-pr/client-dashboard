@@ -771,5 +771,6 @@
   "deleteEvent": "Hapus acara",
   "changeAvailabilitySlots": "Ubah slot ketersediaan",
   "productsServices": "Produk & Layanan",
-  "createNewDocumentsToProject": "Buat dokumen baru ke proyek"
+  "createNewDocumentsToProject": "Buat dokumen baru ke proyek",
+  "nameAlreadyExist": "Nama sudah ada"
 }

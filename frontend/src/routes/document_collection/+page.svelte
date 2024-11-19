@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input, P, Indicator, Alert, Select } from "flowbite-svelte";
+  import { Modal, Button, Input, P, Indicator, Alert, Select, Helper } from "flowbite-svelte";
   import {
     StateCard,
     Typography,
@@ -91,11 +91,17 @@ All Rights Reserved
   let selectedTypeCollection = $state("Documents (TXT, PDF)");
   let timer;
   let fileNotSupport = $state(false);
+  let attributeNotUnique = $state(false);
 
   async function getActionItems() {
     actionItems = [
       {
-        onclick: () => (addLibraryModal = true),
+        onclick: () => {
+          addLibraryModal = true;
+          attributeNotUnique = false;
+          tmpCollectionName = "";
+          tmpDescription = "";
+        },
         // href: await $call.getPage("client-dashboard", "document-collection-create"),
         icon: "filePlus",
         actionName: "Add new library collection",
@@ -370,8 +376,18 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
-        console.log(response);
-        triggerToast("error");
+        if (response && response.errors) {
+          const errors = response.errors.flatMap((error) =>
+            error.errors.flatMap((subError) => subError.message)
+          );
+
+          if (errors.includes("This attribute must be unique")) {
+            attributeNotUnique = true;
+          } else {
+            console.log("Pesan error :", errors);
+            triggerToast("error");
+          }
+        }
         return;
       }
 
@@ -398,6 +414,7 @@ All Rights Reserved
 
       tmpCollectionName = "";
       tmpDescription = "";
+      attributeNotUnique = false;
 
       triggerToast("created");
 
@@ -527,12 +544,24 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          console.log(response);
+          if (response && response.errors) {
+            const errors = response.errors.flatMap((error) =>
+              error.errors.flatMap((subError) => subError.message)
+            );
+
+            if (errors.includes("This attribute must be unique")) {
+              attributeNotUnique = true;
+            } else {
+              console.log("Pesan error :", errors);
+              triggerToast("error");
+            }
+          }
           return;
         }
 
         tmpCollectionName = "";
         tmpDescription = "";
+        attributeNotUnique = false;
 
         editModal = false;
         triggerToast("updated");
@@ -759,6 +788,7 @@ All Rights Reserved
                   tmpCollectionId = document.collectionId;
                   tmpCollectionName = document.collectionName;
                   tmpDescription = document.description;
+                  attributeNotUnique = false;
                   editModal = true;
                 }}
                 functDelete={() => {
@@ -784,11 +814,18 @@ All Rights Reserved
   </div>
 </div>
 
-<Modal title={$_("createNewLibrary")} bind:open={addLibraryModal} size="xs" autoclose>
+<Modal title={$_("createNewLibrary")} bind:open={addLibraryModal} size="xs">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+      {#if !attributeNotUnique}
+        <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+      {:else}
+        <Input id="error" color="red" bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyExist")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -804,11 +841,18 @@ All Rights Reserved
   </svelte:fragment>
 </Modal>
 
-<Modal title={$_("editLibraryName")} bind:open={editModal} size="xs" autoclose>
+<Modal title={$_("editLibraryName")} bind:open={editModal} size="xs">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+      {#if !attributeNotUnique}
+        <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+      {:else}
+        <Input id="error" color="red" bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyExist")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
