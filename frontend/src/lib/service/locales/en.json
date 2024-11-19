@@ -132,7 +132,7 @@
   "createNewBots": "Create new Bots",
   "descCreateNewBots": "Deploy your own customized chatbot",
   "viewBotDeploymentStatus": "View Bot Deployment Status",
-  "descViewBotDeploymentStatus": "See whether your bots are approved",
+  "descViewBotDeploymentStatus": "See whether your bots are ready",
   "recentDeployedBots": "Recent Deployed Bots",
   "conversationLogs": "Conversation Logs",
   "editBotName": "Edit Bot Name",
@@ -140,8 +140,8 @@
   "clientId": "Client ID",
   "activation": "Activation",
   "urlBot": "URL Bot",
-  "botDeploymentStatus": "Status Deploy Bot",
-  "descBotDeploymentStatus": "See whether or not your bots are approved",
+  "botDeploymentStatus": "Bot Deployment Status",
+  "descBotDeploymentStatus": "See whether or not your bots are ready",
   "view": "View",
   "close": "Close",
   "deployedBotsList": "Deployed Bots List",
@@ -772,5 +772,6 @@
   "deleteEvent": "Delete event",
   "changeAvailabilitySlots": "Change availability slots",
   "createNewDocumentsToProject": "Create new documents to project",
-  "nameAlreadyExist": "Name already exists"
+  "nameAlreadyExist": "Name already exists",
+  "YouDontHaveAnyBotsDeploymentOngoing": "You don't have any bots deployment ongoing"
 }

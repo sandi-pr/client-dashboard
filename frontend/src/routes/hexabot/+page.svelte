@@ -29,13 +29,19 @@
     triggerToast,
     StateCard,
     check,
+    Badge,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
+  import Divider from "$lib/components/Divider.svelte";
+  import Stars03Icon from "$lib/icon/stars-03.svelte";
+  import EyeIcon from "$lib/icon/eye.svelte";
+  import TrashIcon from "$lib/icon/trash-03.svelte";
   import { goto } from "$app/navigation";
+  import { format } from "date-fns";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 
   // const isDev = process.env.NODE_ENV === "development";
@@ -90,6 +96,15 @@
         icon: "messagePlus",
         actionName: "Create New Bots",
         desc: "desc Create New Bots",
+      },
+      {
+        disabled: !check("aiManagement.hexabots:deploy"),
+        onclick: () => {
+          deployStatusModal = true;
+        },
+        icon: "eye",
+        actionName: "View bot deployment status",
+        desc: "desc View bot deployment status",
       },
     ];
   }
@@ -327,7 +342,7 @@
             activationTime: bot.attributes.createdAt,
             urlBot: urlBot,
             timestamp: bot.attributes.updatedAt,
-            // deployStatus: bot.attributes.deploy_status,
+            deployStatus: "Deployed",
             deployedPlatform: bot.attributes.ai_engine,
             bot_profile: fileImageResult,
           };
@@ -419,6 +434,12 @@
     );
   }
 
+  let filteredBots = $state([]);
+
+  $effect(() => {
+    filteredBots = bots.filter(bot => bot.deployStatus === "Inactive" || bot.deployStatus === "Reading");
+  })
+
   onMount(() => {
     getActionItems();
     getCountDocumentsPerMonth();
@@ -480,7 +501,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {#each bots as bot, index (bot.botsID)}
                 <!-- {#if bot.deployStatus === "Done"} -->
-                <Card padding="none" class="shadow-none grow w-full">
+                <Card padding="none" class="relative shadow-none grow w-full">
+                  {#if bot.deployStatus === "Reading"}
+                    <div class="absolute top-2 right-2">
+                      <Badge type="warning" text={bot.deployStatus} />
+                    </div>
+                  {/if}
                   <div
                     class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
                   >
@@ -525,10 +551,17 @@
                               <button
                                 class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                                 onclick={() => {
+                                  tmpId = bot.botsID;
+                                  dropdownOpen[index] = !dropdownOpen[index];
+                                }}><EyeIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />{$_("startReading")}</button
+                              >
+                              <button
+                                class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                                onclick={() => {
                                   popupModal = true;
                                   tmpId = bot.botsID;
                                   dropdownOpen[index] = !dropdownOpen[index];
-                                }}>{$_("delete")}</button
+                                }}><TrashIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />{$_("delete")}</button
                               >
                             </ul>
                           </div>
@@ -719,35 +752,83 @@
   </div>
 </div>
 
-<Modal bind:open={deployStatusModal} autoclose>
-  <div class="space-y-2">
-    <Heading tag="h5">{$_("botDeploymentStatus")}</Heading>
-    <P>{$_("descBotDeploymentStatus")}</P>
-  </div>
-  {#each bots as bot}
-    {#if bot.deployStatus !== "Done"}
-      <Card size="lg">
-        <div class="flex justify-between items-center">
-          <div>
-            <Heading tag="h6">{`${bot.botsName}`}</Heading>
-            <P>{`${bot.timestamp}`}</P>
+<Modal bind:open={deployStatusModal} autoclose outsideclose>
+  <svelte:fragment slot="header">
+    <div class="">
+      <Heading tag="h5">{$_("botDeploymentStatus")}</Heading>
+      <P>{$_("descBotDeploymentStatus")}</P>
+    </div>
+  </svelte:fragment>
+  {#if gettingDatas}
+    <StateCard
+      illustration={IllustrationProgress}
+      description={$_("fetchingDataPleaseWait")}
+    />
+  {:else if bots.length !== 0}
+    <div class={`${filteredBots.length > 0 ? "py-4 border rounded-lg space-y-4 border-secondary-light dark:border-secondary-dark" : ""} `}>
+      {#if filteredBots.length > 0}
+        {#each filteredBots as bot, index}
+          <div class="flex px-4 justify-between items-center">
+            <div class="flex items-center gap-3">
+              <Avatar src={bot.bot_profile ? bot.bot_profile : ""} />
+              <div class="flex flex-col">
+                <div class="flex items-center gap-1">
+                  <Typography
+                    preset="Text lg/Semibold"
+                    color="primary"
+                    text={bot.botsName}
+                  />
+                  <Typography
+                    preset="Text xs/Regular"
+                    color="quarterary"
+                    text={format(new Date(bot.timestamp), 'HH:mm, dd/MM/yyyy')}
+                  />
+                </div>
+                <Typography
+                  preset="Text sm/Regular"
+                  color="secondary"
+                  text={bot.botDescription}
+                />
+              </div>
+            </div>
+            {#if bot.deployStatus === "Inactive"}
+              <Button
+                on:click={() => {}}
+                class="p-2 md:px-3 md:py-2 gap-2"
+              >
+                <Stars03Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                <div class="hidden md:block">{$_("startReading")}</div>
+              </Button>
+            {:else if bot.deployStatus === "Reading"}
+              <Badge type="warning" text={bot.deployStatus} />
+            {/if}
           </div>
-          <Button
-            class={`p-[2px] border-[1px] h-1/2 rounded-xl text-center ${classStatusType(
-              bot.deployStatus,
-            )}`}>{bot.deployStatus}</Button
-          >
-        </div>
-      </Card>
-    {/if}
-  {/each}
-  <Button
-    on:click={() => {
-      deployStatusModal = false;
-    }}
-    class="w-full"
-    color="light">{$_("close")}</Button
-  >
+          {#if index !== filteredBots.length - 1}
+            <Divider />
+          {/if}
+        {/each}
+      {:else}
+        <StateCard
+          illustration={IllustrationEmpty}
+          description={$_("YouDontHaveAnyBotsDeploymentOngoing")}
+        />
+      {/if}
+    </div>
+  {:else}
+    <StateCard
+      illustration={IllustrationEmpty}
+      description={$_("youDontHaveAnyDataYet")}
+    />
+  {/if}
+  <svelte:fragment slot="footer">
+    <Button
+      on:click={() => {
+        deployStatusModal = false;
+      }}
+      class="w-full"
+      color="light">{$_("close")}</Button
+    >
+</svelte:fragment>
 </Modal>
 
 <Modal bind:open={popupModal} size="xs" autoclose>

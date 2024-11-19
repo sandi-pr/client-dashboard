@@ -132,7 +132,7 @@
   "createNewBots": "Buat Bot baru",
   "descCreateNewBots": "Deploy chatbot yang telah disesuaikan sendiri",
   "viewBotDeploymentStatus": "Lihat Status Deploy Bot",
-  "descViewBotDeploymentStatus": "Lihat apakah bot Anda telah disetujui",
+  "descViewBotDeploymentStatus": "Lihat apakah bot Anda telah siap",
   "recentDeployedBots": "Bot Terbaru",
   "conversationLogs": "Log Percakapan",
   "editBotName": "Edit Nama Bot",
@@ -141,7 +141,7 @@
   "activation": "Aktivasi",
   "urlBot": "URL Bot",
   "botDeploymentStatus": "Status Deploy Bot",
-  "descBotDeploymentStatus": "Lihat apakah bot Anda telah disetujui",
+  "descBotDeploymentStatus": "Lihat apakah bot Anda telah siap",
   "view": "Lihat",
   "close": "Tutup",
   "deployedBotsList": "Daftar Bot",
@@ -772,5 +772,6 @@
   "changeAvailabilitySlots": "Ubah slot ketersediaan",
   "productsServices": "Produk & Layanan",
   "createNewDocumentsToProject": "Buat dokumen baru ke proyek",
-  "nameAlreadyExist": "Nama sudah ada"
+  "nameAlreadyExist": "Nama sudah ada",
+  "YouDontHaveAnyBotsDeploymentOngoing": "Anda tidak memiliki bot yang sedang di-deploy"
 }

@@ -33,6 +33,7 @@ import StarsIcon from "../icon/stars-01.svelte";
 import ArchiveIcon from "../icon/archive.svelte";
 import FileCheckIcon from "../icon/file-check-02.svelte";
 import UserUpIcon from "../icon/user-up.svelte";
+import EyeIcon from "../icon/eye.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -106,6 +107,8 @@ let getIcons = (presetIcon: String) => {
       return FileCheckIcon;
     case "userUp":
       return UserUpIcon;
+    case "eye":
+      return EyeIcon;
     default:
       return "";
   }
