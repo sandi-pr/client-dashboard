@@ -342,7 +342,7 @@
             activationTime: bot.attributes.createdAt,
             urlBot: urlBot,
             timestamp: bot.attributes.updatedAt,
-            deployStatus: "Deployed",
+            deployStatus: "Inactive",
             deployedPlatform: bot.attributes.ai_engine,
             bot_profile: fileImageResult,
           };
@@ -434,11 +434,81 @@
     );
   }
 
+  async function startReading(botId) {
+    let token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await $call.call("hexa-ai-rag", "add-document-by-bot-id", {
+          URLQuery: {},
+          URLParams: {
+            id: botId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        await updateBot(botId, "Reading");
+
+        bots = bots.map((bot) => {
+          if (bot.botsID === botId) {
+            bot.deployStatus = "Reading";
+          }
+          return bot;
+        });
+
+        // triggerToast("success");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function updateBot(botId, status) {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        let response = await $call.call("client-dashboard", "update-bot-status", {
+          URLQuery: {},
+          URLParams: {
+            id: botId.toString(),
+          },
+          Params: {
+            status: status,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          triggerToast("error");
+          return;
+        }
+
+        console.log("update bot", response);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   let filteredBots = $state([]);
 
   $effect(() => {
-    filteredBots = bots.filter(bot => bot.deployStatus === "Inactive" || bot.deployStatus === "Reading");
-  })
+    filteredBots = bots.filter(
+      (bot) => bot.deployStatus === "Inactive" || bot.deployStatus === "Reading",
+    );
+  });
 
   onMount(() => {
     getActionItems();
@@ -548,20 +618,29 @@
                               class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                               onclick={goToEditPage(bot.botsID)}>{$_("edit")}</button
                             > -->
-                              <button
-                                class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                                onclick={() => {
-                                  tmpId = bot.botsID;
-                                  dropdownOpen[index] = !dropdownOpen[index];
-                                }}><EyeIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />{$_("startReading")}</button
-                              >
+                              {#if bot.deployStatus === "Inactive" || bot.deployStatus === "Reading"}
+                                <button
+                                  class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                                  onclick={() => {
+                                    tmpId = bot.botsID;
+                                    dropdownOpen[index] = !dropdownOpen[index];
+                                    startReading(bot.botsID);
+                                  }}
+                                  ><EyeIcon
+                                    svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                                  />{$_("startReading")}</button
+                                >
+                              {/if}
                               <button
                                 class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                                 onclick={() => {
                                   popupModal = true;
                                   tmpId = bot.botsID;
                                   dropdownOpen[index] = !dropdownOpen[index];
-                                }}><TrashIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />{$_("delete")}</button
+                                }}
+                                ><TrashIcon
+                                  svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                                />{$_("delete")}</button
                               >
                             </ul>
                           </div>
@@ -752,7 +831,7 @@
   </div>
 </div>
 
-<Modal bind:open={deployStatusModal} autoclose outsideclose>
+<Modal bind:open={deployStatusModal} outsideclose>
   <svelte:fragment slot="header">
     <div class="">
       <Heading tag="h5">{$_("botDeploymentStatus")}</Heading>
@@ -760,12 +839,11 @@
     </div>
   </svelte:fragment>
   {#if gettingDatas}
-    <StateCard
-      illustration={IllustrationProgress}
-      description={$_("fetchingDataPleaseWait")}
-    />
+    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
   {:else if bots.length !== 0}
-    <div class={`${filteredBots.length > 0 ? "py-4 border rounded-lg space-y-4 border-secondary-light dark:border-secondary-dark" : ""} `}>
+    <div
+      class={`${filteredBots.length > 0 ? "py-4 border rounded-lg space-y-4 border-secondary-light dark:border-secondary-dark" : ""} `}
+    >
       {#if filteredBots.length > 0}
         {#each filteredBots as bot, index}
           <div class="flex px-4 justify-between items-center">
@@ -773,27 +851,21 @@
               <Avatar src={bot.bot_profile ? bot.bot_profile : ""} />
               <div class="flex flex-col">
                 <div class="flex items-center gap-1">
-                  <Typography
-                    preset="Text lg/Semibold"
-                    color="primary"
-                    text={bot.botsName}
-                  />
+                  <Typography preset="Text lg/Semibold" color="primary" text={bot.botsName} />
                   <Typography
                     preset="Text xs/Regular"
                     color="quarterary"
-                    text={format(new Date(bot.timestamp), 'HH:mm, dd/MM/yyyy')}
+                    text={format(new Date(bot.timestamp), "HH:mm, dd/MM/yyyy")}
                   />
                 </div>
-                <Typography
-                  preset="Text sm/Regular"
-                  color="secondary"
-                  text={bot.botDescription}
-                />
+                <Typography preset="Text sm/Regular" color="secondary" text={bot.botDescription} />
               </div>
             </div>
             {#if bot.deployStatus === "Inactive"}
               <Button
-                on:click={() => {}}
+                on:click={() => {
+                  startReading(bot.botsID);
+                }}
                 class="p-2 md:px-3 md:py-2 gap-2"
               >
                 <Stars03Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
@@ -815,10 +887,7 @@
       {/if}
     </div>
   {:else}
-    <StateCard
-      illustration={IllustrationEmpty}
-      description={$_("youDontHaveAnyDataYet")}
-    />
+    <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
   {/if}
   <svelte:fragment slot="footer">
     <Button
@@ -828,7 +897,7 @@
       class="w-full"
       color="light">{$_("close")}</Button
     >
-</svelte:fragment>
+  </svelte:fragment>
 </Modal>
 
 <Modal bind:open={popupModal} size="xs" autoclose>

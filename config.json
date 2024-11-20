@@ -4613,6 +4613,31 @@
             ]
         },
         {
+            "name": "update-bot-status",
+            "path": "/update-bot-status/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateBotStatus"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "status",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "delete-bot",
             "path": "/delete-bot/:id",
             "method": "DELETE",
@@ -5799,6 +5824,9 @@
                     },
                     "need_auth": {
                         "type": "boolean"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },

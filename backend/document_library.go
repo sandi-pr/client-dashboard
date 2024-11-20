@@ -1042,19 +1042,19 @@ func UpdateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		return ctx.Error(400, "invalid parameters description")
 	}
 
-	document_path := DOCUMENT_PATH + "/" + string(library_name)
+	// document_path := DOCUMENT_PATH + "/" + string(library_name)
 
-	dir := filepath.Dir(document_path)
+	// dir := filepath.Dir(document_path)
 
-	err = os.MkdirAll(dir, os.ModePerm)
-	if err != nil {
-		fmt.Println("Gagal membuat direktori:", err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// err = os.MkdirAll(dir, os.ModePerm)
+	// if err != nil {
+	// 	fmt.Println("Gagal membuat direktori:", err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
 	dataSend := U.Dict{
 		"name": library_name,
-		"path": document_path,
+		// "path": document_path,
 		"meta": U.Dict{
 			"description": description,
 		},
@@ -1154,43 +1154,43 @@ func UpdateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	dict, ok := list.GetDict(0)
+	// dict, ok := list.GetDict(0)
 
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	attributes, ok := dict.GetDict("attributes")
+	// attributes, ok := dict.GetDict("attributes")
 
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	document_path_old, ok := attributes.GetString("path")
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// document_path_old, ok := attributes.GetString("path")
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	dir_old := filepath.Dir(string(document_path_old))
+	// dir_old := filepath.Dir(string(document_path_old))
 
-	// folder_name_old := filepath.Base(string(document_path_old))
+	// // folder_name_old := filepath.Base(string(document_path_old))
 
-	document_path_new := filepath.Join(dir_old, string(collection_name))
+	// document_path_new := filepath.Join(dir_old, string(collection_name))
 
-	fmt.Println("Old path:", document_path_old)
-	fmt.Println("New path:", document_path_new)
+	// fmt.Println("Old path:", document_path_old)
+	// fmt.Println("New path:", document_path_new)
 
-	dir := filepath.Dir(document_path_new)
+	// dir := filepath.Dir(document_path_new)
 
-	err = os.MkdirAll(dir, os.ModePerm)
-	if err != nil {
-		fmt.Println("Gagal membuat direktori:", err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// err = os.MkdirAll(dir, os.ModePerm)
+	// if err != nil {
+	// 	fmt.Println("Gagal membuat direktori:", err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
 	dataSend := U.Dict{
 		"name": collection_name,
-		"path": document_path_new,
+		// "path": document_path_new,
 		"meta": U.Dict{
 			"description": description,
 		},

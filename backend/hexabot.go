@@ -164,6 +164,7 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"overlay_color":    "purple",
 		"username":         "User",
 		"need_auth":        need_auth,
+		"status":           "Inactive",
 	}
 
 	if description != "" {
@@ -332,6 +333,90 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 				"attributes":  list[i].(U.Dict)["attributes"],
 				"bot_profile": base64Data,
 			}
+
+			// collection_id := list[i].(U.Dict)["attributes"].(U.Dict)["collection_id"].(U.String)
+
+			// collection_id_array := strings.Split(string(collection_id), ",")
+
+			// collection_id_int := make([]int, len(collection_id_array))
+
+			// for i, str := range collection_id_array {
+			// 	num, err := strconv.Atoi(strings.TrimSpace(str))
+			// 	if err != nil {
+			// 		return ctx.Error(500, "Internal Server Error")
+			// 	}
+			// 	collection_id_int[i] = num
+			// }
+
+			// statusBot := "Ready"
+
+			// for i := 0; i < len(collection_id_int); i++ {
+			// 	page := 1
+			// 	for {
+			// 		status, documents, err := Strapi.Find("document-library-table", U.Dict{
+			// 			"filters": U.Dict{
+			// 				"parent_id": U.Dict{
+			// 					"$eq": int64(collection_id_int[i]),
+			// 				},
+			// 				"type": U.Dict{
+			// 					"$eq": "document",
+			// 				},
+			// 			},
+			// 			"pagination": U.Dict{
+			// 				"page":     page,
+			// 				"pageSize": 25,
+			// 			},
+			// 		})
+
+			// 		if err != nil {
+			// 			fmt.Println(err)
+			// 			return ctx.Error(500, "Internal Server Error")
+			// 		}
+
+			// 		if status != 200 {
+			// 			fmt.Println(status)
+			// 			return ctx.Error(500, "Internal Server Error")
+			// 		}
+
+			// 		data, ok := documents.GetList("data")
+
+			// 		if !ok {
+			// 			return ctx.Error(500, "Internal Server Error")
+			// 		}
+
+			// 		if len(data) == 0 {
+			// 			break
+			// 		}
+
+			// 		for j := 0; j < len(data); j++ {
+			// 			if dict, ok := data.GetDict(j); ok {
+			// 				if attributes, ok := dict.GetDict("attributes"); ok {
+			// 					if statusDoc, ok := attributes.GetString("status"); ok {
+			// 						if statusDoc != "Ready" {
+			// 							if statusDoc == "Reading" {
+			// 								statusBot = "Reading"
+			// 							} else {
+			// 								statusBot = "Inactive"
+			// 								break
+			// 							}
+			// 						} else {
+			// 							statusBot = "Inactive"
+			// 							break
+			// 						}
+			// 					}
+			// 				}
+			// 			}
+			// 		}
+
+			// 		if statusBot == "Inactive" {
+			// 			break
+			// 		}
+
+			// 		page++
+			// 	}
+			// }
+
+			// newData["attributes"].(U.Dict)["status"] = statusBot
 
 			bots["data"] = append(existingData, newData)
 		} else {
@@ -854,6 +939,63 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 	}
 
 	status, update, err := Strapi.Update("hexabot-table", int64(id), data)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println(update)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, update, nil
+}
+
+func UpdateBotStatus(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idStr, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	statusBot, ok := ctx.Params.GetString("status")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	status, update, err := Strapi.Update("hexabot-table", int64(id), U.Dict{
+		"status": statusBot,
+	})
+
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println(update)
