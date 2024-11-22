@@ -1157,14 +1157,9 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 	}
 
 	if list, ok := documentLibrarys.GetList("data"); ok {
-		fmt.Println("ayam")
 		if dict, ok := list.GetDict(0); ok {
-			fmt.Println("bebek")
 			if attributes, ok := dict.GetDict("attributes"); ok {
-				fmt.Println("kucing")
 				if collection, ok := attributes.GetString("collection_id"); ok {
-					fmt.Println("anjing")
-					fmt.Println(collection)
 					collection_id_array := strings.Split(string(collection), ",")
 					collection_id_int := make([]int, len(collection_id_array))
 
@@ -1175,8 +1170,6 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 						}
 						collection_id_int[i] = num
 					}
-
-					fmt.Println(collection_id_int)
 
 					for i := 0; i < len(collection_id_int); i++ {
 						page := 1
@@ -1196,7 +1189,7 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 								},
 							})
 
-							fmt.Println(documentLibrarys, err, collection_id_int[i])
+							fmt.Println(err, collection_id_int[i])
 
 							if err != nil {
 								fmt.Println(err)
@@ -1210,7 +1203,7 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 
 							if list, ok := documentLibrarys.GetList("data"); ok {
 								if len(list) < 1 {
-									break
+									return "Ready", nil
 								}
 
 								for i := 0; i < len(list); i++ {
