@@ -1216,6 +1216,7 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 												if status != "Ready" {
 													return string(status), nil
 												} else {
+													page = page + 1
 													continue
 												}
 											} else {
@@ -1228,7 +1229,6 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 										return "", err
 									}
 								}
-								page = page + 1
 							} else {
 								return "", err
 							}
