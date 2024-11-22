@@ -334,16 +334,16 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 				"bot_profile": base64Data,
 			}
 
-			// botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+			botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
 
-			// fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+			fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
 
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	return ctx.Error(500, "Internal Server Error")
-			// }
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
 
-			// newData["attributes"].(U.Dict)["status"] = botStatus
+			newData["attributes"].(U.Dict)["status"] = botStatus
 
 			bots["data"] = append(existingData, newData)
 		} else {
@@ -352,16 +352,16 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 				return ctx.Error(500, "Internal Server Error")
 			}
 
-			// botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+			botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
 
-			// fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+			fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
 
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	return ctx.Error(500, "Internal Server Error")
-			// }
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
 
-			// list[i].(U.Dict)["attributes"].(U.Dict)["status"] = botStatus
+			list[i].(U.Dict)["attributes"].(U.Dict)["status"] = botStatus
 
 			bots["data"] = append(existingData, list[i])
 		}
@@ -1206,13 +1206,21 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 									return "Ready", nil
 								}
 
-								for i := 0; i < len(list); i++ {
-									if dict, ok := list.GetDict(i); ok {
+								for j := 0; j < len(list); j++ {
+									if dict, ok := list.GetDict(j); ok {
+										idDoc, ok := dict.GetFloat64("id")
+
+										if !ok {
+											fmt.Println("failed get id")
+										}
+
 										if attributes, ok := dict.GetDict("attributes"); ok {
 											if status, ok := attributes.GetString("status"); ok {
 												if status != "Ready" {
+													fmt.Println("not ready", collection_id_int[i], idDoc)
 													return string(status), nil
 												} else {
+													fmt.Println("ready", collection_id_int[i], idDoc)
 													page = page + 1
 													continue
 												}
