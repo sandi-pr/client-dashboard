@@ -650,7 +650,7 @@
     {#if files.length > 0}
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        {#if attributeNotUnique}
+        {#if !attributeNotUnique}
           <InputRw
             onEdit={true}
             bind:value={tmpDocumentTitle}

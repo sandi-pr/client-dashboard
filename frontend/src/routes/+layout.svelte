@@ -185,18 +185,18 @@ All Rights Reserved
           },
           {
             icon: "archive",
-            name: "documentLibrary(OnDev)",
+            name: "documentLibrary",
             href: isFrontend
               ? "/document_collection"
               : await call.getPage("client-dashboard", "document-collection-overview"),
           },
-          {
-            icon: "archive",
-            name: "documentCollection",
-            href: isFrontend
-              ? "/document_collection/collections"
-              : await call.getPage("client-dashboard", "document-collection-overview"),
-          },
+          // {
+          //   icon: "archive",
+          //   name: "documentCollection",
+          //   href: isFrontend
+          //     ? "/document_collection/collections"
+          //     : await call.getPage("client-dashboard", "document-collection-overview"),
+          // },
           // {
           //   icon: "fileCheck",
           //   name: "contractReviewer",

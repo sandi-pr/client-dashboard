@@ -456,17 +456,6 @@
               <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("addCollection")}</div>
             </Button>
-            <Button
-              on:click={() => {
-                // addLibraryModal = true;
-                // tmpCollectionName = "";
-                // tmpDescription = "";
-              }}
-              class="p-2 md:px-3 md:py-2 gap-2"
-            >
-              <Stars03Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-              <div class="hidden md:block">{$_("startReading")}</div>
-            </Button>
             {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
               <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
                 <Button on:click={() => (dropdownOpen = !dropdownOpen)} color="light" class="p-2">
