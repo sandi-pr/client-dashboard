@@ -334,16 +334,16 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 				"bot_profile": base64Data,
 			}
 
-			botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+			// botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
 
-			fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+			// fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
 
-			if err != nil {
-				fmt.Println(err)
-				return ctx.Error(500, "Internal Server Error")
-			}
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	return ctx.Error(500, "Internal Server Error")
+			// }
 
-			newData["attributes"].(U.Dict)["status"] = botStatus
+			// newData["attributes"].(U.Dict)["status"] = botStatus
 
 			bots["data"] = append(existingData, newData)
 		} else {
@@ -352,16 +352,16 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 				return ctx.Error(500, "Internal Server Error")
 			}
 
-			botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+			// botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
 
-			fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+			// fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
 
-			if err != nil {
-				fmt.Println(err)
-				return ctx.Error(500, "Internal Server Error")
-			}
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	return ctx.Error(500, "Internal Server Error")
+			// }
 
-			list[i].(U.Dict)["attributes"].(U.Dict)["status"] = botStatus
+			// list[i].(U.Dict)["attributes"].(U.Dict)["status"] = botStatus
 
 			bots["data"] = append(existingData, list[i])
 		}
@@ -483,14 +483,14 @@ func GetBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		dict["background"] = base64Data
 	}
 
-	botStatus, err := getStatusBot(int64(id), Strapi)
+	// botStatus, err := getStatusBot(int64(id), Strapi)
 
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	dict["attributes"].(U.Dict)["status"] = botStatus
+	// dict["attributes"].(U.Dict)["status"] = botStatus
 
 	return 200, dict, nil
 }
@@ -609,14 +609,14 @@ func GetBotPublic(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 		}
 	}
 
-	botStatus, err := getStatusBot(int64(dict["id"].(float64)), Strapi)
+	// botStatus, err := getStatusBot(int64(dict["id"].(float64)), Strapi)
 
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
-	dict["attributes"].(U.Dict)["status"] = botStatus
+	// dict["attributes"].(U.Dict)["status"] = botStatus
 
 	return 200, dict, nil
 }
