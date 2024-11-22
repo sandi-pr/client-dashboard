@@ -54,57 +54,57 @@ All Rights Reserved
   let selectedIndustryType = $state(null);
 
   const cardsBusiness = [
-    // {
-    //   icon: "user",
-    //   title: "person",
-    //   description: "descPerson",
-    //   page: "crm-person",
-    // },
-    // {
-    //   icon: "faceHappy",
-    //   title: "HR",
-    //   description: "descHr",
-    //   page: "hr-overview",
-    // },
-    // {
-    //   icon: "package",
-    //   title: "product&Services",
-    //   description: "descProduct&Services",
-    //   page: "crm-product-service",
-    // },
-    // {
-    //   icon: "receipt",
-    //   title: "order&Invoice",
-    //   description: "descOrder&Invoice",
-    //   page: "crm-order-invoice",
-    // },
-    // {
-    //   icon: "calendar",
-    //   title: "calendar",
-    //   description: "descCalendar",
-    //   page: "crm-calendar",
-    // },
+    {
+      icon: "user",
+      title: "person",
+      description: "descPerson",
+      page: "crm-person",
+    },
+    {
+      icon: "faceHappy",
+      title: "HR",
+      description: "descHr",
+      page: "hr-overview",
+    },
+    {
+      icon: "package",
+      title: "product&Services",
+      description: "descProduct&Services",
+      page: "crm-product-service",
+    },
+    {
+      icon: "receipt",
+      title: "order&Invoice",
+      description: "descOrder&Invoice",
+      page: "crm-order-invoice",
+    },
+    {
+      icon: "calendar",
+      title: "calendar",
+      description: "descCalendar",
+      page: "crm-calendar",
+    },
   ];
 
   const cardsAi = [
-    // {
-    //   icon: "messageChat",
-    //   title: "hexabot",
-    //   description: "descHexabot",
-    //   page: "hexabot",
-    // },
+    {
+      icon: "messageChat",
+      title: "hexabot",
+      description: "descHexabot",
+      page: "hexabot",
+    },
     {
       icon: "archive",
       title: "documentCollection",
       description: "descDocumentCollection",
       page: "document-collection-overview",
     },
-    // {
-    //   icon: "fileCheck",
-    //   title: "contractReviewer",
-    //   description: "descContractReviewer",
-    //   page: "contract-reviewer-overview",
-    // },
+    {
+      icon: "fileCheck",
+      title: "contractReviewer",
+      description: "descContractReviewer",
+      page: "contract-reviewer-overview",
+    },
     {
       icon: "data",
       title: "datasets",
@@ -182,7 +182,7 @@ All Rights Reserved
         actionName: "Document library",
         desc: "desc Document library",
       },
-      ...(await getIndustryPoints(sessionStorage.getItem("industry_id"))),
+      // ...(await getIndustryPoints(sessionStorage.getItem("industry_id"))),
     ];
   }
 
