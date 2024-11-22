@@ -1190,6 +1190,10 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 										"$eq": "document",
 									},
 								},
+								"pagination": U.Dict{
+									"page":     page,
+									"pageSize": 25,
+								},
 							})
 
 							fmt.Println(documentLibrarys, err, collection_id_int[i])
