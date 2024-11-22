@@ -500,7 +500,6 @@
               },
             ];
           } else {
-            triggerLoading(false);
             triggerToast("error");
           }
           return;
