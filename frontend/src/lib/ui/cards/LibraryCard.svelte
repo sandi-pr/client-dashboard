@@ -87,12 +87,12 @@
             text={collectionName}
             propClass="line-clamp-1 md:line-clamp-2 fluid-sm"
           />
-          <Badge
+          <!-- <Badge
             icon={getIconButton(status)}
             iconClass="w-3 h-3 text-utility-success-500-light dark:text-utility-success-500-dark"
             text={$_(getTextStatus(status))}
             type={`${status === "Ready" ? "success" : status === "Reading" ? "warning" : status === "Empty" ? "info" : "brand"}`}
-          />
+          /> -->
         </div>
       {:else if usedFor === "libraries_collections"}
         <Folder svgClass="w-5 h-5 text-quarterary-light dark:text-quarterary-dark" />
@@ -105,12 +105,12 @@
             text={collectionName}
             propClass="line-clamp-1 md:line-clamp-2 fluid-sm"
           />
-          <Badge
+          <!-- <Badge
             icon={getIconButton(status)}
             iconClass="w-3 h-3 text-utility-success-500-light dark:text-utility-success-500-dark"
             text={$_(getTextStatus(status))}
             type={`${status === "Ready" ? "success" : status === "Reading" ? "warning" : status === "Empty" ? "info" : "brand"}`}
-          />
+          /> -->
         </div>
       {/if}
     </button>
