@@ -334,89 +334,16 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 				"bot_profile": base64Data,
 			}
 
-			// collection_id := list[i].(U.Dict)["attributes"].(U.Dict)["collection_id"].(U.String)
+			botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
 
-			// collection_id_array := strings.Split(string(collection_id), ",")
+			fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
 
-			// collection_id_int := make([]int, len(collection_id_array))
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
 
-			// for i, str := range collection_id_array {
-			// 	num, err := strconv.Atoi(strings.TrimSpace(str))
-			// 	if err != nil {
-			// 		return ctx.Error(500, "Internal Server Error")
-			// 	}
-			// 	collection_id_int[i] = num
-			// }
-
-			// statusBot := "Ready"
-
-			// for i := 0; i < len(collection_id_int); i++ {
-			// 	page := 1
-			// 	for {
-			// 		status, documents, err := Strapi.Find("document-library-table", U.Dict{
-			// 			"filters": U.Dict{
-			// 				"parent_id": U.Dict{
-			// 					"$eq": int64(collection_id_int[i]),
-			// 				},
-			// 				"type": U.Dict{
-			// 					"$eq": "document",
-			// 				},
-			// 			},
-			// 			"pagination": U.Dict{
-			// 				"page":     page,
-			// 				"pageSize": 25,
-			// 			},
-			// 		})
-
-			// 		if err != nil {
-			// 			fmt.Println(err)
-			// 			return ctx.Error(500, "Internal Server Error")
-			// 		}
-
-			// 		if status != 200 {
-			// 			fmt.Println(status)
-			// 			return ctx.Error(500, "Internal Server Error")
-			// 		}
-
-			// 		data, ok := documents.GetList("data")
-
-			// 		if !ok {
-			// 			return ctx.Error(500, "Internal Server Error")
-			// 		}
-
-			// 		if len(data) == 0 {
-			// 			break
-			// 		}
-
-			// 		for j := 0; j < len(data); j++ {
-			// 			if dict, ok := data.GetDict(j); ok {
-			// 				if attributes, ok := dict.GetDict("attributes"); ok {
-			// 					if statusDoc, ok := attributes.GetString("status"); ok {
-			// 						if statusDoc != "Ready" {
-			// 							if statusDoc == "Reading" {
-			// 								statusBot = "Reading"
-			// 							} else {
-			// 								statusBot = "Inactive"
-			// 								break
-			// 							}
-			// 						} else {
-			// 							statusBot = "Inactive"
-			// 							break
-			// 						}
-			// 					}
-			// 				}
-			// 			}
-			// 		}
-
-			// 		if statusBot == "Inactive" {
-			// 			break
-			// 		}
-
-			// 		page++
-			// 	}
-			// }
-
-			// newData["attributes"].(U.Dict)["status"] = statusBot
+			newData["attributes"].(U.Dict)["status"] = botStatus
 
 			bots["data"] = append(existingData, newData)
 		} else {
@@ -424,6 +351,17 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 			if !ok {
 				return ctx.Error(500, "Internal Server Error")
 			}
+
+			botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+
+			fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			list[i].(U.Dict)["attributes"].(U.Dict)["status"] = botStatus
 
 			bots["data"] = append(existingData, list[i])
 		}
@@ -545,6 +483,15 @@ func GetBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		dict["background"] = base64Data
 	}
 
+	botStatus, err := getStatusBot(int64(id), Strapi)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict["attributes"].(U.Dict)["status"] = botStatus
+
 	return 200, dict, nil
 }
 
@@ -661,6 +608,15 @@ func GetBotPublic(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 			}
 		}
 	}
+
+	botStatus, err := getStatusBot(int64(dict["id"].(float64)), Strapi)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict["attributes"].(U.Dict)["status"] = botStatus
 
 	return 200, dict, nil
 }
@@ -1179,4 +1135,117 @@ func getAllIdCollection(library_id int, strapi *strapi.StrapiClassic) (U.String,
 	result = U.String(strings.Join(strNums, ","))
 
 	return result, nil
+}
+
+func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
+	status, documentLibrarys, err := strapi.Find("hexabot-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": bot_id,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return "", err
+	}
+
+	if list, ok := documentLibrarys.GetList("data"); ok {
+		fmt.Println("ayam")
+		if dict, ok := list.GetDict(0); ok {
+			fmt.Println("bebek")
+			if attributes, ok := dict.GetDict("attributes"); ok {
+				fmt.Println("kucing")
+				if collection, ok := attributes.GetString("collection_id"); ok {
+					fmt.Println("anjing")
+					fmt.Println(collection)
+					collection_id_array := strings.Split(string(collection), ",")
+					collection_id_int := make([]int, len(collection_id_array))
+
+					for i, str := range collection_id_array {
+						num, err := strconv.Atoi(strings.TrimSpace(str))
+						if err != nil {
+							return "", err
+						}
+						collection_id_int[i] = num
+					}
+
+					fmt.Println(collection_id_int)
+
+					for i := 0; i < len(collection_id_int); i++ {
+						page := 1
+						for {
+							status, documentLibrarys, err := strapi.Find("document-library-table", U.Dict{
+								"filters": U.Dict{
+									"parent_id": U.Dict{
+										"$eq": int64(collection_id_int[i]),
+									},
+									"type": U.Dict{
+										"$eq": "document",
+									},
+								},
+							})
+
+							fmt.Println(documentLibrarys, err, collection_id_int[i])
+
+							if err != nil {
+								fmt.Println(err)
+								return "", err
+							}
+
+							if status != 200 {
+								fmt.Println(status)
+								return "", err
+							}
+
+							if list, ok := documentLibrarys.GetList("data"); ok {
+								if len(list) < 1 {
+									break
+								}
+
+								for i := 0; i < len(list); i++ {
+									if dict, ok := list.GetDict(i); ok {
+										if attributes, ok := dict.GetDict("attributes"); ok {
+											if status, ok := attributes.GetString("status"); ok {
+												if status != "Ready" {
+													return string(status), nil
+												} else {
+													continue
+												}
+											} else {
+												return "Inactive", nil
+											}
+										} else {
+											return "", err
+										}
+									} else {
+										return "", err
+									}
+								}
+								page = page + 1
+							} else {
+								return "", err
+							}
+						}
+					}
+				} else {
+					return "", err
+				}
+			} else {
+				return "", err
+			}
+		} else {
+			return "", err
+		}
+	} else {
+		return "", err
+	}
+
+	return "", err
 }
