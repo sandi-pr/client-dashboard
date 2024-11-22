@@ -576,6 +576,10 @@
                     <div class="absolute top-2 right-2">
                       <Badge type="warning" text={bot.deployStatus} />
                     </div>
+                  {:else if bot.deployStatus === "Ready"}
+                    <div class="absolute top-2 right-2">
+                      <Badge type="success" text={bot.deployStatus} />
+                    </div>
                   {/if}
                   <div
                     class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
