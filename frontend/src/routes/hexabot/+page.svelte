@@ -334,6 +334,10 @@
           let urlBot =
             (await $call.getPage("hexabot", "home-page")) + "?id=" + bot.attributes.bot_id;
 
+          if (bot.attributes.status === "Ready") {
+            updateBot(bot.id, "Ready");
+          }
+
           return {
             botsName: bot.attributes.bot_name,
             botDescription: bot.attributes.description,
@@ -342,7 +346,7 @@
             activationTime: bot.attributes.createdAt,
             urlBot: urlBot,
             timestamp: bot.attributes.updatedAt,
-            deployStatus: "Inactive",
+            deployStatus: bot.attributes.status,
             deployedPlatform: bot.attributes.ai_engine,
             bot_profile: fileImageResult,
           };
