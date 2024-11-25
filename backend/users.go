@@ -13,6 +13,7 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -757,4 +758,23 @@ func UpdateTheme(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 	}
 
 	return 200, company, nil
+}
+
+func getId(token string) (int64, error) {
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
+	status, me, err := Strapi.UsersMe()
+
+	if err != nil {
+		return -1, err
+	}
+
+	if status != 200 {
+		return -1, errors.New("failed to get user")
+	}
+
+	if id, ok := me.GetFloat64("id"); ok {
+		return int64(id), nil
+	}
+
+	return -1, errors.New("failed to get user id")
 }

@@ -568,7 +568,7 @@
           return;
         }
 
-        goto(await $call.getPage("client-dashboard", "hexabot"));
+        // goto(await $call.getPage("client-dashboard", "hexabot"));
         triggerToast("created");
       } catch (error) {
         console.log(error);

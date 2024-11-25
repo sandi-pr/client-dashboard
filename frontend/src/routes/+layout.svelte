@@ -27,8 +27,11 @@ All Rights Reserved
     triggerReload,
     triggerToast,
     industryData,
+    notifications,
+    connectWebSocket,
+    disconnectWebSocket,
   } from "$lib";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
@@ -54,7 +57,7 @@ All Rights Reserved
   let ready = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.15")
+    ? new CR3Call("http://localhost")
     : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
@@ -659,6 +662,8 @@ All Rights Reserved
     await getIndustryId();
     hideNavbar();
 
+    connectWebSocket(localStorage.getItem("token"), isFrontend);
+
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
@@ -696,6 +701,16 @@ All Rights Reserved
       hideNavbar();
     }
   });
+
+  $effect(() => {
+    if ($notifications.length > 0) {
+      console.log("$notifications", $notifications);
+    }
+  });
+
+  // onDestroy(() => {
+  //   disconnectWebSocket();
+  // });
 </script>
 
 <svelte:head>

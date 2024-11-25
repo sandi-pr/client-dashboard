@@ -4680,6 +4680,24 @@
             ]
         },
         {
+            "name": "add-document-by-bot-id",
+            "path": "/add-document-by-bot-id/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "AddDocumentByBotID"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "text",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "send-report",
             "path": "/send-report",
             "method": "POST",
@@ -4703,6 +4721,39 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "notification",
+            "path": "/notification/:token",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "timeout": "1h",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "Notification"
+            },
+            "url_params": [
+                {
+                    "name": "token",
+                    "type": "text"
+                }
+            ],
+            "extra_config": {
+                "websocket": {
+                    "connect_event": true,
+                    "disconnect_event": true,
+                    "read_buffer_size": 10240,
+                    "write_buffer_size": 10240,
+                    "message_buffer_size": 4096,
+                    "max_message_size": 3200000,
+                    "write_wait": "10s",
+                    "pong_wait": "60s",
+                    "ping_period": "54s",
+                    "max_retries": 0,
+                    "backoff_strategy": "exponential"
+                }
+            }
         }
     ],
     "options": {

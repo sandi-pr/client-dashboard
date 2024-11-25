@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"gitlab.hexacode.org/go-libs/hctypes"
@@ -183,6 +184,22 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		data["additional_prompt"] = additional_prompt
 	}
 
+	http := requests.NewHttp(hctypes.Dict{
+		"Content-type": "application/json",
+	})
+
+	resp, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "create-knowledge"), nil, hctypes.Dict{
+		"knowledge_id":  bot_id,
+		"system_prompt": additional_prompt,
+	}.ToJson())
+
+	fmt.Println("create-knowledge", resp)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	status, bot, err := Strapi.Create("hexabot-table", data)
 
 	if err != nil {
@@ -199,22 +216,6 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 			}
 		}
 
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	http := requests.NewHttp(hctypes.Dict{
-		"Content-type": "application/json",
-	})
-
-	resp, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "create-knowledge"), nil, hctypes.Dict{
-		"knowledge_id":  bot_id,
-		"system_prompt": additional_prompt,
-	}.ToJson())
-
-	fmt.Println("create-knowledge", resp)
-
-	if err != nil {
-		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
@@ -334,16 +335,16 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 				"bot_profile": base64Data,
 			}
 
-			botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+			// botStatus, _, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
 
-			fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+			// fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
 
-			if err != nil {
-				fmt.Println(err)
-				return ctx.Error(500, "Internal Server Error")
-			}
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	return ctx.Error(500, "Internal Server Error")
+			// }
 
-			newData["attributes"].(U.Dict)["status"] = botStatus
+			// newData["attributes"].(U.Dict)["status"] = botStatus
 
 			bots["data"] = append(existingData, newData)
 		} else {
@@ -352,16 +353,16 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 				return ctx.Error(500, "Internal Server Error")
 			}
 
-			botStatus, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+			// botStatus, _, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
 
-			fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+			// fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
 
-			if err != nil {
-				fmt.Println(err)
-				return ctx.Error(500, "Internal Server Error")
-			}
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	return ctx.Error(500, "Internal Server Error")
+			// }
 
-			list[i].(U.Dict)["attributes"].(U.Dict)["status"] = botStatus
+			// list[i].(U.Dict)["attributes"].(U.Dict)["status"] = botStatus
 
 			bots["data"] = append(existingData, list[i])
 		}
@@ -1137,7 +1138,7 @@ func getAllIdCollection(library_id int, strapi *strapi.StrapiClassic) (U.String,
 	return result, nil
 }
 
-func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
+func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, string, error) {
 	status, documentLibrarys, err := strapi.Find("hexabot-table", U.Dict{
 		"filters": U.Dict{
 			"id": U.Dict{
@@ -1148,17 +1149,24 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 
 	if err != nil {
 		fmt.Println(err)
-		return "", err
+		return "", "", err
 	}
 
 	if status != 200 {
 		fmt.Println(status)
-		return "", err
+		return "", "", err
 	}
 
 	if list, ok := documentLibrarys.GetList("data"); ok {
 		if dict, ok := list.GetDict(0); ok {
 			if attributes, ok := dict.GetDict("attributes"); ok {
+				bot_name, ok := attributes.GetString("bot_name")
+
+				if !ok {
+					fmt.Println("ayam 1: Gagal mendapatkan bot_name")
+					return "", "", err
+				}
+
 				if collection, ok := attributes.GetString("collection_id"); ok {
 					collection_id_array := strings.Split(string(collection), ",")
 					collection_id_int := make([]int, len(collection_id_array))
@@ -1166,7 +1174,7 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 					for i, str := range collection_id_array {
 						num, err := strconv.Atoi(strings.TrimSpace(str))
 						if err != nil {
-							return "", err
+							return "", "", err
 						}
 						collection_id_int[i] = num
 					}
@@ -1189,21 +1197,19 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 								},
 							})
 
-							fmt.Println(err, collection_id_int[i])
-
 							if err != nil {
 								fmt.Println(err)
-								return "", err
+								return "", "", err
 							}
 
 							if status != 200 {
 								fmt.Println(status)
-								return "", err
+								return "", "", err
 							}
 
 							if list, ok := documentLibrarys.GetList("data"); ok {
 								if len(list) < 1 {
-									return "Ready", nil
+									return "Ready", string(bot_name), nil
 								}
 
 								for j := 0; j < len(list); j++ {
@@ -1218,39 +1224,124 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, error) {
 											if status, ok := attributes.GetString("status"); ok {
 												if status != "Ready" {
 													fmt.Println("not ready", collection_id_int[i], idDoc)
-													return string(status), nil
+													return string(status), string(bot_name), nil
 												} else {
 													fmt.Println("ready", collection_id_int[i], idDoc)
 													page = page + 1
 													continue
 												}
 											} else {
-												return "Inactive", nil
+												return "Inactive", string(bot_name), nil
 											}
 										} else {
-											return "", err
+											return "", "", err
 										}
 									} else {
-										return "", err
+										return "", "", err
 									}
 								}
 							} else {
-								return "", err
+								return "", "", err
 							}
 						}
 					}
 				} else {
-					return "", err
+					return "", "", err
 				}
 			} else {
-				return "", err
+				return "", "", err
 			}
 		} else {
-			return "", err
+			return "", "", err
 		}
 	} else {
-		return "", err
+		return "", "", err
 	}
 
-	return "", err
+	return "", "", err
+}
+
+func AddDocumentByBotID(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	userId, err := getId(strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	userIdStr := strconv.Itoa(int(userId))
+
+	idStr, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	bot_id, err := strconv.Atoi(string(idStr))
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	// CR3 := cr3call.New(MODULE_MANAGER_URL)
+	// go CR3.Call("hexa-ai-rag", "add-document-by-bot-id", cr3call.CR3CallData{
+	// 	Headers: U.Dict{
+	// 		"Authorization": bearer,
+	// 	},
+	// 	URLParams: U.Dict{
+	// 		"id": bot_id,
+	// 	},
+	// }, false)
+
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
+
+	go getStatusBotNew(int64(bot_id), Strapi, userIdStr)
+
+	return 200, U.Dict{
+		"success": true,
+	}, nil
+}
+
+func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) {
+
+	tmpBotStatus := ""
+
+	for {
+		botStatus, bot_name, err := getStatusBot(int64(bot_id), strapi)
+
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+
+		if botStatus != tmpBotStatus {
+			msg := NotificationMessage{
+				UserID:  userId,
+				Title:   "New Notification Hexabot",
+				Content: "Status " + string(bot_name) + " : " + botStatus,
+				Time:    time.Now().String(),
+			}
+
+			notificationWS.SendNotification(msg)
+			fmt.Println("send notification")
+		}
+
+		if botStatus == "Ready" {
+			tmpBotStatus = ""
+			break
+		}
+
+		tmpBotStatus = botStatus
+	}
 }

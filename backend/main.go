@@ -22,6 +22,7 @@ var STRAPI_URL = ""
 var STRAPI_TOKEN = ""
 var DOCUMENT_PATH = ""
 var HEXA_RAG_URL = ""
+var notificationWS *NotificationWebSocket
 
 func init() {
 	MODULE_MANAGER_URL = os.Getenv("MODULE_MANAGER_URL")
@@ -50,4 +51,8 @@ func init() {
 	}
 
 	config.Schedule("", MODULE_MANAGER_URL)
+
+	notificationWS = NewNotificationWebSocket()
+
+	go notificationWS.HandleMessages()
 }

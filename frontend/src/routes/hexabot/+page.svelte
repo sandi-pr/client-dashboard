@@ -443,7 +443,7 @@
 
     if (token) {
       try {
-        const response = await $call.call("hexa-ai-rag", "add-document-by-bot-id", {
+        const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
           URLQuery: {},
           URLParams: {
             id: botId.toString(),
@@ -516,7 +516,7 @@
 
   onMount(() => {
     getActionItems();
-    getCountDocumentsPerMonth();
+    // getCountDocumentsPerMonth();
     getBots();
   });
 </script>
