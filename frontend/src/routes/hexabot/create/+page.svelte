@@ -532,7 +532,10 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      let collections = datasChecked.map((item) => item.id).join(",");
+      let collections = datasChecked
+        .filter((item) => item.checked)
+        .map((item) => item.id)
+        .join(",");
 
       // let collections2 = collections.split(",").map(Number);
 
@@ -549,7 +552,7 @@
         dataSend.bot_logo = JSON.stringify({ name: fileImageName, base64Data: fileImage });
       }
 
-      console.log("dataSend", dataSend);
+      // console.log("dataSend", dataSend);
 
       try {
         const response = await $call.call("client-dashboard", "create-bot", {
@@ -681,13 +684,13 @@
     <Typography preset="Display sm/Semibold" text={$_("createNewBots")} />
     <div class="flex text-sm gap-3">
       <Button
+        disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
         on:click={async () => {
           goto(await $call.getPage("client-dashboard", "hexabot"));
         }}
         color="light">{$_("cancel")}</Button
       >
       <Button
-        disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
         on:click={() => {
           createBot();
         }}

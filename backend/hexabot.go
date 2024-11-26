@@ -184,22 +184,6 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		data["additional_prompt"] = additional_prompt
 	}
 
-	http := requests.NewHttp(hctypes.Dict{
-		"Content-type": "application/json",
-	})
-
-	resp, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "create-knowledge"), nil, hctypes.Dict{
-		"knowledge_id":  bot_id,
-		"system_prompt": additional_prompt,
-	}.ToJson())
-
-	fmt.Println("create-knowledge", resp)
-
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
-
 	status, bot, err := Strapi.Create("hexabot-table", data)
 
 	if err != nil {
@@ -216,6 +200,22 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 			}
 		}
 
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	http := requests.NewHttp(hctypes.Dict{
+		"Content-type": "application/json",
+	})
+
+	resp, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "create-knowledge"), nil, hctypes.Dict{
+		"knowledge_id":  bot_id,
+		"system_prompt": additional_prompt,
+	}.ToJson())
+
+	fmt.Println("create-knowledge", resp)
+
+	if err != nil {
+		fmt.Println(err)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
@@ -1338,6 +1338,20 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 		}
 
 		if botStatus == "Ready" {
+			status, _, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
+				"status": "Ready",
+			})
+
+			if err != nil {
+				fmt.Println(err)
+				break
+			}
+
+			if status != 200 {
+				fmt.Println("failed update hexabot-table")
+				break
+			}
+
 			tmpBotStatus = ""
 			break
 		}

@@ -24,6 +24,7 @@
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import { onMount } from "svelte";
 
   export let collectionListDatas;
   export let metadata;
@@ -34,7 +35,7 @@
   export let previous;
   export let functDeleteCategories;
 
-  let dropdownActionOpen = false;
+  let dropdownActionOpen = [];
 
   const pillStyle = (style) => {
     if (style === "brand") {
@@ -77,7 +78,7 @@
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    dropdownActionOpen = false;
+    // dropdownActionOpen = false;
   };
 
   // const filesizePostprocessing = (filesize) => {
@@ -99,6 +100,12 @@
   // };
 
   // console.log(collectionListDatas);
+
+  onMount(() => {
+    for (const data of collectionListDatas) {
+      dropdownActionOpen.push(false);
+    }
+  });
 </script>
 
 <div
@@ -211,7 +218,7 @@
             {#if check("documentAi.documentLibrary.document:delete")}
               <div on:focusout={handleDropdownFocusLoss} class=" flex items-center relative">
                 <Button
-                  on:click={() => (dropdownActionOpen = !dropdownActionOpen)}
+                  on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
                   class="focus-within:ring-0 !p-0"
                   color="none"
                   size="xs"
@@ -220,7 +227,7 @@
                   /></Button
                 >
                 <div
-                  class={`z-10 ${dropdownActionOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                  class={`z-10 ${dropdownActionOpen[index] ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
                 >
                   <ul class="py-2 grow text-sm">
                     <!-- <button
@@ -230,7 +237,8 @@
                     <button
                       class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                       on:click={() => {
-                        functDeleteCategories(), (dropdownActionOpen = !dropdownActionOpen);
+                        dropdownActionOpen[index] = !dropdownActionOpen[index];
+                        functDeleteCategories(collectionListData.id);
                       }}>{$_("delete")}</button
                     >
                   </ul>

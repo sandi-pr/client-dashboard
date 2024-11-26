@@ -51,6 +51,8 @@
   let newTag = $state("");
   let files = $state([]);
   let attributeNotUnique = $state(false);
+  let checkboxDelete = $state(false);
+  let tmpId = $state(null);
 
   let collectionDatas = $state({
     title: "",
@@ -278,7 +280,7 @@
           if (response.status !== 200) {
             if (response && response.errors) {
               const errors = response.errors.flatMap((error) =>
-                error.errors.flatMap((subError) => subError.message)
+                error.errors.flatMap((subError) => subError.message),
               );
 
               if (errors.includes("This attribute must be unique")) {
@@ -467,6 +469,42 @@
     }
   }
 
+  async function deleteDocument() {
+    popupModal = false;
+    triggerLoading(true);
+    let token = localStorage.getItem("token");
+
+    try {
+      const resp = await $call.call("client-dashboard", "delete-library-document", {
+        URLQuery: {},
+        URLParams: {
+          id: tmpId.toString(),
+        },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log(resp);
+
+      if (resp.status !== 200) {
+        triggerLoading(false);
+        popupModal = true;
+        triggerToast("error");
+        return;
+      }
+
+      tmpId = null;
+
+      triggerLoading(false);
+      triggerToast("deleted");
+      getDocuments();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -529,6 +567,7 @@
             <Button
               on:click={() => {
                 popupModal = true;
+                checkboxDelete = true;
                 // id
               }}
               disabled={buttonDisabledDelete}
@@ -568,6 +607,11 @@
             {checkAll}
             next={nextPage}
             previous={prevPage}
+            functDeleteCategories={(id) => {
+              tmpId = id;
+              popupModal = true;
+              checkboxDelete = false;
+            }}
           />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
@@ -657,7 +701,12 @@
             placeholder={$_("enterDocumentTitle")}
           />
         {:else}
-          <Input id="error" color="red" bind:value={tmpDocumentTitle} placeholder={$_("enterDocumentTitle")} />
+          <Input
+            id="error"
+            color="red"
+            bind:value={tmpDocumentTitle}
+            placeholder={$_("enterDocumentTitle")}
+          />
           <Helper color="red">
             <span class="font-medium">{$_("nameAlreadyExist")}</span>
           </Helper>
@@ -835,7 +884,9 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteDocuments} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={checkboxDelete ? deleteDocuments : deleteDocument} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
