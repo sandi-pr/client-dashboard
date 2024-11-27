@@ -1214,19 +1214,19 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, string, e
 
 								for j := 0; j < len(list); j++ {
 									if dict, ok := list.GetDict(j); ok {
-										idDoc, ok := dict.GetFloat64("id")
+										// idDoc, ok := dict.GetFloat64("id")
 
-										if !ok {
-											fmt.Println("failed get id")
-										}
+										// if !ok {
+										// 	fmt.Println("failed get id")
+										// }
 
 										if attributes, ok := dict.GetDict("attributes"); ok {
 											if status, ok := attributes.GetString("status"); ok {
 												if status != "Ready" {
-													fmt.Println("not ready", collection_id_int[i], idDoc)
+													// fmt.Println("not ready", collection_id_int[i], idDoc)
 													return string(status), string(bot_name), nil
 												} else {
-													fmt.Println("ready", collection_id_int[i], idDoc)
+													// fmt.Println("ready", collection_id_int[i], idDoc)
 													page = page + 1
 													continue
 												}
@@ -1326,34 +1326,54 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 		}
 
 		if botStatus != tmpBotStatus {
-			msg := NotificationMessage{
-				UserID:  userId,
-				Title:   "New Notification Hexabot",
-				Content: "Status " + string(bot_name) + " : " + botStatus,
-				Time:    time.Now().String(),
-			}
+			var msg NotificationMessage
+			if botStatus == "Ready" {
+				msg = NotificationMessage{
+					UserID:  userId,
+					Title:   string(bot_name) + " documents are ready",
+					Content: "Hexacube has finished analyzing the uploaded documents. You can now proceed to explore the insights!",
+					Time:    time.Now().String(),
+					Type:    "hexabot",
+					Meta: U.Dict{
+						"bot_id": bot_id,
+					},
+				}
 
-			notificationWS.SendNotification(msg)
-			fmt.Println("send notification")
-		}
+				notificationWS.SendNotification(msg)
+				fmt.Println("send notification")
 
-		if botStatus == "Ready" {
-			status, _, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
-				"status": "Ready",
-			})
+				status, _, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
+					"status": "Ready",
+				})
 
-			if err != nil {
-				fmt.Println(err)
+				if err != nil {
+					fmt.Println(err)
+					break
+				}
+
+				if status != 200 {
+					fmt.Println("failed update hexabot-table")
+					break
+				}
+
+				tmpBotStatus = ""
 				break
-			}
 
-			if status != 200 {
-				fmt.Println("failed update hexabot-table")
-				break
-			}
+			} else if botStatus == "Reading" {
+				msg = NotificationMessage{
+					UserID:  userId,
+					Title:   "Reading " + string(bot_name) + " documents",
+					Content: "Hexacube is now analyzing the documents uploaded by HexaBot. Sit tight while we process the information!",
+					Time:    time.Now().String(),
+					Type:    "hexabot",
+					Meta: U.Dict{
+						"bot_id": bot_id,
+					},
+				}
 
-			tmpBotStatus = ""
-			break
+				notificationWS.SendNotification(msg)
+				fmt.Println("send notification")
+			}
 		}
 
 		tmpBotStatus = botStatus

@@ -1,7 +1,32 @@
 import { writable } from 'svelte/store';
 
 export const notifications = writable([]); // Menyimpan daftar notifikasi
+export const notificationsUnread = writable([]); // Menyimpan daftar notifikasi yang belum dibaca
+export const notificationsRead = writable([]); // Menyimpan daftar notifikasi yang sudah dibaca
 export let socket = null; // WebSocket instance
+export let notificationsNewCount = writable(0);
+export let newNotification = writable(false);
+
+export const paginationAll = writable({
+  page: 1,
+  page_size: 10,
+  page_count: 0,
+  total: 0,
+});
+
+export const paginationUnread = writable({
+  page: 1,
+  page_size: 10,
+  page_count: 0,
+  total: 0,
+});
+
+export const paginationRead = writable({
+  page: 1,
+  page_size: 10,
+  page_count: 0,
+  total: 0,
+});
 
 export function connectWebSocket(token, isFrontend) {
   console.log("Connecting WebSocket...");
@@ -32,7 +57,8 @@ export function connectWebSocket(token, isFrontend) {
     try {
       const message = JSON.parse(event.data);
       console.log("Received notification:", message);
-      notifications.update((n) => [message, ...n]); // Tambahkan notifikasi ke store
+      newNotification.update((data) => true);
+      // notifications.update((n) => [message, ...n]); // Tambahkan notifikasi ke store
     } catch (error) {
       console.error("Error parsing WebSocket message:", error);
     }

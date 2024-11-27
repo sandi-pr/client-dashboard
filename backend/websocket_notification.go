@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
+	"gitlab.hexacode.org/go-libs/strapi"
 )
 
 // NotificationMessage struct untuk pesan notifikasi.
@@ -17,6 +19,8 @@ type NotificationMessage struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
 	Time    string `json:"time"`
+	Type    string `json:"type"`
+	Meta    U.Dict `json:"meta"`
 }
 
 // NotificationWebSocket struct untuk mengelola WebSocket notifikasi.
@@ -46,6 +50,12 @@ func (ws *NotificationWebSocket) RemoveClient(client *websocket.Conn) {
 
 // SendNotification mengirimkan pesan notifikasi ke semua klien yang terhubung.
 func (ws *NotificationWebSocket) SendNotification(message NotificationMessage) {
+	err := ws.SaveNotification(message)
+
+	if err != nil {
+		fmt.Println("Error saving notification:", err)
+	}
+
 	for client := range ws.Clients {
 		err := client.WriteJSON(message)
 		if err != nil {
@@ -53,6 +63,30 @@ func (ws *NotificationWebSocket) SendNotification(message NotificationMessage) {
 			ws.RemoveClient(client)
 		}
 	}
+}
+
+func (ws *NotificationWebSocket) SaveNotification(message NotificationMessage) error {
+	strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
+
+	status, _, err := strapi.Create("notification-table", U.Dict{
+		"title":   message.Title,
+		"content": message.Content,
+		"user_id": message.UserID,
+		"sent_at": message.Time,
+		"type":    message.Type,
+		"read":    false,
+		"meta":    message.Meta,
+	})
+
+	if err != nil {
+		fmt.Println("Error saving notification:", err)
+	}
+
+	if status != 200 {
+		fmt.Println("Error saving notification:", status)
+	}
+
+	return nil
 }
 
 // HandleMessages menangani pengiriman pesan notifikasi menggunakan channel broadcast.

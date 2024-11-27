@@ -58,4 +58,4 @@ export { getIndustryPoints, industryData } from "$lib/utils/getIndustry";
 export { isHome, setHome } from "$lib/utils/home";
 export { selectedConversation, setSelectedConversation } from "$lib/utils/selectedConversation";
 export { check, checkAnd, checkOr } from "$lib/utils/permissions";
-export { socket, notifications, connectWebSocket, disconnectWebSocket } from "$lib/utils/notificationStore";
+export { socket, notifications, notificationsUnread, notificationsRead, notificationsNewCount, newNotification, paginationAll, paginationUnread, paginationRead, connectWebSocket, disconnectWebSocket } from "$lib/utils/notificationStore";

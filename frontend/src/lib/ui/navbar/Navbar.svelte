@@ -30,6 +30,7 @@
     appUrl = "/",
     reset_database = () => {},
     authority = $bindable(""),
+    hasNewNotif = $bindable(false),
   } = $props();
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
@@ -45,7 +46,7 @@
       <div class="hidden md:flex gap-2">
         <LanguageSelector />
         {#if authority === "Admin"}
-            <!-- <Button
+          <!-- <Button
               color="light"
               icon={RefreshCwIcon}
               text=""
@@ -57,7 +58,19 @@
           btnClass="text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600 focus-within:ring-4 focus-within:outline-none focus-within:ring-gray-200 dark:focus-within:ring-gray-700"
         />
       </div>
-      <Button color="light" icon={BellIcon} classesSvg="bell" spaceY="mt-0" funcButton={() => changeShowNotif()} />
+      <div class="relative">
+        <Button
+          color="light"
+          icon={BellIcon}
+          classesSvg="bell"
+          spaceY="mt-0"
+          funcButton={() => changeShowNotif()}
+        />
+        {#if hasNewNotif}
+          <span class="absolute top-0 right-0 inline-block w-2.5 h-2.5 bg-red-500 rounded-full"
+          ></span>
+        {/if}
+      </div>
       <Button
         color="primary"
         icon={StarsIcon}

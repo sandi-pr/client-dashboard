@@ -30,6 +30,13 @@ All Rights Reserved
     triggerToast,
     industryData,
     notifications,
+    notificationsUnread,
+    notificationsRead,
+    notificationsNewCount,
+    newNotification,
+    paginationAll,
+    paginationRead,
+    paginationUnread,
     connectWebSocket,
     disconnectWebSocket,
   } from "$lib";
@@ -656,6 +663,104 @@ All Rights Reserved
     return blob;
   }
 
+  async function getNotifications(refresh = false) {
+    let token = localStorage.getItem("token");
+
+    if (refresh) {
+      notifications.set([]);
+      paginationAll.set(1);
+    }
+
+    try {
+      const response = await call.call("client-dashboard", "get-notifications", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: $paginationAll.page,
+          page_size: $paginationAll.page_size,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        notifications.update((data) => [...response.result.data, ...data]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getNotificationsUnread(refresh = false) {
+    let token = localStorage.getItem("token");
+
+    if (refresh) {
+      notificationsUnread.set([]);
+      paginationUnread.set(1);
+    }
+
+    try {
+      const response = await call.call("client-dashboard", "get-notifications-unread", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: $paginationUnread.page,
+          page_size: $paginationUnread.page_size,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        notificationsUnread.update((data) => [...response.result.data, ...data]);
+        notificationsNewCount.set(response.result.meta.pagination.total);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getNotificationsRead() {
+    let token = localStorage.getItem("token");
+
+    try {
+      const response = await call.call("client-dashboard", "get-notifications-read", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: $paginationRead.page,
+          page_size: $paginationRead.page_size,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        notificationsRead.update((data) => [...response.result.data, ...data]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   onMount(async () => {
     if (localStorage.getItem("token") === null && isFrontend) {
       const token = prompt("Please insert your token:", "");
@@ -678,6 +783,10 @@ All Rights Reserved
     await getModelsTrocr();
     await getIndustryId();
     hideNavbar();
+
+    getNotifications();
+    getNotificationsUnread();
+    getNotificationsRead();
 
     connectWebSocket(localStorage.getItem("token"), isFrontend);
 
@@ -719,9 +828,25 @@ All Rights Reserved
     }
   });
 
+  let hasNewNotif = $state(false);
+
   $effect(() => {
-    if ($notifications.length > 0) {
-      console.log("$notifications", $notifications);
+    if ($notificationsNewCount > 0) {
+      hasNewNotif = true;
+    }
+  });
+
+  $effect(() => {
+    if ($notificationsNewCount < 1) {
+      hasNewNotif = false;
+    }
+  });
+
+  $effect(() => {
+    if (newNotification) {
+      getNotifications();
+      getNotificationsUnread(true);
+      newNotification.set(false);
     }
   });
 
@@ -768,6 +893,7 @@ All Rights Reserved
                     {appUrl}
                     {reset_database}
                     bind:authority
+                    bind:hasNewNotif
                   />
                 </div>
               {/if}

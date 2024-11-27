@@ -4754,6 +4754,97 @@
                     "backoff_strategy": "exponential"
                 }
             }
+        },
+        {
+            "name": "get-notifications",
+            "path": "/get-notifications",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetNotifications"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-notifications-unread",
+            "path": "/get-notifications-unread",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetNotificationsUnread"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-notifications-read",
+            "path": "/get-notifications-read",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetNotificationsRead"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "read-notification",
+            "path": "/read-notification/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "ReadNotification"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "read-all-notification",
+            "path": "/read-all-notification",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "ReadAllNotification"
+            }
         }
     ],
     "options": {
@@ -5896,6 +5987,33 @@
                     "model": {
                         "type": "string",
                         "required": true
+                    }
+                }
+            },
+            {
+                "name": "notification",
+                "label": "Notification",
+                "fields": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "sent_at": {
+                        "type": "string"
+                    },
+                    "read": {
+                        "type": "boolean"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "meta": {
+                        "type": "json"
                     }
                 }
             }
