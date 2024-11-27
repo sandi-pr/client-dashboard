@@ -51,6 +51,7 @@ export { default as ListMarkdown } from "$lib/components/ListMarkdown.svelte";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export { triggerSelectCollection, selectedCollection, selectedDropdown, triggerSelectDropdown, triggerReload, reload } from "$lib/utils/selectCollection";
 export { triggerShowAI, showAI } from "$lib/utils/showAI";
+export { triggerShowNotif, showNotif } from "$lib/utils/showNotif";
 export { call, setCall, callReady } from "$lib/utils/call";
 export { toCamelCase } from "$lib/utils/toCamelCase";
 export { getIndustryPoints, industryData } from "$lib/utils/getIndustry";

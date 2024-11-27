@@ -21,6 +21,8 @@ All Rights Reserved
     setCall,
     callReady,
     triggerShowAI,
+    triggerShowNotif,
+    showNotif,
     showAI,
     triggerSelectDropdown,
     triggerSelectCollection,
@@ -35,6 +37,7 @@ All Rights Reserved
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
+  import NotifDrawer from "$lib/components/NotifDrawer.svelte";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import { goto } from "$app/navigation";
@@ -123,8 +126,22 @@ All Rights Reserved
     if (!$showAI) {
       triggerReload(true);
     }
+    if ($showNotif) {
+      triggerShowNotif(false);
+    }
     // isShowAI = !isShowAI;
     localStorage.setItem("showAI", $showAI ? "true" : "false");
+  };
+
+  const changeShowNotif = () => {
+    if ($showAI) {
+      triggerShowAI(false);
+    }
+    triggerShowNotif(!$showNotif);
+    triggerReload(true);
+    localStorage.setItem("showNotif", $showNotif ? "true" : "false");
+
+    console.log($showNotif);
   };
 
   const getModules = async () => {
@@ -747,6 +764,7 @@ All Rights Reserved
                     {activeUrl}
                     {$showAI}
                     {changeShowAI}
+                    {changeShowNotif}
                     {appUrl}
                     {reset_database}
                     bind:authority
@@ -771,6 +789,9 @@ All Rights Reserved
           <!-- Hexabot Sidebar -->
           {#if $showAI}
             <SideDrawer innerWidth={winInnerWidth} {changeShowAI} />
+          {/if}
+          {#if $showNotif}
+            <NotifDrawer innerWidth={winInnerWidth} {changeShowNotif} />
           {/if}
         </Splitpanes>
       </div>

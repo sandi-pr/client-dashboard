@@ -231,6 +231,128 @@ const config = {
               dark: "#47CD89",
             },
           },
+          breadcrumb: {
+            light: "#475467",
+            dark: "#CECFD2",
+            hover: {
+              light: "#344054",
+              dark: "#FFFFFF",
+            },
+            brand: {
+              hover: {
+                light: "var(--primary-700)",
+                dark: "#FFFFFF",
+              },
+            },
+            icon: {
+              light: "#667085",
+              dark: "#94969C",
+              hover: {
+                light: "#344054",
+                dark: "#FFFFFF",
+              },
+              brand: {
+                hover: {
+                  light: "var(--primary-700)",
+                  dark: "#FFFFFF",
+                },
+              }
+            }
+          },
+          button: {
+            primary: {
+              light: "#FFFFFF",
+              dark: "#FFFFFF",
+              hover: {
+                light: "#FFFFFF",
+                dark: "#FFFFFF",
+              },
+              error: {
+                light: "#FFFFFF",
+                dark: "#FFFFFF",
+                hover: {
+                  light: "#FFFFFF",
+                  dark: "#FFFFFF",
+                },
+              },
+            },
+            secondary: {
+              light: "#344054",
+              dark: "#CECFD2",
+              hover: {
+                light: "#182230",
+                dark: "#F0F1F1",
+              },
+              color: {
+                light: "var(--primary-700)",
+                dark: "#CECFD2",
+                hover: {
+                  light: "var(--primary-800)",
+                  dark: "#F0F1F1",
+                },
+              },
+              error: {
+                light: "#B42318",
+                dark: "#FECDCA",
+                hover: {
+                  light: "#912018",
+                  dark: "#FEE4E2",
+                },
+              }
+            },
+            tertiary: {
+              light: "#475467",
+              dark: "#94969C",
+              hover: {
+                light: "#344054",
+                dark: "#ECECED",
+              },
+              color: {
+                light: "var(--primary-700)",
+                dark: "#CECFD2",
+                hover: {
+                  light: "var(--primary-800)",
+                  dark: "#F0F1F1",
+                },
+              },
+            },
+          },
+          icon: {
+            brand: {
+              light: "var(--primary-600)",
+              dark: "#94969C",
+              onbrand: {
+                light: "#EAECF0",
+                dark: "#94969C",
+              },
+              featured: {
+                light: "var(--primary-600)",
+                dark: "var(--primary-200)",
+              },
+            },
+            featured: {
+              brand: {
+                light: "var(--primary-600)",
+                dark: "var(--primary-200)",
+              },
+              gray: {
+                light: "#667085",
+                dark: "#ECECED",
+              },
+              error: {
+                light: "#D92D20",
+                dark: "#FECDCA",
+              },
+              warning: {
+                light: "#DC6803",
+                dark: "#FEDF89",
+              },
+              success: {
+                light: "#079455",
+                dark: "#ABEFC6",
+              },
+            },
+          },
         },
         utility: {
           gray: {
@@ -614,6 +736,48 @@ const config = {
             dark: "#F04438",
           },
         },
+        button: {
+          primary: {
+            light: "var(--primary-600)",
+            dark: "var(--primary-600)",
+            hover: {
+              light: "var(--primary-700)",
+              dark: "var(--primary-700)",
+            },
+            error: {
+              light: "#D92D20",
+              dark: "#D92D20",
+              hover: {
+                light: "#B42318",
+                dark: "#B42318",
+              }
+            }
+          },
+          secondary: {
+            light: "#D0D5DD",
+            dark: "#333741",
+            hover: {
+              light: "#D0D5DD",
+              dark: "#333741",
+            },
+            color: {
+              light: "var(--primary-300)",
+              dark: "#333741",
+              hover: {
+                light: "var(--primary-300)",
+                dark: "#333741",
+              },
+            },
+            error: {
+              light: "#FDA29B",
+              dark: "#D92D20",
+              hover: {
+                light: "#912018",
+                dark: "#B42318",
+              },
+            },
+          },
+        },
       },
       backgroundColor: {
         primary: {
@@ -745,6 +909,72 @@ const config = {
             solid: {
               light: "#079455",
               dark: "#079455",
+            },
+          },
+        },
+        breadcrumb: {
+          hover: {
+            light: "#F9FAFB",
+            dark: "#1F242F",
+          },
+          brand: {
+            hover: {
+              light: "var(--primary-50)",
+              dark: "#1F242F",
+            },
+          },
+        },
+        button: {
+          primary: {
+            light: "var(--primary-600)",
+            dark: "var(--primary-600)",
+            hover: {
+              light: "var(--primary-700)",
+              dark: "var(--primary-700)",
+            },
+            error: {
+              light: "#D92D20",
+              dark: "#D92D20",
+              hover: {
+                light: "#B42318",
+                dark: "#B42318",
+              },
+            }
+          },
+          secondary: {
+            light: "#FFFFFF",
+            dark: "#161B26",
+            hover: {
+              light: "#F9FAFB",
+              dark: "#1F242F",
+            },
+            color: {
+              light: "#FFFFFF",
+              dark: "#161B26",
+              hover: {
+                light: "var(--primary-50)",
+                dark: "#1F242F",
+              },
+            },
+            error: {
+              light: "#FFFFFF",
+              dark: "#55160C",
+              hover: {
+                light: "#FEF3F2",
+                dark: "#7A271A",
+              },
+            },
+          },
+          tertiary: {
+            hover: {
+              light: "#F9FAFB",
+              dark: "#1F242F",
+            },
+            color: {
+              hover: {
+                light: "var(--primary-50)",
+                dark: "#1F242F",
+              },
             },
           },
         },
