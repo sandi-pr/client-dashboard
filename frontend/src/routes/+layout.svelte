@@ -844,7 +844,7 @@ All Rights Reserved
 
   $effect(() => {
     if ($newNotification) {
-      getNotifications();
+      getNotifications(true);
       getNotificationsUnread(true);
       newNotification.set(false);
     }
