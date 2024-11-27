@@ -843,7 +843,7 @@ All Rights Reserved
   });
 
   $effect(() => {
-    if (newNotification) {
+    if ($newNotification) {
       getNotifications();
       getNotificationsUnread(true);
       newNotification.set(false);
