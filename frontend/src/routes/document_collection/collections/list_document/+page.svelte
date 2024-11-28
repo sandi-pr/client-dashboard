@@ -1310,7 +1310,7 @@ All Rights Reserved
                   svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
                 />{$_("addNewCategories")}</Button
               > -->
-              <Button
+              <!-- <Button
                 disabled={allData.length === 0 || statusRag === "Reading"}
                 onclick={() => {
                   selectCollection({
@@ -1336,7 +1336,7 @@ All Rights Reserved
                     {$_("askToAI")}
                   {/if}
                 </div>
-              </Button>
+              </Button> -->
             </div>
           </div>
         </div>

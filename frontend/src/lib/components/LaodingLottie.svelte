@@ -1,19 +1,21 @@
 <script>
-  import { onMount } from 'svelte';
-  import lottie from "lottie-web";
-  import LottieHexa from '$lib/components/hexa_lottie.json';
+  import { onMount } from "svelte";
+  import LottieHexa from "$lib/components/hexa_lottie.json";
 
   export let animationData = LottieHexa;
   let container;
 
-  onMount(() => {
-    lottie.loadAnimation({
-      container,
-      animationData,
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-    });
+  onMount(async () => {
+    if (typeof window !== "undefined") {
+      const lottie = await import("lottie-web");
+      lottie.default.loadAnimation({
+        container,
+        animationData,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+      });
+    }
   });
 </script>
 

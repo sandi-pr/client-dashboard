@@ -1,6 +1,6 @@
 <script>
   import { Button, Card, Indicator, Dropdown, DropdownItem } from "flowbite-svelte";
-  import { Typography, Badge, check } from "$lib";
+  import { Typography, Badge, check, industryData } from "$lib";
   import { _ } from "svelte-i18n";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
@@ -25,6 +25,15 @@
     dropdownOpen = false,
     funcDetailCollection = () => {},
   } = $props();
+
+  let validCollections =
+    industryData
+      .map((data) => {
+        return data.points.map((point) => {
+          return point.title.toLowerCase();
+        });
+      })
+      .flat() || [];
 
   const getTextStatus = (status) => {
     if (status === "Ready") {
@@ -139,12 +148,14 @@
               >
             {/if}
             {#if check("documentAi.documentLibrary:delete")}
-              <button
-                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                onclick={() => {
-                  functDelete(), (dropdownOpen = !dropdownOpen);
-                }}>{$_("delete")}</button
-              >
+              {#if validCollections.includes(collectionName.toLowerCase())}
+                <button
+                  class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                  onclick={() => {
+                    functDelete(), (dropdownOpen = !dropdownOpen);
+                  }}>{$_("delete")}</button
+                >
+              {/if}
             {/if}
           </ul>
         </div>
