@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gitlab.hexacode.org/go-libs/cr3call"
 	"gitlab.hexacode.org/go-libs/hctypes"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
@@ -166,6 +167,7 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"username":         "User",
 		"need_auth":        need_auth,
 		"status":           "Inactive",
+		"manage_document":  false,
 	}
 
 	if description != "" {
@@ -780,6 +782,12 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		}
 	}
 
+	manage_document, ok := ctx.URLParams.GetBool("manage_document")
+
+	if !ok {
+		manage_document = false
+	}
+
 	var background_id int64
 
 	if backgroundStr != "" {
@@ -857,6 +865,7 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"username":          username,
 		"need_auth":         need_auth,
 		"collection_id":     collection_id,
+		"manage_document":   manage_document,
 	}
 
 	if backgroundStr != "" {
@@ -903,6 +912,7 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 	}
 
 	if status != 200 {
+		fmt.Println(update)
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
 	}
@@ -1291,20 +1301,22 @@ func AddDocumentByBotID(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-	// go CR3.Call("hexa-ai-rag", "add-document-by-bot-id", cr3call.CR3CallData{
-	// 	Headers: U.Dict{
-	// 		"Authorization": bearer,
-	// 	},
-	// 	URLParams: U.Dict{
-	// 		"id": bot_id,
-	// 	},
-	// }, false)
+	fmt.Println("idStr", idStr)
 
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai-rag", "add-document-by-bot-id", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+		URLParams: U.Dict{
+			"id": idStr,
+		},
+	}, false)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
 
 	go getStatusBotNew(int64(bot_id), Strapi, userIdStr)
 
@@ -1373,6 +1385,20 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 
 				notificationWS.SendNotification(msg)
 				fmt.Println("send notification")
+
+				status, _, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
+					"status": "Reading",
+				})
+
+				if err != nil {
+					fmt.Println(err)
+					break
+				}
+
+				if status != 200 {
+					fmt.Println("failed update hexabot-table")
+					break
+				}
 			}
 		}
 

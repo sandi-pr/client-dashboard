@@ -973,7 +973,7 @@
             attributes.background_align !== null ? attributes.background_align : "center",
           embedCode: `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="${urlBot}"></iframe>`,
           needAuth: attributes.need_auth,
-          documentOptions: false,
+          documentOptions: attributes.manage_document,
         };
 
         if (attributes.background.data !== null) {
@@ -1087,8 +1087,14 @@
             deployed_platform: users.deployedPlatform,
             username: users.username,
             need_auth: users.needAuth,
-            collection_id: checkAll ? "all" : datasChecked.map((item) => item.id).join(","),
+            collection_id: checkAll
+              ? "all"
+              : datasChecked
+                  .filter((item) => item.checked)
+                  .map((item) => item.id)
+                  .join(","),
             library_id: selectedCollection,
+            manage_document: users.documentOptions,
           },
           Headers: {
             Authorization: "Bearer " + token,

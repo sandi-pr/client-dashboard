@@ -14,7 +14,7 @@
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
-  import { Typography, call, triggerToast, StateCard } from "$lib";
+  import { Typography, call, triggerToast, StateCard, newNotification, notifications } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { onMount } from "svelte";
@@ -221,6 +221,14 @@
 
   onMount(() => {
     getBots();
+  });
+
+  $effect(() => {
+    if ($newNotification) {
+      if ($notifications[0].attributes.type === "hexabot") {
+        getBots();
+      }
+    }
   });
 </script>
 

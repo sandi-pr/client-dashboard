@@ -53,7 +53,7 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     try {
-      const response = await call.call("client-dashboard", "get-notifications", {
+      const response = await $call.call("client-dashboard", "get-notifications", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -82,7 +82,7 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     try {
-      const response = await call.call("client-dashboard", "get-notifications-unread", {
+      const response = await $call.call("client-dashboard", "get-notifications-unread", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -112,7 +112,7 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     try {
-      const response = await call.call("client-dashboard", "get-notifications-read", {
+      const response = await $call.call("client-dashboard", "get-notifications-read", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -141,10 +141,10 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     try {
-      const response = await call.call("client-dashboard", "read-notification", {
+      const response = await $call.call("client-dashboard", "read-notification", {
         URLQuery: {},
         URLParams: {
-          id: id,
+          id: id.toString(),
         },
         Params: {},
         Headers: {
@@ -230,6 +230,9 @@ All Rights Reserved
                   <div class="flex gap-3">
                     {#if !data.attributes.read}
                       <button
+                        onclick={async () => {
+                          await markAsRead(data.id);
+                        }}
                         class="text-sm font-semibold text-fg-button-tertiary-light dark:text-fg-button-tertiary-dark"
                         >Mark as read</button
                       >

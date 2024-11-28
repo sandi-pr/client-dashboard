@@ -4609,6 +4609,10 @@
                 {
                     "name": "library_id",
                     "type": "number"
+                },
+                {
+                    "name": "manage_document",
+                    "type": "boolean"
                 }
             ]
         },
@@ -4831,7 +4835,7 @@
             "url_params": [
                 {
                     "name": "id",
-                    "type": "number"
+                    "type": "textnumber"
                 }
             ]
         },
@@ -5969,6 +5973,9 @@
                     },
                     "status": {
                         "type": "string"
+                    },
+                    "manage_document": {
+                        "type": "boolean"
                     }
                 }
             },

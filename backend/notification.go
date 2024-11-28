@@ -12,6 +12,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	U "gitlab.hexacode.org/go-libs/hctypes"
@@ -247,10 +248,16 @@ func ReadNotification(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 
 	fmt.Println(me)
 
-	id, ok := ctx.URLParams.GetFloat64("id")
+	idStr, ok := ctx.URLParams.GetString("id")
 
 	if !ok {
 		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
 	}
 
 	status, notifications, err := Strapi.Update("notification-table", int64(id), U.Dict{

@@ -30,6 +30,8 @@
     StateCard,
     check,
     Badge,
+    newNotification,
+    notifications,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -439,7 +441,34 @@
 
     if (token) {
       try {
-        const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
+        // const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
+        //   URLQuery: {},
+        //   URLParams: {
+        //     id: botId.toString(),
+        //   },
+        //   Params: {},
+        //   Headers: {
+        //     Authorization: "Bearer " + token,
+        //   },
+        // });
+
+        // if (response.status !== 200) {
+        //   triggerToast("error");
+        //   console.log(response);
+        //   return;
+        // }
+
+        // // await updateBot(botId, "Reading");
+
+        // // bots = bots.map((bot) => {
+        // //   if (bot.botsID === botId) {
+        // //     bot.deployStatus = "Reading";
+        // //   }
+        // //   return bot;
+        // // });
+
+        //demo
+        const response = await $call.call("hexa-ai-rag", "add-document-by-bot-id", {
           URLQuery: {},
           URLParams: {
             id: botId.toString(),
@@ -514,6 +543,14 @@
     getActionItems();
     // getCountDocumentsPerMonth();
     getBots();
+  });
+
+  $effect(() => {
+    if ($newNotification) {
+      if ($notifications[0].attributes.type === "hexabot") {
+        getBots();
+      }
+    }
   });
 </script>
 
