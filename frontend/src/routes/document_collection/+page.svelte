@@ -47,6 +47,7 @@ All Rights Reserved
     triggerReload,
     triggerLoading,
     showAI,
+    showNotif,
   } from "$lib";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
@@ -759,7 +760,7 @@ All Rights Reserved
       <div>
         {#if latestDocumentCollection.length > 0}
           <div
-            class={`${$showAI ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
+            class={`${$showAI || $showNotif ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
           >
             {#each latestDocumentCollection as document}
               <LibraryCard

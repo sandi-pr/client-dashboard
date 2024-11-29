@@ -22,7 +22,7 @@ All Rights Reserved
   } from "$lib";
   import InfoCircleIcon from "$lib/icon/info-circle.svelte";
   import { Pane } from "svelte-splitpanes";
-  import { CloseButton, Button, Toast } from "flowbite-svelte";
+  import { CloseButton, Button, Toast, Progressbar } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
@@ -223,11 +223,12 @@ All Rights Reserved
                 <span class="font-semibold text-gray-900 dark:text-white"
                   >{data.attributes.title}</span
                 >
-                <div class="mt-1">
+                <div class="mt-1 gap-2">
                   <div class="mb-2 text-sm font-normal">
                     {data.attributes.content}
                   </div>
-                  <div class="flex gap-3">
+                  <Progressbar progress="50" size="h-4" labelInside />
+                  <div class="flex gap-3 pt-2">
                     {#if !data.attributes.read}
                       <button
                         onclick={async () => {

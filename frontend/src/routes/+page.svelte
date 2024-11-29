@@ -29,7 +29,7 @@ All Rights Reserved
   import { onMount, tick } from "svelte";
   import { writable } from "svelte/store";
   import LoadingContainer from "../lib/components/LoadingContainer.svelte";
-  import { call, showAI } from "$lib";
+  import { call, showAI, showNotif } from "$lib";
 
   let userData = $state({ username: "", email: "", brand: "" });
 
@@ -842,7 +842,7 @@ All Rights Reserved
         <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
       {/if}
       <div
-        class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
+        class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
       >
         {#each cardsAi as card}
           {#if !chartActionAi.find((item) => item.title === card.title)}

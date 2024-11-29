@@ -1,6 +1,6 @@
 <script>
   import { Card } from "flowbite-svelte";
-  import { Typography, TextButton, showAI, FeaturedIcon, getIcons } from "$lib";
+  import { Typography, TextButton, showAI, showNotif, FeaturedIcon, getIcons } from "$lib";
   import Chart from "$lib/components/Chart.svelte";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
@@ -9,7 +9,7 @@
 </script>
 
 <div
-  class={`grid ${$showAI ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4 items-center justify-center`}
+  class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4 items-center justify-center`}
 >
   {#each chartAction as { dataName, value, change, changeType, icon, title, description, href }, index}
     <Card
