@@ -4849,6 +4849,31 @@
                 "plugin": "plugin.so",
                 "function": "ReadAllNotification"
             }
+        },
+        {
+            "name": "find-create-library-collection-by-name",
+            "path": "/find-create-library-collection-by-name",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "FindCreateLibraryCollectionByName"
+            },
+            "params": [
+                {
+                    "name": "collection_name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                }
+            ]
         }
     ],
     "options": {

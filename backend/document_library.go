@@ -2326,3 +2326,120 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 
 	return ctx.Error(500, "Internal Server Error")
 }
+
+func FindCreateLibraryCollectionByName(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	// 1. Validasi Authorization Header
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	// Inisialisasi Strapi
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	// Verifikasi Token
+	status, _, err := Strapi.UsersMe()
+	if err != nil || status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	// 2. Ambil Parameter
+	name, ok := ctx.Params.GetString("collection_name")
+	if !ok {
+		return ctx.Error(400, "invalid parameters collection_name")
+	}
+
+	description, ok := ctx.Params.GetString("description")
+	if !ok {
+		return ctx.Error(400, "invalid parameters description")
+	}
+
+	parent_id, ok := ctx.Params.GetFloat64("parent_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters parent_id")
+	}
+
+	// 3. Cari Koleksi di Database
+	status, library, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"type":      U.Dict{"$eq": "collection"},
+			"name":      U.Dict{"$eq": name},
+			"parent_id": U.Dict{"$eq": parent_id},
+		},
+	})
+
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	// 4. Jika Koleksi Ditemukan, Kembalikan ID-nya
+	if list, ok := library.GetList("data"); ok && len(list) > 0 {
+		if dict, ok := list.GetDict(0); ok {
+			if id, ok := dict.GetFloat64("id"); ok {
+				return 200, U.Dict{"id": id}, nil
+			}
+		}
+	}
+
+	// 5. Jika Tidak Ditemukan, Buat Koleksi Baru
+	// Cari Path dari Parent Library
+	var document_path string
+	status, parent_library, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{"$eq": parent_id},
+		},
+	})
+
+	if err != nil || status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if list, ok := parent_library.GetList("data"); ok && len(list) > 0 {
+		if dict, ok := list.GetDict(0); ok {
+			if attributes, ok := dict.GetDict("attributes"); ok {
+				if path, ok := attributes.GetString("path"); ok {
+					document_path = string(path) + "/" + string(name)
+				}
+			}
+		}
+	} else {
+		return ctx.Error(400, "Parent library not found")
+	}
+
+	// Buat Direktori untuk Koleksi
+	dir := filepath.Dir(document_path)
+	err = os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		return ctx.Error(500, "Failed to create directory")
+	}
+
+	// Data untuk Koleksi Baru
+	dataSend := U.Dict{
+		"type":      "collection",
+		"name":      name,
+		"path":      document_path,
+		"parent_id": parent_id,
+		"meta": U.Dict{
+			"description": description,
+		},
+	}
+
+	// Kirim Permintaan untuk Membuat Koleksi
+	status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
+	if err != nil || status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	// 6. Kembalikan ID Koleksi Baru
+	if data, ok := documentLibrary.GetDict("data"); ok {
+		if id, ok := data.GetFloat64("id"); ok {
+			return 200, U.Dict{"id": id}, nil
+		}
+	}
+
+	return ctx.Error(500, "Internal Server Error")
+}
