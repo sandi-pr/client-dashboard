@@ -545,13 +545,13 @@
     getBots();
   });
 
-  $effect(() => {
-    if ($newNotification) {
-      if ($notifications[0].attributes.type === "hexabot") {
-        getBots();
-      }
-    }
-  });
+  // $effect(() => {
+  //   if ($newNotification) {
+  //     if ($notifications[0].attributes.type === "hexabot") {
+  //       getBots();
+  //     }
+  //   }
+  // });
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">

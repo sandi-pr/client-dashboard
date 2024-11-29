@@ -47,11 +47,11 @@ func GetNotifications(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 
 	fmt.Println(me)
 
-	id, ok := me.GetFloat64("id")
+	// id, ok := me.GetFloat64("id")
 
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
 	page, ok := ctx.Params.GetFloat64("page")
 	if !ok {
@@ -66,11 +66,11 @@ func GetNotifications(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 	}
 
 	status, notifications, err := Strapi.Find("notification-table", U.Dict{
-		"filters": U.Dict{
-			"user_id": U.Dict{
-				"$eq": id,
-			},
-		},
+		// "filters": U.Dict{
+		// 	"user_id": U.Dict{
+		// 		"$eq": id,
+		// 	},
+		// },
 		"pagination": U.Dict{
 			"page":     page,
 			"pageSize": page_size,
@@ -112,11 +112,11 @@ func GetNotificationsUnread(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 
 	fmt.Println(me)
 
-	id, ok := me.GetFloat64("id")
+	// id, ok := me.GetFloat64("id")
 
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
 	page, ok := ctx.Params.GetFloat64("page")
 	if !ok {
@@ -132,9 +132,9 @@ func GetNotificationsUnread(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 
 	status, notifications, err := Strapi.Find("notification-table", U.Dict{
 		"filters": U.Dict{
-			"user_id": U.Dict{
-				"$eq": id,
-			},
+			// "user_id": U.Dict{
+			// 	"$eq": id,
+			// },
 			"read": U.Dict{
 				"$eq": false,
 			},
@@ -180,11 +180,11 @@ func GetNotificationsRead(ctx *config.ConfigContext) (int, U.Dict, *config.Retur
 
 	fmt.Println(me)
 
-	id, ok := me.GetFloat64("id")
+	// id, ok := me.GetFloat64("id")
 
-	if !ok {
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if !ok {
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
 	page, ok := ctx.Params.GetFloat64("page")
 	if !ok {
@@ -200,9 +200,9 @@ func GetNotificationsRead(ctx *config.ConfigContext) (int, U.Dict, *config.Retur
 
 	status, notifications, err := Strapi.Find("notification-table", U.Dict{
 		"filters": U.Dict{
-			"user_id": U.Dict{
-				"$eq": id,
-			},
+			// "user_id": U.Dict{
+			// 	"$eq": id,
+			// },
 			"read": U.Dict{
 				"$eq": true,
 			},
@@ -299,20 +299,20 @@ func ReadAllNotification(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 
 	fmt.Println(me)
 
-	id, ok := me.GetFloat64("id")
+	// id, ok := me.GetFloat64("id")
 
-	if !ok {
-		return ctx.Error(400, "invalid parameters id")
-	}
+	// if !ok {
+	// 	return ctx.Error(400, "invalid parameters id")
+	// }
 
 	page := 1
 
 	for {
 		status, notifications, err := Strapi.Find("notification-table", U.Dict{
 			"filters": U.Dict{
-				"user_id": U.Dict{
-					"$eq": id,
-				},
+				// "user_id": U.Dict{
+				// 	"$eq": id,
+				// },
 				"read": U.Dict{
 					"$eq": false,
 				},
@@ -367,4 +367,73 @@ func ReadAllNotification(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 	}
 
 	return 200, U.Dict{}, nil
+}
+
+func UpdateContentProgressByName(title string, content string) error {
+	fmt.Println("Debug: Starting UpdateContentProgressByName")
+	fmt.Printf("Debug: Title: %s, Content: %s\n", title, content)
+
+	strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
+	fmt.Println("Debug: Initialized Strapi client")
+
+	// Step 1: Fetch data from Strapi
+	status, data, err := strapi.Find("notification-table", U.Dict{
+		"filters": U.Dict{
+			"title": U.Dict{
+				"$eq": title,
+			},
+		},
+	})
+	fmt.Printf("Debug: Strapi Find - Status: %d, Data: %v, Error: %v\n", status, data, err)
+
+	if err != nil {
+		fmt.Println("Error during Strapi Find:", err)
+		return err
+	}
+
+	if status != 200 {
+		fmt.Printf("Error: Unexpected status code from Strapi Find: %d\n", status)
+		return fmt.Errorf("unexpected status code: %d", status)
+	}
+
+	// Step 2: Extract notification ID
+	var idNotif int64
+	if list, ok := data.GetList("data"); ok {
+		fmt.Printf("Debug: Retrieved data list: %v\n", list)
+		if dict, ok := list.GetDict(0); ok {
+			fmt.Printf("Debug: Retrieved first dictionary: %v\n", dict)
+			if id, ok := dict.GetFloat64("id"); ok {
+				idNotif = int64(id)
+				fmt.Printf("Debug: Extracted notification ID: %d\n", idNotif)
+			} else {
+				fmt.Println("Error: Failed to extract ID from dictionary")
+				return fmt.Errorf("failed to extract ID")
+			}
+		} else {
+			fmt.Println("Error: Data list is empty or not a dictionary")
+			return fmt.Errorf("data list is empty or invalid")
+		}
+	} else {
+		fmt.Println("Error: Failed to retrieve data list from response")
+		return fmt.Errorf("failed to retrieve data list")
+	}
+
+	// Step 3: Update content in Strapi
+	status2, response, err := strapi.Update("notification-table", idNotif, U.Dict{
+		"content": content,
+	})
+	fmt.Printf("Debug: Strapi Update - Status: %d, Response: %v, Error: %v\n", status2, response, err)
+
+	if err != nil {
+		fmt.Println("Error during Strapi Update:", err)
+		return err
+	}
+
+	if status2 != 200 {
+		fmt.Printf("Error: Unexpected status code from Strapi Update: %d\n", status2)
+		return fmt.Errorf("unexpected status code: %d", status2)
+	}
+
+	fmt.Println("Debug: Successfully updated content in Strapi")
+	return nil
 }

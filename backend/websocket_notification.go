@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -50,10 +53,25 @@ func (ws *NotificationWebSocket) RemoveClient(client *websocket.Conn) {
 
 // SendNotification mengirimkan pesan notifikasi ke semua klien yang terhubung.
 func (ws *NotificationWebSocket) SendNotification(message NotificationMessage) {
-	err := ws.SaveNotification(message)
+	if strings.Contains(message.Type, "progress") {
+		if message.Type == "progress" {
+			err := ws.SaveNotification(message)
 
-	if err != nil {
-		fmt.Println("Error saving notification:", err)
+			if err != nil {
+				fmt.Println("Error saving notification:", err)
+			}
+		} else {
+			err := UpdateContentProgressByName(message.Title, message.Content)
+			if err != nil {
+				fmt.Println("Error saving notification:", err)
+			}
+		}
+	} else {
+		err := ws.SaveNotification(message)
+
+		if err != nil {
+			fmt.Println("Error saving notification:", err)
+		}
 	}
 
 	for client := range ws.Clients {
@@ -150,4 +168,32 @@ func (ws *NotificationWebSocket) ServeNotifications(ctx *config.ConfigContext, w
 		// Proses pesan jika perlu (misalnya simpan di database atau log).
 		fmt.Printf("Notification received: %+v\n", msg)
 	}
+}
+
+func SendNotification(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	data, ok := ctx.Params.GetString("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	decodedData, err := base64.StdEncoding.DecodeString(string(data))
+	if err != nil {
+		fmt.Printf("Error decoding Base64 data: %v\n", err)
+		return ctx.Error(400, "Invalid Base64 encoding in 'data' parameter")
+	}
+
+	fmt.Printf("Decoded JSON data: %s\n", decodedData)
+
+	var dataJson NotificationMessage
+	err = json.Unmarshal([]byte(decodedData), &dataJson)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(400, "invalid parameters data")
+	}
+
+	notificationWS.SendNotification(dataJson)
+
+	return 200, U.Dict{}, nil
 }

@@ -40,7 +40,7 @@ export function connectWebSocket(token, isFrontend) {
 
   if (isFrontend) {
     socket = new WebSocket(
-      `ws://192.168.1.11/client-dashboard/notification/${encodeURIComponent(token)}`,
+      `ws://192.168.18.14/client-dashboard/notification/${encodeURIComponent(token)}`,
     )
   } else {
     socket = new WebSocket(
@@ -57,8 +57,30 @@ export function connectWebSocket(token, isFrontend) {
     try {
       const message = JSON.parse(event.data);
       console.log("Received notification:", message);
-      newNotification.update((data) => true);
-      // notifications.update((n) => [message, ...n]); // Tambahkan notifikasi ke store
+
+      if (message.type === "progress-update") {
+        let docId = message.meta?.document_id;
+
+        notifications.update((n) =>
+          n.map((notif) =>
+            notif.attributes.meta?.document_id === docId
+              ? {
+                ...notif,
+                attributes: {
+                  ...notif.attributes,
+                  content: message.content,
+                  meta: {
+                    ...notif.attributes.meta,
+                    ...message.meta,
+                  },
+                },
+              }
+              : notif
+          )
+        );
+      } else {
+        newNotification.update((data) => true);
+      }
     } catch (error) {
       console.error("Error parsing WebSocket message:", error);
     }

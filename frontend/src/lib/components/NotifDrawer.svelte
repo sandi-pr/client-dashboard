@@ -224,10 +224,17 @@ All Rights Reserved
                   >{data.attributes.title}</span
                 >
                 <div class="mt-1 gap-2">
-                  <div class="mb-2 text-sm font-normal">
-                    {data.attributes.content}
-                  </div>
-                  <Progressbar progress="50" size="h-4" labelInside />
+                  {#if data.attributes.type.includes("progress")}
+                    <Progressbar
+                      progress={data.attributes.content.replace("%", "")}
+                      size="h-4"
+                      labelInside
+                    />
+                  {:else}
+                    <div class="mb-2 text-sm font-normal">
+                      {data.attributes.content}
+                    </div>
+                  {/if}
                   <div class="flex gap-3 pt-2">
                     {#if !data.attributes.read}
                       <button

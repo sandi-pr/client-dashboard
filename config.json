@@ -4874,6 +4874,23 @@
                     "type": "number"
                 }
             ]
+        },
+        {
+            "name": "send-notification",
+            "path": "/send-notification",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "SendNotification"
+            },
+            "params": [
+                {
+                    "name": "data",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {

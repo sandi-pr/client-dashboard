@@ -65,6 +65,7 @@ All Rights Reserved
   const isFrontend = process.env.NODE_ENV === "development";
   let hideNav = $state(false);
   let ready = $state(false);
+  let gettingNewNotif = $state(false);
 
   const call = isFrontend
     ? new CR3Call("http://localhost")
@@ -668,7 +669,12 @@ All Rights Reserved
 
     if (refresh) {
       notifications.set([]);
-      paginationAll.set(1);
+      paginationAll.set({
+        page: 1,
+        page_size: 10,
+        page_count: 0,
+        total: 0,
+      });
     }
 
     try {
@@ -702,7 +708,12 @@ All Rights Reserved
 
     if (refresh) {
       notificationsUnread.set([]);
-      paginationUnread.set(1);
+      paginationUnread.set({
+        page: 1,
+        page_size: 10,
+        page_count: 0,
+        total: 0,
+      });
     }
 
     try {
@@ -842,11 +853,15 @@ All Rights Reserved
     }
   });
 
-  $effect(() => {
+  $effect(async () => {
     if ($newNotification) {
-      getNotifications(true);
-      getNotificationsUnread(true);
-      newNotification.set(false);
+      if (!gettingNewNotif) {
+        gettingNewNotif = true;
+        await getNotifications(true);
+        await getNotificationsUnread(true);
+        newNotification.set(false);
+        gettingNewNotif = false;
+      }
     }
   });
 
