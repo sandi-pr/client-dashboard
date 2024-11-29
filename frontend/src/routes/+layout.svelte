@@ -39,6 +39,10 @@ All Rights Reserved
     paginationUnread,
     connectWebSocket,
     disconnectWebSocket,
+    setLibraryIds,
+    setCollectionIds,
+    bakrieLibraryId,
+    handwritingCollectionId,
   } from "$lib";
   import { onDestroy, onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -552,6 +556,172 @@ All Rights Reserved
     return useCase;
   }
 
+  async function checkLibrariesBakrie() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "find-create-library-by-name", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          library_name: "Bakrie Library",
+          description: "Bakrie Library Collection",
+        },
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log("status not 200", response);
+        return;
+      }
+
+      console.log("created bakrie library", response);
+
+      setLibraryIds(response.result.id);
+    }
+
+  }
+
+  async function checkCollectionsBakrie() {
+
+    const bakrieCollection = [
+      {
+        name: "Documents",
+        desc: "collection documents",
+      },
+      {
+        name: "Images",
+        desc: "collection images",
+      },
+      {
+        name: "Document Images",
+        desc: "collection document images",
+      },
+      {
+        name: "Handwriting",
+        desc: "collection handwriting",
+      },
+      {
+        name: "Audio",
+        desc: "collection audio",
+      },
+    ];
+
+    const libraryIds = {
+      documentsCollectionIdValue: null,
+      imagesCollectionIdValue: null,
+      documentImagesCollectionIdValue: null,
+      handwritingCollectionIdValue: null,
+      audioCollectionIdValue: null,
+    };
+
+    for (const point of bakrieCollection) {
+      let token = localStorage.getItem("token");
+      if (token) {
+        const response = await call.call("client-dashboard", "find-create-library-collection-by-name", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            parent_id: $bakrieLibraryId,
+            collection_name: point.name,
+            description: point.desc,
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log("status not 200", response);
+          return;
+        }
+
+        // Save the collection ID based on the collection name
+        switch (point.name) {
+          case "Documents":
+            libraryIds.documentsCollectionIdValue = response.result.id;
+            break;
+          case "Images":
+            libraryIds.imagesCollectionIdValue = response.result.id;
+            break;
+          case "Document Images":
+            libraryIds.documentImagesCollectionIdValue = response.result.id;
+            break;
+          case "Handwriting":
+            libraryIds.handwritingCollectionIdValue = response.result.id;
+            break;
+          case "Audio":
+            libraryIds.audioCollectionIdValue = response.result.id;
+            break;
+        }
+      }
+    }
+
+    setCollectionIds(libraryIds);
+
+  }
+
+  async function createBakrieBot() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+
+      const response = await call.call("client-dashboard", "get-bots", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: 1,
+          page_size: 10,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.result.data.length > 0) {
+        console.log("Bots already exist");
+        return
+      }
+
+      let dataSend = {
+        bot_name: "Bakrie’s Assistant",
+        description: "",
+        ai_engine: "llama3.1:8b",
+        library_id: $bakrieLibraryId,
+        collection_id: "all",
+        additional_prompt: "",
+        need_auth: false,
+      };
+
+      // console.log("dataSend", dataSend);
+
+      try {
+        const response = await call.call("client-dashboard", "create-bot", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("createBakrieBot", response);
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("no token");
+      return;
+    }
+  }
+
   async function getIndustryId() {
     let token = localStorage.getItem("token");
     if (token) {
@@ -784,6 +954,9 @@ All Rights Reserved
     }
 
     await CheckSetup();
+    await checkLibrariesBakrie();
+    await checkCollectionsBakrie();
+    createBakrieBot();
     // await getPermissions();
     if (localStorage.getItem("lang") !== null) {
       locale.set(localStorage.getItem("lang"));
