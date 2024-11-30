@@ -43,6 +43,7 @@ All Rights Reserved
     setCollectionIds,
     bakrieLibraryId,
     handwritingCollectionId,
+    onProgress,
   } from "$lib";
   import { onDestroy, onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -602,7 +603,7 @@ All Rights Reserved
         desc: "collection handwriting",
       },
       {
-        name: "Audio",
+        name: "Document Audio",
         desc: "collection audio",
       },
     ];
@@ -658,7 +659,7 @@ All Rights Reserved
             localStorage.setItem("collectionIdHandwritingBakrie", response.result.id);
             libraryIds.handwritingCollectionIdValue = response.result.id;
             break;
-          case "Audio":
+          case "Document Audio":
             localStorage.setItem("collectionIdAudioBakrie", response.result.id);
             libraryIds.audioCollectionIdValue = response.result.id;
             break;

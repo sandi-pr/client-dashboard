@@ -6,6 +6,7 @@ export const notificationsRead = writable([]); // Menyimpan daftar notifikasi ya
 export let socket = null; // WebSocket instance
 export let notificationsNewCount = writable(0);
 export let newNotification = writable(false);
+export let onProgress = writable(false);
 
 export const paginationAll = writable({
   page: 1,
@@ -78,7 +79,13 @@ export function connectWebSocket(token, isFrontend) {
               : notif
           )
         );
+        if (message.content.includes("100")) {
+          onProgress.set(false);
+        }
       } else {
+        if (message.type === "progress") {
+          onProgress.set(true);
+        }
         newNotification.update((data) => true);
       }
     } catch (error) {
