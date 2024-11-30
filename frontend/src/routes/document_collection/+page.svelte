@@ -379,7 +379,7 @@ All Rights Reserved
       if (response.status !== 200) {
         if (response && response.errors) {
           const errors = response.errors.flatMap((error) =>
-            error.errors.flatMap((subError) => subError.message)
+            error.errors.flatMap((subError) => subError.message),
           );
 
           if (errors.includes("This attribute must be unique")) {
@@ -547,7 +547,7 @@ All Rights Reserved
         if (response.status !== 200) {
           if (response && response.errors) {
             const errors = response.errors.flatMap((error) =>
-              error.errors.flatMap((subError) => subError.message)
+              error.errors.flatMap((subError) => subError.message),
             );
 
             if (errors.includes("This attribute must be unique")) {
@@ -651,12 +651,12 @@ All Rights Reserved
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
           earlyDateCurrentMonth.getMonth() - 1,
-          1
+          1,
         );
         lastDateCurrentMonth = new Date(
           lastDateCurrentMonth.getFullYear(),
           lastDateCurrentMonth.getMonth(),
-          0
+          0,
         );
       }
 
@@ -709,7 +709,7 @@ All Rights Reserved
       window.localStorage.getItem("libraryIdWebchatBakrie")
     ) {
       const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-      const redirectUrl = `document_collection/libraries/libraries_collections?libraryId=${libraryIdWebchatBakrie}`;
+      const redirectUrl = `document_library/libraries/collections/?libraryId=${libraryIdWebchatBakrie}`;
       window.location.replace(redirectUrl);
     }
     if (check("documentAi.documentLibrary:view") === false) {

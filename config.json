@@ -4494,6 +4494,25 @@
             "params": []
         },
         {
+            "name": "get-bot-by-name",
+            "path": "/get-bot",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetBotByName"
+            },
+            "url_params": [],
+            "params": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-bot-public",
             "path": "/get-bot-public/:id",
             "method": "GET",

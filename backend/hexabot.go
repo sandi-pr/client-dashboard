@@ -498,6 +498,125 @@ func GetBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	return 200, dict, nil
 }
 
+func GetBotByName(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	name, ok := ctx.Params.GetString("name")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters name")
+	}
+
+	status, data, err := Strapi.Find("hexabot-table", U.Dict{
+		"filters": U.Dict{
+			"bot_name": U.Dict{
+				"$eq": name,
+			},
+		},
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := data.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) == 0 {
+		return ctx.Error(404, "not found")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if dict["attributes"].(U.Dict)["bot_logo"].(U.Dict)["data"] != nil {
+		document_url := dict["attributes"].(U.Dict)["bot_logo"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		base64Data, err := getFileByUrl(document_url)
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict["bot_logo"] = base64Data
+	}
+
+	if dict["attributes"].(U.Dict)["bot_profile"].(U.Dict)["data"] != nil {
+		document_url := dict["attributes"].(U.Dict)["bot_profile"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		base64Data, err := getFileByUrl(document_url)
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict["bot_profile"] = base64Data
+	}
+
+	if dict["attributes"].(U.Dict)["user_profile"].(U.Dict)["data"] != nil {
+		document_url := dict["attributes"].(U.Dict)["user_profile"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		base64Data, err := getFileByUrl(document_url)
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict["user_profile"] = base64Data
+	}
+
+	if dict["attributes"].(U.Dict)["background"].(U.Dict)["data"] != nil {
+		document_url := dict["attributes"].(U.Dict)["background"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+		base64Data, err := getFileByUrl(document_url)
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict["background"] = base64Data
+	}
+
+	// botStatus, err := getStatusBot(int64(id), Strapi)
+
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
+
+	// dict["attributes"].(U.Dict)["status"] = botStatus
+
+	return 200, dict, nil
+}
+
 func GetBotPublic(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
 
@@ -1304,11 +1423,11 @@ func AddDocumentByBotID(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 	fmt.Println("idStr", idStr)
 
 	CR3 := cr3call.New(MODULE_MANAGER_URL)
-	go CR3.Call("hexa-ai-rag", "add-document-by-bot-id", cr3call.CR3CallData{
+	go CR3.Call("hexa-ai-rag", "add-document-by-bot-id-params", cr3call.CR3CallData{
 		Headers: U.Dict{
 			"Authorization": bearer,
 		},
-		URLParams: U.Dict{
+		Params: U.Dict{
 			"id": idStr,
 		},
 	}, false)
@@ -1341,7 +1460,7 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 			var msg NotificationMessage
 			if botStatus == "Ready" {
 				msg = NotificationMessage{
-					UserID:  userId,
+					UserID:  "0",
 					Title:   string(bot_name) + " documents are ready",
 					Content: "Hexacube has finished analyzing the uploaded documents. You can now proceed to explore the insights!",
 					Time:    time.Now().String(),
@@ -1372,19 +1491,19 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 				break
 
 			} else if botStatus == "Reading" {
-				msg = NotificationMessage{
-					UserID:  userId,
-					Title:   "Reading " + string(bot_name) + " documents",
-					Content: "Hexacube is now analyzing the documents uploaded by HexaBot. Sit tight while we process the information!",
-					Time:    time.Now().String(),
-					Type:    "hexabot",
-					Meta: U.Dict{
-						"bot_id": bot_id,
-					},
-				}
+				// msg = NotificationMessage{
+				// 	UserID:  "0",
+				// 	Title:   "Reading " + string(bot_name) + " documents",
+				// 	Content: "Hexacube is now analyzing the documents uploaded by HexaBot. Sit tight while we process the information!",
+				// 	Time:    time.Now().String(),
+				// 	Type:    "hexabot",
+				// 	Meta: U.Dict{
+				// 		"bot_id": bot_id,
+				// 	},
+				// }
 
-				notificationWS.SendNotification(msg)
-				fmt.Println("send notification")
+				// notificationWS.SendNotification(msg)
+				// fmt.Println("send notification")
 
 				status, _, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
 					"status": "Reading",

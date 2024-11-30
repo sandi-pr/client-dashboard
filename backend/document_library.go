@@ -488,6 +488,8 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 										fmt.Printf("Error during CR3.Call for bot ID %s: %v\n", bot_idStr, err)
 										return ctx.Error(500, "Internal Server Error")
 									}
+
+									go getStatusBotNew(int64(bot_id), Strapi, "0")
 								} else {
 									fmt.Printf("Error: Failed to get bot_id at index %d\n", i)
 								}

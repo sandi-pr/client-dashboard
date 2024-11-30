@@ -154,7 +154,8 @@
   let queryString = params.toString() ? "?" + params.toString() : "";
   $: activeUrlArray = activeUrl
     .split("/")
-    .filter((url) => url !== "")
+    // .filter((url) => url !== "")
+    .filter((url) => url !== "" && url !== "libraries") //bakrie
     .map((url, index, array) => {
       accumulatedPath += `/${url}`;
       let href = accumulatedPath;

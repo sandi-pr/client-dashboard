@@ -87,30 +87,36 @@ All Rights Reserved
   ];
 
   const cardsAi = [
-    {
-      icon: "messageChat",
-      title: "hexabot",
-      description: "descHexabot",
-      page: "hexabot",
-    },
+    // {
+    //   icon: "messageChat",
+    //   title: "hexabot",
+    //   description: "descHexabot",
+    //   page: "hexabot",
+    // },
+    // {
+    //   icon: "archive",
+    //   title: "documentCollection",
+    //   description: "descDocumentCollection",
+    //   page: "document-collection-overview",
+    // },
     {
       icon: "archive",
-      title: "documentCollection",
-      description: "descDocumentCollection",
+      title: "documentLibrary",
+      description: "descDocumentLibrary",
       page: "document-collection-overview",
     },
-    {
-      icon: "fileCheck",
-      title: "contractReviewer",
-      description: "descContractReviewer",
-      page: "contract-reviewer-overview",
-    },
-    {
-      icon: "data",
-      title: "datasets",
-      description: "descDatasets",
-      page: "datasets",
-    },
+    // {
+    //   icon: "fileCheck",
+    //   title: "contractReviewer",
+    //   description: "descContractReviewer",
+    //   page: "contract-reviewer-overview",
+    // },
+    // {
+    //   icon: "data",
+    //   title: "datasets",
+    //   description: "descDatasets",
+    //   page: "datasets",
+    // },
   ];
 
   let docAiCard = $state([]);
@@ -670,6 +676,7 @@ All Rights Reserved
 
       await getChartAction(totalBots, "hexabot");
       await getChartAction(totalCollections, "documentCollection");
+      await getChartAction(totalCollections, "documentLibrary");
       await getChartAction(totalDataset, "datasets");
 
       chartReady = true;
@@ -768,8 +775,8 @@ All Rights Reserved
     //   triggerLoading(false);
     // }, 3000);
     // await getCompanyType();
-    getActionItems();
-    getCountPerModulePerMonth();
+    // getActionItems();
+    // getCountPerModulePerMonth();
     getFristTime();
     CheckSetup();
   });
