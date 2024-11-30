@@ -633,7 +633,7 @@ All Rights Reserved
             Headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (response.status !== 200) {
@@ -674,20 +674,20 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      const response = await call.call("client-dashboard", "get-bots", {
+      const resp = await call.call("client-dashboard", "get-bot-by-name", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          page: 1,
-          page_size: 10,
+          name: "Bakrie’s Assistant",
         },
         Headers: {
-          Authorization: "Bearer " + token,
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       });
 
-      if (response.result.data.length > 0) {
-        console.log("Bots already exist");
+      if (resp.status !== 404) {
+        console.log(resp);
+        // gettingData = false;
         return;
       }
 
@@ -747,7 +747,7 @@ All Rights Reserved
 
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data.attributes.company_industry)
+        parseInt(response.result.data.attributes.company_industry),
       );
 
       // await checkLibrariesIndustry(response.result.data.attributes.company_industry);
@@ -998,11 +998,11 @@ All Rights Reserved
     toggleSidebarLargeClosed(
       localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024
         ? true
-        : false
+        : false,
     );
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));

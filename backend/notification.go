@@ -75,7 +75,7 @@ func GetNotifications(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 			"page":     page,
 			"pageSize": page_size,
 		},
-		"sort": "updatedAt:asc",
+		"sort": "updatedAt:desc",
 	})
 
 	if err != nil {
@@ -144,6 +144,7 @@ func GetNotificationsUnread(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 			"page":     page,
 			"pageSize": page_size,
 		},
+		"sort": "updatedAt:desc",
 	})
 
 	if err != nil {
@@ -212,6 +213,7 @@ func GetNotificationsRead(ctx *config.ConfigContext) (int, U.Dict, *config.Retur
 			"page":     page,
 			"pageSize": page_size,
 		},
+		"sort": "updatedAt:desc",
 	})
 
 	if err != nil {
