@@ -1549,9 +1549,11 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 						if idDoc, ok := idsDoc.GetFloat64(i); ok {
 							for i := 0; i < len(knowledge_ids); i++ {
 								if knowledge_id, ok := knowledge_ids.GetString(i); ok {
+									idDocStr := strconv.Itoa(int(idDoc))
+
 									dataSend := U.Dict{
 										"knowledge_id": knowledge_id,
-										"document_id":  idDoc,
+										"document_id":  idDocStr,
 									}
 
 									http := requests.NewHttp(U.Dict{
@@ -1849,9 +1851,11 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 		if idDoc, ok := idsDoc.GetFloat64(i); ok {
 			for i := 0; i < len(knowledge_ids); i++ {
 				if knowledge_id, ok := knowledge_ids.GetString(i); ok {
+					idDocStr := strconv.Itoa(int(idDoc))
+
 					dataSend := U.Dict{
 						"knowledge_id": knowledge_id,
-						"document_id":  idDoc,
+						"document_id":  idDocStr,
 					}
 
 					http := requests.NewHttp(U.Dict{
@@ -2036,9 +2040,11 @@ func DeleteLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 					for i := 0; i < len(knowledge_ids); i++ {
 						if knowledge_id, ok := knowledge_ids.GetString(i); ok {
+							idDocStr := strconv.Itoa(int(id))
+
 							dataSend := U.Dict{
 								"knowledge_id": knowledge_id,
-								"document_id":  id,
+								"document_id":  idDocStr,
 							}
 
 							http := requests.NewHttp(U.Dict{
