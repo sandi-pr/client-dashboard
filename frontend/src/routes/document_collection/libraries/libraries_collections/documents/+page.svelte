@@ -17,6 +17,7 @@
     triggerLoading,
     UploadFile,
     check,
+    onProgress,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import {
@@ -280,7 +281,7 @@
           if (response.status !== 200) {
             if (response && response.errors) {
               const errors = response.errors.flatMap((error) =>
-                error.errors.flatMap((subError) => subError.message),
+                error.errors.flatMap((subError) => subError.message)
               );
 
               if (errors.includes("This attribute must be unique")) {
@@ -357,7 +358,7 @@
           .split(",")
           .map((type) => type.trim().replace(".", "\\."))
           .join("|") + "$",
-        "i",
+        "i"
       );
 
       console.log(fileTypeRegex.test(file.name));
@@ -578,7 +579,7 @@
               <div class="hidden md:block">{$_("delete")}</div>
             </Button>
             <Button
-              disabled={!check("documentAi.documentLibrary.document:create")}
+              disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
               on:click={() => {
                 addDocumentsModal = true;
                 tags = [];

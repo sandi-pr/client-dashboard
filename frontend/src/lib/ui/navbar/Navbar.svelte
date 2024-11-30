@@ -71,14 +71,14 @@
           ></span>
         {/if}
       </div>
-      <Button
+      <!-- <Button
         color="primary"
         icon={StarsIcon}
         spaceY="mt-0"
         funcButton={() => {
           changeShowAI();
         }}
-      />
+      /> -->
     </div>
   </div>
 </div>

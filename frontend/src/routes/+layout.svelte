@@ -159,63 +159,63 @@ All Rights Reserved
 
   const getModules = async () => {
     return [
-      {
-        icon: "briefcase",
-        name: "crmOverview",
-        children: [
-          // {
-          //   href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-          //   name: "overview",
-          // },
-          {
-            icon: "user",
-            href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
-            name: "persons",
-          },
-          {
-            icon: "faceHappy",
-            href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
-            name: "hR",
-          },
-          {
-            icon: "package",
-            href: isFrontend
-              ? "/crm/product_service"
-              : await call.getPage("client-dashboard", "crm-product-service"),
-            name: "product&Services",
-          },
-          // {
-          //   href: isFrontend
-          //     ? "/crm/categories"
-          //     : await call.getPage("client-dashboard", "crm-categories"),
-          //   name: "categories",
-          // },
-          {
-            icon: "receipt",
-            href: isFrontend
-              ? "/crm/order_invoice"
-              : await call.getPage("client-dashboard", "crm-order-invoice"),
-            name: "order&Invoice",
-          },
-          {
-            icon: "calendar",
-            href: isFrontend
-              ? "/crm/calendar"
-              : await call.getPage("client-dashboard", "crm-calendar"),
-            name: "calendar",
-          },
-        ],
-      },
+      // {
+      //   icon: "briefcase",
+      //   name: "crmOverview",
+      //   children: [
+      //     // {
+      //     //   href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+      //     //   name: "overview",
+      //     // },
+      //     {
+      //       icon: "user",
+      //       href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
+      //       name: "persons",
+      //     },
+      //     {
+      //       icon: "faceHappy",
+      //       href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
+      //       name: "hR",
+      //     },
+      //     {
+      //       icon: "package",
+      //       href: isFrontend
+      //         ? "/crm/product_service"
+      //         : await call.getPage("client-dashboard", "crm-product-service"),
+      //       name: "product&Services",
+      //     },
+      //     // {
+      //     //   href: isFrontend
+      //     //     ? "/crm/categories"
+      //     //     : await call.getPage("client-dashboard", "crm-categories"),
+      //     //   name: "categories",
+      //     // },
+      //     {
+      //       icon: "receipt",
+      //       href: isFrontend
+      //         ? "/crm/order_invoice"
+      //         : await call.getPage("client-dashboard", "crm-order-invoice"),
+      //       name: "order&Invoice",
+      //     },
+      //     {
+      //       icon: "calendar",
+      //       href: isFrontend
+      //         ? "/crm/calendar"
+      //         : await call.getPage("client-dashboard", "crm-calendar"),
+      //       name: "calendar",
+      //     },
+      //   ],
+      // },
       // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
       {
         icon: "stars",
         name: "aiManagement",
         children: [
-          {
-            icon: "messageChat",
-            name: "hexabot",
-            href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-          },
+          // {
+          //   icon: "messageChat",
+          //   name: "hexabot",
+          //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+          // },
           {
             icon: "archive",
             name: "documentLibrary",
@@ -237,11 +237,11 @@ All Rights Reserved
           //     ? "/contract_reviewer"
           //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
           // },
-          {
-            icon: "data",
-            name: "datasets",
-            href: isFrontend ? "/datasets" : await call.getPage("client-dashboard", "datasets"),
-          },
+          // {
+          //   icon: "data",
+          //   name: "datasets",
+          //   href: isFrontend ? "/datasets" : await call.getPage("client-dashboard", "datasets"),
+          // },
         ],
       },
       // {
@@ -633,7 +633,7 @@ All Rights Reserved
             Headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
 
         if (response.status !== 200) {
@@ -747,7 +747,7 @@ All Rights Reserved
 
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data.attributes.company_industry),
+        parseInt(response.result.data.attributes.company_industry)
       );
 
       // await checkLibrariesIndustry(response.result.data.attributes.company_industry);
@@ -998,11 +998,11 @@ All Rights Reserved
     toggleSidebarLargeClosed(
       localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024
         ? true
-        : false,
+        : false
     );
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));

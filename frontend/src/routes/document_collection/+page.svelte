@@ -1,7 +1,7 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
   - Taqie Fadlillah <taqief@hexacode.org>
@@ -52,7 +52,7 @@ All Rights Reserved
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
 
   import { call } from "$lib";
-    import { on } from "svelte/events";
+  import { on } from "svelte/events";
 
   // let { showAI = true } = $props();
   // let showAI = $state(false);
@@ -651,12 +651,12 @@ All Rights Reserved
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
           earlyDateCurrentMonth.getMonth() - 1,
-          1,
+          1
         );
         lastDateCurrentMonth = new Date(
           lastDateCurrentMonth.getFullYear(),
           lastDateCurrentMonth.getMonth(),
-          0,
+          0
         );
       }
 
@@ -703,6 +703,15 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    if (
+      typeof window !== "undefined" &&
+      window.document !== null &&
+      window.localStorage.getItem("libraryIdWebchatBakrie")
+    ) {
+      const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
+      const redirectUrl = `document_collection/libraries/libraries_collections?libraryId=${libraryIdWebchatBakrie}`;
+      window.location.replace(redirectUrl);
+    }
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
       return;
@@ -822,7 +831,12 @@ All Rights Reserved
       {#if !attributeNotUnique}
         <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
       {:else}
-        <Input id="error" color="red" bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+        <Input
+          id="error"
+          color="red"
+          bind:value={tmpCollectionName}
+          placeholder={$_("whatIsYourLibraryTitle")}
+        />
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyExist")}</span>
         </Helper>
@@ -849,7 +863,12 @@ All Rights Reserved
       {#if !attributeNotUnique}
         <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
       {:else}
-        <Input id="error" color="red" bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+        <Input
+          id="error"
+          color="red"
+          bind:value={tmpCollectionName}
+          placeholder={$_("whatIsYourLibraryTitle")}
+        />
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyExist")}</span>
         </Helper>
