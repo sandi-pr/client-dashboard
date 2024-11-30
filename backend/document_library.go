@@ -20,8 +20,10 @@ import (
 	"strings"
 	"time"
 
+	"gitlab.hexacode.org/go-libs/cr3call"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
+	"gitlab.hexacode.org/go-libs/requests"
 	"gitlab.hexacode.org/go-libs/strapi"
 )
 
@@ -443,15 +445,15 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 						status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
 
 						if err != nil {
-							fmt.Println(err)
+							fmt.Printf("Error during Strapi.Create: %v\n", err)
 							return ctx.Error(500, "Internal Server Error")
 						}
 
 						if status != 200 {
-							fmt.Println(status)
 
 							if err2, ok := documentLibrary.GetDict("error"); ok {
 								if message, ok := err2.GetString("message"); ok {
+									fmt.Printf("Error message from Strapi response: %s\n", message)
 									return ctx.Error(status, string(message))
 								}
 							}
@@ -459,14 +461,43 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 							return ctx.Error(500, "Internal Server Error")
 						}
 
-						// 	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-						// 	// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
-						// 	// 	Headers: U.Dict{
-						// 	// 		"Authorization": bearer,
-						// 	// 	},
-						// 	// }, false)
+						bot_ids, err := findBotIdByCollectionId(int64(parent_id), Strapi)
+
+						if err != nil {
+							fmt.Printf("Error in findBotIdByCollectionId: %v\n", err)
+							return ctx.Error(500, "Internal Server Error")
+						}
+
+						if len(bot_ids) > 0 {
+							for i := 0; i < len(bot_ids); i++ {
+								if bot_id, ok := bot_ids.GetFloat64(i); ok {
+									bot_idStr := strconv.Itoa(int(bot_id))
+
+									CR3 := cr3call.New(MODULE_MANAGER_URL)
+									resp, err := CR3.Call("hexa-ai-rag", "add-document-by-bot-id-params", cr3call.CR3CallData{
+										Headers: U.Dict{
+											"Authorization": bearer,
+										},
+										Params: U.Dict{
+											"id": bot_idStr,
+										},
+									}, false)
+
+									fmt.Printf("Debug: CR3.Call response: %v\n", resp)
+									if err != nil {
+										fmt.Printf("Error during CR3.Call for bot ID %s: %v\n", bot_idStr, err)
+										return ctx.Error(500, "Internal Server Error")
+									}
+								} else {
+									fmt.Printf("Error: Failed to get bot_id at index %d\n", i)
+								}
+							}
+						} else {
+							fmt.Println("Debug: No bot IDs found for collection")
+						}
 
 						return 200, documentLibrary, nil
+
 					}
 				}
 			}
@@ -1507,8 +1538,41 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 					// 	return ctx.Error(500, "Internal Server Error")
 					// }
 
+					knowledge_ids, err := findKnowledgeIdBotByCollectionId(int64(idCollection), Strapi)
+
+					if err != nil {
+						fmt.Println(err)
+						return ctx.Error(500, "Internal Server Error")
+					}
+
 					for i := 0; i < len(idsDoc); i++ {
 						if idDoc, ok := idsDoc.GetFloat64(i); ok {
+							for i := 0; i < len(knowledge_ids); i++ {
+								if knowledge_id, ok := knowledge_ids.GetString(i); ok {
+									dataSend := U.Dict{
+										"knowledge_id": knowledge_id,
+										"document_id":  idDoc,
+									}
+
+									http := requests.NewHttp(U.Dict{
+										"Content-type": "application/json",
+									})
+
+									response, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+
+									var deleteResponse DeleteResponse
+									err = json.Unmarshal(response.Body, &deleteResponse)
+									if err != nil {
+										fmt.Println(err)
+										return ctx.Error(500, "Internal Server Error")
+									}
+
+									fmt.Println("delete response ", knowledge_id, deleteResponse)
+								} else {
+									fmt.Println("failed to get knowledge_id")
+								}
+							}
+
 							status, document, err := Strapi.Delete("document-library-table", int64(idDoc))
 							if err != nil {
 								fmt.Println(err)
@@ -1774,8 +1838,41 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 	// 	return ctx.Error(500, "Internal Server Error")
 	// }
 
+	knowledge_ids, err := findKnowledgeIdBotByCollectionId(int64(id), Strapi)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	for i := 0; i < len(idsDoc); i++ {
 		if idDoc, ok := idsDoc.GetFloat64(i); ok {
+			for i := 0; i < len(knowledge_ids); i++ {
+				if knowledge_id, ok := knowledge_ids.GetString(i); ok {
+					dataSend := U.Dict{
+						"knowledge_id": knowledge_id,
+						"document_id":  idDoc,
+					}
+
+					http := requests.NewHttp(U.Dict{
+						"Content-type": "application/json",
+					})
+
+					response, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+
+					var deleteResponse DeleteResponse
+					err = json.Unmarshal(response.Body, &deleteResponse)
+					if err != nil {
+						fmt.Println(err)
+						return ctx.Error(500, "Internal Server Error")
+					}
+
+					fmt.Println("delete response ", knowledge_id, deleteResponse)
+				} else {
+					fmt.Println("failed to get knowledge_id")
+				}
+			}
+
 			status, document, err := Strapi.Delete("document-library-table", int64(idDoc))
 			if err != nil {
 				fmt.Println(err)
@@ -1928,6 +2025,49 @@ func DeleteLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	if list, ok := document.GetList("data"); ok {
 		if dict, ok := list.GetDict(0); ok {
 			if attributes, ok := dict.GetDict("attributes"); ok {
+				if parent_id, ok := attributes.GetFloat64("parent_id"); ok {
+					fmt.Println("found parent_id")
+					knowledge_ids, err := findKnowledgeIdBotByCollectionId(int64(parent_id), Strapi)
+
+					if err != nil {
+						fmt.Println(err)
+						return ctx.Error(500, "Internal Server Error")
+					}
+
+					for i := 0; i < len(knowledge_ids); i++ {
+						if knowledge_id, ok := knowledge_ids.GetString(i); ok {
+							dataSend := U.Dict{
+								"knowledge_id": knowledge_id,
+								"document_id":  id,
+							}
+
+							http := requests.NewHttp(U.Dict{
+								"Content-type": "application/json",
+							})
+
+							response, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+
+							var deleteResponse DeleteResponse
+							err = json.Unmarshal(response.Body, &deleteResponse)
+							if err != nil {
+								fmt.Println(err)
+								return ctx.Error(500, "Internal Server Error")
+							}
+
+							fmt.Println("delete response ", knowledge_id, deleteResponse)
+						} else {
+							fmt.Println("failed to get knowledge_id")
+						}
+					}
+				}
+
+				parent_id2, ok := attributes.GetFloat64("parent_id")
+
+				if !ok {
+					fmt.Println("not found parent_id", parent_id2)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
 				if path, ok := attributes.GetString("path"); ok {
 					find := true
 
@@ -2442,4 +2582,166 @@ func FindCreateLibraryCollectionByName(ctx *config.ConfigContext) (int, U.Dict, 
 	}
 
 	return ctx.Error(500, "Internal Server Error")
+}
+
+func findKnowledgeIdBotByCollectionId(collection_id int64, Strapi *strapi.StrapiClassic) (U.List, error) {
+	page := 1
+
+	var knowledgeIds U.List
+
+	for {
+		status, data, err := Strapi.Find("hexabot-table", U.Dict{
+			"filters": U.Dict{
+				"collection_id": U.Dict{
+					"$containsi": collection_id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"populate": "*",
+			"sort":     "updatedAt:desc",
+		})
+
+		if err != nil {
+			fmt.Printf("Error during Strapi.Find on page %d: %v\n", page, err)
+			return U.List{}, err
+		}
+
+		if status != 200 {
+			fmt.Printf("Error: Non-200 status from Strapi.Find: %d\n", status)
+			fmt.Printf("Data received: %v\n", data)
+			return U.List{}, fmt.Errorf("unexpected status: %d", status)
+		}
+
+		list, ok := data.GetList("data")
+		if !ok {
+			fmt.Printf("Error: Unable to retrieve 'data' list from response on page %d\n", page)
+			return U.List{}, fmt.Errorf("failed to parse response data")
+		}
+
+		if len(list) == 0 {
+			fmt.Println("Debug: No more data to process, exiting loop")
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			if dict, ok := list.GetDict(i); ok {
+				if attributes, ok := dict.GetDict("attributes"); ok {
+					knowledge_id, ok := attributes.GetString("bot_id")
+
+					if !ok {
+						fmt.Printf("Error: Missing 'knowledge_id' field in item %d\n", i+1)
+						return U.List{}, fmt.Errorf("missing 'knowledge_id' in data")
+					}
+
+					if collection_ids, ok := attributes.GetString("collection_id"); ok {
+						collectionStrings := strings.Split(string(collection_ids), ",")
+
+						for _, collectionStr := range collectionStrings {
+							id, err := strconv.Atoi(strings.TrimSpace(collectionStr))
+							if err != nil {
+								fmt.Printf("Error converting '%s' to int: %v\n", collectionStr, err)
+								continue
+							}
+
+							if id == int(collection_id) {
+								knowledgeIds = append(knowledgeIds, knowledge_id)
+							}
+						}
+					}
+				}
+			}
+		}
+
+		page++
+	}
+
+	return knowledgeIds, nil
+}
+
+func findBotIdByCollectionId(collection_id int64, Strapi *strapi.StrapiClassic) (U.List, error) {
+	page := 1
+	var botIds U.List
+
+	for {
+		status, data, err := Strapi.Find("hexabot-table", U.Dict{
+			"filters": U.Dict{
+				"collection_id": U.Dict{
+					"$containsi": collection_id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"populate": "*",
+			"sort":     "updatedAt:desc",
+		})
+
+		if err != nil {
+			fmt.Printf("Error during Strapi.Find on page %d: %v\n", page, err)
+			return U.List{}, err
+		}
+
+		if status != 200 {
+			fmt.Printf("Error: Non-200 status from Strapi.Find: %d\n", status)
+			fmt.Printf("Data received: %v\n", data)
+			return U.List{}, fmt.Errorf("unexpected status: %d", status)
+		}
+
+		list, ok := data.GetList("data")
+		if !ok {
+			fmt.Printf("Error: Unable to retrieve 'data' list from response on page %d\n", page)
+			return U.List{}, fmt.Errorf("failed to parse response data")
+		}
+
+		if len(list) == 0 {
+			fmt.Println("Debug: No more data to process, exiting loop")
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			if dict, ok := list.GetDict(i); ok {
+				botId, ok := dict.GetFloat64("id")
+				if !ok {
+					fmt.Printf("Error: Missing 'id' field in item %d\n", i+1)
+					return U.List{}, fmt.Errorf("missing 'id' in data")
+				}
+
+				if attributes, ok := dict.GetDict("attributes"); ok {
+					if collection_ids, ok := attributes.GetString("collection_id"); ok {
+						collectionStrings := strings.Split(string(collection_ids), ",")
+
+						for _, collectionStr := range collectionStrings {
+							id, err := strconv.Atoi(strings.TrimSpace(collectionStr))
+							if err != nil {
+								fmt.Printf("Error converting '%s' to int: %v\n", collectionStr, err)
+								continue
+							}
+
+							if id == int(collection_id) {
+								botIds = append(botIds, botId)
+							}
+						}
+					} else {
+						fmt.Println("Debug: 'collection_id' not found in attributes")
+					}
+				} else {
+					fmt.Println("Debug: 'attributes' not found in item")
+				}
+			} else {
+				fmt.Printf("Error: Item %d is not a dictionary\n", i+1)
+			}
+		}
+
+		page++
+	}
+
+	return botIds, nil
+}
+
+type DeleteResponse struct {
+	DocumentId string `json:"document_id"`
 }

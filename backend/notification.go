@@ -75,6 +75,7 @@ func GetNotifications(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 			"page":     page,
 			"pageSize": page_size,
 		},
+		"sort": "updatedAt:asc",
 	})
 
 	if err != nil {
