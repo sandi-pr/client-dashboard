@@ -129,7 +129,7 @@ All Rights Reserved
       if (response.status !== 200) {
         if (response && response.errors) {
           const errors = response.errors.flatMap((error) =>
-            error.errors.flatMap((subError) => subError.message)
+            error.errors.flatMap((subError) => subError.message),
           );
 
           if (errors.includes("This attribute must be unique")) {
@@ -275,7 +275,7 @@ All Rights Reserved
         if (response.status !== 200) {
           if (response && response.errors) {
             const errors = response.errors.flatMap((error) =>
-              error.errors.flatMap((subError) => subError.message)
+              error.errors.flatMap((subError) => subError.message),
             );
 
             if (errors.includes("This attribute must be unique")) {
@@ -382,6 +382,15 @@ All Rights Reserved
 
   onMount(async () => {
     // await getStatusRag();
+    if (
+      typeof window !== "undefined" &&
+      window.document !== null &&
+      window.localStorage.getItem("libraryIdWebchatBakrie")
+    ) {
+      const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
+      const redirectUrl = `document_library/libraries/collections/?libraryId=${libraryIdWebchatBakrie}`;
+      window.location.replace(redirectUrl);
+    }
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
       return;
@@ -643,7 +652,12 @@ All Rights Reserved
       {#if !attributeNotUnique}
         <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
       {:else}
-        <Input id="error" color="red" bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+        <Input
+          id="error"
+          color="red"
+          bind:value={tmpCollectionName}
+          placeholder={$_("whatIsYourLibraryTitle")}
+        />
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyExist")}</span>
         </Helper>
@@ -670,7 +684,12 @@ All Rights Reserved
       {#if !attributeNotUnique}
         <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
       {:else}
-        <Input id="error" color="red" bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
+        <Input
+          id="error"
+          color="red"
+          bind:value={tmpCollectionName}
+          placeholder={$_("whatIsYourLibraryTitle")}
+        />
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyExist")}</span>
         </Helper>
