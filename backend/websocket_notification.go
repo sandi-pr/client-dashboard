@@ -67,7 +67,7 @@ func (ws *NotificationWebSocket) SendNotification(message NotificationMessage) {
 			}
 		}
 	} else {
-		if strings.Contains(message.Content, "ready") {
+		if strings.Contains(message.Title, "ready") {
 			fmt.Println("ready notification")
 		} else {
 			err := ws.SaveNotification(message)
