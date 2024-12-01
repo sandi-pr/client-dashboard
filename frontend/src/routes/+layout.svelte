@@ -73,7 +73,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://localhost")
+    ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);

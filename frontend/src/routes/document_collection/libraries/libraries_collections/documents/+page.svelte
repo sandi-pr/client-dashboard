@@ -1,10 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, Alert, Select, P, Helper } from "flowbite-svelte";
+  import { Button, Modal, Input, Alert, Select, P, Helper, Card } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import { format } from "date-fns";
+  import { format, parse } from "date-fns";
 
   import {
     Typography,
@@ -27,22 +27,26 @@
     InfoCircleSolid,
   } from "flowbite-svelte-icons";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
+  import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import XCloseIcon from "$lib/icon/x-close.svelte";
 
   let collectionId;
+  let libraryId;
   let inputRef;
   let checkAllState = $state(false);
   let addDocumentsModal = $state(false);
   let addCategoriesModal = $state(false);
   let popupModal = $state(false);
+  let updateModal = $state(false);
   let deleteCategoriesModal = $state(false);
   let dropdownOpen = $state(false);
   let fileNotSupport = $state(false);
   let buttonDisabled = $state(false);
   let buttonDisabledDelete = $state(false);
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
+  let paginationLibrary = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
   let tmpDocumentType = $state("Documents");
@@ -53,6 +57,7 @@
   let files = $state([]);
   let attributeNotUnique = $state(false);
   let checkboxDelete = $state(false);
+  let checkboxUpdate = $state(false);
   let tmpId = $state(null);
 
   let collectionDatas = $state({
@@ -61,6 +66,8 @@
     createdAt: "",
   });
   let collectionListDatas = $state([]);
+  let collectionList = $state([]);
+  let tmpSelectedCollection = $state(null);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -515,6 +522,89 @@
     }
   }
 
+  async function updateDocument() {
+    let datasUpdate = collectionListDatas.filter((data) => data.checked === true);
+    updateModal = false;
+    triggerLoading(true);
+
+    for (const data of datasUpdate) {
+      const id = data.id;
+      let token = localStorage.getItem("token");
+      if (token !== null) {
+        let response;
+        response = await $call.call("client-dashboard", "update-library-document-parent", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            document_id: parseInt(id),
+            parent_id: parseInt(tmpSelectedCollection.id),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        triggerLoading(false);
+        console.log(response);
+        triggerToast("updated");
+        getDocuments();
+      }
+    }
+  }
+
+  async function getCollections() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-library-collections", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: paginationLibrary.page,
+          page_size: paginationLibrary.pageSize,
+          parent_id: parseInt(libraryId),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      console.log("get collections", response);
+
+      paginationLibrary = response.result.meta.pagination;
+
+      let promise = response.result.data.map(async (collection) => {
+        return {
+          id: collection.id,
+          collectionName: collection.attributes.name,
+          description: collection.attributes.meta.description,
+          type: collection.attributes.type,
+        };
+      });
+
+      collectionList = await Promise.all(promise);
+
+      console.log("cek collection", collectionList);
+    }
+  }
+  
+  const selectCollection = (item) => {
+    tmpSelectedCollection = item;
+
+    console.log("selected collection", tmpSelectedCollection);
+  };
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -522,10 +612,12 @@
     }
     const unsubscribe = page.subscribe(async ($page) => {
       collectionId = $page.url.searchParams.get("collectionId");
+      libraryId = $page.url.searchParams.get("libraryId");
       if (collectionId === null) {
         goto(await $call.getPage("client-dashboard", "document-library"));
         return;
       }
+      getCollections();
       getDocuments();
     });
     return () => unsubscribe();
@@ -586,6 +678,19 @@
             >
               <Trash01Icon svgClass="w-5 h-5" />
               <div class="hidden md:block">{$_("delete")}</div>
+            </Button>
+            <Button
+              on:click={() => {
+                updateModal = true;
+                checkboxUpdate = true;
+                // id
+              }}
+              disabled={buttonDisabledDelete}
+              class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
+              outline
+            >
+              <MoveIcon svgClass="w-5 h-5" />
+              <div class="hidden md:block">{$_("move")}</div>
             </Button>
             <Button
               disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
@@ -899,6 +1004,71 @@
     >
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
+</Modal>
+
+<Modal title={$_("chooseCollection")} bind:open={updateModal}>
+  <div class="flex flex-col justify-center gap-4">
+    <div class="flex flex-col justify-center mt-3 gap-3">
+      <div class="flex text-start">
+        <P class="text-tertiary-light dark:text-tertiary-dark text-base font-normal"
+          >{$_("recentCollections")}</P
+        >
+      </div>
+
+      <div class="flex flex-col gap-6">
+        {#each collectionList as item, index (item)}
+          <Card
+            class="{tmpSelectedCollection === item
+              ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
+              : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 cursor-pointer gap-3"
+            size="xl"
+            on:click={() => selectCollection(item)}
+          >
+            <div class="flex flex-col gap-0.5">
+              <P
+                weight="semibold"
+                class={`${tmpSelectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}
+                >{item.collectionName}</P
+              >
+              <P
+                size="xs"
+                class={`${tmpSelectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}
+                >{item.description}</P
+              >
+            </div>
+          </Card>
+        {/each}
+
+        <div class="flex justify-between gap-4">
+          <Button
+            disabled={paginationLibrary.page === 1}
+            color="light"
+            on:click={() => {
+              paginationLibrary.page = paginationLibrary.page - 1;
+              getCollections();
+            }}
+            class="w-full"
+            >{$_("previous")}</Button
+          >
+          <Button
+            disabled={paginationLibrary.page === paginationLibrary.pageCount}
+            color="light"
+            on:click={() => {
+              paginationLibrary.page = paginationLibrary.page + 1;
+              getCollections();
+            }}
+            class="w-full"
+            >{$_("next")}</Button
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button on:click={updateDocument} class="w-full" disabled={!tmpSelectedCollection}
+      >{$_("move")}</Button
+    >
+  </svelte:fragment>
 </Modal>
 
 <Modal bind:open={deleteCategoriesModal} size="xs" autoclose>

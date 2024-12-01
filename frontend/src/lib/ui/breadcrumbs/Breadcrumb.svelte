@@ -84,7 +84,7 @@
       activeUrlModified = cleanActiveUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
       activeUrlArray = activeUrlModified
         .split("/")
-        .filter((url) => url !== "client-dashboard" && url !== "libraries")
+        .filter((url) => url !== "client-dashboard")
         .filter(Boolean)
         .map((url, index, array) => {
           let accumulatedPath = "";
