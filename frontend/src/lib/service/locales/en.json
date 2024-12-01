@@ -773,5 +773,6 @@
   "changeAvailabilitySlots": "Change availability slots",
   "createNewDocumentsToProject": "Create new documents to project",
   "nameAlreadyExist": "Name already exists",
-  "YouDontHaveAnyBotsDeploymentOngoing": "You don't have any bots deployment ongoing"
+  "YouDontHaveAnyBotsDeploymentOngoing": "You don't have any bots deployment ongoing",
+  "move": "Move"
 }

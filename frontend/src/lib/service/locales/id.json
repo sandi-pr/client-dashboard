@@ -773,5 +773,6 @@
   "productsServices": "Produk & Layanan",
   "createNewDocumentsToProject": "Buat dokumen baru ke proyek",
   "nameAlreadyExist": "Nama sudah ada",
-  "YouDontHaveAnyBotsDeploymentOngoing": "Anda tidak memiliki bot yang sedang di-deploy"
+  "YouDontHaveAnyBotsDeploymentOngoing": "Anda tidak memiliki bot yang sedang di-deploy",
+  "move": "Pindahkan"
 }
