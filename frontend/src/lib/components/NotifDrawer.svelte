@@ -27,6 +27,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { goto } from "$app/navigation";
+  import Notif from "./Notif.svelte";
 
   let { innerWidth, changeShowNotif } = $props();
 
@@ -198,72 +199,11 @@ All Rights Reserved
           </div>
         </div>
       </div>
-      <TabBar {tabDatas} {changeTabbar} />
+      <!-- <TabBar {tabDatas} {changeTabbar} /> -->
     </div>
     <div class="flex w-full flex-col h-screen">
       {#if tabDatas.selected === "All"}
-        <div class="p-4">
-          {#if $notifications.length === 0}
-            <Typography
-              preset="Text sm/Medium"
-              text="No Notification"
-              color="secondary"
-              class="w-full text-center"
-            />
-          {:else}
-            {#each $notifications as data}
-              <Toast
-                align={false}
-                divClass="w-full p-4 text-gray-500 bg-white shadow dark:text-gray-400 dark:bg-gray-800 gap-3"
-              >
-                <svelte:fragment slot="icon">
-                  <InfoCircleIcon svgClass="w-6 h-6" />
-                </svelte:fragment>
-
-                <span class="font-semibold text-gray-900 dark:text-white"
-                  >{data.attributes.title}</span
-                >
-                <div class="mt-1 gap-2">
-                  {#if data.attributes.type.includes("progress")}
-                    <Progressbar
-                      progress={data.attributes.content.replace("%", "")}
-                      size="h-4"
-                      labelInside
-                    />
-                  {:else}
-                    <div class="mb-2 text-sm font-normal">
-                      {data.attributes.content}
-                    </div>
-                  {/if}
-                  <div class="flex gap-3 pt-2">
-                    {#if !data.attributes.read}
-                      <button
-                        onclick={async () => {
-                          await markAsRead(data.id);
-                        }}
-                        class="text-sm font-semibold text-fg-button-tertiary-light dark:text-fg-button-tertiary-dark"
-                        >Mark as read</button
-                      >
-                    {/if}
-                    {#if data.attributes.type === "hexabot" && data.attributes.meta && "bot_id" in data.attributes.meta}
-                      <button
-                        onclick={async () => {
-                          goto(
-                            (await $call.getPage("client-dashboard", "hexabot-detail")) +
-                              "?botId=" +
-                              data.attributes.meta.bot_id,
-                          );
-                        }}
-                        class="text-sm font-semibold text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark"
-                        >View detail</button
-                      >
-                    {/if}
-                  </div>
-                </div>
-              </Toast>
-            {/each}
-          {/if}
-        </div>
+        <Notif />
       {:else if tabDatas.selected === "Unread"}
         <div class="p-4">
           {#if $notificationsUnread.length === 0}
