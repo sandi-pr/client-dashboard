@@ -118,6 +118,15 @@
       let link = await $call.getPage("client-dashboard", "document-library-detail");
 
       let promise = response.result.data.map(async (collection) => {
+        const params = new URLSearchParams(window.location.search);
+
+        params.delete("documentId");
+
+        const queryParams = {};
+        for (const [key, value] of params.entries()) {
+          queryParams[key] = value;
+        }
+        const queryString = new URLSearchParams(queryParams).toString();
         return {
           id: collection.id,
           filename: collection.attributes.name,
@@ -129,7 +138,7 @@
           type: collection.attributes.meta.document_type,
           filesize: collection.attributes.meta.file_size,
           createdAt: format(new Date(collection.attributes.createdAt), "yyyy-mm-dd"),
-          href: link + "?documentId=" + collection.id,
+          href: link + "?documentId=" + collection.id + "&" + queryString,
           checked: false,
         };
       });
@@ -281,7 +290,7 @@
           if (response.status !== 200) {
             if (response && response.errors) {
               const errors = response.errors.flatMap((error) =>
-                error.errors.flatMap((subError) => subError.message)
+                error.errors.flatMap((subError) => subError.message),
               );
 
               if (errors.includes("This attribute must be unique")) {
@@ -358,7 +367,7 @@
           .split(",")
           .map((type) => type.trim().replace(".", "\\."))
           .join("|") + "$",
-        "i"
+        "i",
       );
 
       console.log(fileTypeRegex.test(file.name));

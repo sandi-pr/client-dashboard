@@ -79,12 +79,18 @@ export function connectWebSocket(token, isFrontend) {
               : notif
           )
         );
-        if (message.content.includes("100")) {
-          onProgress.set(false);
-        }
+
+        onProgress.set(true);
+
+        // if (message.content.includes("100")) {
+        //   onProgress.set(false);
+        // }
       } else {
         if (message.type === "progress") {
           onProgress.set(true);
+        }
+        if (message.title.includes("ready")) {
+          onProgress.set(false);
         }
         newNotification.update((data) => true);
       }

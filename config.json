@@ -2201,6 +2201,10 @@
                 {
                     "name": "parent_id",
                     "type": "number"
+                },
+                {
+                    "name": "bot_id",
+                    "type": "string"
                 }
             ]
         },
@@ -2496,6 +2500,28 @@
                 {
                     "name": "category",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-library-document-parent",
+            "path": "/update-library-document-parent",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateLibraryDocumentParent"
+            },
+            "url_params": [],
+            "params": [
+                {
+                    "name": "document_id",
+                    "type": "number"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
                 }
             ]
         },

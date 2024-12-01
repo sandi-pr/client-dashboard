@@ -67,7 +67,7 @@ func (ws *NotificationWebSocket) SendNotification(message NotificationMessage) {
 			}
 		}
 	} else {
-		if strings.Contains(message.Title, "ready") {
+		if message.Content == "Hexacube has finished analyzing the uploaded documents. You can now proceed to explore the insights!" {
 			fmt.Println("ready notification")
 		} else {
 			err := ws.SaveNotification(message)

@@ -221,6 +221,96 @@ func CreateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 	// 	// 	},
 	// 	// }, false)
 
+	if bot_id, ok := ctx.Params.GetString("bot_id"); ok {
+		// Log parameter bot_id
+		fmt.Println("Received bot_id:", bot_id)
+
+		dataCollection, ok := documentLibrary.GetDict("data")
+		if !ok {
+			fmt.Println("Error: Failed to get data collection")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		collection_id, ok := dataCollection.GetFloat64("id")
+		if !ok {
+			fmt.Println("Error: Failed to get collection_id from data collection")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		collection_idStr := strconv.Itoa(int(collection_id))
+
+		botId, _ := strconv.Atoi(string(bot_id))
+		fmt.Println("Parsed bot_id:", botId)
+
+		status, bot, err := Strapi.Find("hexabot-table", U.Dict{
+			"filters": U.Dict{
+				"id": U.Dict{
+					"$eq": botId,
+				},
+			},
+		})
+
+		if err != nil {
+			fmt.Println("Error finding bot:", err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Printf("Unexpected status code: %d while finding bot\n", status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := bot.GetList("data")
+		if !ok {
+			fmt.Println("Error: Failed to get 'data' list from bot")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) == 0 {
+			fmt.Println("Error: No data found in the list")
+			return ctx.Error(400, "invalid parameters")
+		}
+
+		dict, ok := list.GetDict(0)
+		if !ok {
+			fmt.Println("Error: Failed to get dictionary from list")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		attributes, ok := dict.GetDict("attributes")
+		if !ok {
+			fmt.Println("Error: Failed to get 'attributes' from dictionary")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		collection_ids, ok := attributes.GetString("collection_id")
+		if !ok {
+			fmt.Println("Error: Failed to get 'collection_id' from attributes")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		fmt.Println("Current collection_ids:", collection_ids)
+
+		newCollectionIds := string(collection_ids) + "," + collection_idStr
+		fmt.Println("Updated collection_ids:", newCollectionIds)
+
+		status, _, err = Strapi.Update("hexabot-table", int64(botId), U.Dict{
+			"collection_id": newCollectionIds,
+		})
+
+		if err != nil {
+			fmt.Println("Error updating bot:", err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Printf("Unexpected status code: %d while updating bot\n", status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		fmt.Println("Bot updated successfully")
+	}
+
 	return 200, documentLibrary, nil
 }
 
@@ -1379,6 +1469,55 @@ func UpdateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	}
 
 	status, document2, err := Strapi.Update("document-library-table", int64(id), dataSend)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, document2, nil
+}
+
+func UpdateLibraryDocumentParent(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	document_id, ok := ctx.Params.GetFloat64("document_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	parent_id, ok := ctx.Params.GetFloat64("parent_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, document2, err := Strapi.Update("document-library-table", int64(document_id), U.Dict{
+		"parent_id": parent_id,
+	})
 
 	if err != nil {
 		fmt.Println(err)

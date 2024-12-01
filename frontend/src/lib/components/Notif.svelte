@@ -15,7 +15,39 @@
           class="w-full text-center"
         />
       {:else}
+        <!-- {#if $notifications.length < 1 || $notifications[0].attributes.type.includes("progress")}
+          {#if !$notifications[0].attributes.content.includes("100")}
+            <Toast
+              align={false}
+              dismissable={false}
+              divClass="w-full p-4 text-gray-500 bg-white shadow dark:text-gray-400 dark:bg-gray-800 gap-3"
+            >
+              <svelte:fragment slot="icon">
+                <InfoCircleIcon svgClass="w-6 h-6" />
+              </svelte:fragment>
+
+              <span class="font-semibold text-gray-900 dark:text-white"
+                >{$notifications[0].attributes.title}</span
+              >
+              <div class="mt-1 gap-2">
+                {#if $notifications[0].attributes.type.includes("progress")}
+                  <Progressbar
+                    progress={$notifications[0].attributes.content.replace("%", "")}
+                    size="h-4"
+                    labelInside
+                  />
+                {:else}
+                  <div class="mb-2 text-sm font-normal">
+                    {$notifications[0].attributes.content}
+                  </div>
+                {/if}
+                <div class="flex gap-3 pt-2"></div>
+              </div>
+            </Toast>
+          {/if}
+        {/if} -->
         {#each $notifications as data}
+          <!-- {#if !data.attributes.type.includes("progress")} -->
           <Toast
             align={false}
             dismissable={false}
@@ -64,6 +96,7 @@
               </div>
             </div>
           </Toast>
+          <!-- {/if} -->
         {/each}
       {/if}
     </div>

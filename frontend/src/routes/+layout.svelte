@@ -150,6 +150,9 @@ All Rights Reserved
     if ($showAI) {
       triggerShowAI(false);
     }
+    if (!$showNotif === true) {
+      hasNewNotif = false;
+    }
     triggerShowNotif(!$showNotif);
     triggerReload(true);
     localStorage.setItem("showNotif", $showNotif ? "true" : "false");
@@ -685,8 +688,11 @@ All Rights Reserved
         },
       });
 
+      console.log("------", resp);
+
       if (resp.status !== 404) {
-        console.log(resp);
+        console.log("404", resp);
+        localStorage.setItem("botIdStrapi", resp.result.id);
         // gettingData = false;
         return;
       }
@@ -719,6 +725,8 @@ All Rights Reserved
           console.log(response);
           return;
         }
+
+        localStorage.setItem("botIdStrapi", response.result.data.id);
       } catch (error) {
         console.log(error);
       }
@@ -1020,22 +1028,23 @@ All Rights Reserved
 
   let hasNewNotif = $state(false);
 
-  $effect(() => {
-    if ($notificationsNewCount > 0) {
-      hasNewNotif = true;
-    }
-  });
+  // $effect(() => {
+  //   if ($notificationsNewCount > 0) {
+  //     hasNewNotif = true;
+  //   }
+  // });
 
-  $effect(() => {
-    if ($notificationsNewCount < 1) {
-      hasNewNotif = false;
-    }
-  });
+  // $effect(() => {
+  //   if ($notificationsNewCount < 1) {
+  //     hasNewNotif = false;
+  //   }
+  // });
 
   $effect(async () => {
     if ($newNotification) {
       if (!gettingNewNotif) {
         gettingNewNotif = true;
+        hasNewNotif = true;
         await getNotifications(true);
         await getNotificationsUnread(true);
         newNotification.set(false);

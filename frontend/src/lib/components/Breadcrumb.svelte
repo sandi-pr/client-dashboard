@@ -154,9 +154,10 @@
   let queryString = params.toString() ? "?" + params.toString() : "";
   $: activeUrlArray = activeUrl
     .split("/")
-    // .filter((url) => url !== "")
-    .filter((url) => url !== "" && url !== "libraries") //bakrie
+    .filter((url) => url !== "")
+    // .filter((url) => url !== "" && url !== "libraries") //bakrie
     .map((url, index, array) => {
+      console.log("=================", url);
       accumulatedPath += `/${url}`;
       let href = accumulatedPath;
       if (index === array.length - 1) {
@@ -189,7 +190,13 @@
             tabindex="0"
             role="button"
             on:click={() => {
-              window.location = item.href;
+              const params = new URLSearchParams(window.location.search);
+              const queryParams = {};
+              for (const [key, value] of params.entries()) {
+                queryParams[key] = value;
+              }
+              console.log(queryParams);
+              // window.location = item.href;
             }}
           >
             {item.name}

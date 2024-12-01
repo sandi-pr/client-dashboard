@@ -62,10 +62,10 @@
 
   onMount(() => {
     updateIsMobile();
-    globalThis.addEventListener('resize', updateIsMobile);
+    globalThis.addEventListener("resize", updateIsMobile);
 
     return () => {
-      globalThis.removeEventListener('resize', updateIsMobile);
+      globalThis.removeEventListener("resize", updateIsMobile);
     };
   });
 
@@ -84,7 +84,7 @@
       activeUrlModified = cleanActiveUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
       activeUrlArray = activeUrlModified
         .split("/")
-        .filter((url) => url !== "client-dashboard")
+        .filter((url) => url !== "client-dashboard" && url !== "libraries")
         .filter(Boolean)
         .map((url, index, array) => {
           let accumulatedPath = "";
@@ -98,7 +98,7 @@
           return { name: url, href: href };
         });
 
-        console.log("activeUrlArray", activeUrlArray);
+      console.log("activeUrlArray", activeUrlArray);
     }
   });
 </script>
@@ -121,10 +121,7 @@
   {#if activeUrl !== "/"}
     {#each activeUrlArray as item, index (item.href)}
       <!-- Conditional rendering for mobile screen -->
-      {#if 
-        isMobile && 
-        (index === 0 || index === activeUrlArray.length - 1)
-      }
+      {#if isMobile && (index === 0 || index === activeUrlArray.length - 1)}
         <li class={"inline-flex items-center"}>
           <ChevronRightIcon svgClass="w-4 h-4 text-fg-senary-light dark:text-fg-senary-dark" />
 
@@ -134,7 +131,13 @@
               disabled={index === activeUrlArray.length - 1}
               class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
               onclick={() => {
-                goto(`${baseUrl}${item.href}`);
+                const params = new URLSearchParams(window.location.search);
+                const queryParams = {};
+                for (const [key, value] of params.entries()) {
+                  queryParams[key] = value;
+                }
+                const queryString = new URLSearchParams(queryParams).toString();
+                goto(`${baseUrl}${item.href}?${queryString}`);
               }}
             >
               {#if detail && title !== null && index === activeUrlArray.length - 1}
@@ -157,7 +160,8 @@
             <span class={spanClass}>...</span>
           </li>
         {/if}
-      {:else if !isMobile} <!-- Render all items for non-mobile screens -->
+      {:else if !isMobile}
+        <!-- Render all items for non-mobile screens -->
         <li class={"inline-flex items-center"}>
           <ChevronRightIcon svgClass="w-4 h-4 text-fg-senary-light dark:text-fg-senary-dark" />
 
@@ -167,7 +171,13 @@
               disabled={index === activeUrlArray.length - 1}
               class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
               onclick={() => {
-                goto(`${baseUrl}${item.href}`);
+                const params = new URLSearchParams(window.location.search);
+                const queryParams = {};
+                for (const [key, value] of params.entries()) {
+                  queryParams[key] = value;
+                }
+                const queryString = new URLSearchParams(queryParams).toString();
+                goto(`${baseUrl}${item.href}?${queryString}`);
               }}
             >
               {#if detail && title !== null && index === activeUrlArray.length - 1}

@@ -127,12 +127,21 @@
       let link = await $call.getPage("client-dashboard", "document-library-documents");
 
       let promise = response.result.data.map(async (collection) => {
+        const params = new URLSearchParams(window.location.search);
+
+        params.delete("collectionId");
+
+        const queryParams = {};
+        for (const [key, value] of params.entries()) {
+          queryParams[key] = value;
+        }
+        const queryString = new URLSearchParams(queryParams).toString();
         return {
           id: collection.id,
           collectionName: collection.attributes.name,
           description: collection.attributes.meta.description,
           type: collection.attributes.type,
-          href: link + "?collectionId=" + collection.id,
+          href: link + "?collectionId=" + collection.id + "&" + queryString,
         };
       });
 
@@ -151,6 +160,8 @@
           collection_name: tmpCollectionName,
           description: tmpDescription,
           parent_id: parseInt(libraryId),
+          // bakrie
+          bot_id: localStorage.getItem("botIdStrapi").toString(),
         },
         Headers: {
           Authorization: "Bearer " + token,

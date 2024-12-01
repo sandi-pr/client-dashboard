@@ -20,7 +20,21 @@ export const toastTimeNotAvailable = writable(false);
 export const toastCopyToClipboard = writable(false);
 export let counter = 6;
 
-function triggerToast(target) {
+export const customToasts = writable({});
+
+function triggerToast(target, isCustom = false) {
+
+  console.log(target, isCustom)
+
+  if (isCustom) {
+    customToasts.update((toasts) => {
+      toasts[target] = true;
+      return toasts;
+    });
+    timeout(target, true);
+    return;
+  }
+
   switch (target) {
     case 'created':
       toastCreated.set(true);
@@ -54,8 +68,17 @@ function triggerToast(target) {
   timeout(target);
 }
 
-function timeout(target) {
-  if (--counter > 0) return setTimeout(() => timeout(target), 1000);
+function timeout(target, isCustom = false) {
+  if (--counter > 0) return setTimeout(() => timeout(target, isCustom), 1000);
+
+  if (isCustom) {
+    // Deactivate custom toast
+    customToasts.update((toasts) => {
+      delete toasts[target];
+      return toasts;
+    });
+    return;
+  }
 
   switch (target) {
     case 'created':
