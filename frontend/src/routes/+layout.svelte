@@ -62,7 +62,7 @@ All Rights Reserved
 
   let innerWidth = $state(0);
   let activeUrl = $state($page.url.pathname);
-  let appUrl = "/"; // change to application url to make the breadcrumb not display the application name
+  let appUrl = "/";
   let userData = $state({ username: "", email: "" });
   let authority = $state("");
   let brand = $state("");
