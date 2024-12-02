@@ -1,6 +1,6 @@
 <script>
   import { Button, Card, Indicator, Dropdown, DropdownItem } from "flowbite-svelte";
-  import { Typography, Badge, check, industryData } from "$lib";
+  import { Typography, Badge, check, industryData, bakrieLibraryId } from "$lib";
   import { _ } from "svelte-i18n";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
@@ -24,6 +24,7 @@
     funcSelectCollectionWebchat = () => {},
     dropdownOpen = false,
     funcDetailCollection = () => {},
+    libraryId = null,
   } = $props();
 
   let validCollections =
@@ -34,6 +35,17 @@
         });
       })
       .flat() || [];
+
+  function checkTitle(title) {
+    console.log(libraryId, $bakrieLibraryId);
+    if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
+      console.log(title);
+      return title === "Documents" || title === "Images" || title === "Document Images" || title === "Handwriting" || title === "Document Audio";
+    } else {
+      console.log("false");
+      return false;
+    }
+  }
 
   const getTextStatus = (status) => {
     if (status === "Ready") {
@@ -148,7 +160,7 @@
               >
             {/if}
             {#if check("documentAi.documentLibrary:delete")}
-              {#if !validCollections.includes(collectionName.toLowerCase())}
+              {#if !validCollections.includes(collectionName.toLowerCase()) && !checkTitle(collectionName)}
                 <button
                   class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                   onclick={() => {

@@ -553,6 +553,7 @@
                 funcDetailCollection={() => {
                   goto(collection.href);
                 }}
+                {libraryId}
               />
             {/each}
           </div>
