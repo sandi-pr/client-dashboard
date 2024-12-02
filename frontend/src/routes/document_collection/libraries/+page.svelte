@@ -388,7 +388,7 @@ All Rights Reserved
       window.localStorage.getItem("libraryIdWebchatBakrie")
     ) {
       const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-      const redirectUrl = `document_library/libraries/collections/?libraryId=${libraryIdWebchatBakrie}`;
+      const redirectUrl = `libraries/collections/?libraryId=${libraryIdWebchatBakrie}`;
       window.location.replace(redirectUrl);
     }
     if (check("documentAi.documentLibrary:view") === false) {
