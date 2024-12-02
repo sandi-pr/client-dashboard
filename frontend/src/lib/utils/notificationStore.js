@@ -10,7 +10,7 @@ export let onProgress = writable(false);
 
 export const paginationAll = writable({
   page: 1,
-  page_size: 10,
+  page_size: 25,
   page_count: 0,
   total: 0,
 });

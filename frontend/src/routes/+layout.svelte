@@ -880,7 +880,20 @@ All Rights Reserved
       }
 
       if (response.result.data.length > 0) {
-        notifications.update((data) => [...response.result.data, ...data]);
+        notifications.update((data) => {
+          // Gabungkan data baru dengan data lama
+          const combined = [...response.result.data, ...data];
+
+          // Hilangkan duplikat berdasarkan `id`
+          const unique = combined.filter(
+            (item, index, self) =>
+              index === self.findIndex((t) => t.attributes.title === item.attributes.title),
+          );
+
+          return unique;
+        });
+
+        // notifications.update((data) => [...response.result.data, ...data]);
       }
     } catch (error) {
       console.log(error);
