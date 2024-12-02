@@ -40,7 +40,13 @@
     console.log(libraryId, $bakrieLibraryId);
     if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
       console.log(title);
-      return title === "Documents" || title === "Images" || title === "Document Images" || title === "Handwriting" || title === "Document Audio";
+      return (
+        title === "Documents" ||
+        title === "Images" ||
+        title === "Document Images" ||
+        title === "Handwriting" ||
+        title === "Document Audio"
+      );
     } else {
       console.log("false");
       return false;
@@ -136,42 +142,44 @@
       {/if}
     </button>
     {#if check("documentAi.documentLibrary:edit") || check("documentAi.documentLibrary:delete")}
-      <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-        <Button
-          on:click={() => (dropdownOpen = !dropdownOpen)}
-          class="focus-within:ring-0 !p-0"
-          color="none"
-          size="xs"
-          ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
-        >
-        <div
-          class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-        >
-          <ul class="py-2 grow text-sm">
-            {#if check("documentAi.documentLibrary:edit")}
-              <button
-                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                onclick={() => {
-                  functEdit(), (dropdownOpen = !dropdownOpen);
-                }}
-                >{usedFor === "libraries_collections"
-                  ? $_("editCollectionName")
-                  : $_("editLibraryName")}</button
-              >
-            {/if}
-            {#if check("documentAi.documentLibrary:delete")}
-              {#if !validCollections.includes(collectionName.toLowerCase()) && !checkTitle(collectionName)}
+      {#if !checkTitle(collectionName)}
+        <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+          <Button
+            on:click={() => (dropdownOpen = !dropdownOpen)}
+            class="focus-within:ring-0 !p-0"
+            color="none"
+            size="xs"
+            ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button
+          >
+          <div
+            class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+          >
+            <ul class="py-2 grow text-sm">
+              {#if check("documentAi.documentLibrary:edit")}
                 <button
                   class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                   onclick={() => {
-                    functDelete(), (dropdownOpen = !dropdownOpen);
-                  }}>{$_("delete")}</button
+                    functEdit(), (dropdownOpen = !dropdownOpen);
+                  }}
+                  >{usedFor === "libraries_collections"
+                    ? $_("editCollectionName")
+                    : $_("editLibraryName")}</button
                 >
               {/if}
-            {/if}
-          </ul>
+              {#if check("documentAi.documentLibrary:delete")}
+                {#if !validCollections.includes(collectionName.toLowerCase())}
+                  <button
+                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    onclick={() => {
+                      functDelete(), (dropdownOpen = !dropdownOpen);
+                    }}>{$_("delete")}</button
+                  >
+                {/if}
+              {/if}
+            </ul>
+          </div>
         </div>
-      </div>
+      {/if}
     {/if}
   </div>
 </Card>
