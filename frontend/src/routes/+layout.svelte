@@ -605,10 +605,10 @@ All Rights Reserved
         name: "Handwriting",
         desc: "collection handwriting",
       },
-      {
-        name: "Document Audio",
-        desc: "collection audio",
-      },
+      // {
+      //   name: "Document Audio",
+      //   desc: "collection audio",
+      // },
     ];
 
     const libraryIds = {

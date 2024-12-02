@@ -44,8 +44,7 @@
         title === "Documents" ||
         title === "Images" ||
         title === "Document Images" ||
-        title === "Handwriting" ||
-        title === "Document Audio"
+        title === "Handwriting"
       );
     } else {
       console.log("false");

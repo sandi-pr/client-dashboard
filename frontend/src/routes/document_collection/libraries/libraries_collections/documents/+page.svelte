@@ -777,18 +777,18 @@
               selectTypeCollection("Handwriting");
             }}>Handwriting (JPG, JPEG, PNG)</button
           >
-          <button
+          <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Document Audio");
             }}>Document Audio (MP3, WAV, OGG)</button
-          >
-          <button
+          > -->
+          <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("CSV");
             }}>CSV</button
-          >
+          > -->
         </ul>
       </div>
     </div>
