@@ -145,7 +145,7 @@ func (ws *NotificationWebSocket) ServeNotifications(ctx *config.ConfigContext, w
 		return
 	}
 
-	idUser, err := getId(string(token))
+	idUser, err := GetId(string(token))
 	if err != nil {
 		fmt.Println("Unauthorized")
 		return

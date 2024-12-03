@@ -77,7 +77,7 @@
 >
   <Table hoverable={true}>
     <TableHead>
-      <TableHeadCell>{$_("userId")}</TableHeadCell>
+      <!-- <TableHeadCell>{$_("userId")}</TableHeadCell> -->
       <TableHeadCell>{$_("fullname")}</TableHeadCell>
       <TableHeadCell>{$_("username")}</TableHeadCell>
       <TableHeadCell>{$_("email")}</TableHeadCell>
@@ -88,9 +88,9 @@
     <TableBody tableBodyClass="divide-y">
       {#each userListDatas as userListData (userListData.id)}
         <TableBodyRow>
-          <TableBodyCell>
+          <!-- <TableBodyCell>
             <P>{userListData.id}</P>
-          </TableBodyCell>
+          </TableBodyCell> -->
           <TableBodyCell><P class="font-semibold">{userListData.fullname}</P></TableBodyCell>
           <TableBodyCell><P>{userListData.username}</P></TableBodyCell>
           <TableBodyCell><P>{userListData.email}</P></TableBodyCell>

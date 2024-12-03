@@ -1399,7 +1399,7 @@ func AddDocumentByBotID(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
 
-	userId, err := getId(strings.Replace(string(bearer), "Bearer ", "", 1))
+	userId, err := GetId(strings.Replace(string(bearer), "Bearer ", "", 1))
 
 	if err != nil {
 		fmt.Println(err)

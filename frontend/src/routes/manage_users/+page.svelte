@@ -101,7 +101,7 @@ All Rights Reserved
       if (response.result.data.length > 0) {
         let promises = response.result.data.map(async (user, index) => {
           return {
-            id: user.id,
+            id: user.user_id !== null ? user.user_id : "null",
             fullname: user.fullname || "No Name",
             username: user.username,
             email: user.email,

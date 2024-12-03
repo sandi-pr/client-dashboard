@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
@@ -149,7 +150,15 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	status, user, err := Strapi.UsersUpdate(int64(users["id"].(U.Float64)), U.Dict{"fullname": fullname, "company": companyId, "authority": authority, "blocked": blocked})
+	user_id, err := GenerateID(Strapi)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return ctx.Error(429, err.Error())
+	}
+
+	fmt.Println("user_id", user_id)
+
+	status, user, err := Strapi.UsersUpdate(int64(users["id"].(U.Float64)), U.Dict{"fullname": fullname, "company": companyId, "authority": authority, "blocked": blocked, "user_id": user_id})
 
 	if err != nil {
 		fmt.Println(err)
@@ -760,7 +769,7 @@ func UpdateTheme(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 	return 200, company, nil
 }
 
-func getId(token string) (int64, error) {
+func GetId(token string) (int64, error) {
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
 	status, me, err := Strapi.UsersMe()
 
@@ -777,4 +786,34 @@ func getId(token string) (int64, error) {
 	}
 
 	return -1, errors.New("failed to get user id")
+}
+
+func GenerateID(strapi *strapi.StrapiClassic) (string, error) {
+	_, users, err := strapi.UsersFind()
+	if err != nil {
+		return "", err
+	}
+
+	now := time.Now()
+	today := now.Format("2006-01-02")
+
+	var latestOrder int
+	for _, user := range users {
+		createdAtStr := user.(U.Dict)["createdAt"].(U.String)
+
+		createdAt, err := time.Parse(time.RFC3339, string(createdAtStr))
+		if err != nil {
+			return "", fmt.Errorf("failed to parse createdAt: %v", err)
+		}
+
+		if createdAt.Format("2006-01-02") == today {
+			latestOrder++
+		}
+	}
+
+	if latestOrder >= 99 {
+		return "", fmt.Errorf("batas harian tercapai: hanya 99 ID yang diizinkan per hari")
+	}
+
+	return fmt.Sprintf("%s%02d", now.Format("02012006"), latestOrder+1), nil
 }

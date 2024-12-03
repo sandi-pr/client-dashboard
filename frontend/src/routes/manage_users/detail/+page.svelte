@@ -112,7 +112,8 @@ All Rights Reserved
       console.log("ayam", response);
 
       data = {
-        userId: generateUniqueId(response.result.user.id, "user"),
+        // userId: generateUniqueId(response.result.user.id, "user"),
+        userId: response.result.user.user_id,
         fullname: response.result.user.fullname !== null ? response.result.user.fullname : "",
         username: response.result.user.username,
         email: response.result.user.email,

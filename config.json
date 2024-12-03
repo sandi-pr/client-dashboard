@@ -5437,6 +5437,10 @@
                         "relation": "oneToMany",
                         "target": "api::document-management.document-management",
                         "mappedBy": "user"
+                    },
+                    "user_id": {
+                        "type": "string",
+                        "unique": true
                     }
                 }
             },
