@@ -67,6 +67,51 @@ func GetUsers(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) 
 		return ctx.Error(500, "Internal Server Error")
 	}
 
+	if checkUserId {
+		foundMissingUserId := false
+
+		for _, user := range users {
+			createdAtStr := user.(U.Dict)["createdAt"].(U.String)
+
+			idUser := user.(U.Dict)["id"].(U.Float64)
+
+			_, ok := user.(U.Dict).GetString("user_id")
+
+			if !ok {
+				user_id, err := FillMissingUserIDsForUser(Strapi, string(createdAtStr), int64(idUser))
+				status, _, err := Strapi.UsersUpdate(int64(idUser), U.Dict{"user_id": user_id})
+
+				if err != nil {
+					fmt.Println(err)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				if status != 200 {
+					fmt.Println(status)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				foundMissingUserId = true
+			}
+		}
+
+		if foundMissingUserId {
+			status, users, err = Strapi.UsersFind()
+
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println(status)
+				return ctx.Error(500, "Internal Server Error")
+			}
+		}
+
+		checkUserId = false
+	}
+
 	users_list := U.Dict{
 		"data": users,
 	}
@@ -816,4 +861,39 @@ func GenerateID(strapi *strapi.StrapiClassic) (string, error) {
 	}
 
 	return fmt.Sprintf("%s%02d", now.Format("02012006"), latestOrder+1), nil
+}
+
+func FillMissingUserIDsForUser(strapi *strapi.StrapiClassic, createdAtStr string, userId int64) (string, error) {
+	_, users, err := strapi.UsersFind()
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch users: %v", err)
+	}
+
+	createdAt, err := time.Parse(time.RFC3339, createdAtStr)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse createdAt: %v", err)
+	}
+	today := createdAt.Format("2006-01-02")
+
+	var order int
+
+	for _, user := range users {
+		userCreatedAtStr := user.(U.Dict)["createdAt"].(U.String)
+		userCreatedAt, err := time.Parse(time.RFC3339, string(userCreatedAtStr))
+		if err != nil {
+			return "", fmt.Errorf("failed to parse user createdAt: %v", err)
+		}
+
+		_, ok := user.(U.Dict).GetString("user_id")
+
+		if !ok {
+			continue
+		}
+
+		if userCreatedAt.Format("2006-01-02") == today {
+			order++
+		}
+	}
+
+	return fmt.Sprintf("%s%02d", createdAt.Format("02012006"), order+1), nil
 }

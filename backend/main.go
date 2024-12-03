@@ -24,6 +24,8 @@ var DOCUMENT_PATH = ""
 var HEXA_RAG_URL = ""
 var notificationWS *NotificationWebSocket
 
+var checkUserId = true
+
 func init() {
 	MODULE_MANAGER_URL = os.Getenv("MODULE_MANAGER_URL")
 	if MODULE_MANAGER_URL == "" {
