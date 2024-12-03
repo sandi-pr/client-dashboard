@@ -436,6 +436,11 @@
     triggerToast("updated");
 
     onEditPassword = false;
+    passwordObject = {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    };
   };
 
   async function getCompanyType() {
