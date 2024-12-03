@@ -77,7 +77,7 @@
 >
   <Table hoverable={true}>
     <TableHead>
-      <TableHeadCell>No</TableHeadCell>
+      <TableHeadCell>No.</TableHeadCell>
       <TableHeadCell>{$_("fullname")}</TableHeadCell>
       <TableHeadCell>{$_("username")}</TableHeadCell>
       <TableHeadCell>{$_("email")}</TableHeadCell>
