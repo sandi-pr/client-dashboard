@@ -419,7 +419,8 @@
         password: passwordObject.newPassword,
         email: me.email,
         company: me.company,
-        blocked: me.is_active,
+        authority: me.authority,
+        blocked: me.is_active || false,
       },
       Headers: {
         Authorization: "Bearer " + token,
@@ -562,7 +563,7 @@
         }
 
         triggerToast("updated");
-        
+
         onEditTheme = false;
 
         window.location.reload();
@@ -734,21 +735,40 @@
           <div class="flex flex-col py-4 gap-4">
             <div class="flex flex-col w-full gap-1.5">
               <Typography preset="Text sm/Semibold" text={$_("currentPassword")} />
-              <InputRw type="password" bind:value={passwordObject.currentPassword} onEdit={onEditPassword} oninput={currentPasswordCheck} />
+              <InputRw
+                type="password"
+                bind:value={passwordObject.currentPassword}
+                onEdit={onEditPassword}
+                oninput={currentPasswordCheck}
+              />
               {#if !currentPasswordMatch && passwordObject.currentPassword.length > 0}
-                <Typography preset="Text sm/Reguler" text={$_("passwordNotMatch")} color="warning-primary" />
+                <Typography
+                  preset="Text sm/Reguler"
+                  text={$_("passwordNotMatch")}
+                  color="warning-primary"
+                />
               {/if}
             </div>
             <div class="flex flex-col w-full gap-1.5">
               <Typography preset="Text sm/Semibold" text={$_("newPassword")} />
-              <InputRw type="password" bind:value={passwordObject.newPassword} onEdit={onEditPassword} disabled={!currentPasswordMatch} />
+              <InputRw
+                type="password"
+                bind:value={passwordObject.newPassword}
+                onEdit={onEditPassword}
+                disabled={!currentPasswordMatch}
+              />
               {#if !passwordCheck() && passwordObject.newPassword.length > 0}
                 <Typography preset="Text sm/Reguler" text={$_("hintPassword")} />
               {/if}
             </div>
             <div class="flex flex-col w-full gap-1.5">
               <Typography preset="Text sm/Semibold" text={$_("confirmPassword")} />
-              <InputRw type="password" bind:value={passwordObject.confirmPassword} onEdit={onEditPassword} disabled={!currentPasswordMatch} />
+              <InputRw
+                type="password"
+                bind:value={passwordObject.confirmPassword}
+                onEdit={onEditPassword}
+                disabled={!currentPasswordMatch}
+              />
             </div>
           </div>
           <div class="flex w-full justify-end">
@@ -767,7 +787,9 @@
               >
               <Button
                 class="bg-hc-brand-600 hover:bg-hc-brand-700"
-                on:click={() => {updatePassword()}}
+                on:click={() => {
+                  updatePassword();
+                }}
               >
                 {$_("save")}
               </Button>
@@ -818,7 +840,9 @@
               >
               <Button
                 class="bg-hc-brand-600 hover:bg-hc-brand-700"
-                on:click={() => {updateCompanyType();}}
+                on:click={() => {
+                  updateCompanyType();
+                }}
               >
                 {$_("save")}
               </Button>
@@ -909,7 +933,9 @@
               >
               <Button
                 class="bg-hc-brand-600 hover:bg-hc-brand-700"
-                on:click={() => {updateTheme();}}
+                on:click={() => {
+                  updateTheme();
+                }}
               >
                 {$_("save")}
               </Button>
