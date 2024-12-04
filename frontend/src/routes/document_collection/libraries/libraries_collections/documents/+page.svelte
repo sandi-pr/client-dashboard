@@ -212,7 +212,7 @@
           description: tmpDescription,
           parent_id: parseInt(collectionId),
           // bakrie
-          // bot_id: localStorage.getItem("botIdStrapi").toString(),
+          bot_id: localStorage.getItem("botIdStrapi").toString(),
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -695,7 +695,15 @@
         collectionName: collection.attributes.name,
         description: collection.attributes.meta.description,
         type: collection.attributes.type,
-        href: link + "?subCollectionId=" + collection.id + "&" + "collectionId=" + collectionId + "&" + queryString,
+        href:
+          link +
+          "?subCollectionId=" +
+          collection.id +
+          "&" +
+          "collectionId=" +
+          collectionId +
+          "&" +
+          queryString,
       }));
 
       if (isChild) {
@@ -704,7 +712,10 @@
         collectionList = await Promise.all(promise);
       }
 
-      console.log(isChild ? "Child Collections" : "Main Collections", isChild ? childCollectionList : collectionList);
+      console.log(
+        isChild ? "Child Collections" : "Main Collections",
+        isChild ? childCollectionList : collectionList,
+      );
     }
   }
 
@@ -781,7 +792,7 @@
       console.log("Token not found");
     }
   }
-  
+
   const selectCollection = (item) => {
     tmpSelectedCollection = item;
 
@@ -837,9 +848,7 @@
             </div>
           </div>
 
-          <div class="flex gap-4">
-            
-          </div>
+          <div class="flex gap-4"></div>
         </div>
 
         <!-- <Divider /> -->
@@ -1256,7 +1265,11 @@
   <svelte:fragment slot="header">
     <div class="flex flex-col">
       <Typography preset="Text lg/Semibold" text={$_("moveDocument")} color="primary" />
-      <Typography preset="Text sm/Regular" text={$_("whereDoYouWantToMoveThisDocument")} color="tertiary" />
+      <Typography
+        preset="Text sm/Regular"
+        text={$_("whereDoYouWantToMoveThisDocument")}
+        color="tertiary"
+      />
     </div>
   </svelte:fragment>
 
