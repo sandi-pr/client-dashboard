@@ -175,9 +175,19 @@
             "file_path": "template/document_collection/libraries/libraries_collections/documents.html"
         },
         {
+            "name": "document-library-sub-documents",
+            "path": "/document_library/libraries/collections/documents/sub_documents",
+            "file_path": "template/document_collection/libraries/libraries_collections/documents/sub_documents.html"
+        },
+        {
             "name": "document-library-detail",
             "path": "/document_library/libraries/collections/documents/detail",
             "file_path": "template/document_collection/libraries/libraries_collections/documents/detail.html"
+        },
+        {
+            "name": "document-library-sub-documents-detail",
+            "path": "/document_library/libraries/collections/documents/sub_documents/detail",
+            "file_path": "template/document_collection/libraries/libraries_collections/documents/sub_documents/detail.html"
         },
         {
             "name": "document-collection-chat",

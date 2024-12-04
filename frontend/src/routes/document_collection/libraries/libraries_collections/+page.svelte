@@ -622,14 +622,14 @@
       <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button
       onclick={editCollectionName}
-      disabled={!tmpCollectionName || !tmpDescription}
+      disabled={!tmpCollectionName && !tmpDescription}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>

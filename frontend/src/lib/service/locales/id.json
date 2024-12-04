@@ -774,5 +774,11 @@
   "createNewDocumentsToProject": "Buat dokumen baru ke proyek",
   "nameAlreadyExist": "Nama sudah ada",
   "YouDontHaveAnyBotsDeploymentOngoing": "Anda tidak memiliki bot yang sedang di-deploy",
-  "move": "Pindahkan"
+  "move": "Pindahkan",
+  "uploadBy": "Diunggah oleh",
+  "uploadDetail": "Detail Unggahan",
+  "addDocument": "Tambahkan Dokumen",
+  "moveDocument": "Pindahkan Dokumen",
+  "whereDoYouWantToMoveThisDocument": "Dimana Anda ingin memindahkan dokumen ini?",
+  "subCollections": "Sub Koleksi"
 }

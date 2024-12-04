@@ -10,6 +10,7 @@
     TableBodyRow,
     TableBodyCell,
     TableHeadCell,
+    Avatar,
   } from "flowbite-svelte";
 
   import { _ } from "svelte-i18n";
@@ -124,7 +125,7 @@
       <TableHeadCell>{$_("label")}</TableHeadCell>
       <TableHeadCell>{$_("type")}</TableHeadCell>
       <TableHeadCell>{$_("fileSize")}</TableHeadCell>
-      <TableHeadCell>{$_("dateUpload")}</TableHeadCell>
+      <TableHeadCell>{$_("uploadDetail")}</TableHeadCell>
       <TableHeadCell></TableHeadCell>
       <TableHeadCell></TableHeadCell>
     </TableHead>
@@ -168,17 +169,21 @@
           </TableBodyCell>
           <TableBodyCell>
             <div class="flex gap-1">
-              {#each collectionListData.label as label, index (label)}
-                {#if index <= 2}
-                  <div class={pillStyle()}>
-                    {label}
-                  </div>
-                {:else if index === 3}
-                  <div class={pillStyle()}>
-                    +{collectionListData.label.length - 3}
-                  </div>
-                {/if}
-              {/each}
+              {#if collectionListData.label.length === 0}
+                <div class="ps-3">-</div>
+              {:else}
+                {#each collectionListData.label as label, index (label)}
+                  {#if index <= 2}
+                    <div class={pillStyle()}>
+                      {label}
+                    </div>
+                  {:else if index === 3}
+                    <div class={pillStyle()}>
+                      +{collectionListData.label.length - 3}
+                    </div>
+                  {/if}
+                {/each}
+              {/if}
             </div>
           </TableBodyCell>
           <TableBodyCell
@@ -187,7 +192,7 @@
             </div></TableBodyCell
           >
           <TableBodyCell>{collectionListData.filesize}</TableBodyCell>
-          <TableBodyCell>{collectionListData.createdAt}</TableBodyCell>
+          <TableBodyCell><div class="flex items-center gap-1"><Avatar size="xs" />{collectionListData.upload_by + " - " + collectionListData.createdAt}</div></TableBodyCell>
           <TableBodyCell>
             <Button
               disabled={!check("documentAi.documentLibrary.document:view")}

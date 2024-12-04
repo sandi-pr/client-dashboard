@@ -27,7 +27,7 @@ All Rights Reserved
   import Divider from "$lib/components/Divider.svelte";
   import { onMount, onDestroy } from "svelte";
   import { _, locale } from "svelte-i18n";
-  import { id as localeId, enUS as localeEn } from "date-fns/locale";
+  import { id as localeId, enUS as localeEn, ta } from "date-fns/locale";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import { CR3Call } from "hexacomponents-svelte";
   import { format, formatDistanceToNow } from "date-fns";
@@ -75,6 +75,7 @@ All Rights Reserved
 
   let data = $state({});
   let tmpData = $state({});
+  let uploadBy = $state("");
 
   // let categoriesTab = $state([
   //   {
@@ -105,7 +106,7 @@ All Rights Reserved
           },
         });
 
-        console.log("document", response);
+        // console.log("document", response);
 
         if (response.status !== 200) {
           triggerLoading(false);
@@ -199,6 +200,7 @@ All Rights Reserved
           description: documentData.meta.description,
           category: documentData.meta.category,
           document_type: documentData.meta.document_type,
+          upload_by: documentData.meta.upload_by,
           ext: response.result.ext,
           // document_type: "Document Audio",
           // ext: ".mp3",
@@ -214,6 +216,7 @@ All Rights Reserved
           description: documentData.meta.description,
           category: documentData.meta.category,
           document_type: documentData.meta.document_type,
+          upload_by: documentData.meta.upload_by,
           ext: response.result.ext,
           // document_type: "Document Audio",
           // ext: ".mp3",
@@ -234,6 +237,29 @@ All Rights Reserved
       }
     } else {
       // triggerToast("error");
+    }
+  }
+
+  async function getUser() {
+    let token = localStorage.getItem("token");
+    try {
+      let response = await $call.call("client-dashboard", "get-user", {
+        URLQuery: {},
+        URLParams: { id: data.upload_by.toString() },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      uploadBy = response.result.user.username;
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -604,7 +630,8 @@ All Rights Reserved
       }
       base64 = null;
       pdfReady = false;
-      getDocument();
+      await getDocument();
+      getUser();
     });
     return () => unsubscribe();
   });
@@ -741,115 +768,125 @@ All Rights Reserved
                 />
                 <InputRw {onEdit} bind:value={data.description} />
               </div>
+              {#if tags.length > 0 || onEdit}
+                <div class="flex flex-col gap-1.5">
+                  <Typography
+                    preset="Text sm/medium"
+                    color="secondary"
+                    text={`${$_("categories")}`}
+                  />
+                  <!-- {#if !onEdit}
+                    <InputRw bind:value={data.category} />
+                  {:else} -->
+                  <div class="flex">
+                    <button
+                      class="flex w-full flex-wrap gap-2 items-center border rounded-lg py-2.5 px-2"
+                      onclick={onEdit
+                        ? () => {
+                            focusInput(inputRef);
+                          }
+                        : () => {}}
+                    >
+                      {#each tags as tag}
+                        <span
+                          class="flex items-center space-x-0.5 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2"
+                        >
+                          <span class="text-sm pb-0.5">{tag}</span>
+                          <!-- svelte-ignore node_invalid_placement_ssr -->
+
+                          {#if onEdit}
+                            <button
+                              onclick={() => {
+                                removeTag(tag);
+                              }}
+                              class="text-brand-primary-light dark:text-brand-primary-dark"
+                              ><XCloseIcon
+                                svgClass="w-3 h-3 text-utility-brand-400-light dark:text-utility-brand-400-dark"
+                              /></button
+                            >
+                          {/if}
+                        </span>
+                      {/each}
+                      {#if onEdit}
+                        <input
+                          bind:this={inputRef}
+                          type="text"
+                          bind:value={newTag}
+                          placeholder={`${tags.length < 1 ? $_("enterNewLabel") : ""}`}
+                          onkeydown={handleKeyDown}
+                          class={`border-none flex-grow !pl-0 !py-0.5 text-sm focus:ring-transparent ${tags.length > 0 ? "max-w-min" : "w-full"}`}
+                        />
+                      {/if}
+                    </button>
+                    {#if onEdit}
+                      <button
+                        onclick={addTag}
+                        class="bg-secondary-light dark:bg-secondary-dark text-primary-light dark:text-primary-dark px-4 py-1 rounded"
+                      >
+                        Add
+                      </button>
+                    {/if}
+                  </div>
+                  <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
+                  <!-- <Select
+                      disabled={!onEdit}
+                      class="mt-2"
+                      items={categories}
+                      bind:value={data.category}
+                      placeholder={$_("selectCategory")}
+                    /> -->
+                  <!-- {#if !addOtherCategory}
+                      <p>
+                        {$_("addOtherCategory")}
+                        <button
+                          onclick={() => {
+                            addOtherCategory = true;
+                          }}
+                          class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
+                        >
+                          {$_("clickHere")}
+                        </button>
+                      </p>
+                    {/if}
+                    {#if addOtherCategory}
+                      <Input
+                        placeholder={$_("enterOtherCategory")}
+                        bind:value={otherCategory}
+                        onkeydown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            otherCategory !== "" &&
+                            !categories.includes(otherCategory)
+                          ) {
+                            if (categories.length > 0) {
+                              for (let i = 0; i < categories.length; i++) {
+                                if (categories[i]?.other === true) {
+                                  categories = categories.slice(0, i).concat(categories.slice(i + 1));
+                                  break;
+                                }
+                              }
+                            }
+
+                            categories = [
+                              ...categories,
+                              { value: otherCategory, name: otherCategory, other: true },
+                            ];
+                            data.category = otherCategory;
+                            otherCategory = "";
+                          }
+                        }}
+                      />
+                    {/if} -->
+                  <!-- {/if} -->
+                </div>
+              {/if}
               <div class="flex flex-col gap-1.5">
                 <Typography
                   preset="Text sm/medium"
                   color="secondary"
-                  text={`${$_("categories")}`}
+                  text={$_("uploadBy")}
                 />
-                <!-- {#if !onEdit}
-                  <InputRw bind:value={data.category} />
-                {:else} -->
-                <div class="flex">
-                  <button
-                    class="flex w-full flex-wrap gap-2 items-center border rounded-lg py-2.5 px-2"
-                    onclick={onEdit
-                      ? () => {
-                          focusInput(inputRef);
-                        }
-                      : () => {}}
-                  >
-                    {#each tags as tag}
-                      <span
-                        class="flex items-center space-x-0.5 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2"
-                      >
-                        <span class="text-sm pb-0.5">{tag}</span>
-                        <!-- svelte-ignore node_invalid_placement_ssr -->
-
-                        {#if onEdit}
-                          <button
-                            onclick={() => {
-                              removeTag(tag);
-                            }}
-                            class="text-brand-primary-light dark:text-brand-primary-dark"
-                            ><XCloseIcon
-                              svgClass="w-3 h-3 text-utility-brand-400-light dark:text-utility-brand-400-dark"
-                            /></button
-                          >
-                        {/if}
-                      </span>
-                    {/each}
-                    {#if onEdit}
-                      <input
-                        bind:this={inputRef}
-                        type="text"
-                        bind:value={newTag}
-                        placeholder={`${tags.length < 1 ? $_("enterNewLabel") : ""}`}
-                        onkeydown={handleKeyDown}
-                        class={`border-none flex-grow !pl-0 !py-0.5 text-sm focus:ring-transparent ${tags.length > 0 ? "max-w-min" : "w-full"}`}
-                      />
-                    {/if}
-                  </button>
-                  {#if onEdit}
-                    <button
-                      onclick={addTag}
-                      class="bg-secondary-light dark:bg-secondary-dark text-primary-light dark:text-primary-dark px-4 py-1 rounded"
-                    >
-                      Add
-                    </button>
-                  {/if}
-                </div>
-                <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-                <!-- <Select
-                    disabled={!onEdit}
-                    class="mt-2"
-                    items={categories}
-                    bind:value={data.category}
-                    placeholder={$_("selectCategory")}
-                  /> -->
-                <!-- {#if !addOtherCategory}
-                    <p>
-                      {$_("addOtherCategory")}
-                      <button
-                        onclick={() => {
-                          addOtherCategory = true;
-                        }}
-                        class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
-                      >
-                        {$_("clickHere")}
-                      </button>
-                    </p>
-                  {/if}
-                  {#if addOtherCategory}
-                    <Input
-                      placeholder={$_("enterOtherCategory")}
-                      bind:value={otherCategory}
-                      onkeydown={(e) => {
-                        if (
-                          e.key === "Enter" &&
-                          otherCategory !== "" &&
-                          !categories.includes(otherCategory)
-                        ) {
-                          if (categories.length > 0) {
-                            for (let i = 0; i < categories.length; i++) {
-                              if (categories[i]?.other === true) {
-                                categories = categories.slice(0, i).concat(categories.slice(i + 1));
-                                break;
-                              }
-                            }
-                          }
-
-                          categories = [
-                            ...categories,
-                            { value: otherCategory, name: otherCategory, other: true },
-                          ];
-                          data.category = otherCategory;
-                          otherCategory = "";
-                        }
-                      }}
-                    />
-                  {/if} -->
-                <!-- {/if} -->
+                <InputRw onEdit={false} bind:value={uploadBy} />
               </div>
             </div>
           </div>

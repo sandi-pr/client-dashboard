@@ -30,6 +30,7 @@
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "../utils/toCamelCase.js";
   export let tabDatas: any;
+  export let spaceTop = "mt-2";
 
   const dispatch = createEventDispatcher();
 
@@ -47,7 +48,7 @@
 </script>
 
 <div
-  class="flex whitespace-nowrap mt-2 md:mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden"
+  class={`flex whitespace-nowrap ${spaceTop} md:mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden`}
 >
   {#each tabDatas.data as submenu (submenu)}
     <button

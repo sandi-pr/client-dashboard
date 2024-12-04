@@ -774,5 +774,11 @@
   "createNewDocumentsToProject": "Create new documents to project",
   "nameAlreadyExist": "Name already exists",
   "YouDontHaveAnyBotsDeploymentOngoing": "You don't have any bots deployment ongoing",
-  "move": "Move"
+  "move": "Move",
+  "uploadBy": "Upload by",
+  "uploadDetail": "Upload Detail",
+  "addDocument": "Add Document",
+  "moveDocument": "Move Document",
+  "whereDoYouWantToMoveThisDocument": "Where do you want to move this document?",
+  "subCollections": "Sub Collections"
 }

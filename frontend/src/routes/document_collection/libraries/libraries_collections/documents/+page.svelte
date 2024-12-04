@@ -18,6 +18,9 @@
     UploadFile,
     check,
     onProgress,
+    Divider,
+    SectionHeader,
+    LibraryCard,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import {
@@ -29,26 +32,34 @@
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
+  import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import XCloseIcon from "$lib/icon/x-close.svelte";
+  import TabDetail from "$lib/components/TabDetail.svelte";
 
   let collectionId;
   let libraryId;
   let inputRef;
   let checkAllState = $state(false);
   let addDocumentsModal = $state(false);
+  let addCollectionModal = $state(false);
   let addCategoriesModal = $state(false);
   let popupModal = $state(false);
   let updateModal = $state(false);
+  let editModal = $state(false);
+  let deleteModal = $state(false);
   let deleteCategoriesModal = $state(false);
   let dropdownOpen = $state(false);
   let fileNotSupport = $state(false);
   let buttonDisabled = $state(false);
   let buttonDisabledDelete = $state(false);
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
-  let paginationLibrary = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
+  let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
+  let tmpCollectionId = $state("");
+  let tmpCollectionName = $state("");
+  let tmpDescription = $state("");
   let tmpDocumentType = $state("Documents");
   let selectedTypeCollection = $state("Documents (TXT, PDF)");
   let acceptedFileTypes = $state(".txt, .pdf");
@@ -59,6 +70,17 @@
   let checkboxDelete = $state(false);
   let checkboxUpdate = $state(false);
   let tmpId = $state(null);
+  let tabDatas = $state({
+    selected: "Collections",
+    data: [
+      {
+        name: "Collections",
+      },
+      {
+        name: "Sub Collections",
+      },
+    ],
+  });
 
   let collectionDatas = $state({
     title: "",
@@ -67,6 +89,7 @@
   });
   let collectionListDatas = $state([]);
   let collectionList = $state([]);
+  let childCollectionList = $state([]);
   let tmpSelectedCollection = $state(null);
 
   async function getCollection() {
@@ -118,7 +141,7 @@
         return;
       }
 
-      console.log("documets", response.result.data);
+      // console.log("documets", response.result.data);
 
       pagination = response.result.meta.pagination;
 
@@ -128,6 +151,28 @@
         const params = new URLSearchParams(window.location.search);
 
         params.delete("documentId");
+
+        let uploadBy = "";
+
+        try {
+          let response = await $call.call("client-dashboard", "get-user", {
+            URLQuery: {},
+            URLParams: { id: collection.attributes.meta.upload_by.toString() },
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status !== 200) {
+            console.log(response);
+            return;
+          }
+
+          uploadBy = response.result.user.username;
+        } catch (error) {
+          console.log(error);
+        }
 
         const queryParams = {};
         for (const [key, value] of params.entries()) {
@@ -143,14 +188,52 @@
               ? []
               : collection.attributes.meta.category.split(","),
           type: collection.attributes.meta.document_type,
+          upload_by: uploadBy,
           filesize: collection.attributes.meta.file_size,
-          createdAt: format(new Date(collection.attributes.createdAt), "yyyy-mm-dd"),
+          createdAt: format(new Date(collection.attributes.createdAt), "MMM d, yyyy"),
           href: link + "?documentId=" + collection.id + "&" + queryString,
           checked: false,
         };
       });
 
       collectionListDatas = await Promise.all(promise);
+    }
+  }
+
+  async function createCollection() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "create-library-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_name: tmpCollectionName,
+          description: tmpDescription,
+          parent_id: parseInt(collectionId),
+          // bakrie
+          // bot_id: localStorage.getItem("botIdStrapi").toString(),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        triggerToast("error");
+        return;
+      }
+
+      console.log(response);
+
+      tmpCollectionName = "";
+      tmpDescription = "";
+
+      triggerToast("success");
+
+      addCollectionModal = false;
+      getDocuments();
     }
   }
 
@@ -558,44 +641,144 @@
     }
   }
 
-  async function getCollections() {
+  async function getCollections(isChild = false) {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-library-collections", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: paginationLibrary.page,
-          page_size: paginationLibrary.pageSize,
-          parent_id: parseInt(libraryId),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      const aggregatedData = [];
 
-      if (response.status !== 200) {
-        console.log(response);
-        return;
+      do {
+        let response = await $call.call("client-dashboard", "get-library-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: paginationCollection.page,
+            page_size: paginationCollection.pageSize,
+            parent_id: parseInt(isChild ? collectionId : libraryId),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        aggregatedData.push(...response.result.data);
+
+        paginationCollection = response.result.meta.pagination;
+
+        paginationCollection.page++;
+      } while (paginationCollection.page <= paginationCollection.pageCount);
+
+      let link;
+
+      if (isChild) {
+        link = await $call.getPage("client-dashboard", "document-library-sub-documents");
+      } else {
+        link = await $call.getPage("client-dashboard", "document-library-documents");
       }
 
-      console.log("get collections", response);
+      const params = new URLSearchParams(window.location.search);
+      params.delete("collectionId");
 
-      paginationLibrary = response.result.meta.pagination;
+      const queryParams = {};
+      for (const [key, value] of params.entries()) {
+        queryParams[key] = value;
+      }
+      const queryString = new URLSearchParams(queryParams).toString();
 
-      let promise = response.result.data.map(async (collection) => {
-        return {
-          id: collection.id,
-          collectionName: collection.attributes.name,
-          description: collection.attributes.meta.description,
-          type: collection.attributes.type,
-        };
-      });
+      const promise = aggregatedData.map(async (collection) => ({
+        id: collection.id,
+        collectionName: collection.attributes.name,
+        description: collection.attributes.meta.description,
+        type: collection.attributes.type,
+        href: link + "?subCollectionId=" + collection.id + "&" + "collectionId=" + collectionId + "&" + queryString,
+      }));
 
-      collectionList = await Promise.all(promise);
+      if (isChild) {
+        childCollectionList = await Promise.all(promise);
+      } else {
+        collectionList = await Promise.all(promise);
+      }
 
-      console.log("cek collection", collectionList);
+      console.log(isChild ? "Child Collections" : "Main Collections", isChild ? childCollectionList : collectionList);
+    }
+  }
+
+  async function editCollectionName() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "update-library-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
+          },
+          Params: {
+            collection_name: tmpCollectionName,
+            description: tmpDescription,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        tmpCollectionName = "";
+        tmpDescription = "";
+
+        editModal = false;
+        triggerToast("updated");
+        getCollections();
+      } catch (error) {
+        console.log(error);
+        triggerToast("error");
+      }
+    } else {
+      console.log("Token not found");
+    }
+  }
+
+  async function deleteDocumentCollection() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response2 = await $call.call("client-dashboard", "delete-library-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          triggerToast("error");
+          return;
+        }
+
+        triggerToast("deleted");
+
+        getCollections();
+        deleteModal = false;
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    } else {
+      console.log("Token not found");
     }
   }
   
@@ -617,6 +800,7 @@
         goto(await $call.getPage("client-dashboard", "document-library"));
         return;
       }
+      getCollections(true);
       getCollections();
       getDocuments();
     });
@@ -654,64 +838,126 @@
           </div>
 
           <div class="flex gap-4">
-            <Input
-              id="search"
-              type="search"
-              class="bg-white dark:bg-hc-graydark-950"
-              placeholder={$_("search")}
-              on:change={handleSearch}
-            >
-              <SearchOutline
-                slot="left"
-                class="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-              />
-            </Input>
-            <Button
-              on:click={() => {
-                popupModal = true;
-                checkboxDelete = true;
-                // id
-              }}
-              disabled={buttonDisabledDelete}
-              class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
-              outline
-            >
-              <Trash01Icon svgClass="w-5 h-5" />
-              <div class="hidden md:block">{$_("delete")}</div>
-            </Button>
-            <Button
-              on:click={() => {
-                updateModal = true;
-                checkboxUpdate = true;
-                // id
-              }}
-              disabled={buttonDisabledDelete}
-              class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
-              outline
-            >
-              <MoveIcon svgClass="w-5 h-5" />
-              <div class="hidden md:block">{$_("move")}</div>
-            </Button>
-            <Button
-              disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
-              on:click={() => {
-                addDocumentsModal = true;
-                tags = [];
-                tmpDocumentTitle = "";
-                tmpDocumentDescription = "";
-                attributeNotUnique = false;
-              }}
-              class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
-            >
-              <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-              <div class="hidden md:block">{$_("addNew")}</div>
-            </Button>
+            
           </div>
         </div>
 
-        <div
-          class="mx-4 sm:mx-0 border-t-[1px] border-hc-graylight-300 dark:border-hc-graydark-700"
-        ></div>
+        <!-- <Divider /> -->
+
+        <!-- <SectionHeader title={$_("collections")} /> -->
+        <div class="flex flex-col gap-1.5 md:gap-5">
+          <div class="flex justify-between items-center">
+            <Typography preset="Text lg/Semibold" text={$_("subCollections")} color="primary" />
+            <div class="flex gap-3">
+              <Button
+                disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
+                outline
+                on:click={() => {
+                  addCollectionModal = true;
+                  tmpCollectionName = "";
+                  tmpDescription = "";
+                  attributeNotUnique = false;
+                }}
+                class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
+              >
+                <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                <div class="hidden md:block">{$_("addCollection")}</div>
+              </Button>
+            </div>
+          </div>
+          <Divider />
+        </div>
+
+        {#if childCollectionList.length > 0}
+          <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+            {#each childCollectionList as collection}
+              <LibraryCard
+                collectionName={collection.collectionName}
+                usedFor="libraries_collections"
+                functEdit={() => {
+                  tmpCollectionId = collection.id;
+                  tmpCollectionName = collection.collectionName;
+                  tmpDescription = collection.description;
+                  editModal = true;
+                }}
+                functDelete={() => {
+                  tmpCollectionId = collection.id;
+                  tmpCollectionName = collection.collectionName;
+                  deleteModal = true;
+                }}
+                funcDetailCollection={() => {
+                  goto(collection.href);
+                }}
+                {libraryId}
+              />
+            {/each}
+          </div>
+        {:else}
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+        {/if}
+
+        <div class="flex flex-col gap-1.5 md:gap-5 mt-3 md:mt-8">
+          <div class="flex justify-between items-center">
+            <Typography preset="Text lg/Semibold" text={$_("documents")} color="primary" />
+            <div class="flex gap-3">
+              <Input
+                id="search"
+                type="search"
+                class="bg-white dark:bg-hc-graydark-950"
+                placeholder={$_("search")}
+                on:change={handleSearch}
+              >
+                <SearchOutline
+                  slot="left"
+                  class="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                />
+              </Input>
+              <Button
+                on:click={() => {
+                  popupModal = true;
+                  checkboxDelete = true;
+                  // id
+                }}
+                disabled={buttonDisabledDelete}
+                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
+                outline
+              >
+                <Trash01Icon svgClass="w-5 h-5" />
+                <div class="hidden md:block">{$_("delete")}</div>
+              </Button>
+              <Button
+                on:click={() => {
+                  updateModal = true;
+                  checkboxUpdate = true;
+                  paginationCollection.page = 1;
+                  // id
+                }}
+                disabled={buttonDisabledDelete}
+                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
+                outline
+              >
+                <MoveIcon svgClass="w-5 h-5" />
+                <div class="hidden md:block">{$_("move")}</div>
+              </Button>
+              <Button
+                disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
+                outline
+                on:click={() => {
+                  addDocumentsModal = true;
+                  tags = [];
+                  tmpDocumentTitle = "";
+                  tmpDocumentDescription = "";
+                  attributeNotUnique = false;
+                }}
+                class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
+              >
+                <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                <div class="hidden md:block">{$_("addDocument")}</div>
+              </Button>
+            </div>
+          </div>
+          <Divider />
+        </div>
 
         {#if collectionListDatas.length > 0}
           <DataTableLibraryCollection
@@ -1006,63 +1252,71 @@
   </div>
 </Modal>
 
-<Modal title={$_("chooseCollection")} bind:open={updateModal}>
-  <div class="flex flex-col justify-center gap-4">
-    <div class="flex flex-col justify-center mt-3 gap-3">
-      <div class="flex text-start">
-        <P class="text-tertiary-light dark:text-tertiary-dark text-base font-normal"
-          >{$_("recentCollections")}</P
-        >
-      </div>
+<Modal bind:open={updateModal}>
+  <svelte:fragment slot="header">
+    <div class="flex flex-col">
+      <Typography preset="Text lg/Semibold" text={$_("moveDocument")} color="primary" />
+      <Typography preset="Text sm/Regular" text={$_("whereDoYouWantToMoveThisDocument")} color="tertiary" />
+    </div>
+  </svelte:fragment>
 
-      <div class="flex flex-col gap-6">
-        {#each collectionList as item, index (item)}
-          <Card
-            class="{tmpSelectedCollection === item
-              ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
-              : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 cursor-pointer gap-3"
-            size="xl"
-            on:click={() => selectCollection(item)}
-          >
-            <div class="flex flex-col gap-0.5">
-              <P
-                weight="semibold"
-                class={`${tmpSelectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}
-                >{item.collectionName}</P
-              >
-              <P
-                size="xs"
-                class={`${tmpSelectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}
-                >{item.description}</P
-              >
-            </div>
-          </Card>
-        {/each}
-
-        <div class="flex justify-between gap-4">
-          <Button
-            disabled={paginationLibrary.page === 1}
-            color="light"
-            on:click={() => {
-              paginationLibrary.page = paginationLibrary.page - 1;
-              getCollections();
-            }}
-            class="w-full"
-            >{$_("previous")}</Button
-          >
-          <Button
-            disabled={paginationLibrary.page === paginationLibrary.pageCount}
-            color="light"
-            on:click={() => {
-              paginationLibrary.page = paginationLibrary.page + 1;
-              getCollections();
-            }}
-            class="w-full"
-            >{$_("next")}</Button
-          >
+  <div class="flex flex-col">
+    <TabDetail spaceTop="mt-0" {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+    {#if tabDatas.selected === "Collections"}
+      <div class="flex flex-col justify-center mt-3 gap-3">
+        <div class="flex flex-col gap-6">
+          {#each collectionList as item, index (item)}
+            <Card
+              class="{tmpSelectedCollection === item
+                ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
+                : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 cursor-pointer gap-3"
+              size="xl"
+              on:click={() => selectCollection(item)}
+            >
+              <div class="flex flex-col gap-0.5">
+                <P
+                  weight="semibold"
+                  class={`${tmpSelectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}
+                  >{item.collectionName}</P
+                >
+                <P
+                  size="xs"
+                  class={`${tmpSelectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}
+                  >{item.description}</P
+                >
+              </div>
+            </Card>
+          {/each}
         </div>
       </div>
-    </div>
+    {:else if tabDatas.selected === "Sub Collections"}
+      <div class="flex flex-col justify-center mt-3 gap-3">
+        <div class="flex flex-col gap-6">
+          {#each childCollectionList as item, index (item)}
+            <Card
+              class="{tmpSelectedCollection === item
+                ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
+                : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 cursor-pointer gap-3"
+              size="xl"
+              on:click={() => selectCollection(item)}
+            >
+              <div class="flex flex-col gap-0.5">
+                <P
+                  weight="semibold"
+                  class={`${tmpSelectedCollection === item ? "text-brand-primary-light dark:text-brand-primary-dark" : "text-primary-light dark:text-primary-dark"}`}
+                  >{item.collectionName}</P
+                >
+                <P
+                  size="xs"
+                  class={`${tmpSelectedCollection === item ? "text-brand-secondary-light dark:text-brand-secondary-dark" : "text-secondary-light dark:text-secondary-dark"}`}
+                  >{item.description}</P
+                >
+              </div>
+            </Card>
+          {/each}
+        </div>
+      </div>
+    {/if}
   </div>
   <svelte:fragment slot="footer">
     <Button on:click={updateDocument} class="w-full" disabled={!tmpSelectedCollection}
@@ -1082,16 +1336,54 @@
   </div>
 </Modal>
 
-<!-- <Modal title={$_("trainingModel")} bind:open={trainingModelModal} size="xs">
+<Modal title={$_("createNewCollection")} bind:open={addCollectionModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("newModelName")}*`} />
-      <Input bind:value={newModelName} placeholder={$_("whatIsYourNewModelName")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={startTraining} disabled={newModelName === ""} class="w-full"
-      >{$_("startTraining")}</Button
+    <Button
+      onclick={createCollection}
+      disabled={!tmpCollectionName || !tmpDescription}
+      class="w-full">{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
-</Modal> -->
+</Modal>
+
+<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button
+      onclick={editCollectionName}
+      disabled={!tmpCollectionName && !tmpDescription}
+      class="me-2 w-full">{$_("save")}</Button
+    >
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={deleteModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <p>{tmpCollectionName}</p>
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
+  </div>
+</Modal>
