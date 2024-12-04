@@ -36,6 +36,7 @@
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
+  import AlertCircleIcon from "$lib/icon/alert-circle.svg";
 
   let collectionId;
   let libraryId;
@@ -91,6 +92,10 @@
   let collectionList = $state([]);
   let childCollectionList = $state([]);
   let tmpSelectedCollection = $state(null);
+  let previewModal = $state(false);
+  let selectedFile = $state(null);
+  let dataSend = $state(null);
+  let textarea = $state();
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -287,6 +292,16 @@
     console.log("clicked");
   };
 
+  const previewDocument = (file) => {
+    if (winInnerWidth > 768) {
+      previewModal = true;
+    } else {
+      pagePreview = true;
+    }
+
+    selectedFile = file ? file : files[0];
+  };
+
   async function addDocumentByCollection() {
     let token = localStorage.getItem("token");
 
@@ -296,7 +311,6 @@
         triggerLoading(true);
 
         for (let i = 0; i < files.length; i++) {
-          let dataSend = null;
 
           if (
             tmpDocumentType === "Handwriting" ||
@@ -310,7 +324,10 @@
                 URLParams: {},
                 Params: {
                   image: files[i].base64,
-                  model: sessionStorage.getItem("model_trocr"),
+                  model:
+                    tmpDocumentType === "Document Images"
+                      ? "trocr:base"
+                      : sessionStorage.getItem("model_trocr"),
                 },
                 Headers: {
                   Authorization: "Bearer " + token,
@@ -368,31 +385,11 @@
             };
           }
 
-          let response = await $call.call("client-dashboard", "create-library-document", {
-            URLQuery: {},
-            URLParams: {},
-            Params: dataSend,
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response.status !== 200) {
-            if (response && response.errors) {
-              const errors = response.errors.flatMap((error) =>
-                error.errors.flatMap((subError) => subError.message),
-              );
-
-              if (errors.includes("This attribute must be unique")) {
-                attributeNotUnique = true;
-              } else {
-                console.log("Pesan error :", errors);
-                triggerToast("error");
-              }
-            }
-            addDocumentsModal = true;
-            triggerLoading(false);
-            return;
+          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
+            previewModal = true;
+            selectedFile = files[0];
+          } else {
+            sendDocument();
           }
         }
       } catch (error) {
@@ -402,20 +399,55 @@
         triggerLoading(false);
         return;
       }
-
-      files = [];
-
-      tmpDocumentTitle = "";
-      tmpDocumentDescription = "";
-      tags = [];
-      attributeNotUnique = false;
-
-      addDocumentsModal = false;
-      getDocuments();
-      triggerLoading(false);
-
-      triggerToast("created");
     }
+  }
+
+  async function sendDocument() {
+    let token = localStorage.getItem("token");
+
+    if (token === null) {
+      return;
+    }
+    let response = await $call.call("client-dashboard", "create-library-document", {
+      URLQuery: {},
+      URLParams: {},
+      Params: dataSend,
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    if (response.status !== 200) {
+      if (response && response.errors) {
+        const errors = response.errors.flatMap((error) =>
+          error.errors.flatMap((subError) => subError.message),
+        );
+
+        if (errors.includes("This attribute must be unique")) {
+          attributeNotUnique = true;
+        } else {
+          console.log("Pesan error :", errors);
+          triggerToast("error");
+        }
+      }
+      addDocumentsModal = true;
+      triggerLoading(false);
+      return;
+    }
+
+    files = [];
+
+    tmpDocumentTitle = "";
+    tmpDocumentDescription = "";
+    tags = [];
+    attributeNotUnique = false;
+
+    previewModal = false;
+    addDocumentsModal = false;
+    getDocuments();
+    triggerLoading(false);
+
+    triggerToast("created");
   }
 
   const selectTypeCollection = (type) => {
@@ -427,7 +459,11 @@
     } else if (type === "Images") {
       selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Handwriting") {
+    } else if (type === "Document Images") {
+      selectedTypeCollection = "Document Images (JPG, JPEG, PNG, WEBP, IMG)";
+      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
+    } 
+    else if (type === "Handwriting") {
       selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png";
     } else if (type === "Document Audio") {
@@ -442,6 +478,23 @@
 
     dropdownOpen = false;
   };
+
+  // Function to adjust the height of the textarea
+  function autosize() {
+    textarea.style.height = "auto"; // Reset height
+    textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scroll height
+
+    textarea.addEventListener("input", (e) => {
+      e.target.style.height = "auto";
+      e.target.style.height = `${e.target.scrollHeight}px`;
+    });
+  }
+
+  $effect(() => {
+    if (textarea) {
+      autosize();
+    }
+  });
 
   const handleFileUploadWrapper = () => {
     const inputElement = document.createElement("input");
@@ -471,6 +524,8 @@
           description: tmpDocumentDescription,
           size: formatBytes(file.size),
           base64: base64Data,
+          ext: "." + file.name.split(".").pop(),
+          type: tmpDocumentType,
         });
         tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
       } else {
@@ -1024,7 +1079,7 @@
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Document Images");
-            }}>Document Images (JPG, JPEG, PNG)</button
+            }}>Document Images (JPG, JPEG, PNG, IMG)</button
           >
           <button
             class="flex p-2 w-full"
@@ -1399,4 +1454,70 @@
     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
+</Modal>
+
+<Modal bind:open={previewModal} size="lg">
+  <svelte:fragment slot="header">
+    <div class="flex justify-start items-center gap-4 py-4 px-6">
+      <div class="w-8 h-7 p-2 bg-[#feefc6] rounded-full flex justify-center items-center">
+        <img src={AlertCircleIcon} alt="AlertCircleIcon" class="w-5 h-5" />
+      </div>
+      <div class="flex flex-col">
+        <Typography preset="Text lg/Semibold" text="Double-check" color="primary" />
+        <Typography
+          preset="Text sm/Regular"
+          text="Are you sure this is the correct document that you want to upload?"
+          color="tertiary"
+        />
+      </div>
+    </div>
+  </svelte:fragment>
+  <div class="flex">
+    <div
+      class="flex w-full justify-center items-center py-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+    >
+      {#if selectedFile.ext.includes(".png") || selectedFile.ext.includes(".jpg") || selectedFile.ext.includes(".jpeg")}
+        <img
+          src={`data:${selectedFile.type};base64,${selectedFile.base64}`}
+          style="max-width: 80%; height: auto;"
+          alt="PNG Preview"
+        />
+      {/if}
+    </div>
+    <!-- detected handwriting -->
+    {#if selectedFile.type === "Handwriting" || selectedFile.type === "Document Images"}
+      <div class="flex w-full flex-col gap-3 px-4 pb-1">
+        <Typography
+          preset="Text md/Semibold"
+          text={selectedFile.type === "Handwriting"
+            ? "Handwriting Information"
+            : "Document Information"}
+          color="secondary"
+        />
+        <div class="flex flex-col gap-1.5">
+          <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
+          <textarea
+            bind:this={textarea}
+            bind:value={dataSend.detected_text}
+            id="chat"
+            rows="1"
+            class="block p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
+          ></textarea>
+        </div>
+      </div>
+    {/if}
+  </div>
+  <svelte:fragment slot="footer">
+    <div class="flex w-full gap-2 justify-center items-center py-3 px-4">
+      <Button
+        color="light"
+        on:click={() => {
+          previewModal = false;
+          addDocumentsModal = true;
+        }}
+        class="w-full">Cancel</Button
+      >
+      <Button color="primary" on:click={sendDocument} class="rounded-lg w-full">I’m sure</Button>
+    </div>
+  </svelte:fragment>
 </Modal>

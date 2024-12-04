@@ -79,7 +79,7 @@
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    // dropdownActionOpen = false;
+    dropdownActionOpen = dropdownActionOpen.map((item) => false);
   };
 
   // const filesizePostprocessing = (filesize) => {
@@ -221,7 +221,7 @@
             </Button> -->
 
             {#if check("documentAi.documentLibrary.document:delete")}
-              <div on:focusout={handleDropdownFocusLoss} class=" flex items-center relative">
+              <div on:focusout={handleDropdownFocusLoss(index)} class=" flex items-center relative">
                 <Button
                   on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
                   class="focus-within:ring-0 !p-0"
@@ -232,7 +232,7 @@
                   /></Button
                 >
                 <div
-                  class={`z-10 ${dropdownActionOpen[index] ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                  class={`z-10 ${dropdownActionOpen[index] ? "absolute -top-4 right-12" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
                 >
                   <ul class="py-2 grow text-sm">
                     <!-- <button
