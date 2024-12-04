@@ -292,16 +292,6 @@
     console.log("clicked");
   };
 
-  const previewDocument = (file) => {
-    if (winInnerWidth > 768) {
-      previewModal = true;
-    } else {
-      pagePreview = true;
-    }
-
-    selectedFile = file ? file : files[0];
-  };
-
   async function addDocumentByCollection() {
     let token = localStorage.getItem("token");
 
@@ -462,8 +452,7 @@
     } else if (type === "Document Images") {
       selectedTypeCollection = "Document Images (JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } 
-    else if (type === "Handwriting") {
+    } else if (type === "Handwriting") {
       selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png";
     } else if (type === "Document Audio") {
@@ -1079,7 +1068,7 @@
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Document Images");
-            }}>Document Images (JPG, JPEG, PNG, IMG)</button
+            }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
           >
           <button
             class="flex p-2 w-full"
