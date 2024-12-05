@@ -504,7 +504,7 @@ func UpdateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	end_date, ok := ctx.Params.GetString("end_date")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters")
+		end_date = ""
 	}
 
 	is_active, ok := ctx.Params.GetString("is_active")
@@ -513,7 +513,7 @@ func UpdateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		return ctx.Error(400, "invalid parameters")
 	}
 
-	status, employee, err := Strapi.Update("employee-table", int64(id), U.Dict{
+	dataSend := U.Dict{
 		"employee_name":     employee_name,
 		"email":             email,
 		"phone":             phone,
@@ -528,9 +528,14 @@ func UpdateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		"branch":            branch,
 		"employment_status": employment_status,
 		"start_date":        start_date,
-		"end_date":          end_date,
 		"is_active":         is_active,
-	})
+	}
+
+	if end_date != "" {
+		dataSend["end_date"] = end_date
+	}
+
+	status, employee, err := Strapi.Update("employee-table", int64(id))
 
 	if err != nil {
 		fmt.Println(err)

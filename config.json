@@ -2896,8 +2896,7 @@
                 },
                 {
                     "name": "end_date",
-                    "type": "date",
-                    "required": true
+                    "type": "date"
                 },
                 {
                     "name": "is_active",
