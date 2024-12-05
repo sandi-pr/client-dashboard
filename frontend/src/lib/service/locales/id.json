@@ -780,5 +780,6 @@
   "addDocument": "Tambahkan Dokumen",
   "moveDocument": "Pindahkan Dokumen",
   "whereDoYouWantToMoveThisDocument": "Dimana Anda ingin memindahkan dokumen ini?",
-  "subCollections": "Sub Koleksi"
+  "subCollections": "Sub Koleksi",
+  "documentLibraryList": "Daftar Pustaka Dokumen"
 }

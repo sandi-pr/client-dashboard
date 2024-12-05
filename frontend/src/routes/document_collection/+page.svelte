@@ -762,7 +762,7 @@ All Rights Reserved
       <div
         class="flex items-center justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
       >
-        <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLatest")} />
+        <Typography preset="Text lg/Semibold" color="primary" text={$_("documentLibraryList")} />
         <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
       </div>
 

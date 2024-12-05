@@ -780,5 +780,6 @@
   "addDocument": "Add Document",
   "moveDocument": "Move Document",
   "whereDoYouWantToMoveThisDocument": "Where do you want to move this document?",
-  "subCollections": "Sub Collections"
+  "subCollections": "Sub Collections",
+  "documentLibraryList": "Document Library List"
 }
