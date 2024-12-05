@@ -1435,6 +1435,12 @@ func UpdateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		return ctx.Error(500, "Internal Server Error")
 	}
 
+	parent_id, ok := attributes.GetFloat64("parent_id")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	meta, ok := attributes.GetDict("meta")
 
 	if !ok {
@@ -1478,6 +1484,43 @@ func UpdateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	if status != 200 {
 		fmt.Println(status)
 		return ctx.Error(500, "Internal Server Error")
+	}
+
+	bot_ids, err := findBotIdByCollectionId(int64(parent_id), Strapi)
+
+	if err != nil {
+		fmt.Printf("Error in findBotIdByCollectionId: %v\n", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(bot_ids) > 0 {
+		for i := 0; i < len(bot_ids); i++ {
+			if bot_id, ok := bot_ids.GetFloat64(i); ok {
+				bot_idStr := strconv.Itoa(int(bot_id))
+
+				CR3 := cr3call.New(MODULE_MANAGER_URL)
+				resp, err := CR3.Call("hexa-ai-rag", "add-document-by-bot-id-params", cr3call.CR3CallData{
+					Headers: U.Dict{
+						"Authorization": bearer,
+					},
+					Params: U.Dict{
+						"id": bot_idStr,
+					},
+				}, false)
+
+				fmt.Printf("Debug: CR3.Call response: %v\n", resp)
+				if err != nil {
+					fmt.Printf("Error during CR3.Call for bot ID %s: %v\n", bot_idStr, err)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				go getStatusBotNew(int64(bot_id), Strapi, "0")
+			} else {
+				fmt.Printf("Error: Failed to get bot_id at index %d\n", i)
+			}
+		}
+	} else {
+		fmt.Println("Debug: No bot IDs found for collection")
 	}
 
 	return 200, document2, nil
