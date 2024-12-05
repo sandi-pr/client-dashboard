@@ -420,7 +420,7 @@
     if (response.status !== 200) {
       if (response && response.errors) {
         const errors = response.errors.flatMap((error) =>
-          error.errors.flatMap((subError) => subError.message),
+          error.errors.flatMap((subError) => subError.message)
         );
 
         if (errors.includes("This attribute must be unique")) {
@@ -509,7 +509,7 @@
           .split(",")
           .map((type) => type.trim().replace(".", "\\."))
           .join("|") + "$",
-        "i",
+        "i"
       );
 
       console.log(fileTypeRegex.test(file.name));
@@ -768,7 +768,7 @@
 
       console.log(
         isChild ? "Child Collections" : "Main Collections",
-        isChild ? childCollectionList : collectionList,
+        isChild ? childCollectionList : collectionList
       );
     }
   }
@@ -857,44 +857,16 @@
     isMobileView = window.innerWidth <= 768;
   };
 
-  const scrollToTop = async () => {
-    // console.log(window);
-    console.log("Current scroll position:", window.scrollY);
-    console.log(document.documentElement.scrollTop);
-    console.log(document.body.scrollTop);
-    document.documentElement.scrollTop = 0; // For most browsers
-    document.body.scrollTop = 0; // For Safari
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "smooth",
-    });
-    // window.scrollTo({
-    //   top: 0,
-    //   left: 0,
-    //   behavior: "smooth",
-    // });
-    // div.scrollTo({ top: 0, behavior: "smooth" });
-    // div.scrollTo(0, div.scrollHeight);
-    // await tick(); // Ensure the DOM is updated before scrolling
-    // if (div) {
-    //   console.log("Scrolling to top");
-    //   div.scrollTo({
-    //     top: 0,
-    //     behavior: "smooth",
-    //   });
-    // } else {
-    //   console.log("div is not defined");
-    // }
+  const scrollToTop = () => {
+    console.log("Scrolling to top using scrollIntoView");
 
-    setTimeout(() => {
-      console.log("After scroll attempt (window.scrollY):", window.scrollY);
-      console.log(
-        "After scroll attempt (document.documentElement.scrollTop):",
-        document.documentElement.scrollTop,
-      );
-      console.log("After scroll attempt (document.body.scrollTop):", document.body.scrollTop);
-    }, 1000); // Delay to allow smooth scroll to complete
+    // Use an existing element at the top of the page
+    const topElement = document.querySelector(".top-element");
+    if (topElement) {
+      topElement.scrollIntoView({ behavior: "smooth" });
+    } else {
+      console.error("Top element not found");
+    }
   };
 
   onMount(() => {
@@ -936,7 +908,12 @@
   });
 </script>
 
-<div bind:this={div} class="flex dark:bg-primary-dark overflow-auto md:hover:overflow-y-auto">
+<div class="top-element"></div>
+<!-- Add this element at the top of the page -->
+<div
+  bind:this={div}
+  class="flex dark:bg-primary-dark overflow-auto md:overflow-y-hidden md:hover:overflow-y-auto"
+>
   {#if isMobileView}
     <button
       class="fixed bottom-5 right-5 z-40 bg-brand-primary-light dark:bg-brand-primary-dark text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
