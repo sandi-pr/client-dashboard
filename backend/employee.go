@@ -129,10 +129,10 @@ func CreateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 	end_date, ok := ctx.Params.GetString("end_date")
 
 	if !ok {
-		return ctx.Error(400, "invalid parameters end_date")
+		end_date = ""
 	}
 
-	status, employee, err := Strapi.Create("employee-table", U.Dict{
+	dataSend := U.Dict{
 		"employee_name":     employee_name,
 		"email":             email,
 		"phone":             phone,
@@ -147,8 +147,13 @@ func CreateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		"branch":            branch,
 		"employment_status": employment_status,
 		"start_date":        start_date,
-		"end_date":          end_date,
-	})
+	}
+
+	if end_date != "" {
+		dataSend["end_date"] = end_date
+	}
+
+	status, employee, err := Strapi.Create("employee-table")
 
 	if err != nil {
 		fmt.Println(err)
