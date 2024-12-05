@@ -71,7 +71,7 @@
   let attributeNotUnique = $state(false);
   let checkboxDelete = $state(false);
   let checkboxUpdate = $state(false);
-  let tmpId = $state(null);  
+  let tmpId = $state(null);
   let tabDatas = $state({
     selected: "Collections",
     data: [
@@ -135,7 +135,7 @@
         Params: {
           page: pagination.page,
           page_size: pagination.pageSize,
-          parent_id: parseInt(collectionId),
+          parent_id: parseInt(subCollectionId),
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -302,7 +302,6 @@
         triggerLoading(true);
 
         for (let i = 0; i < files.length; i++) {
-
           if (
             tmpDocumentType === "Handwriting" ||
             tmpDocumentType === "Document Images" ||
@@ -750,7 +749,10 @@
         collectionList = await Promise.all(promise);
       }
 
-      console.log(isChild ? "Child Collections" : "Main Collections", isChild ? childCollectionList : collectionList);
+      console.log(
+        isChild ? "Child Collections" : "Main Collections",
+        isChild ? childCollectionList : collectionList,
+      );
     }
   }
 
@@ -827,7 +829,7 @@
       console.log("Token not found");
     }
   }
-  
+
   const selectCollection = (item) => {
     tmpSelectedCollection = item;
 
@@ -1243,7 +1245,11 @@
   <svelte:fragment slot="header">
     <div class="flex flex-col">
       <Typography preset="Text lg/Semibold" text={$_("moveDocument")} color="primary" />
-      <Typography preset="Text sm/Regular" text={$_("whereDoYouWantToMoveThisDocument")} color="tertiary" />
+      <Typography
+        preset="Text sm/Regular"
+        text={$_("whereDoYouWantToMoveThisDocument")}
+        color="tertiary"
+      />
     </div>
   </svelte:fragment>
 
