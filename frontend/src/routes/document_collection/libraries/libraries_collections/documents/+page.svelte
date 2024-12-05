@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { _ } from "svelte-i18n";
   import { Button, Modal, Input, Alert, Select, P, Helper, Card } from "flowbite-svelte";
   import { page } from "$app/stores";
@@ -23,11 +23,13 @@
     LibraryCard,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
+  import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
   import {
     SearchOutline,
     ExclamationCircleSolid,
     ChevronDownOutline,
     InfoCircleSolid,
+    ArrowUpOutline,
   } from "flowbite-svelte-icons";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
@@ -71,6 +73,7 @@
   let checkboxDelete = $state(false);
   let checkboxUpdate = $state(false);
   let tmpId = $state(null);
+  let isMobileView = $state(false);
   let tabDatas = $state({
     selected: "Collections",
     data: [
@@ -96,6 +99,7 @@
   let selectedFile = $state(null);
   let dataSend = $state(null);
   let textarea = $state();
+  let div = $state();
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -416,7 +420,7 @@
     if (response.status !== 200) {
       if (response && response.errors) {
         const errors = response.errors.flatMap((error) =>
-          error.errors.flatMap((subError) => subError.message),
+          error.errors.flatMap((subError) => subError.message)
         );
 
         if (errors.includes("This attribute must be unique")) {
@@ -505,7 +509,7 @@
           .split(",")
           .map((type) => type.trim().replace(".", "\\."))
           .join("|") + "$",
-        "i",
+        "i"
       );
 
       console.log(fileTypeRegex.test(file.name));
@@ -764,7 +768,7 @@
 
       console.log(
         isChild ? "Child Collections" : "Main Collections",
-        isChild ? childCollectionList : collectionList,
+        isChild ? childCollectionList : collectionList
       );
     }
   }
@@ -849,6 +853,50 @@
     console.log("selected collection", tmpSelectedCollection);
   };
 
+  const checkMobileView = () => {
+    isMobileView = window.innerWidth <= 768;
+  };
+
+  const scrollToTop = async () => {
+    // console.log(window);
+    console.log("Current scroll position:", window.scrollY);
+    console.log(document.documentElement.scrollTop);
+    console.log(document.body.scrollTop);
+    document.documentElement.scrollTop = 0; // For most browsers
+    document.body.scrollTop = 0; // For Safari
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+    // window.scrollTo({
+    //   top: 0,
+    //   left: 0,
+    //   behavior: "smooth",
+    // });
+    // div.scrollTo({ top: 0, behavior: "smooth" });
+    // div.scrollTo(0, div.scrollHeight);
+    // await tick(); // Ensure the DOM is updated before scrolling
+    // if (div) {
+    //   console.log("Scrolling to top");
+    //   div.scrollTo({
+    //     top: 0,
+    //     behavior: "smooth",
+    //   });
+    // } else {
+    //   console.log("div is not defined");
+    // }
+
+    setTimeout(() => {
+      console.log("After scroll attempt (window.scrollY):", window.scrollY);
+      console.log(
+        "After scroll attempt (document.documentElement.scrollTop):",
+        document.documentElement.scrollTop
+      );
+      console.log("After scroll attempt (document.body.scrollTop):", document.body.scrollTop);
+    }, 1000); // Delay to allow smooth scroll to complete
+  };
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -865,7 +913,14 @@
       getCollections();
       getDocuments();
     });
-    return () => unsubscribe();
+
+    checkMobileView();
+    window.addEventListener("resize", checkMobileView);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("resize", checkMobileView);
+    };
   });
 
   $effect(() => {
@@ -881,7 +936,15 @@
   });
 </script>
 
-<div class="flex dark:bg-primary-dark">
+<div bind:this={div} class="flex dark:bg-primary-dark overflow-auto md:hover:overflow-y-auto">
+  {#if isMobileView}
+    <button
+      class="fixed bottom-5 right-5 z-40 bg-brand-primary-light dark:bg-brand-primary-dark text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
+      onclick={scrollToTop}
+    >
+      <ArrowUpOutline class="w-6 h-6" />
+    </button>
+  {/if}
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
@@ -956,7 +1019,7 @@
         {/if}
 
         <div class="flex flex-col gap-1.5 md:gap-5 mt-3 md:mt-8">
-          <div class="flex justify-between items-center">
+          <div class={`flex ${isMobileView ? "flex-col gap-4" : "items-center justify-between"}`}>
             <Typography preset="Text lg/Semibold" text={$_("documents")} color="primary" />
             <div class="flex gap-3">
               <Input
@@ -1019,20 +1082,37 @@
         </div>
 
         {#if collectionListDatas.length > 0}
-          <DataTableLibraryCollection
-            {collectionListDatas}
-            metadata={pagination}
-            {checkAllState}
-            {checkSingle}
-            {checkAll}
-            next={nextPage}
-            previous={prevPage}
-            functDeleteCategories={(id) => {
-              tmpId = id;
-              popupModal = true;
-              checkboxDelete = false;
-            }}
-          />
+          {#if isMobileView}
+            <DataTableLibraryCollectionVertical
+              {collectionListDatas}
+              metadata={pagination}
+              {checkAllState}
+              {checkSingle}
+              {checkAll}
+              next={nextPage}
+              previous={prevPage}
+              functDeleteCategories={(id) => {
+                tmpId = id;
+                popupModal = true;
+                checkboxDelete = false;
+              }}
+            />
+          {:else}
+            <DataTableLibraryCollection
+              {collectionListDatas}
+              metadata={pagination}
+              {checkAllState}
+              {checkSingle}
+              {checkAll}
+              next={nextPage}
+              previous={prevPage}
+              functDeleteCategories={(id) => {
+                tmpId = id;
+                popupModal = true;
+                checkboxDelete = false;
+              }}
+            />
+          {/if}
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
@@ -1516,3 +1596,17 @@
     </div>
   </svelte:fragment>
 </Modal>
+
+<style>
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+  }
+
+  .content {
+    min-height: 200vh; /* Ensure content is long enough to require scrolling */
+  }
+</style>
