@@ -301,7 +301,6 @@
         triggerLoading(true);
 
         for (let i = 0; i < files.length; i++) {
-
           if (
             tmpDocumentType === "Handwriting" ||
             tmpDocumentType === "Document Images" ||
@@ -323,7 +322,14 @@
                   Authorization: "Bearer " + token,
                 },
               });
-              console.log("trocr-predict", response3);
+              // console.log("trocr-predict", response3);
+              // response3 = {
+              //   status: 200,
+              //   result: {
+              //     slices: [],
+              //     text: "Belajian Tikin Bahagia\nHari-hari gajian selalu karena udah makan dalam\nnikin\nnakan.\nHal-\nbak aja uang ters-\nn kelasan dari pada menyat mengak dalam lari\nmelam lari bikin kita.\nmelu kita,\nmeli kita aja pada uang bisa,\npada bisa pada bahwa jaju kali bisa uang mengikin kekali bah turu kosia.\nTer.\nTakarta,\nTerimas AHY berkeni\nTerinti kali yang takarta.",
+              //   },
+              // };
             } else {
               response3 = await $call.call("hexa-ai-rag", "audio-predict", {
                 URLQuery: {},

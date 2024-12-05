@@ -153,7 +153,7 @@ func CreateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		dataSend["end_date"] = end_date
 	}
 
-	status, employee, err := Strapi.Create("employee-table")
+	status, employee, err := Strapi.Create("employee-table", dataSend)
 
 	if err != nil {
 		fmt.Println(err)
@@ -535,7 +535,7 @@ func UpdateEmployee(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPE
 		dataSend["end_date"] = end_date
 	}
 
-	status, employee, err := Strapi.Update("employee-table", int64(id))
+	status, employee, err := Strapi.Update("employee-table", int64(id), dataSend)
 
 	if err != nil {
 		fmt.Println(err)
