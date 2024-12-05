@@ -227,7 +227,7 @@ All Rights Reserved
   }
 
   onMount(() => {
-    if (check("businessManagement.order_invoice:view")) {
+    if (check("businessManagement.order_invoice:view") === false) {
       window.history.back();
       return;
     }

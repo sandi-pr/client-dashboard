@@ -353,7 +353,7 @@ All Rights Reserved
   }
 
   onMount(async () => {
-    if (check("businessManagement.products_services:view")) {
+    if (check("businessManagement.products_services:view") === false) {
       window.history.back();
       return;
     }

@@ -24,7 +24,7 @@ All Rights Reserved
 
   import { CR3Call } from "hexacomponents-svelte";
 
-  import { call } from "$lib";
+  import { call, check } from "$lib";
 
   let data = $state({
     employee_name: "",
