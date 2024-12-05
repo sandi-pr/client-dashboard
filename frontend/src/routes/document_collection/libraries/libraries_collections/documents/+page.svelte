@@ -420,7 +420,7 @@
     if (response.status !== 200) {
       if (response && response.errors) {
         const errors = response.errors.flatMap((error) =>
-          error.errors.flatMap((subError) => subError.message)
+          error.errors.flatMap((subError) => subError.message),
         );
 
         if (errors.includes("This attribute must be unique")) {
@@ -509,7 +509,7 @@
           .split(",")
           .map((type) => type.trim().replace(".", "\\."))
           .join("|") + "$",
-        "i"
+        "i",
       );
 
       console.log(fileTypeRegex.test(file.name));
@@ -768,7 +768,7 @@
 
       console.log(
         isChild ? "Child Collections" : "Main Collections",
-        isChild ? childCollectionList : collectionList
+        isChild ? childCollectionList : collectionList,
       );
     }
   }
@@ -802,7 +802,7 @@
 
         editModal = false;
         triggerToast("updated");
-        getCollections();
+        getCollections(true);
       } catch (error) {
         console.log(error);
         triggerToast("error");
@@ -836,7 +836,7 @@
 
         triggerToast("deleted");
 
-        getCollections();
+        getCollections(true);
         deleteModal = false;
       } catch (error) {
         triggerToast("error");
@@ -891,7 +891,7 @@
       console.log("After scroll attempt (window.scrollY):", window.scrollY);
       console.log(
         "After scroll attempt (document.documentElement.scrollTop):",
-        document.documentElement.scrollTop
+        document.documentElement.scrollTop,
       );
       console.log("After scroll attempt (document.body.scrollTop):", document.body.scrollTop);
     }, 1000); // Delay to allow smooth scroll to complete

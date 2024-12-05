@@ -29,6 +29,8 @@ export const paginationRead = writable({
   total: 0,
 });
 
+let timeout = null;
+
 export function connectWebSocket(token, isFrontend) {
   console.log("Connecting WebSocket...");
 
@@ -82,6 +84,10 @@ export function connectWebSocket(token, isFrontend) {
 
         onProgress.set(true);
 
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+
         // if (message.content.includes("100")) {
         //   onProgress.set(false);
         // }
@@ -92,6 +98,8 @@ export function connectWebSocket(token, isFrontend) {
         if (message.title.includes("ready")) {
           onProgress.set(false);
         }
+
+        timeout = setTimeout(() => { onProgress.set(false) }, 10000);
         newNotification.update((data) => true);
       }
     } catch (error) {
