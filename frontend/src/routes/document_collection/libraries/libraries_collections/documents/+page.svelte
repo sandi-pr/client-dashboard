@@ -66,6 +66,7 @@
   let tmpDocumentType = $state("Documents");
   let selectedTypeCollection = $state("Documents (TXT, PDF)");
   let acceptedFileTypes = $state(".txt, .pdf");
+  let search = $state("");
   let tags = $state([]);
   let newTag = $state("");
   let files = $state([]);
@@ -132,6 +133,10 @@
     if (token !== null) {
       getCollection();
 
+      if (search !== "") {
+        pagination.page = 1;
+      }
+
       let response = await $call.call("client-dashboard", "get-library-documents", {
         URLQuery: {},
         URLParams: {},
@@ -139,6 +144,7 @@
           page: pagination.page,
           page_size: pagination.pageSize,
           parent_id: parseInt(collectionId),
+          search: search,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -294,6 +300,7 @@
 
   const handleSearch = (evt) => {
     console.log("clicked");
+    getDocuments();
   };
 
   async function addDocumentByCollection() {
@@ -420,7 +427,7 @@
     if (response.status !== 200) {
       if (response && response.errors) {
         const errors = response.errors.flatMap((error) =>
-          error.errors.flatMap((subError) => subError.message)
+          error.errors.flatMap((subError) => subError.message),
         );
 
         if (errors.includes("This attribute must be unique")) {
@@ -509,7 +516,7 @@
           .split(",")
           .map((type) => type.trim().replace(".", "\\."))
           .join("|") + "$",
-        "i"
+        "i",
       );
 
       console.log(fileTypeRegex.test(file.name));
@@ -768,7 +775,7 @@
 
       console.log(
         isChild ? "Child Collections" : "Main Collections",
-        isChild ? childCollectionList : collectionList
+        isChild ? childCollectionList : collectionList,
       );
     }
   }
@@ -1004,7 +1011,8 @@
                 type="search"
                 class="bg-white dark:bg-hc-graydark-950"
                 placeholder={$_("search")}
-                on:change={handleSearch}
+                bind:value={search}
+                on:input={handleSearch}
               >
                 <SearchOutline
                   slot="left"
@@ -1359,7 +1367,8 @@
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      {$_("areYouSureYouWantToDelete")} {checkboxDelete ? $_("theseDocuments") : $_("thisDocument")}
+      {$_("areYouSureYouWantToDelete")}
+      {checkboxDelete ? $_("theseDocuments") : $_("thisDocument")}
     </h3>
     <Button onclick={checkboxDelete ? deleteDocuments : deleteDocument} color="red" class="me-2"
       >{$_("yesImSure")}</Button
@@ -1500,7 +1509,9 @@
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      {$_("areYouSureYouWantToDelete")} {$_("collection")} {tmpCollectionName}?
+      {$_("areYouSureYouWantToDelete")}
+      {$_("collection")}
+      {tmpCollectionName}?
     </h3>
     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>

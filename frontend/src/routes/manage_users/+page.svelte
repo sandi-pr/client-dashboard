@@ -35,6 +35,7 @@ All Rights Reserved
   let gettingDatas = $state(false);
 
   let userListDatas = $state([]);
+  let filteredUsers = $state([]);
   let addRoleModal = $state(false);
   let tmpRoleName = $state("");
 
@@ -110,32 +111,11 @@ All Rights Reserved
             status: user.blocked === true ? "Inactive" : "Active",
             href:
               `${await $call.getPage("client-dashboard", "user-detail")}` + "?userId=" + user.id,
-            // actions: {
-            //   objects: [
-            //     {
-            //       href:
-            //         `${await $call.getPage("client-dashboard", "user-detail")}` +
-            //         "?userId=" +
-            //         user.id +
-            //         "&edit=" +
-            //         false,
-            //       name: "View",
-            //     },
-            //     {
-            //       href:
-            //         `${await $call.getPage("client-dashboard", "user-detail")}` +
-            //         "?userId=" +
-            //         user.id +
-            //         "&edit=" +
-            //         true,
-            //       name: "Edit",
-            //     },
-            //   ],
-            // },
           };
         });
 
         userListDatas = await Promise.all(promises);
+        filteredUsers = userListDatas;
       }
       gettingDatas = false;
     }
@@ -206,6 +186,17 @@ All Rights Reserved
 
   const handleSearch = (evt) => {
     console.log("clicked");
+    const searchTerm = evt.target.value.toLowerCase();
+
+    filteredUsers = userListDatas.filter((user) => {
+      return (
+        user.fullname.toLowerCase().includes(searchTerm) ||
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm) ||
+        user.role.toLowerCase().includes(searchTerm) ||
+        user.status.toLowerCase().includes(searchTerm)
+      );
+    });
   };
 
   onMount(async () => {
@@ -303,46 +294,48 @@ All Rights Reserved
         </div>
 
         <!-- Person Table Data -->
-        {#if userListDatas.length > 0}
-          {#if tabDatas.selected === "Users List"}
-            <div class="items-center">
-              <Input
-                id="search"
-                type="search"
-                class="bg-white dark:bg-hc-graydark-950 my-4"
-                placeholder={$_("search")}
-                on:change={handleSearch}
-              >
-                <SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              </Input>
-            </div>
-            <DataTableUser {userListDatas} {metadata} next={nextPage} previous={prevPage} />
-          {:else if tabDatas.selected === "Roles"}
-            <!-- <GridListPermissions bind:permissionListDatas bind:edit={editRoles} /> -->
-            {#if datas.length > 0}
-              <DataTable bind:datas bind:configs />
-            {:else if gettingDatas}
-              <StateCard
-                illustration={IllustrationProgress}
-                description={$_("fetchingDataPleaseWait")}
-              />
-            {:else}
-              <StateCard
-                illustration={IllustrationEmpty}
-                description={$_("youDontHaveAnyDataYet")}
-              />
-            {/if}
+        <!-- {#if filteredUsers.length > 0} -->
+        {#if tabDatas.selected === "Users List"}
+          <div class="items-center">
+            <Input
+              id="search"
+              type="search"
+              class="bg-white dark:bg-hc-graydark-950 my-4"
+              placeholder={$_("search")}
+              on:input={handleSearch}
+            >
+              <SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </Input>
+          </div>
+          <DataTableUser
+            userListDatas={filteredUsers}
+            {metadata}
+            next={nextPage}
+            previous={prevPage}
+          />
+        {:else if tabDatas.selected === "Roles"}
+          <!-- <GridListPermissions bind:permissionListDatas bind:edit={editRoles} /> -->
+          {#if datas.length > 0}
+            <DataTable bind:datas bind:configs />
+          {:else if gettingDatas}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
           {:else}
-            <!-- else content here -->
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {/if}
-        {:else if gettingDatas}
+        {:else}
+          <!-- else content here -->
+        {/if}
+        <!-- {:else if gettingDatas}
           <StateCard
             illustration={IllustrationProgress}
             description={$_("fetchingDataPleaseWait")}
-          />
-        {:else}
+          /> -->
+        <!-- {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-        {/if}
+        {/if} -->
       </div>
     </div>
   </div>

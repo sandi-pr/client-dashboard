@@ -65,6 +65,7 @@
   let tmpDocumentType = $state("Documents");
   let selectedTypeCollection = $state("Documents (TXT, PDF)");
   let acceptedFileTypes = $state(".txt, .pdf");
+  let search = $state("");
   let tags = $state([]);
   let newTag = $state("");
   let files = $state([]);
@@ -129,6 +130,10 @@
     if (token !== null) {
       getCollection();
 
+      if (search !== "") {
+        pagination.page = 1;
+      }
+
       let response = await $call.call("client-dashboard", "get-library-documents", {
         URLQuery: {},
         URLParams: {},
@@ -136,6 +141,7 @@
           page: pagination.page,
           page_size: pagination.pageSize,
           parent_id: parseInt(subCollectionId),
+          search: search,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -291,6 +297,7 @@
 
   const handleSearch = (evt) => {
     console.log("clicked");
+    getDocuments();
   };
 
   async function addDocumentByCollection() {
@@ -893,7 +900,8 @@
                 type="search"
                 class="bg-white dark:bg-hc-graydark-950"
                 placeholder={$_("search")}
-                on:change={handleSearch}
+                bind:value={search}
+                on:input={handleSearch}
               >
                 <SearchOutline
                   slot="left"
