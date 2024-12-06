@@ -218,7 +218,7 @@
   "selectCategory": "Select Category",
   "add": "Add",
   "chooseOption": "Choose Option",
-  "areYouSureYouWantToDelete": "Are you sure you want to delete?",
+  "areYouSureYouWantToDelete": "Are you sure you want to delete",
   "yesImSure": "Yes, I'm sure",
   "noCancel": "Cancel",
   "successfullyDeleted": "Successfully deleted.",
@@ -782,5 +782,8 @@
   "moveDocument": "Move Document",
   "whereDoYouWantToMoveThisDocument": "Where do you want to move this document?",
   "subCollections": "Sub Collections",
-  "documentLibraryList": "Document Library List"
+  "documentLibraryList": "Document Library List",
+  "collection": "Collection",
+  "theseDocuments": "these documents?",
+  "thisDocument": "this document?"
 }

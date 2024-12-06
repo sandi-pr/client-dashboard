@@ -548,6 +548,7 @@
                 }}
                 functDelete={() => {
                   tmpCollectionId = collection.id;
+                  tmpCollectionName = collection.collectionName;
                   deleteModal = true;
                 }}
                 funcDetailCollection={() => {
@@ -659,7 +660,7 @@
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      {$_("areYouSureYouWantToDelete")}
+      {$_("areYouSureYouWantToDelete")} {$_("collection")} {tmpCollectionName}?
     </h3>
     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
@@ -670,7 +671,7 @@
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      {$_("areYouSureYouWantToDelete")}
+      {$_("areYouSureYouWantToDelete")} {$_("library")} {collectionDatas.title}?
     </h3>
     <Button onclick={deleteLibrary} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteLibraryModal = false)}

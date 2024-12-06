@@ -218,7 +218,7 @@
   "selectCategory": "Pilih Kategori",
   "add": "Tambahkan",
   "chooseOption": "Pilih Opsi",
-  "areYouSureYouWantToDelete": "Apakah Anda yakin ingin menghapus?",
+  "areYouSureYouWantToDelete": "Apakah Anda yakin ingin menghapus",
   "yesImSure": "Ya, Saya yakin",
   "noCancel": "Batalkan",
   "successfullyDeleted": "Berhasil dihapus.",
@@ -782,5 +782,8 @@
   "moveDocument": "Pindahkan Dokumen",
   "whereDoYouWantToMoveThisDocument": "Dimana Anda ingin memindahkan dokumen ini?",
   "subCollections": "Sub Koleksi",
-  "documentLibraryList": "Daftar Pustaka Dokumen"
+  "documentLibraryList": "Daftar Pustaka Dokumen",
+  "collection": "Koleksi",
+  "theseDocuments": "dokumen-dokumen ini?",
+  "thisDocument": "dokumen ini?"
 }

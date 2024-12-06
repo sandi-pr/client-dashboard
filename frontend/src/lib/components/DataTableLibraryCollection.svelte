@@ -221,7 +221,7 @@
             </Button> -->
 
             {#if check("documentAi.documentLibrary.document:delete")}
-              <div on:focusout={handleDropdownFocusLoss(index)} class=" flex items-center relative">
+              <div class=" flex items-center relative">
                 <Button
                   on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
                   class="focus-within:ring-0 !p-0"

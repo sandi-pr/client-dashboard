@@ -708,10 +708,19 @@ All Rights Reserved
     localStorage.setItem("isFirstTime", isFirstTime);
   }
 
+  let isFirstTimeTimeoutId;
+
   function getFristTime() {
     if (typeof localStorage !== "undefined") {
       isFirstTime = localStorage.getItem("isFirstTime") === "false" ? false : true;
       console.log("isFirstTime", isFirstTime);
+
+      if (isFirstTime) {
+        isFirstTimeTimeoutId = setTimeout(() => {
+          isFirstTime = false;
+          localStorage.setItem("isFirstTime", isFirstTime);
+        }, 6000);
+      }
     } else {
       console.log("localstorage is undefined");
     }
