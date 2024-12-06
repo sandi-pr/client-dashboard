@@ -79,9 +79,6 @@
       {
         name: "Collections",
       },
-      {
-        name: "Sub Collections",
-      },
     ],
   });
 
@@ -91,8 +88,9 @@
     createdAt: "",
   });
   let collectionListDatas = $state([]);
-  let collectionList = $state([]);
+  let childCollectionListDatas = $state([]);
   let childCollectionList = $state([]);
+  let collectionList = $state([]);
   let tmpSelectedCollection = $state(null);
   let previewModal = $state(false);
   let selectedFile = $state(null);
@@ -692,11 +690,13 @@
     }
   }
 
-  async function getCollections(isChild = false) {
+  async function getCollections(isChild = false, subCollections = false) {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
       const aggregatedData = [];
+
+      paginationCollection.page = 1;
 
       do {
         let response = await $call.call("client-dashboard", "get-library-collections", {
@@ -705,7 +705,9 @@
           Params: {
             page: paginationCollection.page,
             page_size: paginationCollection.pageSize,
-            parent_id: parseInt(isChild ? collectionId : libraryId),
+            parent_id: parseInt(
+              isChild ? collectionId : subCollections ? tmpSelectedCollection.id : libraryId,
+            ),
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -752,14 +754,24 @@
 
       if (isChild) {
         childCollectionList = await Promise.all(promise);
+        console.log("ischild", childCollectionList);
+      } else if (subCollections) {
+        childCollectionListDatas = await Promise.all(promise);
+        console.log("subcollection", childCollectionListDatas);
+        if (childCollectionListDatas.length > 0) {
+          tabDatas.data = [
+            ...tabDatas.data,
+            {
+              name: "Sub Collections",
+            },
+          ];
+        } else {
+          tabDatas.data = tabDatas.data.filter((item) => item.name !== "Sub Collections");
+        }
       } else {
+        console.log("collections", collectionList);
         collectionList = await Promise.all(promise);
       }
-
-      console.log(
-        isChild ? "Child Collections" : "Main Collections",
-        isChild ? childCollectionList : collectionList,
-      );
     }
   }
 
@@ -837,8 +849,11 @@
     }
   }
 
-  const selectCollection = (item) => {
+  const selectCollection = (item, subcollection = false) => {
     tmpSelectedCollection = item;
+    if (!subcollection) {
+      getCollections(false, true);
+    }
 
     console.log("selected collection", tmpSelectedCollection);
   };
@@ -1262,7 +1277,9 @@
   </svelte:fragment>
 
   <div class="flex flex-col">
-    <TabDetail spaceTop="mt-0" {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+    <div class="bg-white dark:bg-gray-800 sticky -top-5">
+      <TabDetail spaceTop="mt-0" {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+    </div>
     {#if tabDatas.selected === "Collections"}
       <div class="flex flex-col justify-center mt-3 gap-3">
         <div class="flex flex-col gap-6">
@@ -1293,13 +1310,13 @@
     {:else if tabDatas.selected === "Sub Collections"}
       <div class="flex flex-col justify-center mt-3 gap-3">
         <div class="flex flex-col gap-6">
-          {#each childCollectionList as item, index (item)}
+          {#each childCollectionListDatas as item, index (item)}
             <Card
               class="{tmpSelectedCollection === item
                 ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
                 : ''}bg-hc-graylight-50 hover:bg-hc-brand-50 cursor-pointer gap-3"
               size="xl"
-              on:click={() => selectCollection(item)}
+              on:click={() => selectCollection(item, true)}
             >
               <div class="flex flex-col gap-0.5">
                 <P
