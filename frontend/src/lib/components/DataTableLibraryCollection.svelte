@@ -25,6 +25,7 @@
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import Trash01Icon from "$lib/icon/trash-01.svelte";
   import { onMount } from "svelte";
 
   export let collectionListDatas;
@@ -192,7 +193,12 @@
             </div></TableBodyCell
           >
           <TableBodyCell>{collectionListData.filesize}</TableBodyCell>
-          <TableBodyCell><div class="flex items-center gap-1"><Avatar size="xs" />{collectionListData.upload_by + " - " + collectionListData.createdAt}</div></TableBodyCell>
+          <TableBodyCell>
+            <div class="flex items-center gap-1">
+              <Avatar size="xs" />
+              {collectionListData.upload_by + " - " + collectionListData.createdAt}
+            </div>
+          </TableBodyCell>
           <TableBodyCell>
             <Button
               disabled={!check("documentAi.documentLibrary.document:view")}
@@ -220,7 +226,7 @@
               <DotsVerticalIcon svgClass="w-5 h-5 !text-quinary-light !dark:text-quinary-dark" />
             </Button> -->
 
-            {#if check("documentAi.documentLibrary.document:delete")}
+            <!-- {#if check("documentAi.documentLibrary.document:delete")}
               <div class=" flex items-center relative">
                 <Button
                   on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
@@ -235,10 +241,6 @@
                   class={`z-10 ${dropdownActionOpen[index] ? "absolute -top-4 right-12" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
                 >
                   <ul class="py-2 grow text-sm">
-                    <!-- <button
-                    class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    onclick={() => {isEdit = true}}>{$_("edit")}</button
-                  > -->
                     <button
                       class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                       on:click={() => {
@@ -249,7 +251,19 @@
                   </ul>
                 </div>
               </div>
-            {/if}
+            {/if} -->
+            <Button
+              on:click={() => {
+                functDeleteCategories(collectionListData.id);
+              }}
+              class="focus-within:ring-0 !p-0 text-brand-tertiary-light dark:text-brand-tertiary-dark"
+              color="none"
+              size="xs"
+            >
+              <Trash01Icon svgClass="w-5 h-5" />
+              &nbsp;&nbsp;
+              <P class="text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("delete")}</P>
+            </Button>
           </TableBodyCell>
         </TableBodyRow>
       {/each}

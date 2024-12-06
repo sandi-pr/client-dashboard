@@ -24,6 +24,7 @@
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import Trash01Icon from "$lib/icon/trash-01.svelte";
   import { onMount } from "svelte";
 
   export let collectionListDatas;
@@ -164,25 +165,7 @@
               <EyeIcon svgClass="w-5 h-5" />
               &nbsp;{$_("view")}
             </Button>
-            <div class="flex items-center">
-              {#if collectionListData.checked}
-                <Checkbox
-                  checked={collectionListData.checked}
-                  on:click={() => {
-                    checkSingle(index);
-                  }}
-                />
-              {:else}
-                <Checkbox
-                  checked={collectionListData.checked}
-                  on:click={() => {
-                    checkSingle(index);
-                  }}
-                />
-              {/if}
-              <P class="text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("select")}</P>
-            </div>
-            {#if check("documentAi.documentLibrary.document:delete")}
+            <!-- {#if check("documentAi.documentLibrary.document:delete")}
               <div on:focusout={handleDropdownFocusLoss} class=" flex items-center relative">
                 <Button
                   on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
@@ -207,7 +190,37 @@
                   </ul>
                 </div>
               </div>
-            {/if}
+            {/if} -->
+            <Button
+              on:click={() => {
+                functDeleteCategories(collectionListData.id);
+              }}
+              class="focus-within:ring-0 !p-0 text-brand-tertiary-light dark:text-brand-tertiary-dark"
+              color="none"
+              size="xs"
+            >
+              <Trash01Icon svgClass="w-5 h-5" />
+              &nbsp;&nbsp;
+              <P class="text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("delete")}</P>
+            </Button>
+            <div class="flex items-center ml-1">
+              {#if collectionListData.checked}
+                <Checkbox
+                  checked={collectionListData.checked}
+                  on:click={() => {
+                    checkSingle(index);
+                  }}
+                />
+              {:else}
+                <Checkbox
+                  checked={collectionListData.checked}
+                  on:click={() => {
+                    checkSingle(index);
+                  }}
+                />
+              {/if}
+              <P class="text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("select")}</P>
+            </div>
           </TableBodyCell>
         </TableBodyRow>
         <TableBodyRow>
