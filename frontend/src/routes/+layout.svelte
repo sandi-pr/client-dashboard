@@ -81,7 +81,7 @@ All Rights Reserved
 
   const hideLayoutListBakrie = isFrontend
     ? ["/document_collection", "/document_collection/libraries"]
-    : ["/client-dashboard/document_library/", "/client-dashboard/document_library/libraries"];
+    : ["/client-dashboard/document_library", "/client-dashboard/document_library/libraries"];
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
 
