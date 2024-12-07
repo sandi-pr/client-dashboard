@@ -760,12 +760,14 @@
         childCollectionListDatas = await Promise.all(promise);
         console.log("subcollection", childCollectionListDatas);
         if (childCollectionListDatas.length > 0) {
-          tabDatas.data = [
-            ...tabDatas.data,
-            {
-              name: "Sub Collections",
-            },
-          ];
+          if (tabDatas.data.length < 2) {
+            tabDatas.data = [
+              ...tabDatas.data,
+              {
+                name: "Sub Collections",
+              },
+            ];
+          }
         } else {
           tabDatas.data = tabDatas.data.filter((item) => item.name !== "Sub Collections");
         }
