@@ -246,7 +246,7 @@
       triggerToast("success");
 
       addCollectionModal = false;
-      getDocuments();
+      getCollections(true);
     }
   }
 
@@ -441,6 +441,7 @@
     }
 
     files = [];
+    dataSend = null;
 
     tmpDocumentTitle = "";
     tmpDocumentDescription = "";

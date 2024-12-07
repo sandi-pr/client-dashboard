@@ -88,9 +88,9 @@ export function connectWebSocket(token, isFrontend) {
           clearTimeout(timeout);
         }
 
-        // if (message.content.includes("100")) {
-        //   onProgress.set(false);
-        // }
+        if (message.content.includes("100")) {
+          onProgress.set(false);
+        }
       } else {
         if (message.type === "progress") {
           onProgress.set(true);

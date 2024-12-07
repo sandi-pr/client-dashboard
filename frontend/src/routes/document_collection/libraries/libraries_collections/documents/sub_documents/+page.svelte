@@ -431,6 +431,7 @@
     }
 
     files = [];
+    dataSend = null;
 
     tmpDocumentTitle = "";
     tmpDocumentDescription = "";

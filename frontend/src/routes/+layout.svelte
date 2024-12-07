@@ -76,6 +76,13 @@ All Rights Reserved
     ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
+  const isBakrie = $state(true);
+  let hideBakrie = $state(true);
+
+  const hideLayoutListBakrie = isFrontend
+    ? ["/document_collection", "/document_collection/libraries"]
+    : ["/client-dashboard/document_library/", "/client-dashboard/document_library/libraries"];
+
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
 
   const hideScrollList = $state(["/document/document_collection/chat"]);
@@ -118,6 +125,19 @@ All Rights Reserved
         }
       }
     });
+  };
+
+  const hideLayoutBakrie = () => {
+    if (isBakrie) {
+      const result = !hideLayoutListBakrie.some((path) => {
+        const currentPath = window.location.pathname.trim();
+        const normalizedPath = path.trim();
+        return currentPath === normalizedPath;
+      });
+      return result;
+    } else {
+      return true;
+    }
   };
 
   const hideNavbar = () => {
@@ -636,7 +656,7 @@ All Rights Reserved
             Headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (response.status !== 200) {
@@ -755,7 +775,7 @@ All Rights Reserved
 
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data.attributes.company_industry)
+        parseInt(response.result.data.attributes.company_industry),
       );
 
       // await checkLibrariesIndustry(response.result.data.attributes.company_industry);
@@ -887,7 +907,7 @@ All Rights Reserved
           // Hilangkan duplikat berdasarkan `id`
           const unique = combined.filter(
             (item, index, self) =>
-              index === self.findIndex((t) => t.attributes.title === item.attributes.title)
+              index === self.findIndex((t) => t.attributes.title === item.attributes.title),
           );
 
           return unique;
@@ -1001,6 +1021,19 @@ All Rights Reserved
 
     connectWebSocket(localStorage.getItem("token"), isFrontend);
 
+    if (!hideLayoutBakrie()) {
+      const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
+      let collectionList = isFrontend
+        ? window.location.pathname.trim() === "/document_collection"
+          ? "document_collection/libraries/libraries_collections/"
+          : "libraries/libraries_collections/"
+        : await call.getPage("client-dashboard", "document-library-collections");
+      const redirectUrl = `${collectionList}?libraryId=${libraryIdWebchatBakrie}`;
+      window.location.replace(redirectUrl);
+    } else {
+      hideBakrie = false;
+    }
+
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
@@ -1019,11 +1052,11 @@ All Rights Reserved
     toggleSidebarLargeClosed(
       localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024
         ? true
-        : false
+        : false,
     );
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));
@@ -1077,7 +1110,7 @@ All Rights Reserved
 
 {#if $isLoading}
   <!-- <LoadingSpinner /> -->
-{:else if winInnerWidth > 0 && $callReady === true && ready === true}
+{:else if winInnerWidth > 0 && $callReady === true && ready === true && !hideBakrie}
   {#if hideLayout()}
     <div class="lg:flex">
       <div class="z-20">
