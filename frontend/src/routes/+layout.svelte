@@ -44,6 +44,7 @@ All Rights Reserved
     bakrieLibraryId,
     handwritingCollectionId,
     onProgress,
+    isBakrie,
   } from "$lib";
   import { onDestroy, onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -76,7 +77,6 @@ All Rights Reserved
     ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
-  const isBakrie = $state(true);
   let hideBakrie = $state(true);
 
   const hideLayoutListBakrie = isFrontend
@@ -128,7 +128,7 @@ All Rights Reserved
   };
 
   const hideLayoutBakrie = () => {
-    if (isBakrie) {
+    if ($isBakrie) {
       const result = !hideLayoutListBakrie.some((path) => {
         const currentPath = window.location.pathname.trim();
         const normalizedPath = path.trim();
@@ -239,13 +239,22 @@ All Rights Reserved
           //   name: "hexabot",
           //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
           // },
-          {
-            icon: "archive",
-            name: "documentLibrary",
-            href: isFrontend
-              ? "/document_collection"
-              : await call.getPage("client-dashboard", "document-collection-overview"),
-          },
+          $isBakrie
+            ? {
+                icon: "archive",
+                name: "documentLibrary",
+                href: isFrontend
+                  ? "/document_collection/libraries/libraries_collections?libraryId=63"
+                  : (await call.getPage("client-dashboard", "document-library-collections")) +
+                    `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
+              }
+            : {
+                icon: "archive",
+                name: "documentLibrary",
+                href: isFrontend
+                  ? "/document_collection"
+                  : await call.getPage("client-dashboard", "document-collection-overview"),
+              },
           // {
           //   icon: "archive",
           //   name: "documentCollection",
@@ -690,7 +699,7 @@ All Rights Reserved
       }
     }
 
-    setCollectionIds(libraryIds);
+    // setCollectionIds(libraryIds);
   }
 
   async function createBakrieBot() {
@@ -1029,7 +1038,7 @@ All Rights Reserved
           : "libraries/libraries_collections/"
         : await call.getPage("client-dashboard", "document-library-collections");
       const redirectUrl = `${collectionList}?libraryId=${libraryIdWebchatBakrie}`;
-      window.location.replace(redirectUrl);
+      goto(redirectUrl);
     } else {
       hideBakrie = false;
     }

@@ -99,11 +99,19 @@ All Rights Reserved
     //   description: "descDocumentCollection",
     //   page: "document-collection-overview",
     // },
+    // {
+    //   icon: "archive",
+    //   title: "documentLibrary",
+    //   description: "descDocumentLibrary",
+    //   page: "document-collection-overview",
+    // },
+    // bakrie
     {
       icon: "archive",
       title: "documentLibrary",
       description: "descDocumentLibrary",
-      page: "document-collection-overview",
+      page: "document-library-collections",
+      param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
     },
     // {
     //   icon: "fileCheck",
@@ -770,11 +778,11 @@ All Rights Reserved
     }
   }
 
-  const navigateToPage = async (page) => {
+  const navigateToPage = async (page, param = "") => {
     if (page === "bakrie-webchat") {
       goto(await $call.getPage("bakrie", "home-page"));
     } else {
-      goto(await $call.getPage("client-dashboard", page));
+      goto((await $call.getPage("client-dashboard", page)) + param);
     }
   };
 
@@ -866,7 +874,7 @@ All Rights Reserved
               icon={card.icon}
               title={$_(card.title)}
               description={$_(card.description)}
-              onclick={() => navigateToPage(card.page)}
+              onclick={() => navigateToPage(card.page, card.param)}
             />
           {/if}
         {/each}

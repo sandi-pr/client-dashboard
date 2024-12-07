@@ -157,37 +157,37 @@
         {
             "name": "document-collection-overview",
             "path": "/document_library",
-            "file_path": "template/document_collection.html"
+            "file_path": "template/document_library.html"
         },
         {
             "name": "document-library",
             "path": "/document_library/libraries",
-            "file_path": "template/document_collection/libraries.html"
+            "file_path": "template/document_library/libraries.html"
         },
         {
             "name": "document-library-collections",
             "path": "/document_library/libraries/collections",
-            "file_path": "template/document_collection/libraries/libraries_collections.html"
+            "file_path": "template/document_library/libraries/collections.html"
         },
         {
             "name": "document-library-documents",
             "path": "/document_library/libraries/collections/documents",
-            "file_path": "template/document_collection/libraries/libraries_collections/documents.html"
+            "file_path": "template/document_library/libraries/collections/documents.html"
         },
         {
             "name": "document-library-sub-documents",
             "path": "/document_library/libraries/collections/documents/sub_documents",
-            "file_path": "template/document_collection/libraries/libraries_collections/documents/sub_documents.html"
+            "file_path": "template/document_library/libraries/collections/documents/sub_documents.html"
         },
         {
             "name": "document-library-detail",
             "path": "/document_library/libraries/collections/documents/detail",
-            "file_path": "template/document_collection/libraries/libraries_collections/documents/detail.html"
+            "file_path": "template/document_library/libraries/collections/documents/detail.html"
         },
         {
             "name": "document-library-sub-documents-detail",
             "path": "/document_library/libraries/collections/documents/sub_documents/detail",
-            "file_path": "template/document_collection/libraries/libraries_collections/documents/sub_documents/detail.html"
+            "file_path": "template/document_library/libraries/collections/documents/sub_documents/detail.html"
         },
         {
             "name": "document-collection-chat",
