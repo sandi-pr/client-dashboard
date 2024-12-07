@@ -176,6 +176,7 @@ All Rights Reserved
       }
 
       triggerToast("updated");
+      onEdit = false;
       getUser();
 
       // goto(await $call.getPage("client-dashboard", "users"));
