@@ -782,6 +782,7 @@
   "moveDocument": "Move Document",
   "whereDoYouWantToMoveThisDocument": "Where do you want to move this document?",
   "subCollections": "Sub Collections",
+  "subDocuments": "Sub Collections",
   "documentLibraryList": "Document Library List",
   "collection": "Collection",
   "theseDocuments": "these documents?",
