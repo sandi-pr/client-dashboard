@@ -1351,7 +1351,7 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, string, e
 
 										if attributes, ok := dict.GetDict("attributes"); ok {
 											if status, ok := attributes.GetString("status"); ok {
-												if status != "Ready" {
+												if status != "Ready" && status != "Error" {
 													// fmt.Println("not ready", collection_id_int[i], idDoc)
 													return string(status), string(bot_name), nil
 												} else {
