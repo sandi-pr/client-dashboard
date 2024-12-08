@@ -379,7 +379,10 @@
             }
           }
 
-          if (dataSend === null) {
+          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
+            previewModal = true;
+            selectedFile = files[0];
+          } else {
             dataSend = {
               document_name: tmpDocumentTitle,
               description: tmpDocumentDescription,
@@ -388,12 +391,6 @@
               document_type: tmpDocumentType,
               category: tags.join(","),
             };
-          }
-
-          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
-            previewModal = true;
-            selectedFile = files[0];
-          } else {
             sendDocument();
           }
         }
