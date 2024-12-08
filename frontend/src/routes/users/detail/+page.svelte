@@ -1,7 +1,7 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
   - Taqie Fadlillah <taqief@hexacode.org>
@@ -16,7 +16,12 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
-  import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import {
+    ChevronDownOutline,
+    ExclamationCircleSolid,
+    EyeOutline,
+    EyeSlashOutline,
+  } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
   import { triggerToast } from "$lib";
 
@@ -28,6 +33,7 @@ All Rights Reserved
   let onEdit = $state(false);
   let dropdownOpen = $state(false);
   let popupModal = $state(false);
+  let showPassword = $state(false);
 
   let data = $state({
     fullname: "",
@@ -287,11 +293,23 @@ All Rights Reserved
                   {$_("password")}
                 </P>
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   readonly={!onEdit}
                   bind:value={data.password}
                   class="bg-primary-light dark:bg-secondary-dark"
-                />
+                >
+                  <button
+                    slot="left"
+                    class="pointer-events-auto"
+                    onclick={() => (showPassword = !showPassword)}
+                  >
+                    {#if showPassword}
+                      <EyeOutline class="w-6 h-6" />
+                    {:else}
+                      <EyeSlashOutline class="w-6 h-6" />
+                    {/if}
+                  </button>
+                </Input>
               </div>
               <div class="flex flex-col gap-2">
                 <P

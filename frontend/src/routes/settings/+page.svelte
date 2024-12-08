@@ -41,8 +41,7 @@
   import { setPrimaryColor } from "$lib/utils/colorTheme";
   import { purpleColors, greenColors, blueColors } from "$lib/utils/presetColors";
   import { CR3Call } from "hexacomponents-svelte";
-  import { _ } from "svelte-i18n";  
-  import { EyeOutline, EyeSlashOutline } from 'flowbite-svelte-icons';
+  import { _ } from "svelte-i18n";
 
   import { call } from "$lib";
 

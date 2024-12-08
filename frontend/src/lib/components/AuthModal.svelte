@@ -12,7 +12,9 @@
 
 <script>
   import { Button, Modal, Label, Input, Checkbox } from "flowbite-svelte";
+  import { EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
   let formModal = false;
+  let showPassword = false;
 </script>
 
 <Button on:click={() => (formModal = true)}>Form modal</Button>
@@ -26,7 +28,19 @@
     </Label>
     <Label class="space-y-2">
       <span>Your password</span>
-      <Input type="password" name="password" placeholder="•••••" required />
+      <Input type={showPassword ? "text" : "password"} name="password" placeholder="•••••" required>
+        <button
+          slot="left"
+          class="pointer-events-auto"
+          on:click={() => (showPassword = !showPassword)}
+        >
+          {#if showPassword}
+            <EyeOutline class="w-6 h-6" />
+          {:else}
+            <EyeSlashOutline class="w-6 h-6" />
+          {/if}
+        </button>
+      </Input>
     </Label>
     <div class="flex items-start">
       <Checkbox>Remember me</Checkbox>

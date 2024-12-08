@@ -1,7 +1,7 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
   - Taqie Fadlillah <taqief@hexacode.org>
@@ -16,7 +16,7 @@ All Rights Reserved
   import { onMount, createEventDispatcher } from "svelte";
   import { CR3Call, Typography } from "hexacomponents-svelte";
   import Badge from "$lib/ui/badge/Badge.svelte";
-  import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import { ChevronDownOutline, EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
   import { triggerToast, check } from "$lib";
 
@@ -27,6 +27,7 @@ All Rights Reserved
   const personId = params.get("personId");
   let onEdit = $state(true);
   let dropdownOpen = $state(false);
+  let showPassword = $state(false);
 
   let data = $state({
     fullname: "",
@@ -246,12 +247,24 @@ All Rights Reserved
                   {$_("password")}
                 </P>
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   readonly={!onEdit}
                   bind:value={data.password}
                   on:input={handlePasswordChange}
                   class="bg-primary-light dark:bg-secondary-dark"
-                />
+                >
+                  <button
+                    slot="left"
+                    class="pointer-events-auto"
+                    onclick={() => (showPassword = !showPassword)}
+                  >
+                    {#if showPassword}
+                      <EyeOutline class="w-6 h-6" />
+                    {:else}
+                      <EyeSlashOutline class="w-6 h-6" />
+                    {/if}
+                  </button>
+                </Input>
                 {#if !passwordValid && data.password.length > 0}
                   <Helper class="text-sm !text-red-400 pt-2">{$_("passwordInfo")}</Helper>
                 {/if}
