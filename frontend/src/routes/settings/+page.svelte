@@ -44,6 +44,7 @@
   import { _ } from "svelte-i18n";
 
   import { call } from "$lib";
+    import { on } from "svelte/events";
 
   let screenWidth;
   let user = informationFormDatas;
@@ -339,7 +340,7 @@
 
   const currentPasswordCheck = async () => {
     let me = JSON.parse(localStorage.getItem("user"));
-    var resp = await $call.call("client-login", "login", {
+    var resp = await $call.call("client-login", "check-password", {
       URLQuery: {},
       URLParams: {},
       Params: {
@@ -764,7 +765,7 @@
                 disabled={!currentPasswordMatch}
               />
               {#if !passwordCheck() && passwordObject.newPassword.length > 0}
-                <Typography preset="Text sm/Reguler" text={$_("hintPassword")} />
+                <Typography preset="Text sm/Reguler" color="warning-primary" text={$_("hintPassword")} />
               {/if}
             </div>
             <div class="flex flex-col w-full gap-1.5">
@@ -775,6 +776,9 @@
                 onEdit={onEditPassword}
                 disabled={!currentPasswordMatch}
               />
+              {#if onEditPassword && passwordObject.newPassword !== passwordObject.confirmPassword && passwordObject.confirmPassword.length > 0}
+                <Typography preset="Text sm/Reguler" color="warning-primary" text={$_("passwordNotMatch")} />
+              {/if}
             </div>
           </div>
           <div class="flex w-full justify-end">

@@ -786,5 +786,7 @@
   "documentLibraryList": "Document Library List",
   "collection": "Collection",
   "theseDocuments": "these documents?",
-  "thisDocument": "this document?"
+  "thisDocument": "this document?",
+  "changePassword": "Change Password",
+  "managePassword": "Manage Password"
 }

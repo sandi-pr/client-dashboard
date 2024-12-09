@@ -21,6 +21,7 @@ All Rights Reserved
     Modal,
     Avatar,
   } from "flowbite-svelte";
+  import TabDetail from "$lib/components/TabDetail.svelte";
   import { _ } from "svelte-i18n";
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount } from "svelte";
@@ -28,7 +29,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, check, generateUniqueId } from "$lib";
+  import { triggerToast, check, InputRw } from "$lib";
 
   import { call } from "$lib";
 
@@ -39,6 +40,17 @@ All Rights Reserved
   let dropdownOpenRole = $state(false);
   let dropdownOpenStatus = $state(false);
   let popupModal = $state(false);
+  let tabDatas = $state({
+    selected: "General",
+    data: [
+      {
+        name: "General",
+      },
+      {
+        name: "Password",
+      },
+    ],
+  });
 
   let data = $state({});
 
@@ -132,7 +144,7 @@ All Rights Reserved
     console.log("send", data);
     try {
       let response;
-      if (data.password === "") {
+      if (passwordObject.newPassword === "") {
         response = await $call.call("client-dashboard", "update-user", {
           URLQuery: {},
           URLParams: { id: userId },
@@ -156,7 +168,7 @@ All Rights Reserved
           Params: {
             fullname: data.fullname,
             username: data.username,
-            password: data.password,
+            password: passwordObject.newPassword,
             email: data.email,
             company: data.company,
             blocked: !data.status,
@@ -209,6 +221,43 @@ All Rights Reserved
     }
   }
 
+  let passwordObject = $state({
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const passwordCheck = () => {
+    const password = passwordObject.newPassword;
+
+    // Check if password is at least 8 characters long
+    if (password.length < 8) {
+      return false;
+    }
+
+    // Check if password contains at least one digit
+    if (!/\d/.test(password)) {
+      return false;
+    }
+
+    // Check if password contains at least one special character
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return false;
+    }
+
+    // Check if password contains at least one lowercase letter
+    if (!/[a-z]/.test(password)) {
+      return false;
+    }
+
+    // Check if password contains at least one uppercase letter
+    if (!/[A-Z]/.test(password)) {
+      return false;
+    }
+
+    // If all checks pass, return true
+    return true;
+  };
+
   let me = $state({ id: 0 });
 
   onMount(async () => {
@@ -230,14 +279,14 @@ All Rights Reserved
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- Header -->
-      <div class="flex items-center pb-8">
-        <Avatar src={data.photo} alt={data.fullname} class="w-16 h-16 me-4" />
-        <div class="flex flex-col gap-2 grow">
+      <div class="flex items-center pb-2 md:pb-8">
+        <Avatar src={data.photo} alt={data.fullname} class="w-12 h-12 md:w-16 md:h-16 me-4" />
+        <div class="flex flex-col md:gap-2 grow">
           <!-- Header -->
           <div class="gap-2">
             <Heading
               tag="h3"
-              class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
+              class="text-2xl md:text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
               {data.fullname}
               <Button
@@ -245,12 +294,12 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <CopyIcon svgClass="w-4 h-4 md:w-5 md:h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
               </Button>
             </Heading>
           </div>
           <P
-            class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
+            class="text-sm md:text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
           >
             {$_("createOn")}{` ${data.createdAt}`}
           </P>
@@ -298,12 +347,11 @@ All Rights Reserved
         </div>
       </div>
 
-      <div
-        class="mx-4 sm:mx-0 border-t-[1px] border-hc-graylight-300 dark:border-hc-graydark-700"
-      ></div>
-      <div class="flex flex-col gap-4 pt-8">
+      <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+      <div class="flex flex-col gap-4 pt-4 md:pt-8">
+        {#if tabDatas.selected === "General"}
         <!-- general information -->
-        <div class="flex gap-6">
+        <div class="flex flex-col md:flex-row gap-4 md:gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
@@ -311,7 +359,7 @@ All Rights Reserved
           </div>
           <div class="flex flex-col grow gap-6">
             <div class="grid grid-cols-6 gap-5">
-              <div class="flex flex-col col-span-3 gap-2">
+              <div class="flex flex-col col-span-6 md:col-span-3 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -323,7 +371,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-2 gap-2">
+              <div class="flex flex-col col-span-4 md:col-span-2 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -335,7 +383,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-1 gap-2">
+              <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -347,7 +395,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col col-span-4 gap-2">
+              <div class="flex flex-col col-span-6 md:col-span-4 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -359,7 +407,7 @@ All Rights Reserved
                   class="bg-primary-light dark:bg-secondary-dark"
                 />
               </div>
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -429,7 +477,7 @@ All Rights Reserved
                   </div>
                 </div>
               </div>
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >{$_("status")}</P
@@ -486,6 +534,39 @@ All Rights Reserved
             </div>
           </div>
         </div>
+        {:else if tabDatas.selected === "Password"}
+        <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+          <div class="w-60">
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              {$_("managePassword")}
+            </P>
+          </div>
+          <div class="flex flex-col grow gap-5">
+            <div class="flex flex-col w-full gap-1.5">
+              <Typography preset="Text sm/Reguler" text={$_("newPassword")} />
+              <InputRw
+                type="password"
+                bind:value={passwordObject.newPassword}
+                {onEdit}
+              />
+              {#if !passwordCheck() && passwordObject.newPassword.length > 0}
+                <Typography preset="Text sm/Reguler" color="warning-primary" text={$_("hintPassword")} />
+              {/if}
+            </div>
+            <div class="flex flex-col w-full gap-1.5">
+              <Typography preset="Text sm/Reguler" text={$_("confirmPassword")} />
+              <InputRw
+                type="password"
+                bind:value={passwordObject.confirmPassword}
+                {onEdit}
+              />
+              {#if onEdit && passwordObject.newPassword !== passwordObject.confirmPassword && passwordObject.confirmPassword.length > 0}
+                <Typography preset="Text sm/Reguler" color="warning-primary" text={$_("passwordNotMatch")} />
+              {/if}
+            </div>
+          </div>
+        </div>
+        {/if}
       </div>
     </div>
   </div>

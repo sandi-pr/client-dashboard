@@ -786,5 +786,7 @@
   "documentLibraryList": "Daftar Pustaka Dokumen",
   "collection": "Koleksi",
   "theseDocuments": "dokumen-dokumen ini?",
-  "thisDocument": "dokumen ini?"
+  "thisDocument": "dokumen ini?",
+  "changePassword": "Ubah Kata Sandi",
+  "managePassword": "Kelola Kata Sandi"
 }
