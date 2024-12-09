@@ -991,6 +991,29 @@
             ]
         },
         {
+            "name": "check-password",
+            "path": "/check-password",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CheckPassword"
+            },
+            "params": [
+                {
+                    "name": "email",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "password",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-company-type",
             "path": "/get-company-type",
             "method": "POST",

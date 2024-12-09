@@ -539,6 +539,55 @@ func DeleteUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 	return 200, user, nil
 }
 
+func CheckPassword(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	email, ok := ctx.Params.GetString("email")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters email")
+	}
+
+	password, ok := ctx.Params.GetString("password")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters password")
+	}
+
+	status, user, err := Strapi.Login(string(email), string(password))
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, user, nil
+}
+
 func GetCompanyType(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
