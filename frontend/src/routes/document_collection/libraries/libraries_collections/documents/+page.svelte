@@ -36,6 +36,7 @@
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
@@ -466,7 +467,8 @@
   }
 
   const checkLibraryName = async (name) => {
-    if (!name) {
+    let token = localStorage.getItem("token");
+    if (!name || !token) {
       return null;
     }
 
@@ -479,8 +481,12 @@
         Params: {
           name: name,
         },
-        Headers: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
       });
+
+      console.log("cek resp", resp);
 
       if (resp === null) {
         throw new Error("Server sibuk");
@@ -1545,7 +1551,7 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDeleteCategories")}
     </h3>
-    <Button onclick={deleteCategories} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <!-- <Button onclick={deleteCategories} color="red" class="me-2">{$_("yesImSure")}</Button> -->
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
@@ -1555,6 +1561,11 @@
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
+      {#if isChecking}
+        <span>Checking...</span>
+      {:else}
+        <span>{statusMessage}</span>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />

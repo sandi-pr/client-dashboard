@@ -2679,7 +2679,7 @@
         {
             "name": "is-library-name-available",
             "path": "/is-library-name-available",
-            "method": "GET",
+            "method": "POST",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
