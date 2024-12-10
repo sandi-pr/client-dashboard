@@ -899,12 +899,17 @@
     const unsubscribe = page.subscribe(async ($page) => {
       collectionId = $page.url.searchParams.get("collectionId");
       libraryId = $page.url.searchParams.get("libraryId");
-      if (collectionId === null) {
+      if (
+        collectionId === null ||
+        collectionId === undefined ||
+        libraryId === null ||
+        libraryId === undefined
+      ) {
         goto(await $call.getPage("client-dashboard", "document-library"));
         return;
       }
-      getCollections(true);
-      getCollections();
+      getCollections(true, false);
+      getCollections(false, false);
       getDocuments();
     });
 

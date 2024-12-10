@@ -867,7 +867,12 @@
       subCollectionId = $page.url.searchParams.get("subCollectionId");
       collectionId = $page.url.searchParams.get("collectionId");
       libraryId = $page.url.searchParams.get("libraryId");
-      if (collectionId === null) {
+      if (
+        collectionId === null ||
+        collectionId === undefined ||
+        libraryId === null ||
+        libraryId === undefined
+      ) {
         goto(await $call.getPage("client-dashboard", "document-library"));
         return;
       }
