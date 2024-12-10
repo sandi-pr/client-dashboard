@@ -103,7 +103,7 @@
   let gettingCollections = $state(false);
   let gettingDocuments = $state(false);
   let isChecking = $state(false);
-  let statusMessage = $state("");
+  let nameIsAvailable = $state(true);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -508,14 +508,12 @@
 
   const handleInput = async (event) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name);
+    const status = await checkLibraryName(name.trim());
 
     if (status === true) {
-      statusMessage = "Name is available";
+      nameIsAvailable = true;
     } else if (status === false) {
-      statusMessage = "Name is already taken";
-    } else {
-      statusMessage = "Error checking name";
+      nameIsAvailable = false;
     }
   };
 
@@ -596,6 +594,13 @@
           type: tmpDocumentType,
         });
         tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
+
+        const status = await checkLibraryName(tmpDocumentTitle.trim());
+        if (status === true) {
+          nameIsAvailable = true;
+        } else if (status === false) {
+          nameIsAvailable = false;
+        }
       } else {
         fileNotSupport = true;
       }
@@ -996,7 +1001,7 @@
   });
 
   $effect(() => {
-    buttonDisabled = files.length === 0 || tmpDocumentTitle === "" || tmpDocumentDescription === "";
+    buttonDisabled = files.length === 0 || tmpDocumentTitle === "" || tmpDocumentDescription === "" || !nameIsAvailable;
   });
 </script>
 
@@ -1047,6 +1052,7 @@
                   addCollectionModal = true;
                   tmpCollectionName = "";
                   tmpDescription = "";
+                  nameIsAvailable = true;
                   attributeNotUnique = false;
                 }}
                 class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
@@ -1268,28 +1274,17 @@
     {#if files.length > 0}
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        {#if !attributeNotUnique}
-          <InputRw
-            onEdit={true}
-            bind:value={tmpDocumentTitle}
-            placeholder={$_("enterDocumentTitle")}
-          />
-        {:else}
-          <Input
-            id="error"
-            color="red"
-            bind:value={tmpDocumentTitle}
-            placeholder={$_("enterDocumentTitle")}
-          />
-          <Helper color="red">
-            <span class="font-medium">{$_("nameAlreadyExist")}</span>
-          </Helper>
-        {/if}
-        <!-- <InputRw
+        <InputRw
           onEdit={true}
           bind:value={tmpDocumentTitle}
           placeholder={$_("enterDocumentTitle")}
-        /> -->
+          oninput={handleInput}
+        />
+        {#if !nameIsAvailable}
+          <Helper color="red">
+            <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+          </Helper>
+        {/if}
       </div>
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -1556,15 +1551,15 @@
   </div>
 </Modal>
 
-<Modal title={$_("createNewCollection")} bind:open={addCollectionModal} size="xs" autoclose>
+<Modal title={$_("createNewSubCollection")} bind:open={addCollectionModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
-      {#if isChecking}
-        <span>Checking...</span>
-      {:else}
-        <span>{statusMessage}</span>
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
@@ -1575,17 +1570,22 @@
   <svelte:fragment slot="footer">
     <Button
       onclick={createCollection}
-      disabled={!tmpCollectionName || !tmpDescription}
-      class="w-full">{$_("addNewCollection")}</Button
+      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
+      class="w-full">{$_("addNewSubCollection")}</Button
     >
   </svelte:fragment>
 </Modal>
 
-<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
+<Modal title={$_("editSubCollectionName")} bind:open={editModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -1595,7 +1595,7 @@
   <svelte:fragment slot="footer">
     <Button
       onclick={editCollectionName}
-      disabled={!tmpCollectionName && !tmpDescription}
+      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>

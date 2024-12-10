@@ -788,5 +788,10 @@
   "theseDocuments": "these documents?",
   "thisDocument": "this document?",
   "changePassword": "Change Password",
-  "managePassword": "Manage Password"
+  "managePassword": "Manage Password",
+  "nameAlreadyTaken": "Name already taken",
+  "createNewSubCollection": "Create new Sub Collection",
+  "subCollectionName": "Sub Collection Name",
+  "addNewSubCollection": "Add new Sub Collection",
+  "editSubCollectionName": "Edit Sub Collection Name"
 }

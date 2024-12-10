@@ -96,6 +96,7 @@
   let selectedFile = $state(null);
   let dataSend = $state(null);
   let textarea = $state();
+  let nameIsAvailable = $state(true);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -523,6 +524,13 @@
           type: tmpDocumentType,
         });
         tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
+
+        const status = await checkLibraryName(tmpDocumentTitle.trim());
+        if (status === true) {
+          nameIsAvailable = true;
+        } else if (status === false) {
+          nameIsAvailable = false;
+        }
       } else {
         fileNotSupport = true;
       }
@@ -861,6 +869,53 @@
     console.log("selected collection", tmpSelectedCollection);
   };
 
+  const checkLibraryName = async (name) => {
+    let token = localStorage.getItem("token");
+    if (!name || !token) {
+      return null;
+    }
+
+    try {
+      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: name,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("cek resp", resp);
+
+      if (resp === null) {
+        throw new Error("Server sibuk");
+      }
+
+      if (resp.status === 200) {
+        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
+      } else {
+        console.error("Error memeriksa name:", resp);
+        return null;
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return null;
+    }
+  };
+
+  const handleInput = async (event) => {
+    const name = event.target.value;
+    const status = await checkLibraryName(name.trim());
+
+    if (status === true) {
+      nameIsAvailable = true;
+    } else if (status === false) {
+      nameIsAvailable = false;
+    }
+  };
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -890,7 +945,7 @@
   });
 
   $effect(() => {
-    buttonDisabled = files.length === 0 || tmpDocumentTitle === "" || tmpDocumentDescription === "";
+    buttonDisabled = files.length === 0 || tmpDocumentTitle === "" || tmpDocumentDescription === "" || !nameIsAvailable;
   });
 </script>
 
@@ -962,6 +1017,7 @@
                 tags = [];
                 tmpDocumentTitle = "";
                 tmpDocumentDescription = "";
+                nameIsAvailable = true;
                 attributeNotUnique = false;
               }}
               class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
@@ -1070,28 +1126,17 @@
     {#if files.length > 0}
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        {#if !attributeNotUnique}
-          <InputRw
-            onEdit={true}
-            bind:value={tmpDocumentTitle}
-            placeholder={$_("enterDocumentTitle")}
-          />
-        {:else}
-          <Input
-            id="error"
-            color="red"
-            bind:value={tmpDocumentTitle}
-            placeholder={$_("enterDocumentTitle")}
-          />
-          <Helper color="red">
-            <span class="font-medium">{$_("nameAlreadyExist")}</span>
-          </Helper>
-        {/if}
-        <!-- <InputRw
+        <InputRw
           onEdit={true}
           bind:value={tmpDocumentTitle}
+          oninput={handleInput}
           placeholder={$_("enterDocumentTitle")}
-        /> -->
+        />
+        {#if !nameIsAvailable}
+          <Helper color="red">
+            <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+          </Helper>
+        {/if}
       </div>
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />

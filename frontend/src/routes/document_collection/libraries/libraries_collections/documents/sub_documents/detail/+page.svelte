@@ -76,6 +76,7 @@ All Rights Reserved
   let data = $state({});
   let tmpData = $state({});
   let uploadBy = $state("");
+  let nameIsAvailable = $state(true);
 
   // let categoriesTab = $state([
   //   {
@@ -616,6 +617,53 @@ All Rights Reserved
     });
   }
 
+  const checkLibraryName = async (name) => {
+    let token = localStorage.getItem("token");
+    if (!name || !token) {
+      return null;
+    }
+
+    try {
+      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: name,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("cek resp", resp);
+
+      if (resp === null) {
+        throw new Error("Server sibuk");
+      }
+
+      if (resp.status === 200) {
+        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
+      } else {
+        console.error("Error memeriksa name:", resp);
+        return null;
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return null;
+    }
+  };
+
+  const handleInput = async (event) => {
+    const name = event.target.value;
+    const status = await checkLibraryName(name.trim());
+
+    if (status === true) {
+      nameIsAvailable = true;
+    } else if (status === false) {
+      nameIsAvailable = false;
+    }
+  };
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -694,6 +742,7 @@ All Rights Reserved
                 onEdit = false;
                 data = { ...tmpData };
                 attributeNotUnique = false;
+                nameIsAvailable = true;
                 console.log(tmpData);
               }}
               color="light"
@@ -703,7 +752,7 @@ All Rights Reserved
               onclick={() => {
                 updateDocument();
               }}
-              disabled={data.document_title === "" || data.description === ""}
+              disabled={data.document_title === "" || data.description === "" || !nameIsAvailable}
               class="px-3 focus-within:!ring-1">{$_("save")}</Button
             >
           {:else}
@@ -758,7 +807,12 @@ All Rights Reserved
                   color="secondary"
                   text={`${$_("documentTitle")}*`}
                 />
-                <InputRw {onEdit} bind:value={data.document_title} />
+                <InputRw {onEdit} oninput={handleInput} bind:value={data.document_title} />
+                {#if !nameIsAvailable}
+                  <Helper color="red">
+                    <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+                  </Helper>
+                {/if}
               </div>
               <div class="flex flex-col gap-1.5">
                 <Typography

@@ -93,6 +93,7 @@ All Rights Reserved
   let timer;
   let fileNotSupport = $state(false);
   let attributeNotUnique = $state(false);
+  let nameIsAvailable = $state(true);
 
   async function getActionItems() {
     actionItems = [
@@ -702,16 +703,63 @@ All Rights Reserved
     return;
   }
 
+  const checkLibraryName = async (name) => {
+    let token = localStorage.getItem("token");
+    if (!name || !token) {
+      return null;
+    }
+
+    try {
+      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: name,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("cek resp", resp);
+
+      if (resp === null) {
+        throw new Error("Server sibuk");
+      }
+
+      if (resp.status === 200) {
+        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
+      } else {
+        console.error("Error memeriksa name:", resp);
+        return null;
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return null;
+    }
+  };
+
+  const handleInput = async (event) => {
+    const name = event.target.value;
+    const status = await checkLibraryName(name.trim());
+
+    if (status === true) {
+      nameIsAvailable = true;
+    } else if (status === false) {
+      nameIsAvailable = false;
+    }
+  };
+
   onMount(async () => {
-    // if (
-    //   typeof window !== "undefined" &&
-    //   window.document !== null &&
-    //   window.localStorage.getItem("libraryIdWebchatBakrie")
-    // ) {
-    //   const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-    //   const redirectUrl = `document_library/libraries/collections/?libraryId=${libraryIdWebchatBakrie}`;
-    //   window.location.replace(redirectUrl);
-    // }
+    if (
+      typeof window !== "undefined" &&
+      window.document !== null &&
+      window.localStorage.getItem("libraryIdWebchatBakrie")
+    ) {
+      const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
+      const redirectUrl = `document_library/libraries/collections/?libraryId=${libraryIdWebchatBakrie}`;
+      window.location.replace(redirectUrl);
+    }
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
       return;
@@ -799,6 +847,7 @@ All Rights Reserved
                   tmpCollectionName = document.collectionName;
                   tmpDescription = document.description;
                   attributeNotUnique = false;
+                  nameIsAvailable = true;
                   editModal = true;
                 }}
                 functDelete={() => {
@@ -829,17 +878,10 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      {#if !attributeNotUnique}
-        <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
-      {:else}
-        <Input
-          id="error"
-          color="red"
-          bind:value={tmpCollectionName}
-          placeholder={$_("whatIsYourLibraryTitle")}
-        />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourLibraryTitle")} />
+      {#if !nameIsAvailable}
         <Helper color="red">
-          <span class="font-medium">{$_("nameAlreadyExist")}</span>
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
         </Helper>
       {/if}
     </div>
@@ -851,7 +893,7 @@ All Rights Reserved
   <svelte:fragment slot="footer">
     <Button
       onclick={createCollection}
-      disabled={!tmpCollectionName || !tmpDescription}
+      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
       class="w-full">{$_("addNewLibrary")}</Button
     >
   </svelte:fragment>

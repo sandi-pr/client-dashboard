@@ -788,5 +788,10 @@
   "theseDocuments": "dokumen-dokumen ini?",
   "thisDocument": "dokumen ini?",
   "changePassword": "Ubah Kata Sandi",
-  "managePassword": "Kelola Kata Sandi"
+  "managePassword": "Kelola Kata Sandi",
+  "nameAlreadyTaken": "Nama sudah dipakai",
+  "createNewSubCollection": "Buat Sub Koleksi baru",
+  "subCollectionName": "Nama Sub Koleksi",
+  "addNewSubCollection": "Tambahkan Sub Koleksi baru",
+  "editSubCollectionName": "Edit Nama Sub Koleksi"
 }
