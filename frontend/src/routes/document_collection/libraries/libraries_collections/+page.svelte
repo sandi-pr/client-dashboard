@@ -40,6 +40,7 @@
   let tmpCollectionId = $state("");
   let libraryId = $state("");
   let dropdownOpen = $state(false);
+  let gettingData = $state(false);
 
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
 
@@ -98,6 +99,7 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      gettingData = true;
       getLibrary();
 
       let response = await $call.call("client-dashboard", "get-library-collections", {
@@ -115,6 +117,7 @@
 
       if (response.status !== 200) {
         console.log(response);
+        gettingData = false;
         return;
       }
 
@@ -146,6 +149,8 @@
       });
 
       collectionListDatas = await Promise.all(promise);
+
+      gettingData = false;
     }
   }
 
@@ -516,79 +521,72 @@
 
         <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
-        {#if tabDatas.selected === "My Collections" && collectionListDatas.length > 0}
-          <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-            {#each collectionListDatas as collection}
-              <LibraryCard
-                collectionName={collection.collectionName}
-                usedFor="libraries_collections"
-                functButton={() => {
-                  // selectCollection({
-                  //   id: collection.id,
-                  //   name: collection.collectionName,
-                  //   description: collection.description,
-                  //   totalDocuments: collection.totalDocuments,
-                  // });
-                }}
-                functAddDocuments={() => {
-                  tmpCollectionId = collection.id;
-                  // tmpHref = collection.href;
-                  // categories = collection.categories;
-                  // selectTypeCollection("Documents");
-                  // categories = collection.categories;
-                  // otherCategory = "";
-                  // addOtherCategory = false;
-                  addDocumentsModal = true;
-                }}
-                functEdit={() => {
-                  tmpCollectionId = collection.id;
-                  tmpCollectionName = collection.collectionName;
-                  tmpDescription = collection.description;
-                  editModal = true;
-                }}
-                functDelete={() => {
-                  tmpCollectionId = collection.id;
-                  tmpCollectionName = collection.collectionName;
-                  deleteModal = true;
-                }}
-                funcDetailCollection={() => {
-                  goto(collection.href);
-                }}
-                {libraryId}
-              />
-            {/each}
-          </div>
+        {#if tabDatas.selected === "My Collections"}
+          {#if collectionListDatas.length > 0}
+            <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+              {#each collectionListDatas as collection}
+                <LibraryCard
+                  collectionName={collection.collectionName}
+                  usedFor="libraries_collections"
+                  functButton={() => {
+                    // selectCollection({
+                    //   id: collection.id,
+                    //   name: collection.collectionName,
+                    //   description: collection.description,
+                    //   totalDocuments: collection.totalDocuments,
+                    // });
+                  }}
+                  functAddDocuments={() => {
+                    tmpCollectionId = collection.id;
+                    // tmpHref = collection.href;
+                    // categories = collection.categories;
+                    // selectTypeCollection("Documents");
+                    // categories = collection.categories;
+                    // otherCategory = "";
+                    // addOtherCategory = false;
+                    addDocumentsModal = true;
+                  }}
+                  functEdit={() => {
+                    tmpCollectionId = collection.id;
+                    tmpCollectionName = collection.collectionName;
+                    tmpDescription = collection.description;
+                    editModal = true;
+                  }}
+                  functDelete={() => {
+                    tmpCollectionId = collection.id;
+                    tmpCollectionName = collection.collectionName;
+                    deleteModal = true;
+                  }}
+                  funcDetailCollection={() => {
+                    goto(collection.href);
+                  }}
+                  {libraryId}
+                />
+              {/each}
+            </div>
+          {:else if gettingData}
+            <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+          {:else}
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          {/if}
         {:else if tabDatas.selected === "Information" && Object.keys(informationDatas).length > 0}
-          <div class="grid grid-cols-12 mt-4 gap-2">
-            <div class="col-span-4">
+          <div class="flex flex-col md:flex-row gap-4 pt-4 md:gap-6">
+            <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("generalInformation")}
               </P>
             </div>
-            <div class="col-span-8">
-              <P
-                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >{$_("collectionTitle")}</P
-              >
-            </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
-              <InputRw onEdit={false} bind:value={collectionDatas.title} />
-            </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
-              <P
-                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >{$_("description")}</P
-              >
-            </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
-              <TextareaRw onEdit={false} bind:value={collectionDatas.description} />
+            <div class="flex flex-col grow gap-5">
+              <div class="flex flex-col w-full gap-1.5">
+                <Typography preset="Text sm/Reguler" text={$_("collectionTitle")} />
+                <InputRw onEdit={false} bind:value={collectionDatas.title} />
+              </div>
+              <div class="flex flex-col w-full gap-1.5">
+                <Typography preset="Text sm/Reguler" text={$_("description")} />
+                <TextareaRw onEdit={false} bind:value={collectionDatas.description} />
+              </div>
             </div>
           </div>
-        {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>

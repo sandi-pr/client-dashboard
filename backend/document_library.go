@@ -2932,6 +2932,48 @@ func findBotIdByCollectionId(collection_id int64, Strapi *strapi.StrapiClassic) 
 	return botIds, nil
 }
 
+func IsLibraryNameAvailable(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearerOk := ctx.Headers.GetString("Authorization")
+	if !bearerOk {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	name, ok := ctx.Params.GetString("name")
+	if !ok {
+		return ctx.Error(400, "Invalid parameter: name")
+	}
+
+	status, library, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"name": U.Dict{
+				"$eq": name,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("Error response from Strapi:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if list, ok := library.GetList("data"); ok && len(list) > 0 {
+		return 200, U.Dict{
+			"available": false,
+		}, nil
+	}
+
+	return 200, U.Dict{
+		"available": true,
+	}, nil
+}
+
 type DeleteResponse struct {
 	DocumentId string `json:"document_id"`
 }

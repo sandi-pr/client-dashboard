@@ -99,6 +99,10 @@
   let dataSend = $state(null);
   let textarea = $state();
   let div = $state();
+  let gettingCollections = $state(false);
+  let gettingDocuments = $state(false);
+  let isChecking = $state(false);
+  let statusMessage = $state("");
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -129,6 +133,7 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      gettingDocuments = true;
       getCollection();
 
       if (search !== "") {
@@ -151,6 +156,7 @@
 
       if (response.status !== 200) {
         console.log(response);
+        gettingDocuments = false;
         return;
       }
 
@@ -179,6 +185,7 @@
 
           if (response.status !== 200) {
             console.log(response);
+            gettingDocuments = false;
             return;
           }
 
@@ -210,6 +217,8 @@
       });
 
       collectionListDatas = await Promise.all(promise);
+
+      gettingDocuments = false;
     }
   }
 
@@ -455,6 +464,54 @@
 
     triggerToast("created");
   }
+
+  const checkLibraryName = async (name) => {
+    if (!name) {
+      return null;
+    }
+
+    isChecking = true;
+
+    try {
+      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: name,
+        },
+        Headers: {},
+      });
+
+      if (resp === null) {
+        throw new Error("Server sibuk");
+      }
+
+      if (resp.status === 200) {
+        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
+      } else {
+        console.error("Error memeriksa name:", resp);
+        return null;
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return null;
+    } finally {
+      isChecking = false;
+    }
+  };
+
+  const handleInput = async (event) => {
+    const name = event.target.value;
+    const status = await checkLibraryName(name);
+
+    if (status === true) {
+      statusMessage = "Name is available";
+    } else if (status === false) {
+      statusMessage = "Name is already taken";
+    } else {
+      statusMessage = "Error checking name";
+    }
+  };
 
   const selectTypeCollection = (type) => {
     tmpDocumentType = type;
@@ -705,6 +762,7 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      gettingCollections = true;
       const aggregatedData = [];
 
       paginationCollection.page = 1;
@@ -727,6 +785,7 @@
 
         if (response.status !== 200) {
           console.log(response);
+          gettingCollections = false;
           return;
         }
 
@@ -792,6 +851,8 @@
         console.log("collections", collectionList);
         collectionList = await Promise.all(promise);
       }
+
+      gettingCollections = false;
     }
   }
 
@@ -1016,8 +1077,10 @@
               />
             {/each}
           </div>
+        {:else if gettingCollections}
+          <!-- <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} /> -->
         {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          <!-- <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} /> -->
         {/if}
 
         <div class="flex flex-col gap-1.5 md:gap-5 mt-3 md:mt-8">
@@ -1084,7 +1147,9 @@
           <Divider />
         </div>
 
-        {#if collectionListDatas.length > 0}
+        {#if gettingDocuments}
+          <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+        {:else if collectionListDatas.length > 0}
           {#if isMobileView}
             <DataTableLibraryCollectionVertical
               {collectionListDatas}
@@ -1116,7 +1181,7 @@
               }}
             />
           {/if}
-        {:else}
+        {:else if collectionListDatas.length === 0}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
@@ -1489,7 +1554,7 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />

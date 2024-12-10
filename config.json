@@ -2677,6 +2677,24 @@
             ]
         },
         {
+            "name": "is-library-name-available",
+            "path": "/is-library-name-available",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "IsLibraryNameAvailable"
+            },
+            "params": [
+                {
+                    "name": "name",
+                    "type": "text",
+                    "required": true
+                }
+            ]
+        },        
+        {
             "name": "create-employee",
             "path": "/create-employee",
             "method": "POST",
