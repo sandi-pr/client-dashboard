@@ -364,10 +364,10 @@
 
             if (response3?.result?.text !== null) {
               dataSend = {
-                document_name: tmpDocumentTitle,
+                document_name: files.length > 1 ? files[i].name : tmpDocumentTitle,
                 description: tmpDocumentDescription,
                 parent_id: parseInt(collectionId),
-                documents: JSON.stringify(files),
+                documents: JSON.stringify([files[i]]),
                 document_type: tmpDocumentType,
                 category: tags.join(","),
                 detected_text: response3.result.text,
@@ -388,10 +388,10 @@
             }
           } else {
             dataSend = {
-              document_name: tmpDocumentTitle,
+              document_name: files.length > 1 ? files[i].name : tmpDocumentTitle,
               description: tmpDocumentDescription,
               parent_id: parseInt(collectionId),
-              documents: JSON.stringify(files),
+              documents: JSON.stringify([files[i]]),
               document_type: tmpDocumentType,
               category: tags.join(","),
             };
