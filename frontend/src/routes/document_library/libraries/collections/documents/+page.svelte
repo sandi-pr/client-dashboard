@@ -380,8 +380,12 @@
           }
 
           if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
-            previewModal = true;
-            selectedFile = files[0];
+            if (files.length > 1) {
+              await sendDocument();
+            } else {
+              previewModal = true;
+              selectedFile = files[0];
+            }
           } else {
             dataSend = {
               document_name: tmpDocumentTitle,
@@ -391,7 +395,7 @@
               document_type: tmpDocumentType,
               category: tags.join(","),
             };
-            sendDocument();
+            await sendDocument();
           }
         }
       } catch (error) {
@@ -521,6 +525,7 @@
         fileNotSupport = false;
         const base64Data = await readFileAsBase64(file);
         files.push({
+          id: files.length < 1 ? 1 : files.length + 1,
           name: file.name,
           document_title: tmpDocumentTitle,
           description: tmpDocumentDescription,
@@ -530,6 +535,8 @@
           type: tmpDocumentType,
         });
         tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
+
+        // console.log(JSON.stringify(files));
       } else {
         fileNotSupport = true;
       }
@@ -1045,7 +1052,9 @@
                   checkboxDelete = true;
                   // id
                 }}
-                disabled={buttonDisabledDelete}
+                disabled={buttonDisabledDelete ||
+                  !check("documentAi.documentLibrary.document:delete") ||
+                  $onProgress}
                 class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
                 outline
               >
@@ -1059,7 +1068,9 @@
                   paginationCollection.page = 1;
                   // id
                 }}
-                disabled={buttonDisabledDelete}
+                disabled={buttonDisabledDelete ||
+                  !check("documentAi.documentLibrary.document:update") ||
+                  $onProgress}
                 class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
                 outline
               >
