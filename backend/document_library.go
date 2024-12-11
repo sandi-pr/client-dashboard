@@ -56,7 +56,7 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 	description, ok := ctx.Params.GetString("description")
 	if !ok {
-		return ctx.Error(400, "invalid parameters description")
+		description = ""
 	}
 
 	document_path := DOCUMENT_PATH + "/" + string(library_name)
@@ -139,7 +139,7 @@ func CreateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 
 	description, ok := ctx.Params.GetString("description")
 	if !ok {
-		return ctx.Error(400, "invalid parameters description")
+		description = ""
 	}
 
 	parent_id, ok := ctx.Params.GetFloat64("parent_id")
@@ -348,7 +348,7 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 	description, ok := ctx.Params.GetString("description")
 	if !ok {
-		return ctx.Error(400, "invalid parameters description")
+		description = ""
 	}
 
 	parent_id, ok := ctx.Params.GetFloat64("parent_id")
