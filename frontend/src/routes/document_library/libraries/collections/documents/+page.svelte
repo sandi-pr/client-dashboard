@@ -506,10 +506,10 @@
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.accept = acceptedFileTypes;
-    inputElement.multiple = false;
+    inputElement.multiple = true;
 
     inputElement.addEventListener("change", async (event) => {
-      const file = event.target.files[0];
+      const filesSelect = event.target.files;
 
       const fileTypeRegex = new RegExp(
         acceptedFileTypes
@@ -519,26 +519,38 @@
         "i",
       );
 
-      console.log(fileTypeRegex.test(file.name));
+      // console.log(fileTypeRegex.test(file.name));
 
-      if (file && fileTypeRegex.test(file.name)) {
-        fileNotSupport = false;
-        const base64Data = await readFileAsBase64(file);
-        files.push({
-          id: files.length < 1 ? 1 : files.length + 1,
-          name: file.name,
-          document_title: tmpDocumentTitle,
-          description: tmpDocumentDescription,
-          size: formatBytes(file.size),
-          base64: base64Data,
-          ext: "." + file.name.split(".").pop(),
-          type: tmpDocumentType,
-        });
-        tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
+      for (const file of filesSelect) {
+        if (file && fileTypeRegex.test(file.name)) {
+          fileNotSupport = false;
+          const base64Data = await readFileAsBase64(file);
 
-        // console.log(JSON.stringify(files));
-      } else {
-        fileNotSupport = true;
+          let index = 1;
+          let originalName = file.name.split(".").slice(0, -1).join(".");
+          let extension = file.name.split(".").pop();
+
+          while ((await checkName(file.name)) === false) {
+            file.name = `${originalName}(${index}).${extension}`;
+            index++;
+          }
+
+          files.push({
+            id: files.length < 1 ? 1 : files.length + 1,
+            name: file.name,
+            document_title: tmpDocumentTitle,
+            description: tmpDocumentDescription,
+            size: formatBytes(file.size),
+            base64: base64Data,
+            ext: "." + file.name.split(".").pop(),
+            type: tmpDocumentType,
+          });
+          tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
+
+          console.log(JSON.stringify(files));
+        } else {
+          fileNotSupport = true;
+        }
       }
     });
 
