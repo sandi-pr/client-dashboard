@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, Alert, Select, P } from "flowbite-svelte";
+  import { Button, Modal, Input, Alert, Select, P, Helper } from "flowbite-svelte";
 
   import { call } from "$lib";
   import {
@@ -40,6 +40,7 @@
   let tmpCollectionId = $state("");
   let libraryId = $state("");
   let dropdownOpen = $state(false);
+  let nameIsAvailable = $state(true);
 
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
 
@@ -379,6 +380,53 @@
     }
   }
 
+  const checkLibraryName = async (name) => {
+    let token = localStorage.getItem("token");
+    if (!name || !token) {
+      return null;
+    }
+
+    try {
+      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: name,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("cek resp", resp);
+
+      if (resp === null) {
+        throw new Error("Server sibuk");
+      }
+
+      if (resp.status === 200) {
+        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
+      } else {
+        console.error("Error memeriksa name:", resp);
+        return null;
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return null;
+    }
+  };
+
+  const handleInput = async (event) => {
+    const name = event.target.value;
+    const status = await checkLibraryName(name.trim());
+
+    if (status === true) {
+      nameIsAvailable = true;
+    } else if (status === false) {
+      nameIsAvailable = false;
+    }
+  };
+
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
     dropdownOpen = false;
@@ -458,6 +506,7 @@
               disabled={!check("documentAi.documentLibrary.collection:create")}
               on:click={() => {
                 addCollectionModal = true;
+                nameIsAvailable = true;
                 tmpCollectionName = "";
                 tmpDescription = "";
               }}
@@ -483,6 +532,7 @@
                           dropdownOpen = !dropdownOpen;
                           tmpLibraryName = collectionDatas.title;
                           tmpDescLibrary = collectionDatas.description;
+                          nameIsAvailable = true;
                           editLibraryModal = true;
                         }}>{$_("editLibraryName")}</button
                       >
@@ -544,6 +594,7 @@
                   tmpCollectionId = collection.id;
                   tmpCollectionName = collection.collectionName;
                   tmpDescription = collection.description;
+                  nameIsAvailable = true;
                   editModal = true;
                 }}
                 functDelete={() => {
@@ -600,7 +651,12 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -610,7 +666,7 @@
   <svelte:fragment slot="footer">
     <Button
       onclick={createCollection}
-      disabled={!tmpCollectionName || !tmpDescription}
+      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
       class="w-full">{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
@@ -620,7 +676,12 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -630,7 +691,7 @@
   <svelte:fragment slot="footer">
     <Button
       onclick={editCollectionName}
-      disabled={!tmpCollectionName && !tmpDescription}
+      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>
@@ -640,7 +701,12 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      <Input bind:value={tmpLibraryName} placeholder={$_("whatIsYourLibraryTitle")} />
+      <Input bind:value={tmpLibraryName} on:input={handleInput} placeholder={$_("whatIsYourLibraryTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -650,7 +716,7 @@
   <svelte:fragment slot="footer">
     <Button
       onclick={editLibraryName}
-      disabled={!tmpLibraryName || !tmpDescLibrary}
+      disabled={!tmpLibraryName || !tmpDescLibrary || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>

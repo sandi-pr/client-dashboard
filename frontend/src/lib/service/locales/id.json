@@ -793,5 +793,8 @@
   "createNewSubCollection": "Buat Sub Koleksi baru",
   "subCollectionName": "Nama Sub Koleksi",
   "addNewSubCollection": "Tambahkan Sub Koleksi baru",
-  "editSubCollectionName": "Edit Nama Sub Koleksi"
+  "editSubCollectionName": "Edit Nama Sub Koleksi",
+  "whatIsYourSubCollectionTitle": "Apa judul sub koleksi Anda?",
+  "uploadMore": "Unggah Lebih",
+  "succesfullyUploaded": "Berhasil diunggah"
 }

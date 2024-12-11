@@ -793,5 +793,8 @@
   "createNewSubCollection": "Create new Sub Collection",
   "subCollectionName": "Sub Collection Name",
   "addNewSubCollection": "Add new Sub Collection",
-  "editSubCollectionName": "Edit Sub Collection Name"
+  "editSubCollectionName": "Edit Sub Collection Name",
+  "whatIsYourSubCollectionTitle": "What is your sub collection title?",
+  "uploadMore": "Upload More",
+  "succesfullyUploaded": "Successfully uploaded"
 }

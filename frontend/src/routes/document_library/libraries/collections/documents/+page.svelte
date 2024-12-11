@@ -99,6 +99,8 @@
   let dataSend = $state(null);
   let textarea = $state();
   let div = $state();
+  let nameIsAvailable = $state(true);
+  let isProcess  = $state(false);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -363,8 +365,26 @@
             }
 
             if (response3?.result?.text !== null) {
+
+              let index = 1;
+              let originalName = files[i].name.split(".").slice(0, -1).join(".");
+              let newName = originalName;
+
+              for (let i = 0; i < index; i++) {
+                let statusAvailable = await checkLibraryName(newName.trim());
+
+                if (statusAvailable === true) {
+                  break;
+                } else {
+                  newName = `${originalName}(${index})`;
+                  index++;
+                }
+              }
+
+              files[i].name = newName + files[i].ext;
+              
               dataSend = {
-                document_name: files.length > 1 ? files[i].name : tmpDocumentTitle,
+                document_name: files.length > 1 ? files[i].document_title : tmpDocumentTitle,
                 description: tmpDocumentDescription,
                 parent_id: parseInt(collectionId),
                 documents: JSON.stringify([files[i]]),
@@ -387,17 +407,52 @@
               selectedFile = files[0];
             }
           } else {
+
+            let index = 1;
+            let originalName = files[i].name.split(".").slice(0, -1).join(".");
+            let newName = originalName;
+
+            for (let i = 0; i < index; i++) {
+              let statusAvailable = await checkLibraryName(newName.trim());
+
+              if (statusAvailable === true) {
+                break;
+              } else {
+                newName = `${originalName}(${index})`;
+                index++;
+              }
+            }
+
+            files[i].name = newName + files[i].ext;
+
             dataSend = {
-              document_name: files.length > 1 ? files[i].name : tmpDocumentTitle,
+              document_name: files.length > 1 ? newName : tmpDocumentTitle,
               description: tmpDocumentDescription,
               parent_id: parseInt(collectionId),
               documents: JSON.stringify([files[i]]),
               document_type: tmpDocumentType,
               category: tags.join(","),
             };
+
+            // console.log("data send", dataSend);
             await sendDocument();
           }
         }
+
+        files = [];
+        dataSend = null;
+
+        tmpDocumentTitle = "";
+        tmpDocumentDescription = "";
+        tags = [];
+        attributeNotUnique = false;
+
+        previewModal = false;
+        addDocumentsModal = false;
+        getDocuments();
+        triggerLoading(false);
+        triggerToast($_("succesfullyUploaded"), true);
+
       } catch (error) {
         addDocumentsModal = true;
         console.log(error);
@@ -440,21 +495,7 @@
       triggerLoading(false);
       return;
     }
-
-    files = [];
-    dataSend = null;
-
-    tmpDocumentTitle = "";
-    tmpDocumentDescription = "";
-    tags = [];
-    attributeNotUnique = false;
-
-    previewModal = false;
-    addDocumentsModal = false;
-    getDocuments();
-    triggerLoading(false);
-
-    triggerToast("created");
+    return;
   }
 
   const selectTypeCollection = (type) => {
@@ -519,21 +560,13 @@
         "i",
       );
 
-      // console.log(fileTypeRegex.test(file.name));
+      // console.log(filesSelect.length);
+      isProcess = true;
 
       for (const file of filesSelect) {
         if (file && fileTypeRegex.test(file.name)) {
           fileNotSupport = false;
           const base64Data = await readFileAsBase64(file);
-
-          let index = 1;
-          let originalName = file.name.split(".").slice(0, -1).join(".");
-          let extension = file.name.split(".").pop();
-
-          while ((await checkName(file.name)) === false) {
-            file.name = `${originalName}(${index}).${extension}`;
-            index++;
-          }
 
           files.push({
             id: files.length < 1 ? 1 : files.length + 1,
@@ -547,13 +580,25 @@
           });
           tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
 
+          // console.log("cek files", files[0]);
+
+          if (files.length === 1) {
+            const status = await checkLibraryName(tmpDocumentTitle.trim());
+            if (status === true) {
+              nameIsAvailable = true;
+            } else if (status === false) {
+              nameIsAvailable = false;
+            }
+          }
+
           console.log(JSON.stringify(files));
         } else {
           fileNotSupport = true;
         }
       }
+      
+      isProcess = false;
     });
-
     inputElement.click();
   };
 
@@ -885,6 +930,53 @@
     }
   }
 
+  const checkLibraryName = async (name) => {
+    let token = localStorage.getItem("token");
+    if (!name || !token) {
+      return null;
+    }
+
+    try {
+      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: name,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("cek resp", resp);
+
+      if (resp === null) {
+        throw new Error("Server sibuk");
+      }
+
+      if (resp.status === 200) {
+        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
+      } else {
+        console.error("Error memeriksa name:", resp);
+        return null;
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return null;
+    }
+  };
+
+  const handleInput = async (event) => {
+    const name = event.target.value;
+    const status = await checkLibraryName(name.trim());
+
+    if (status === true) {
+      nameIsAvailable = true;
+    } else if (status === false) {
+      nameIsAvailable = false;
+    }
+  };
+
   const selectCollection = (item, subcollection = false) => {
     tmpSelectedCollection = item;
     if (!subcollection) {
@@ -950,7 +1042,7 @@
   });
 
   $effect(() => {
-    buttonDisabled = files.length === 0 || tmpDocumentTitle === "" || tmpDocumentDescription === "";
+    buttonDisabled = files.length === 0 || files.length === 1 ? tmpDocumentTitle === "" || !nameIsAvailable : false;
   });
 </script>
 
@@ -1002,6 +1094,7 @@
                   tmpCollectionName = "";
                   tmpDescription = "";
                   attributeNotUnique = false;
+                  nameIsAvailable = true;
                 }}
                 class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
               >
@@ -1023,6 +1116,7 @@
                   tmpCollectionId = collection.id;
                   tmpCollectionName = collection.collectionName;
                   tmpDescription = collection.description;
+                  nameIsAvailable = true;
                   editModal = true;
                 }}
                 functDelete={() => {
@@ -1095,9 +1189,11 @@
                 on:click={() => {
                   addDocumentsModal = true;
                   tags = [];
+                  files = [];
                   tmpDocumentTitle = "";
                   tmpDocumentDescription = "";
                   attributeNotUnique = false;
+                  nameIsAvailable = true;
                 }}
                 class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
               >
@@ -1209,9 +1305,11 @@
       title={`${$_("uploadDocuments")}*`}
       handleFileUploadWrapper={() => handleFileUploadWrapper()}
       file={files[0]}
+      files={files}
+      bind:isProcess
+      multiple={true}
       actionButton={true}
       actionDelete={() => (files = [])}
-      isFlex
     />
     {#if fileNotSupport}
       <Alert color="red">
@@ -1219,31 +1317,29 @@
         {$_("fileNotSupport")}
       </Alert>
     {/if}
-    {#if files.length > 0}
+    <!-- <label class="inline-flex items-center cursor-pointer">
+      <input type="checkbox" value="" class="hidden peer" bind:checked={bulk_upload} />
+      <div
+        class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
+      ></div>
+      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+        >{$_("bulkUpload")}</span
+      >
+    </label> -->
+    {#if files.length === 1 && !isProcess}
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        {#if !attributeNotUnique}
-          <InputRw
-            onEdit={true}
-            bind:value={tmpDocumentTitle}
-            placeholder={$_("enterDocumentTitle")}
-          />
-        {:else}
-          <Input
-            id="error"
-            color="red"
-            bind:value={tmpDocumentTitle}
-            placeholder={$_("enterDocumentTitle")}
-          />
-          <Helper color="red">
-            <span class="font-medium">{$_("nameAlreadyExist")}</span>
-          </Helper>
-        {/if}
-        <!-- <InputRw
+        <InputRw
           onEdit={true}
           bind:value={tmpDocumentTitle}
           placeholder={$_("enterDocumentTitle")}
-        /> -->
+          oninput={handleInput}
+        />
+        {#if !nameIsAvailable}
+          <Helper color="red">
+            <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+          </Helper>
+        {/if}
       </div>
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -1510,11 +1606,16 @@
   </div>
 </Modal>
 
-<Modal title={$_("createNewCollection")} bind:open={addCollectionModal} size="xs" autoclose>
+<Modal title={$_("createNewSubCollection")} bind:open={addCollectionModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -1524,17 +1625,22 @@
   <svelte:fragment slot="footer">
     <Button
       onclick={createCollection}
-      disabled={!tmpCollectionName || !tmpDescription}
+      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
       class="w-full">{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
 </Modal>
 
-<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
+<Modal title={$_("editSubCollectionName")} bind:open={editModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourSubCollectionTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
@@ -1544,7 +1650,7 @@
   <svelte:fragment slot="footer">
     <Button
       onclick={editCollectionName}
-      disabled={!tmpCollectionName && !tmpDescription}
+      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>

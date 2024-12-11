@@ -14,7 +14,7 @@
 
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
-  import { check } from "$lib";
+  import { check, onProgress } from "$lib";
 
   import EyeIcon from "$lib/icon/eye.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
@@ -195,6 +195,7 @@
               on:click={() => {
                 functDeleteCategories(collectionListData.id);
               }}
+              disabled={!check("documentAi.documentLibrary.document:delete") || $onProgress}
               class="focus-within:ring-0 !p-0 text-brand-tertiary-light dark:text-brand-tertiary-dark"
               color="none"
               size="xs"
