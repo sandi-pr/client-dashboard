@@ -22,13 +22,13 @@ export let counter = 6;
 
 export const customToasts = writable({});
 
-function triggerToast(target, isCustom = false) {
+function triggerToast(target, isCustom = false, type = 'success') {
 
-  console.log(target, isCustom)
+  console.log(target, isCustom, type);
 
   if (isCustom) {
     customToasts.update((toasts) => {
-      toasts[target] = true;
+      toasts[target] = { isOpen: true, type };
       return toasts;
     });
     timeout(target, true);

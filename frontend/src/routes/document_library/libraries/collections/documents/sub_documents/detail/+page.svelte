@@ -110,10 +110,23 @@ All Rights Reserved
         // console.log("document", response);
 
         if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
           console.log(response);
+          triggerLoading(false);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
           goto(await $call.getPage("client-dashboard", "document-library"));
+          return;
         }
 
         let documentData = response.result.data;
@@ -233,11 +246,12 @@ All Rights Reserved
         triggerLoading(false);
       } catch (error) {
         triggerLoading(false);
-        triggerToast("error");
-        console.log(error);
+        console.error("Error during document get:", error);
+        triggerToast($_("failedGetDocument"), true, "error");
       }
     } else {
-      // triggerToast("error");
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 
@@ -255,12 +269,26 @@ All Rights Reserved
 
       if (response.status !== 200) {
         console.log(response);
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
         return;
       }
 
       uploadBy = response.result.user.username;
     } catch (error) {
-      console.log(error);
+      console.error("Error during user get:", error);
+      triggerToast($_("failedGetUser"), true, "error");
     }
   }
 
@@ -295,6 +323,10 @@ All Rights Reserved
 
   async function deleteDocument() {
     let token = localStorage.getItem("token");
+    if (token === null) {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
     if (documentId !== "" && documentId !== null && documentId !== undefined) {
       try {
         // let response2 = await $call.call("hexa-ai-rag", "delete-document-by-id", {
@@ -327,12 +359,24 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          triggerToast("error");
           console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
           return;
         }
 
-        triggerToast("deleted");
+        triggerToast("successDeleteDocument", true);
         // setTimeout(async () => {
         goto(
           (await $call.getPage("client-dashboard", "document-library-documents")) +
@@ -347,8 +391,8 @@ All Rights Reserved
         //   return;
         // }
       } catch (error) {
-        triggerToast("error");
-        console.log(error);
+        console.error("Error during document deletion:", error);
+        triggerToast($_("failedDeleteDocument"), true, "error");
       }
     }
   }
@@ -510,26 +554,28 @@ All Rights Reserved
           },
         });
         if (response.status !== 200) {
-          if (response && response.errors) {
-            const errors = response.errors.flatMap((error) =>
-              error.errors.flatMap((subError) => subError.message)
-            );
-
-            if (errors.includes("This attribute must be unique")) {
-              attributeNotUnique = true;
-            } else {
-              console.log("Pesan error :", errors);
-              triggerToast("error");
-            }
-          }
+          console.log(response);
           triggerLoading(false);
           onEdit = true;
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
           return;
         }
 
         console.log(response);
         attributeNotUnique = false;
-        triggerToast("updated");
+        triggerToast("successUpdateDocument", true);
         triggerLoading(false);
         getDocument();
       } else {
@@ -548,17 +594,33 @@ All Rights Reserved
           },
         });
         if (response.status !== 200) {
+          console.log(response);
           triggerLoading(false);
           onEdit = true;
-          console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
           return;
         }
 
         triggerLoading(false);
         console.log(response);
-        triggerToast("updated");
+        triggerToast("successUpdateDocument", true);
         getDocument();
       }
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 

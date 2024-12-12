@@ -100,20 +100,22 @@ All Rights Reserved
     {$_("copiedToClipboard")}
   </Toast>
 
-  {#each Object.keys($customToasts) as key}
+  {#each Object.entries($customToasts) as [key, { isOpen, type }]}
     <Toast
       class="!max-w-sm"
-      color="green"
+      color={type === 'error' ? 'red' : 'green'}
       transition={fly}
       params={{ x: 200 }}
-      bind:open={$customToasts[key]}
+      bind:open={isOpen}
     >
       <svelte:fragment slot="icon">
-        <CheckCircleSolid class="w-5 h-5" />
+        {#if type === 'error'}
+          <ExclamationCircleSolid class="w-5 h-5" />
+        {:else}
+          <CheckCircleSolid class="w-5 h-5" />
+        {/if}
       </svelte:fragment>
-
       {key}
-      <!-- {$_("copiedToClipboard")} -->
     </Toast>
   {/each}
 </div>

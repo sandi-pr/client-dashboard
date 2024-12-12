@@ -74,7 +74,7 @@ All Rights Reserved
         </div>
         <div class="flex flex-col items-center gap-0.5">
           <Typography preset="Text sm/Semibold" text={$_("clickToUpload")} color="brand-secondary" />
-          <Typography preset="Text xs/Regular" text={textFileType(type)} color="tertiary" />
+          <!-- <Typography preset="Text xs/Regular" text={textFileType(type)} color="tertiary" /> -->
         </div>
       </Button>
     </div>

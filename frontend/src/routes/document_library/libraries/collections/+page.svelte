@@ -99,54 +99,76 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      getLibrary();
 
-      let response = await $call.call("client-dashboard", "get-library-collections", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: pagination.page,
-          page_size: pagination.pageSize,
-          parent_id: parseInt(libraryId),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      try {
+        getLibrary();
 
-      if (response.status !== 200) {
-        console.log(response);
-        return;
-      }
+        let response = await $call.call("client-dashboard", "get-library-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: pagination.page,
+            page_size: pagination.pageSize,
+            parent_id: parseInt(libraryId),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      // id: "4",
-      // collectionName: "Study Scriptures of Qur’an Tafsir",
-      // totalDocuments: 2,
-      // type: "",
-      // status: "reading",
-
-      let link = await $call.getPage("client-dashboard", "document-library-documents");
-
-      let promise = response.result.data.map(async (collection) => {
-        const params = new URLSearchParams(window.location.search);
-
-        params.delete("collectionId");
-
-        const queryParams = {};
-        for (const [key, value] of params.entries()) {
-          queryParams[key] = value;
+        if (response.status !== 200) {
+          console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          return;
         }
-        const queryString = new URLSearchParams(queryParams).toString();
-        return {
-          id: collection.id,
-          collectionName: collection.attributes.name,
-          description: collection.attributes.meta.description,
-          type: collection.attributes.type,
-          href: link + "?collectionId=" + collection.id + "&" + queryString,
-        };
-      });
 
-      collectionListDatas = await Promise.all(promise);
+        // id: "4",
+        // collectionName: "Study Scriptures of Qur’an Tafsir",
+        // totalDocuments: 2,
+        // type: "",
+        // status: "reading",
+
+        let link = await $call.getPage("client-dashboard", "document-library-documents");
+
+        let promise = response.result.data.map(async (collection) => {
+          const params = new URLSearchParams(window.location.search);
+
+          params.delete("collectionId");
+
+          const queryParams = {};
+          for (const [key, value] of params.entries()) {
+            queryParams[key] = value;
+          }
+          const queryString = new URLSearchParams(queryParams).toString();
+          return {
+            id: collection.id,
+            collectionName: collection.attributes.name,
+            description: collection.attributes.meta.description,
+            type: collection.attributes.type,
+            href: link + "?collectionId=" + collection.id + "&" + queryString,
+          };
+        });
+
+        collectionListDatas = await Promise.all(promise);
+      } catch (error) {
+        console.error("Error during collection get:", error);
+        triggerToast($_("failedGetCollection"), true, "error");
+      }
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 
@@ -154,58 +176,56 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      let response = await $call.call("client-dashboard", "create-library-collection", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_name: tmpCollectionName,
-          description: tmpDescription,
-          parent_id: parseInt(libraryId),
-          // bakrie
-          bot_id: localStorage.getItem("botIdStrapi").toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      try {
+        let response = await $call.call("client-dashboard", "create-library-collection", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_name: tmpCollectionName,
+            description: tmpDescription,
+            parent_id: parseInt(libraryId),
+            // bakrie
+            bot_id: localStorage.getItem("botIdStrapi").toString(),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      if (response.status !== 200) {
-        console.log(response);
-        triggerToast("error");
-        return;
+        if (response.status !== 200) {
+          console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          return;
+        }
+
+        // console.log(response);
+
+        tmpCollectionName = "";
+        tmpDescription = "";
+        addCollectionModal = false;
+
+        triggerToast($_("successCreateCollection"), true);
+        getCollections();
+        // goto(await $call.getPage("client-dashboard", "document-library"));
+      } catch (error) {
+        console.error("Error during collection creation:", error);
+        triggerToast($_("failedCreateCollection"), true, "error");
       }
-
-      console.log(response);
-
-      // RAG Proccessing
-
-      // let response2 = await $call.call("hexa-ai-rag", "add-document-by-collection-id", {
-      //   URLQuery: {},
-      //   URLParams: {},
-      //   Params: {
-      //     collection_id: response.result.data.id.toString(),
-      //   },
-      //   Headers: {
-      //     Authorization: "Bearer " + token,
-      //   },
-      // });
-
-      // if (response2.status !== 200) {
-      //   console.log(response2);
-      //   triggerToast("error");
-      //   return;
-      // }
-
-      // console.log(response2);
-
-      tmpCollectionName = "";
-      tmpDescription = "";
-
-      triggerToast("success");
-
-      addCollectionModal = false;
-      getCollections();
-      // goto(await $call.getPage("client-dashboard", "document-library"));
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 
@@ -230,6 +250,19 @@
 
         if (response.status !== 200) {
           console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
           return;
         }
 
@@ -237,14 +270,15 @@
         tmpDescLibrary = "";
 
         editLibraryModal = false;
-        triggerToast("updated");
+        triggerToast($_("successUpdateLibrary"), true);
         getCollections();
       } catch (error) {
-        console.log(error);
-        triggerToast("error");
+        console.error("Error during library editing:", error);
+        triggerToast($_("failedEditLibrary"), true, "error");
       }
     } else {
-      console.log("Token not found");
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 
@@ -269,6 +303,19 @@
 
         if (response.status !== 200) {
           console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
           return;
         }
 
@@ -276,14 +323,15 @@
         tmpDescription = "";
 
         editModal = false;
-        triggerToast("updated");
+        triggerToast($_("successUpdateCollection"), true);
         getCollections();
       } catch (error) {
-        console.log(error);
-        triggerToast("error");
+        console.error("Error during collection editing:", error);
+        triggerToast($_("failedEditCollection"), true, "error");
       }
     } else {
-      console.log("Token not found");
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 
@@ -311,7 +359,7 @@
         //     }
         //   }
         // }
-        let response2 = await $call.call("client-dashboard", "delete-library", {
+        let response = await $call.call("client-dashboard", "delete-library", {
           URLQuery: {},
           URLParams: {
             id: libraryId.toString(),
@@ -322,24 +370,37 @@
           },
         });
 
-        if (response2.status !== 200) {
-          console.log(response2);
-          triggerToast("error");
+        if (response.status !== 200) {
+          console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
           return;
         }
 
-        console.log("ayam", response2);
+        console.log("ayam", response);
 
-        triggerToast("deleted");
+        triggerToast($_("successDeleteLibrary"), true);
 
         getCollections();
         deleteLibraryModal = false;
       } catch (error) {
-        triggerToast("error");
-        console.log(error);
+        console.error("Error during library deletion:", error);
+        triggerToast($_("failedDeleteLibrary"), true, "error");
       }
     } else {
-      console.log("Token not found");
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 
@@ -348,7 +409,7 @@
 
     if (token !== null) {
       try {
-        let response2 = await $call.call("client-dashboard", "delete-library-collection", {
+        let response = await $call.call("client-dashboard", "delete-library-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -359,24 +420,37 @@
           },
         });
 
-        if (response2.status !== 200) {
-          console.log(response2);
-          triggerToast("error");
+        if (response.status !== 200) {
+          console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
           return;
         }
 
-        console.log("ayam", response2);
+        console.log("ayam", response);
 
-        triggerToast("deleted");
+        triggerToast($_("successDeleteCollection"), true);
 
         getCollections();
         deleteModal = false;
       } catch (error) {
-        triggerToast("error");
-        console.log(error);
+        console.error("Error during collection deletion:", error);
+        triggerToast($_("failedDeleteCollection"), true, "error");
       }
     } else {
-      console.log("Token not found");
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 
