@@ -2693,7 +2693,7 @@
                     "required": true
                 }
             ]
-        },        
+        },
         {
             "name": "create-employee",
             "path": "/create-employee",
@@ -4985,6 +4985,35 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "get-label",
+            "path": "/get-label",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLabels"
+            },
+            "params": []
+        },
+        {
+            "name": "find-create-label",
+            "path": "/find-create-label",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLabels"
+            },
+            "params": [
+                {
+                    "name": "names",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "options": {
@@ -6161,6 +6190,15 @@
                     },
                     "meta": {
                         "type": "json"
+                    }
+                }
+            },
+            {
+                "name": "label",
+                "label": "Label",
+                "fields": {
+                    "name": {
+                        "type": "string"
                     }
                 }
             }
