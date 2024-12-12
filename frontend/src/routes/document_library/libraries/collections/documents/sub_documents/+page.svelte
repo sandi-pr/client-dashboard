@@ -1006,6 +1006,41 @@
     }
   };
 
+  async function getLabels() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-label", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (response.status !== 200) {
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
+        return;
+      }
+
+      alltags = response.result.labels;
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  }
+
   const handleInput = async (event) => {
     const name = event.target.value;
     const status = await checkLibraryName(name.trim());
@@ -1038,6 +1073,7 @@
       getCollections(true);
       getCollections();
       getDocuments();
+      getLabels();
     });
     return () => unsubscribe();
   });
@@ -1251,7 +1287,7 @@
         {/if}
       </div>
       <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+        <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
         <InputRw
           onEdit={true}
           bind:value={tmpDocumentDescription}
