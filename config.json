@@ -5006,7 +5006,7 @@
             "response_type": "application/json",
             "callback": {
                 "plugin": "plugin.so",
-                "function": "GetLabels"
+                "function": "FindCreateLabel"
             },
             "params": [
                 {
