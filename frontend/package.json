@@ -42,6 +42,7 @@
     "svelte-add": "2.7.1",
     "svelte-agnostic-draggable": "0.2.0",
     "svelte-exmarkdown": "3.0.5",
+    "svelte-multiselect": "^11.0.0-rc.1",
     "svelte-pdf": "^1.0.20",
     "svelte-pdfjs": "^0.8.0",
     "svelte-splitpanes": "8.0.5",

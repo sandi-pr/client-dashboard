@@ -39,6 +39,7 @@
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
+  import MultiSelect from 'svelte-multiselect';
 
   let collectionId;
   let libraryId;
@@ -67,6 +68,7 @@
   let selectedTypeCollection = $state("Documents (TXT, PDF)");
   let acceptedFileTypes = $state(".txt, .pdf");
   let search = $state("");
+  let alltags = $state([]);
   let tags = $state([]);
   let newTag = $state("");
   let files = $state([]);
@@ -101,6 +103,8 @@
   let div = $state();
   let nameIsAvailable = $state(true);
   let isProcess  = $state(false);
+  let selected = $state([]);
+  let dummyTags = $state(['general', 'news', 'article']);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -1350,9 +1354,9 @@
         />
       </div>
     {/if}
-    <div class="flex flex-col gap-1.5">
+    <div class="flex flex-col gap-1.5 pb-6">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
-      <div class="flex">
+      <!-- <div class="flex">
         <button
           class="flex w-full flex-wrap gap-2 items-center border border-primary-light dark:border-primary-dark rounded-lg py-2.5 px-2 bg-primary-light dark:bg-secondary-dark"
           onclick={() => {
@@ -1364,7 +1368,6 @@
               class="flex items-center space-x-0.5 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2"
             >
               <span class="text-sm pb-0.5">{tag}</span>
-              <!-- svelte-ignore node_invalid_placement_ssr -->
               <button
                 onclick={() => {
                   removeTag(tag);
@@ -1392,7 +1395,16 @@
         >
           Add
         </button>
-      </div>
+      </div> -->
+      <MultiSelect
+        --sms-min-height="40px"
+        options={alltags} 
+        allowUserOptions="append"
+        bind:selected={tags}
+        autoScroll={true}
+        noMatchingOptionsMsg=""
+        createOptionMsg={null}
+      />
       <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
       <!-- <Select
         class="mt-2"
