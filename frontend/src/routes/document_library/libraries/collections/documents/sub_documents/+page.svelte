@@ -37,6 +37,7 @@
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
+  import MultiSelect from 'svelte-multiselect';
 
   let subCollectionId;
   let collectionId;
@@ -66,6 +67,7 @@
   let selectedTypeCollection = $state("Documents (TXT, PDF)");
   let acceptedFileTypes = $state(".txt, .pdf");
   let search = $state("");
+  let alltags = $state([]);
   let tags = $state([]);
   let newTag = $state("");
   let files = $state([]);
@@ -1289,7 +1291,7 @@
         placeholder={$_("selectCategory")}
       /> -->
       <!-- buat class disable -->
-      <div class="flex">
+      <!-- <div class="flex">
         <button
           class="flex w-full flex-wrap gap-2 items-center border rounded-lg p-2"
           onclick={() => {
@@ -1325,7 +1327,16 @@
         >
           Add
         </button>
-      </div>
+      </div> -->
+      <MultiSelect
+        --sms-min-height="40px"
+        options={alltags} 
+        allowUserOptions="append"
+        bind:selected={tags}
+        autoScroll={true}
+        noMatchingOptionsMsg=""
+        createOptionMsg={null}
+      />
       <!-- <MultiSelect
         class="no-pointer-events"
         items={tmpCategories}
