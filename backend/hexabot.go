@@ -1473,9 +1473,11 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 				notificationWS.SendNotification(msg)
 				fmt.Println("send notification")
 
-				status, _, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
+				status, update, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
 					"status": "Ready",
 				})
+
+				fmt.Println("update hexabot", update)
 
 				if err != nil {
 					fmt.Println(err)

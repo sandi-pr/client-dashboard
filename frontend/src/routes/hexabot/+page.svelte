@@ -32,6 +32,7 @@
     Badge,
     newNotification,
     notifications,
+    onProgress,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -441,34 +442,9 @@
 
     if (token) {
       try {
-        // const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
-        //   URLQuery: {},
-        //   URLParams: {
-        //     id: botId.toString(),
-        //   },
-        //   Params: {},
-        //   Headers: {
-        //     Authorization: "Bearer " + token,
-        //   },
-        // });
+        gettingStatusBot = true;
 
-        // if (response.status !== 200) {
-        //   triggerToast("error");
-        //   console.log(response);
-        //   return;
-        // }
-
-        // // await updateBot(botId, "Reading");
-
-        // // bots = bots.map((bot) => {
-        // //   if (bot.botsID === botId) {
-        // //     bot.deployStatus = "Reading";
-        // //   }
-        // //   return bot;
-        // // });
-
-        //demo
-        const response = await $call.call("hexa-ai-rag", "add-document-by-bot-id", {
+        const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
           URLQuery: {},
           URLParams: {
             id: botId.toString(),
@@ -485,16 +461,44 @@
           return;
         }
 
-        await updateBot(botId, "Reading");
+        // // await updateBot(botId, "Reading");
 
-        bots = bots.map((bot) => {
-          if (bot.botsID === botId) {
-            bot.deployStatus = "Reading";
-          }
-          return bot;
-        });
+        // // bots = bots.map((bot) => {
+        // //   if (bot.botsID === botId) {
+        // //     bot.deployStatus = "Reading";
+        // //   }
+        // //   return bot;
+        // // });
+
+        //demo
+        // const response = await $call.call("hexa-ai-rag", "add-document-by-bot-id", {
+        //   URLQuery: {},
+        //   URLParams: {
+        //     id: botId.toString(),
+        //   },
+        //   Params: {},
+        //   Headers: {
+        //     Authorization: "Bearer " + token,
+        //   },
+        // });
+
+        // if (response.status !== 200) {
+        //   triggerToast("error");
+        //   console.log(response);
+        //   return;
+        // }
+
+        // await updateBot(botId, "Reading");
+
+        // bots = bots.map((bot) => {
+        //   if (bot.botsID === botId) {
+        //     bot.deployStatus = "Reading";
+        //   }
+        //   return bot;
+        // });
 
         // triggerToast("success");
+        setTimeout(getBots, 3000);
       } catch (error) {
         console.log(error);
       }
@@ -545,13 +549,28 @@
     getBots();
   });
 
-  // $effect(() => {
-  //   if ($newNotification) {
-  //     if ($notifications[0].attributes.type === "hexabot") {
-  //       getBots();
-  //     }
-  //   }
-  // });
+  let gettingStatusBot = $state(false);
+  let timerGetStatusBot;
+
+  $effect(() => {
+    if ($onProgress) {
+      console.log("notification", $notifications);
+      if ($notifications.length > 0 && $notifications[0].attributes.content.includes("100")) {
+        if (!gettingStatusBot) {
+          startReading($notifications[0].attributes.meta.bot_id);
+          console.log("start reading", $notifications[0].attributes.meta.bot_id);
+        } else {
+          if (timerGetStatusBot) {
+            clearTimeout(timerGetStatusBot);
+          }
+          timerGetStatusBot = setTimeout(() => {
+            startReading($notifications[0].attributes.meta.bot_id);
+            console.log("start reading", $notifications[0].attributes.meta.bot_id);
+          }, 10000);
+        }
+      }
+    }
+  });
 </script>
 
 <div class="flex dark:bg-hc-graydark-950">
@@ -659,19 +678,17 @@
                               class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                               onclick={goToEditPage(bot.botsID)}>{$_("edit")}</button
                             > -->
-                              {#if bot.deployStatus === "Inactive" || bot.deployStatus === "Reading"}
-                                <button
-                                  class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                                  onclick={() => {
-                                    tmpId = bot.botsID;
-                                    dropdownOpen[index] = !dropdownOpen[index];
-                                    startReading(bot.botsID);
-                                  }}
-                                  ><EyeIcon
-                                    svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-                                  />{$_("startReading")}</button
-                                >
-                              {/if}
+                              <button
+                                class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                                onclick={() => {
+                                  tmpId = bot.botsID;
+                                  dropdownOpen[index] = !dropdownOpen[index];
+                                  startReading(bot.botsID);
+                                }}
+                                ><EyeIcon
+                                  svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                                />{$_("startReading")}</button
+                              >
                               <button
                                 class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                                 onclick={() => {
