@@ -29,7 +29,7 @@
   "password": "Password",
   "hintPassword": "Min. 8 characters, Combination of letters & numbers, Uppercase & lowercase, Special characters",
   "enterPassword": "Enter your password",
-  "confirmPassword": "Confirm password",
+  "confirmPassword": "Confirm Password",
   "enterConfirmPassword": "Confirm your password",
   "passwordNotMatch": "Passwords do not match",
   "enterOtpFromEmail": "Enter OTP Code from your email",
