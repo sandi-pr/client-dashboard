@@ -155,7 +155,7 @@ All Rights Reserved
 
   const changeShowAI = async () => {
     if ($isBakrie) {
-      let url = await $call.getPage("client-dashboard", "home-page");
+      let url = await call.getPage("client-dashboard", "home-page");
       goto(url);
     } else {
       triggerShowAI(!$showAI);
