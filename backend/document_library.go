@@ -1481,6 +1481,21 @@ func UpdateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 	if category != "" {
 		meta["category"] = category
+
+		CR3 := cr3call.New(MODULE_MANAGER_URL)
+		resp, err := CR3.Call("client-dashboard", "find-create-label", cr3call.CR3CallData{
+			Headers: U.Dict{
+				"Authorization": bearer,
+			},
+			Params: U.Dict{
+				"names": category,
+			},
+		}, false)
+
+		fmt.Printf("Debug: CR3.Call response: %v\n", resp)
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
 	}
 
 	dataSend := U.Dict{
