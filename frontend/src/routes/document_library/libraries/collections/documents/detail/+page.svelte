@@ -814,7 +814,7 @@ All Rights Reserved
               onclick={() => {
                 updateDocument();
               }}
-              disabled={data.document_title === "" || data.description === "" || !nameIsAvailable}
+              disabled={data.document_title === "" || !nameIsAvailable}
               class="px-3 focus-within:!ring-1">{$_("save")}</Button
             >
           {:else}
@@ -880,7 +880,7 @@ All Rights Reserved
                 <Typography
                   preset="Text sm/medium"
                   color="secondary"
-                  text={`${$_("description")}*`}
+                  text={`${$_("description")}`}
                 />
                 <InputRw {onEdit} bind:value={data.description} />
               </div>
