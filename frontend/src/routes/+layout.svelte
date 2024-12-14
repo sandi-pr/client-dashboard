@@ -153,17 +153,22 @@ All Rights Reserved
     console.log(hideNav);
   };
 
-  const changeShowAI = () => {
-    triggerShowAI(!$showAI);
-    console.log($showAI);
-    if (!$showAI) {
-      triggerReload(true);
+  const changeShowAI = async () => {
+    if ($isBakrie) {
+      let url = await $call.getPage("client-dashboard", "home-page");
+      goto(url);
+    } else {
+      triggerShowAI(!$showAI);
+      console.log($showAI);
+      if (!$showAI) {
+        triggerReload(true);
+      }
+      if ($showNotif) {
+        triggerShowNotif(false);
+      }
+      // isShowAI = !isShowAI;
+      localStorage.setItem("showAI", $showAI ? "true" : "false");
     }
-    if ($showNotif) {
-      triggerShowNotif(false);
-    }
-    // isShowAI = !isShowAI;
-    localStorage.setItem("showAI", $showAI ? "true" : "false");
   };
 
   const changeShowNotif = () => {
