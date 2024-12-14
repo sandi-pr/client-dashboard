@@ -9,37 +9,39 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { onMount } from "svelte";
-  import { Modal, Button, Input, Pagination } from "flowbite-svelte";
-  import { Typography, triggerToast, StateCard, triggerLoading } from "$lib";
-  import * as Icon from "flowbite-svelte-icons";
-  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
   import { _ } from "svelte-i18n";
-  import { CR3Call } from "hexacomponents-svelte";
+  import { onMount } from "svelte";
   import { format } from "date-fns";
+  import { goto } from "$app/navigation";
+  import * as Icon from "flowbite-svelte-icons";
+  import { Modal, Button, Input, Pagination } from "flowbite-svelte";
+
+  import { CR3Call } from "hexacomponents-svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
+  import { Typography, triggerToast, StateCard, triggerLoading } from "$lib";
+
+  import PlusIcon from "$lib/icon/plus.svg";
+
+  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import PlusIcon from "$lib/icon/plus.svg";
-  import { goto } from "$app/navigation";
 
   import { call, check } from "$lib";
 
-  let tmpRulesName = $state("");
-  let addRulesModal = $state(false);
-
-  let sidebarData = $state({});
-
-  let configs = $state({});
-
-  let allDatas = $state([]);
-  let datas = $state([]);
-
   let gettingDatas = $state(false);
+  let addRulesModal = $state(false);
 
   let page = $state(1);
   let pageCount = $state(1);
+
   let searchTerm = $state("");
+  let tmpRulesName = $state("");
+
+  let datas = $state([]);
+  let allDatas = $state([]);
+
+  let configs = $state({});
+  let sidebarData = $state({});
 
   const handleSearch = async (value) => {
     searchTerm = value;
@@ -50,7 +52,7 @@ All Rights Reserved
     await getListConversations();
   };
 
-  async function getListConversations() {
+  const getListConversations = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       gettingDatas = true;
@@ -128,20 +130,20 @@ All Rights Reserved
         gettingDatas = false;
       }
     }
-  }
+  };
 
-  async function nextPage() {
+  const nextPage = async () => {
     if (page >= pageCount) return;
     page++;
     getListConversations();
-  }
+  };
 
-  async function prevPage() {
+  const prevPage = async () => {
     console.log(page);
     if (page <= 1) return;
     page--;
     getListConversations();
-  }
+  };
 
   onMount(() => {
     if (check("aiManagement.datasets:view") === false) {

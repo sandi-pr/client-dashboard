@@ -20,6 +20,7 @@
   import { CloseButton } from "flowbite-svelte";
   import { onMount, onDestroy, tick } from "svelte";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
+  import { SearchOutline } from "flowbite-svelte-icons";
 
   import { CR3Call } from "hexacomponents-svelte";
   import {
@@ -32,6 +33,7 @@
     selectedConversation,
     setSelectedConversation,
   } from "$lib";
+  import DataTableLibraryCollectionBakrie from "$lib/components/DataTableLibraryCollectionBakrie.svelte";
 
   import EyeIcon from "$lib/icon/eye.svg";
   import UserIcon from "$lib/icon/user-01.svg";
@@ -96,7 +98,7 @@
   let selectedRole = $state("User");
   let statusRAG = $state("Not Ready");
   let currentChatTitle = $state("New Chat");
-  let selectedTypeDataset = $state("conversation");
+  let selectedTypeDataset = $state("");
 
   let files = $state([]);
   let allData = $state([]);
@@ -125,195 +127,145 @@
   ]);
   let datas = $state([
     {
-      attributes: {
-        content: "100.00%",
-        createdAt: "2024-12-14T09:48:47.488Z",
-        meta: {
-          bot_id: 2,
-          document_id: "31",
-          filename: "Bakrie&Brothers-Company-Profile.pdf",
-        },
-        publishedAt: "2024-12-14T09:48:47.488Z",
-        read: false,
-        sent_at: "2024-12-14T09:48:47Z",
-        title: "Reading Bakrie&Brothers-Company-Profile.pdf",
-        type: "progress",
-        updatedAt: "2024-12-14T09:50:03.378Z",
-        user_id: "0",
-      },
       id: 26,
+      filename: "test A",
+      fileext: "pdf",
+      label: ["test", "A"],
+      type: "pdf",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "100.00%",
-        createdAt: "2024-12-14T09:25:21.594Z",
-        meta: {
-          bot_id: 2,
-          document_id: "30",
-          filename: "Catatan testing crossroad (1).pdf",
-        },
-        publishedAt: "2024-12-14T09:25:21.593Z",
-        read: false,
-        sent_at: "2024-12-14T09:25:21Z",
-        title: "Reading Catatan testing crossroad (1)",
-        type: "progress",
-        updatedAt: "2024-12-14T09:25:22.075Z",
-        user_id: "0",
-      },
-      id: 25,
+      id: 27,
+      filename: "test B",
+      fileext: "doc",
+      label: ["test", "B"],
+      type: "doc",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "100.00%",
-        createdAt: "2024-12-14T09:25:03.237Z",
-        meta: {
-          bot_id: 2,
-          document_id: "29",
-          filename: "Bakrie&Brothers-Company-Profile.pdf",
-        },
-        publishedAt: "2024-12-14T09:25:03.236Z",
-        read: false,
-        sent_at: "2024-12-14T09:25:03Z",
-        title: "Reading Bakrie&Brothers-Company-Profile",
-        type: "progress",
-        updatedAt: "2024-12-14T09:25:21.047Z",
-        user_id: "0",
-      },
-      id: 24,
+      id: 28,
+      filename: "test C",
+      fileext: "jpg",
+      label: ["test", "C"],
+      type: "jpg",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "100.00%",
-        createdAt: "2024-12-14T08:12:12.538Z",
-        meta: {
-          bot_id: 2,
-          document_id: "26",
-          filename: "IMG-20241204-WA0006.txttxt",
-        },
-        publishedAt: "2024-12-14T08:12:12.538Z",
-        read: false,
-        sent_at: "2024-12-14T08:12:12Z",
-        title: "Reading IMG-20241204-WA0006.jpg",
-        type: "progress",
-        updatedAt: "2024-12-14T08:12:12.602Z",
-        user_id: "0",
-      },
-      id: 23,
+      id: 29,
+      filename: "test D",
+      fileext: "png",
+      label: ["test", "D"],
+      type: "png",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "100.00%",
-        createdAt: "2024-12-14T08:12:05.100Z",
-        meta: {
-          bot_id: 2,
-          document_id: "25",
-          filename: "IMG-20241204-WA0010.txttxt",
-        },
-        publishedAt: "2024-12-14T08:12:05.099Z",
-        read: false,
-        sent_at: "2024-12-14T08:12:05Z",
-        title: "Reading IMG-20241204-WA0010.jpg",
-        type: "progress",
-        updatedAt: "2024-12-14T08:12:05.134Z",
-        user_id: "0",
-      },
-      id: 22,
+      id: 30,
+      filename: "test E",
+      fileext: "docx",
+      label: ["test", "E"],
+      type: "docx",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "100.00%",
-        createdAt: "2024-12-02T08:14:32.266Z",
-        meta: {
-          document_id: "16",
-          filename: "text bpk.pdf",
-        },
-        publishedAt: "2024-12-02T08:14:32.265Z",
-        read: false,
-        sent_at: "2024-12-02T08:14:32Z",
-        title: "Reading text bpk",
-        type: "progress",
-        updatedAt: "2024-12-14T08:06:12.261Z",
-        user_id: "0",
-      },
-      id: 2,
+      id: 31,
+      filename: "test F",
+      fileext: "jpeg",
+      label: ["test", "F"],
+      type: "jpeg",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "25.00%",
-        createdAt: "2024-12-14T08:06:12.068Z",
-        meta: {
-          bot_id: 2,
-          document_id: "16",
-          filename: "text bpk.pdf",
-        },
-        publishedAt: "2024-12-14T08:06:12.068Z",
-        read: false,
-        sent_at: "2024-12-14T08:06:12Z",
-        title: "Reading text bpk",
-        type: "progress",
-        updatedAt: "2024-12-14T08:06:12.068Z",
-        user_id: "0",
-      },
-      id: 21,
+      id: 32,
+      filename: "test G",
+      fileext: "pdf",
+      label: ["test", "G"],
+      type: "pdf",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "100.00%",
-        createdAt: "2024-12-02T08:24:29.139Z",
-        meta: {
-          document_id: "18",
-          filename: "photo_6228523738748535054_y_1733127868.txttxt",
-        },
-        publishedAt: "2024-12-02T08:24:29.139Z",
-        read: false,
-        sent_at: "2024-12-02T08:24:29Z",
-        title: "Reading photo_6228523738748535054_y2",
-        type: "progress",
-        updatedAt: "2024-12-14T08:06:11.940Z",
-        user_id: "0",
-      },
-      id: 4,
+      id: 33,
+      filename: "test H",
+      fileext: "doc",
+      label: ["test", "H"],
+      type: "doc",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "50.00%",
-        createdAt: "2024-12-14T08:06:11.898Z",
-        meta: {
-          bot_id: 2,
-          document_id: "18",
-          filename: "photo_6228523738748535054_y_1733127868.txttxt",
-        },
-        publishedAt: "2024-12-14T08:06:11.898Z",
-        read: false,
-        sent_at: "2024-12-14T08:06:11Z",
-        title: "Reading photo_6228523738748535054_y2",
-        type: "progress",
-        updatedAt: "2024-12-14T08:06:11.898Z",
-        user_id: "0",
-      },
-      id: 20,
+      id: 34,
+      filename: "test I",
+      fileext: "jpg",
+      label: ["test", "I"],
+      type: "jpg",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
     {
-      attributes: {
-        content: "100.00%",
-        createdAt: "2024-12-02T08:38:59.408Z",
-        meta: {
-          document_id: "20",
-          filename: "photo_6228523738748535047_y.txttxt",
-        },
-        publishedAt: "2024-12-02T08:38:59.407Z",
-        read: false,
-        sent_at: "2024-12-02T08:38:59Z",
-        title: "Reading photo_6228523738748535047_y",
-        type: "progress",
-        updatedAt: "2024-12-14T08:06:11.778Z",
-        user_id: "0",
-      },
-      id: 6,
+      id: 35,
+      filename: "test J",
+      fileext: "png",
+      label: ["test", "J"],
+      type: "png",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
+    },
+    {
+      id: 36,
+      filename: "test K",
+      fileext: "docx",
+      label: ["test", "K"],
+      type: "docx",
+      upload_by: "John Doe",
+      filesize: "1.2 MB",
+      createdAt: format(new Date(), "MMM d, yyyy"),
+      href: "#",
+      checked: false,
     },
   ]);
 
-  let configs = $state({});
+  let pagination = $state({
+    page: 1,
+    pageCount: 1,
+    pageSize: 10,
+    total: 10,
+  });
   let sidebarData = $state({});
   let tmpResultTrocr = $state({ text: "" });
   let userData = $state({ username: "", email: "", brand: "" });
@@ -1358,9 +1310,26 @@
               >
             </div>
 
+            <div class="mt-8 mb-4">
+              <Input
+                id="search"
+                type="search"
+                class="bg-white dark:bg-hc-graydark-950 items-center"
+                placeholder={$_("search")}
+                on:change={() => {}}
+              >
+                <SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              </Input>
+            </div>
+
             <!-- Person Table Data -->
             {#if datas.length > 0}
-              <DataTable bind:datas bind:configs bind:next bind:previous />
+              <DataTableLibraryCollectionBakrie
+                collectionListDatas={datas}
+                {pagination}
+                {next}
+                {previous}
+              />
             {:else if gettingDatas}
               <StateCard
                 illustration={IllustrationProgress}
