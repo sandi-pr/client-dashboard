@@ -5047,7 +5047,7 @@
         {
             "name": "get-datasets-handwriting",
             "path": "/get-datasets-handwriting",
-            "method": "POST",
+            "method": "GET",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
@@ -5075,7 +5075,7 @@
         {
             "name": "update-dataset-handwriting",
             "path": "/update-dataset-handwriting/:id",
-            "method": "POST",
+            "method": "PUT",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
@@ -5102,7 +5102,7 @@
         {
             "name": "delete-dataset-handwriting",
             "path": "/delete-dataset-handwriting/:id",
-            "method": "POST",
+            "method": "DELETE",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
