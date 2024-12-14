@@ -520,7 +520,7 @@
     globalThis.addEventListener("resize", resizeHandler);
     resizeHandler(); // call once initially to set the correct value
 
-    conversationId = $page.url.searchParams.get("id");
+    conversationId = $page.url.searchParams.get("datasetId");
 
     if (conversationId) {
       getmessage(conversationId);

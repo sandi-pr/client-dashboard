@@ -1014,7 +1014,7 @@
           fileext: data.attributes.path.split(".").pop(),
           filesize: data.attributes.file_size,
           createdAt: format(new Date(data.attributes.createdAt), "MMM d, yyyy"),
-          href: link + "?id=" + data.id,
+          href: link + "?datasetId=" + data.id,
         };
       });
 
