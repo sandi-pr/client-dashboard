@@ -51,6 +51,7 @@
     sidebarData = $bindable({}),
     gettingDatas = $bindable(true),
     selectedTypeDataset = $bindable("conversation"),
+    handleDatasetModal,
   } = $props();
 
   let clickOutsideModal = $state(false);
@@ -353,7 +354,11 @@
     <div class="flex flex-col gap-2 w-full">
       <Button
         disabled={!check("aiManagement.datasets:create")}
-        on:click={selectedTypeDataset === "conversation" ? newChat : () => {}}
+        on:click={selectedTypeDataset === "conversation"
+          ? newChat
+          : () => {
+              handleDatasetModal();
+            }}
         class="!flex self-stretch h-12 !text-white dark:!text-white rounded-2xl"
       >
         <img src={MessagePlusIcon} alt="MessagePlusIcon" class="w-5 h-5" />

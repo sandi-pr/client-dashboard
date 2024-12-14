@@ -5,6 +5,7 @@
     Modal,
     Input,
     Button,
+    Toggle,
     Spinner,
     Heading,
     Textarea,
@@ -33,6 +34,9 @@
     selectedConversation,
     setSelectedConversation,
   } from "$lib";
+  import Chat from "$lib/components/Chat.svelte";
+  import StateCard from "$lib/ui/cards/StateCard.svelte";
+  import Sidebar from "$lib/components/SidebarDataset.svelte";
   import DataTableLibraryCollectionBakrie from "$lib/components/DataTableLibraryCollectionBakrie.svelte";
 
   import EyeIcon from "$lib/icon/eye.svg";
@@ -47,13 +51,13 @@
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import ArrowLeftIcon from "$lib/icon/arrow-left.svg";
   import ArrowRightIcon from "$lib/icon/arrow-right.svg";
+  import UploadIcon from "$lib/icon/upload-cloud-02.svg";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
 
-  import Chat from "$lib/components/Chat.svelte";
   import EditIcon from "$lib/icon/edit-05.svelte";
-  import StateCard from "$lib/ui/cards/StateCard.svelte";
-  import Sidebar from "$lib/components/SidebarDataset.svelte";
+  import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
+  import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import AlignRightIcon from "$lib/icon/align-right-01.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
@@ -84,6 +88,8 @@
   let fileListReady = $state(false);
   let processGetData = $state(false);
   let showSendMessage = $state(false);
+  let addDatasetModal = $state(false);
+  // let fileDetailModal = $state(true);
   let pageListDocument = $state(false);
   let documentListModal = $state(false);
   let disableInput = $state(!check("aiManagement.datasets:create"));
@@ -93,21 +99,25 @@
   let innerWidth = $state(0);
   let indexFileList = $state(0);
 
+  let base64Data = $state("");
+  let fileTextName = $state("");
   let messageInput = $state("");
   let editedMessage = $state("");
   let selectedRole = $state("User");
   let statusRAG = $state("Not Ready");
-  let currentChatTitle = $state("New Chat");
   let selectedTypeDataset = $state("");
+  let currentChatTitle = $state("New Chat");
 
   let files = $state([]);
   let allData = $state([]);
   let fileList = $state([]);
+  let tmpFile = $state(null);
   let allFileList = $state([]);
   let datasetArray = $state([]);
   let conversations = $state([]);
   let selectedFile = $state(null);
   let conversationId = $state(null);
+  let tmpDocumentName = $state(null);
   let editingMessageId = $state(null);
   let dataConversationChats = $state([
     // {
@@ -780,6 +790,21 @@
     });
   };
 
+  const readFileAsText = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const text = reader.result.replace(/\r\n/g, "\n");
+        const base64 = btoa(text);
+        resolve({ text, base64 });
+      };
+      reader.onerror = reject;
+
+      reader.readAsText(file);
+    });
+  };
+
   const importConversationWithCsv = async () => {
     let token = localStorage.getItem("token");
     if (token) {
@@ -860,6 +885,39 @@
     const textarea = event.target;
     textarea.style.height = "auto"; // Reset height
     textarea.style.height = textarea.scrollHeight + "px"; // Adjust height
+  };
+
+  const handleDatasetModal = () => {
+    addDatasetModal = !addDatasetModal;
+  };
+
+  const dropHandle = async (event) => {
+    event.preventDefault();
+
+    const files = event.dataTransfer.files;
+
+    for (const file of files) {
+      if (file) {
+        let base64Data;
+        if (file.type === "text/plain") {
+          const { text, base64 } = await readFileAsText(file);
+          fileTextResult = text;
+          base64Data = base64;
+        } else {
+          base64Data = await readFileAsBase64(file);
+        }
+
+        const fileData = {
+          name: file.name,
+          size: file.size,
+          base64Data: base64Data,
+        };
+
+        fileList = [...fileList, fileData];
+      } else {
+        alert("Invalid file. Please select a valid file.");
+      }
+    }
   };
 
   onMount(() => {
@@ -1032,6 +1090,7 @@
     {getListConversations}
     bind:gettingDatas
     bind:selectedTypeDataset
+    {handleDatasetModal}
   />
   {#if selectedTypeDataset === "conversation"}
     <div class={`flex flex-col lg:ml-80 pt-4 px-4 md:px-8`}>
@@ -1305,8 +1364,8 @@
                 text={$_("allDatasetsHandwriting")}
               />
               <Button onclick={() => {}} icon={DownloadIcon}
-                ><img class="w-4 h-4 me-1" src={DownloadIcon} alt="plus-icon" />
-                {$_("addNew")}</Button
+                ><img class="w-6 h-6 me-1" src={DownloadIcon} alt="plus-icon" />
+                {$_("downloadAllAsZip")}</Button
               >
             </div>
 
@@ -1647,6 +1706,94 @@
         class="w-full">Cancel</Button
       >
       <Button color="primary" on:click={handleConfirm} class="rounded-lg w-full">I’m sure</Button>
+    </div>
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={addDatasetModal} size="lg">
+  <svelte:fragment slot="header">
+    <div class="flex justify-start items-center gap-4 py-4 px-6">
+      <div class="p-2 bg-[#F4EBFF] rounded-full flex justify-center items-center">
+        <FilePlus02Icon svgClass="w-8 h-8 text-[#7F56D9]" />
+      </div>
+      <div class="flex flex-col">
+        <Typography preset="Text lg/Semibold" text="Add Datasets" color="primary" />
+        <Typography
+          preset="Text sm/Regular"
+          text="It can be anything. PDF, Images, etc!"
+          color="tertiary"
+        />
+      </div>
+    </div>
+  </svelte:fragment>
+  <div class="flex flex-col w-full justify-center">
+    <Button
+      ondrop={dropHandle}
+      ondragover={(event) => {
+        event.preventDefault();
+      }}
+      onclick={() => {
+        handleUploadWrapper();
+      }}
+      color="light"
+      class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-4 md:py-8 flex md:flex-col items-center justify-start ${fileTextName ? "items-center cursor-default" : "items-center"}`}
+    >
+      {#if fileList.length > 0}
+        <div class="flex items-center">
+          <FileTypeIcon
+            svgClass="w-20 h-20 text-utility-brand-600-light dark:text-utility-brand-600-dark"
+          />
+          <div
+            class="flex items-center justify-center bg-[#7F56D9] rounded-full w-8 h-8 ml-[-1.25rem]"
+          >
+            <P class="text-white font-semibold">{fileList.length}</P>
+          </div>
+        </div>
+      {:else}
+        <div
+          class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center hidden md:inline-flex mb-4 pointer-events-none"
+        >
+          <img src={UploadIcon} alt="UploadIcon" class="p-4 dark:invert pointer-events-none" />
+        </div>
+        <div class="flex flex-col items-start md:items-center gap-1">
+          <Typography
+            preset="Text sm/Semibold"
+            text="Click to upload"
+            color="fg-brand-primary"
+            propClass="fluid-base md:fluid-md"
+          />
+          <Typography
+            preset="Text xs/Semibold"
+            text="JPG, JPEG, PNG, PDF, DOC, DOCX  (Max. 15MB)"
+            color="tertiary"
+            propClass="fluid-xs md:fluid-base"
+          />
+        </div>
+      {/if}
+    </Button>
+
+    <Toggle
+      class="mt-4"
+      on:change={(e) => {
+        console.log("toggled");
+        // if (e.detail) {
+        //   bulkUpload = true;
+        // } else {
+        //   bulkUpload = false;
+        // }
+      }}
+    >
+      <P>Bulk Upload</P>
+    </Toggle>
+  </div>
+  <svelte:fragment slot="footer">
+    <div class="flex w-full gap-2 justify-center items-center py-3 px-4">
+      <Button
+        color="primary"
+        on:click={() => {}}
+        class="rounded-lg w-full"
+        disabled={fileList.length === 0}>Add</Button
+      >
     </div>
   </svelte:fragment>
 </Modal>

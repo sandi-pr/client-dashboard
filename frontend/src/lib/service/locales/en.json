@@ -821,5 +821,6 @@
   "failedDeleteDocument": "Failed to delete document. Please try again.",
   "successUpdateDocument": "Document updated successfully!",
   "failedGetDocument": "Failed to get document. Please try again.",
-  "allDatasetsHandwriting": "All Dataset Handwriting"
+  "allDatasetsHandwriting": "All Dataset Handwriting",
+  "downloadAllAsZip": "Download all as .zip"
 }
