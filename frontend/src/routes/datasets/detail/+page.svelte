@@ -24,6 +24,8 @@
   import Sidebar from "$lib/components/SidebarDataset.svelte";
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
 
+  import Trash01Icon from "$lib/icon/trash-01.svelte";
+  import PencilLineIcon from "$lib/icon/pencil-line.svelte";
   import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
   import LaodingLottie from "$lib/components/LaodingLottie.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -423,21 +425,28 @@
               window.location.href = "/datasets";
             }}
           >
-            <ChevronLeftOutline class="w-7 h-7" />
-            <P class="font-semibold">Back</P>
+            <ChevronLeftOutline class="w-7 h-7 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
+            <P class="font-semibold text-fg-tertiary-light dark:text-fg-tertiary-dark">Back</P>
           </button>
 
-          <div class="flex items-center justify-between mb-4">
+          <div
+            class={`flex justify-between mb-4 ${innerWidth < 768 ? "flex-col" : "items-center"}`}
+          >
             <Typography
               preset="Display sm/Semibold"
               color="primary"
               text={fileData.name + fileData.ext}
             />
-            <div class="flex gap-2">
-              <Button onclick={() => {}} outline color="alternative">
+            <div class={`flex gap-2 ${innerWidth < 768 ? "mt-4" : ""}`}>
+              <Button
+                onclick={() => {}}
+                outline
+                color="alternative"
+                class={innerWidth < 768 ? "w-full" : ""}
+              >
                 {$_("delete")}
               </Button>
-              <Button onclick={() => {}} outline>
+              <Button onclick={() => {}} outline class={innerWidth < 768 ? "w-full" : ""}>
                 {$_("edit")}
               </Button>
             </div>

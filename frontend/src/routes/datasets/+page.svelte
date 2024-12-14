@@ -1357,16 +1357,16 @@
 
           <div class="flex flex-col">
             <!-- User Information -->
-            <div class="flex items-center justify-between">
+            <div class={`flex justify-between ${innerWidth < 768 ? "flex-col" : "items-center"}`}>
               <Typography
                 preset="Display sm/Semibold"
                 color="primary"
                 text={$_("allDatasetsHandwriting")}
               />
-              <Button onclick={() => {}} icon={DownloadIcon}
-                ><img class="w-6 h-6 me-1" src={DownloadIcon} alt="plus-icon" />
-                {$_("downloadAllAsZip")}</Button
-              >
+              <Button onclick={() => {}} icon={DownloadIcon} class={innerWidth < 768 ? "mt-4" : ""}>
+                <img class="w-6 h-6 me-1" src={DownloadIcon} alt="plus-icon" />
+                {$_("downloadAllAsZip")}
+              </Button>
             </div>
 
             <div class="mt-8 mb-4">
