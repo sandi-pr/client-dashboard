@@ -10,6 +10,7 @@
     Heading,
     Textarea,
     DarkMode,
+    Search,
   } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { page } from "$app/stores";
@@ -21,7 +22,7 @@
   import { CloseButton } from "flowbite-svelte";
   import { onMount, onDestroy, tick } from "svelte";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import { SearchOutline } from "flowbite-svelte-icons";
+  import { SearchOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
 
   import { CR3Call } from "hexacomponents-svelte";
   import {
@@ -135,140 +136,7 @@
     //   date: "Chat " + format(new Date(), "dd.MM.yyyy"),
     // },
   ]);
-  let datas = $state([
-    {
-      id: 26,
-      filename: "test A",
-      fileext: "pdf",
-      label: ["test", "A"],
-      type: "pdf",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 27,
-      filename: "test B",
-      fileext: "doc",
-      label: ["test", "B"],
-      type: "doc",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 28,
-      filename: "test C",
-      fileext: "jpg",
-      label: ["test", "C"],
-      type: "jpg",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 29,
-      filename: "test D",
-      fileext: "png",
-      label: ["test", "D"],
-      type: "png",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 30,
-      filename: "test E",
-      fileext: "docx",
-      label: ["test", "E"],
-      type: "docx",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 31,
-      filename: "test F",
-      fileext: "jpeg",
-      label: ["test", "F"],
-      type: "jpeg",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 32,
-      filename: "test G",
-      fileext: "pdf",
-      label: ["test", "G"],
-      type: "pdf",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 33,
-      filename: "test H",
-      fileext: "doc",
-      label: ["test", "H"],
-      type: "doc",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 34,
-      filename: "test I",
-      fileext: "jpg",
-      label: ["test", "I"],
-      type: "jpg",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 35,
-      filename: "test J",
-      fileext: "png",
-      label: ["test", "J"],
-      type: "png",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-    {
-      id: 36,
-      filename: "test K",
-      fileext: "docx",
-      label: ["test", "K"],
-      type: "docx",
-      upload_by: "John Doe",
-      filesize: "1.2 MB",
-      createdAt: format(new Date(), "MMM d, yyyy"),
-      href: "#",
-      checked: false,
-    },
-  ]);
+  let datas = $state([]);
 
   let pagination = $state({
     page: 1,
@@ -913,12 +781,354 @@
           base64Data: base64Data,
         };
 
-        fileList = [...fileList, fileData];
+        filesHandwriting = [...filesHandwriting, fileData];
       } else {
         alert("Invalid file. Please select a valid file.");
       }
     }
   };
+
+  let filesHandwriting = $state([]);
+  let multipleUpload = $state(false);
+  let dataSend = $state({});
+  let paginationHandwriting = $state({
+    page: 1,
+    pageCount: 1,
+    pageSize: 15,
+    total: 10,
+  });
+  let tmpId = $state(null);
+  let popupModal = $state(false);
+
+  const handleUploadWrapper2 = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = ".png,.jpg.jpeg";
+    inputElement.multiple = multipleUpload;
+
+    inputElement.addEventListener("change", async (event) => {
+      let filesSelect = event.target.files;
+
+      if (!multipleUpload) {
+        filesHandwriting = [];
+        filesSelect = [filesSelect[0]];
+      }
+
+      for (const file of filesSelect) {
+        if (file) {
+          const base64Data = await readFileAsBase64(file);
+
+          filesHandwriting.push({
+            id: filesHandwriting.length < 1 ? 1 : filesHandwriting.length + 1,
+            name: file.name,
+            size: formatBytes(file.size),
+            base64: base64Data,
+            ext: "." + file.name.split(".").pop(),
+            type: "Handwriting",
+          });
+        }
+      }
+    });
+    inputElement.click();
+  };
+
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
+
+  async function addDatasetHandwriting() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        addDatasetModal = false;
+        triggerLoading(true);
+
+        for (let i = 0; i < filesHandwriting.length; i++) {
+          let response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              image: filesHandwriting[i].base64,
+              model: sessionStorage.getItem("model_trocr"),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response3.status !== 200) {
+            addDatasetModal = true;
+            triggerLoading(false);
+            if (response3.status === 400) {
+              console.error("Invalid parameters:", response3);
+              triggerToast($_("invalidParameters"), true, "error");
+            } else if (response3.status === 401) {
+              console.error("Unauthorized access:", response3);
+              triggerToast($_("unauthorized"), true, "error");
+            } else if (response3.status === 500) {
+              console.error("Server error:", response3);
+              triggerToast($_("serverError"), true, "error");
+            } else {
+              console.error("Unexpected status code:", response3);
+              triggerToast(`${$_("unexpectedError")}: ${response3.status}`, true, "error");
+            }
+            return;
+          }
+
+          if (response3?.result?.text !== null) {
+            let originalName = filesHandwriting[i].name.split(".").slice(0, -1).join(".");
+            let newName = originalName;
+
+            filesHandwriting[i].name = newName + filesHandwriting[i].ext;
+
+            dataSend = {
+              name: originalName,
+              documents: JSON.stringify([filesHandwriting[i]]),
+              detected_text: response3.result.text,
+              result_trocr: JSON.stringify(response3.result),
+            };
+
+            if (filesHandwriting.length < 2) {
+              triggerLoading(false);
+            }
+          }
+
+          if (filesHandwriting.length > 1) {
+            await sendDocument();
+          } else {
+            previewModal = true;
+            selectedFile = filesHandwriting[0];
+          }
+        }
+
+        addDatasetModal = false;
+
+        getDatasetsHandwriting();
+
+        if (filesHandwriting.length > 1) {
+          filesHandwriting = [];
+          dataSend = null;
+          previewModal = false;
+          triggerLoading(false);
+          triggerToast($_("succesfullyUploaded"), true);
+        }
+      } catch (error) {
+        addDatasetModal = true;
+        console.error("Error during document upload:", error);
+        triggerToast($_("failedUploadDocument"), true, "error");
+        triggerLoading(false);
+        return;
+      }
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  }
+
+  async function sendDocument() {
+    let token = localStorage.getItem("token");
+
+    if (token === null) {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+    let response = await $call.call("client-dashboard", "create-dataset-handwriting", {
+      URLQuery: {},
+      URLParams: {},
+      Params: dataSend,
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    if (response.status !== 200) {
+      addDatasetModal = true;
+      triggerLoading(false);
+      if (response.status === 400) {
+        console.error("Invalid parameters:", response);
+        triggerToast($_("invalidParameters"), true, "error");
+      } else if (response.status === 401) {
+        console.error("Unauthorized access:", response);
+        triggerToast($_("unauthorized"), true, "error");
+      } else if (response.status === 500) {
+        console.error("Server error:", response);
+        triggerToast($_("serverError"), true, "error");
+      } else {
+        console.error("Unexpected status code:", response);
+        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+      }
+      return;
+    }
+
+    if (filesHandwriting.length === 1) {
+      filesHandwriting = [];
+      dataSend = null;
+      previewModal = false;
+      triggerLoading(false);
+      triggerToast($_("succesfullyUploaded"), true);
+    }
+
+    return;
+  }
+
+  const getDatasetsHandwriting = async (search) => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      if (search !== "") {
+        paginationHandwriting.page = 1;
+      }
+
+      const response = await $call.call("client-dashboard", "get-datasets-handwriting", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: paginationHandwriting.page,
+          page_size: paginationHandwriting.pageSize,
+          search: search,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        triggerToast("error");
+        return;
+      }
+
+      let promise = response.result.data.map(async (data) => {
+        let link = await $call.getPage("client-dashboard", "datasets-detail");
+
+        return {
+          id: data.id,
+          filename: data.attributes.name,
+          fileext: data.attributes.path.split(".").pop(),
+          filesize: data.attributes.file_size,
+          createdAt: format(new Date(data.attributes.createdAt), "MMM d, yyyy"),
+          href: link + "?id=" + data.id,
+        };
+      });
+
+      datas = await Promise.all(promise);
+    }
+  };
+
+  function handleDeleteDataset(id) {
+    tmpId = id;
+    popupModal = true;
+  }
+
+  async function deleteDataset() {
+    popupModal = false;
+    triggerLoading(true);
+    let token = localStorage.getItem("token");
+
+    if (token === null) {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+
+    try {
+      const response = await $call.call("client-dashboard", "delete-dataset-handwriting", {
+        URLQuery: {},
+        URLParams: {
+          id: tmpId.toString(),
+        },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        triggerLoading(false);
+        popupModal = true;
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
+        return;
+      }
+
+      tmpId = null;
+
+      triggerLoading(false);
+      triggerToast("successDeleteDocument", true);
+      getDatasetsHandwriting();
+    } catch (error) {
+      console.error("Error during document deletion:", error);
+      triggerToast($_("failedDeleteDocument"), true, "error");
+    }
+  }
+
+  function handleSearchDataset(event) {
+    getDatasetsHandwriting(event.target.value);
+  }
+
+  async function handleDownloadDataset() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const response = await $call.call("client-dashboard", "download-dataset-handwriting-zip", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200 || response.result.base64 === null) {
+        triggerToast("error");
+        return;
+      }
+
+      const now = new Date();
+      const formattedDate = format(now, "ddMMyyyy");
+
+      const filename = `datasets-handwriting-${formattedDate}.zip`;
+
+      const binaryString = atob(response.result.base64);
+
+      const byteArray = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        byteArray[i] = binaryString.charCodeAt(i);
+      }
+
+      const blob = new Blob([byteArray], { type: "application/zip" });
+
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
+  }
 
   onMount(() => {
     if (check("aiManagement.datasets:view") === false) {
@@ -948,6 +1158,7 @@
     }
 
     getListConversations();
+    getDatasetsHandwriting();
 
     return () => {
       globalThis.removeEventListener("resize", resizeHandler);
@@ -1363,7 +1574,11 @@
                 color="primary"
                 text={$_("allDatasetsHandwriting")}
               />
-              <Button onclick={() => {}} icon={DownloadIcon} class={innerWidth < 768 ? "mt-4" : ""}>
+              <Button
+                onclick={handleDownloadDataset}
+                icon={DownloadIcon}
+                class={innerWidth < 768 ? "mt-4" : ""}
+              >
                 <img class="w-6 h-6 me-1" src={DownloadIcon} alt="plus-icon" />
                 {$_("downloadAllAsZip")}
               </Button>
@@ -1375,7 +1590,7 @@
                 type="search"
                 class="bg-white dark:bg-hc-graydark-950 items-center"
                 placeholder={$_("search")}
-                on:change={() => {}}
+                on:input={handleSearchDataset}
               >
                 <SearchOutline slot="left" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </Input>
@@ -1384,7 +1599,11 @@
             <!-- Person Table Data -->
             {#if datas.length > 0}
               <DataTableLibraryCollectionBakrie
+                functDeleteCategories={handleDeleteDataset}
                 collectionListDatas={datas}
+                otherFunc={() => {
+                  hideSidebar = true;
+                }}
                 {pagination}
                 {next}
                 {previous}
@@ -1580,7 +1799,7 @@
                       "?collectionId=" +
                       sessionStorage.getItem("collectionIdFinetune") +
                       "&documentId=" +
-                      file.id
+                      file.id,
                   );
                   return;
                 }}
@@ -1664,29 +1883,29 @@
     <div
       class="flex w-1/2 justify-center items-center py-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
     >
-      {#if selectedFile.ext.includes(".png") || selectedFile.ext.includes(".jpg") || selectedFile.ext.includes(".jpeg")}
+      {#if filesHandwriting[0].ext.includes(".png") || filesHandwriting[0].ext.includes(".jpg") || filesHandwriting[0].ext.includes(".jpeg")}
         <img
-          src={`data:${selectedFile.type};base64,${selectedFile.base64}`}
+          src={`data:${"Handwriting"};base64,${filesHandwriting[0].base64}`}
           style="max-width: 80%; height: auto;"
           alt="PNG Preview"
         />
-      {:else if selectedFile.ext.includes(".pdf")}
+      {:else if filesHandwriting[0].ext.includes(".pdf")}
         <PdfViewer
           showBorder={false}
           showButtons={false}
           scale={1}
-          data={atob(selectedFile.base64)}
+          data={atob(filesHandwriting[0].base64)}
         />
       {/if}
     </div>
     <!-- detected handwriting -->
-    {#if selectedFile.type === "Handwriting"}
+    {#if filesHandwriting[0].type === "Handwriting"}
       <div class="flex w-full flex-col gap-3 px-4 pb-1">
         <Typography preset="Text md/Semibold" text="Handwriting Information" color="secondary" />
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
           <textarea
-            bind:value={tmpResultTrocr.text}
+            bind:value={dataSend.detected_text}
             id="chat"
             rows="4"
             class="block p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
@@ -1701,11 +1920,11 @@
         color="light"
         on:click={() => {
           previewModal = false;
-          files = [];
+          filesHandwriting = [];
         }}
         class="w-full">Cancel</Button
       >
-      <Button color="primary" on:click={handleConfirm} class="rounded-lg w-full">I’m sure</Button>
+      <Button color="primary" on:click={sendDocument} class="rounded-lg w-full">I’m sure</Button>
     </div>
   </svelte:fragment>
 </Modal>
@@ -1733,22 +1952,36 @@
         event.preventDefault();
       }}
       onclick={() => {
-        handleUploadWrapper();
+        handleUploadWrapper2();
       }}
       color="light"
       class={`w-full rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 py-4 md:py-8 flex md:flex-col items-center justify-start ${fileTextName ? "items-center cursor-default" : "items-center"}`}
     >
-      {#if fileList.length > 0}
-        <div class="flex items-center">
-          <FileTypeIcon
-            svgClass="w-20 h-20 text-utility-brand-600-light dark:text-utility-brand-600-dark"
-          />
-          <div
-            class="flex items-center justify-center bg-[#7F56D9] rounded-full w-8 h-8 ml-[-1.25rem]"
-          >
-            <P class="text-white font-semibold">{fileList.length}</P>
+      {#if filesHandwriting.length > 0}
+        {#if !multipleUpload}
+          <div class="flex flex-col items-center">
+            <FileTypeIcon
+              svgClass="w-20 h-20 text-utility-brand-600-light dark:text-utility-brand-600-dark"
+            />
+            <Typography
+              preset="Text sm/Semibold"
+              text={filesHandwriting[0].name}
+              color="fg-brand-primary"
+              propClass="fluid-base md:fluid-md"
+            />
           </div>
-        </div>
+        {:else}
+          <div class="flex items-center">
+            <FileTypeIcon
+              svgClass="w-20 h-20 text-utility-brand-600-light dark:text-utility-brand-600-dark"
+            />
+            <div
+              class="flex items-center justify-center bg-[#7F56D9] rounded-full w-8 h-8 ml-[-1.25rem]"
+            >
+              <P class="text-white font-semibold">{filesHandwriting.length}</P>
+            </div>
+          </div>
+        {/if}
       {:else}
         <div
           class="rounded-xl shadow border border-primary-light dark:border-primary-dark justify-center items-center hidden md:inline-flex mb-4 pointer-events-none"
@@ -1764,7 +1997,7 @@
           />
           <Typography
             preset="Text xs/Semibold"
-            text="JPG, JPEG, PNG, PDF, DOC, DOCX  (Max. 15MB)"
+            text="JPG, JPEG, PNG (Max. 15MB)"
             color="tertiary"
             propClass="fluid-xs md:fluid-base"
           />
@@ -1776,6 +2009,10 @@
       class="mt-4"
       on:change={(e) => {
         console.log("toggled");
+        multipleUpload = !multipleUpload;
+        if (filesHandwriting.length > 1) {
+          filesHandwriting = [filesHandwriting[0]];
+        }
         // if (e.detail) {
         //   bulkUpload = true;
         // } else {
@@ -1790,10 +2027,22 @@
     <div class="flex w-full gap-2 justify-center items-center py-3 px-4">
       <Button
         color="primary"
-        on:click={() => {}}
+        on:click={addDatasetHandwriting}
         class="rounded-lg w-full"
-        disabled={fileList.length === 0}>Add</Button
+        disabled={filesHandwriting.length === 0}>Add</Button
       >
     </div>
   </svelte:fragment>
+</Modal>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+      {$_("thisDocument")}
+    </h3>
+    <Button onclick={deleteDataset} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
 </Modal>

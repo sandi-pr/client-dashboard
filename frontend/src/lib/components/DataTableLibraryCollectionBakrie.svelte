@@ -34,6 +34,7 @@
   export let previous;
   export let functDeleteCategories;
   export let functPreviewDocument;
+  export let otherFunc;
 
   let dropdownActionOpen = [];
 
@@ -166,8 +167,8 @@
           <TableBodyCell>
             <Button
               on:click={() => {
-                // goto(collectionListData.href);
-                window.open(collectionListData.href, "_blank");
+                goto(collectionListData.href);
+                // window.open(collectionListData.href, "_blank");
                 return;
               }}
               color="white"

@@ -2214,9 +2214,6 @@ func DownloadAllDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *con
 		}
 
 		list, ok := document.GetList("data")
-		if len(list) == 0 {
-			return ctx.Error(500, "Internal Server Error")
-		}
 
 		if !ok {
 			return ctx.Error(500, "Internal Server Error")
@@ -2239,7 +2236,7 @@ func DownloadAllDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *con
 
 				document_path, ok = attributes.GetString("path")
 				if !ok {
-					document_path = ""
+					return ctx.Error(500, "Internal Server Error")
 				}
 
 				base64Data, err := getDocumentInBase64(string(document_path))
@@ -2271,6 +2268,12 @@ func DownloadAllDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *con
 		page++
 	}
 
+	if len(AllDatasets) < 1 {
+		return 404, U.Dict{
+			"base64": nil,
+		}, nil
+	}
+
 	zipBase64, err := createZipAndConvertToBase64(AllDatasets)
 	if err != nil {
 		fmt.Println("Error zip:", err)
@@ -2283,44 +2286,61 @@ func DownloadAllDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *con
 }
 
 func createZipAndConvertToBase64(datasets U.List) (string, error) {
+	fmt.Println("Starting createZipAndConvertToBase64 function")
 	var buffer bytes.Buffer
 	zipWriter := zip.NewWriter(&buffer)
 
-	for _, dataset := range datasets {
+	for i, dataset := range datasets {
+		fmt.Printf("Processing dataset %d\n", i)
+
 		name, _ := dataset.(U.Dict).GetString("name")
+		fmt.Printf("Dataset name: %s\n", name)
+
 		base64Content, _ := dataset.(U.Dict).GetString("base64")
 		detectedText, _ := dataset.(U.Dict).GetString("detected_text")
 
+		fmt.Println("Decoding base64 content")
 		content, err := base64.StdEncoding.DecodeString(string(base64Content))
 		if err != nil {
+			fmt.Printf("Error decoding base64 for dataset %s: %v\n", name, err)
 			return "", fmt.Errorf("failed to decode base64: %v", err)
 		}
 
+		fmt.Printf("Adding file %s to ZIP\n", name)
 		zipFile, err := zipWriter.Create(string(name))
 		if err != nil {
+			fmt.Printf("Error creating file %s in ZIP: %v\n", name, err)
 			return "", fmt.Errorf("failed to create file in ZIP: %v", err)
 		}
 		_, err = zipFile.Write(content)
 		if err != nil {
+			fmt.Printf("Error writing file %s to ZIP: %v\n", name, err)
 			return "", fmt.Errorf("failed to write file to ZIP: %v", err)
 		}
 
 		textFileName := filepath.Base(string(name)) + ".txt"
+		fmt.Printf("Adding detected text file %s to ZIP\n", textFileName)
 		textFile, err := zipWriter.Create(textFileName)
 		if err != nil {
+			fmt.Printf("Error creating text file %s in ZIP: %v\n", textFileName, err)
 			return "", fmt.Errorf("failed to create text file in ZIP: %v", err)
 		}
 		_, err = textFile.Write([]byte(detectedText))
 		if err != nil {
+			fmt.Printf("Error writing detected text file %s to ZIP: %v\n", textFileName, err)
 			return "", fmt.Errorf("failed to write text file to ZIP: %v", err)
 		}
 	}
 
+	fmt.Println("Closing ZIP writer")
 	err := zipWriter.Close()
 	if err != nil {
+		fmt.Printf("Error closing ZIP writer: %v\n", err)
 		return "", fmt.Errorf("failed to close ZIP writer: %v", err)
 	}
 
+	fmt.Println("Encoding ZIP to Base64")
 	zipBase64 := base64.StdEncoding.EncodeToString(buffer.Bytes())
+	fmt.Println("Finished createZipAndConvertToBase64 function")
 	return zipBase64, nil
 }

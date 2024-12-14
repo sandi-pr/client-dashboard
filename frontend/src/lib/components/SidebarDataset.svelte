@@ -61,7 +61,9 @@
   let base64Data = $state("");
   let dropdownUser = $state(false);
   let statusRequest = $state(null);
+  let statusRequestHandwriting = $state(null);
   let colorStatusRequest = $state("dark");
+  let colorStatusRequestHandwriting = $state("dark");
 
   let fileList = $state([]);
   let selectedFile = $state(null);
@@ -241,6 +243,29 @@
     }
   }
 
+  async function processDatasetHandwriting() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const response = await $call.call("client-dashboard", "request-fine-tuning-handwriting", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status === 200) {
+          statusRequestHandwriting = "REQUEST";
+          triggerToast("created");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   async function getStatusRequest() {
     let token = localStorage.getItem("token");
     if (token !== null) {
@@ -264,6 +289,31 @@
     }
   }
 
+  async function getStatusRequestHandwriting() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const response = await $call.call(
+          "client-dashboard",
+          "get-status-fine-tuning-handwriting",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+        if (response.status === 200) {
+          statusRequest = response.result.status;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   onMount(() => {
     // Initialize theme based on system preferences
     // const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -271,6 +321,7 @@
     //   changeTheme();
     // }
     getStatusRequest();
+    getStatusRequestHandwriting();
   });
 
   $effect(() => {
@@ -279,6 +330,16 @@
       if (statusRequest === "PROCESS") colorStatusRequest = "yellow";
       if (statusRequest === "SUCCESS") colorStatusRequest = "green";
       if (statusRequest === "FAILED") colorStatusRequest = "red";
+    }
+  });
+
+  $effect(() => {
+    if (statusRequestHandwriting !== null) {
+      if (statusRequestHandwriting === "REQUEST") colorStatusRequestHandwriting = "blue";
+      if (statusRequestHandwriting === "PROCESS") colorStatusRequestHandwriting = "yellow";
+      if (statusRequestHandwriting === "SUCCESS") colorStatusRequestHandwriting = "green";
+      if (statusRequestHandwriting === "FAILED")
+        colorStatusRequestHanstatusRequestHandwriting = "red";
     }
   });
 
@@ -317,7 +378,11 @@
                 propClass="text-center"
               />
             </div>
-            <Indicator color={colorStatusRequest} />
+            {#if selectedTypeDataset === "conversation"}
+              <Indicator color={colorStatusRequest} />
+            {:else}
+              <Indicator color={colorStatusRequestHandwriting} />
+            {/if}
             {#if dropdownOpen}
               <ChevronUpOutline
                 class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -398,7 +463,7 @@
         <Button
           disabled={statusRequest === "process" || !check("aiManagement.datasets:process")}
           on:click={() => {
-            // processDatasetHandwriting();
+            processDatasetHandwriting();
           }}
           outline
           class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
