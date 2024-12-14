@@ -1,142 +1,112 @@
 <script>
   import {
-    Button,
-    Input,
     P,
-    Heading,
     Span,
     Modal,
-    Textarea,
+    Input,
+    Button,
     Spinner,
+    Heading,
+    Textarea,
     DarkMode,
   } from "flowbite-svelte";
+  import { _ } from "svelte-i18n";
+  import { page } from "$app/stores";
   import PdfViewer from "svelte-pdf";
-  import { onMount, onDestroy } from "svelte";
-  import { tick } from "svelte";
-  import Markdown from "svelte-exmarkdown";
-  import { fly } from "svelte/transition";
   import { goto } from "$app/navigation";
-  import { gfmPlugin } from "svelte-exmarkdown/gfm";
+  import { fly } from "svelte/transition";
+  import Markdown from "svelte-exmarkdown";
   import { format, parse, sub } from "date-fns";
+  import { CloseButton } from "flowbite-svelte";
+  import { onMount, onDestroy, tick } from "svelte";
+  import { gfmPlugin } from "svelte-exmarkdown/gfm";
+
+  import { CR3Call } from "hexacomponents-svelte";
   import {
+    call,
+    check,
     Typography,
     triggerToast,
-    setSelectedConversation,
-    selectedConversation,
-    call,
     triggerShowAI,
     triggerLoading,
-    check,
+    selectedConversation,
+    setSelectedConversation,
   } from "$lib";
-  import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
-  import StateCard from "$lib/ui/cards/StateCard.svelte";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import { CloseButton } from "flowbite-svelte";
-  import Sidebar from "$lib/components/SidebarDataset.svelte";
-  import { CR3Call } from "hexacomponents-svelte";
-  import LaodingLottie from "$lib/components/LaodingLottie.svelte";
-  import Chat from "$lib/components/Chat.svelte";
+
+  import EyeIcon from "$lib/icon/eye.svg";
   import UserIcon from "$lib/icon/user-01.svg";
-  import VerifiedIcon from "$lib/icon/verified.svg";
   import MenuIcon from "$lib/icon/menu-01.svg";
-  // import ChevronLeftIcon from "$lib/icon/chevron-left.svg";
-  import RefreshIcon from "$lib/icon/refresh-ccw-black.svg";
-  // import FileIcon from "$lib/icon/file-plus-02.svg";
-  // import FolderIcon from "$lib/icon/folder.svg";
-  // import ImagePlusIcon from "$lib/icon/image-plus.svg";
-  // import PenToolIcon from "$lib/icon/pen-tool-plus.svg";
+  import VerifiedIcon from "$lib/icon/verified.svg";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
-  import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
-  import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
-  import EyeIcon from "$lib/icon/eye.svg";
+  import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
+  import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import ArrowLeftIcon from "$lib/icon/arrow-left.svg";
   import ArrowRightIcon from "$lib/icon/arrow-right.svg";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
-  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  // import SendIcon from "$lib/icon/send-03.svg";
-  import MessageChatCircleIcon from "$lib/icon/message-chat-circle.svg";
-  // import MessagePlusIcon from "$lib/icon/message-plus-circle-white.svg";
-  import MessagePlusIconGreen from "$lib/icon/message-plus-circle-green.svg";
-  import EditIcon from "$lib/icon/edit-05.svelte";
-  import AlignRightIcon from "$lib/icon/align-right-01.svelte";
-  import FileIcon from "$lib/icon/file-04.svg";
-  import { page } from "$app/stores";
-  import { _ } from "svelte-i18n";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
+
+  import Chat from "$lib/components/Chat.svelte";
+  import EditIcon from "$lib/icon/edit-05.svelte";
+  import StateCard from "$lib/ui/cards/StateCard.svelte";
+  import Sidebar from "$lib/components/SidebarDataset.svelte";
+  import AlignRightIcon from "$lib/icon/align-right-01.svelte";
+  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
+  import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
+  import LaodingLottie from "$lib/components/LaodingLottie.svelte";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
   const plugins = [gfmPlugin()];
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let innerWidth = $state(0);
-  let disableInput = $state(!check("aiManagement.datasets:create"));
-  let hideSidebar = $state(true);
-  let documentListModal = $state(false);
-  let pageListDocument = $state(false);
-  let previewModal = $state(false);
-  let pagePreview = $state(false);
-  let viewDocument = $state(false);
-  let selectedFile = $state(null);
-  let isLoading = $state(false);
-  let allFileList = $state([]);
-  let fileList = $state([]);
-  let indexFileList = $state(0);
-  let fileListReady = $state(false);
-  let timer;
-  let allData = $state([]);
-  let files = $state([]);
-  let conversations = $state([]);
-  let initRAG = $state(false);
-  let initDocList = $state(true);
-  let showSendMessage = $state(false);
-  let selectedRole = $state("User");
-  let conversationId = $state(null);
-  let editingMessageId = $state(null);
-  let editedMessage = $state("");
-  let deleteModal = $state(false);
-  let dropdownOpen = $state(false);
-  let gettingDatas = $state(true);
-
-  let messageInput = $state("");
-
-  let statusRAG = $state("Not Ready");
-
-  let userData = $state({ username: "", email: "", brand: "" });
-
-  let currentChatTitle = $state("New Chat");
-  let editTitle = $state(false);
-
   let div;
-
   let ref;
-
+  let timer;
   let textarea;
 
-  let tmpResultTrocr = $state({
-    text: "",
-  });
-
-  let sidebarData = $state({});
+  let initRAG = $state(false);
+  let isLoading = $state(false);
+  let editTitle = $state(false);
+  let hideSidebar = $state(true);
+  let initDocList = $state(true);
+  let deleteModal = $state(false);
+  let gettingDatas = $state(true);
+  let pagePreview = $state(false);
+  let previewModal = $state(false);
+  let viewDocument = $state(false);
+  let dropdownOpen = $state(false);
+  let noAutoScroll = $state(false);
+  let fileListReady = $state(false);
+  let processGetData = $state(false);
+  let showSendMessage = $state(false);
+  let pageListDocument = $state(false);
+  let documentListModal = $state(false);
+  let disableInput = $state(!check("aiManagement.datasets:create"));
 
   let pageData = $state(1);
-
   let pageTotal = $state(1);
+  let innerWidth = $state(0);
+  let indexFileList = $state(0);
 
-  let noAutoScroll = $state(false);
+  let messageInput = $state("");
+  let editedMessage = $state("");
+  let selectedRole = $state("User");
+  let statusRAG = $state("Not Ready");
+  let currentChatTitle = $state("New Chat");
+  let selectedTypeDataset = $state("conversation");
 
-  let processGetData = $state(false);
-
-  // let dataConversation = $state([
-  //   {
-  //     id: 0,
-  //     chatId: [1, 2],
-  //     date: new Date(),
-  //   },
-  // ]);
-
+  let files = $state([]);
+  let allData = $state([]);
+  let fileList = $state([]);
+  let allFileList = $state([]);
+  let datasetArray = $state([]);
+  let conversations = $state([]);
+  let selectedFile = $state(null);
+  let conversationId = $state(null);
+  let editingMessageId = $state(null);
   let dataConversationChats = $state([
     // {
     //   id: 1,
@@ -153,8 +123,204 @@
     //   date: "Chat " + format(new Date(), "dd.MM.yyyy"),
     // },
   ]);
+  let datas = $state([
+    {
+      attributes: {
+        content: "100.00%",
+        createdAt: "2024-12-14T09:48:47.488Z",
+        meta: {
+          bot_id: 2,
+          document_id: "31",
+          filename: "Bakrie&Brothers-Company-Profile.pdf",
+        },
+        publishedAt: "2024-12-14T09:48:47.488Z",
+        read: false,
+        sent_at: "2024-12-14T09:48:47Z",
+        title: "Reading Bakrie&Brothers-Company-Profile.pdf",
+        type: "progress",
+        updatedAt: "2024-12-14T09:50:03.378Z",
+        user_id: "0",
+      },
+      id: 26,
+    },
+    {
+      attributes: {
+        content: "100.00%",
+        createdAt: "2024-12-14T09:25:21.594Z",
+        meta: {
+          bot_id: 2,
+          document_id: "30",
+          filename: "Catatan testing crossroad (1).pdf",
+        },
+        publishedAt: "2024-12-14T09:25:21.593Z",
+        read: false,
+        sent_at: "2024-12-14T09:25:21Z",
+        title: "Reading Catatan testing crossroad (1)",
+        type: "progress",
+        updatedAt: "2024-12-14T09:25:22.075Z",
+        user_id: "0",
+      },
+      id: 25,
+    },
+    {
+      attributes: {
+        content: "100.00%",
+        createdAt: "2024-12-14T09:25:03.237Z",
+        meta: {
+          bot_id: 2,
+          document_id: "29",
+          filename: "Bakrie&Brothers-Company-Profile.pdf",
+        },
+        publishedAt: "2024-12-14T09:25:03.236Z",
+        read: false,
+        sent_at: "2024-12-14T09:25:03Z",
+        title: "Reading Bakrie&Brothers-Company-Profile",
+        type: "progress",
+        updatedAt: "2024-12-14T09:25:21.047Z",
+        user_id: "0",
+      },
+      id: 24,
+    },
+    {
+      attributes: {
+        content: "100.00%",
+        createdAt: "2024-12-14T08:12:12.538Z",
+        meta: {
+          bot_id: 2,
+          document_id: "26",
+          filename: "IMG-20241204-WA0006.txttxt",
+        },
+        publishedAt: "2024-12-14T08:12:12.538Z",
+        read: false,
+        sent_at: "2024-12-14T08:12:12Z",
+        title: "Reading IMG-20241204-WA0006.jpg",
+        type: "progress",
+        updatedAt: "2024-12-14T08:12:12.602Z",
+        user_id: "0",
+      },
+      id: 23,
+    },
+    {
+      attributes: {
+        content: "100.00%",
+        createdAt: "2024-12-14T08:12:05.100Z",
+        meta: {
+          bot_id: 2,
+          document_id: "25",
+          filename: "IMG-20241204-WA0010.txttxt",
+        },
+        publishedAt: "2024-12-14T08:12:05.099Z",
+        read: false,
+        sent_at: "2024-12-14T08:12:05Z",
+        title: "Reading IMG-20241204-WA0010.jpg",
+        type: "progress",
+        updatedAt: "2024-12-14T08:12:05.134Z",
+        user_id: "0",
+      },
+      id: 22,
+    },
+    {
+      attributes: {
+        content: "100.00%",
+        createdAt: "2024-12-02T08:14:32.266Z",
+        meta: {
+          document_id: "16",
+          filename: "text bpk.pdf",
+        },
+        publishedAt: "2024-12-02T08:14:32.265Z",
+        read: false,
+        sent_at: "2024-12-02T08:14:32Z",
+        title: "Reading text bpk",
+        type: "progress",
+        updatedAt: "2024-12-14T08:06:12.261Z",
+        user_id: "0",
+      },
+      id: 2,
+    },
+    {
+      attributes: {
+        content: "25.00%",
+        createdAt: "2024-12-14T08:06:12.068Z",
+        meta: {
+          bot_id: 2,
+          document_id: "16",
+          filename: "text bpk.pdf",
+        },
+        publishedAt: "2024-12-14T08:06:12.068Z",
+        read: false,
+        sent_at: "2024-12-14T08:06:12Z",
+        title: "Reading text bpk",
+        type: "progress",
+        updatedAt: "2024-12-14T08:06:12.068Z",
+        user_id: "0",
+      },
+      id: 21,
+    },
+    {
+      attributes: {
+        content: "100.00%",
+        createdAt: "2024-12-02T08:24:29.139Z",
+        meta: {
+          document_id: "18",
+          filename: "photo_6228523738748535054_y_1733127868.txttxt",
+        },
+        publishedAt: "2024-12-02T08:24:29.139Z",
+        read: false,
+        sent_at: "2024-12-02T08:24:29Z",
+        title: "Reading photo_6228523738748535054_y2",
+        type: "progress",
+        updatedAt: "2024-12-14T08:06:11.940Z",
+        user_id: "0",
+      },
+      id: 4,
+    },
+    {
+      attributes: {
+        content: "50.00%",
+        createdAt: "2024-12-14T08:06:11.898Z",
+        meta: {
+          bot_id: 2,
+          document_id: "18",
+          filename: "photo_6228523738748535054_y_1733127868.txttxt",
+        },
+        publishedAt: "2024-12-14T08:06:11.898Z",
+        read: false,
+        sent_at: "2024-12-14T08:06:11Z",
+        title: "Reading photo_6228523738748535054_y2",
+        type: "progress",
+        updatedAt: "2024-12-14T08:06:11.898Z",
+        user_id: "0",
+      },
+      id: 20,
+    },
+    {
+      attributes: {
+        content: "100.00%",
+        createdAt: "2024-12-02T08:38:59.408Z",
+        meta: {
+          document_id: "20",
+          filename: "photo_6228523738748535047_y.txttxt",
+        },
+        publishedAt: "2024-12-02T08:38:59.407Z",
+        read: false,
+        sent_at: "2024-12-02T08:38:59Z",
+        title: "Reading photo_6228523738748535047_y",
+        type: "progress",
+        updatedAt: "2024-12-14T08:06:11.778Z",
+        user_id: "0",
+      },
+      id: 6,
+    },
+  ]);
 
-  async function dummySendMessage() {
+  let configs = $state({});
+  let sidebarData = $state({});
+  let tmpResultTrocr = $state({ text: "" });
+  let userData = $state({ username: "", email: "", brand: "" });
+
+  let winInnerWidth = $derived(innerWidth);
+
+  const dummySendMessage = async () => {
     let init = false;
     let tmpConversationId;
     if (messageInput.trim() !== "") {
@@ -275,14 +441,14 @@
       // addToDataset(role, message);
       messageInput = "";
     }
-  }
+  };
 
-  function startEditingMessage(id, message) {
+  const startEditingMessage = (id, message) => {
     editingMessageId = id;
     editedMessage = message;
-  }
+  };
 
-  async function saveEditedMessage() {
+  const saveEditedMessage = async () => {
     if (editingMessageId !== null) {
       let dataConversationChatsTmp = [...dataConversationChats];
       dataConversationChatsTmp = dataConversationChatsTmp.map((chat) => {
@@ -326,14 +492,14 @@
       editingMessageId = null;
       editedMessage = "";
     }
-  }
+  };
 
-  function cancelEditing() {
+  const cancelEditing = () => {
     editingMessageId = null;
     editedMessage = "";
-  }
+  };
 
-  function addToDataset(role, message) {
+  const addToDataset = (role, message) => {
     const datasetEntry = {
       prompt: "",
       response: "",
@@ -353,16 +519,14 @@
 
       saveDatasetEntry(datasetEntry);
     }
-  }
+  };
 
-  let datasetArray = $state([]);
-
-  function saveDatasetEntry(entry) {
+  const saveDatasetEntry = (entry) => {
     console.log("Dataset Entry:", entry);
     datasetArray.push(entry);
-  }
+  };
 
-  async function clearConversation() {
+  const clearConversation = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "delete-conversation", {
@@ -387,9 +551,9 @@
 
       console.log("response", response);
     }
-  }
+  };
 
-  async function newChat() {
+  const newChat = async () => {
     datasetArray = [];
     currentChatTitle = "New Chat";
     conversationId = null;
@@ -401,7 +565,7 @@
     setSelectedConversation(null);
 
     dataConversationChats = [];
-  }
+  };
 
   const logout = async () => {
     sessionStorage.clear();
@@ -414,9 +578,7 @@
     }
   };
 
-  let winInnerWidth = $derived(innerWidth);
-
-  function handleKeyDown(event) {
+  const handleKeyDown = (event) => {
     if (winInnerWidth > 768) {
       if (event.key === "Enter") {
         if (!event.shiftKey) {
@@ -428,16 +590,16 @@
         }
       }
     }
-  }
+  };
 
-  function onclickSend() {
+  const onclickSend = () => {
     if (messageInput.trim() !== "") {
       // sendMessage();
       dummySendMessage();
     }
-  }
+  };
 
-  function autosize() {
+  const autosize = () => {
     textarea.addEventListener("input", (e) => {
       setTimeout(() => {
         textarea.style.height = "auto";
@@ -445,14 +607,14 @@
         textarea.style.height = `${scHeight}px`;
       }, 0);
     });
-  }
+  };
 
-  async function autoscroll() {
+  const autoscroll = async () => {
     await tick();
     if (div) {
       div.scrollTo({ top: div.scrollHeight, behavior: "smooth" });
     }
-  }
+  };
 
   const handleBeforePopState = (event) => {
     const message = "Are you sure you want to leave? Changes you made may not be saved.";
@@ -472,7 +634,7 @@
     setHome(true);
   };
 
-  async function getmessage(conversationId) {
+  const getmessage = async (conversationId) => {
     let token = localStorage.getItem("token");
     if (token) {
       const chatContainer = document.getElementById("chat-container");
@@ -518,16 +680,16 @@
       }
       // addToDatasetFromDB();
     }
-  }
+  };
 
-  function getPrevMessage() {
+  const getPrevMessage = async () => {
     pageData++;
     noAutoScroll = true;
     processGetData = true;
     getmessage(conversationId);
-  }
+  };
 
-  function addToDatasetFromDB() {
+  const addToDatasetFromDB = () => {
     datasetArray = [];
     for (let i = 0; i < dataConversationChats.length; i++) {
       const currentChat = dataConversationChats[i];
@@ -547,9 +709,9 @@
         saveDatasetEntry(datasetEntry);
       }
     }
-  }
+  };
 
-  async function updateTitle() {
+  const updateTitle = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "update-title", {
@@ -574,9 +736,9 @@
     editTitle = false;
 
     triggerToast("updated");
-  }
+  };
 
-  async function getListConversations() {
+  const getListConversations = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       const response = await $call.call("client-dashboard", "get-conversations", {
@@ -615,7 +777,7 @@
 
       gettingDatas = false;
     }
-  }
+  };
 
   const handleUploadWrapper = () => {
     const inputElement = document.createElement("input");
@@ -652,7 +814,7 @@
     inputElement.click();
   };
 
-  async function readFileAsBase64(file) {
+  const readFileAsBase64 = async (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -664,9 +826,9 @@
 
       reader.readAsDataURL(file);
     });
-  }
+  };
 
-  async function importConversationWithCsv() {
+  const importConversationWithCsv = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       console.log(fileList);
@@ -727,21 +889,26 @@
         console.log(error);
       }
     }
-  }
+  };
 
-  let selectedTypeDataset = $state("conversation");
-
-  let datas = $state([]);
-
-  let configs = $state({});
-
-  async function next() {
+  let next = async () => {
     // getCategories(pagination.page + 1);
-  }
+  };
 
-  async function previous() {
+  let previous = async () => {
     // getCategories(pagination.page - 1);
-  }
+  };
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
+
+  const autoResizeTextarea = (event) => {
+    const textarea = event.target;
+    textarea.style.height = "auto"; // Reset height
+    textarea.style.height = textarea.scrollHeight + "px"; // Adjust height
+  };
 
   onMount(() => {
     if (check("aiManagement.datasets:view") === false) {
@@ -891,17 +1058,6 @@
   //     }
   //   }
   // });
-
-  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    dropdownOpen = false;
-  };
-
-  function autoResizeTextarea(event) {
-    const textarea = event.target;
-    textarea.style.height = "auto"; // Reset height
-    textarea.style.height = textarea.scrollHeight + "px"; // Adjust height
-  }
 
   onDestroy(() => {
     window.removeEventListener("popstate", handleBeforePopState);
@@ -1396,7 +1552,7 @@
                       "?collectionId=" +
                       sessionStorage.getItem("collectionIdFinetune") +
                       "&documentId=" +
-                      file.id,
+                      file.id
                   );
                   return;
                 }}
