@@ -11,13 +11,18 @@
 package main
 
 import (
+	"archive/zip"
 	"bytes"
 	"encoding/base64"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"math"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	U "gitlab.hexacode.org/go-libs/hctypes"
@@ -1568,4 +1573,590 @@ func SendReport(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 	}
 
 	return 200, report, nil
+}
+
+func CreateDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	upload_by, ok := me.GetFloat64("id")
+	if !ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	name, ok := ctx.Params.GetString("name")
+	if !ok {
+		return ctx.Error(400, "invalid parameters name")
+	}
+
+	document_str, ok := ctx.Params.GetString("documents")
+	if !ok {
+		return ctx.Error(400, "invalid parameters documents")
+	}
+
+	var documents interface{}
+	err = json.Unmarshal([]byte(document_str), &documents)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(400, "invalid parameters documents")
+	}
+
+	for _, document := range documents.([]interface{}) {
+		documentName, ok := document.(map[string]interface{})["name"].(string)
+		if !ok {
+			return ctx.Error(400, "invalid parameters documents")
+		}
+		document_path := DATASETS_PATH + "/Handwriting/" + string(documentName)
+
+		dir := filepath.Dir(document_path)
+
+		err = os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			fmt.Println("Gagal membuat direktori:", err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		documentBase64, ok := document.(map[string]interface{})["base64"].(string)
+		if !ok {
+			return ctx.Error(400, "invalid parameters documents")
+		}
+
+		documentFile, err := base64.StdEncoding.DecodeString(documentBase64)
+
+		if _, err := os.Stat(document_path); err == nil {
+			extension := filepath.Ext(documentName)
+			name := documentName[0 : len(documentName)-len(extension)]
+			timestamp := time.Now().Unix()
+			documentName = fmt.Sprintf("%s_%d%s", name, timestamp, extension)
+			document_path = DATASETS_PATH + "/Handwriting/" + documentName
+		}
+
+		file, err := os.Create(document_path)
+		if err != nil {
+			fmt.Println("Gagal membuat file:", err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+		defer file.Close()
+
+		_, err = file.Write(documentFile)
+		if err != nil {
+			fmt.Println("Gagal menulis ke file:", err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		file_size, ok := document.(map[string]interface{})["size"].(string)
+		if !ok {
+			return ctx.Error(400, "invalid parameters documents")
+		}
+
+		detected_text, ok := ctx.Params.GetString("detected_text")
+		if !ok {
+			return ctx.Error(400, "invalid parameters detected_text")
+		}
+
+		result_trocr, ok := ctx.Params.GetString("result_trocr")
+		if !ok {
+			return ctx.Error(400, "invalid parameters result_trocr")
+		}
+
+		var result_trocr_json interface{}
+		err = json.Unmarshal([]byte(result_trocr), &result_trocr_json)
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dataSend := U.Dict{
+			"name":          name,
+			"path":          document_path,
+			"user":          upload_by,
+			"file_size":     file_size,
+			"detected_text": detected_text,
+			"result_trocr":  result_trocr_json,
+		}
+
+		status, documentLibrary, err := Strapi.Create("dataset-handwriting-table", dataSend)
+
+		if err != nil {
+			fmt.Printf("Error during Strapi.Create: %v\n", err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+
+			if err2, ok := documentLibrary.GetDict("error"); ok {
+				if message, ok := err2.GetString("message"); ok {
+					fmt.Printf("Error message from Strapi response: %s\n", message)
+					return ctx.Error(status, string(message))
+				}
+			}
+
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, documentLibrary, nil
+
+	}
+
+	return ctx.Error(500, "Internal Server Error")
+}
+
+func UpdateDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idStr, ok := ctx.URLParams.GetString("id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	name, ok := ctx.Params.GetString("name")
+	if !ok {
+		name = ""
+	}
+
+	detected_text, ok := ctx.Params.GetString("detected_text")
+	if !ok {
+		detected_text = ""
+	}
+
+	if name == "" && detected_text == "" {
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	dataSend := U.Dict{}
+
+	if name != "" {
+		dataSend["name"] = name
+	}
+
+	if detected_text != "" {
+		dataSend["detected_text"] = detected_text
+	}
+
+	status, document2, err := Strapi.Update("dataset-handwriting-table", int64(id), dataSend)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, document2, nil
+}
+
+func DeleteDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idStr, ok := ctx.URLParams.GetString("id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, document, err := Strapi.Find("dataset-handwriting-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": id,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if list, ok := document.GetList("data"); ok {
+		if dict, ok := list.GetDict(0); ok {
+			if attributes, ok := dict.GetDict("attributes"); ok {
+				if path, ok := attributes.GetString("path"); ok {
+					find := true
+
+					if _, err := os.Stat(string(path)); os.IsNotExist(err) {
+						fmt.Println("Direktori atau file tidak ditemukan:", path)
+						find = false
+					}
+
+					// Menghapus direktori beserta isinya
+					if find {
+						err = os.RemoveAll(string(path))
+						if err != nil {
+							fmt.Println("Gagal menghapus direktori:", err)
+							return ctx.Error(500, "Internal Server Error")
+						}
+
+						fmt.Println("Direktori berhasil dihapus:", path)
+					}
+				}
+			}
+		}
+	}
+
+	status, _, err = Strapi.Delete("dataset-handwriting-table", int64(id))
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{
+		"status": "success",
+	}, nil
+}
+
+func RequestFineTuningHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	user_id, ok := me.GetFloat64("id")
+	if !ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	dataSend := U.Dict{
+		"user":   user_id,
+		"status": "REQUEST",
+	}
+
+	status, _, err = Strapi.Create("request-fine-tuning-handwriting-table", dataSend)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{
+		"status": "success",
+	}, nil
+}
+
+func GetStatusRequestFineTuningHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	status, fine_tuning, err := Strapi.Find("request-fine-tuning-handwriting-table", U.Dict{
+		"sort": "updatedAt:desc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := fine_tuning.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) == 0 {
+		return ctx.Error(404, "conversation not found")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	attributes, ok := dict.GetDict("attributes")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	statusFinetuning, ok := attributes.GetDict("status")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{
+		"status": statusFinetuning,
+	}, nil
+}
+
+func DownloadAllDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	page := 1
+
+	var AllDatasets U.List
+
+	for {
+		status, document, err := Strapi.Find("dataset-handwriting-table", U.Dict{
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+		})
+
+		fmt.Println("document", document)
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := document.GetList("data")
+		if len(list) == 0 {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) < 1 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+
+			dict, ok := list.GetDict(i)
+
+			if !ok {
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if attributes, ok := dict.GetDict("attributes"); ok {
+				var document_path U.String
+
+				document_path, ok = attributes.GetString("path")
+				if !ok {
+					document_path = ""
+				}
+
+				base64Data, err := getDocumentInBase64(string(document_path))
+
+				if err != nil {
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				name, ok := attributes.GetString("name")
+				if !ok {
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				detected_text, ok := attributes.GetString("detected_text")
+				if !ok {
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				ext := filepath.Ext(string(document_path))
+
+				AllDatasets = append(AllDatasets, U.Dict{
+					"base64":        base64Data,
+					"name":          string(name) + ext,
+					"detected_text": detected_text,
+				})
+			}
+		}
+
+		page++
+	}
+
+	zipBase64, err := createZipAndConvertToBase64(AllDatasets)
+	if err != nil {
+		fmt.Println("Error zip:", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{
+		"base64": zipBase64,
+	}, nil
+}
+
+func createZipAndConvertToBase64(datasets U.List) (string, error) {
+	var buffer bytes.Buffer
+	zipWriter := zip.NewWriter(&buffer)
+
+	for _, dataset := range datasets {
+		name, _ := dataset.(U.Dict).GetString("name")
+		base64Content, _ := dataset.(U.Dict).GetString("base64")
+		detectedText, _ := dataset.(U.Dict).GetString("detected_text")
+
+		content, err := base64.StdEncoding.DecodeString(string(base64Content))
+		if err != nil {
+			return "", fmt.Errorf("failed to decode base64: %v", err)
+		}
+
+		zipFile, err := zipWriter.Create(string(name))
+		if err != nil {
+			return "", fmt.Errorf("failed to create file in ZIP: %v", err)
+		}
+		_, err = zipFile.Write(content)
+		if err != nil {
+			return "", fmt.Errorf("failed to write file to ZIP: %v", err)
+		}
+
+		textFileName := filepath.Base(string(name)) + ".txt"
+		textFile, err := zipWriter.Create(textFileName)
+		if err != nil {
+			return "", fmt.Errorf("failed to create text file in ZIP: %v", err)
+		}
+		_, err = textFile.Write([]byte(detectedText))
+		if err != nil {
+			return "", fmt.Errorf("failed to write text file to ZIP: %v", err)
+		}
+	}
+
+	err := zipWriter.Close()
+	if err != nil {
+		return "", fmt.Errorf("failed to close ZIP writer: %v", err)
+	}
+
+	zipBase64 := base64.StdEncoding.EncodeToString(buffer.Bytes())
+	return zipBase64, nil
 }

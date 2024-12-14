@@ -21,6 +21,7 @@ var MODULE_MANAGER_URL = ""
 var STRAPI_URL = ""
 var STRAPI_TOKEN = ""
 var DOCUMENT_PATH = ""
+var DATASETS_PATH = ""
 var HEXA_RAG_URL = ""
 var notificationWS *NotificationWebSocket
 
@@ -50,6 +51,11 @@ func init() {
 	HEXA_RAG_URL = os.Getenv("HEXA_RAG_URL")
 	if HEXA_RAG_URL == "" {
 		panic(errors.New("Environment HEXA_RAG_URL is empty"))
+	}
+
+	DATASETS_PATH = os.Getenv("DATASETS_PATH")
+	if DATASETS_PATH == "" {
+		panic(errors.New("Environment DATASETS_PATH is empty"))
 	}
 
 	config.Schedule("", MODULE_MANAGER_URL)

@@ -5014,6 +5014,112 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "create-dataset-handwriting",
+            "path": "/create-dataset-handwriting",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateDatasetHandwriting"
+            },
+            "params": [
+                {
+                    "name": "names",
+                    "type": "string"
+                },
+                {
+                    "name": "documents",
+                    "type": "string"
+                },
+                {
+                    "name": "detected_text",
+                    "type": "string"
+                },
+                {
+                    "name": "result_trocr",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-dataset-handwriting",
+            "path": "/update-dataset-handwriting/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateDatasetHandwriting"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber"
+                }
+            ],
+            "params": [
+                {
+                    "name": "names",
+                    "type": "string"
+                },
+                {
+                    "name": "detected_text",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delete-dataset-handwriting",
+            "path": "/delete-dataset-handwriting/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteDatasetHandwriting"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber"
+                }
+            ]
+        },
+        {
+            "name": "request-fine-tuning-handwriting",
+            "path": "/request-fine-tuning-handwriting",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "RequestFineTuningHandwriting"
+            }
+        },
+        {
+            "name": "get-status-fine-tuning-handwriting",
+            "path": "/get-status-fine-tuning-handwriting",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetStatusRequestFineTuningHandwriting"
+            }
+        },
+        {
+            "name": "download-dataset-handwriting-zip",
+            "path": "/download-dataset-handwriting-zip",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DownloadAllDatasetHandwriting"
+            }
         }
     ],
     "options": {
@@ -6074,6 +6180,20 @@
                 }
             },
             {
+                "name": "request-fine-tuning-handwriting",
+                "label": "Request Fine Tuning Handwriting",
+                "fields": {
+                    "user": {
+                        "type": "integer",
+                        "required": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "required": true
+                    }
+                }
+            },
+            {
                 "name": "hexabot",
                 "label": "Hexabot",
                 "fields": {
@@ -6198,6 +6318,33 @@
                 "label": "Label",
                 "fields": {
                     "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            {
+                "name": "dataset-handwriting",
+                "label": "Dataset Handwriting",
+                "fields": {
+                    "user": {
+                        "type": "integer",
+                        "required": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "path": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "detected_text": {
+                        "type": "string"
+                    },
+                    "result_trocr": {
+                        "type": "json"
+                    },
+                    "file_size": {
                         "type": "string"
                     }
                 }
