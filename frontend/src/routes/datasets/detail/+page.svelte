@@ -1,0 +1,537 @@
+<script>
+  import { P, Button } from "flowbite-svelte";
+  import { _ } from "svelte-i18n";
+  import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
+  import { format } from "date-fns";
+  import { onMount, onDestroy, tick } from "svelte";
+  import { ChevronLeftOutline } from "flowbite-svelte-icons";
+
+  import { CR3Call } from "hexacomponents-svelte";
+  import {
+    call,
+    check,
+    Typography,
+    TextareaRw,
+    triggerToast,
+    triggerShowAI,
+    triggerLoading,
+    selectedConversation,
+    setSelectedConversation,
+  } from "$lib";
+  import Divider from "$lib/components/Divider.svelte";
+  import StateCard from "$lib/ui/cards/StateCard.svelte";
+  import Sidebar from "$lib/components/SidebarDataset.svelte";
+  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
+
+  import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
+  import LaodingLottie from "$lib/components/LaodingLottie.svelte";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
+
+  let div;
+  let textarea;
+
+  let pdfReady = $state(false);
+  let isLoading = $state(false);
+  let hideSidebar = $state(true);
+  let gettingDatas = $state(true);
+  let noAutoScroll = $state(false);
+  let processGetData = $state(false);
+  let addDatasetModal = $state(false);
+
+  let pageData = $state(1);
+  let pageTotal = $state(1);
+  let innerWidth = $state(0);
+
+  let base64 = $state(null);
+  let contentFile = $state(null);
+  let selectedRole = $state("User");
+  let selectedTypeDataset = $state("");
+  let currentChatTitle = $state("New Chat");
+
+  let datasetArray = $state([]);
+  let conversationId = $state(null);
+  let dataConversationChats = $state([]);
+
+  let sidebarData = $state({});
+  let userData = $state({ username: "", email: "", brand: "" });
+  let fileData = $state({
+    name: "Handwriting01",
+    ext: ".jpg",
+    description: "Lorem ipsum dolor sit amet",
+    href: "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-10.jpg",
+  });
+
+  const newChat = async () => {
+    datasetArray = [];
+    currentChatTitle = "New Chat";
+    conversationId = null;
+    selectedRole = "User";
+    const newUrl =
+      window.location.protocol + "//" + window.location.host + window.location.pathname;
+
+    window.history.pushState({ path: newUrl }, "", newUrl);
+    setSelectedConversation(null);
+
+    dataConversationChats = [];
+  };
+
+  const logout = async () => {
+    sessionStorage.clear();
+    localStorage.clear();
+
+    try {
+      isFrontend ? "" : await $call.goToPage("client-login", "home-page");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const autosize = () => {
+    textarea.addEventListener("input", (e) => {
+      setTimeout(() => {
+        textarea.style.height = "auto";
+        let scHeight = e.target.scrollHeight + 2; // Tambahkan sedikit untuk padding
+        textarea.style.height = `${scHeight}px`;
+      }, 0);
+    });
+  };
+
+  const autoscroll = async () => {
+    await tick();
+    if (div) {
+      div.scrollTo({ top: div.scrollHeight, behavior: "smooth" });
+    }
+  };
+
+  const handleBeforePopState = (event) => {
+    const message = "Are you sure you want to leave? Changes you made may not be saved.";
+    event.preventDefault();
+    event.returnValue = message; // Required for some browsers
+    return message;
+  };
+
+  const handleBeforeUnload = (event) => {
+    const message = "Are you sure you want to leave? Changes you made may not be saved.";
+    event.preventDefault();
+    event.returnValue = message; // Required for some browsers
+    return message;
+  };
+
+  const getmessage = async (conversationId) => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const chatContainer = document.getElementById("chat-container");
+
+      const scrollTop = chatContainer.scrollTop;
+      const scrollHeight = chatContainer.scrollHeight;
+
+      const response = await $call.call("client-dashboard", "get-messages", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          conversation_id: conversationId,
+          limit: 100,
+          page: pageData,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        triggerToast("error");
+        return;
+      }
+
+      currentChatTitle = response.result.attributes.title;
+      dataConversationChats = [...response.result.attributes.message, ...dataConversationChats];
+      pageTotal = response.result.page_total;
+
+      await tick();
+      const newScrollHeight = chatContainer.scrollHeight;
+      const newScrollTop = scrollTop + (newScrollHeight - scrollHeight);
+
+      chatContainer.scrollTop = newScrollTop;
+
+      processGetData = false;
+
+      let lastRole = dataConversationChats[dataConversationChats.length - 1].role;
+      if (lastRole === "user") {
+        selectedRole = "Bot";
+      } else {
+        selectedRole = "User";
+      }
+      // addToDatasetFromDB();
+    }
+  };
+
+  const getListConversations = async () => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const response = await $call.call("client-dashboard", "get-conversations", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: 1,
+          page_size: 10,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        triggerToast("error");
+        return;
+      }
+
+      sidebarData = {};
+
+      response.result.data.forEach((conversation) => {
+        let updateAt = format(new Date(conversation.attributes.updatedAt), "yyyy-MM-dd");
+        let title = conversation.attributes.title;
+        let id = conversation.attributes.conversation_id;
+
+        if (!sidebarData[updateAt]) {
+          sidebarData[updateAt] = [];
+        }
+
+        sidebarData[updateAt].push({
+          title: title,
+          id: id,
+        });
+      });
+
+      gettingDatas = false;
+    }
+  };
+
+  const handleDatasetModal = () => {
+    addDatasetModal = !addDatasetModal;
+  };
+
+  // maybe this?
+  const getDocument = async () => {
+    triggerLoading(true);
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "get-document", {
+          URLQuery: {},
+          URLParams: {
+            id: documentId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          if (collectionId !== null) {
+            goto(
+              (await $call.getPage("client-dashboard", "document-collection")) +
+                "?collectionId=" +
+                collectionId
+            );
+            return;
+          } else {
+            goto(await $call.getPage("client-dashboard", "document-collection"));
+            return;
+          }
+        }
+
+        if (response.result.document.data.length > 0) {
+          let documentData = response.result.document.data[0];
+
+          base64 = response.result.base64;
+          pdfReady = true;
+
+          contentFile = atob(base64);
+
+          let fileType = "";
+          if (data.ext === ".pdf") {
+            fileType = "application/pdf";
+          } else if (data.ext === ".docx") {
+            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+          } else if (data.ext === ".doc") {
+            fileType = "application/msword";
+          } else {
+            fileType = "text/plain";
+          }
+
+          const blob = base64toBlob(base64, fileType);
+          fileUrl = URL.createObjectURL(blob);
+
+          categories = await getCategories(collectionId);
+
+          data = {
+            id: documentData.id,
+            createdAt: documentData.attributes.createdAt,
+            document_title: documentData.attributes.document_title,
+            description: documentData.attributes.description,
+            category: documentData.attributes.category,
+            document_type: "Handwriting",
+            ext: documentData.attributes.document.data.attributes.ext,
+            detectedText: documentData.attributes.detected_text
+              ? documentData.attributes.detected_text
+              : "",
+            slices: documentData.attributes.result_trocr
+              ? documentData.attributes.result_trocr.slices
+              : "",
+            result_trocr: documentData.attributes.result_trocr,
+          };
+
+          tmpData = {
+            id: documentData.id,
+            createdAt: documentData.attributes.createdAt,
+            document_title: documentData.attributes.document_title,
+            description: documentData.attributes.description,
+            category: documentData.attributes.category,
+            document_type: "Handwriting",
+            ext: documentData.attributes.document.data.attributes.ext,
+            detectedText: documentData.attributes.detected_text
+              ? documentData.attributes.detected_text
+              : "",
+            slices: documentData.attributes.result_trocr
+              ? documentData.attributes.result_trocr.slices
+              : "",
+            result_trocr: documentData.attributes.result_trocr,
+          };
+
+          tags = [documentData.attributes.category];
+
+          console.log("tags", documentData.attributes.category);
+
+          fileReady = true;
+          triggerLoading(false);
+        }
+      } catch (error) {
+        triggerLoading(false);
+        triggerToast("error");
+        console.log(error);
+      }
+    } else {
+      // triggerToast("error");
+    }
+  };
+
+  onMount(() => {
+    if (check("aiManagement.datasets:view") === false) {
+      window.history.back();
+      return;
+    }
+    triggerShowAI(false);
+    userData = isFrontend
+      ? { username: "John Doe", email: "johndoe@gmail.com" }
+      : JSON.parse(localStorage.getItem("user"));
+
+    if (textarea) {
+      autosize();
+    }
+
+    const resizeHandler = () => {
+      innerWidth = globalThis.innerWidth;
+    };
+
+    globalThis.addEventListener("resize", resizeHandler);
+    resizeHandler(); // call once initially to set the correct value
+
+    conversationId = $page.url.searchParams.get("id");
+
+    if (conversationId) {
+      getmessage(conversationId);
+    }
+
+    getListConversations();
+
+    return () => {
+      globalThis.removeEventListener("resize", resizeHandler);
+    };
+  });
+
+  $effect(() => {
+    if ($selectedConversation !== null) {
+      if (conversationId !== $selectedConversation) {
+        dataConversationChats = [];
+        getmessage($selectedConversation);
+      }
+
+      conversationId = $selectedConversation;
+      const newUrl =
+        window.location.protocol +
+        "//" +
+        window.location.host +
+        window.location.pathname +
+        "?id=" +
+        $selectedConversation;
+
+      window.history.pushState({ path: newUrl }, "", newUrl);
+
+      pageData = 1;
+      pageTotal = 1;
+    }
+  });
+
+  $effect(() => {
+    if (dataConversationChats.length) {
+      if (!noAutoScroll) {
+        autoscroll();
+      }
+    }
+  });
+
+  onDestroy(() => {
+    window.removeEventListener("popstate", handleBeforePopState);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+  });
+</script>
+
+<div
+  bind:this={div}
+  id="chat-container"
+  class="static h-screen overflow-y-auto bg-primary-light dark:bg-primary-dark"
+>
+  <Sidebar
+    bind:name={userData.username}
+    bind:email={userData.email}
+    {newChat}
+    bind:hidden={hideSidebar}
+    bind:sidebarData
+    {logout}
+    {getListConversations}
+    bind:gettingDatas
+    bind:selectedTypeDataset
+    {handleDatasetModal}
+  />
+  <div class="flex flex-col lg:ml-80 pt-4 px-4 md:px-8 dark:bg-primary-dark">
+    <div class="w-full pb-10">
+      <div class="flex flex-col m-4 pt-2">
+        <!-- <Navbar /> -->
+
+        <div class="flex flex-col">
+          <button
+            class="ml-4 flex items-center gap-1 mb-2"
+            on:click={() => {
+              window.location.href = "/datasets";
+            }}
+          >
+            <ChevronLeftOutline class="w-7 h-7" />
+            <P class="font-semibold">Back</P>
+          </button>
+
+          <div class="flex items-center justify-between mb-4">
+            <Typography
+              preset="Display sm/Semibold"
+              color="primary"
+              text={fileData.name + fileData.ext}
+            />
+            <div class="flex gap-2">
+              <Button onclick={() => {}} outline color="alternative">
+                {$_("delete")}
+              </Button>
+              <Button onclick={() => {}} outline>
+                {$_("edit")}
+              </Button>
+            </div>
+          </div>
+
+          <Divider />
+
+          <!-- Person Table Data -->
+          {#if Object.keys(fileData).length > 0}
+            <div class="flex flex-col md:flex-row gap-4 md:gap-6 my-8">
+              <div class="w-60">
+                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                  {$_("handwritingInformation")}
+                </P>
+                <button
+                  class="font-semibold text-[#6941C6] mt-2 text-left"
+                  on:click={() => {
+                    console.log("correct text here");
+                  }}
+                >
+                  {$_("correctHandwriting")}
+                </button>
+              </div>
+              <div class="flex flex-col grow gap-4 md:gap-6">
+                <div class="grid grid-cols-1">
+                  <div class="flex flex-col gap-2">
+                    <P
+                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >
+                      {$_("detectedText")}
+                    </P>
+                    <TextareaRw bind:value={fileData.description} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Divider />
+
+            <div class="flex flex-col md:flex-row gap-6 mt-8">
+              <div class="w-60">
+                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                  {$_("viewer")}
+                </P>
+              </div>
+              <div
+                class="flex flex-col relative items-center grow py-4 md:py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+              >
+                {#if fileData.ext === ".pdf"}
+                  {#if pdfReady}
+                    <PdfjsViewer pdfFile={base64} />
+                  {/if}
+                {:else if fileData.ext === ".jpg" || fileData.ext === ".png" || fileData.ext === ".jpeg" || fileData.ext === ".webp"}
+                  <div class="flex justify-center">
+                    <img class="w-full h-screen" src={`${fileData.href}`} alt="imageViewer" />
+                  </div>
+                {:else}
+                  {#each contentFile.split("\n") as paragraphs, i}
+                    <p class="dark:text-white">{paragraphs}</p>
+                  {/each}
+                {/if}
+              </div>
+            </div>
+          {:else if gettingDatas}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
+          {:else}
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {#if isLoading}
+    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#8340c4]">
+      <LaodingLottie />
+      <div class="flex flex-col gap-2 items-center pt-4">
+        <Typography
+          preset="Text xl/Bold"
+          color="primary-onbrand"
+          text="Please wait, AI is on training!"
+        />
+        <Typography
+          preset="Text sm/Medium"
+          color="primary-onbrand"
+          text="This loading takes a few second to few minutes at most..."
+          propClass="text-center"
+        />
+      </div>
+    </div>
+  {/if}
+
+  <ToastContainer />
+</div>
