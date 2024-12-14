@@ -488,10 +488,11 @@
           console.error("Unexpected status code:", response);
           triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
         }
-        onEdit = false;
-        triggerToast("updated");
         return;
       }
+
+      onEdit = false;
+      triggerToast("updated");
     } catch (e) {
       console.log(e);
       return;
