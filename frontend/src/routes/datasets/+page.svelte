@@ -65,6 +65,8 @@
   import FileIcon from "$lib/icon/file-04.svg";
   import { page } from "$app/stores";
   import { _ } from "svelte-i18n";
+  import DownloadIcon from "$lib/icon/file-download-03.svg";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
   const plugins = [gfmPlugin()];
   const isFrontend = process.env.NODE_ENV === "development";
@@ -727,6 +729,20 @@
     }
   }
 
+  let selectedTypeDataset = $state("conversation");
+
+  let datas = $state([]);
+
+  let configs = $state({});
+
+  async function next() {
+    // getCategories(pagination.page + 1);
+  }
+
+  async function previous() {
+    // getCategories(pagination.page - 1);
+  }
+
   onMount(() => {
     if (check("aiManagement.datasets:view") === false) {
       window.history.back();
@@ -907,47 +923,49 @@
     {logout}
     {getListConversations}
     bind:gettingDatas
+    bind:selectedTypeDataset
   />
-  <div class={`flex flex-col lg:ml-80 pt-4 px-4 md:px-8`}>
-    <div class="flex flex-col gap-3 md:gap-4">
-      <div
-        class="flex sticky top-0 z-20 py-4 bg-primary-light dark:bg-primary-dark w-full justify-between items-center"
-      >
-        <div class="lg:hidden flex w-max items-end justify-end pe-4">
-          <Button
-            outline
-            on:click={() => (hideSidebar = !hideSidebar)}
-            class="rounded-2xl !p-3 hover:bg-primary-light hover:dark:bg-primary-dark hover:text-primary-700 hover:dark:text-primary-300"
-          >
-            <img src={MenuIcon} alt="MenuIcon" class="w-5 h-5" />
-          </Button>
-        </div>
-        <div class="flex justify-between items-center w-full">
-          <div class="flex items-center gap-2">
-            <!-- <img src={MessagePlusIconGreen} alt="MessagePlusIcon" class="w-8 h-8" /> -->
-            {#if editTitle}
-              <Input
-                bind:value={currentChatTitle}
-                class="w-48"
-                on:keydown={(e) => {
-                  if (e.key === "Enter") {
-                    updateTitle();
-                    getListConversations();
-                  }
-                }}
-                on:blur={() => {
-                  editTitle = false;
-                }}
-              />
-            {:else}
-              <Typography
-                preset="Text xl/Bold"
-                text={currentChatTitle}
-                color="primary"
-                propClass="fluid-lg line-clamp-1"
-              />
-            {/if}
-            <!-- {#if conversationId !== null && dataConversationChats.length !== 0}
+  {#if selectedTypeDataset === "conversation"}
+    <div class={`flex flex-col lg:ml-80 pt-4 px-4 md:px-8`}>
+      <div class="flex flex-col gap-3 md:gap-4">
+        <div
+          class="flex sticky top-0 z-20 py-4 bg-primary-light dark:bg-primary-dark w-full justify-between items-center"
+        >
+          <div class="lg:hidden flex w-max items-end justify-end pe-4">
+            <Button
+              outline
+              on:click={() => (hideSidebar = !hideSidebar)}
+              class="rounded-2xl !p-3 hover:bg-primary-light hover:dark:bg-primary-dark hover:text-primary-700 hover:dark:text-primary-300"
+            >
+              <img src={MenuIcon} alt="MenuIcon" class="w-5 h-5" />
+            </Button>
+          </div>
+          <div class="flex justify-between items-center w-full">
+            <div class="flex items-center gap-2">
+              <!-- <img src={MessagePlusIconGreen} alt="MessagePlusIcon" class="w-8 h-8" /> -->
+              {#if editTitle}
+                <Input
+                  bind:value={currentChatTitle}
+                  class="w-48"
+                  on:keydown={(e) => {
+                    if (e.key === "Enter") {
+                      updateTitle();
+                      getListConversations();
+                    }
+                  }}
+                  on:blur={() => {
+                    editTitle = false;
+                  }}
+                />
+              {:else}
+                <Typography
+                  preset="Text xl/Bold"
+                  text={currentChatTitle}
+                  color="primary"
+                  propClass="fluid-lg line-clamp-1"
+                />
+              {/if}
+              <!-- {#if conversationId !== null && dataConversationChats.length !== 0}
               <button
                 on:click={() => {
                   editTitle = true;
@@ -957,133 +975,133 @@
                 <img src={EditIcon} alt="EditIcon" class="w-full h-full" />
               </button>
             {/if} -->
-          </div>
-          <div class="flex relative items-center justify-center gap-2">
-            <!-- <button on:click={handleUploadWrapper}>import CSV</button>
+            </div>
+            <div class="flex relative items-center justify-center gap-2">
+              <!-- <button on:click={handleUploadWrapper}>import CSV</button>
             {#if selectedFile}
               <p>{selectedFile.name}</p>
             {/if}
             <button on:click={importConversationWithCsv}>Upload</button> -->
-            <Button
-              outline
-              disabled={!check("aiManagement.datasets:edit")}
-              on:click={() => {
-                editTitle = true;
-              }}
-              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
-            >
-              <EditIcon
-                svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+              <Button
+                outline
+                disabled={!check("aiManagement.datasets:edit")}
+                on:click={() => {
+                  editTitle = true;
+                }}
+                class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
+              >
+                <EditIcon
+                  svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+                />
+                <!-- <img src={EditIcon} alt="Refresh Icon" class="w-5 h-5" /> -->
+                <Typography
+                  preset="Text md/Semibold"
+                  text={$_("rename")}
+                  color="brand-secondary"
+                  propClass="hidden xl:block"
+                />
+              </Button>
+              <Button
+                outline
+                disabled={!check("aiManagement.datasets:create")}
+                on:click={handleUploadWrapper}
+                class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
+              >
+                <AlignRightIcon
+                  svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+                />
+                <Typography
+                  preset="Text md/Semibold"
+                  text={$_("importConversation")}
+                  color="brand-secondary"
+                  propClass="hidden xl:block"
+                />
+              </Button>
+              <DarkMode
+                btnClass="text-brand-secondary-light dark:text-brand-secondary-dark bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark focus:outline-none rounded-lg px-3 py-2 border border-primary-light dark:border-primary-dark"
               />
-              <!-- <img src={EditIcon} alt="Refresh Icon" class="w-5 h-5" /> -->
-              <Typography
-                preset="Text md/Semibold"
-                text={$_("rename")}
-                color="brand-secondary"
-                propClass="hidden xl:block"
-              />
-            </Button>
-            <Button
-              outline
-              disabled={!check("aiManagement.datasets:create")}
-              on:click={handleUploadWrapper}
-              class="gap-1 h-max px-3 py-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark hover:text-brand-secondary-light dark:hover:text-brand-secondary-dark"
-            >
-              <AlignRightIcon
-                svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
-              />
-              <Typography
-                preset="Text md/Semibold"
-                text={$_("importConversation")}
-                color="brand-secondary"
-                propClass="hidden xl:block"
-              />
-            </Button>
-            <DarkMode
-              btnClass="text-brand-secondary-light dark:text-brand-secondary-dark bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark focus:outline-none rounded-lg px-3 py-2 border border-primary-light dark:border-primary-dark"
-            />
-            {#if check("aiManagement.datasets:delete")}
-              <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
-                <Button
-                  outline
-                  on:click={() => {
-                    dropdownOpen = !dropdownOpen;
-                  }}
-                  class="gap-1 p-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark border-primary-light dark:border-primary-dark"
-                >
-                  <DotsVerticalIcon
-                    svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
-                  />
-                  <!-- <Typography preset="Text md/Semibold" text="Clear Conversation" color="secondary" /> -->
-                </Button>
-                <div
-                  class={`z-50 ${dropdownOpen ? "absolute -bottom-16 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-                >
-                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-                    <button
-                      class="flex p-2"
-                      on:click={() => {
-                        clearConversation();
-                        dropdownOpen = false;
-                      }}>{$_("delete")}</button
-                    >
-                  </ul>
-                </div>
-              </div>
-            {/if}
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col pb-40 gap-4">
-        {#if pageData < pageTotal && dataConversationChats.length !== 0}
-          <div class="flex w-full justify-center">
-            <Button color="light" on:click={getPrevMessage} class="w-max"
-              >Get Previous Messages &nbsp; {#if processGetData}<Spinner />{/if}</Button
-            >
-          </div>
-        {/if}
-        {#each dataConversationChats as qaPair}
-          <div
-            class="flex w-full bg-secondary-light dark:bg-secondary-dark rounded-2xl p-4 md:px-8 md:py-6 items-start gap-4"
-          >
-            <div
-              class="w-8 h-7 md:w-12 md:h-11 relative hidden md:flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
-            >
-              <img src={UserIcon} alt="User" class="w-4 h-4 md:w-6 md:h-6" />
-              {#if qaPair.role === "assistant"}
-                <div class="absolute bottom-0 right-0">
-                  <img src={VerifiedIcon} alt="User" class="w-2.5 h-2.5 md:w-4 md:h-4" />
+              {#if check("aiManagement.datasets:delete")}
+                <div on:focusout={handleDropdownFocusLoss} class="flex items-center relative">
+                  <Button
+                    outline
+                    on:click={() => {
+                      dropdownOpen = !dropdownOpen;
+                    }}
+                    class="gap-1 p-2 bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-hover-light dark:hover:bg-secondary-hover-dark border-primary-light dark:border-primary-dark"
+                  >
+                    <DotsVerticalIcon
+                      svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
+                    />
+                    <!-- <Typography preset="Text md/Semibold" text="Clear Conversation" color="secondary" /> -->
+                  </Button>
+                  <div
+                    class={`z-50 ${dropdownOpen ? "absolute -bottom-16 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                  >
+                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                      <button
+                        class="flex p-2"
+                        on:click={() => {
+                          clearConversation();
+                          dropdownOpen = false;
+                        }}>{$_("delete")}</button
+                      >
+                    </ul>
+                  </div>
                 </div>
               {/if}
             </div>
-            <div class="flex flex-col relative w-full gap-3 md:gap-1">
-              <div class="flex items-center justify-between gap-2.5 rtl:space-x-reverse">
-                <div
-                  class="w-9 h-9 md:w-12 md:h-11 relative flex md:hidden justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
-                >
-                  <img src={UserIcon} alt="User" class="w-5 h-5 md:w-6 md:h-6" />
-                  {#if qaPair.role === "assistant"}
-                    <div class="absolute bottom-0 right-0">
-                      <img src={VerifiedIcon} alt="User" class="w-2.5 h-2.5 md:w-4 md:h-4" />
-                    </div>
-                  {/if}
-                </div>
-                <Typography
-                  preset="Text md/Bold"
-                  text={qaPair.role === "user" ? "User" : "Bot"}
-                  color="primary"
-                  propClass="fluid-base md:fluid-base"
-                />
-
-                {#if editingMessageId !== qaPair.id}
-                  <button on:click={() => startEditingMessage(qaPair.id, qaPair.message)}>
-                    <EditIcon
-                      svgClass="w-full h-full text-brand-secondary dark:text-brand-secondary"
-                    />
-                  </button>
+          </div>
+        </div>
+        <div class="flex flex-col pb-40 gap-4">
+          {#if pageData < pageTotal && dataConversationChats.length !== 0}
+            <div class="flex w-full justify-center">
+              <Button color="light" on:click={getPrevMessage} class="w-max"
+                >Get Previous Messages &nbsp; {#if processGetData}<Spinner />{/if}</Button
+              >
+            </div>
+          {/if}
+          {#each dataConversationChats as qaPair}
+            <div
+              class="flex w-full bg-secondary-light dark:bg-secondary-dark rounded-2xl p-4 md:px-8 md:py-6 items-start gap-4"
+            >
+              <div
+                class="w-8 h-7 md:w-12 md:h-11 relative hidden md:flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+              >
+                <img src={UserIcon} alt="User" class="w-4 h-4 md:w-6 md:h-6" />
+                {#if qaPair.role === "assistant"}
+                  <div class="absolute bottom-0 right-0">
+                    <img src={VerifiedIcon} alt="User" class="w-2.5 h-2.5 md:w-4 md:h-4" />
+                  </div>
                 {/if}
               </div>
-              <!-- {#if qaPair?.documents && editingMessageId !== qaPair.id}
+              <div class="flex flex-col relative w-full gap-3 md:gap-1">
+                <div class="flex items-center justify-between gap-2.5 rtl:space-x-reverse">
+                  <div
+                    class="w-9 h-9 md:w-12 md:h-11 relative flex md:hidden justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+                  >
+                    <img src={UserIcon} alt="User" class="w-5 h-5 md:w-6 md:h-6" />
+                    {#if qaPair.role === "assistant"}
+                      <div class="absolute bottom-0 right-0">
+                        <img src={VerifiedIcon} alt="User" class="w-2.5 h-2.5 md:w-4 md:h-4" />
+                      </div>
+                    {/if}
+                  </div>
+                  <Typography
+                    preset="Text md/Bold"
+                    text={qaPair.role === "user" ? "User" : "Bot"}
+                    color="primary"
+                    propClass="fluid-base md:fluid-base"
+                  />
+
+                  {#if editingMessageId !== qaPair.id}
+                    <button on:click={() => startEditingMessage(qaPair.id, qaPair.message)}>
+                      <EditIcon
+                        svgClass="w-full h-full text-brand-secondary dark:text-brand-secondary"
+                      />
+                    </button>
+                  {/if}
+                </div>
+                <!-- {#if qaPair?.documents && editingMessageId !== qaPair.id}
                 <Button
                   color="green"
                   class="absolute right-6 -top-3 text-utility-success-500-light dark:text-white font-semibold bg-hc-success-50 hover:bg-hc-success-100 dark:bg-hc-success-500 hover:dark:bg-hc-success-400 rounded-2xl border border-utility-success-500-light dark:border-utility-success-500-dark"
@@ -1092,27 +1110,27 @@
                   &nbsp; &nbsp; Document Retrieval</Button
                 >
               {/if} -->
-              {#if editingMessageId === qaPair.id}
-                <Textarea
-                  bind:value={editedMessage}
-                  on:input={autoResizeTextarea}
-                  unWrappedClass="focus:border-fg-success-secondary-light dark:focus:border-fg-success-secondary-dark focus:ring-0"
-                ></Textarea>
-                <div class="flex gap-2 justify-end">
-                  <Button on:click={saveEditedMessage} class="h-max">Save</Button>
-                  <Button color="light" on:click={cancelEditing} class="h-max">Cancel</Button>
-                </div>
-              {:else}
-                <div
-                  class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
-                >
-                  <Markdown md={qaPair.message} {plugins} />
-                </div>
-              {/if}
+                {#if editingMessageId === qaPair.id}
+                  <Textarea
+                    bind:value={editedMessage}
+                    on:input={autoResizeTextarea}
+                    unWrappedClass="focus:border-fg-success-secondary-light dark:focus:border-fg-success-secondary-dark focus:ring-0"
+                  ></Textarea>
+                  <div class="flex gap-2 justify-end">
+                    <Button on:click={saveEditedMessage} class="h-max">Save</Button>
+                    <Button color="light" on:click={cancelEditing} class="h-max">Cancel</Button>
+                  </div>
+                {:else}
+                  <div
+                    class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
+                  >
+                    <Markdown md={qaPair.message} {plugins} />
+                  </div>
+                {/if}
+              </div>
             </div>
-          </div>
-        {/each}
-        <!-- {#if disableInput}
+          {/each}
+          <!-- {#if disableInput}
           <div
             class="flex w-full bg-secondary-light dark:bg-secondary-dark rounded-2xl p-4 md:px-8 md:py-6 items-start gap-4"
           >
@@ -1149,21 +1167,60 @@
             </div>
           </div>
         {/if} -->
+        </div>
       </div>
     </div>
-  </div>
 
-  <Chat
-    {textarea}
-    bind:messageInput
-    {handleKeyDown}
-    {onclickSend}
-    {isLoading}
-    {disableInput}
-    {showSendMessage}
-    bind:hideSidebar
-    bind:selectedRole
-  />
+    <Chat
+      {textarea}
+      bind:messageInput
+      {handleKeyDown}
+      {onclickSend}
+      {isLoading}
+      {disableInput}
+      {showSendMessage}
+      bind:hideSidebar
+      bind:selectedRole
+    />
+  {:else}
+    <div class="flex flex-col lg:ml-80 pt-4 px-4 md:px-8 dark:bg-primary-dark">
+      <div class="w-full pb-10">
+        <div class="flex flex-col m-4 pt-2">
+          <!-- <Navbar /> -->
+
+          <div class="flex flex-col">
+            <!-- User Information -->
+            <div class="flex items-center justify-between">
+              <Typography
+                preset="Display sm/Semibold"
+                color="primary"
+                text={$_("allDatasetsHandwriting")}
+              />
+              <Button onclick={() => {}} icon={DownloadIcon}
+                ><img class="w-4 h-4 me-1" src={DownloadIcon} alt="plus-icon" />
+                {$_("addNew")}</Button
+              >
+            </div>
+
+            <!-- Person Table Data -->
+            {#if datas.length > 0}
+              <DataTable bind:datas bind:configs bind:next bind:previous />
+            {:else if gettingDatas}
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            {:else}
+              <StateCard
+                illustration={IllustrationEmpty}
+                description={$_("youDontHaveAnyDataYet")}
+              />
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
 
   {#if pagePreview}
     <div

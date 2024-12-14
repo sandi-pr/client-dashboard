@@ -820,5 +820,6 @@
   "successDeleteDocument": "Document deleted successfully!",
   "failedDeleteDocument": "Failed to delete document. Please try again.",
   "successUpdateDocument": "Document updated successfully!",
-  "failedGetDocument": "Failed to get document. Please try again."
+  "failedGetDocument": "Failed to get document. Please try again.",
+  "allDatasetsHandwriting": "All Dataset Handwriting"
 }

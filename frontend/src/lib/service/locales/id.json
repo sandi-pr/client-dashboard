@@ -820,5 +820,6 @@
   "successDeleteDocument": "Dokumen berhasil dihapus!",
   "failedDeleteDocument": "Gagal menghapus dokumen. Silakan coba lagi.",
   "successUpdateDocument": "Dokumen berhasil diperbarui!",
-  "failedGetDocument": "Gagal mendapatkan dokumen. Silakan coba lagi."
+  "failedGetDocument": "Gagal mendapatkan dokumen. Silakan coba lagi.",
+  "allDatasetsHandwriting": "Semua Dataset Handwriting"
 }

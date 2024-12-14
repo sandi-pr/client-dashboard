@@ -274,11 +274,11 @@ All Rights Reserved
           //     ? "/contract_reviewer"
           //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
           // },
-          // {
-          //   icon: "data",
-          //   name: "datasets",
-          //   href: isFrontend ? "/datasets" : await call.getPage("client-dashboard", "datasets"),
-          // },
+          {
+            icon: "data",
+            name: "datasets",
+            href: isFrontend ? "/datasets" : await call.getPage("client-dashboard", "datasets"),
+          },
         ],
       },
       // {

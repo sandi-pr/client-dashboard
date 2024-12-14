@@ -10,6 +10,8 @@
     SidebarGroup,
     Indicator,
     ListPlaceholder,
+    SidebarDropdownWrapper,
+    SidebarDropdownItem,
   } from "flowbite-svelte";
   import { Typography, check } from "$lib";
   import { format, isToday, isYesterday, set } from "date-fns";
@@ -26,13 +28,7 @@
   // import HexaBotLogo from "$lib/icon/hexabot-logo.svg";
   // import FileIcon from "$lib/icon/file-plus-02.svg";
   // import HomeIcon from "$lib/icon/home-01.svg";
-  // import {
-  //   CheckCircleOutline,
-  //   TrashBinOutline,
-  //   ArrowRightToBracketOutline,
-  //   ChevronUpOutline,
-  //   ChevronDownOutline,
-  // } from "flowbite-svelte-icons";
+  import { ChevronUpOutline, ChevronDownOutline } from "flowbite-svelte-icons";
   // import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
   // import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
   // import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
@@ -54,6 +50,7 @@
     getListConversations = () => {},
     sidebarData = $bindable({}),
     gettingDatas = $bindable(true),
+    selectedTypeDataset = $bindable("conversation"),
   } = $props();
 
   let clickOutsideModal = $state(false);
@@ -67,6 +64,8 @@
 
   let fileList = $state([]);
   let selectedFile = $state(null);
+
+  let dropdownTypeDataset = $state(false);
 
   async function readFileAsText(file) {
     return new Promise((resolve, reject) => {
@@ -281,6 +280,13 @@
       if (statusRequest === "FAILED") colorStatusRequest = "red";
     }
   });
+
+  let dropdownOpen = $state(false);
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
 </script>
 
 <div
@@ -294,27 +300,100 @@
     <div class="flex flex-col w-full justify-center items-center gap-2 pb-1">
       <!-- <img src={HexaBotLogo} alt="HexaBot Logo" class="" /> -->
       <!-- <img src={Lajnah} alt="Lajnah Logo" class="" /> -->
-      <div class="flex gap-2 items-center">
-        <DataIcon svgClass="text-utility-brand-700-light dark:text-utility-brand-700-dark" />
-        <Typography preset="Display sm/Bold" text="Datasets" />
-        <Indicator color={colorStatusRequest} />
+      <div class="flex gap-4 items-center">
+        <div onfocusout={handleDropdownFocusLoss} class="flex items-center relative">
+          <Button
+            on:click={() => (dropdownOpen = !dropdownOpen)}
+            color="light"
+            class="p-2 border-none w-full gap-2"
+          >
+            <DataIcon svgClass="text-utility-brand-700-light dark:text-utility-brand-700-dark" />
+            <div class="flex flex-col text-center">
+              <Typography preset="Display sm/Bold" text="Datasets" propClass="text-center" />
+              <Typography
+                preset="Text sm/Semibold"
+                text={selectedTypeDataset === "conversation" ? "Conversation" : "Handwriting"}
+                propClass="text-center"
+              />
+            </div>
+            <Indicator color={colorStatusRequest} />
+            {#if dropdownOpen}
+              <ChevronUpOutline
+                class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+              />
+            {:else}
+              <ChevronDownOutline
+                class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+              />
+            {/if}
+          </Button>
+          <div
+            class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+          >
+            <ul class="py-2 grow text-sm">
+              <button
+                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                onclick={() => {
+                  dropdownOpen = !dropdownOpen;
+                  selectedTypeDataset = "conversation";
+                }}>{$_("Conversation")}</button
+              >
+              <button
+                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                onclick={() => {
+                  dropdownOpen = !dropdownOpen;
+                  selectedTypeDataset = "handwriting";
+                }}>{$_("Handwriting")}</button
+              >
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex flex-col gap-2 w-full">
       <Button
         disabled={!check("aiManagement.datasets:create")}
-        on:click={newChat}
+        on:click={selectedTypeDataset === "conversation" ? newChat : () => {}}
         class="!flex self-stretch h-12 !text-white dark:!text-white rounded-2xl"
       >
         <img src={MessagePlusIcon} alt="MessagePlusIcon" class="w-5 h-5" />
         &nbsp; &nbsp;
         <P class="!text-white dark:!text-white">New Dataset</P>
       </Button>
-      <div class="grid grid-cols-2 gap-2">
+      {#if selectedTypeDataset === "conversation"}
+        <div class="grid grid-cols-2 gap-2">
+          <Button
+            disabled={statusRequest === "process" || !check("aiManagement.datasets:process")}
+            on:click={() => {
+              processDataset();
+            }}
+            outline
+            class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
+          >
+            <DataFlow
+              svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
+            />
+            &nbsp; &nbsp;
+            <Typography preset="Text md/Semibold" text={$_("process")} color="brand-secondary" />
+          </Button>
+          <Button
+            disabled={statusRequest === "process" || !check("aiManagement.datasets:create")}
+            on:click={handleUploadWrapper}
+            outline
+            class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
+          >
+            <AlignRightIcon
+              svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
+            />
+            &nbsp; &nbsp;
+            <Typography preset="Text md/Semibold" text={$_("import")} color="brand-secondary" />
+          </Button>
+        </div>
+      {:else}
         <Button
           disabled={statusRequest === "process" || !check("aiManagement.datasets:process")}
           on:click={() => {
-            processDataset();
+            // processDatasetHandwriting();
           }}
           outline
           class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
@@ -325,75 +404,71 @@
           &nbsp; &nbsp;
           <Typography preset="Text md/Semibold" text={$_("process")} color="brand-secondary" />
         </Button>
-        <Button
-          disabled={statusRequest === "process" || !check("aiManagement.datasets:create")}
-          on:click={handleUploadWrapper}
-          outline
-          class="!flex hover:bg-primary-light dark:hover:bg-primary-dark self-stretch h-12 rounded-2xl"
-        >
-          <AlignRightIcon
-            svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
-          />
-          &nbsp; &nbsp;
-          <Typography preset="Text md/Semibold" text={$_("import")} color="brand-secondary" />
-        </Button>
-      </div>
+      {/if}
     </div>
-    {#if Object.keys(sidebarData).length === 0}
-      {#if gettingDatas}
-        <div class="flex grow">
-          <ListPlaceholder />
-        </div>
+    {#if selectedTypeDataset === "conversation"}
+      {#if Object.keys(sidebarData).length === 0}
+        {#if gettingDatas}
+          <div class="flex grow">
+            <ListPlaceholder />
+          </div>
+        {:else}
+          <div
+            class="flex w-full h-min py-4 justify-center mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
+          >
+            <Typography preset="Text md/Regular" text="No datasets yet" color="fg-disabled" />
+          </div>
+        {/if}
       {:else}
-        <div
-          class="flex w-full h-min py-4 justify-center mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
-        >
-          <Typography preset="Text md/Regular" text="No datasets yet" color="fg-disabled" />
+        <div class="flex flex-col overflow-hidden hover:overflow-auto pb-20 w-full">
+          {#each Object.keys(sidebarData) as date}
+            <div
+              class="flex flex-col w-full h-min py-4 justify-start mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
+            >
+              <Typography
+                preset="Text md/Regular"
+                text={formatDate(date)}
+                color="disabled"
+                propClass="mb-2"
+              />
+              {#each sidebarData[date] as conversation}
+                <Button
+                  color="light"
+                  on:click={() => {
+                    setSelectedConversation(conversation.id);
+                    hidden = true;
+                  }}
+                  class="w-full gap-1.5 bg-secondary-light dark:bg-secondary-dark border-0"
+                >
+                  <img src={MessageChatCircleIcon} alt="MessageChatCircleIcon" class="w-5 h-5" />
+                  <Typography
+                    preset="Text md/Semibold"
+                    text={conversation.title}
+                    color="secondary"
+                  />
+                </Button>
+              {/each}
+            </div>
+          {/each}
         </div>
       {/if}
-    {:else}
-      <div class="flex flex-col overflow-hidden hover:overflow-auto pb-20 w-full">
-        {#each Object.keys(sidebarData) as date}
-          <div
-            class="flex flex-col w-full h-min py-4 justify-start mb-3 rounded-2xl items-center bg-secondary-light dark:bg-secondary-dark"
-          >
-            <Typography
-              preset="Text md/Regular"
-              text={formatDate(date)}
-              color="disabled"
-              propClass="mb-2"
-            />
-            {#each sidebarData[date] as conversation}
-              <Button
-                color="light"
-                on:click={() => {
-                  setSelectedConversation(conversation.id);
-                  hidden = true;
-                }}
-                class="w-full gap-1.5 bg-secondary-light dark:bg-secondary-dark border-0"
-              >
-                <img src={MessageChatCircleIcon} alt="MessageChatCircleIcon" class="w-5 h-5" />
-                <Typography preset="Text md/Semibold" text={conversation.title} color="secondary" />
-              </Button>
-            {/each}
-          </div>
-        {/each}
-      </div>
     {/if}
   </div>
 
-  <div
-    class="absolute z-50 bottom-0 py-14 bg-gradient-to-t from-white dark:from-utility-bg-primary-dark from-80% w-full flex-col flex"
-  >
-    <div class="flex w-full justify-center px-8">
-      <Button
-        on:click={async () => {
-          goto(await $call.getPage("client-dashboard", "datasets-list"));
-        }}
-        class="!bg-secondary-light dark:!bg-secondary-dark grow h-12 !text-slate-700 dark:!text-gray-300 w-full"
-      >
-        <P>See All</P>
-      </Button>
+  {#if selectedTypeDataset === "conversation"}
+    <div
+      class="absolute z-50 bottom-0 py-14 bg-gradient-to-t from-white dark:from-utility-bg-primary-dark from-80% w-full flex-col flex"
+    >
+      <div class="flex w-full justify-center px-8">
+        <Button
+          on:click={async () => {
+            goto(await $call.getPage("client-dashboard", "datasets-list"));
+          }}
+          class="!bg-secondary-light dark:!bg-secondary-dark grow h-12 !text-slate-700 dark:!text-gray-300 w-full"
+        >
+          <P>See All</P>
+        </Button>
+      </div>
     </div>
-  </div>
+  {/if}
 </div>
