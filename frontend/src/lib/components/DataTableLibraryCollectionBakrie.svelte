@@ -11,6 +11,7 @@
     TableBodyCell,
     TableHeadCell,
   } from "flowbite-svelte";
+  import { _ } from "svelte-i18n";
 
   import { goto } from "$app/navigation";
   import { check } from "$lib";
@@ -18,7 +19,7 @@
   import EyeIcon from "$lib/icon/eye.svelte";
   import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
-  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
+  import Trash01Icon from "$lib/icon/trash-01.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
   import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
@@ -193,31 +194,20 @@
             {#if check("documentAi.documentLibrary.document:delete")}
               <div class=" flex items-center relative">
                 <Button
-                  on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
-                  class="focus-within:ring-0 !p-0"
+                  on:click={() => {
+                    functDeleteCategories(collectionListData.id);
+                  }}
+                  class="focus-within:ring-0 !p-0 font-semibold"
                   color="none"
-                  size="xs"
-                  ><DotsVerticalIcon
-                    class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                  /></Button
                 >
-                <div
-                  class={`z-10 ${dropdownActionOpen[index] ? "absolute -top-4 right-12" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-                >
-                  <ul class="py-2 grow text-sm">
-                    <!-- <button
-                    class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    onclick={() => {isEdit = true}}>{$_("edit")}</button
-                  > -->
-                    <button
-                      class="flex p-2 px-6 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                      on:click={() => {
-                        dropdownActionOpen[index] = !dropdownActionOpen[index];
-                        functDeleteCategories(collectionListData.id);
-                      }}>Delete</button
-                    >
-                  </ul>
-                </div>
+                  <Trash01Icon
+                    svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                  />
+                  &nbsp;
+                  <P>
+                    {$_("delete")}
+                  </P>
+                </Button>
               </div>
             {/if}
           </TableBodyCell>
