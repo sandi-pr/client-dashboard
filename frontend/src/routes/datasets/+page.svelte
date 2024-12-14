@@ -1291,7 +1291,7 @@
   id="chat-container"
   class="static h-screen overflow-y-auto bg-primary-light dark:bg-primary-dark"
 >
-  <Sidebar
+  <!-- <Sidebar
     bind:name={userData.username}
     bind:email={userData.email}
     {newChat}
@@ -1302,7 +1302,7 @@
     bind:gettingDatas
     bind:selectedTypeDataset
     {handleDatasetModal}
-  />
+  /> -->
   {#if selectedTypeDataset === "conversation"}
     <div class={`flex flex-col lg:ml-80 pt-4 px-4 md:px-8`}>
       <div class="flex flex-col gap-3 md:gap-4">

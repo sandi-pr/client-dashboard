@@ -499,7 +499,7 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     if (check("aiManagement.datasets:view") === false) {
       window.history.back();
       return;
@@ -524,6 +524,8 @@
 
     if (conversationId) {
       getmessage(conversationId);
+    } else {
+      goto(await $call.getPage("client-dashboard", "datasets"));
     }
 
     getListConversations();
@@ -575,7 +577,7 @@
   id="chat-container"
   class="static h-screen overflow-y-auto bg-primary-light dark:bg-primary-dark"
 >
-  <Sidebar
+  <!-- <Sidebar
     bind:name={userData.username}
     bind:email={userData.email}
     {newChat}
@@ -586,8 +588,8 @@
     bind:gettingDatas
     bind:selectedTypeDataset
     {handleDatasetModal}
-  />
-  <div class="flex flex-col lg:ml-80 pt-4 px-4 md:px-8 dark:bg-primary-dark">
+  /> -->
+  <div class="flex flex-col pt-4 px-4 md:px-8 dark:bg-primary-dark">
     <div class="w-full pb-10">
       <div class="flex flex-col m-4 pt-2">
         <!-- <Navbar /> -->
