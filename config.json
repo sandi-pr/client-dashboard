@@ -5045,6 +5045,34 @@
             ]
         },
         {
+            "name": "get-datasets-handwriting",
+            "path": "/get-datasets-handwriting",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDatasetsHandwriting"
+            }
+        },
+        {
+            "name": "get-dataset-handwriting",
+            "path": "/get-dataset-handwriting/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDatasetHandwriting"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber"
+                }
+            ]
+        },
+        {
             "name": "update-dataset-handwriting",
             "path": "/update-dataset-handwriting/:id",
             "method": "POST",

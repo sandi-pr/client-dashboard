@@ -1721,6 +1721,170 @@ func CreateDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.R
 	return ctx.Error(500, "Internal Server Error")
 }
 
+func GetDatasetsHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		page_size = 10
+	}
+
+	search, ok := ctx.Params.GetString("search")
+	if !ok {
+		search = ""
+	}
+
+	data := U.Dict{
+		"filters": U.Dict{},
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": page_size,
+		},
+		"sort":     "id:desc",
+		"populate": "*",
+	}
+
+	if search != "" {
+		data["filters"].(U.Dict)["name"] = U.Dict{
+			"$containsi": search,
+		}
+	}
+
+	status, documentLibrarys, err := Strapi.Find("dataset-handwriting-table", data)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return status, documentLibrarys, nil
+}
+
+func GetDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idStr, ok := ctx.URLParams.GetString("id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, document, err := Strapi.Find("dataset-handwriting-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": id,
+			},
+		},
+		"populate": "*",
+	})
+
+	fmt.Println("document", document)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := document.GetList("data")
+	if len(list) == 0 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if attributes, ok := dict.GetDict("attributes"); ok {
+		var document_path U.String
+
+		document_path, ok = attributes.GetString("path")
+		if !ok {
+			document_path = ""
+		}
+
+		base64Data, err := getDocumentInBase64(string(document_path))
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		ext := filepath.Ext(string(document_path))
+
+		return 200, U.Dict{
+			"id":     dict["id"].(U.Float64),
+			"data":   dict["attributes"].(U.Dict),
+			"base64": base64Data,
+			"ext":    ext,
+		}, nil
+	}
+
+	return ctx.Error(500, "Internal Server Error")
+}
+
 func UpdateDatasetHandwriting(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
