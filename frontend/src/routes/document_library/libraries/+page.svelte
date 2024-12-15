@@ -505,7 +505,7 @@ All Rights Reserved
   }
 </script>
 
-{#if !isBakrie}
+{#if !$isBakrie}
   <div class="flex dark:bg-primary-dark">
     <div class="w-full pb-10">
       <div class="flex flex-col m-4">
@@ -707,7 +707,11 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourLibraryTitle")} />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourLibraryTitle")}
+      />
       {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>
@@ -732,7 +736,11 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourLibraryTitle")} />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourLibraryTitle")}
+      />
       {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>
