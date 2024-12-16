@@ -187,63 +187,63 @@ All Rights Reserved
 
   const getModules = async () => {
     return [
-      {
-        icon: "briefcase",
-        name: "crmOverview",
-        children: [
-          // {
-          //   href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-          //   name: "overview",
-          // },
-          {
-            icon: "user",
-            href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
-            name: "persons",
-          },
-          {
-            icon: "faceHappy",
-            href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
-            name: "hR",
-          },
-          {
-            icon: "package",
-            href: isFrontend
-              ? "/crm/product_service"
-              : await call.getPage("client-dashboard", "crm-product-service"),
-            name: "product&Services",
-          },
-          // {
-          //   href: isFrontend
-          //     ? "/crm/categories"
-          //     : await call.getPage("client-dashboard", "crm-categories"),
-          //   name: "categories",
-          // },
-          {
-            icon: "receipt",
-            href: isFrontend
-              ? "/crm/order_invoice"
-              : await call.getPage("client-dashboard", "crm-order-invoice"),
-            name: "order&Invoice",
-          },
-          {
-            icon: "calendar",
-            href: isFrontend
-              ? "/crm/calendar"
-              : await call.getPage("client-dashboard", "crm-calendar"),
-            name: "calendar",
-          },
-        ],
-      },
+      // {
+      //   icon: "briefcase",
+      //   name: "crmOverview",
+      //   children: [
+      // {
+      //   href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+      //   name: "overview",
+      // },
+      // {
+      //   icon: "user",
+      //   href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
+      //   name: "persons",
+      // },
+      // {
+      //   icon: "faceHappy",
+      //   href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
+      //   name: "hR",
+      // },
+      // {
+      //   icon: "package",
+      //   href: isFrontend
+      //     ? "/crm/product_service"
+      //     : await call.getPage("client-dashboard", "crm-product-service"),
+      //   name: "product&Services",
+      // },
+      // {
+      //   href: isFrontend
+      //     ? "/crm/categories"
+      //     : await call.getPage("client-dashboard", "crm-categories"),
+      //   name: "categories",
+      // },
+      // {
+      //   icon: "receipt",
+      //   href: isFrontend
+      //     ? "/crm/order_invoice"
+      //     : await call.getPage("client-dashboard", "crm-order-invoice"),
+      //   name: "order&Invoice",
+      // },
+      // {
+      //   icon: "calendar",
+      //   href: isFrontend
+      //     ? "/crm/calendar"
+      //     : await call.getPage("client-dashboard", "crm-calendar"),
+      //   name: "calendar",
+      // },
+      //   ],
+      // },
       // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
       {
         icon: "stars",
         name: "aiManagement",
         children: [
-          {
-            icon: "messageChat",
-            name: "hexabot",
-            href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-          },
+          // {
+          //   icon: "messageChat",
+          //   name: "hexabot",
+          //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+          // },
           $isBakrie
             ? {
                 icon: "archive",
@@ -267,13 +267,13 @@ All Rights Reserved
           //     ? "/document_collection/collections"
           //     : await call.getPage("client-dashboard", "document-collection-overview"),
           // },
-          {
-            icon: "fileCheck",
-            name: "contractReviewer",
-            href: isFrontend
-              ? "/contract_reviewer"
-              : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-          },
+          // {
+          //   icon: "fileCheck",
+          //   name: "contractReviewer",
+          //   href: isFrontend
+          //     ? "/contract_reviewer"
+          //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+          // },
           {
             icon: "data",
             name: "datasets",
@@ -1035,19 +1035,19 @@ All Rights Reserved
 
     connectWebSocket(localStorage.getItem("token"), isFrontend);
 
-    //bakrie
-    // if (!hideLayoutBakrie()) {
-    //   const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-    //   let collectionList = isFrontend
-    //     ? window.location.pathname.trim() === "/document_collection"
-    //       ? "document_collection/libraries/libraries_collections/"
-    //       : "libraries/libraries_collections/"
-    //     : await call.getPage("client-dashboard", "document-library-collections");
-    //   const redirectUrl = `${collectionList}?libraryId=${libraryIdWebchatBakrie}`;
-    //   goto(redirectUrl);
-    // } else {
-    //   hideBakrie = false;
-    // }
+    // bakrie;
+    if (!hideLayoutBakrie()) {
+      const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
+      let collectionList = isFrontend
+        ? window.location.pathname.trim() === "/document_collection"
+          ? "document_collection/libraries/libraries_collections/"
+          : "libraries/libraries_collections/"
+        : await call.getPage("client-dashboard", "document-library-collections");
+      const redirectUrl = `${collectionList}?libraryId=${libraryIdWebchatBakrie}`;
+      goto(redirectUrl);
+    } else {
+      hideBakrie = false;
+    }
 
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
@@ -1125,8 +1125,8 @@ All Rights Reserved
 
 {#if $isLoading}
   <!-- <LoadingSpinner /> -->
-{:else if winInnerWidth > 0 && $callReady === true && ready === true}
-  <!-- {:else if winInnerWidth > 0 && $callReady === true && ready === true && !hideBakrie} -->
+  <!-- {:else if winInnerWidth > 0 && $callReady === true && ready === true} -->
+{:else if winInnerWidth > 0 && $callReady === true && ready === true && !hideBakrie}
   {#if hideLayout()}
     <div class="lg:flex">
       <div class="z-20">

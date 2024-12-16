@@ -70,13 +70,16 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	}
 
 	dataSend := U.Dict{
-		"type": "library",
-		"name": library_name,
-		"path": document_path,
-		"meta": U.Dict{
-			"description": description,
-		},
+		"type":             "library",
+		"name":             library_name,
+		"path":             document_path,
 		"library_industry": false,
+	}
+
+	if description != "" {
+		dataSend["meta"] = U.Dict{
+			"description": description,
+		}
 	}
 
 	status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
@@ -190,9 +193,12 @@ func CreateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 		"name":      name,
 		"path":      document_path,
 		"parent_id": parent_id,
-		"meta": U.Dict{
+	}
+
+	if description != "" {
+		dataSend["meta"] = U.Dict{
 			"description": description,
-		},
+		}
 	}
 
 	status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
