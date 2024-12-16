@@ -84,6 +84,7 @@ All Rights Reserved
   let documents = $state([]);
   let files = $state([]);
   let tmpCollectionName = $state("");
+  let tmpOldName = $state("");
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
   let tmpHref = $state("");
@@ -402,10 +403,12 @@ All Rights Reserved
     const name = event.target.value;
     const status = await checkLibraryName(name.trim());
 
-    if (status === true) {
+    if (tmpOldName === name) {
       nameIsAvailable = true;
     } else if (status === false) {
       nameIsAvailable = false;
+    } else if (status === true) {
+      nameIsAvailable = true;
     }
   };
 
@@ -569,6 +572,7 @@ All Rights Reserved
                       functEdit={() => {
                         tmpCollectionId = document.collectionId;
                         tmpCollectionName = document.collectionName;
+                        tmpOldName = document.collectionName;
                         tmpDescription = document.description;
                         attributeNotUnique = false;
                         nameIsAvailable = true;
@@ -726,7 +730,7 @@ All Rights Reserved
   <svelte:fragment slot="footer">
     <Button
       onclick={createCollection}
-      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewLibrary")}</Button
     >
   </svelte:fragment>
@@ -748,14 +752,14 @@ All Rights Reserved
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button
       onclick={editCollectionName}
-      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>

@@ -34,6 +34,7 @@
   let deleteModal = $state(false);
   let deleteLibraryModal = $state(false);
   let tmpCollectionName = $state("");
+  let tmpOldName = $state("");
   let tmpDescription = $state("");
   let tmpLibraryName = $state("");
   let tmpDescLibrary = $state("");
@@ -494,10 +495,12 @@
     const name = event.target.value;
     const status = await checkLibraryName(name.trim());
 
-    if (status === true) {
+    if (tmpOldName === name) {
       nameIsAvailable = true;
     } else if (status === false) {
       nameIsAvailable = false;
+    } else if (status === true) {
+      nameIsAvailable = true;
     }
   };
 
@@ -540,8 +543,8 @@
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->
-        <div class="flex items-center justify-between mb-3 md:mb-8">
-          <div class="flex flex-col gap-2">
+        <div class="flex items-start justify-between mb-3 md:mb-8">
+          <div class="flex flex-col gap-1.5">
             <div class="flex gap-4">
               <Typography
                 preset="Display sm/Semibold"
@@ -605,6 +608,7 @@
                         onclick={() => {
                           dropdownOpen = !dropdownOpen;
                           tmpLibraryName = collectionDatas.title;
+                          tmpOldName = collectionDatas.collectionName;
                           tmpDescLibrary = collectionDatas.description;
                           nameIsAvailable = true;
                           editLibraryModal = true;
@@ -667,6 +671,7 @@
                 functEdit={() => {
                   tmpCollectionId = collection.id;
                   tmpCollectionName = collection.collectionName;
+                  tmpOldName = document.collectionName;
                   tmpDescription = collection.description;
                   nameIsAvailable = true;
                   editModal = true;
@@ -733,14 +738,14 @@
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button
       onclick={createCollection}
-      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
@@ -758,14 +763,14 @@
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button
       onclick={editCollectionName}
-      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>
@@ -783,14 +788,14 @@
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
       <Input bind:value={tmpDescLibrary} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button
       onclick={editLibraryName}
-      disabled={!tmpLibraryName || !tmpDescLibrary || !nameIsAvailable}
+      disabled={!tmpLibraryName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>

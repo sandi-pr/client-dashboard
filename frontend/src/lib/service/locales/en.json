@@ -822,5 +822,6 @@
   "successUpdateDocument": "Document updated successfully!",
   "failedGetDocument": "Failed to get document. Please try again.",
   "allDatasetsHandwriting": "All Dataset Handwriting",
-  "downloadAllAsZip": "Download all as .zip"
+  "downloadAllAsZip": "Download all as .zip",
+  "selectedFileToUpload": "Selected file to upload"
 }

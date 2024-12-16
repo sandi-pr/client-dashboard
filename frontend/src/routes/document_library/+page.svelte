@@ -74,6 +74,7 @@ All Rights Reserved
   let actionItems = $state([]);
   let chartAction = $state([]);
   let tmpCollectionName = $state("");
+  let tmpOldName = $state("");
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
   let tmpHref = $state("");
@@ -744,10 +745,12 @@ All Rights Reserved
     const name = event.target.value;
     const status = await checkLibraryName(name.trim());
 
-    if (status === true) {
+    if (tmpOldName === name) {
       nameIsAvailable = true;
     } else if (status === false) {
       nameIsAvailable = false;
+    } else if (status === true) {
+      nameIsAvailable = true;
     }
   };
 
@@ -848,6 +851,7 @@ All Rights Reserved
                   functEdit={() => {
                     tmpCollectionId = document.collectionId;
                     tmpCollectionName = document.collectionName;
+                    tmpOldName = document.collectionName;
                     tmpDescription = document.description;
                     attributeNotUnique = false;
                     nameIsAvailable = true;
@@ -894,14 +898,14 @@ All Rights Reserved
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button
       onclick={createCollection}
-      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewLibrary")}</Button
     >
   </svelte:fragment>
@@ -911,17 +915,14 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      {#if !attributeNotUnique}
-        <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourLibraryTitle")} />
-      {:else}
-        <Input
-          id="error"
-          color="red"
-          bind:value={tmpCollectionName}
-          placeholder={$_("whatIsYourLibraryTitle")}
-        />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourLibraryTitle")}
+      />
+      {#if !nameIsAvailable}
         <Helper color="red">
-          <span class="font-medium">{$_("nameAlreadyExist")}</span>
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
         </Helper>
       {/if}
     </div>
@@ -933,7 +934,7 @@ All Rights Reserved
   <svelte:fragment slot="footer">
     <Button
       onclick={editCollectionName}
-      disabled={!tmpCollectionName || !tmpDescription}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>
