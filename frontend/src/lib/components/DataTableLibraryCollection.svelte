@@ -132,26 +132,26 @@
     </TableHead>
     <TableBody tableBodyClass="divide-y">
       {#each collectionListDatas as collectionListData, index (collectionListData.id)}
-        <TableBodyRow>
+        <TableBodyRow on:click={() => {checkSingle(index)}}>
           <TableBodyCell class="!p-4">
             {#if collectionListData.checked}
               <Checkbox
                 checked={collectionListData.checked}
                 on:click={() => {
-                  checkSingle(index);
+                  // checkSingle(index);
                 }}
               />
             {:else}
               <Checkbox
                 checked={collectionListData.checked}
                 on:click={() => {
-                  checkSingle(index);
+                  // checkSingle(index);
                 }}
               />
             {/if}
           </TableBodyCell>
           <TableBodyCell>
-            <div class="flex gap-2 items-center">
+            <div class="flex gap-2 items-center min-w-64">
               {#if collectionListData.fileext === "jpg"}
                 <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {:else if collectionListData.fileext === "jpeg"}
@@ -169,7 +169,7 @@
             </div>
           </TableBodyCell>
           <TableBodyCell>
-            <div class="flex gap-1">
+            <div class="flex flex-wrap gap-1 min-w-32 max-w-32">
               {#if collectionListData.label.length === 0}
                 <div class="ps-3">-</div>
               {:else}
@@ -194,7 +194,7 @@
           >
           <TableBodyCell>{collectionListData.filesize}</TableBodyCell>
           <TableBodyCell>
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1 text-disabled-light dark:text-disabled-dark">
               <Avatar size="xs" />
               {collectionListData.upload_by + " - " + collectionListData.createdAt}
             </div>

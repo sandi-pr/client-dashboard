@@ -8,7 +8,7 @@ All Rights Reserved
 -->
 <script>
   import { _ } from "svelte-i18n";
-  import { Button, Avatar, Indicator } from "flowbite-svelte";
+  import { Button, Avatar, Indicator, Modal } from "flowbite-svelte";
   import { Typography } from "$lib";
   import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
   import FolderTypeIcon from "$lib/icon/folder-type.svg";
@@ -19,7 +19,9 @@ All Rights Reserved
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
   import TrashIcon from "$lib/icon/trash-03.svelte";
-    import { is } from "date-fns/locale";
+  import EyeIcon from "$lib/icon/eye.svelte";
+  import UploadFileIcon from "$lib/icon/upload-01.svelte";
+  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
 
   let {
     title,
@@ -40,6 +42,11 @@ All Rights Reserved
     disabled = false,
   } = $props();
 
+  let textarea = $state();
+  let modalAllDocuments = $state(false);
+  let previewModal = $state(false);
+  let selectedFile = $state(null);
+
   const textFileType = (type) => {
     if (type === "document") {
       return "PDF (Max. 15MB)";
@@ -47,6 +54,36 @@ All Rights Reserved
       return "";
     }
   };
+
+  function actionDeleteFile(fileToDelete) {
+    const index = files.findIndex(file => file === fileToDelete);
+    if (index !== -1) {
+      files.splice(index, 1);
+    }
+    files = [...files];
+  }
+
+  function actionViewFile(fileToView) {
+    previewModal = true;
+    selectedFile = fileToView;
+  }
+
+  // Function to adjust the height of the textarea
+  function autosize() {
+    textarea.style.height = "auto"; // Reset height
+    textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scroll height
+
+    textarea.addEventListener("input", (e) => {
+      e.target.style.height = "auto";
+      e.target.style.height = `${e.target.scrollHeight}px`;
+    });
+  }
+
+  $effect(() => {
+    if (textarea) {
+      autosize();
+    }
+  });
 </script>
 
 <div class="relative flex flex-col gap-1.5">
@@ -92,15 +129,21 @@ All Rights Reserved
             </Indicator>
           </div>
           {#if actionButton}
-            <div class="flex w-full gap-3">
+            <div class="flex w-full items-center justify-center gap-1">
               {#if actionView}
                 <Button class="w-full" color="light" on:click={actionView}>
                   <Typography preset="Text sm/Semibold" text={$_("viewDocument")} color="secondary" />
                 </Button>
               {/if}
-              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}>{$_("uploadMore")}</Button>
+              <Button class="w-max h-max gap-1.5 p-2" color="light" on:click={handleFileUploadWrapper}>
+                <UploadFileIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                {$_("uploadMore")}
+              </Button>
+              <Button class="w-max h-max p-2" color="light" on:click={() => (modalAllDocuments = true)}>
+                {$_("viewAll")}
+              </Button>
               <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
-                <TrashIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
               </Button>
             </div>
           {/if}
@@ -120,8 +163,8 @@ All Rights Reserved
           {:else if file.name.includes(".png") || file.name.includes(".PNG")}
             <img src={PNGSolidIcon} alt="" />
           {/if}
-          <div class="flex flex-col justify-center">
-            <Typography preset="Text sm/Semibold" text={file.name} color="secondary" />
+          <div class="flex flex-col max-w-72 justify-center">
+            <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
             <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
             {#if status !== ""}
               <Typography preset="Text sm/Regular" text={`status: ${status}`} color="secondary" />
@@ -139,7 +182,7 @@ All Rights Reserved
               <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}>{$_("uploadMore")}</Button>
             {/if}
             <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
-              <TrashIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+              <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
             </Button>
           </div>
         {/if}
@@ -149,3 +192,60 @@ All Rights Reserved
     </div>
   {/if}
 </div>
+
+<Modal title={$_("selectedFileToUpload")} bind:open={modalAllDocuments}  size="xs" outsideclose>
+  {#if files.length > 1}
+    {#each files as file}
+      <div class="flex items-center justify-between">
+        <div class="flex items-center justify-start gap-3">
+          {#if file.name.includes(".pdf") || file.name.includes(".PDF")}
+            <img src={PDFSolidIcon} alt="" />
+          {:else if file.name.includes(".docx") || file.name.includes(".DOCX")}
+            <img src={DOCXSolidIcon} alt="" />
+          {:else if file.name.includes(".doc") || file.name.includes(".DOC")}
+            <img src={DOCSolidIcon} alt="" />
+          {:else if file.name.includes(".jpg") || file.name.includes(".JPG")}
+            <img src={JPGSolidIcon} alt="" />
+          {:else if file.name.includes(".jpeg") || file.name.includes(".JPEG")}
+            <img src={JPEGSolidIcon} alt="" />
+          {:else if file.name.includes(".png") || file.name.includes(".PNG")}
+            <img src={PNGSolidIcon} alt="" />
+          {/if}
+          <div class="flex flex-col max-w-72 justify-center">
+            <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+            <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
+            {#if status !== ""}
+              <Typography preset="Text sm/Regular" text={`status: ${status}`} color="secondary" />
+            {/if}
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-1">
+          <Button class="w-max h-max p-2 !border-0" color="light" on:click={() => actionViewFile(file)}>
+            <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+          </Button>
+          <Button class="w-max h-max p-2 !border-0" color="light" on:click={() => actionDeleteFile(file)}>
+            <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
+          </Button>
+        </div>
+      </div>
+    {/each}
+  {/if}
+</Modal>
+
+<Modal title={$_("preview")} bind:open={previewModal} size="lg" outsideclose>
+  <div class="flex">
+    <div
+      class="flex w-full justify-center items-center py-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
+    >
+      {#if selectedFile.ext.includes(".png") || selectedFile.ext.includes(".jpg") || selectedFile.ext.includes(".jpeg")}
+        <img
+          src={`data:${selectedFile.type};base64,${selectedFile.base64}`}
+          style="max-width: 80%; height: auto;"
+          alt="PNG Preview"
+        />
+      {:else if selectedFile.ext.includes(".pdf")}
+        <PdfjsViewer pdfFile={selectedFile.base64} />
+      {/if}
+    </div>
+  </div>
+</Modal>

@@ -41,6 +41,7 @@ All Rights Reserved
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import ExampleAudio from "$lib/components/strauss.mp3";
+  import MultiSelect from 'svelte-multiselect';
 
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
@@ -77,6 +78,7 @@ All Rights Reserved
   let tmpData = $state({});
   let uploadBy = $state("");
   let nameIsAvailable = $state(true);
+  let alltags = $state([]);
 
   // let categoriesTab = $state([
   //   {
@@ -249,6 +251,41 @@ All Rights Reserved
         console.error("Error during document get:", error);
         triggerToast($_("failedGetDocument"), true, "error");
       }
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  }
+
+  async function getLabels() {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-label", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (response.status !== 200) {
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
+        return;
+      }
+
+      alltags = response.result.labels;
     } else {
       triggerToast($_("unauthorized"), true, "error");
       return;
@@ -742,6 +779,7 @@ All Rights Reserved
       pdfReady = false;
       await getDocument();
       getUser();
+      getLabels();
     });
     return () => unsubscribe();
   });
@@ -884,118 +922,19 @@ All Rights Reserved
                 />
                 <InputRw {onEdit} bind:value={data.description} />
               </div>
-              {#if tags.length > 0 || onEdit}
-                <div class="flex flex-col gap-1.5">
-                  <Typography
-                    preset="Text sm/medium"
-                    color="secondary"
-                    text={`${$_("categories")}`}
-                  />
-                  <!-- {#if !onEdit}
-                    <InputRw bind:value={data.category} />
-                  {:else} -->
-                  <div class="flex">
-                    <button
-                      class="flex w-full flex-wrap gap-2 items-center border rounded-lg py-2.5 px-2"
-                      onclick={onEdit
-                        ? () => {
-                            focusInput(inputRef);
-                          }
-                        : () => {}}
-                    >
-                      {#each tags as tag}
-                        <span
-                          class="flex items-center space-x-0.5 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2"
-                        >
-                          <span class="text-sm pb-0.5">{tag}</span>
-                          <!-- svelte-ignore node_invalid_placement_ssr -->
-
-                          {#if onEdit}
-                            <button
-                              onclick={() => {
-                                removeTag(tag);
-                              }}
-                              class="text-brand-primary-light dark:text-brand-primary-dark"
-                              ><XCloseIcon
-                                svgClass="w-3 h-3 text-utility-brand-400-light dark:text-utility-brand-400-dark"
-                              /></button
-                            >
-                          {/if}
-                        </span>
-                      {/each}
-                      {#if onEdit}
-                        <input
-                          bind:this={inputRef}
-                          type="text"
-                          bind:value={newTag}
-                          placeholder={`${tags.length < 1 ? $_("enterNewLabel") : ""}`}
-                          onkeydown={handleKeyDown}
-                          class={`border-none flex-grow !pl-0 !py-0.5 text-sm focus:ring-transparent ${tags.length > 0 ? "max-w-min" : "w-full"}`}
-                        />
-                      {/if}
-                    </button>
-                    {#if onEdit}
-                      <button
-                        onclick={addTag}
-                        class="bg-secondary-light dark:bg-secondary-dark text-primary-light dark:text-primary-dark px-4 py-1 rounded"
-                      >
-                        Add
-                      </button>
-                    {/if}
-                  </div>
-                  <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-                  <!-- <Select
-                      disabled={!onEdit}
-                      class="mt-2"
-                      items={categories}
-                      bind:value={data.category}
-                      placeholder={$_("selectCategory")}
-                    /> -->
-                  <!-- {#if !addOtherCategory}
-                      <p>
-                        {$_("addOtherCategory")}
-                        <button
-                          onclick={() => {
-                            addOtherCategory = true;
-                          }}
-                          class="ms-1 text-brand-secondary-light dark:text-brand-secondary-dark hover:underline"
-                        >
-                          {$_("clickHere")}
-                        </button>
-                      </p>
-                    {/if}
-                    {#if addOtherCategory}
-                      <Input
-                        placeholder={$_("enterOtherCategory")}
-                        bind:value={otherCategory}
-                        onkeydown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            otherCategory !== "" &&
-                            !categories.includes(otherCategory)
-                          ) {
-                            if (categories.length > 0) {
-                              for (let i = 0; i < categories.length; i++) {
-                                if (categories[i]?.other === true) {
-                                  categories = categories.slice(0, i).concat(categories.slice(i + 1));
-                                  break;
-                                }
-                              }
-                            }
-
-                            categories = [
-                              ...categories,
-                              { value: otherCategory, name: otherCategory, other: true },
-                            ];
-                            data.category = otherCategory;
-                            otherCategory = "";
-                          }
-                        }}
-                      />
-                    {/if} -->
-                  <!-- {/if} -->
-                </div>
-              {/if}
+              <div class="flex flex-col gap-1.5">
+                <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
+                <MultiSelect
+                  --sms-min-height="40px"
+                  options={alltags} 
+                  disabled={!onEdit}
+                  allowUserOptions="append"
+                  bind:selected={tags}
+                  autoScroll={true}
+                  noMatchingOptionsMsg=""
+                  createOptionMsg={null}
+                />
+              </div>
               <div class="flex flex-col gap-1.5">
                 <Typography
                   preset="Text sm/medium"

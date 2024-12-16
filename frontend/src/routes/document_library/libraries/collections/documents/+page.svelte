@@ -36,13 +36,14 @@
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from 'svelte-multiselect';
 
   let collectionId;
-  let libraryId;
+  let libraryId = $state(null);
   let inputRef;
   let checkAllState = $state(false);
   let addDocumentsModal = $state(false);
@@ -54,15 +55,19 @@
   let deleteModal = $state(false);
   let deleteCategoriesModal = $state(false);
   let dropdownOpen = $state(false);
+  let dropdownUpload = $state(false);
   let fileNotSupport = $state(false);
   let buttonDisabled = $state(false);
-  let buttonDisabledDelete = $state(false);
+  let gettingDatas = $state(false);
+  let gettingDocs = $state(false);
+  let buttonDisabledCheckAction = $state(false);
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
   let tmpCollectionId = $state("");
   let tmpCollectionName = $state("");
+  let tmpOldName = $state("");
   let tmpDescription = $state("");
   let tmpDocumentType = $state("Documents");
   let selectedTypeCollection = $state("Documents (TXT, PDF)");
@@ -135,6 +140,7 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      gettingDocs = true;
       getCollection();
 
       if (search !== "") {
@@ -158,6 +164,7 @@
 
         if (response.status !== 200) {
           console.log(response);
+          gettingDocs = false;
           if (response.status === 400) {
             console.error("Invalid parameters:", response);
             triggerToast($_("invalidParameters"), true, "error");
@@ -199,6 +206,7 @@
 
             if (response.status !== 200) {
               console.log(response);
+              gettingDocs = false;
               if (response.status === 400) {
                 console.error("Invalid parameters:", response);
                 triggerToast($_("invalidParameters"), true, "error");
@@ -218,6 +226,7 @@
             uploadBy = response.result.user.username;
           } catch (error) {
             console.error("Error during user get:", error);
+            gettingDocs = false;
             triggerToast($_("failedGetUser"), true, "error");
           }
 
@@ -246,10 +255,13 @@
         collectionListDatas = await Promise.all(promise);
       } catch (error) {
         console.error("Error during documents get:", error);
+        gettingDocs = false;
         triggerToast($_("failedGetDocuments"), true, "error");
       }
+      gettingDocs = false;
     } else {
       triggerToast($_("unauthorized"), true, "error");
+      gettingDocs = false;
       return;
     }
   }
@@ -665,8 +677,10 @@
               nameIsAvailable = false;
             }
           }
-
-          console.log(JSON.stringify(files));
+          
+          files = [...files];
+          // console.log(JSON.stringify(files));
+          // console.log("total file", files.length);
         } else {
           fileNotSupport = true;
         }
@@ -890,6 +904,7 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      gettingDatas = true;
       const aggregatedData = [];
 
       paginationCollection.page = 1;
@@ -912,6 +927,7 @@
 
         if (response.status !== 200) {
           console.log(response);
+          gettingDatas = false;
           if (response.status === 400) {
             console.error("Invalid parameters:", response);
             triggerToast($_("invalidParameters"), true, "error");
@@ -990,8 +1006,10 @@
         console.log("collections", collectionList);
         collectionList = await Promise.all(promise);
       }
+      gettingDatas = false;
     } else {
       triggerToast($_("unauthorized"), true, "error");
+      gettingDatas = false;
       return;
     }
   }
@@ -1171,10 +1189,12 @@
     const name = event.target.value;
     const status = await checkLibraryName(name.trim());
 
-    if (status === true) {
+    if (tmpOldName === name) {
       nameIsAvailable = true;
     } else if (status === false) {
       nameIsAvailable = false;
+    } else if (status === true) {
+      nameIsAvailable = true;
     }
   };
 
@@ -1201,6 +1221,11 @@
     } else {
       console.error("Top element not found");
     }
+  };
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
   };
 
   onMount(() => {
@@ -1240,7 +1265,7 @@
   });
 
   $effect(() => {
-    buttonDisabledDelete = !collectionListDatas.some((data) => data.checked === true);
+    buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
   });
 
   $effect(() => {
@@ -1278,38 +1303,94 @@
             </div>
           </div>
 
-          <div class="flex gap-4"></div>
-        </div>
-
-        <!-- <Divider /> -->
-
-        <!-- <SectionHeader title={$_("collections")} /> -->
-        <div class="flex flex-col gap-1.5 md:gap-5">
-          <div class="flex justify-between items-center">
-            <Typography preset="Text lg/Semibold" text={$_("subCollections")} color="primary" />
-            <div class="flex gap-3">
+          <div class="flex relative gap-3">
+            <Input
+              id="search"
+              type="search"
+              class="bg-white dark:bg-hc-graydark-950"
+              placeholder={$_("search")}
+              bind:value={search}
+              on:input={handleSearch}
+            >
+              <SearchOutline
+                slot="left"
+                class="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+              />
+            </Input>
+            {#if !buttonDisabledCheckAction}
               <Button
-                disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
-                outline
                 on:click={() => {
-                  addCollectionModal = true;
-                  tmpCollectionName = "";
-                  tmpDescription = "";
-                  attributeNotUnique = false;
-                  nameIsAvailable = true;
+                  popupModal = true;
+                  checkboxDelete = true;
+                  // id
                 }}
-                class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
+                disabled={!check("documentAi.documentLibrary.document:delete") || $onProgress}
+                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
+                outline
               >
-                <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                <div class="hidden md:block">{$_("addCollection")}</div>
+                <Trash01Icon svgClass="w-5 h-5" />
+                <div class="hidden md:block">{$_("delete")}</div>
               </Button>
+              <Button
+                on:click={() => {
+                  updateModal = true;
+                  checkboxUpdate = true;
+                  paginationCollection.page = 1;
+                  // id
+                }}
+                disabled={!check("documentAi.documentLibrary.document:update") || $onProgress}
+                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
+                outline
+              >
+                <MoveIcon svgClass="w-5 h-5" />
+                <div class="hidden md:block">{$_("move")}</div>
+              </Button>
+            {/if}
+            <Button
+              color="light"
+              class="min-w-max gap-1.5"
+              disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
+              on:click={() => (dropdownUpload = !dropdownUpload)}
+            >
+              <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+              {$_("addNew")}
+            </Button>
+            <div
+              class={`z-50 ${dropdownUpload ? "absolute right-0 top-12" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+            >
+              <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    addCollectionModal = true;
+                    tmpCollectionName = "";
+                    tmpDescription = "";
+                    attributeNotUnique = false;
+                    dropdownUpload = false;
+                    nameIsAvailable = true;
+                  }}><FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />{$_("addCollection")}</button
+                >
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  onclick={() => {
+                    addDocumentsModal = true;
+                    tags = [];
+                    files = [];
+                    tmpDocumentTitle = "";
+                    tmpDocumentDescription = "";
+                    attributeNotUnique = false;
+                    dropdownUpload = false;
+                    nameIsAvailable = true;
+                  }}><FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />{$_("addDocument")}</button
+                >
+              </ul>
             </div>
           </div>
-          <Divider />
         </div>
 
-        {#if childCollectionList.length > 0}
-          <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        {#if childCollectionList.length > 0 && collectionListDatas.length > 0}
+          <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
             {#each childCollectionList as collection}
               <LibraryCard
                 collectionName={collection.collectionName}
@@ -1317,6 +1398,7 @@
                 functEdit={() => {
                   tmpCollectionId = collection.id;
                   tmpCollectionName = collection.collectionName;
+                  tmpOldName = collection.collectionName;
                   tmpDescription = collection.description;
                   nameIsAvailable = true;
                   editModal = true;
@@ -1333,81 +1415,7 @@
               />
             {/each}
           </div>
-        {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-        {/if}
-
-        <div class="flex flex-col gap-1.5 md:gap-5 mt-3 md:mt-8">
-          <div class={`flex ${isMobileView ? "flex-col gap-4" : "items-center justify-between"}`}>
-            <Typography preset="Text lg/Semibold" text={$_("documents")} color="primary" />
-            <div class="flex gap-3">
-              <Input
-                id="search"
-                type="search"
-                class="bg-white dark:bg-hc-graydark-950"
-                placeholder={$_("search")}
-                bind:value={search}
-                on:input={handleSearch}
-              >
-                <SearchOutline
-                  slot="left"
-                  class="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                />
-              </Input>
-              <Button
-                on:click={() => {
-                  popupModal = true;
-                  checkboxDelete = true;
-                  // id
-                }}
-                disabled={buttonDisabledDelete ||
-                  !check("documentAi.documentLibrary.document:delete") ||
-                  $onProgress}
-                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
-                outline
-              >
-                <Trash01Icon svgClass="w-5 h-5" />
-                <div class="hidden md:block">{$_("delete")}</div>
-              </Button>
-              <Button
-                on:click={() => {
-                  updateModal = true;
-                  checkboxUpdate = true;
-                  paginationCollection.page = 1;
-                  // id
-                }}
-                disabled={buttonDisabledDelete ||
-                  !check("documentAi.documentLibrary.document:update") ||
-                  $onProgress}
-                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
-                outline
-              >
-                <MoveIcon svgClass="w-5 h-5" />
-                <div class="hidden md:block">{$_("move")}</div>
-              </Button>
-              <Button
-                disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
-                outline
-                on:click={() => {
-                  addDocumentsModal = true;
-                  tags = [];
-                  files = [];
-                  tmpDocumentTitle = "";
-                  tmpDocumentDescription = "";
-                  attributeNotUnique = false;
-                  nameIsAvailable = true;
-                }}
-                class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
-              >
-                <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                <div class="hidden md:block">{$_("addDocument")}</div>
-              </Button>
-            </div>
-          </div>
           <Divider />
-        </div>
-
-        {#if collectionListDatas.length > 0}
           {#if isMobileView}
             <DataTableLibraryCollectionVertical
               {collectionListDatas}
@@ -1439,6 +1447,11 @@
               }}
             />
           {/if}
+        {:else if gettingDatas || gettingDocs}
+          <StateCard 
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
@@ -1450,7 +1463,7 @@
 
 <Modal title={$_("addDocuments")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5 relative">
+    <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
       <Button
         color="light"
@@ -1503,6 +1516,18 @@
         </ul>
       </div>
     </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
+      <MultiSelect
+        --sms-min-height="40px"
+        options={alltags} 
+        allowUserOptions="append"
+        bind:selected={tags}
+        autoScroll={true}
+        noMatchingOptionsMsg=""
+        createOptionMsg={null}
+      />
+    </div>
     <UploadFile
       title={`${$_("uploadDocuments")}*`}
       handleFileUploadWrapper={() => handleFileUploadWrapper()}
@@ -1552,79 +1577,6 @@
         />
       </div>
     {/if}
-    <div class="flex flex-col gap-1.5 pb-6">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
-      <!-- <div class="flex">
-        <button
-          class="flex w-full flex-wrap gap-2 items-center border border-primary-light dark:border-primary-dark rounded-lg py-2.5 px-2 bg-primary-light dark:bg-secondary-dark"
-          onclick={() => {
-            focusInput(inputRef);
-          }}
-        >
-          {#each tags as tag}
-            <span
-              class="flex items-center space-x-0.5 bg-utility-brand-100-light dark:bg-utility-brand-100-dark text-brand-secondary-light dark:text-brand-secondary-dark rounded-full px-2"
-            >
-              <span class="text-sm pb-0.5">{tag}</span>
-              <button
-                onclick={() => {
-                  removeTag(tag);
-                }}
-                class="text-brand-primary-light dark:text-brand-primary-dark"
-                ><XCloseIcon
-                  svgClass="w-3 h-3 text-utility-brand-400-light dark:text-utility-brand-400-dark"
-                /></button
-              >
-            </span>
-          {/each}
-
-          <input
-            bind:this={inputRef}
-            type="text"
-            bind:value={newTag}
-            placeholder={`${tags.length < 1 ? $_("enterNewLabel") : ""}`}
-            onkeydown={handleKeyDown}
-            class={`border-none flex-grow !pl-0 !py-0.5 text-sm bg-primary-light dark:bg-secondary-dark  focus:ring-transparent ${tags.length > 0 ? "max-w-min" : "w-full"}`}
-          />
-        </button>
-        <button
-          onclick={addTag}
-          class="bg-secondary-light dark:bg-secondary-dark text-primary-light dark:text-primary-dark px-4 py-1 rounded"
-        >
-          Add
-        </button>
-      </div> -->
-      <MultiSelect
-        --sms-min-height="40px"
-        options={alltags} 
-        allowUserOptions="append"
-        bind:selected={tags}
-        autoScroll={true}
-        noMatchingOptionsMsg=""
-        createOptionMsg={null}
-      />
-      <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-      <!-- <Select
-        class="mt-2"
-        items={categories}
-        bind:value={tmpCategories}
-        placeholder={$_("selectCategory")}
-      />
-      {#if categories.length === 0}
-        <Alert color="yellow">
-          <InfoCircleSolid slot="icon" class="w-5 h-5" />
-          {$_("categoryIsEmptyAdd")}
-          <button
-            onclick={() => {
-              addDocumentsModal = false;
-              addCategoriesModal = true;
-            }}
-            class="font-semibold underline hover:text-yellow-800 dark:hover:text-yellow-900"
-            >{$_("inHere")}</button
-          >
-        </Alert>
-      {/if} -->
-    </div>
   </div>
   <svelte:fragment slot="footer">
     <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
@@ -1828,14 +1780,14 @@
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button
       onclick={createCollection}
-      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
@@ -1853,14 +1805,14 @@
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>
   <svelte:fragment slot="footer">
     <Button
       onclick={editCollectionName}
-      disabled={!tmpCollectionName || !tmpDescription || !nameIsAvailable}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>

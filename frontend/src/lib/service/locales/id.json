@@ -822,5 +822,6 @@
   "successUpdateDocument": "Dokumen berhasil diperbarui!",
   "failedGetDocument": "Gagal mendapatkan dokumen. Silakan coba lagi.",
   "allDatasetsHandwriting": "Semua Dataset Handwriting",
-  "downloadAllAsZip": "Unduh Semua sebagai .Zip"
+  "downloadAllAsZip": "Unduh Semua sebagai .Zip",
+  "selectedFileToUpload": "File yang dipilih untuk diunggah"
 }
