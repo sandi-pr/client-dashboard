@@ -2700,6 +2700,36 @@
             ]
         },
         {
+            "name": "find-library-by-parent-id",
+            "path": "/find-library-by-parent-id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "FindLibraryByParentId"
+            },
+            "params": [
+                {
+                    "name": "parent_id",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "search",
+                    "type": "text"
+                },
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
             "name": "create-employee",
             "path": "/create-employee",
             "method": "POST",
@@ -5672,6 +5702,9 @@
                     "user_id": {
                         "type": "string",
                         "unique": true
+                    },
+                    "photo_id": {
+                        "type": "integer"
                     }
                 }
             },

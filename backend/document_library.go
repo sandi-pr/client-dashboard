@@ -3010,6 +3010,63 @@ func IsLibraryNameAvailable(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 	}, nil
 }
 
+func FindLibraryByParentId(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearerOk := ctx.Headers.GetString("Authorization")
+	if !bearerOk {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	parent_id, ok := ctx.Params.GetFloat64("parent_id")
+	if !ok {
+		return ctx.Error(400, "Invalid parameter: parent_id")
+	}
+
+	search, ok := ctx.Params.GetString("search")
+	if !ok {
+		search = ""
+	}
+
+	page, ok := ctx.Params.GetFloat64("page")
+	if !ok {
+		fmt.Println("invalid parameters")
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+	if !ok {
+		page_size = 10
+	}
+
+	status, library, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"name": U.Dict{
+				"$containsi": search,
+			},
+			"parent_id": U.Dict{
+				"$eq": int64(parent_id),
+			},
+		},
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": page_size,
+		},
+		"sort": "type:asc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("Error response from Strapi:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+	return 200, library, nil
+}
+
 type DeleteResponse struct {
 	DocumentId string `json:"document_id"`
 }
