@@ -186,12 +186,24 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 	status, users, err := Strapi.UsersCreate(string(username), string(email), string(password), true, false, int64(1))
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(status)
+
+		if err2, ok := users.GetDict("error"); ok {
+			if message, ok := err2.GetString("message"); ok {
+				return ctx.Error(status, string(message))
+			}
+		}
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	if status != 201 {
 		fmt.Println(status)
+
+		if err2, ok := users.GetDict("error"); ok {
+			if message, ok := err2.GetString("message"); ok {
+				return ctx.Error(status, string(message))
+			}
+		}
 		return ctx.Error(500, "Internal Server Error")
 	}
 
@@ -206,7 +218,13 @@ func CreateUser(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError
 	status, user, err := Strapi.UsersUpdate(int64(users["id"].(U.Float64)), U.Dict{"fullname": fullname, "company": companyId, "authority": authority, "blocked": blocked, "user_id": user_id})
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(status)
+
+		if err2, ok := user.GetDict("error"); ok {
+			if message, ok := err2.GetString("message"); ok {
+				return ctx.Error(status, string(message))
+			}
+		}
 		return ctx.Error(500, "Internal Server Error")
 	}
 
