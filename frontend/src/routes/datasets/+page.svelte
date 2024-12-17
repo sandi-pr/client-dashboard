@@ -810,7 +810,7 @@
   };
 
   let filesHandwriting = $state([]);
-  let multipleUpload = $state(false);
+  let multipleUpload = $state(true);
   let dataSend = $state({});
   let paginationHandwriting = $state({
     page: 1,
@@ -2035,7 +2035,7 @@
       {/if}
     </Button>
 
-    <Toggle
+    <!-- <Toggle
       class="mt-4"
       on:change={(e) => {
         console.log("toggled");
@@ -2051,7 +2051,7 @@
       }}
     >
       <P>Bulk Upload</P>
-    </Toggle>
+    </Toggle> -->
   </div>
   <svelte:fragment slot="footer">
     <div class="flex w-full gap-2 justify-center items-center py-3 px-4">
