@@ -74,7 +74,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.14")
+    ? new CR3Call("https://tank.hexacode.ai")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -622,86 +622,90 @@ All Rights Reserved
   }
 
   async function checkCollectionsBakrie() {
-    const bakrieCollection = [
-      {
-        name: "Documents",
-        desc: "collection documents",
-      },
-      {
-        name: "Images",
-        desc: "collection images",
-      },
-      {
-        name: "Document Images",
-        desc: "collection document images",
-      },
-      {
-        name: "Handwriting",
-        desc: "collection handwriting",
-      },
-      // {
-      //   name: "Document Audio",
-      //   desc: "collection audio",
-      // },
-    ];
+    try {
+      const bakrieCollection = [
+        {
+          name: "Documents",
+          desc: "collection documents",
+        },
+        {
+          name: "Images",
+          desc: "collection images",
+        },
+        {
+          name: "Document Images",
+          desc: "collection document images",
+        },
+        {
+          name: "Handwriting",
+          desc: "collection handwriting",
+        },
+        // {
+        //   name: "Document Audio",
+        //   desc: "collection audio",
+        // },
+      ];
 
-    const libraryIds = {
-      documentsCollectionIdValue: null,
-      imagesCollectionIdValue: null,
-      documentImagesCollectionIdValue: null,
-      handwritingCollectionIdValue: null,
-      audioCollectionIdValue: null,
-    };
+      const libraryIds = {
+        documentsCollectionIdValue: null,
+        imagesCollectionIdValue: null,
+        documentImagesCollectionIdValue: null,
+        handwritingCollectionIdValue: null,
+        audioCollectionIdValue: null,
+      };
 
-    for (const point of bakrieCollection) {
-      let token = localStorage.getItem("token");
-      if (token) {
-        const response = await call.call(
-          "client-dashboard",
-          "find-create-library-collection-by-name",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              parent_id: $bakrieLibraryId,
-              collection_name: point.name,
-              description: point.desc,
-            },
-            Headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+      for (const point of bakrieCollection) {
+        let token = localStorage.getItem("token");
+        if (token) {
+          const response = await call.call(
+            "client-dashboard",
+            "find-create-library-collection-by-name",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                parent_id: $bakrieLibraryId,
+                collection_name: point.name,
+                description: point.desc,
+              },
+              Headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
-        if (response.status !== 200) {
-          console.log("status not 200", response);
-          return;
-        }
+          if (response.status !== 200) {
+            console.log("status not 200", response);
+            return;
+          }
 
-        // Save the collection ID based on the collection name
-        switch (point.name) {
-          case "Documents":
-            localStorage.setItem("collectionIdDocumentsBakrie", response.result.id);
-            libraryIds.documentsCollectionIdValue = response.result.id;
-            break;
-          case "Images":
-            localStorage.setItem("collectionIdImagesBakrie", response.result.id);
-            libraryIds.imagesCollectionIdValue = response.result.id;
-            break;
-          case "Document Images":
-            localStorage.setItem("collectionIdDocumentImagesBakrie", response.result.id);
-            libraryIds.documentImagesCollectionIdValue = response.result.id;
-            break;
-          case "Handwriting":
-            localStorage.setItem("collectionIdHandwritingBakrie", response.result.id);
-            libraryIds.handwritingCollectionIdValue = response.result.id;
-            break;
-          case "Document Audio":
-            localStorage.setItem("collectionIdAudioBakrie", response.result.id);
-            libraryIds.audioCollectionIdValue = response.result.id;
-            break;
+          // Save the collection ID based on the collection name
+          switch (point.name) {
+            case "Documents":
+              localStorage.setItem("collectionIdDocumentsBakrie", response.result.id);
+              libraryIds.documentsCollectionIdValue = response.result.id;
+              break;
+            case "Images":
+              localStorage.setItem("collectionIdImagesBakrie", response.result.id);
+              libraryIds.imagesCollectionIdValue = response.result.id;
+              break;
+            case "Document Images":
+              localStorage.setItem("collectionIdDocumentImagesBakrie", response.result.id);
+              libraryIds.documentImagesCollectionIdValue = response.result.id;
+              break;
+            case "Handwriting":
+              localStorage.setItem("collectionIdHandwritingBakrie", response.result.id);
+              libraryIds.handwritingCollectionIdValue = response.result.id;
+              break;
+            case "Document Audio":
+              localStorage.setItem("collectionIdAudioBakrie", response.result.id);
+              libraryIds.audioCollectionIdValue = response.result.id;
+              break;
+          }
         }
       }
+    } catch (error) {
+      console.log("checkCollectionsBakrie", error);
     }
 
     // setCollectionIds(libraryIds);
@@ -789,7 +793,7 @@ All Rights Reserved
 
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data.attributes.company_industry),
+        parseInt(response.result.data.attributes.company_industry)
       );
 
       // await checkLibrariesIndustry(response.result.data.attributes.company_industry);
@@ -921,7 +925,7 @@ All Rights Reserved
           // Hilangkan duplikat berdasarkan `id`
           const unique = combined.filter(
             (item, index, self) =>
-              index === self.findIndex((t) => t.attributes.title === item.attributes.title),
+              index === self.findIndex((t) => t.attributes.title === item.attributes.title)
           );
 
           return unique;
@@ -1067,11 +1071,11 @@ All Rights Reserved
     toggleSidebarLargeClosed(
       localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024
         ? true
-        : false,
+        : false
     );
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));

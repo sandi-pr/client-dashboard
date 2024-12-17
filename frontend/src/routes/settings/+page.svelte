@@ -44,7 +44,7 @@
   import { _ } from "svelte-i18n";
 
   import { call } from "$lib";
-    import { on } from "svelte/events";
+  import { on } from "svelte/events";
 
   let screenWidth;
   let user = informationFormDatas;
@@ -106,26 +106,26 @@
     {
       id: 1,
       icon: MarketIcon,
-      name: "Start-ups and Small Businesses (1-50 employees)",
-      desc: "Gain a competitive edge with tools that help you manage your growing business efficiently",
+      name: "settingsCompanyTypeStartupName",
+      desc: "settingsCompanyTypeStartupDesc",
     },
     {
       id: 2,
       icon: OfficeIcon,
-      name: "Medium Businesses (51-500 employees)",
-      desc: "Enhance coordination and productivity across various departments and teams.",
+      name: "settingsCompanyTypeMediumName",
+      desc: "settingsCompanyTypeMediumDesc",
     },
     {
       id: 3,
       icon: BanksIcon,
-      name: "Large Enterprises  (>500 employees)",
-      desc: "Maximize your impact with streamlined operations and resource management.",
+      name: "settingsCompanyTypeLargeName",
+      desc: "settingsCompanyTypeLargeDesc",
     },
     {
       id: 4,
       icon: UserIcon,
-      name: "Freelancers and Consultants",
-      desc: "Organize your projects, finances, and client interactions effectively in one place.",
+      name: "settingsCompanyTypeFreelanceName",
+      desc: "settingsCompanyTypeFreelanceDesc",
     },
   ];
 
@@ -133,62 +133,62 @@
     {
       id: 1,
       icon: TechIcon,
-      name: "Tech",
+      name: "settingsIndustryTypeTech",
     },
     {
       id: 2,
       icon: BankIcon,
-      name: "Bank",
+      name: "settingsIndustryTypeBank",
     },
     {
       id: 3,
       icon: OilGas,
-      name: "Oil & Gas",
+      name: "settingsIndustryTypeOilGas",
     },
     {
       id: 4,
       icon: RetailIcon,
-      name: "Retail",
+      name: "settingsIndustryTypeRetail",
     },
     {
       id: 5,
       icon: HealthCareIcon,
-      name: "Healthcare",
+      name: "settingsIndustryTypeHealthcare",
     },
     {
       id: 6,
       icon: EducationIcon,
-      name: "Education",
+      name: "settingsIndustryTypeEducation",
     },
     {
       id: 7,
       icon: FinancialServicesIcon,
-      name: "Financial Services",
+      name: "settingsIndustryTypeFinancialServices",
     },
     {
       id: 8,
       icon: HospitalityIcon,
-      name: "Hospitality",
+      name: "settingsIndustryTypeHospitality",
     },
     {
       id: 9,
       icon: ManufactureIcon,
-      name: "Manufacturing",
+      name: "settingsIndustryTypeManufacturing",
     },
     {
       id: 10,
       icon: BoxesIcon,
-      name: "Logistics",
+      name: "settingsIndustryTypeLogistics",
     },
     {
       id: 11,
       icon: TelecomIcon,
-      name: "Telecommunication",
+      name: "settingsIndustryTypeTelecommunications",
     },
     {
       id: 12,
       icon: RealEstateIcon,
-      name: "Real Estate",
+      name: "settingsIndustryTypeRealEstate",
     },
   ];
 
@@ -765,7 +765,11 @@
                 disabled={!currentPasswordMatch}
               />
               {#if !passwordCheck() && passwordObject.newPassword.length > 0}
-                <Typography preset="Text sm/Reguler" color="warning-primary" text={$_("hintPassword")} />
+                <Typography
+                  preset="Text sm/Reguler"
+                  color="warning-primary"
+                  text={$_("hintPassword")}
+                />
               {/if}
             </div>
             <div class="flex flex-col w-full gap-1.5">
@@ -777,7 +781,11 @@
                 disabled={!currentPasswordMatch}
               />
               {#if onEditPassword && passwordObject.newPassword !== passwordObject.confirmPassword && passwordObject.confirmPassword.length > 0}
-                <Typography preset="Text sm/Reguler" color="warning-primary" text={$_("passwordNotMatch")} />
+                <Typography
+                  preset="Text sm/Reguler"
+                  color="warning-primary"
+                  text={$_("passwordNotMatch")}
+                />
               {/if}
             </div>
           </div>

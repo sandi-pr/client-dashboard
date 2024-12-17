@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { Card, Radio } from "flowbite-svelte";
+  import { _ } from "svelte-i18n";
   import { Typography } from "$lib";
-  import { datas } from "../../../routes/settings/dummy";
+  import { Card, Radio } from "flowbite-svelte";
 
   let {
     selectionData,
@@ -59,13 +59,13 @@
           <div class="flex flex-col gap-[2px]">
             <Typography
               preset="Text md/Semibold"
-              text={data.name}
+              text={$_(data.name)}
               color={`${selectedData === data.id ? "brand-primary" : "primary"}`}
             />
             {#if data.description}
               <Typography
                 preset="Text xs/Regular"
-                text={data.description}
+                text={$_(data.description)}
                 color={`${selectedData === data.id ? "brand-secondary" : "secondary"}`}
               />
             {/if}
@@ -73,10 +73,9 @@
         </div>
       </div>
       {#if isRadio}
-      
-      <div class="hidden md:flex items-center">
-        <Radio disabled={disabled} value={data.id} bind:group={selectedData}></Radio>
-      </div>
+        <div class="hidden md:flex items-center">
+          <Radio {disabled} value={data.id} bind:group={selectedData}></Radio>
+        </div>
       {/if}
     </Card>
   {/each}
