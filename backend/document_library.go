@@ -3039,11 +3039,8 @@ func FindLibraryByParentId(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		page_size = 10
 	}
 
-	status, library, err := Strapi.Find("document-library-table", U.Dict{
+	dataSend := U.Dict{
 		"filters": U.Dict{
-			"name": U.Dict{
-				"$containsi": search,
-			},
 			"parent_id": U.Dict{
 				"$eq": int64(parent_id),
 			},
@@ -3052,8 +3049,17 @@ func FindLibraryByParentId(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 			"page":     page,
 			"pageSize": page_size,
 		},
-		"sort": "type:asc",
-	})
+	}
+
+	if search != "" {
+		dataSend["filters"].(U.Dict)["name"] = U.Dict{
+			"$containsi": search,
+		}
+	} else {
+		dataSend["sort"] = "type:asc"
+	}
+
+	status, library, err := Strapi.Find("document-library-table", dataSend)
 
 	if err != nil {
 		fmt.Println(err)
