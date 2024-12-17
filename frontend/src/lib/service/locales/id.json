@@ -825,5 +825,6 @@
   "downloadAllAsZip": "Unduh Semua sebagai .Zip",
   "selectedFileToUpload": "File yang dipilih untuk diunggah",
   "handwriting": "Tulisan Tangan",
-  "conversation": "Percakapan"
+  "conversation": "Percakapan",
+  "emailAlreadyExist": "Email sudah ada"
 }

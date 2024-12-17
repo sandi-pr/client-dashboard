@@ -105,8 +105,19 @@ All Rights Reserved
         goto(await $call.getPage("client-dashboard", "users"));
         return;
       } else {
-        triggerToast("error");
-        console.log("status not 200", response);
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("emailAlreadyExist"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
       }
     } catch (error) {
       console.log("error", error);

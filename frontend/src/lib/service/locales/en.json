@@ -825,5 +825,6 @@
   "downloadAllAsZip": "Download all as .zip",
   "selectedFileToUpload": "Selected file to upload",
   "handwriting": "Handwriting",
-  "conversation": "Conversation"
+  "conversation": "Conversation",
+  "emailAlreadyExist": "Email already exists"
 }
