@@ -294,7 +294,9 @@ All Rights Reserved
                 color="red"
                 class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
               >
-                <CopyIcon svgClass="w-4 h-4 md:w-5 md:h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <CopyIcon
+                  svgClass="w-4 h-4 md:w-5 md:h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
               </Button>
             </Heading>
           </div>
@@ -350,103 +352,107 @@ All Rights Reserved
       <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
       <div class="flex flex-col gap-4 pt-4 md:pt-8">
         {#if tabDatas.selected === "General"}
-        <!-- general information -->
-        <div class="flex flex-col md:flex-row gap-4 md:gap-6">
-          <div class="w-60">
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-              {$_("generalInformation")}
-            </P>
-          </div>
-          <div class="flex flex-col grow gap-6">
-            <div class="grid grid-cols-6 gap-5">
-              <div class="flex flex-col col-span-6 md:col-span-3 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >
-                  {$_("fullname")}
-                </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.fullname}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
-              </div>
-              <div class="flex flex-col col-span-4 md:col-span-2 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >
-                  {$_("username")}
-                </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.username}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
-              </div>
-              <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >
-                  {$_("User ID")}
-                </P>
-                <Input
-                  readonly
-                  bind:value={data.userId}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
-              </div>
-              <div class="flex flex-col col-span-6 md:col-span-4 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >
-                  {$_("email")}
-                </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.email}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
-              </div>
-              <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >
-                  {$_("role")}
-                </P>
-                <div class="my-auto">
-                  <Button
-                    color="light"
-                    class="py-[9px] px-3 w-full justify-between"
-                    on:click={() => (dropdownOpenRole = !dropdownOpenRole)}
-                    id="dropdownDefaultButton"
+          <!-- general information -->
+          <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+            <div class="w-60">
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                {$_("generalInformation")}
+              </P>
+            </div>
+            <div class="flex flex-col grow gap-6">
+              <div class="grid grid-cols-6 gap-5">
+                <div class="flex flex-col col-span-6 md:col-span-3 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
-                    <!-- <Badge
+                    {$_("fullname")}
+                  </P>
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={data.fullname}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="flex flex-col col-span-4 md:col-span-2 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("username")}
+                  </P>
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={data.username}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("User ID")}
+                  </P>
+                  <Input
+                    readonly
+                    bind:value={data.userId}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="flex flex-col col-span-6 md:col-span-4 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("email")}
+                  </P>
+                  <Input
+                    readonly={!onEdit}
+                    bind:value={data.email}
+                    class="bg-primary-light dark:bg-secondary-dark"
+                  />
+                </div>
+                <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >
+                    {$_("role")}
+                  </P>
+                  <div class="my-auto">
+                    <Button
+                      color="light"
+                      class="py-[9px] px-3 w-full justify-between"
+                      on:click={() => (dropdownOpenRole = !dropdownOpenRole)}
+                      id="dropdownDefaultButton"
+                    >
+                      <!-- <Badge
                       text={data.role}
                       type={data.role === "Super Admin" || data.role === "Admin" ? "brand" : "info"}
                     /> -->
-                    <P class="font-semibold">{data.role}</P>
-                    <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
-                  </Button>
-                  <div
-                    id="dropdown"
-                    class={`z-10 ${dropdownOpenRole && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-                  >
-                    <ul
-                      class="py-2 text-sm text-gray-700 dark:text-gray-200"
-                      aria-labelledby="dropdownDefaultButton"
+                      <P class="font-semibold">{data.role}</P>
+                      <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
+                    </Button>
+                    <div
+                      id="dropdown"
+                      class={`z-10 ${dropdownOpenRole && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
                     >
-                      {#each roles as role}
-                        <button
-                          class="flex p-2"
-                          onclick={() => {
-                            data.role = role.name;
-                            dropdownOpen = false;
-                          }}
-                        >
-                          <Typography preset="Text sm/Regular" text={role.name} color="secondary" />
-                        </button>
-                      {/each}
-                      <!-- <button
+                      <ul
+                        class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                        aria-labelledby="dropdownDefaultButton"
+                      >
+                        {#each roles as role}
+                          <button
+                            class="flex p-2"
+                            onclick={() => {
+                              data.role = role.name;
+                              dropdownOpenRole = false;
+                            }}
+                          >
+                            <Typography
+                              preset="Text sm/Regular"
+                              text={role.name}
+                              color="secondary"
+                            />
+                          </button>
+                        {/each}
+                        <!-- <button
                             class="flex p-2"
                             onclick={() => {
                               data.role = "Admin";
@@ -473,99 +479,99 @@ All Rights Reserved
                         >
                           <P>User</P>
                         </button> -->
-                    </ul>
+                      </ul>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
-                <P
-                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                  >{$_("status")}</P
-                >
-                <div class="my-auto">
-                  <Button
-                    color="light"
-                    class="py-[9px] px-3 w-full justify-between"
-                    on:click={() => (dropdownOpenStatus = !dropdownOpenStatus)}
-                    id="dropdownDefaultButton"
+                <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
+                  <P
+                    class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                    >{$_("status")}</P
                   >
-                    <!-- <Badge
+                  <div class="my-auto">
+                    <Button
+                      color="light"
+                      class="py-[9px] px-3 w-full justify-between"
+                      on:click={() => (dropdownOpenStatus = !dropdownOpenStatus)}
+                      id="dropdownDefaultButton"
+                    >
+                      <!-- <Badge
                       text={data.status}
                       type={data.status === "Active" ? "brand" : "warning"}
                     /> -->
-                    <P class="font-semibold">{data.status ? "Active" : "Deactive"}</P>
-                    <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
-                  </Button>
-                  <div
-                    id="dropdown"
-                    class={`z-10 ${dropdownOpenStatus && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-                  >
-                    <ul
-                      class="py-2 text-sm text-gray-700 dark:text-gray-200"
-                      aria-labelledby="dropdownDefaultButton"
+                      <P class="font-semibold">{data.status ? "Active" : "Deactive"}</P>
+                      <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
+                    </Button>
+                    <div
+                      id="dropdown"
+                      class={`z-10 ${dropdownOpenStatus && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
                     >
-                      {#if data.status}
-                        <button
-                          class="flex p-2"
-                          onclick={() => {
-                            data.status = false;
-                            dropdownOpenStatus = false;
-                          }}
-                        >
-                          <P>Deactive</P>
-                          <!-- <Badge text="Deactive" /> -->
-                        </button>
-                      {:else}
-                        <button
-                          class="flex p-2"
-                          onclick={() => {
-                            data.status = true;
-                            dropdownOpenStatus = false;
-                          }}
-                        >
-                          <P>Active</P>
-                          <!-- <Badge text="Active" /> -->
-                        </button>
-                      {/if}
-                    </ul>
+                      <ul
+                        class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                        aria-labelledby="dropdownDefaultButton"
+                      >
+                        {#if data.status}
+                          <button
+                            class="flex p-2"
+                            onclick={() => {
+                              data.status = false;
+                              dropdownOpenStatus = false;
+                            }}
+                          >
+                            <P>Deactive</P>
+                            <!-- <Badge text="Deactive" /> -->
+                          </button>
+                        {:else}
+                          <button
+                            class="flex p-2"
+                            onclick={() => {
+                              data.status = true;
+                              dropdownOpenStatus = false;
+                            }}
+                          >
+                            <P>Active</P>
+                            <!-- <Badge text="Active" /> -->
+                          </button>
+                        {/if}
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
         {:else if tabDatas.selected === "Password"}
-        <div class="flex flex-col md:flex-row gap-4 md:gap-6">
-          <div class="w-60">
-            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-              {$_("managePassword")}
-            </P>
-          </div>
-          <div class="flex flex-col grow gap-5">
-            <div class="flex flex-col w-full gap-1.5">
-              <Typography preset="Text sm/Reguler" text={$_("newPassword")} />
-              <InputRw
-                type="password"
-                bind:value={passwordObject.newPassword}
-                {onEdit}
-              />
-              {#if !passwordCheck() && passwordObject.newPassword.length > 0}
-                <Typography preset="Text sm/Reguler" color="warning-primary" text={$_("hintPassword")} />
-              {/if}
+          <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+            <div class="w-60">
+              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+                {$_("managePassword")}
+              </P>
             </div>
-            <div class="flex flex-col w-full gap-1.5">
-              <Typography preset="Text sm/Reguler" text={$_("confirmPassword")} />
-              <InputRw
-                type="password"
-                bind:value={passwordObject.confirmPassword}
-                {onEdit}
-              />
-              {#if onEdit && passwordObject.newPassword !== passwordObject.confirmPassword && passwordObject.confirmPassword.length > 0}
-                <Typography preset="Text sm/Reguler" color="warning-primary" text={$_("passwordNotMatch")} />
-              {/if}
+            <div class="flex flex-col grow gap-5">
+              <div class="flex flex-col w-full gap-1.5">
+                <Typography preset="Text sm/Reguler" text={$_("newPassword")} />
+                <InputRw type="password" bind:value={passwordObject.newPassword} {onEdit} />
+                {#if !passwordCheck() && passwordObject.newPassword.length > 0}
+                  <Typography
+                    preset="Text sm/Reguler"
+                    color="warning-primary"
+                    text={$_("hintPassword")}
+                  />
+                {/if}
+              </div>
+              <div class="flex flex-col w-full gap-1.5">
+                <Typography preset="Text sm/Reguler" text={$_("confirmPassword")} />
+                <InputRw type="password" bind:value={passwordObject.confirmPassword} {onEdit} />
+                {#if onEdit && passwordObject.newPassword !== passwordObject.confirmPassword && passwordObject.confirmPassword.length > 0}
+                  <Typography
+                    preset="Text sm/Reguler"
+                    color="warning-primary"
+                    text={$_("passwordNotMatch")}
+                  />
+                {/if}
+              </div>
             </div>
           </div>
-        </div>
         {/if}
       </div>
     </div>
