@@ -106,8 +106,23 @@
   let editedMessage = $state("");
   let selectedRole = $state("User");
   let statusRAG = $state("Not Ready");
-  let selectedTypeDataset = $state("conversation");
+  let selectedTypeDataset = $state("handwriting");
+  let typeDataset = $state(["handwriting"]);
+  // let typeDataset = $state(["handwriting", "conversation"]);
+  let disableButtonHandwriting = $state(true);
+  let disableButtonConversation = $state(true);
+  let disabledButtonProccess = $state(false);
   let currentChatTitle = $state("New Chat");
+
+  $effect(() => {
+    if (selectedTypeDataset === "conversation") {
+      disabledButtonProccess = disableButtonConversation;
+    }
+
+    if (selectedTypeDataset === "handwriting") {
+      disabledButtonProccess = disableButtonHandwriting;
+    }
+  });
 
   let files = $state([]);
   let allData = $state([]);
@@ -590,6 +605,12 @@
 
       sidebarData = {};
 
+      if (response.result.data.length < 1) {
+        disableButtonConversation = true;
+      } else {
+        disableButtonConversation = false;
+      }
+
       response.result.data.forEach((conversation) => {
         let updateAt = format(new Date(conversation.attributes.updatedAt), "yyyy-MM-dd");
         let title = conversation.attributes.title;
@@ -1005,6 +1026,12 @@
         return;
       }
 
+      if (response.result.data.length < 1) {
+        disableButtonHandwriting = true;
+      } else {
+        disableButtonHandwriting = true;
+      }
+
       let promise = response.result.data.map(async (data) => {
         let link = await $call.getPage("client-dashboard", "datasets-detail");
 
@@ -1300,6 +1327,8 @@
     {logout}
     {getListConversations}
     bind:gettingDatas
+    {typeDataset}
+    bind:disabledButtonProccess
     bind:selectedTypeDataset
     {handleDatasetModal}
   />
@@ -1575,6 +1604,7 @@
                 text={$_("allDatasetsHandwriting")}
               />
               <Button
+                disabled={disableButtonHandwriting}
                 onclick={handleDownloadDataset}
                 icon={DownloadIcon}
                 class={innerWidth < 768 ? "mt-4" : ""}

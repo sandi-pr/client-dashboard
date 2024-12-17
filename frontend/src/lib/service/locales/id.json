@@ -823,5 +823,7 @@
   "failedGetDocument": "Gagal mendapatkan dokumen. Silakan coba lagi.",
   "allDatasetsHandwriting": "Semua Dataset Handwriting",
   "downloadAllAsZip": "Unduh Semua sebagai .Zip",
-  "selectedFileToUpload": "File yang dipilih untuk diunggah"
+  "selectedFileToUpload": "File yang dipilih untuk diunggah",
+  "handwriting": "Tulisan Tangan",
+  "conversation": "Percakapan"
 }

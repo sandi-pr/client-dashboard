@@ -50,7 +50,9 @@
     getListConversations = () => {},
     sidebarData = $bindable({}),
     gettingDatas = $bindable(true),
+    typeDataset,
     selectedTypeDataset = $bindable("conversation"),
+    disabledButtonProccess = $bindable(false),
     handleDatasetModal,
   } = $props();
 
@@ -362,59 +364,69 @@
     <div class="flex flex-col w-full justify-center items-center gap-2 pb-1">
       <!-- <img src={HexaBotLogo} alt="HexaBot Logo" class="" /> -->
       <!-- <img src={Lajnah} alt="Lajnah Logo" class="" /> -->
-      <div class="flex gap-4 items-center">
-        <div onfocusout={handleDropdownFocusLoss} class="flex items-center relative">
-          <Button
-            on:click={() => (dropdownOpen = !dropdownOpen)}
-            color="light"
-            class="p-2 border-none w-full gap-2"
-          >
-            <DataIcon svgClass="text-utility-brand-700-light dark:text-utility-brand-700-dark" />
-            <div class="flex flex-col text-center">
-              <Typography preset="Display sm/Bold" text="Datasets" propClass="text-center" />
-              <Typography
-                preset="Text sm/Semibold"
-                text={selectedTypeDataset === "conversation" ? "Conversation" : "Handwriting"}
-                propClass="text-center"
-              />
+      {#if typeDataset.length < 2}
+        <div class="flex gap-2 items-center">
+          <DataIcon svgClass="text-utility-brand-700-light dark:text-utility-brand-700-dark" />
+          <div class="flex flex-col text-center">
+            <Typography preset="Display sm/Bold" text="Datasets" propClass="text-center" />
+            <Typography
+              preset="Text sm/Semibold"
+              text={selectedTypeDataset === "conversation" ? "Conversation" : "Handwriting"}
+              propClass="text-center"
+            />
+          </div>
+          <Indicator color={colorStatusRequest} />
+        </div>
+      {:else if typeDataset.length > 1}
+        <div class="flex gap-4 items-center">
+          <div onfocusout={handleDropdownFocusLoss} class="flex items-center relative">
+            <Button
+              on:click={() => (dropdownOpen = !dropdownOpen)}
+              color="light"
+              class="p-2 border-none w-full gap-2"
+            >
+              <DataIcon svgClass="text-utility-brand-700-light dark:text-utility-brand-700-dark" />
+              <div class="flex flex-col text-center">
+                <Typography preset="Display sm/Bold" text="Datasets" propClass="text-center" />
+                <Typography
+                  preset="Text sm/Semibold"
+                  text={selectedTypeDataset === "conversation" ? "Conversation" : "Handwriting"}
+                  propClass="text-center"
+                />
+              </div>
+              {#if selectedTypeDataset === "conversation"}
+                <Indicator color={colorStatusRequest} />
+              {:else}
+                <Indicator color={colorStatusRequestHandwriting} />
+              {/if}
+              {#if dropdownOpen}
+                <ChevronUpOutline
+                  class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                />
+              {:else}
+                <ChevronDownOutline
+                  class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                />
+              {/if}
+            </Button>
+            <div
+              class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+            >
+              {#each typeDataset as typeDatasetTmp}
+                <ul class="py-2 grow text-sm">
+                  <button
+                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                    onclick={() => {
+                      dropdownOpen = !dropdownOpen;
+                      selectedTypeDataset = typeDatasetTmp;
+                    }}>{$_(typeDatasetTmp)}</button
+                  >
+                </ul>
+              {/each}
             </div>
-            {#if selectedTypeDataset === "conversation"}
-              <Indicator color={colorStatusRequest} />
-            {:else}
-              <Indicator color={colorStatusRequestHandwriting} />
-            {/if}
-            {#if dropdownOpen}
-              <ChevronUpOutline
-                class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
-              />
-            {:else}
-              <ChevronDownOutline
-                class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
-              />
-            {/if}
-          </Button>
-          <div
-            class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-          >
-            <ul class="py-2 grow text-sm">
-              <button
-                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                onclick={() => {
-                  dropdownOpen = !dropdownOpen;
-                  selectedTypeDataset = "conversation";
-                }}>{$_("Conversation")}</button
-              >
-              <button
-                class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                onclick={() => {
-                  dropdownOpen = !dropdownOpen;
-                  selectedTypeDataset = "handwriting";
-                }}>{$_("Handwriting")}</button
-              >
-            </ul>
           </div>
         </div>
-      </div>
+      {/if}
     </div>
     <div class="flex flex-col gap-2 w-full">
       <Button
@@ -433,7 +445,9 @@
       {#if selectedTypeDataset === "conversation"}
         <div class="grid grid-cols-2 gap-2">
           <Button
-            disabled={statusRequest === "process" || !check("aiManagement.datasets:process")}
+            disabled={statusRequest === "process" ||
+              !check("aiManagement.datasets:process") ||
+              disabledButtonProccess}
             on:click={() => {
               processDataset();
             }}
@@ -461,7 +475,9 @@
         </div>
       {:else}
         <Button
-          disabled={statusRequest === "process" || !check("aiManagement.datasets:process")}
+          disabled={statusRequest === "process" ||
+            !check("aiManagement.datasets:process") ||
+            disabledButtonProccess}
           on:click={() => {
             processDatasetHandwriting();
           }}
