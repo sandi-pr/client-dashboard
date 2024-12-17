@@ -24,6 +24,8 @@ All Rights Reserved
   } from "$lib/utils/toast";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
+
+  $: console.log($customToasts);
 </script>
 
 <div class="fixed bottom-5 z-50 end-5">
@@ -100,22 +102,22 @@ All Rights Reserved
     {$_("copiedToClipboard")}
   </Toast>
 
-  {#each Object.entries($customToasts) as [key, { isOpen, type }]}
+  {#each $customToasts as { target, isOpen, type }}
     <Toast
       class="!max-w-sm"
-      color={type === 'error' ? 'red' : 'green'}
+      color={type === "error" ? "red" : "green"}
       transition={fly}
       params={{ x: 200 }}
       bind:open={isOpen}
     >
       <svelte:fragment slot="icon">
-        {#if type === 'error'}
+        {#if type === "error"}
           <ExclamationCircleSolid class="w-5 h-5" />
         {:else}
           <CheckCircleSolid class="w-5 h-5" />
         {/if}
       </svelte:fragment>
-      {key}
+      {target}
     </Toast>
   {/each}
 </div>

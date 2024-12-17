@@ -20,6 +20,7 @@ All Rights Reserved
     ChartCard,
     ActionCard,
     industryData,
+    check,
   } from "$lib";
   import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
@@ -106,26 +107,30 @@ All Rights Reserved
     //   page: "document-collection-overview",
     // },
     // bakrie
-    {
-      icon: "archive",
-      title: "documentLibrary",
-      description: "descDocumentLibrary",
-      page: "document-library-collections",
-      param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
-    },
+    check("documentAi.documentLibrary:view")
+      ? {
+          icon: "archive",
+          title: "documentLibrary",
+          description: "descDocumentLibrary",
+          page: "document-library-collections",
+          param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
+        }
+      : false,
     // {
     //   icon: "fileCheck",
     //   title: "contractReviewer",
     //   description: "descContractReviewer",
     //   page: "contract-reviewer-overview",
     // },
-    // {
-    //   icon: "data",
-    //   title: "datasets",
-    //   description: "descDatasets",
-    //   page: "datasets",
-    // },
-  ];
+    check("aiManagement.datasets:view")
+      ? {
+          icon: "data",
+          title: "datasets",
+          description: "descDatasets",
+          page: "datasets",
+        }
+      : false,
+  ].filter(Boolean);
 
   let docAiCard = $state([]);
 
@@ -860,26 +865,28 @@ All Rights Reserved
     </div>
   {/if} -->
   {#if cardsAi.length > 0}
-    <div class="flex flex-col gap-4">
-      <SectionHeader title={$_("aiManagements")} />
-      {#if chartActionAi.length > 0}
-        <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
-      {/if}
-      <div
-        class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
-      >
-        {#each cardsAi as card}
-          {#if !chartActionAi.find((item) => item.title === card.title)}
-            <Card
-              icon={card.icon}
-              title={$_(card.title)}
-              description={$_(card.description)}
-              onclick={() => navigateToPage(card.page, card.param)}
-            />
-          {/if}
-        {/each}
+    {#if check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")}
+      <div class="flex flex-col gap-4">
+        <SectionHeader title={$_("aiManagements")} />
+        {#if chartActionAi.length > 0}
+          <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
+        {/if}
+        <div
+          class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
+        >
+          {#each cardsAi as card}
+            {#if !chartActionAi.find((item) => item.title === card.title)}
+              <Card
+                icon={card.icon}
+                title={$_(card.title)}
+                description={$_(card.description)}
+                onclick={() => navigateToPage(card.page, card.param)}
+              />
+            {/if}
+          {/each}
+        </div>
       </div>
-    </div>
+    {/if}
   {/if}
 </div>
 

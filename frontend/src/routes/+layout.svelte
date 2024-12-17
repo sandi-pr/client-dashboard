@@ -45,6 +45,7 @@ All Rights Reserved
     handwritingCollectionId,
     onProgress,
     isBakrie,
+    check,
   } from "$lib";
   import { onDestroy, onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -235,52 +236,60 @@ All Rights Reserved
       //   ],
       // },
       // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
-      {
-        icon: "stars",
-        name: "aiManagement",
-        children: [
-          // {
-          //   icon: "messageChat",
-          //   name: "hexabot",
-          //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-          // },
-          $isBakrie
-            ? {
-                icon: "archive",
-                name: "documentLibrary",
-                href: isFrontend
-                  ? "/document_collection/libraries/libraries_collections?libraryId=63"
-                  : (await call.getPage("client-dashboard", "document-library-collections")) +
-                    `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
-              }
-            : {
-                icon: "archive",
-                name: "documentLibrary",
-                href: isFrontend
-                  ? "/document_library"
-                  : await call.getPage("client-dashboard", "document-collection-overview"),
-              },
-          // {
-          //   icon: "archive",
-          //   name: "documentCollection",
-          //   href: isFrontend
-          //     ? "/document_collection/collections"
-          //     : await call.getPage("client-dashboard", "document-collection-overview"),
-          // },
-          // {
-          //   icon: "fileCheck",
-          //   name: "contractReviewer",
-          //   href: isFrontend
-          //     ? "/contract_reviewer"
-          //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-          // },
-          {
-            icon: "data",
-            name: "datasets",
-            href: isFrontend ? "/datasets" : await call.getPage("client-dashboard", "datasets"),
-          },
-        ],
-      },
+      check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")
+        ? {
+            icon: "stars",
+            name: "aiManagement",
+            children: [
+              // {
+              //   icon: "messageChat",
+              //   name: "hexabot",
+              //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+              // },
+              check("documentAi.documentLibrary:view")
+                ? $isBakrie
+                  ? {
+                      icon: "archive",
+                      name: "documentLibrary",
+                      href: isFrontend
+                        ? "/document_library/libraries/collections?libraryId=63"
+                        : (await call.getPage("client-dashboard", "document-library-collections")) +
+                          `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
+                    }
+                  : {
+                      icon: "archive",
+                      name: "documentLibrary",
+                      href: isFrontend
+                        ? "/document_library"
+                        : await call.getPage("client-dashboard", "document-collection-overview"),
+                    }
+                : false,
+              // {
+              //   icon: "archive",
+              //   name: "documentCollection",
+              //   href: isFrontend
+              //     ? "/document_collection/collections"
+              //     : await call.getPage("client-dashboard", "document-collection-overview"),
+              // },
+              // {
+              //   icon: "fileCheck",
+              //   name: "contractReviewer",
+              //   href: isFrontend
+              //     ? "/contract_reviewer"
+              //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+              // },
+              check("aiManagement.datasets:view")
+                ? {
+                    icon: "data",
+                    name: "datasets",
+                    href: isFrontend
+                      ? "/datasets"
+                      : await call.getPage("client-dashboard", "datasets"),
+                  }
+                : false,
+            ].filter(Boolean),
+          }
+        : false,
       // {
       //   icon: "box",
       //   name: "documentCollection",
@@ -405,7 +414,7 @@ All Rights Reserved
       //     },
       //   ],
       // },
-    ];
+    ].filter(Boolean);
   };
 
   const logout = async () => {

@@ -125,7 +125,7 @@
 
       collectionDatas = {
         title: response.result.attributes.name,
-        description: response.result.attributes.meta.description,
+        description: response.result.attributes?.meta?.description || "",
         createdAt: format(new Date(response.result.attributes.createdAt), "dd-MM-yyyy"),
       };
     }
@@ -894,7 +894,7 @@
       const promise = aggregatedData.map(async (collection) => ({
         id: collection.id,
         collectionName: collection.attributes.name,
-        description: collection.attributes.meta.description,
+        description: collection.attributes?.meta?.description || "",
         type: collection.attributes.type,
         href: link + "?collectionId=" + collection.id + "&" + queryString,
       }));

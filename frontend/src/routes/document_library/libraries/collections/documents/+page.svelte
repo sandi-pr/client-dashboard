@@ -41,6 +41,7 @@
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from 'svelte-multiselect';
+  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
 
   let collectionId;
   let libraryId = $state(null);
@@ -55,6 +56,8 @@
   let deleteModal = $state(false);
   let deleteCategoriesModal = $state(false);
   let dropdownOpen = $state(false);
+  let dropdownMore = $state(false);
+  let editCollectionModal = $state(false);
   let dropdownUpload = $state(false);
   let fileNotSupport = $state(false);
   let buttonDisabled = $state(false);
@@ -130,7 +133,7 @@
 
       collectionDatas = {
         title: response.result.attributes.name,
-        description: response.result.attributes.meta.description,
+        description: response.result.attributes?.meta?.description || "",
         createdAt: format(new Date(response.result.attributes.createdAt), "dd-MM-yyyy"),
       };
     }
@@ -971,7 +974,7 @@
       const promise = aggregatedData.map(async (collection) => ({
         id: collection.id,
         collectionName: collection.attributes.name,
-        description: collection.attributes.meta.description,
+        description: collection.attributes?.meta?.description || "",
         type: collection.attributes.type,
         href:
           link +
@@ -1056,6 +1059,7 @@
 
         editModal = false;
         triggerToast($_("successUpdateCollection"), true);
+        getCollection();
         getCollections(true);
       } catch (error) {
         console.error("Error during collection editing:", error);
@@ -1104,6 +1108,55 @@
 
         getCollections(true);
         deleteModal = false;
+      } catch (error) {
+        console.error("Error during collection deletion:", error);
+        triggerToast($_("failedDeleteCollection"), true, "error");
+      }
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  }
+
+  async function deleteCollection() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "delete-library-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          return;
+        }
+
+        triggerToast($_("successDeleteCollection"), true);
+
+        deleteModal = false;
+        const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
+        let link = await $call.getPage("client-dashboard", "document-library");
+        goto(`${link}?libraryId=${libraryIdWebchatBakrie}`);
       } catch (error) {
         console.error("Error during collection deletion:", error);
         triggerToast($_("failedDeleteCollection"), true, "error");
@@ -1226,6 +1279,8 @@
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
     dropdownOpen = false;
+    dropdownUpload = false;
+    dropdownMore = false;
   };
 
   onMount(() => {
@@ -1303,7 +1358,7 @@
             </div>
           </div>
 
-          <div class="flex relative gap-3">
+          <div class="flex relative gap-3" onfocusout={handleDropdownFocusLoss}>
             <Input
               id="search"
               type="search"
@@ -1386,10 +1441,48 @@
                 >
               </ul>
             </div>
+            {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
+              <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+                <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2">
+                  <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                </Button>
+                <div
+                  class={`z-10 ${dropdownMore ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                >
+                  <ul class="py-2 grow text-sm">
+                    {#if check("documentAi.documentLibrary.collection:edit")}
+                      <button
+                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                        onclick={() => {
+                          dropdownMore = !dropdownMore;
+                          tmpCollectionId = collectionId;
+                          tmpCollectionName = collectionDatas.title;
+                          tmpOldName = collectionDatas.title;
+                          tmpDescription = collectionDatas.description;
+                          nameIsAvailable = true;
+                          editCollectionModal = true;
+                        }}>{$_("editCollectionName")}</button
+                      >
+                    {/if}
+                    {#if check("documentAi.documentLibrary.collection:delete")}
+                      <button
+                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                        onclick={() => {
+                          dropdownMore = !dropdownMore;
+                          tmpCollectionId = collectionId;
+                          tmpCollectionName = collectionDatas.title;
+                          deleteModal = true;
+                        }}>{$_("delete")}</button
+                      >
+                    {/if}
+                  </ul>
+                </div>
+              </div>
+            {/if}
           </div>
         </div>
 
-        {#if childCollectionList.length > 0 && collectionListDatas.length > 0}
+        {#if childCollectionList.length > 0 || collectionListDatas.length > 0}
           <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
             {#each childCollectionList as collection}
               <LibraryCard
@@ -1826,7 +1919,7 @@
       {$_("collection")}
       {tmpCollectionName}?
     </h3>
-    <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={tmpCollectionId === collectionId ? deleteCollection : deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>
@@ -1894,6 +1987,31 @@
       >
       <Button color="primary" on:click={sendDocument} class="rounded-lg w-full">I’m sure</Button>
     </div>
+  </svelte:fragment>
+</Modal>
+
+<Modal title={$_("editCollectionName")} bind:open={editCollectionModal} size="xs" autoclose>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourLibraryTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
+      <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <Button
+      onclick={editCollectionName}
+      disabled={!tmpCollectionName || !nameIsAvailable}
+      class="me-2 w-full">{$_("save")}</Button
+    >
   </svelte:fragment>
 </Modal>
 

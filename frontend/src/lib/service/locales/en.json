@@ -845,5 +845,6 @@
   "settingsIndustryTypeManufacturing": "Manufacturing",
   "settingsIndustryTypeLogistics": "Logistics",
   "settingsIndustryTypeTelecommunications": "Telecommunications",
-  "settingsIndustryTypeRealEstate": "Real Estate"
+  "settingsIndustryTypeRealEstate": "Real Estate",
+  "emailAlreadyExist": "Email already exists"
 }

@@ -239,7 +239,7 @@ All Rights Reserved
           collectionId: collection.id,
           activationTime: format(collection.attributes.createdAt, "dd-MM-yyyy HH:mm"),
           collectionName: collection.attributes.name,
-          description: collection.attributes.meta.description,
+          description: collection.attributes?.meta?.description || "",
           // totalDocuments: totalDocuments,
           // categories: categoriesCollection,
           status: collectionStatus,

@@ -844,5 +844,6 @@
   "settingsIndustryTypeManufacturing": "Manufaktur",
   "settingsIndustryTypeLogistics": "Logistik",
   "settingsIndustryTypeTelecommunications": "Telekomunikasi",
-  "settingsIndustryTypeRealEstate": "Properti"
+  "settingsIndustryTypeRealEstate": "Properti",
+  "emailAlreadyExist": "Email sudah ada"
 }
