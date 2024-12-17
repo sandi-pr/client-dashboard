@@ -846,5 +846,6 @@
   "settingsIndustryTypeLogistics": "Logistics",
   "settingsIndustryTypeTelecommunications": "Telecommunications",
   "settingsIndustryTypeRealEstate": "Real Estate",
-  "emailAlreadyExist": "Email already exists"
+  "emailAlreadyExist": "Email already exists",
+  "newDataset": "New Dataset"
 }

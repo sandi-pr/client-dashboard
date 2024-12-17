@@ -440,7 +440,7 @@
       >
         <img src={MessagePlusIcon} alt="MessagePlusIcon" class="w-5 h-5" />
         &nbsp; &nbsp;
-        <P class="!text-white dark:!text-white">New Dataset</P>
+        <P class="!text-white dark:!text-white">{$_("newDataset")}</P>
       </Button>
       {#if selectedTypeDataset === "conversation"}
         <div class="grid grid-cols-2 gap-2">

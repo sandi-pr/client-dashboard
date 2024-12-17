@@ -12,6 +12,7 @@
     TextareaRw,
     LibraryCard,
     check,
+    bakrieLibraryId,
   } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
   import { onMount, onDestroy } from "svelte";
