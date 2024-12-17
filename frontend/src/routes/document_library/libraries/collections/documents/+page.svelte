@@ -20,6 +20,7 @@
     onProgress,
     Divider,
     SectionHeader,
+    bakrieLibraryId,
     LibraryCard,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
@@ -1167,6 +1168,22 @@
     }
   }
 
+  function checkTitle(title) {
+    console.log(libraryId, $bakrieLibraryId);
+    if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
+      console.log("check title", true);
+      return (
+        title === "Documents" ||
+        title === "Images" ||
+        title === "Document Images" ||
+        title === "Handwriting"
+      );
+    } else {
+      console.log("check title", false);
+      return false;
+    }
+  }
+
   const checkLibraryName = async (name) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
@@ -1441,43 +1458,45 @@
                 >
               </ul>
             </div>
-            {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
-              <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2">
-                  <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                </Button>
-                <div
-                  class={`z-10 ${dropdownMore ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-                >
-                  <ul class="py-2 grow text-sm">
-                    {#if check("documentAi.documentLibrary.collection:edit")}
-                      <button
-                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                        onclick={() => {
-                          dropdownMore = !dropdownMore;
-                          tmpCollectionId = collectionId;
-                          tmpCollectionName = collectionDatas.title;
-                          tmpOldName = collectionDatas.title;
-                          tmpDescription = collectionDatas.description;
-                          nameIsAvailable = true;
-                          editCollectionModal = true;
-                        }}>{$_("editCollectionName")}</button
-                      >
-                    {/if}
-                    {#if check("documentAi.documentLibrary.collection:delete")}
-                      <button
-                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                        onclick={() => {
-                          dropdownMore = !dropdownMore;
-                          tmpCollectionId = collectionId;
-                          tmpCollectionName = collectionDatas.title;
-                          deleteModal = true;
-                        }}>{$_("delete")}</button
-                      >
-                    {/if}
-                  </ul>
+            {#if !checkTitle(collectionDatas.title)}
+              {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
+                <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+                  <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2">
+                    <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  </Button>
+                  <div
+                    class={`z-10 ${dropdownMore ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                  >
+                    <ul class="py-2 grow text-sm">
+                      {#if check("documentAi.documentLibrary.collection:edit")}
+                        <button
+                          class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                          onclick={() => {
+                            dropdownMore = !dropdownMore;
+                            tmpCollectionId = collectionId;
+                            tmpCollectionName = collectionDatas.title;
+                            tmpOldName = collectionDatas.title;
+                            tmpDescription = collectionDatas.description;
+                            nameIsAvailable = true;
+                            editCollectionModal = true;
+                          }}>{$_("editCollectionName")}</button
+                        >
+                      {/if}
+                      {#if check("documentAi.documentLibrary.collection:delete")}
+                        <button
+                          class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                          onclick={() => {
+                            dropdownMore = !dropdownMore;
+                            tmpCollectionId = collectionId;
+                            tmpCollectionName = collectionDatas.title;
+                            deleteModal = true;
+                          }}>{$_("delete")}</button
+                        >
+                      {/if}
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              {/if}
             {/if}
           </div>
         </div>

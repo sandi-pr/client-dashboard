@@ -845,5 +845,6 @@
   "settingsIndustryTypeLogistics": "Logistik",
   "settingsIndustryTypeTelecommunications": "Telekomunikasi",
   "settingsIndustryTypeRealEstate": "Properti",
-  "emailAlreadyExist": "Email sudah ada"
+  "emailAlreadyExist": "Email sudah ada",
+  "newDataset": "Dataset Baru"
 }

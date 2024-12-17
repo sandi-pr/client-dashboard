@@ -153,7 +153,7 @@ All Rights Reserved
             username: data.username,
             email: data.email,
             company: data.company,
-            blocked: data.status,
+            blocked: !data.status,
             authority: data.role,
             // status: data.status ? "Yes" : "No",
           },
