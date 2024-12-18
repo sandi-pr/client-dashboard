@@ -597,8 +597,9 @@
         <div class="flex flex-col">
           <button
             class="ml-4 flex items-center gap-1 mb-2"
-            on:click={() => {
-              window.location.href = "/datasets";
+            on:click={async () => {
+              // window.location.href = "/datasets";
+              goto(await $call.getPage("client-dashboard", "datasets"));
             }}
           >
             <ChevronLeftOutline class="w-7 h-7 text-fg-tertiary-light dark:text-fg-tertiary-dark" />

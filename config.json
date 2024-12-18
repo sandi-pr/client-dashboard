@@ -2502,6 +2502,10 @@
                 {
                     "name": "description",
                     "type": "string"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "string"
                 }
             ]
         },

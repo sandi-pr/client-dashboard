@@ -1178,12 +1178,12 @@ func UpdateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 	library_name, ok := ctx.Params.GetString("library_name")
 	if !ok {
-		return ctx.Error(400, "invalid parameters library_name")
+		library_name = ""
 	}
 
 	description, ok := ctx.Params.GetString("description")
 	if !ok {
-		return ctx.Error(400, "invalid parameters description")
+		description = ""
 	}
 
 	// document_path := DOCUMENT_PATH + "/" + string(library_name)
@@ -1196,12 +1196,14 @@ func UpdateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	// 	return ctx.Error(500, "Internal Server Error")
 	// }
 
-	dataSend := U.Dict{
-		"name": library_name,
-		// "path": document_path,
-		"meta": U.Dict{
-			"description": description,
-		},
+	dataSend := U.Dict{}
+
+	if library_name != "" {
+		dataSend["name"] = library_name
+	}
+
+	if description != "" {
+		dataSend["meta"].(U.Dict)["description"] = description
 	}
 
 	status, document, err := Strapi.Update("document-library-table", int64(id), dataSend)
@@ -1260,12 +1262,17 @@ func UpdateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 
 	collection_name, ok := ctx.Params.GetString("collection_name")
 	if !ok {
-		return ctx.Error(400, "invalid parameters collection_name")
+		collection_name = ""
 	}
 
 	description, ok := ctx.Params.GetString("description")
 	if !ok {
-		return ctx.Error(400, "invalid parameters description")
+		description = ""
+	}
+
+	parent_id, ok := ctx.Params.GetString("parent_id")
+	if !ok {
+		parent_id = ""
 	}
 
 	status, document, err := Strapi.Find("document-library-table", U.Dict{
@@ -1332,12 +1339,18 @@ func UpdateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 	// 	return ctx.Error(500, "Internal Server Error")
 	// }
 
-	dataSend := U.Dict{
-		"name": collection_name,
-		// "path": document_path_new,
-		"meta": U.Dict{
-			"description": description,
-		},
+	dataSend := U.Dict{}
+
+	if collection_name != "" {
+		dataSend["name"] = collection_name
+	}
+
+	if description != "" {
+		dataSend["meta"].(U.Dict)["description"] = description
+	}
+
+	if parent_id != "" {
+		dataSend["parent_id"] = parent_id
 	}
 
 	status, document2, err := Strapi.Update("document-library-table", int64(id), dataSend)
