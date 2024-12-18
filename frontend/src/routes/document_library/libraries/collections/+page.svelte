@@ -13,6 +13,7 @@
     LibraryCard,
     check,
     bakrieLibraryId,
+    isBakrie,
   } from "$lib";
   import TabBar from "$lib/components/TabBar.svelte";
   import { onMount, onDestroy } from "svelte";
@@ -101,7 +102,6 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-
       try {
         getLibrary();
 
@@ -179,16 +179,27 @@
 
     if (token !== null) {
       try {
-        let response = await $call.call("client-dashboard", "create-library-collection", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
+        let dataSend = {};
+        if ($isBakrie) {
+          dataSend = {
             collection_name: tmpCollectionName,
             description: tmpDescription,
             parent_id: parseInt(libraryId),
             // bakrie
             bot_id: localStorage.getItem("botIdStrapi").toString(),
-          },
+          };
+        } else {
+          dataSend = {
+            collection_name: tmpCollectionName,
+            description: tmpDescription,
+            parent_id: parseInt(libraryId),
+          };
+        }
+
+        let response = await $call.call("client-dashboard", "create-library-collection", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
           Headers: {
             Authorization: "Bearer " + token,
           },
@@ -731,7 +742,11 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourCollectionTitle")}
+      />
       {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>
@@ -756,7 +771,11 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourCollectionTitle")}
+      />
       {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>
@@ -781,7 +800,11 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      <Input bind:value={tmpLibraryName} on:input={handleInput} placeholder={$_("whatIsYourLibraryTitle")} />
+      <Input
+        bind:value={tmpLibraryName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourLibraryTitle")}
+      />
       {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>

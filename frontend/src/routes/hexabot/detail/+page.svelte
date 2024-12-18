@@ -1132,7 +1132,7 @@
           return;
         }
 
-        popupModal = false;
+        // popupModal = false;
         triggerToast("deleted");
         goto(await $call.getPage("client-dashboard", "hexabot-list"));
       } catch (error) {

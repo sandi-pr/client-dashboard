@@ -10,7 +10,7 @@
 -->
 
 <script>
-  import { Breadcrumb, Button, LanguageSelector } from "$lib";
+  import { Breadcrumb, Button, LanguageSelector, isbakrie } from "$lib";
   import RefreshCwIcon from "$lib/icon/refresh.svg";
   import { Modal } from "flowbite-svelte";
   import { DarkMode } from "flowbite-svelte";
@@ -71,14 +71,16 @@
           ></span>
         {/if}
       </div>
-      <Button
-        color="primary"
-        icon={StarsIcon}
-        spaceY="mt-0"
-        funcButton={() => {
-          changeShowAI();
-        }}
-      />
+      {#if $isbakrie}
+        <Button
+          color="primary"
+          icon={StarsIcon}
+          spaceY="mt-0"
+          funcButton={() => {
+            changeShowAI();
+          }}
+        />
+      {/if}
     </div>
   </div>
 </div>

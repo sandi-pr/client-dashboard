@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 
 // Define writable stores for each collection ID
-export const isBakrie = writable(true);
+export const isBakrie = writable(false);
 export const bakrieLibraryId = writable(null);
 export const documentsCollectionId = writable(null);
 export const imagesCollectionId = writable(null);

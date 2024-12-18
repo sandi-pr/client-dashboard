@@ -545,7 +545,7 @@
 
   onMount(() => {
     getActionItems();
-    // getCountDocumentsPerMonth();
+    getCountDocumentsPerMonth();
     getBots();
   });
 

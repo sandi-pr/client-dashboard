@@ -22,6 +22,7 @@
     SectionHeader,
     bakrieLibraryId,
     LibraryCard,
+    isBakrie,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
@@ -275,16 +276,27 @@
 
     if (token !== null) {
       try {
-        let response = await $call.call("client-dashboard", "create-library-collection", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
+        let dataSend = {};
+        if ($isBakrie) {
+          dataSend = {
             collection_name: tmpCollectionName,
             description: tmpDescription,
             parent_id: parseInt(collectionId),
             // bakrie
             bot_id: localStorage.getItem("botIdStrapi").toString(),
-          },
+          };
+        } else {
+          dataSend = {
+            collection_name: tmpCollectionName,
+            description: tmpDescription,
+            parent_id: parseInt(collectionId),
+          };
+        }
+
+        let response = await $call.call("client-dashboard", "create-library-collection", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
           Headers: {
             Authorization: "Bearer " + token,
           },

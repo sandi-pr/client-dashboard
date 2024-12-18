@@ -241,11 +241,11 @@ All Rights Reserved
             icon: "stars",
             name: "aiManagement",
             children: [
-              // {
-              //   icon: "messageChat",
-              //   name: "hexabot",
-              //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-              // },
+              {
+                icon: "messageChat",
+                name: "hexabot",
+                href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+              },
               check("documentAi.documentLibrary:view")
                 ? $isBakrie
                   ? {
@@ -271,13 +271,13 @@ All Rights Reserved
               //     ? "/document_collection/collections"
               //     : await call.getPage("client-dashboard", "document-collection-overview"),
               // },
-              // {
-              //   icon: "fileCheck",
-              //   name: "contractReviewer",
-              //   href: isFrontend
-              //     ? "/contract_reviewer"
-              //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-              // },
+              {
+                icon: "fileCheck",
+                name: "contractReviewer",
+                href: isFrontend
+                  ? "/contract_reviewer"
+                  : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+              },
               check("aiManagement.datasets:view")
                 ? {
                     icon: "data",
@@ -680,7 +680,7 @@ All Rights Reserved
               Headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            },
           );
 
           if (response.status !== 200) {
@@ -802,7 +802,7 @@ All Rights Reserved
 
       sessionStorage.setItem(
         "industry_id",
-        parseInt(response.result.data.attributes.company_industry)
+        parseInt(response.result.data.attributes.company_industry),
       );
 
       // await checkLibrariesIndustry(response.result.data.attributes.company_industry);
@@ -934,7 +934,7 @@ All Rights Reserved
           // Hilangkan duplikat berdasarkan `id`
           const unique = combined.filter(
             (item, index, self) =>
-              index === self.findIndex((t) => t.attributes.title === item.attributes.title)
+              index === self.findIndex((t) => t.attributes.title === item.attributes.title),
           );
 
           return unique;
@@ -1030,9 +1030,11 @@ All Rights Reserved
     setCall(call);
 
     await CheckSetup();
-    await checkLibrariesBakrie();
-    await checkCollectionsBakrie();
-    await createBakrieBot();
+    if ($isBakrie) {
+      await checkLibrariesBakrie();
+      await checkCollectionsBakrie();
+      await createBakrieBot();
+    }
     // await getPermissions();
     if (localStorage.getItem("lang") !== null) {
       locale.set(localStorage.getItem("lang"));
@@ -1049,17 +1051,19 @@ All Rights Reserved
     connectWebSocket(localStorage.getItem("token"), isFrontend);
 
     // bakrie;
-    if (!hideLayoutBakrie()) {
-      const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-      let collectionList = isFrontend
-        ? window.location.pathname.trim() === "/document_collection"
-          ? "document_collection/libraries/libraries_collections/"
-          : "libraries/libraries_collections/"
-        : await call.getPage("client-dashboard", "document-library-collections");
-      const redirectUrl = `${collectionList}?libraryId=${libraryIdWebchatBakrie}`;
-      goto(redirectUrl);
-    } else {
-      hideBakrie = false;
+    if ($isBakrie) {
+      if (!hideLayoutBakrie()) {
+        const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
+        let collectionList = isFrontend
+          ? window.location.pathname.trim() === "/document_collection"
+            ? "document_collection/libraries/libraries_collections/"
+            : "libraries/libraries_collections/"
+          : await call.getPage("client-dashboard", "document-library-collections");
+        const redirectUrl = `${collectionList}?libraryId=${libraryIdWebchatBakrie}`;
+        goto(redirectUrl);
+      } else {
+        hideBakrie = false;
+      }
     }
 
     const resizeHandler = () => {
@@ -1080,11 +1084,11 @@ All Rights Reserved
     toggleSidebarLargeClosed(
       localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024
         ? true
-        : false
+        : false,
     );
     if (localStorage.getItem("selectedDropdown") === "collections") {
       triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general"
+        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
       );
       if (localStorage.getItem("selectedCollection") !== null) {
         triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));
@@ -1138,8 +1142,8 @@ All Rights Reserved
 
 {#if $isLoading}
   <!-- <LoadingSpinner /> -->
-  <!-- {:else if winInnerWidth > 0 && $callReady === true && ready === true} -->
-{:else if winInnerWidth > 0 && $callReady === true && ready === true && !hideBakrie}
+{:else if winInnerWidth > 0 && $callReady === true && ready === true}
+  <!-- {:else if winInnerWidth > 0 && $callReady === true && ready === true && !hideBakrie} -->
   {#if hideLayout()}
     <div class="lg:flex">
       <div class="z-20">

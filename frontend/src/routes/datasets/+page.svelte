@@ -106,9 +106,9 @@
   let editedMessage = $state("");
   let selectedRole = $state("User");
   let statusRAG = $state("Not Ready");
-  let selectedTypeDataset = $state("handwriting");
-  let typeDataset = $state(["handwriting"]);
-  // let typeDataset = $state(["handwriting", "conversation"]);
+  let selectedTypeDataset = $state("conversation");
+  // let typeDataset = $state(["handwriting"]);
+  let typeDataset = $state(["handwriting", "conversation"]);
   let disableButtonHandwriting = $state(true);
   let disableButtonConversation = $state(true);
   let disabledButtonProccess = $state(false);

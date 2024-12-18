@@ -88,40 +88,40 @@ All Rights Reserved
   ];
 
   const cardsAi = [
-    // {
-    //   icon: "messageChat",
-    //   title: "hexabot",
-    //   description: "descHexabot",
-    //   page: "hexabot",
-    // },
+    {
+      icon: "messageChat",
+      title: "hexabot",
+      description: "descHexabot",
+      page: "hexabot",
+    },
     // {
     //   icon: "archive",
     //   title: "documentCollection",
     //   description: "descDocumentCollection",
     //   page: "document-collection-overview",
     // },
-    // {
-    //   icon: "archive",
-    //   title: "documentLibrary",
-    //   description: "descDocumentLibrary",
-    //   page: "document-collection-overview",
-    // },
+    {
+      icon: "archive",
+      title: "documentLibrary",
+      description: "descDocumentLibrary",
+      page: "document-collection-overview",
+    },
     // bakrie
-    check("documentAi.documentLibrary:view")
-      ? {
-          icon: "archive",
-          title: "documentLibrary",
-          description: "descDocumentLibrary",
-          page: "document-library-collections",
-          param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
-        }
-      : false,
-    // {
-    //   icon: "fileCheck",
-    //   title: "contractReviewer",
-    //   description: "descContractReviewer",
-    //   page: "contract-reviewer-overview",
-    // },
+    // check("documentAi.documentLibrary:view")
+    //   ? {
+    //       icon: "archive",
+    //       title: "documentLibrary",
+    //       description: "descDocumentLibrary",
+    //       page: "document-library-collections",
+    //       param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
+    //     }
+    //   : false,
+    {
+      icon: "fileCheck",
+      title: "contractReviewer",
+      description: "descContractReviewer",
+      page: "contract-reviewer-overview",
+    },
     check("aiManagement.datasets:view")
       ? {
           icon: "data",
