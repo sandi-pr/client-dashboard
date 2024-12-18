@@ -872,7 +872,7 @@ All Rights Reserved
           <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
         {/if}
         <div
-          class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"} gap-4`}
+          class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4`}
         >
           {#each cardsAi as card}
             {#if !chartActionAi.find((item) => item.title === card.title)}

@@ -1555,36 +1555,38 @@
             {/each}
           </div>
           <Divider />
-          {#if isMobileView}
-            <DataTableLibraryCollectionVertical
-              {collectionListDatas}
-              metadata={pagination}
-              {checkAllState}
-              {checkSingle}
-              {checkAll}
-              next={nextPage}
-              previous={prevPage}
-              functDeleteCategories={(id) => {
-                tmpId = id;
-                popupModal = true;
-                checkboxDelete = false;
-              }}
-            />
-          {:else}
-            <DataTableLibraryCollection
-              {collectionListDatas}
-              metadata={pagination}
-              {checkAllState}
-              {checkSingle}
-              {checkAll}
-              next={nextPage}
-              previous={prevPage}
-              functDeleteCategories={(id) => {
-                tmpId = id;
-                popupModal = true;
-                checkboxDelete = false;
-              }}
-            />
+          {#if collectionListDatas.length > 0}
+            {#if isMobileView}
+              <DataTableLibraryCollectionVertical
+                {collectionListDatas}
+                metadata={pagination}
+                {checkAllState}
+                {checkSingle}
+                {checkAll}
+                next={nextPage}
+                previous={prevPage}
+                functDeleteCategories={(id) => {
+                  tmpId = id;
+                  popupModal = true;
+                  checkboxDelete = false;
+                }}
+              />
+            {:else}
+              <DataTableLibraryCollection
+                {collectionListDatas}
+                metadata={pagination}
+                {checkAllState}
+                {checkSingle}
+                {checkAll}
+                next={nextPage}
+                previous={prevPage}
+                functDeleteCategories={(id) => {
+                  tmpId = id;
+                  popupModal = true;
+                  checkboxDelete = false;
+                }}
+              />
+            {/if}
           {/if}
         {:else if gettingDatas || gettingDocs}
           <StateCard
