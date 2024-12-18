@@ -38,7 +38,7 @@
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
-  import MultiSelect from 'svelte-multiselect';
+  import MultiSelect from "svelte-multiselect";
 
   let subCollectionId;
   let collectionId;
@@ -104,7 +104,7 @@
   let dataSend = $state(null);
   let textarea = $state();
   let nameIsAvailable = $state(true);
-  let isProcess  = $state(false);
+  let isProcess = $state(false);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -378,7 +378,6 @@
             }
 
             if (response3?.result?.text !== null) {
-
               let index = 1;
               let originalName = files[i].name.split(".").slice(0, -1).join(".");
               let newName = originalName;
@@ -420,7 +419,6 @@
               selectedFile = files[0];
             }
           } else {
-            
             let index = 1;
             let originalName = files[i].name.split(".").slice(0, -1).join(".");
             let newName = originalName;
@@ -450,19 +448,24 @@
           }
         }
         files = [];
-        dataSend = null;
 
         tmpDocumentTitle = "";
         tmpDocumentDescription = "";
         tags = [];
         attributeNotUnique = false;
-
-        previewModal = false;
-        addDocumentsModal = false;
-        getDocuments();
         triggerLoading(false);
-        triggerToast($_("succesfullyUploaded"), true);
 
+        if (
+          tmpDocumentType !== "Handwriting" &&
+          tmpDocumentType !== "Document Images" &&
+          tmpDocumentType !== "Document Audio"
+        ) {
+          dataSend = null;
+          previewModal = false;
+          addDocumentsModal = false;
+          getDocuments();
+          triggerToast($_("succesfullyUploaded"), true);
+        }
       } catch (error) {
         addDocumentsModal = true;
         console.error("Error during document upload:", error);
@@ -476,7 +479,7 @@
     }
   }
 
-  async function sendDocument() {
+  async function sendDocument(single = false) {
     let token = localStorage.getItem("token");
 
     if (token === null) {
@@ -509,6 +512,14 @@
         triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
       }
       return;
+    }
+
+    if (single) {
+      dataSend = null;
+      previewModal = false;
+      addDocumentsModal = false;
+      getDocuments();
+      triggerToast($_("succesfullyUploaded"), true);
     }
     return;
   }
@@ -1107,7 +1118,10 @@
   });
 
   $effect(() => {
-    buttonDisabled = files.length === 0 || files.length === 1 ? tmpDocumentTitle === "" || !nameIsAvailable : false;
+    buttonDisabled =
+      files.length === 0 || files.length === 1
+        ? tmpDocumentTitle === "" || !nameIsAvailable
+        : false;
   });
 </script>
 
@@ -1208,7 +1222,7 @@
             }}
           />
         {:else if gettingDocs}
-          <StateCard 
+          <StateCard
             illustration={IllustrationProgress}
             description={$_("fetchingDataPleaseWait")}
           />
@@ -1280,7 +1294,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
       <MultiSelect
         --sms-min-height="40px"
-        options={alltags} 
+        options={alltags}
         allowUserOptions="append"
         bind:selected={tags}
         autoScroll={true}
@@ -1292,7 +1306,7 @@
       title={`${$_("uploadDocuments")}*`}
       handleFileUploadWrapper={() => handleFileUploadWrapper()}
       file={files[0]}
-      files={files}
+      {files}
       bind:isProcess
       multiple={true}
       actionButton={true}
@@ -1502,7 +1516,9 @@
         }}
         class="w-full">Cancel</Button
       >
-      <Button color="primary" on:click={sendDocument} class="rounded-lg w-full">I’m sure</Button>
+      <Button color="primary" on:click={sendDocument(true)} class="rounded-lg w-full"
+        >I’m sure</Button
+      >
     </div>
   </svelte:fragment>
 </Modal>

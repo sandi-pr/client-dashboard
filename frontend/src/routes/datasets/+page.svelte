@@ -777,6 +777,7 @@
   };
 
   const handleDatasetModal = () => {
+    if (!addDatasetModal) filesHandwriting = [];
     addDatasetModal = !addDatasetModal;
   };
 
@@ -824,7 +825,7 @@
   const handleUploadWrapper2 = () => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    inputElement.accept = ".png,.jpg.jpeg";
+    inputElement.accept = ".png,.jpg,.jpeg";
     inputElement.multiple = multipleUpload;
 
     inputElement.addEventListener("change", async (event) => {
@@ -835,8 +836,16 @@
         filesSelect = [filesSelect[0]];
       }
 
+      const fileTypeRegex = new RegExp(
+        inputElement.accept
+          .split(",")
+          .map((type) => type.trim().replace(".", "\\."))
+          .join("|") + "$",
+        "i",
+      );
+
       for (const file of filesSelect) {
-        if (file) {
+        if (file && fileTypeRegex.test(file.name)) {
           const base64Data = await readFileAsBase64(file);
 
           filesHandwriting.push({
@@ -851,6 +860,37 @@
       }
     });
     inputElement.click();
+  };
+
+  const dropHandle2 = async (event) => {
+    event.preventDefault();
+
+    const accept = ".png,.jpg,.jpeg";
+
+    const files = event.dataTransfer.files;
+
+    const fileTypeRegex = new RegExp(
+      accept
+        .split(",")
+        .map((type) => type.trim().replace(".", "\\."))
+        .join("|") + "$",
+      "i",
+    );
+
+    for (const file of files) {
+      if (file && fileTypeRegex.test(file.name)) {
+        const base64Data = await readFileAsBase64(file);
+
+        filesHandwriting.push({
+          id: filesHandwriting.length < 1 ? 1 : filesHandwriting.length + 1,
+          name: file.name,
+          size: formatBytes(file.size),
+          base64: base64Data,
+          ext: "." + file.name.split(".").pop(),
+          type: "Handwriting",
+        });
+      }
+    }
   };
 
   function formatBytes(bytes, decimals = 2) {
@@ -1029,7 +1069,7 @@
       if (response.result.data.length < 1) {
         disableButtonHandwriting = true;
       } else {
-        disableButtonHandwriting = true;
+        disableButtonHandwriting = false;
       }
 
       let promise = response.result.data.map(async (data) => {

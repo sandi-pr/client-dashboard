@@ -41,7 +41,7 @@
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
-  import MultiSelect from 'svelte-multiselect';
+  import MultiSelect from "svelte-multiselect";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
 
   let collectionId;
@@ -107,13 +107,13 @@
   let tmpSelectedCollection = $state(null);
   let previewModal = $state(false);
   let selectedFile = $state(null);
-  let dataSend = $state(null);
+  let dataSend = $state({ detected_text: "" });
   let textarea = $state();
   let div = $state();
   let nameIsAvailable = $state(true);
-  let isProcess  = $state(false);
+  let isProcess = $state(false);
   let selected = $state([]);
-  let dummyTags = $state(['general', 'news', 'article']);
+  let dummyTags = $state(["general", "news", "article"]);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -451,7 +451,6 @@
             }
 
             if (response3?.result?.text !== null) {
-
               let index = 1;
               let originalName = files[i].name.split(".").slice(0, -1).join(".");
               let newName = originalName;
@@ -468,7 +467,7 @@
               }
 
               files[i].name = newName + files[i].ext;
-              
+
               dataSend = {
                 document_name: files.length > 1 ? files[i].document_title : tmpDocumentTitle,
                 description: tmpDocumentDescription,
@@ -486,13 +485,16 @@
           }
 
           if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
+            console.log("ayam");
             if (files.length > 1) {
               await sendDocument();
             } else {
+              console.log("bebek");
               previewModal = true;
               selectedFile = files[0];
             }
           } else {
+            console.log("cacing");
 
             let index = 1;
             let originalName = files[i].name.split(".").slice(0, -1).join(".");
@@ -526,19 +528,24 @@
         }
 
         files = [];
-        dataSend = null;
 
         tmpDocumentTitle = "";
         tmpDocumentDescription = "";
         tags = [];
         attributeNotUnique = false;
-
-        previewModal = false;
-        addDocumentsModal = false;
-        getDocuments();
         triggerLoading(false);
-        triggerToast($_("succesfullyUploaded"), true);
 
+        if (
+          tmpDocumentType !== "Handwriting" &&
+          tmpDocumentType !== "Document Images" &&
+          tmpDocumentType !== "Document Audio"
+        ) {
+          dataSend = null;
+          previewModal = false;
+          addDocumentsModal = false;
+          getDocuments();
+          triggerToast($_("succesfullyUploaded"), true);
+        }
       } catch (error) {
         addDocumentsModal = true;
         console.error("Error during document upload:", error);
@@ -552,7 +559,7 @@
     }
   }
 
-  async function sendDocument() {
+  async function sendDocument(single = false) {
     let token = localStorage.getItem("token");
 
     if (token === null) {
@@ -584,7 +591,16 @@
         console.error("Unexpected status code:", response);
         triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
       }
+
       return;
+    }
+
+    if (single) {
+      dataSend = null;
+      previewModal = false;
+      addDocumentsModal = false;
+      getDocuments();
+      triggerToast($_("succesfullyUploaded"), true);
     }
     return;
   }
@@ -681,7 +697,7 @@
               nameIsAvailable = false;
             }
           }
-          
+
           files = [...files];
           // console.log(JSON.stringify(files));
           // console.log("total file", files.length);
@@ -689,7 +705,7 @@
           fileNotSupport = true;
         }
       }
-      
+
       isProcess = false;
     });
     inputElement.click();
@@ -1341,7 +1357,10 @@
   });
 
   $effect(() => {
-    buttonDisabled = files.length === 0 || files.length === 1 ? tmpDocumentTitle === "" || !nameIsAvailable : false;
+    buttonDisabled =
+      files.length === 0 || files.length === 1
+        ? tmpDocumentTitle === "" || !nameIsAvailable
+        : false;
   });
 </script>
 
@@ -1441,7 +1460,10 @@
                     attributeNotUnique = false;
                     dropdownUpload = false;
                     nameIsAvailable = true;
-                  }}><FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />{$_("addCollection")}</button
+                  }}
+                  ><FolderPlusIcon
+                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                  />{$_("addCollection")}</button
                 >
                 <button
                   class="flex p-2 w-full gap-1.5"
@@ -1454,7 +1476,10 @@
                     attributeNotUnique = false;
                     dropdownUpload = false;
                     nameIsAvailable = true;
-                  }}><FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />{$_("addDocument")}</button
+                  }}
+                  ><FilePlus02Icon
+                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                  />{$_("addDocument")}</button
                 >
               </ul>
             </div>
@@ -1462,7 +1487,9 @@
               {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
                 <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
                   <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2">
-                    <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                    <DotsVerticalIcon
+                      svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                    />
                   </Button>
                   <div
                     class={`z-10 ${dropdownMore ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
@@ -1560,7 +1587,7 @@
             />
           {/if}
         {:else if gettingDatas || gettingDocs}
-          <StateCard 
+          <StateCard
             illustration={IllustrationProgress}
             description={$_("fetchingDataPleaseWait")}
           />
@@ -1632,7 +1659,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
       <MultiSelect
         --sms-min-height="40px"
-        options={alltags} 
+        options={alltags}
         allowUserOptions="append"
         bind:selected={tags}
         autoScroll={true}
@@ -1644,7 +1671,7 @@
       title={`${$_("uploadDocuments")}*`}
       handleFileUploadWrapper={() => handleFileUploadWrapper()}
       file={files[0]}
-      files={files}
+      {files}
       bind:isProcess
       multiple={true}
       actionButton={true}
@@ -1884,7 +1911,11 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourCollectionTitle")} />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourCollectionTitle")}
+      />
       {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>
@@ -1909,7 +1940,11 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourSubCollectionTitle")} />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourSubCollectionTitle")}
+      />
       {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>
@@ -1938,7 +1973,11 @@
       {$_("collection")}
       {tmpCollectionName}?
     </h3>
-    <Button onclick={tmpCollectionId === collectionId ? deleteCollection : deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button
+      onclick={tmpCollectionId === collectionId ? deleteCollection : deleteDocumentCollection}
+      color="red"
+      class="me-2">{$_("yesImSure")}</Button
+    >
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>
@@ -2004,7 +2043,9 @@
         }}
         class="w-full">Cancel</Button
       >
-      <Button color="primary" on:click={sendDocument} class="rounded-lg w-full">I’m sure</Button>
+      <Button color="primary" on:click={sendDocument(true)} class="rounded-lg w-full"
+        >I’m sure</Button
+      >
     </div>
   </svelte:fragment>
 </Modal>
@@ -2013,7 +2054,11 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourLibraryTitle")} />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourLibraryTitle")}
+      />
       {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>
