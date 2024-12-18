@@ -439,6 +439,36 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 						documentFile, err := base64.StdEncoding.DecodeString(documentBase64)
 
+						// if filepath.Ext(documentName) == "docx" || filepath.Ext(documentName) == ".docx" {
+						// 	file, err := os.Create("/tmp/" + string(documentName))
+						// 	if err != nil {
+						// 		fmt.Println("Gagal membuat file:", err)
+						// 		return ctx.Error(500, "Internal Server Error")
+						// 	}
+						// 	defer file.Close()
+
+						// 	_, err = file.Write(documentFile)
+						// 	if err != nil {
+						// 		fmt.Println("Gagal menulis ke file:", err)
+						// 		return ctx.Error(500, "Internal Server Error")
+						// 	}
+
+						// 	cmd := exec.Command("libreoffice", "--headless", "--convert-to", "pdf", "/tmp/"+string(documentName), "--outdir", "/tmp/")
+
+						// 	err = cmd.Run()
+						// 	if err != nil {
+						// 		fmt.Printf("Error converting file: %v\n", err)
+						// 		return ctx.Error(500, "Internal Server Error")
+						// 	}
+
+						// 	x, _ := ioutil.ReadDir("/tmp")
+
+						// 	for _, z := range x {
+						// 		fmt.Println(z.Name())
+						// 	}
+
+						// }
+
 						if _, err := os.Stat(document_path); err == nil {
 							extension := filepath.Ext(documentName)
 							name := documentName[0 : len(documentName)-len(extension)]

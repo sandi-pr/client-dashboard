@@ -1338,7 +1338,8 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, string, e
 
 							if list, ok := documentLibrarys.GetList("data"); ok {
 								if len(list) < 1 {
-									return "Ready", string(bot_name), nil
+									// return "Ready", string(bot_name), nil
+									break
 								}
 
 								for j := 0; j < len(list); j++ {
@@ -1374,6 +1375,7 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, string, e
 							}
 						}
 					}
+					return "Ready", string(bot_name), nil
 				} else {
 					return "", "", err
 				}
