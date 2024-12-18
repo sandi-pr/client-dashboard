@@ -973,9 +973,8 @@
 
         addDatasetModal = false;
 
-        getDatasetsHandwriting();
-
         if (filesHandwriting.length > 1) {
+          getDatasetsHandwriting();
           filesHandwriting = [];
           dataSend = null;
           previewModal = false;
@@ -1002,6 +1001,8 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
+
+    triggerLoading(true);
     let response = await $call.call("client-dashboard", "create-dataset-handwriting", {
       URLQuery: {},
       URLParams: {},
@@ -1027,10 +1028,13 @@
         console.error("Unexpected status code:", response);
         triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
       }
+
       return;
     }
 
     if (filesHandwriting.length === 1) {
+      getDatasetsHandwriting();
+      triggerLoading(false);
       filesHandwriting = [];
       dataSend = null;
       previewModal = false;
