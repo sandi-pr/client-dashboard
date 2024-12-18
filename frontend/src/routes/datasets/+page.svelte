@@ -2021,7 +2021,7 @@
   </svelte:fragment>
   <div class="flex flex-col w-full justify-center">
     <Button
-      ondrop={dropHandle}
+      ondrop={dropHandle2}
       ondragover={(event) => {
         event.preventDefault();
       }}
