@@ -467,7 +467,7 @@
           value: collection.id,
           id: collection.id,
           name: collection.attributes.name,
-          description: collection.attributes.meta.description,
+          description: collection.attributes.meta?.description,
         };
       });
     }
