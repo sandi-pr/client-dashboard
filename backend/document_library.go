@@ -1233,6 +1233,7 @@ func UpdateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 	}
 
 	if description != "" {
+		dataSend["meta"] = U.Dict{}
 		dataSend["meta"].(U.Dict)["description"] = description
 	}
 
@@ -1376,6 +1377,7 @@ func UpdateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 	}
 
 	if description != "" {
+		dataSend["meta"] = U.Dict{}
 		dataSend["meta"].(U.Dict)["description"] = description
 	}
 
