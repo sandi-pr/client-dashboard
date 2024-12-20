@@ -373,11 +373,7 @@ func ReadAllNotification(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 }
 
 func UpdateContentProgressByName(title string, content string) error {
-	fmt.Println("Debug: Starting UpdateContentProgressByName")
-	fmt.Printf("Debug: Title: %s, Content: %s\n", title, content)
-
 	strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
-	fmt.Println("Debug: Initialized Strapi client")
 
 	// Step 1: Fetch data from Strapi
 	status, data, err := strapi.Find("notification-table", U.Dict{
@@ -387,7 +383,6 @@ func UpdateContentProgressByName(title string, content string) error {
 			},
 		},
 	})
-	fmt.Printf("Debug: Strapi Find - Status: %d, Data: %v, Error: %v\n", status, data, err)
 
 	if err != nil {
 		fmt.Println("Error during Strapi Find:", err)
@@ -402,12 +397,9 @@ func UpdateContentProgressByName(title string, content string) error {
 	// Step 2: Extract notification ID
 	var idNotif int64
 	if list, ok := data.GetList("data"); ok {
-		fmt.Printf("Debug: Retrieved data list: %v\n", list)
 		if dict, ok := list.GetDict(0); ok {
-			fmt.Printf("Debug: Retrieved first dictionary: %v\n", dict)
 			if id, ok := dict.GetFloat64("id"); ok {
 				idNotif = int64(id)
-				fmt.Printf("Debug: Extracted notification ID: %d\n", idNotif)
 			} else {
 				fmt.Println("Error: Failed to extract ID from dictionary")
 				return fmt.Errorf("failed to extract ID")
@@ -422,10 +414,9 @@ func UpdateContentProgressByName(title string, content string) error {
 	}
 
 	// Step 3: Update content in Strapi
-	status2, response, err := strapi.Update("notification-table", idNotif, U.Dict{
+	status2, _, err := strapi.Update("notification-table", idNotif, U.Dict{
 		"content": content,
 	})
-	fmt.Printf("Debug: Strapi Update - Status: %d, Response: %v, Error: %v\n", status2, response, err)
 
 	if err != nil {
 		fmt.Println("Error during Strapi Update:", err)
@@ -437,6 +428,5 @@ func UpdateContentProgressByName(title string, content string) error {
 		return fmt.Errorf("unexpected status code: %d", status2)
 	}
 
-	fmt.Println("Debug: Successfully updated content in Strapi")
 	return nil
 }
