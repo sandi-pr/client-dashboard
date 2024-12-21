@@ -721,14 +721,15 @@
           return;
         }
 
-        triggerLoading(false);
         triggerToast("successDeleteDocument", true);
-        getDocuments();
       } catch (error) {
         console.error("Error during document deletion:", error);
         triggerToast($_("failedDeleteDocument"), true, "error");
       }
     }
+
+    getDocuments();
+    triggerLoading(false);
   }
 
   async function deleteDocument() {

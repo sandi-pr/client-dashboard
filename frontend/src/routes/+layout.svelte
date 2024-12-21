@@ -75,7 +75,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -241,11 +241,11 @@ All Rights Reserved
             icon: "stars",
             name: "aiManagement",
             children: [
-              {
-                icon: "messageChat",
-                name: "hexabot",
-                href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-              },
+              // {
+              //   icon: "messageChat",
+              //   name: "hexabot",
+              //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+              // },
               check("documentAi.documentLibrary:view")
                 ? $isBakrie
                   ? {
@@ -271,13 +271,13 @@ All Rights Reserved
               //     ? "/document_collection/collections"
               //     : await call.getPage("client-dashboard", "document-collection-overview"),
               // },
-              {
-                icon: "fileCheck",
-                name: "contractReviewer",
-                href: isFrontend
-                  ? "/contract_reviewer"
-                  : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-              },
+              // {
+              //   icon: "fileCheck",
+              //   name: "contractReviewer",
+              //   href: isFrontend
+              //     ? "/contract_reviewer"
+              //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+              // },
               check("aiManagement.datasets:view")
                 ? {
                     icon: "data",
@@ -870,7 +870,6 @@ All Rights Reserved
         return;
       }
 
-      console.log("itu", response.result.role.permissions);
       localStorage.setItem("permissions", JSON.stringify(response.result.role.permissions));
     }
   }

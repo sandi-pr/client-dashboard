@@ -18,7 +18,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, check } from "$lib";
+  import { triggerToast, check, isBakrie } from "$lib";
 
   import { call } from "$lib";
   import { da } from "date-fns/locale";
@@ -35,7 +35,7 @@ All Rights Reserved
     email: "",
     password: "",
     createdAt: "",
-    role: check("general.user:create") ? "User" : "",
+    role: "Admin",
     is_active: true,
   });
 
@@ -58,14 +58,27 @@ All Rights Reserved
         return;
       }
 
-      console.log("response", response);
-
       if (response.result.roles.length > 0) {
         let promises = response.result.roles.map(async (role) => {
           return {
             name: role.name,
           };
         });
+
+        if ($isBakrie) {
+          let found = false;
+          for (let i = 0; i < promises.length; i++) {
+            if (promises[i].name === "User") {
+              found = true;
+            }
+          }
+
+          if (!found) {
+            promises.push({
+              name: "User",
+            });
+          }
+        }
 
         roles = await Promise.all(promises);
       }

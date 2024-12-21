@@ -29,7 +29,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, check, InputRw } from "$lib";
+  import { triggerToast, check, InputRw, isBakrie } from "$lib";
 
   import { call } from "$lib";
 
@@ -81,6 +81,21 @@ All Rights Reserved
             name: role.name,
           };
         });
+
+        if ($isBakrie) {
+          let found = false;
+          for (let i = 0; i < promises.length; i++) {
+            if (promises[i].name === "User") {
+              found = true;
+            }
+          }
+
+          if (!found) {
+            promises.push({
+              name: "User",
+            });
+          }
+        }
 
         roles = await Promise.all(promises);
       }

@@ -1,9 +1,28 @@
+import { isBakrie } from "./bakrieLibraryStore";
+
+let isBakrieTmp = false;
+
+isBakrie.subscribe((isBakrie) => {
+  if (isBakrie) {
+    isBakrieTmp = isBakrie;
+  }
+});
+
 export function check(permission) {
   const user = JSON.parse(localStorage.getItem("user"));
   if (user.authority === "Admin") {
     return true;
   }
 
+  if (isBakrieTmp) {
+    if (user.authority === "User") {
+      if (permission.includes("view")) {
+        return true;
+      } else {
+        return false
+      }
+    }
+  }
   const permissions = JSON.parse(localStorage.getItem("permissions"));
 
   for (const p of permissions) {
@@ -13,8 +32,6 @@ export function check(permission) {
   }
 
   return false;
-  // const user = JSON.parse(localStorage.getItem("user"));
-  // return user.authority === role;
 }
 
 export function checkAnd(roles) {

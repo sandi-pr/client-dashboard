@@ -16,7 +16,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { SearchOutline } from "flowbite-svelte-icons";
 
-  import { StateCard, call, check, triggerToast } from "$lib";
+  import { StateCard, call, check, triggerToast, isBakrie } from "$lib";
   import { Typography } from "hexacomponents-svelte";
   import DataTableUser from "$lib/components/DataTableUsersList.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -45,10 +45,12 @@ All Rights Reserved
       {
         name: "Users List",
       },
-      {
-        name: "Roles",
-      },
-    ],
+      !$isBakrie
+        ? {
+            name: "Roles",
+          }
+        : false,
+    ].filter(Boolean),
   });
 
   let configs = $state({

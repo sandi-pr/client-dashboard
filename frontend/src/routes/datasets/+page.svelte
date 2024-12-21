@@ -34,6 +34,7 @@
     triggerLoading,
     selectedConversation,
     setSelectedConversation,
+    isBakrie,
   } from "$lib";
   import Chat from "$lib/components/Chat.svelte";
   import StateCard from "$lib/ui/cards/StateCard.svelte";
@@ -106,9 +107,9 @@
   let editedMessage = $state("");
   let selectedRole = $state("User");
   let statusRAG = $state("Not Ready");
-  let selectedTypeDataset = $state("conversation");
+  let selectedTypeDataset = $state($isBakrie ? "handwriting" : "conversation");
   // let typeDataset = $state(["handwriting"]);
-  let typeDataset = $state(["handwriting", "conversation"]);
+  let typeDataset = $state($isBakrie ? ["handwriting"] : ["handwriting", "conversation"]);
   let disableButtonHandwriting = $state(true);
   let disableButtonConversation = $state(true);
   let disabledButtonProccess = $state(false);
