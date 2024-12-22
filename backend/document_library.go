@@ -103,13 +103,6 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// 	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-	// 	// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
-	// 	// 	Headers: U.Dict{
-	// 	// 		"Authorization": bearer,
-	// 	// 	},
-	// 	// }, false)
-
 	return 200, documentLibrary, nil
 }
 
@@ -220,15 +213,7 @@ func CreateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// 	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-	// 	// go CR3.Call("hexa-ai", "getting-new-document", cr3call.CR3CallData{
-	// 	// 	Headers: U.Dict{
-	// 	// 		"Authorization": bearer,
-	// 	// 	},
-	// 	// }, false)
-
 	if bot_id, ok := ctx.Params.GetString("bot_id"); ok {
-		// Log parameter bot_id
 		fmt.Println("Received bot_id:", bot_id)
 
 		dataCollection, ok := documentLibrary.GetDict("data")
@@ -438,36 +423,6 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 						}
 
 						documentFile, err := base64.StdEncoding.DecodeString(documentBase64)
-
-						// if filepath.Ext(documentName) == "docx" || filepath.Ext(documentName) == ".docx" {
-						// 	file, err := os.Create("/tmp/" + string(documentName))
-						// 	if err != nil {
-						// 		fmt.Println("Gagal membuat file:", err)
-						// 		return ctx.Error(500, "Internal Server Error")
-						// 	}
-						// 	defer file.Close()
-
-						// 	_, err = file.Write(documentFile)
-						// 	if err != nil {
-						// 		fmt.Println("Gagal menulis ke file:", err)
-						// 		return ctx.Error(500, "Internal Server Error")
-						// 	}
-
-						// 	cmd := exec.Command("libreoffice", "--headless", "--convert-to", "pdf", "/tmp/"+string(documentName), "--outdir", "/tmp/")
-
-						// 	err = cmd.Run()
-						// 	if err != nil {
-						// 		fmt.Printf("Error converting file: %v\n", err)
-						// 		return ctx.Error(500, "Internal Server Error")
-						// 	}
-
-						// 	x, _ := ioutil.ReadDir("/tmp")
-
-						// 	for _, z := range x {
-						// 		fmt.Println(z.Name())
-						// 	}
-
-						// }
 
 						if _, err := os.Stat(document_path); err == nil {
 							extension := filepath.Ext(documentName)
@@ -1216,16 +1171,6 @@ func UpdateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		description = ""
 	}
 
-	// document_path := DOCUMENT_PATH + "/" + string(library_name)
-
-	// dir := filepath.Dir(document_path)
-
-	// err = os.MkdirAll(dir, os.ModePerm)
-	// if err != nil {
-	// 	fmt.Println("Gagal membuat direktori:", err)
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
-
 	dataSend := U.Dict{}
 
 	if library_name != "" {
@@ -1335,40 +1280,6 @@ func UpdateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 	if !ok {
 		return ctx.Error(500, "Internal Server Error")
 	}
-
-	// dict, ok := list.GetDict(0)
-
-	// if !ok {
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
-
-	// attributes, ok := dict.GetDict("attributes")
-
-	// if !ok {
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
-
-	// document_path_old, ok := attributes.GetString("path")
-	// if !ok {
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
-
-	// dir_old := filepath.Dir(string(document_path_old))
-
-	// // folder_name_old := filepath.Base(string(document_path_old))
-
-	// document_path_new := filepath.Join(dir_old, string(collection_name))
-
-	// fmt.Println("Old path:", document_path_old)
-	// fmt.Println("New path:", document_path_new)
-
-	// dir := filepath.Dir(document_path_new)
-
-	// err = os.MkdirAll(dir, os.ModePerm)
-	// if err != nil {
-	// 	fmt.Println("Gagal membuat direktori:", err)
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
 
 	dataSend := U.Dict{}
 
@@ -1731,22 +1642,23 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		for i := 0; i < len(list); i++ {
 			if dict, ok := list.GetDict(i); ok {
 				if idCollection, ok := dict.GetFloat64("id"); ok {
-					var page2 = 1
 
-					var idsDoc U.List
+					var page4 = 1
+
+					var idsCol U.List
 
 					for {
 						status, documents, err := Strapi.Find("document-library-table", U.Dict{
 							"filters": U.Dict{
 								"type": U.Dict{
-									"$eq": "document",
+									"$eq": "collection",
 								},
 								"parent_id": U.Dict{
-									"$eq": idCollection,
+									"$eq": id,
 								},
 							},
 							"pagination": U.Dict{
-								"page":     page2,
+								"page":     page4,
 								"pageSize": 25,
 							},
 							"sort":     "id:desc",
@@ -1760,7 +1672,7 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 						if status != 200 {
 							fmt.Println(status)
-							fmt.Println("documents", documents)
+							fmt.Println("ayam 1", documents)
 							return ctx.Error(500, "Internal Server Error")
 						}
 
@@ -1777,31 +1689,73 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 						for i := 0; i < len(list); i++ {
 							if dict, ok := list.GetDict(i); ok {
-								if idDoc, ok := dict.GetFloat64("id"); ok {
-									idsDoc = append(idsDoc, idDoc)
+								if idCol, ok := dict.GetFloat64("id"); ok {
+									idsCol = append(idsCol, idCol)
 								}
 							}
 						}
 
-						page2++
+						page4++
 					}
 
-					// CR3 := cr3call.New(MODULE_MANAGER_URL)
-					// resp, err := CR3.Call("hexa-ai-rag", "delete-document-by-collection-id", cr3call.CR3CallData{
-					// 	Headers: U.Dict{
-					// 		"Authorization": bearer,
-					// 	},
-					// 	Params: U.Dict{
-					// 		"collection_id": idStr,
-					// 	},
-					// }, false)
+					idsCol = append(idsCol, idCollection)
 
-					// fmt.Println(resp)
+					var idsDoc U.List
 
-					// if err != nil {
-					// 	fmt.Println(err)
-					// 	return ctx.Error(500, "Internal Server Error")
-					// }
+					for c := 0; c < len(idsCol); c++ {
+						var page2 = 1
+
+						for {
+							status, documents, err := Strapi.Find("document-library-table", U.Dict{
+								"filters": U.Dict{
+									"type": U.Dict{
+										"$eq": "document",
+									},
+									"parent_id": U.Dict{
+										"$eq": idsCol[c],
+									},
+								},
+								"pagination": U.Dict{
+									"page":     page2,
+									"pageSize": 25,
+								},
+								"sort":     "id:desc",
+								"populate": "*",
+							})
+
+							if err != nil {
+								fmt.Println(err)
+								return ctx.Error(500, "Internal Server Error")
+							}
+
+							if status != 200 {
+								fmt.Println(status)
+								fmt.Println("documents", documents)
+								return ctx.Error(500, "Internal Server Error")
+							}
+
+							list, ok := documents.GetList("data")
+
+							if !ok {
+								fmt.Println(ok)
+								return ctx.Error(500, "Internal Server Error")
+							}
+
+							if len(list) < 1 {
+								break
+							}
+
+							for i := 0; i < len(list); i++ {
+								if dict, ok := list.GetDict(i); ok {
+									if idDoc, ok := dict.GetFloat64("id"); ok {
+										idsDoc = append(idsDoc, idDoc)
+									}
+								}
+							}
+
+							page2++
+						}
+					}
 
 					knowledge_ids, err := findKnowledgeIdBotByCollectionId(int64(idCollection), Strapi)
 
@@ -1854,16 +1808,25 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 						}
 					}
 
-					status, document, err := Strapi.Delete("document-library-table", int64(idCollection))
-					if err != nil {
-						fmt.Println(err)
-						return ctx.Error(500, "Internal Server Error")
-					}
+					for c := 0; c < len(idsCol); c++ {
+						var idDelete int
 
-					if status != 200 {
-						fmt.Println(document)
-						fmt.Println(status)
-						return ctx.Error(500, "Internal Server Error")
+						if idsCol[c] == idCollection {
+							idDelete = idsCol[c].(int)
+						} else {
+							idDelete = int(idsCol[c].(U.Float64))
+						}
+
+						status, _, err = Strapi.Delete("document-library-table", int64(idDelete))
+						if err != nil {
+							fmt.Println(err)
+							return ctx.Error(500, "Internal Server Error")
+						}
+
+						if status != 200 {
+							fmt.Println(status)
+							return ctx.Error(500, "Internal Server Error")
+						}
 					}
 
 					page++
@@ -1970,7 +1933,6 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 						find = false
 					}
 
-					// Menghapus direktori beserta isinya
 					if find {
 						err = os.RemoveAll(string(path))
 						if err != nil {
@@ -2033,22 +1995,22 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 		return ctx.Error(400, "invalid parameters id")
 	}
 
-	var page2 = 1
+	var page = 1
 
-	var idsDoc U.List
+	var idsCol U.List
 
 	for {
 		status, documents, err := Strapi.Find("document-library-table", U.Dict{
 			"filters": U.Dict{
 				"type": U.Dict{
-					"$eq": "document",
+					"$eq": "collection",
 				},
 				"parent_id": U.Dict{
 					"$eq": id,
 				},
 			},
 			"pagination": U.Dict{
-				"page":     page2,
+				"page":     page,
 				"pageSize": 25,
 			},
 			"sort":     "id:desc",
@@ -2079,31 +2041,74 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 
 		for i := 0; i < len(list); i++ {
 			if dict, ok := list.GetDict(i); ok {
-				if idDoc, ok := dict.GetFloat64("id"); ok {
-					idsDoc = append(idsDoc, idDoc)
+				if idCol, ok := dict.GetFloat64("id"); ok {
+					idsCol = append(idsCol, idCol)
 				}
 			}
 		}
 
-		page2++
+		page++
 	}
 
-	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-	// resp, err := CR3.Call("hexa-ai-rag", "delete-document-by-collection-id", cr3call.CR3CallData{
-	// 	Headers: U.Dict{
-	// 		"Authorization": bearer,
-	// 	},
-	// 	Params: U.Dict{
-	// 		"collection_id": idStr,
-	// 	},
-	// }, false)
+	idsCol = append(idsCol, id)
 
-	// fmt.Println(resp)
+	var idsDoc U.List
 
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
+	for c := 0; c < len(idsCol); c++ {
+		var page2 = 1
+
+		for {
+			status, documents, err := Strapi.Find("document-library-table", U.Dict{
+				"filters": U.Dict{
+					"type": U.Dict{
+						"$eq": "document",
+					},
+					"parent_id": U.Dict{
+						"$eq": idsCol[c],
+					},
+				},
+				"pagination": U.Dict{
+					"page":     page2,
+					"pageSize": 25,
+				},
+				"sort":     "id:desc",
+				"populate": "*",
+			})
+
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println(status)
+				fmt.Println("ayam 1", documents)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			list, ok := documents.GetList("data")
+
+			if !ok {
+				fmt.Println(ok)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if len(list) < 1 {
+				break
+			}
+
+			for i := 0; i < len(list); i++ {
+				if dict, ok := list.GetDict(i); ok {
+					if idDoc, ok := dict.GetFloat64("id"); ok {
+						idsDoc = append(idsDoc, idDoc)
+					}
+				}
+			}
+
+			page2++
+		}
+
+	}
 
 	knowledge_ids, err := findKnowledgeIdBotByCollectionId(int64(id), Strapi)
 
@@ -2190,7 +2195,6 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 						find = false
 					}
 
-					// Menghapus direktori beserta isinya
 					if find {
 						err = os.RemoveAll(string(path))
 						if err != nil {
@@ -2205,16 +2209,26 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 		}
 	}
 
-	status, _, err = Strapi.Delete("document-library-table", int64(id))
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	for c := 0; c < len(idsCol); c++ {
+		var idDelete int
 
-	if status != 200 {
-		fmt.Println("ayam 4", document)
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
+		if idsCol[c] == id {
+			idDelete = idsCol[c].(int)
+		} else {
+			idDelete = int(idsCol[c].(U.Float64))
+		}
+
+		status, _, err = Strapi.Delete("document-library-table", int64(idDelete))
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println("ayam 4", document)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
 	}
 
 	return 200, U.Dict{}, nil
@@ -2251,23 +2265,6 @@ func DeleteLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	if err != nil {
 		return ctx.Error(400, "invalid parameters id")
 	}
-
-	// CR3 := cr3call.New(MODULE_MANAGER_URL)
-	// resp, err := CR3.Call("hexa-ai-rag", "delete-document-by-collection-id", cr3call.CR3CallData{
-	// 	Headers: U.Dict{
-	// 		"Authorization": bearer,
-	// 	},
-	// 	Params: U.Dict{
-	// 		"collection_id": idStr,
-	// 	},
-	// }, false)
-
-	// fmt.Println(resp)
-
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return ctx.Error(500, "Internal Server Error")
-	// }
 
 	status, document, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
@@ -2347,7 +2344,6 @@ func DeleteLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 						find = false
 					}
 
-					// Menghapus direktori beserta isinya
 					if find {
 						err = os.RemoveAll(string(path))
 						if err != nil {
@@ -2377,7 +2373,6 @@ func DeleteLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 }
 
 func getDocumentInBase64(document_path string) (string, error) {
-	// Membuka file
 	file, err := os.Open(document_path)
 	if err != nil {
 		fmt.Println("Gagal membuka file:", err)
@@ -2385,14 +2380,12 @@ func getDocumentInBase64(document_path string) (string, error) {
 	}
 	defer file.Close()
 
-	// Mendapatkan informasi file
 	fileInfo, err := file.Stat()
 	if err != nil {
 		fmt.Println("Gagal mendapatkan informasi file:", err)
 		return "", err
 	}
 
-	// Mengalokasikan buffer untuk menyimpan konten
 	content := make([]byte, fileInfo.Size())
 	_, err = file.Read(content)
 	if err != nil {
@@ -2400,7 +2393,6 @@ func getDocumentInBase64(document_path string) (string, error) {
 		return "", err
 	}
 
-	// Mengonversi konten ke base64
 	encoded := base64.StdEncoding.EncodeToString(content)
 	return encoded, nil
 }
@@ -2739,22 +2731,18 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 }
 
 func FindCreateLibraryCollectionByName(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
-	// 1. Validasi Authorization Header
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 	if !bearer_ok {
 		return ctx.Error(401, "Unauthorized")
 	}
 
-	// Inisialisasi Strapi
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
 
-	// Verifikasi Token
 	status, _, err := Strapi.UsersMe()
 	if err != nil || status != 200 {
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// 2. Ambil Parameter
 	name, ok := ctx.Params.GetString("collection_name")
 	if !ok {
 		return ctx.Error(400, "invalid parameters collection_name")
@@ -2770,7 +2758,6 @@ func FindCreateLibraryCollectionByName(ctx *config.ConfigContext) (int, U.Dict, 
 		return ctx.Error(400, "invalid parameters parent_id")
 	}
 
-	// 3. Cari Koleksi di Database
 	status, library, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"type":      U.Dict{"$eq": "collection"},
@@ -2787,7 +2774,6 @@ func FindCreateLibraryCollectionByName(ctx *config.ConfigContext) (int, U.Dict, 
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// 4. Jika Koleksi Ditemukan, Kembalikan ID-nya
 	if list, ok := library.GetList("data"); ok && len(list) > 0 {
 		if dict, ok := list.GetDict(0); ok {
 			if id, ok := dict.GetFloat64("id"); ok {
@@ -2796,8 +2782,6 @@ func FindCreateLibraryCollectionByName(ctx *config.ConfigContext) (int, U.Dict, 
 		}
 	}
 
-	// 5. Jika Tidak Ditemukan, Buat Koleksi Baru
-	// Cari Path dari Parent Library
 	var document_path string
 	status, parent_library, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
@@ -2821,14 +2805,12 @@ func FindCreateLibraryCollectionByName(ctx *config.ConfigContext) (int, U.Dict, 
 		return ctx.Error(400, "Parent library not found")
 	}
 
-	// Buat Direktori untuk Koleksi
 	dir := filepath.Dir(document_path)
 	err = os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
 		return ctx.Error(500, "Failed to create directory")
 	}
 
-	// Data untuk Koleksi Baru
 	dataSend := U.Dict{
 		"type":      "collection",
 		"name":      name,
@@ -2839,13 +2821,11 @@ func FindCreateLibraryCollectionByName(ctx *config.ConfigContext) (int, U.Dict, 
 		},
 	}
 
-	// Kirim Permintaan untuk Membuat Koleksi
 	status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
 	if err != nil || status != 200 {
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	// 6. Kembalikan ID Koleksi Baru
 	if data, ok := documentLibrary.GetDict("data"); ok {
 		if id, ok := data.GetFloat64("id"); ok {
 			return 200, U.Dict{"id": id}, nil
