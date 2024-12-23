@@ -24,13 +24,14 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
+    Checkbox,
   } from "flowbite-svelte";
   import Dropdown from "$lib/ui/buttons/Dropdown.svelte";
   import * as Icon from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
   import { _, locale } from "svelte-i18n";
-  import { formatDistanceToNow } from "date-fns";
-  import { id as localeId, enUS as localeEn } from "date-fns/locale";
+  import { formatDistanceToNow, sub } from "date-fns";
+  import { id as localeId, enUS as localeEn, da } from "date-fns/locale";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import JpgIcon from "$lib/icon/jpg-icon.svelte";
   import PngIcon from "$lib/icon/png-icon.svelte";
@@ -80,7 +81,15 @@
   ];
   // export let divider = false;
 
-  let allChecked = false;
+  export let allChecked = false;
+
+  let openRow = null;
+
+  const toggleRow = (id) => {
+    openRow = openRow === id ? null : id;
+
+    console.log("openRow", openRow);
+  };
 
   let pages;
   if (configs?.pagination && Object.keys(configs.pagination).length > 0) {
@@ -163,13 +172,23 @@
     }
   };
 
-  const getCheckedStatus = (id) => {
-    const item = datasChecked.find((data) => data.id === id);
-    if (item) {
-      allChecked = datasChecked.every((data) => data.checked);
-      return item.checked;
+  const getCheckedStatus = (parentId, subId) => {
+    const parent = datasChecked.find((data) => data.id === parentId);
+    // console.log("parent", parent);
+    if (subId === undefined) {
+      return parent?.checked || false;
+    } else {
+      return parent?.sub_collection?.find((sub) => sub.id === subId)?.checked || false;
     }
-    return false;
+  };
+
+  const getIndeterminateStatus = (parentId) => {
+    const parent = datasChecked.find((data) => data.id === parentId);
+    if (!parent || !parent.sub_collection || parent.sub_collection.length === 0) {
+      return false; // Tidak ada sub-collection, maka tidak indeterminate
+    }
+    const checkedCount = parent.sub_collection.filter((sub) => sub.checked).length;
+    return checkedCount > 0 && checkedCount < parent.sub_collection.length;
   };
 
   const getObjectDataTypeClass = (type, color) => {
@@ -187,6 +206,8 @@
   onMount(() => {
     tmpCategoriesName = configs?.headers;
   });
+
+  $: allChecked = datasChecked.every((data) => data.checked);
 
   // onMount(() => {
   // Object.keys(datas[0]).forEach((key) => {
@@ -352,7 +373,21 @@
         <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
           {#if datasChecked && datasChecked.length > 0}
             <TableHeadCell class="!p-4">
-              <input
+              <Checkbox
+                class="!me-0"
+                checked={allChecked}
+                onclick={() => {
+                  if (configs?.isCategories) {
+                    handleCheckAll(configs?.headers, allChecked);
+                  } else if (configs?.collectionId) {
+                    handleCheckAll(configs?.collectionId, allChecked);
+                  } else {
+                    handleCheckAll(allChecked);
+                    allChecked = !allChecked;
+                  }
+                }}
+              />
+              <!-- <input
                 type="checkbox"
                 id="checkAll"
                 name="checkAll"
@@ -367,12 +402,12 @@
                   }
                 }}
                 class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
-              />
+              /> -->
             </TableHeadCell>
           {/if}
           {#if datas.length > 0}
             {#each Object.keys(datas[0]) as key}
-              {#if key !== "actions" && key !== "id"}
+              {#if key !== "actions" && key !== "id" && key !== "sub_collections"}
                 <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
               {/if}
             {/each}
@@ -385,10 +420,25 @@
           {#each datas as data, index (data.id)}
             <TableBodyRow
               class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
+              on:click={() => toggleRow(data.id)}            
             >
               {#if datasChecked}
                 <TableBodyCell class="!px-4 w-10">
-                  <input
+                  <Checkbox
+                    class="!me-0"
+                    checked={getCheckedStatus(data.id)}
+                    indeterminate={getIndeterminateStatus(data.id)}
+                    onclick={() => {
+                      if (configs?.isCategories) {
+                        handleCheck(configs?.headers, data.id);
+                      } else if (configs?.collectionId) {
+                        handleCheck(configs?.collectionId, allChecked);
+                      } else {
+                        handleCheck(data.id);
+                      }
+                    }}
+                  />
+                  <!-- <input
                     type="checkbox"
                     id={data.id}
                     name={data.id}
@@ -403,13 +453,13 @@
                       }
                     }}
                     class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
-                  />
+                  /> -->
                 </TableBodyCell>
               {/if}
               {#each Object.keys(datas[0]) as key}
-                {#if key !== "actions" && key !== "id"}
+                {#if key !== "actions" && key !== "id" && key !== "sub_collections"}
                   {#if typeof data[key] === "string" || typeof data[key] === "number"}
-                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                    <TableBodyCell class="flex justify-between text-hc-graylight-600 dark:text-hc-graydark-400">
                       {#if key === "upload_date"}
                         {#if $locale === "id"}
                           {$_("createOn")}
@@ -420,6 +470,13 @@
                         {/if}
                       {:else}
                         {data[key]}
+                        {#if data.sub_collections.length > 0}
+                          {#if openRow === data.id}
+                            <ChevronUpIcon svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400" />
+                          {:else}
+                            <ChevronDownIcon svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400" />
+                          {/if}
+                        {/if}
                       {/if}
                     </TableBodyCell>
                   {:else if typeof data[key] === "object"}
@@ -496,6 +553,30 @@
                 {/each}
               {/if}
             </TableBodyRow>
+            {#if openRow === data.id}
+              {#each data.sub_collections as sub}
+                <TableBodyRow>
+                  <TableBodyCell class="!px-4 w-10">
+                    <Checkbox
+                      class="!me-0"
+                      checked={getCheckedStatus(data.id, sub.id)}
+                      onclick={() => handleCheck(sub.id, true, data.id)}
+                    />
+                    <!-- <input
+                      type="checkbox"
+                      id={sub.id}
+                      name={sub.id}
+                      checked={getCheckedStatus(data.id, sub.id)}
+                      onclick={() => handleCheck(sub.id, true, data.id)}
+                      class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
+                    /> -->
+                  </TableBodyCell>
+                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400 bg-secondary-light dark:bg-secondary-dark">
+                    {sub.collection_name}
+                  </TableBodyCell>
+                </TableBodyRow>
+              {/each}
+            {/if}
           {/each}
         </TableBody>
       </Table>
