@@ -268,7 +268,7 @@
           };
         });
         allData = await Promise.all(promises);
-        console.log("all data with subcollections", allData);
+        // console.log("all data with subcollections", allData);
 
         if (checkAll) {
           datasChecked = allData.map((data) => {
@@ -281,7 +281,7 @@
               })),
             };
           });
-          console.log("datasChecked all", datasChecked);
+          // console.log("datasChecked all", datasChecked);
         } else {
           if (tmpDatasChecked[pagination.page] === undefined) {
             datasChecked = allData.map((data) => {
@@ -297,7 +297,7 @@
           } else {
             datasChecked = tmpDatasChecked[pagination.page];
           }
-          console.log("datasChecked", datasChecked);
+          // console.log("datasChecked", datasChecked);
         }
 
         // if (checkAll) {
@@ -618,7 +618,7 @@
     if (token !== null) {
       let allCollection = "";
 
-      console.log("tmpDatasChecked", tmpDatasChecked);
+      // console.log("tmpDatasChecked", tmpDatasChecked);
 
       let pageNow = pagination.page;
       if (tmpDatasChecked[pageNow] === undefined) {
@@ -668,7 +668,7 @@
         description: description,
         ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
         library_id: selectedCollection,
-        collection_id: checkAll ? "all" : collections,
+        collection_id: checkAll ? "all" : allCollection,
         additional_prompt: additionalPrompt,
         need_auth: needAuth,
       };
@@ -716,7 +716,7 @@
       })),
     }));
 
-    console.log("Updated datasChecked (handleCheckAll):", datasChecked);
+    // console.log("Updated datasChecked (handleCheckAll):", datasChecked);
   }
 
   async function handleCheckAllCollection(allChecked) {

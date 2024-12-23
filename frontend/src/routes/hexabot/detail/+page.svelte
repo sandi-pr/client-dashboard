@@ -169,11 +169,19 @@
   }
 
   let timeoutId;
+  // old
+  // const handleSearch = async (value) => {
+  //   pagination.page = 1;
+  //   searchTerm = value;
+
+  //   await getDocuments(1);
+  // };
   const handleSearch = async (value) => {
+    search = true;
     pagination.page = 1;
     searchTerm = value;
 
-    await getDocuments(1);
+    await getCollectionSub(selectedCollection);
   };
 
   let conversationDatas = [
@@ -276,7 +284,7 @@
     }
   }
 
-  async function dummyGetCollections(id) {
+  async function getCollectionSub(id) {
     let token = localStorage.getItem("token");
     if (token !== null) {
       if (!search) {
@@ -331,23 +339,36 @@
           ],
         };
         let promises = response.result.data.map(async (document) => {
+          const sub_collections = await getSubCollections(document.id);
           return {
             id: document.id,
             collection_name: document.attributes.name,
+            sub_collections,
           };
         });
         allData = await Promise.all(promises);
         console.log("all data", allData);
         datasChecked = allData.map((data) => {
           return {
-            id: data.id,
+            id: data.id, 
             checked: false,
+            sub_collection: data.sub_collections.map((sub) => ({
+              id: sub.id,
+              checked: false,
+            })),
           };
         });
 
         if (checkAll) {
           datasChecked = allData.map((data) => {
-            return { id: data.id, checked: true };
+            return { 
+              id: data.id, 
+              checked: true,
+              sub_collection: data.sub_collections.map((sub) => ({
+                id: sub.id,
+                checked: true,
+              })),
+            };
           });
         } else {
           if (tmpDatasChecked[pagination.page] === undefined) {
@@ -357,6 +378,15 @@
                 if (collectionsChecked.includes(data.id)) {
                   data.checked = true;
                 }
+
+                // Perbarui status checked untuk setiap sub_collection
+                data.sub_collection = data.sub_collection.map((sub) => {
+                  if (collectionsChecked.includes(sub.id)) {
+                    sub.checked = true;
+                  }
+                  return sub;
+                });
+
                 return data;
               });
             } else {
@@ -428,8 +458,80 @@
     }
   }
 
+  async function getSubCollections(id) {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      gettingDatas = true;
+      const aggregatedData = [];
+
+      paginationCollection.page = 1;
+
+      do {
+        let response = await $call.call("client-dashboard", "get-library-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: paginationCollection.page,
+            page_size: paginationCollection.pageSize,
+            parent_id: parseInt(id),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          gettingDatas = false;
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          return;
+        }
+
+        aggregatedData.push(...response.result.data);
+
+        paginationCollection = response.result.meta.pagination;
+
+        paginationCollection.page++;
+      } while (paginationCollection.page <= paginationCollection.pageCount);
+
+      const promise = aggregatedData.map(async (collection) => ({
+        id: collection.id,
+        collection_name: collection.attributes.name,
+      }));
+
+      const subCollectionList = await Promise.all(promise);
+      console.log("subCollectionList", subCollectionList);
+      gettingDatas = false;
+      return subCollectionList;
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      gettingDatas = false;
+      return;
+    }
+  }
+
   function areAllUnchecked() {
-    return datasChecked.every((item) => item.checked === false);
+    // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
+    const allData = [
+      ...datasChecked,
+      ...Object.values(tmpDatasChecked).flat(),
+    ];
+
+    // Cek apakah semua data tidak ada yang checked
+    return allData.every((item) => item.checked === false);
   }
 
   const classStatusType = (type) => {
@@ -553,16 +655,14 @@
         ...tmpDatasChecked,
         [pageNow]: datasChecked,
       };
-
-      console.log(tmpDatasChecked);
     } else {
       tmpDatasChecked[pageNow] = datasChecked;
     }
 
     pagination.page = pagination.page + 1;
-    console.log(pagination.page);
+    // console.log(pagination.page);
     // getDocuments();
-    dummyGetCollections(selectedCollection);
+    getCollectionSub(selectedCollection);
   }
 
   async function previous() {
@@ -580,38 +680,82 @@
 
     pagination.page = pagination.page - 1;
     // getDocuments();
-    dummyGetCollections(selectedCollection);
+    getCollectionSub(selectedCollection);
   }
 
   async function handleCheckAll(allChecked) {
-    datasChecked = datasChecked.map((data) => {
-      return { id: data.id, checked: allChecked ? false : true };
-    });
+    datasChecked = datasChecked.map((data) => ({
+      id: data.id,
+      checked: allChecked ? false : true,
+      sub_collection: data.sub_collection.map((sub) => ({
+        id: sub.id,
+        checked: allChecked ? false : true,
+      })),
+    }));
+
+    // console.log("Updated datasChecked (handleCheckAll):", datasChecked);
   }
 
   async function handleCheckAllCollection(allChecked) {
-    if (allChecked) {
-      checkAll = true;
-    } else {
-      checkAll = false;
+    checkAll = allChecked;
+
+    datasChecked = datasChecked.map((data) => ({
+      id: data.id,
+      checked: allChecked,
+      sub_collection: data.sub_collection.map((sub) => ({
+        id: sub.id,
+        checked: allChecked,
+      })),
+    }));
+
+    // console.log("Updated datasChecked (handleCheckAllCollection):", datasChecked);
+  }
+
+  async function handleCheck(id, isSubCollection = false, parentId = null) {
+    if (!Array.isArray(datasChecked)) {
+      datasChecked = [];
     }
 
     datasChecked = datasChecked.map((data) => {
-      return { id: data.id, checked: allChecked };
-    });
-
-    console.log("datasChecked", datasChecked.length);
-  }
-
-  async function handleCheck(id) {
-    let datasCheckedCopy = JSON.parse(JSON.stringify(datasChecked));
-    datasCheckedCopy = datasCheckedCopy.map((data) => {
-      if (data.id === id) {
-        return { id: data.id, checked: !data.checked };
+      // Jika parentId tidak ada, kita memproses level utama
+      if (!isSubCollection && data.id === id) {
+        if (!data.checked) {
+          checkAll = false;
+        }
+        return {
+          ...data,
+          checked: !data.checked,
+        };
       }
+
+      // Jika parentId cocok, kita memproses sub_collection
+      if (isSubCollection && data.id === parentId) {
+        const updatedSubCollection = data.sub_collection.map((sub) => {
+          if (sub.id === id) {
+            return { ...sub, checked: !sub.checked };
+          }
+          return sub;
+        });
+
+        return {
+          ...data,
+          sub_collection: updatedSubCollection,
+        };
+      }
+
       return data;
     });
-    datasChecked = datasCheckedCopy;
+
+    let pageNow = pagination.page;
+    if (tmpDatasChecked[pageNow] === undefined) {
+      tmpDatasChecked = {
+        ...tmpDatasChecked,
+        [pageNow]: datasChecked,
+      };
+    } else {
+      tmpDatasChecked[pageNow] = datasChecked;
+    }
+    // console.log("datasChecked setelah pembaruan:", datasChecked);
   }
 
   let formattedDate = "Created on 2021-08-12 14:00 PM";
@@ -1063,6 +1207,45 @@
   async function updateBot() {
     let token = localStorage.getItem("token");
     if (token) {
+      let allCollection = "";
+
+      let pageNow = pagination.page;
+      if (tmpDatasChecked[pageNow] === undefined) {
+        tmpDatasChecked = {
+          ...tmpDatasChecked,
+          [pageNow]: datasChecked,
+        };
+      } else {
+        tmpDatasChecked[pageNow] = datasChecked;
+      }
+
+      // Iterasi key dalam tmpDatasChecked
+      Object.values(tmpDatasChecked).forEach((pageData) => {
+        if (!pageData) return; // Skip jika pageData undefined/null
+
+        console.log("pageData", pageData);
+
+        const collections = pageData
+          .flatMap((item) => {
+            // Ambil ID dari sub_collection jika checked = true
+            const subCollectionIds = item.sub_collection
+              ?.filter((sub) => sub.checked)
+              .map((sub) => sub.id) || [];
+
+            // Tambahkan item.id jika checked = true
+            return item.checked ? [item.id, ...subCollectionIds] : subCollectionIds;
+          })
+          .join(","); // Gabungkan ID dengan koma
+
+          console.log("collections check", collections);
+
+        if (collections) {
+          allCollection += collections + ",";
+        }
+      });
+
+      // Hapus koma terakhir jika ada
+      allCollection = allCollection.replace(/,$/, "");
       try {
         let response = await $call.call("client-dashboard", "update-bot", {
           URLQuery: {},
@@ -1088,12 +1271,7 @@
             deployed_platform: users.deployedPlatform,
             username: users.username,
             need_auth: users.needAuth,
-            collection_id: checkAll
-              ? "all"
-              : datasChecked
-                  .filter((item) => item.checked)
-                  .map((item) => item.id)
-                  .join(","),
+            collection_id: checkAll ? "all" : allCollection,
             library_id: selectedCollection,
             manage_document: users.documentOptions,
           },
@@ -1219,7 +1397,7 @@
     if (edit === "true") onEdit = true;
     triggerLoading(true);
     getCollections();
-    // dummyGetCollections();
+    // getCollectionSub();
 
     const unsubscribe = page.subscribe(async ($page) => {
       botId = $page.url.searchParams.get("botId");
@@ -1242,7 +1420,7 @@
       if (typeof selectedCollection === "number" && selectedCollection !== oldSelectedCollection) {
         oldSelectedCollection = selectedCollection;
         tmpDatasChecked = [];
-        dummyGetCollections(selectedCollection);
+        getCollectionSub(selectedCollection);
       }
     }
   });
