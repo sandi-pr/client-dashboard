@@ -241,11 +241,11 @@ All Rights Reserved
             icon: "stars",
             name: "aiManagement",
             children: [
-              // {
-              //   icon: "messageChat",
-              //   name: "hexabot",
-              //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-              // },
+              {
+                icon: "messageChat",
+                name: "hexabot",
+                href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+              },
               check("documentAi.documentLibrary:view")
                 ? $isBakrie
                   ? {
@@ -271,13 +271,13 @@ All Rights Reserved
               //     ? "/document_collection/collections"
               //     : await call.getPage("client-dashboard", "document-collection-overview"),
               // },
-              // {
-              //   icon: "fileCheck",
-              //   name: "contractReviewer",
-              //   href: isFrontend
-              //     ? "/contract_reviewer"
-              //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-              // },
+              {
+                icon: "fileCheck",
+                name: "contractReviewer",
+                href: isFrontend
+                  ? "/contract_reviewer"
+                  : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+              },
               check("aiManagement.datasets:view")
                 ? {
                     icon: "data",
