@@ -66,11 +66,12 @@
   let search = $state(false);
   // let page = $state(1);
   let checkAll = $state(false);
+  let stateCheckAll = $state("");
   let datasChecked = $state([]);
   let tmpDatasChecked = $state({});
   let configs = $state({});
   let gettingDatas = $state(false);
-  let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
+  let pagination = $state({ page: 1, pageSize: 3, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
 
   let platforms = $state([]);
@@ -274,10 +275,10 @@
           datasChecked = allData.map((data) => {
             return { 
               id: data.id, 
-              checked: false,
+              checked: true,
               sub_collection: data.sub_collections.map((sub) => ({
                 id: sub.id,
-                checked: false,
+                checked: true,
               })),
             };
           });
@@ -731,6 +732,20 @@
       })),
     }));
 
+    if (!allChecked) {
+      // Jika allChecked adalah false, update tmpDatasChecked
+      Object.keys(tmpDatasChecked).forEach((page) => {
+        tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
+          id: data.id,
+          checked: false,
+          sub_collection: data.sub_collection.map((sub) => ({
+            id: sub.id,
+            checked: false,
+          })),
+        }));
+      });
+    }
+
     // console.log("Updated datasChecked (handleCheckAllCollection):", datasChecked);
   }
 
@@ -742,7 +757,7 @@
     datasChecked = datasChecked.map((data) => {
       // Jika parentId tidak ada, kita memproses level utama
       if (!isSubCollection && data.id === id) {
-        if (!data.checked) {
+        if (data.checked) {
           checkAll = false;
         }
         return {
@@ -750,6 +765,8 @@
           checked: !data.checked,
         };
       }
+
+      // console.log("checkAll", checkAll);
 
       // Jika parentId cocok, kita memproses sub_collection
       if (isSubCollection && data.id === parentId) {
@@ -871,13 +888,13 @@
     <Typography preset="Display sm/Semibold" text={$_("createNewBots")} />
     <div class="flex text-sm gap-3">
       <Button
-        disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
         on:click={async () => {
           goto(await $call.getPage("client-dashboard", "hexabot"));
         }}
         color="light">{$_("cancel")}</Button
       >
       <Button
+        disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
         on:click={() => {
           createBot();
         }}

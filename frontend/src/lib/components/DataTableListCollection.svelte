@@ -88,7 +88,7 @@
   const toggleRow = (id) => {
     openRow = openRow === id ? null : id;
 
-    console.log("openRow", openRow);
+    // console.log("openRow", openRow);
   };
 
   let pages;
@@ -187,8 +187,14 @@
     if (!parent || !parent.sub_collection || parent.sub_collection.length === 0) {
       return false; // Tidak ada sub-collection, maka tidak indeterminate
     }
+
+    if (parent.checked) {
+      return false; // Jika parent dicentang, maka tidak indeterminate
+    }
+
     const checkedCount = parent.sub_collection.filter((sub) => sub.checked).length;
-    return checkedCount > 0 && checkedCount < parent.sub_collection.length;
+    // Jika parent tidak dicentang, tetap determinate jika ada sub yang dicentang
+    return checkedCount > 0;
   };
 
   const getObjectDataTypeClass = (type, color) => {
@@ -420,7 +426,7 @@
           {#each datas as data, index (data.id)}
             <TableBodyRow
               class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
-              on:click={() => toggleRow(data.id)}            
+                        
             >
               {#if datasChecked}
                 <TableBodyCell class="!px-4 w-10">
@@ -435,6 +441,9 @@
                         handleCheck(configs?.collectionId, allChecked);
                       } else {
                         handleCheck(data.id);
+                        if (data.sub_collections.length > 0 && openRow !== data.id) {
+                          toggleRow(data.id);
+                        }
                       }
                     }}
                   />
@@ -459,7 +468,7 @@
               {#each Object.keys(datas[0]) as key}
                 {#if key !== "actions" && key !== "id" && key !== "sub_collections"}
                   {#if typeof data[key] === "string" || typeof data[key] === "number"}
-                    <TableBodyCell class="flex justify-between text-hc-graylight-600 dark:text-hc-graydark-400">
+                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                       {#if key === "upload_date"}
                         {#if $locale === "id"}
                           {$_("createOn")}
@@ -468,15 +477,26 @@
                           {$_("createOn")}
                           {formatDistanceToNow(data[key], { addSuffix: true, locale: localeEn })}
                         {/if}
+                      {:else if key === "collection_name"}
+                        <button
+                          onclick={() => {
+                            if (data.sub_collections.length > 0) {
+                              toggleRow(data.id);
+                            }
+                          }}
+                          class="flex justify-between w-full"
+                        >
+                          {data[key]}
+                          {#if data.sub_collections.length > 0}
+                            {#if openRow === data.id}
+                              <ChevronUpIcon svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400" />
+                            {:else}
+                              <ChevronDownIcon svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400" />
+                            {/if}
+                          {/if}
+                        </button>
                       {:else}
                         {data[key]}
-                        {#if data.sub_collections.length > 0}
-                          {#if openRow === data.id}
-                            <ChevronUpIcon svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400" />
-                          {:else}
-                            <ChevronDownIcon svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400" />
-                          {/if}
-                        {/if}
                       {/if}
                     </TableBodyCell>
                   {:else if typeof data[key] === "object"}
@@ -553,7 +573,7 @@
                 {/each}
               {/if}
             </TableBodyRow>
-            {#if openRow === data.id}
+            {#if openRow === data.id && data.sub_collections?.length > 0}
               {#each data.sub_collections as sub}
                 <TableBodyRow>
                   <TableBodyCell class="!px-4 w-10">
