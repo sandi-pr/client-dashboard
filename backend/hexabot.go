@@ -137,6 +137,31 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 			fmt.Println(err)
 			return ctx.Error(500, "Internal Server Error")
 		}
+
+		collection_id_array := strings.Split(string(collection_id), ",")
+		collection_id_int := make([]int, len(collection_id_array))
+
+		for i, str := range collection_id_array {
+			num, err := strconv.Atoi(strings.TrimSpace(str))
+			if err != nil {
+				return ctx.Error(500, "Internal Server Error")
+			}
+			collection_id_int[i] = num
+		}
+
+		var allIdsSub U.String
+
+		for i := 0; i < len(collection_id_int); i++ {
+			collection_id_sub, err := getAllIdCollection(int(collection_id_int[i]), Strapi)
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			allIdsSub = allIdsSub + "," + collection_id_sub
+		}
+
+		collection_id = collection_id + "," + allIdsSub
 	}
 
 	additional_prompt, ok := ctx.Params.GetString("additional_prompt")
@@ -899,6 +924,31 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 			fmt.Println(err)
 			return ctx.Error(500, "Internal Server Error")
 		}
+
+		collection_id_array := strings.Split(string(collection_id), ",")
+		collection_id_int := make([]int, len(collection_id_array))
+
+		for i, str := range collection_id_array {
+			num, err := strconv.Atoi(strings.TrimSpace(str))
+			if err != nil {
+				return ctx.Error(500, "Internal Server Error")
+			}
+			collection_id_int[i] = num
+		}
+
+		var allIdsSub U.String
+
+		for i := 0; i < len(collection_id_int); i++ {
+			collection_id_sub, err := getAllIdCollection(int(collection_id_int[i]), Strapi)
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			allIdsSub = allIdsSub + "," + collection_id_sub
+		}
+
+		collection_id = collection_id + "," + allIdsSub
 	}
 
 	manage_document, ok := ctx.URLParams.GetBool("manage_document")
