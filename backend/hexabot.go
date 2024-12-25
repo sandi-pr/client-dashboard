@@ -158,10 +158,14 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 				return ctx.Error(500, "Internal Server Error")
 			}
 
-			allIdsSub = allIdsSub + "," + collection_id_sub
+			if collection_id_sub != "" {
+				allIdsSub = allIdsSub + "," + collection_id_sub
+			}
 		}
 
-		collection_id = collection_id + "," + allIdsSub
+		if allIdsSub != "" {
+			collection_id = collection_id + "," + allIdsSub
+		}
 	}
 
 	additional_prompt, ok := ctx.Params.GetString("additional_prompt")
@@ -945,10 +949,14 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 				return ctx.Error(500, "Internal Server Error")
 			}
 
-			allIdsSub = allIdsSub + "," + collection_id_sub
+			if collection_id_sub != "" {
+				allIdsSub = allIdsSub + "," + collection_id_sub
+			}
 		}
 
-		collection_id = collection_id + "," + allIdsSub
+		if allIdsSub != "" {
+			collection_id = collection_id + "," + allIdsSub
+		}
 	}
 
 	manage_document, ok := ctx.URLParams.GetBool("manage_document")
