@@ -37,6 +37,7 @@
   } from "$lib";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
+  import { da } from "date-fns/locale";
   // import Highlight from "svelte-highlight";
   // import typescript from "svelte-highlight/languages/typescript";
   // import github from "svelte-highlight/styles/github";
@@ -97,7 +98,7 @@
   let isSelectedLibrary = $state(false);
   let allData = $state([]);
   let search = $state(false);
-  let searchCategory = $state(false);
+  let searchCategory = $state({});
   let pages = $state(1);
   let disabledButton = $state(false);
   let collectionsChecked = $state([]);
@@ -350,7 +351,7 @@
         console.log("all data", allData);
         datasChecked = allData.map((data) => {
           return {
-            id: data.id, 
+            id: data.id,
             checked: false,
             sub_collection: data.sub_collections.map((sub) => ({
               id: sub.id,
@@ -361,8 +362,8 @@
 
         if (checkAll) {
           datasChecked = allData.map((data) => {
-            return { 
-              id: data.id, 
+            return {
+              id: data.id,
               checked: true,
               sub_collection: data.sub_collections.map((sub) => ({
                 id: sub.id,
@@ -525,10 +526,7 @@
 
   function areAllUnchecked() {
     // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
-    const allData = [
-      ...datasChecked,
-      ...Object.values(tmpDatasChecked).flat(),
-    ];
+    const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
 
     // Cek apakah semua data tidak ada yang checked
     return allData.every((item) => item.checked === false);
@@ -923,16 +921,21 @@
           datas = [...datas, { [collectionId[i]]: [] }];
         }
 
+        searchCategory = {
+          ...searchCategory,
+          [collectionId[i]]: false,
+        };
+
         datasCategoriesChecked = {
           ...datasCategoriesChecked,
-          id: datas.map((data) => {
+          [collectionId[i]]: datas.map((data) => {
             return { id: data.id, checked: false };
           }),
         };
 
         searchTermCategory = {
           ...searchTermCategory,
-          id: "",
+          [collectionId[i]]: "",
         };
 
         let response2 = await $call.call("client-dashboard", "get-library-collection", {
@@ -1228,16 +1231,15 @@
         const collections = pageData
           .flatMap((item) => {
             // Ambil ID dari sub_collection jika checked = true
-            const subCollectionIds = item.sub_collection
-              ?.filter((sub) => sub.checked)
-              .map((sub) => sub.id) || [];
+            const subCollectionIds =
+              item.sub_collection?.filter((sub) => sub.checked).map((sub) => sub.id) || [];
 
             // Tambahkan item.id jika checked = true
             return item.checked ? [item.id, ...subCollectionIds] : subCollectionIds;
           })
           .join(","); // Gabungkan ID dengan koma
 
-          console.log("collections check", collections);
+        console.log("collections check", collections);
 
         if (collections) {
           allCollection += collections + ",";
@@ -1323,7 +1325,7 @@
   async function getDocumentsByCategory() {}
 
   const handleSearchCategory = async (value, category) => {
-    searchCategory = true;
+    searchCategory[category] = true;
     configsCategories[category].pagination.page = 1;
     searchTermCategory = { ...searchTermCategory, [category]: value };
 
@@ -1866,48 +1868,49 @@
       </div>
     {:else if tabDatas.selected === "Data"}
       {#each datas as data, index}
-        <div class="md:flex">
-          <div class="w-full md:w-1/4 mt-6">
-            <Typography
-              preset="Text md/Semibold"
-              text={configsCategories[collectionId[index]].name}
-              color="secondary"
-              propClass=""
-            />
-            <button
-              onclick={async function () {
-                goto(
-                  (await $call.getPage("client-dashboard", "document-library-documents")) +
-                    `?collectionId=${collectionId[index]}`,
-                );
-                return;
-              }}
-              class="text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
-            >
-              {$_("goToDocumentCollection")}
-            </button>
-          </div>
-          <div class="w-full md:w-3/4">
-            {#if data[collectionId[index]].length > 0 || searchCategory}
-              <!-- <DataTableListCollection bind:datas bind:configs bind:next bind:previous /> -->
-              <DataTableListCollection
-                bind:datas={data[collectionId[index]]}
-                bind:datasChecked={datasCategoriesChecked[collectionId[index]]}
-                bind:configs={configsCategories[collectionId[index]]}
-                bind:gettingDatas
-                bind:next={nextByCategory}
-                bind:previous={previousByCategory}
-                bind:handleCheckAll={handleCheckAllCategories}
-                bind:handleCheck={handleCheckCategories}
+        {#if data[collectionId[index]].length > 0}
+          <div class="md:flex">
+            <div class="w-full md:w-1/4 mt-6">
+              <Typography
+                preset="Text md/Semibold"
+                text={configsCategories[collectionId[index]].name}
+                color="secondary"
+                propClass=""
               />
-            {:else if gettingDatas}
-              <StateCard
-                illustration={IllustrationProgress}
-                description={$_("fetchingDataPleaseWait")}
-              />
-            {/if}
+              <button
+                onclick={async function () {
+                  goto(
+                    (await $call.getPage("client-dashboard", "document-library-documents")) +
+                      `?collectionId=${collectionId[index]}`,
+                  );
+                  return;
+                }}
+                class="text-sm text-brand-tertiary-light dark:text-brand-tertiary-dark"
+              >
+                {$_("goToDocumentCollection")}
+              </button>
+            </div>
+            <div class="w-full md:w-3/4">
+              {#if data[collectionId[index]].length > 0 || searchCategory[collectionId[index]]}
+                <DataTableListCollection
+                  bind:datas={data[collectionId[index]]}
+                  bind:datasChecked={datasCategoriesChecked[collectionId[index]]}
+                  bind:configs={configsCategories[collectionId[index]]}
+                  bind:gettingDatas
+                  bind:next={nextByCategory}
+                  bind:previous={previousByCategory}
+                  bind:handleCheckAll={handleCheckAllCategories}
+                  bind:handleCheck={handleCheckCategories}
+                />
+              {:else if gettingDatas}
+                <StateCard
+                  illustration={IllustrationProgress}
+                  description={$_("fetchingDataPleaseWait")}
+                />
+              {/if}
+            </div>
           </div>
-        </div>
+        {/if}
       {/each}
     {:else if tabDatas.selected === "Widget Embed"}
       <div class="mt-6 space-y-6">
