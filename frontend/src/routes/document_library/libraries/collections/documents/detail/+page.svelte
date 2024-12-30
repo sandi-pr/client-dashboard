@@ -858,6 +858,7 @@ All Rights Reserved
           {:else}
             <Button
               onclick={async function () {
+                triggerLoading(false);
                 goto(
                   (await $call.getPage("client-dashboard", "document-library-documents")) +
                     `?collectionId=${collectionId}`,
