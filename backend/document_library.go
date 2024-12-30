@@ -1779,16 +1779,16 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 										"Content-type": "application/json",
 									})
 
-									response, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+									_, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
 
-									var deleteResponse DeleteResponse
-									err = json.Unmarshal(response.Body, &deleteResponse)
-									if err != nil {
-										fmt.Println(err)
-										return ctx.Error(500, "Internal Server Error")
-									}
+									// var deleteResponse DeleteResponse
+									// err = json.Unmarshal(response.Body, &deleteResponse)
+									// if err != nil {
+									// 	fmt.Println(err)
+									// 	return ctx.Error(500, "Internal Server Error")
+									// }
 
-									fmt.Println("delete response ", knowledge_id, deleteResponse)
+									// fmt.Println("delete response ", knowledge_id, deleteResponse)
 								} else {
 									fmt.Println("failed to get knowledge_id")
 								}
@@ -2132,16 +2132,16 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 						"Content-type": "application/json",
 					})
 
-					response, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+					_, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
 
-					var deleteResponse DeleteResponse
-					err = json.Unmarshal(response.Body, &deleteResponse)
-					if err != nil {
-						fmt.Println(err)
-						return ctx.Error(500, "Internal Server Error")
-					}
+					// var deleteResponse DeleteResponse
+					// err = json.Unmarshal(response.Body, &deleteResponse)
+					// if err != nil {
+					// 	fmt.Println(err)
+					// 	return ctx.Error(500, "Internal Server Error")
+					// }
 
-					fmt.Println("delete response ", knowledge_id, deleteResponse)
+					// fmt.Println("delete response ", knowledge_id, deleteResponse)
 				} else {
 					fmt.Println("failed to get knowledge_id")
 				}
@@ -2313,16 +2313,16 @@ func DeleteLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 								"Content-type": "application/json",
 							})
 
-							response, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+							_, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
 
-							var deleteResponse DeleteResponse
-							err = json.Unmarshal(response.Body, &deleteResponse)
-							if err != nil {
-								fmt.Println(err)
-								return ctx.Error(500, "Internal Server Error")
-							}
+							// var deleteResponse DeleteResponse
+							// err = json.Unmarshal(response.Body, &deleteResponse)
+							// if err != nil {
+							// 	fmt.Println(err)
+							// 	return ctx.Error(500, "Internal Server Error")
+							// }
 
-							fmt.Println("delete response ", knowledge_id, deleteResponse)
+							// fmt.Println("delete response ", knowledge_id, deleteResponse)
 						} else {
 							fmt.Println("failed to get knowledge_id")
 						}
