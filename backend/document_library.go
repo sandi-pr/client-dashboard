@@ -2599,7 +2599,7 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 			"type": U.Dict{
 				"$eq": "library",
 			},
-			"updatedAt": U.Dict{
+			"createdAt": U.Dict{
 				"$gte": earlyDate,
 				"$lte": lastDate,
 			},

@@ -197,7 +197,7 @@
   async function getCountDocumentsPerMonth() {
     const today = new Date();
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -233,8 +233,8 @@
         );
         lastDateCurrentMonth = new Date(
           lastDateCurrentMonth.getFullYear(),
-          lastDateCurrentMonth.getMonth(),
-          0,
+          lastDateCurrentMonth.getMonth() - 1,
+          1,
         );
       }
 

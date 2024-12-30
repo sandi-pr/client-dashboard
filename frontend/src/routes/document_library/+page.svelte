@@ -167,7 +167,7 @@ All Rights Reserved
       },
       series: [
         {
-          name: "Total documents",
+          name: "Total library",
           data: monthlyCollectionsCounts,
           color: "#17B169",
         },
@@ -622,7 +622,7 @@ All Rights Reserved
 
     const today = new Date();
     let earlyDateCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    let lastDateCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -658,8 +658,8 @@ All Rights Reserved
         );
         lastDateCurrentMonth = new Date(
           lastDateCurrentMonth.getFullYear(),
-          lastDateCurrentMonth.getMonth(),
-          0,
+          lastDateCurrentMonth.getMonth() - 1,
+          1,
         );
       }
 

@@ -1237,7 +1237,7 @@ func GetCountBotPerMount(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 
 	status, bots, err := Strapi.Find("hexabot-table", U.Dict{
 		"filters": U.Dict{
-			"updatedAt": U.Dict{
+			"createdAt": U.Dict{
 				"$gte": earlyDate,
 				"$lte": lastDate,
 			},
