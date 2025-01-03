@@ -1164,7 +1164,7 @@
                   checkboxDelete = true;
                   // id
                 }}
-                disabled={!check("documentAi.documentLibrary.document:delete") || $onProgress}
+                disabled={!check("documentAi.documentLibrary.document:delete")}
                 class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
                 outline
               >
@@ -1178,7 +1178,7 @@
                   paginationCollection.page = 1;
                   // id
                 }}
-                disabled={!check("documentAi.documentLibrary.document:update") || $onProgress}
+                disabled={!check("documentAi.documentLibrary.document:update")}
                 class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
                 outline
               >
@@ -1187,7 +1187,7 @@
               </Button>
             {/if}
             <Button
-              disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
+              disabled={!check("documentAi.documentLibrary.document:create")}
               outline
               on:click={() => {
                 addDocumentsModal = true;

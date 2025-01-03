@@ -1428,7 +1428,7 @@
                   checkboxDelete = true;
                   // id
                 }}
-                disabled={!check("documentAi.documentLibrary.document:delete") || $onProgress}
+                disabled={!check("documentAi.documentLibrary.document:delete")}
                 class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
                 outline
               >
@@ -1442,7 +1442,7 @@
                   paginationCollection.page = 1;
                   // id
                 }}
-                disabled={!check("documentAi.documentLibrary.document:update") || $onProgress}
+                disabled={!check("documentAi.documentLibrary.document:update")}
                 class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
                 outline
               >
@@ -1453,7 +1453,7 @@
             <Button
               color="light"
               class="min-w-max gap-1.5"
-              disabled={!check("documentAi.documentLibrary.document:create") || $onProgress}
+              disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={() => (dropdownUpload = !dropdownUpload)}
             >
               <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />

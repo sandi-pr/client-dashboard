@@ -12,10 +12,8 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.hexacode.org/go-libs/cr3call"
-	"gitlab.hexacode.org/go-libs/hctypes"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
-	"gitlab.hexacode.org/go-libs/requests"
 	"gitlab.hexacode.org/go-libs/strapi"
 )
 
@@ -234,16 +232,16 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	http := requests.NewHttp(hctypes.Dict{
-		"Content-type": "application/json",
-	})
-
-	resp, err := http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "create-knowledge"), nil, hctypes.Dict{
-		"knowledge_id":  bot_id,
-		"system_prompt": additional_prompt,
-	}.ToJson())
-
-	fmt.Println("create-knowledge", resp)
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai-rag", "create-knowledge", cr3call.CR3CallData{
+		Headers: U.Dict{
+			"Authorization": bearer,
+		},
+		Params: U.Dict{
+			"knowledge_id":  bot_id,
+			"system_prompt": additional_prompt,
+		},
+	}, false)
 
 	if err != nil {
 		fmt.Println(err)

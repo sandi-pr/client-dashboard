@@ -132,7 +132,11 @@
     </TableHead>
     <TableBody tableBodyClass="divide-y">
       {#each collectionListDatas as collectionListData, index (collectionListData.id)}
-        <TableBodyRow on:click={() => {checkSingle(index)}}>
+        <TableBodyRow
+          on:click={() => {
+            checkSingle(index);
+          }}
+        >
           <TableBodyCell class="!p-4">
             {#if collectionListData.checked}
               <Checkbox
@@ -256,7 +260,7 @@
               on:click={() => {
                 functDeleteCategories(collectionListData.id);
               }}
-              disabled={!check("documentAi.documentLibrary.document:delete") || $onProgress}
+              disabled={!check("documentAi.documentLibrary.document:delete")}
               class="focus-within:ring-0 !p-0 text-brand-tertiary-light dark:text-brand-tertiary-dark"
               color="none"
               size="xs"
