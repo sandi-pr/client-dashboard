@@ -164,7 +164,7 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		}
 
 		if allIdsSub != "" {
-			collection_id = collection_id + "," + allIdsSub
+			collection_id = collection_id + allIdsSub
 		}
 	}
 
@@ -955,7 +955,7 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		}
 
 		if allIdsSub != "" {
-			collection_id = collection_id + "," + allIdsSub
+			collection_id = collection_id + allIdsSub
 		}
 	}
 
@@ -1505,8 +1505,22 @@ func AddDocumentByBotID(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 }
 
 func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) {
-
 	tmpBotStatus := ""
+
+	found := false
+
+	for _, id := range botIdProccess {
+		if id == bot_id {
+			found = true
+		}
+	}
+
+	if found {
+		fmt.Println("id %d is already proccesing", bot_id)
+		return
+	}
+
+	botIdProccess = append(botIdProccess, bot_id)
 
 	for {
 		botStatus, bot_name, err := getStatusBot(int64(bot_id), strapi)
@@ -1550,8 +1564,14 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 				}
 
 				tmpBotStatus = ""
-				break
+				for i, id := range botIdProccess {
+					if id == bot_id {
+						botIdProccess = append(botIdProccess[:i], botIdProccess[i+1:]...)
+						break
+					}
+				}
 
+				break
 			} else if botStatus == "Reading" {
 				// msg = NotificationMessage{
 				// 	UserID:  "0",
@@ -1567,18 +1587,20 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 				// notificationWS.SendNotification(msg)
 				// fmt.Println("send notification")
 
-				status, _, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
-					"status": "Reading",
-				})
+				if botStatus != tmpBotStatus {
+					status, _, err := strapi.Update("hexabot-table", int64(bot_id), U.Dict{
+						"status": "Reading",
+					})
 
-				if err != nil {
-					fmt.Println(err)
-					break
-				}
+					if err != nil {
+						fmt.Println(err)
+						break
+					}
 
-				if status != 200 {
-					fmt.Println("failed update hexabot-table")
-					break
+					if status != 200 {
+						fmt.Println("failed update hexabot-table")
+						break
+					}
 				}
 			}
 		}

@@ -23,7 +23,6 @@ import (
 	"gitlab.hexacode.org/go-libs/cr3call"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
-	"gitlab.hexacode.org/go-libs/requests"
 	"gitlab.hexacode.org/go-libs/strapi"
 )
 
@@ -1770,16 +1769,32 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 								if knowledge_id, ok := knowledge_ids.GetString(i); ok {
 									idDocStr := strconv.Itoa(int(idDoc))
 
-									dataSend := U.Dict{
-										"knowledge_id": knowledge_id,
-										"document_id":  idDocStr,
+									// dataSend := U.Dict{
+									// 	"knowledge_id": knowledge_id,
+									// 	"document_id":  idDocStr,
+									// }
+
+									// http := requests.NewHttp(U.Dict{
+									// 	"Content-type": "application/json",
+									// })
+
+									// _, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+
+									CR3 := cr3call.New(MODULE_MANAGER_URL)
+									resp, err := CR3.Call("hexa-ai-rag", "remove-document", cr3call.CR3CallData{
+										Headers: U.Dict{
+											"Authorization": bearer,
+										},
+										Params: U.Dict{
+											"knowledge_id": knowledge_id,
+											"document_id":  idDocStr,
+										},
+									}, false)
+
+									fmt.Printf("Debug: CR3.Call response: %v\n", resp)
+									if err != nil {
+										return ctx.Error(500, "Internal Server Error")
 									}
-
-									http := requests.NewHttp(U.Dict{
-										"Content-type": "application/json",
-									})
-
-									_, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
 
 									// var deleteResponse DeleteResponse
 									// err = json.Unmarshal(response.Body, &deleteResponse)
@@ -2123,16 +2138,32 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 				if knowledge_id, ok := knowledge_ids.GetString(i); ok {
 					idDocStr := strconv.Itoa(int(idDoc))
 
-					dataSend := U.Dict{
-						"knowledge_id": knowledge_id,
-						"document_id":  idDocStr,
+					// dataSend := U.Dict{
+					// 	"knowledge_id": knowledge_id,
+					// 	"document_id":  idDocStr,
+					// }
+
+					// http := requests.NewHttp(U.Dict{
+					// 	"Content-type": "application/json",
+					// })
+
+					// _, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+
+					CR3 := cr3call.New(MODULE_MANAGER_URL)
+					resp, err := CR3.Call("hexa-ai-rag", "remove-document", cr3call.CR3CallData{
+						Headers: U.Dict{
+							"Authorization": bearer,
+						},
+						Params: U.Dict{
+							"knowledge_id": knowledge_id,
+							"document_id":  idDocStr,
+						},
+					}, false)
+
+					fmt.Printf("Debug: CR3.Call response: %v\n", resp)
+					if err != nil {
+						return ctx.Error(500, "Internal Server Error")
 					}
-
-					http := requests.NewHttp(U.Dict{
-						"Content-type": "application/json",
-					})
-
-					_, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
 
 					// var deleteResponse DeleteResponse
 					// err = json.Unmarshal(response.Body, &deleteResponse)
@@ -2304,16 +2335,32 @@ func DeleteLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 						if knowledge_id, ok := knowledge_ids.GetString(i); ok {
 							idDocStr := strconv.Itoa(int(id))
 
-							dataSend := U.Dict{
-								"knowledge_id": knowledge_id,
-								"document_id":  idDocStr,
+							// dataSend := U.Dict{
+							// 	"knowledge_id": knowledge_id,
+							// 	"document_id":  idDocStr,
+							// }
+
+							// http := requests.NewHttp(U.Dict{
+							// 	"Content-type": "application/json",
+							// })
+
+							// _, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+
+							CR3 := cr3call.New(MODULE_MANAGER_URL)
+							resp, err := CR3.Call("hexa-ai-rag", "remove-document", cr3call.CR3CallData{
+								Headers: U.Dict{
+									"Authorization": bearer,
+								},
+								Params: U.Dict{
+									"knowledge_id": knowledge_id,
+									"document_id":  idDocStr,
+								},
+							}, false)
+
+							fmt.Printf("Debug: CR3.Call response: %v\n", resp)
+							if err != nil {
+								return ctx.Error(500, "Internal Server Error")
 							}
-
-							http := requests.NewHttp(U.Dict{
-								"Content-type": "application/json",
-							})
-
-							_, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
 
 							// var deleteResponse DeleteResponse
 							// err = json.Unmarshal(response.Body, &deleteResponse)

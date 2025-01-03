@@ -14,6 +14,7 @@ import (
 	"errors"
 	"os"
 
+	"gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
 )
 
@@ -23,6 +24,7 @@ var STRAPI_TOKEN = ""
 var DOCUMENT_PATH = ""
 var DATASETS_PATH = ""
 var HEXA_RAG_URL = ""
+var botIdProccess = hctypes.List{}
 var notificationWS *NotificationWebSocket
 
 var checkUserId = true
