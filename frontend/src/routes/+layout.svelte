@@ -192,10 +192,10 @@ All Rights Reserved
         icon: "briefcase",
         name: "crmOverview",
         children: [
-          {
-            href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-            name: "overview",
-          },
+          // {
+          //   href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+          //   name: "overview",
+          // },
           {
             icon: "user",
             href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
@@ -213,12 +213,12 @@ All Rights Reserved
               : await call.getPage("client-dashboard", "crm-product-service"),
             name: "product&Services",
           },
-          {
-            href: isFrontend
-              ? "/crm/categories"
-              : await call.getPage("client-dashboard", "crm-categories"),
-            name: "categories",
-          },
+          // {
+          //   href: isFrontend
+          //     ? "/crm/categories"
+          //     : await call.getPage("client-dashboard", "crm-categories"),
+          //   name: "categories",
+          // },
           {
             icon: "receipt",
             href: isFrontend
