@@ -1827,8 +1827,6 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 						var idDelete int
 
 						if idsCol[c] == idCollection {
-							idDelete = idsCol[c].(int)
-						} else {
 							idDelete = int(idsCol[c].(U.Float64))
 						}
 

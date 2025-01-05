@@ -118,12 +118,12 @@ All Rights Reserved
     //       param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
     //     }
     //   : false,
-    {
-      icon: "fileCheck",
-      title: "contractReviewer",
-      description: "descContractReviewer",
-      page: "contract-reviewer-overview",
-    },
+    // {
+    //   icon: "fileCheck",
+    //   title: "contractReviewer",
+    //   description: "descContractReviewer",
+    //   page: "contract-reviewer-overview",
+    // },
     check("aiManagement.datasets:view")
       ? {
           icon: "data",
@@ -840,11 +840,11 @@ All Rights Reserved
       <Typography text="{userData.username} - {userData.email}" color="tertiary" />
     </div>
   {/if}
-  <!-- <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4">
     <SectionHeader title={$_("documentAi")} />
     <ActionCard actionItems={docAiCard} numGrid="2" />
-  </div> -->
-  <!-- {#if cardsBusiness.length > 0}
+  </div>
+  {#if cardsBusiness.length > 0}
     <div class="flex flex-col gap-4">
       <SectionHeader title={$_("businessManagements")} />
       {#if chartActionBusiness.length > 0}
@@ -865,7 +865,7 @@ All Rights Reserved
         {/each}
       </div>
     </div>
-  {/if} -->
+  {/if}
   {#if cardsAi.length > 0}
     {#if check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")}
       <div class="flex flex-col gap-4">
