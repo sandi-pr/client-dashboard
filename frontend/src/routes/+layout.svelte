@@ -1085,14 +1085,14 @@ All Rights Reserved
         ? true
         : false,
     );
-    if (localStorage.getItem("selectedDropdown") === "collections") {
-      triggerSelectDropdown(
-        localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
-      );
-      if (localStorage.getItem("selectedCollection") !== null) {
-        triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));
-      }
-    }
+    // if (localStorage.getItem("selectedDropdown") === "collections") {
+    //   triggerSelectDropdown(
+    //     localStorage.getItem("selectedDropdown") === "collections" ? "collections" : "general",
+    //   );
+    //   if (localStorage.getItem("selectedCollection") !== null) {
+    //     triggerSelectCollection(JSON.parse(localStorage.getItem("selectedCollection")));
+    //   }
+    // }
   }
 
   $effect(() => {
