@@ -1,0 +1,165 @@
+<!--
+CR3 Client Dashboard
+Package: gitlab.hexacode.org/cr3/client-dashboard
+Maintainer: 
+  - Azzis Arswendo <azzis@hexacode.org>
+  - Dean Ramhan <dean@hexacode.org>
+  - Taqie Fadlillah <taqief@hexacode.org>
+  - Sandi Permana <sandy@hexacode.org>
+Copyright (C) 2024 Hexacode Teknologi Indonesia
+All Rights Reserved
+-->
+<script>
+  import { P, Heading, Input, Button, Textarea, Toggle } from "flowbite-svelte";
+  import { ToastContainer, triggerToast, check } from "$lib";
+  import { _ } from "svelte-i18n";
+  import { CR3Call } from "hexacomponents-svelte";
+  import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    if (check("businessManagement.products_services:create") === false) {
+      window.history.back();
+      return;
+    }
+  });
+
+  import { call } from "$lib";
+
+  const params = new URLSearchParams(window.location.search);
+  let onEdit = $state(true);
+
+  let buttonDisable = $state(true);
+
+  let toastCreated = $state(false);
+  let toastError = $state(false);
+  let counter = $state(6);
+
+  let data = $state({
+    category_name: "",
+    description: "",
+    is_active: true,
+  });
+
+  async function createCategory() {
+    if (data.category_name === "" || data.description === "") return;
+
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "create-category", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            category_name: data.category_name,
+            description: data.description,
+            is_active: data.is_active ? "Yes" : "No",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        console.log("kelinci", response);
+        if (response.status === 200) {
+          triggerToast("created");
+          // setTimeout(async () => {
+          goto(await $call.getPage("client-dashboard", "crm-categories"));
+          // }, 3000);
+        }
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  }
+
+  $effect(() => {
+    buttonDisable = data.category_name.length < 1 || data.description.length < 1;
+  });
+</script>
+
+<div class="flex dark:bg-hc-graydark-950">
+  <div class="w-full pb-10">
+    <div class="flex flex-col m-4">
+      <!-- Header -->
+      <div class="flex items-center pb-8">
+        <div class="flex flex-col gap-2 grow">
+          <!-- Header -->
+          <div class="gap-2">
+            <Heading
+              tag="h3"
+              class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
+            >
+              {$_("createNewCategoriesProduct")}
+            </Heading>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          {#if onEdit}
+            <Button
+              onclick={async function () {
+                goto(await $call.getPage("client-dashboard", "crm-categories"));
+                return;
+              }}
+              color="light"
+              class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+            >
+            <Button
+              disabled={buttonDisable}
+              onclick={createCategory}
+              class="px-3 focus-within:!ring-1">{$_("create")}</Button
+            >
+          {/if}
+        </div>
+      </div>
+      <div class="flex flex-col gap-4 pt-8">
+        <!-- general information -->
+        <div class="flex gap-6">
+          <div class="w-60">
+            <P class="font-semibold text-secondary-light dark:text-secondary-dark">
+              {$_("generalInformation")}
+            </P>
+          </div>
+          <div class="flex flex-col grow gap-6">
+            <div class="flex gap-5">
+              <div class="flex flex-col grow gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                >
+                  {$_("categoryName")}*
+                </P>
+                <Input
+                  readonly={!onEdit}
+                  bind:value={data.category_name}
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+              <div class="flex flex-col gap-2 justify-center w-max px-4">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("active")}</P
+                >
+                <Toggle bind:checked={data.is_active}></Toggle>
+              </div>
+            </div>
+            <div class="grid grid-cols-1">
+              <div class="flex flex-col gap-2">
+                <P
+                  class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
+                  >{$_("description")}*</P
+                >
+                <Textarea
+                  readonly={!onEdit}
+                  bind:value={data.description}
+                  rows="4"
+                  class="bg-primary-light dark:bg-secondary-dark"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ToastContainer />
+</div>

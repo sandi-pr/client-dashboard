@@ -17,37 +17,37 @@
         {
             "name": "crm-person",
             "path": "/person",
-            "file_path": "template/crm/person.html"
+            "file_path": "template/person.html"
         },
         {
             "name": "crm-person-create",
             "path": "/person/create",
-            "file_path": "template/crm/person/create.html"
+            "file_path": "template/person/create.html"
         },
         {
             "name": "crm-person-detail",
             "path": "/person/detail",
-            "file_path": "template/crm/person/detail.html"
+            "file_path": "template/person/detail.html"
         },
         {
             "name": "crm-person-list",
             "path": "/person/list",
-            "file_path": "template/crm/person/list.html"
+            "file_path": "template/person/list.html"
         },
         {
             "name": "crm-product-service",
             "path": "/product_service",
-            "file_path": "template/crm/product_service.html"
+            "file_path": "template/product_service.html"
         },
         {
             "name": "crm-product-service-create",
             "path": "/product_service/create",
-            "file_path": "template/crm/product_service/create.html"
+            "file_path": "template/product_service/create.html"
         },
         {
             "name": "crm-product-service-detail",
             "path": "/product_service/detail",
-            "file_path": "template/crm/product_service/detail.html"
+            "file_path": "template/product_service/detail.html"
         },
         {
             "name": "users",
@@ -77,42 +77,42 @@
         {
             "name": "crm-categories",
             "path": "/categories",
-            "file_path": "template/crm/categories.html"
+            "file_path": "template/categories.html"
         },
         {
             "name": "crm-category-create",
             "path": "/categories/create",
-            "file_path": "template/crm/categories/create.html"
+            "file_path": "template/categories/create.html"
         },
         {
             "name": "crm-category-detail",
             "path": "/categories/detail",
-            "file_path": "template/crm/categories/detail.html"
+            "file_path": "template/categories/detail.html"
         },
         {
             "name": "crm-order-invoice",
             "path": "/order_invoice",
-            "file_path": "template/crm/order_invoice.html"
+            "file_path": "template/order_invoice.html"
         },
         {
             "name": "crm-order-invoice-order",
             "path": "/order_invoice/order",
-            "file_path": "template/crm/order_invoice/order.html"
+            "file_path": "template/order_invoice/order.html"
         },
         {
             "name": "crm-order-invoice-invoice",
             "path": "/order_invoice/invoice",
-            "file_path": "template/crm/order_invoice/invoice.html"
+            "file_path": "template/order_invoice/invoice.html"
         },
         {
             "name": "crm-order-invoice-create",
             "path": "/order_invoice/create",
-            "file_path": "template/crm/order_invoice/create.html"
+            "file_path": "template/order_invoice/create.html"
         },
         {
             "name": "crm-calendar",
             "path": "/calendar",
-            "file_path": "template/crm/calendar.html"
+            "file_path": "template/calendar.html"
         },
         {
             "name": "document-overview",

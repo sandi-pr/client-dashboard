@@ -406,7 +406,7 @@ All Rights Reserved
                   />
                 </Button>
                 <!-- Dropdown menu -->
-                <Dropdown placement="right" containerClass="border rounded-xl">
+                <!-- <Dropdown placement="right" containerClass="border rounded-xl">
                   <DropdownItem>
                     <button onclick={() => selectDropdown("general")}>
                       {$_("general")}
@@ -417,12 +417,7 @@ All Rights Reserved
                       {$_("collections")}
                     </button>
                   </DropdownItem>
-                  <!-- <DropdownItem>
-                    <button onclick={() => selectDropdown("ocr")}>
-                      {$_("ocr")}
-                    </button>
-                  </DropdownItem> -->
-                </Dropdown>
+                </Dropdown> -->
                 <div class="flex gap-2">
                   {#if !disableConfigButton}
                     <Button
@@ -526,7 +521,9 @@ All Rights Reserved
             <Card
               class="{tmpSelectedCollection === item
                 ? 'border-brand-solid-light dark:border-brand-solid-dark ring-brand-solid-light dark:ring-brand-solid-dark'
-                : ''}bg-hc-graylight-50 {item.totalDocuments > 0 ? 'hover:bg-hc-brand-50 cursor-pointer' : 'opacity-50'} gap-3"
+                : ''}bg-hc-graylight-50 {item.totalDocuments > 0
+                ? 'hover:bg-hc-brand-50 cursor-pointer'
+                : 'opacity-50'} gap-3"
               size="xl"
               on:click={item.totalDocuments > 0 ? () => selectCollection(item) : null}
             >

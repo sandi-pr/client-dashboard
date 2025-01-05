@@ -75,7 +75,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.14")
+    ? new CR3Call("http://localhost")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -159,8 +159,8 @@ All Rights Reserved
       let url = await call.getPage("client-dashboard", "home-page");
       goto(url);
     } else {
-      triggerShowAI(!$showAI);
       console.log($showAI);
+      triggerShowAI(!$showAI);
       if (!$showAI) {
         triggerReload(true);
       }
