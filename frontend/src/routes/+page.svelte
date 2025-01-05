@@ -840,10 +840,10 @@ All Rights Reserved
       <Typography text="{userData.username} - {userData.email}" color="tertiary" />
     </div>
   {/if}
-  <div class="flex flex-col gap-4">
+  <!-- <div class="flex flex-col gap-4">
     <SectionHeader title={$_("documentAi")} />
     <ActionCard actionItems={docAiCard} numGrid="2" />
-  </div>
+  </div> -->
   {#if cardsBusiness.length > 0}
     <div class="flex flex-col gap-4">
       <SectionHeader title={$_("businessManagements")} />

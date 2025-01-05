@@ -727,6 +727,7 @@
                         />
                       </Button>
                       <Button
+                        disabled={bot.deployStatus !== "Ready"}
                         on:click={() => {
                           window.open(bot.urlBot, "_blank");
                         }}
