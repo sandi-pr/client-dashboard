@@ -192,10 +192,10 @@ All Rights Reserved
         icon: "briefcase",
         name: "crmOverview",
         children: [
-          // {
-          //   href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-          //   name: "overview",
-          // },
+          {
+            href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+            name: "overview",
+          },
           {
             icon: "user",
             href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
