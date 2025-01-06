@@ -21,6 +21,7 @@ All Rights Reserved
     ActionCard,
     industryData,
     check,
+    isBakrie,
   } from "$lib";
   import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
@@ -88,36 +89,34 @@ All Rights Reserved
   ];
 
   const cardsAi = [
-    {
-      icon: "messageChat",
-      title: "hexabot",
-      description: "descHexabot",
-      page: "hexabot",
-    },
+    // {
+    //   icon: "messageChat",
+    //   title: "hexabot",
+    //   description: "descHexabot",
+    //   page: "hexabot",
+    // },
     // {
     //   icon: "archive",
     //   title: "documentCollection",
     //   description: "descDocumentCollection",
     //   page: "document-collection-overview",
     // },
-    check("aiManagement.documentLibrary:view")
-      ? {
-          icon: "archive",
-          title: "documentLibrary",
-          description: "descDocumentLibrary",
-          page: "document-collection-overview",
-        }
+    check("documentAi.documentLibrary:view")
+      ? $isBakrie
+        ? {
+            icon: "archive",
+            title: "documentLibrary",
+            description: "descDocumentLibrary",
+            page: "document-library-collections",
+            param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
+          }
+        : {
+            icon: "archive",
+            title: "documentLibrary",
+            description: "descDocumentLibrary",
+            page: "document-collection-overview",
+          }
       : false,
-    // bakrie
-    // check("documentAi.documentLibrary:view")
-    //   ? {
-    //       icon: "archive",
-    //       title: "documentLibrary",
-    //       description: "descDocumentLibrary",
-    //       page: "document-library-collections",
-    //       param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
-    //     }
-    //   : false,
     // {
     //   icon: "fileCheck",
     //   title: "contractReviewer",
@@ -844,7 +843,7 @@ All Rights Reserved
     <SectionHeader title={$_("documentAi")} />
     <ActionCard actionItems={docAiCard} numGrid="2" />
   </div> -->
-  {#if cardsBusiness.length > 0}
+  <!-- {#if cardsBusiness.length > 0}
     <div class="flex flex-col gap-4">
       <SectionHeader title={$_("businessManagements")} />
       {#if chartActionBusiness.length > 0}
@@ -865,7 +864,7 @@ All Rights Reserved
         {/each}
       </div>
     </div>
-  {/if}
+  {/if} -->
   {#if cardsAi.length > 0}
     {#if check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")}
       <div class="flex flex-col gap-4">
