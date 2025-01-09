@@ -48,6 +48,16 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 	fmt.Println(me)
 
+	upload_by, ok := me.GetFloat64("id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	author, ok := me.GetString("username")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
 	library_name, ok := ctx.Params.GetString("library_name")
 	if !ok {
 		return ctx.Error(400, "invalid parameters library_name")
@@ -73,12 +83,14 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		"name":             library_name,
 		"path":             document_path,
 		"library_industry": false,
+		"meta": U.Dict{
+			"upload_by": upload_by,
+			"author":    author,
+		},
 	}
 
 	if description != "" {
-		dataSend["meta"] = U.Dict{
-			"description": description,
-		}
+		dataSend["meta"].(U.Dict)["description"] = description
 	}
 
 	status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
@@ -126,6 +138,16 @@ func CreateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 	}
 
 	fmt.Println(me)
+
+	upload_by, ok := me.GetFloat64("id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	author, ok := me.GetString("username")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
 
 	name, ok := ctx.Params.GetString("collection_name")
 	if !ok {
@@ -185,12 +207,14 @@ func CreateLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 		"name":      name,
 		"path":      document_path,
 		"parent_id": parent_id,
+		"meta": U.Dict{
+			"upload_by": upload_by,
+			"author":    author,
+		},
 	}
 
 	if description != "" {
-		dataSend["meta"] = U.Dict{
-			"description": description,
-		}
+		dataSend["meta"].(U.Dict)["description"] = description
 	}
 
 	status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
@@ -327,6 +351,11 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	fmt.Println(me)
 
 	upload_by, ok := me.GetFloat64("id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	author, ok := me.GetString("username")
 	if !ok {
 		return ctx.Error(500, "Internal Server Error")
 	}
@@ -481,6 +510,7 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 								"document_type":    document_type,
 								"collection_id":    idCollection,
 								"upload_by":        upload_by,
+								"author":           author,
 								"file_size":        file_size,
 								"reference_doc_id": reference_doc_id,
 								"project_doc_id":   project_doc_id,
