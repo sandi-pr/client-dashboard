@@ -14,7 +14,15 @@
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
-  import { Typography, call, triggerToast, StateCard, newNotification, notifications } from "$lib";
+  import {
+    Typography,
+    call,
+    triggerToast,
+    StateCard,
+    newNotification,
+    notifications,
+    Badge,
+  } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { onMount } from "svelte";
@@ -121,7 +129,7 @@
             activationTime: bot.attributes.createdAt,
             urlBot: urlBot,
             timestamp: bot.attributes.updatedAt,
-            // deployStatus: bot.attributes.deploy_status,
+            deployStatus: bot.attributes.status,
             deployedPlatform: bot.attributes.ai_engine,
             bot_profile: fileImageResult,
           };
@@ -262,7 +270,16 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {#each bots as bot, index (bot.botsID)}
                 <!-- {#if bot.deployStatus === "Done"} -->
-                <Card padding="none" class="shadow-none grow w-full">
+                <Card padding="none" class="relative shadow-none grow w-full">
+                  {#if bot.deployStatus === "Reading"}
+                    <div class="absolute top-2 right-2">
+                      <Badge type="warning" text={bot.deployStatus} />
+                    </div>
+                  {:else if bot.deployStatus === "Ready"}
+                    <div class="absolute top-2 right-2">
+                      <Badge type="success" text={bot.deployStatus} />
+                    </div>
+                  {/if}
                   <div
                     class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
                   >
