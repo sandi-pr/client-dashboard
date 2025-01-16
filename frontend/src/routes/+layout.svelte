@@ -244,11 +244,11 @@ All Rights Reserved
             icon: "stars",
             name: "aiManagement",
             children: [
-              // {
-              //   icon: "messageChat",
-              //   name: "hexabot",
-              //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-              // },
+              {
+                icon: "messageChat",
+                name: "hexabot",
+                href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+              },
               check("documentAi.documentLibrary:view")
                 ? $isBakrie
                   ? {
