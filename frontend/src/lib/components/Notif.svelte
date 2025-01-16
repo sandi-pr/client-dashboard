@@ -2,6 +2,30 @@
   import { Toast, Progressbar } from "flowbite-svelte";
   import InfoCircleIcon from "$lib/icon/info-circle.svelte";
   import { notifications, Typography } from "$lib";
+
+  // function truncateText(text, maxWords) {
+  //   const words = text.split(" ");
+  //   if (words.length > maxWords) {
+  //     return words.slice(0, maxWords).join(" ") + " ...";
+  //   }
+  //   return text;
+  // }
+
+  function truncateText(text, maxWords, maxFirstWordLength = 40) {
+    const words = text.split(" ");
+
+    // Check if the first word is too long
+    if (words[1].length > maxFirstWordLength) {
+      words[1] = words[1].slice(1, maxFirstWordLength) + "...";
+    }
+
+    // Limit to maxWords and append "..." if necessary
+    if (words.length > maxWords) {
+      return words.slice(1, maxWords).join(" ") + " ...";
+    }
+
+    return words.join(" ");
+  }
 </script>
 
 <div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
@@ -57,7 +81,7 @@
               <InfoCircleIcon svgClass="w-6 h-6" />
             </svelte:fragment>
 
-            <span class="font-semibold text-gray-900 dark:text-white">{data.attributes.title}</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{truncateText(data.attributes.title, 2)}</span>
             <div class="mt-1 gap-2">
               {#if data.attributes.type.includes("progress")}
                 <Progressbar
