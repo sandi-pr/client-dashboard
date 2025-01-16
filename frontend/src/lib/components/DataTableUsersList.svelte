@@ -140,7 +140,7 @@
   </Table>
 </div>
 
-<div class="flex justify-between items-center !rounded-none !rounded-b-lg !border-t-0">
+<!-- <div class="flex justify-between items-center !rounded-none !rounded-b-lg !border-t-0">
   <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
     {$_("showing")}
     <span>{metadata.page === 1 ? 1 : (metadata.page - 1) * metadata.pageSize + 1}</span>
@@ -167,7 +167,6 @@
           <ArrowLeft svgClass="w-5 h-5" />&nbsp;{$_("previous")}
         </div></span
       >
-      <!--  -->
       <span slot="next"
         ><div class="flex items-center">
           {$_("next")}&nbsp;<ArrowRight svgClass="w-5 h-5" />
@@ -175,4 +174,4 @@
       >
     </Pagination>
   </div>
-</div>
+</div> -->
