@@ -1683,7 +1683,7 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 									"$eq": "collection",
 								},
 								"parent_id": U.Dict{
-									"$eq": id,
+									"$eq": idCollection,
 								},
 							},
 							"pagination": U.Dict{
@@ -1856,17 +1856,19 @@ func DeleteLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 					for c := 0; c < len(idsCol); c++ {
 						var idDelete int
 
-						if idsCol[c] == idCollection {
-							idDelete = int(idsCol[c].(U.Float64))
-						}
+						idDelete = int(idsCol[c].(U.Float64))
 
-						status, _, err = Strapi.Delete("document-library-table", int64(idDelete))
+						fmt.Println("Try delete: ", idDelete)
+
+						status, delete, err := Strapi.Delete("document-library-table", int64(idDelete))
 						if err != nil {
 							fmt.Println(err)
 							return ctx.Error(500, "Internal Server Error")
 						}
 
 						if status != 200 {
+							fmt.Println("Failed delete: ", idDelete)
+							fmt.Println(delete)
 							fmt.Println(status)
 							return ctx.Error(500, "Internal Server Error")
 						}
