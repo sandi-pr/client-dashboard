@@ -1186,7 +1186,7 @@ All Rights Reserved
 
   let winInnerWidth = $derived(innerWidth);
   if (typeof localStorage !== "undefined") {
-    triggerShowAI(localStorage.getItem("showAI") === "true" ? true : false);
+    // triggerShowAI(localStorage.getItem("showAI") === "true" ? true : false);
     toggleSidebarLargeClosed(
       localStorage.getItem("sidebarLargeClosed") === "true" && globalThis.innerWidth > 1024
         ? true

@@ -364,7 +364,7 @@ All Rights Reserved
               <div
                 class="flex grow justify-between pb-4 border-b border-primary-light dark:border-primary-dark"
               >
-                <div class="flex items-center">
+                <div class="flex w-full items-center justify-between">
                   <div
                     class="w-10 h-10 p-2.5 mr-3 bg-brand-secondary-light dark:bg-brand-secondary-dark rounded-full justify-center items-center"
                   >
@@ -386,10 +386,34 @@ All Rights Reserved
                     color="tertiary"
                   /> -->
                   </div>
+                  <div class="flex gap-2">
+                    {#if !disableConfigButton}
+                      <Button
+                        disabled={disableConfigButton}
+                        on:click={() => (modalOpen = true)}
+                        color="light"
+                        class={`w-max mt-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
+                      >
+                        <!-- <P>{$_("configure")}</P> -->
+                        <SettingsIcon
+                          svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
+                        />
+                      </Button>
+                    {/if}
+                    <Button
+                      on:click={clearChat}
+                      color="light"
+                      class={`w-max mt-4 !px-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
+                    >
+                      <RefreshCwIcon
+                        svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
+                      />
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <div class="flex justify-between">
-                <Button
+              <div class="flex justify-end items-center">
+                <!-- <Button
                   on:click={() => (dropdownOpen = !dropdownOpen)}
                   color="light"
                   class={`w-max-fit mr-3 mt-4 !pr-3 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1 flex justify-start`}
@@ -404,7 +428,8 @@ All Rights Reserved
                   <ChevronRightOutline
                     class="text-fg-secondary-light dark:text-fg-secondary-dark"
                   />
-                </Button>
+                </Button> -->
+                <!-- <Typography preset="Text md/Medium" text={$_("general")} color="tertiary" /> -->
                 <!-- Dropdown menu -->
                 <!-- <Dropdown placement="right" containerClass="border rounded-xl">
                   <DropdownItem>
@@ -418,7 +443,7 @@ All Rights Reserved
                     </button>
                   </DropdownItem>
                 </Dropdown> -->
-                <div class="flex gap-2">
+                <!-- <div class="flex gap-2">
                   {#if !disableConfigButton}
                     <Button
                       disabled={disableConfigButton}
@@ -426,7 +451,6 @@ All Rights Reserved
                       color="light"
                       class={`w-max mt-4 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-2 flex justify-start`}
                     >
-                      <!-- <P>{$_("configure")}</P> -->
                       <SettingsIcon
                         svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
                       />
@@ -441,7 +465,7 @@ All Rights Reserved
                       svgClass="w-4 h-4 text-fg-secondary-light dark:text-fg-secondary-dark"
                     />
                   </Button>
-                </div>
+                </div> -->
               </div>
             </div>
           {/if}
