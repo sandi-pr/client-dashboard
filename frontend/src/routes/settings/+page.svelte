@@ -12,8 +12,8 @@
 
 <script>
   import { onMount } from "svelte";
-  import { P, Input, Avatar, Button, Select, Indicator } from "flowbite-svelte";
-  import { SelectedCard, InformationForm, Typography, triggerToast, InputRw, Dropdown } from "$lib";
+  import { P, Input, Avatar, Button, Select, Indicator, Modal } from "flowbite-svelte";
+  import { SelectedCard, StateCard, InformationForm, Typography, triggerToast, InputRw, Dropdown } from "$lib";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { SearchOutline } from "flowbite-svelte-icons";
@@ -25,6 +25,7 @@
   import BanksIcon from "$lib/icon/banks.svelte";
   import UserIcon from "$lib/icon/user-03.svelte";
   import SignalIcon from "$lib/icon/signal-01.svelte";
+  import UsbFlashDrive from "$lib/icon/usb-flash-drive.svelte";
   import OilGas from "$lib/icon/oil-gas.svelte";
   import BoxesIcon from "$lib/icon/boxes.svelte";
   import EducationIcon from "$lib/icon/education.svelte";
@@ -34,7 +35,9 @@
   import ManufactureIcon from "$lib/icon/manufacture.svelte";
   import RealEstateIcon from "$lib/icon/real-estate.svelte";
   import RetailIcon from "$lib/icon/retail.svelte";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import TechIcon from "$lib/icon/tech.svelte";
+  import CheckCircle from "$lib/icon/check-circle.svelte";
   import TelecomIcon from "$lib/icon/telecom.svelte";
   import SlidersIcon from "$lib/icon/sliders-04.svelte";
   import { datas, informationFormDatas, configs } from "./dummy";
@@ -78,6 +81,8 @@
   let options = [];
   let selectedCompanyType = null;
   let selectedIndustryType = null;
+  let selectedBackupMethod = null;
+  let selectedSource = null;
   let tabDatas = {
     selected: "My Profile",
     data: [
@@ -93,6 +98,9 @@
       {
         name: "Theme",
       },
+      {
+        name: "Backup Restore",
+      }
       // {
       //   name: "Configuration AI",
       // },
@@ -101,6 +109,47 @@
   let onEditPassword = false;
   let onEditCompanyType = false;
   let onEditTheme = false;
+  let modalBackup = false;
+  let modalRestore = false;
+  let popupModal = false;
+  let isBackup = true;
+  let currentStep = 1;
+
+  let backupSteps = [
+    {
+      id: 1,
+      title: "chooseBackupMethod",
+      desc: "externalSourcesToConnect"
+    },
+    {
+      id: 2,
+      title: "chooseSources",
+      desc: "chooseExternalDrive"
+    },
+    {
+      id: 3,
+      title: "startBackUp",
+      desc: "insertLinkOrUploadFile"
+    },
+  ];
+
+  let restoreSteps = [
+    {
+      id: 1,
+      title: "chooseRestoreMethod",
+      desc: "externalSourcesToConnect"
+    },
+    {
+      id: 2,
+      title: "chooseSources",
+      desc: "chooseExternalDrive"
+    },
+    {
+      id: 3,
+      title: "startRestore",
+      desc: "insertLinkOrUploadFile"
+    },
+  ];
 
   let companyTypes = [
     {
@@ -126,6 +175,30 @@
       icon: UserIcon,
       name: "settingsCompanyTypeFreelanceName",
       desc: "settingsCompanyTypeFreelanceDesc",
+    },
+  ];
+
+  let backupMethod = [
+    {
+      id: 1,
+      icon: UsbFlashDrive,
+      name: "selectExternalSource",
+      description: "selectExternalSourceDesc",
+    },
+  ];
+
+  let sources = [
+    {
+      id: 1,
+      icon: UsbFlashDrive,
+      name: "DataVault USB 64GB",
+      description: "Available: 7.46 / 64.00 GB",
+    },
+    {
+      id: 2,
+      icon: UsbFlashDrive,
+      name: "SwiftStor Pro 128GB",
+      description: "Available: 7.46 / 128.00 GB",
     },
   ];
 
@@ -197,6 +270,10 @@
     newPassword: "",
     confirmPassword: "",
   };
+
+  function getNameById(sources, id) {
+    return sources.find(source => source.id === id).name;
+  }
 
   function handleDragOver(event) {
     event.preventDefault();
@@ -990,6 +1067,39 @@
             </div>
           </div>
         </div>
+      {:else if tabDatas.selected === "Backup Restore"}
+        <div class="mx-4 mt-4">
+          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+            <div class="grid grid-cols-4">
+              <div class="col-span-1">
+                <Typography preset="Text lg/Semibold" text={$_("backup")} />
+              </div>
+              <div class="col-span-3 flex flex-col gap-3">
+                <div class="flex flex-col gap-1">
+                  <Typography preset="Text sm/Semibold" text={$_("lastBackup")} />
+                  <Typography preset="Text sm/Reguler" text="Wednesday, January 3, 2025, at 2:37 PM" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <Typography preset="Text sm/Semibold" text={$_("lastBackupSize")} />
+                  <Typography preset="Text sm/Reguler" text="3,4 GB" />
+                </div>
+                <Button on:click={() => (modalBackup = true)} color="light" class="w-max">{$_("backUp")}</Button>
+                <Typography preset="Text xs/Regular" text={$_("backupDesc")} />
+              </div>
+            </div>
+          </div>
+          <div class="py-8">
+            <div class="grid grid-cols-4">
+              <div class="col-span-1">
+                <Typography preset="Text lg/Semibold" text={$_("restore")} />
+              </div>
+              <div class="col-span-3 flex flex-col gap-3">
+                <Button on:click={() => (modalRestore = true)} color="light" class="w-max">{$_("restoreData")}</Button>
+                <Typography preset="Text xs/Regular" text={$_("restoreDesc")} />
+              </div>
+            </div>
+          </div>
+        </div>
       {/if}
 
       <!-- action buttons -->
@@ -1041,3 +1151,274 @@
     {/if}
   </div>
 {/if}
+
+<Modal bind:open={modalBackup}>
+  <svelte:fragment slot="header">
+    <div class="flex gap-4 me-6 grow w-full">
+      {#each backupSteps as step}
+        <div
+          class={`grow pt-2 border-t-4 ${currentStep >= step.id ? "border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark" : "border-utility-gray-200-light dark:border-utility-gray-200-dark"}`}
+        >
+          <Typography
+            preset="Text md/Bold"
+            text={$_(step.title)}
+            color={currentStep >= step.id ? "brand-secondary" : "secondary"}
+          />
+          <Typography
+            preset="Text sm/Regular"
+            text={$_(step.desc)}
+            color={currentStep >= step.id ? "brand-tertiary" : "tertiary"}
+          />
+        </div>
+      {/each}
+    </div>
+  </svelte:fragment>
+  {#if currentStep === 1}
+    <div class="flex flex-col justify-center gap-4">
+      <SelectedCard
+        selectionData={backupMethod}
+        bind:selectedData={selectedBackupMethod}
+        numGrid={1}
+        isRadio
+        isFlex
+      />
+    </div>
+  {:else if currentStep === 2}
+    {#if sources.length > 0}
+      <SelectedCard
+        selectionData={sources}
+        bind:selectedData={selectedSource}
+        numGrid={1}
+        isRadio
+        isFlex
+      />
+    {:else}
+      <StateCard illustration={IllustrationEmpty} description={$_("noExternalDriveIsDetected")} />
+    {/if}
+  {:else if currentStep === 3}
+    <div class="flex flex-col gap-4">
+      <Typography preset="Text md/Semibold" text={$_("backupInformation")} />
+      <Divider />
+      <div class="flex flex-col gap-1">
+        <Typography preset="Text sm/Semibold" text={$_("backupMethod")} />
+        <Typography preset="Text sm/Reguler" text={$_("externalDrive")} />
+        <Divider />
+      </div>
+      <div class="flex flex-col gap-1">
+        <Typography preset="Text sm/Semibold" text={$_("backupSources")} />
+        <Typography preset="Text sm/Reguler" text={getNameById(sources, selectedSource)} />
+        <Divider />
+      </div>
+      <div class="flex flex-col gap-1">
+        <Typography preset="Text sm/Semibold" text={$_("backupSize")} />
+        <Typography preset="Text sm/Reguler" text={"3,4 GB"} />
+        <Divider />
+      </div>
+    </div>
+  {/if}
+  <svelte:fragment slot="footer">
+    {#if currentStep === 1}
+      <Button
+        on:click={() => {
+          currentStep = 2;
+        }}
+        class="w-full"
+        disabled={!selectedBackupMethod}
+      >
+        {$_("next")}
+      </Button>
+    {:else if currentStep === 2}
+      <div class="flex gap-4 w-full">
+        <button
+          onclick={() => {
+            currentStep = 1;
+          }}
+          class="px-5"
+        >
+          {$_("back")}
+        </button>
+        <Button
+          on:click={() => {
+            currentStep = 3;
+          }}
+          class="grow"
+          disabled={!selectedSource}
+        >
+          {$_("next")}
+        </Button>
+      </div>
+    {:else if currentStep === 3}
+      <div class="flex gap-4 w-full">
+        <button
+          onclick={() => {
+            currentStep = 2;
+          }}
+          class="px-5"
+        >
+          {$_("back")}
+        </button>
+        <Button
+          on:click={() => {
+            modalBackup = false;
+            isBackup = true;
+            currentStep = 1;
+            popupModal = true;
+          }}
+          class="grow"
+        >
+          {$_("startBackup")}
+        </Button>
+      </div>
+    {/if}
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={modalRestore}>
+  <svelte:fragment slot="header">
+    <div class="flex gap-4 me-6 grow w-full">
+      {#each restoreSteps as step}
+        <div
+          class={`grow pt-2 border-t-4 ${currentStep >= step.id ? "border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark" : "border-utility-gray-200-light dark:border-utility-gray-200-dark"}`}
+        >
+          <Typography
+            preset="Text md/Bold"
+            text={$_(step.title)}
+            color={currentStep >= step.id ? "brand-secondary" : "secondary"}
+          />
+          <Typography
+            preset="Text sm/Regular"
+            text={$_(step.desc)}
+            color={currentStep >= step.id ? "brand-tertiary" : "tertiary"}
+          />
+        </div>
+      {/each}
+    </div>
+  </svelte:fragment>
+  {#if currentStep === 1}
+    <div class="flex flex-col justify-center gap-4">
+      <SelectedCard
+        selectionData={backupMethod}
+        bind:selectedData={selectedBackupMethod}
+        numGrid={1}
+        isRadio
+        isFlex
+      />
+    </div>
+  {:else if currentStep === 2}
+    {#if sources.length > 0}
+      <SelectedCard
+        selectionData={sources}
+        bind:selectedData={selectedSource}
+        numGrid={1}
+        isRadio
+        isFlex
+      />
+    {:else}
+      <StateCard illustration={IllustrationEmpty} description={$_("noExternalDriveIsDetected")} />
+    {/if}
+  {:else if currentStep === 3}
+    <div class="flex flex-col gap-4">
+      <Typography preset="Text md/Semibold" text={$_("restoreInformation")} />
+      <Divider />
+      <div class="flex flex-col gap-1">
+        <Typography preset="Text sm/Semibold" text={$_("dataRestore")} />
+        <Typography preset="Text sm/Reguler" text="data_to_restore.extension" />
+        <Divider />
+      </div>
+      <div class="flex flex-col gap-1">
+        <Typography preset="Text sm/Semibold" text={$_("restoreMethod")} />
+        <Typography preset="Text sm/Reguler" text={$_("externalDrive")} />
+        <Divider />
+      </div>
+      <div class="flex flex-col gap-1">
+        <Typography preset="Text sm/Semibold" text={$_("restoreSources")} />
+        <Typography preset="Text sm/Reguler" text={getNameById(sources, selectedSource)} />
+        <Divider />
+      </div>
+      <div class="flex flex-col gap-1">
+        <Typography preset="Text sm/Semibold" text={$_("restoreSize")} />
+        <Typography preset="Text sm/Reguler" text={"3,4 GB"} />
+        <Divider />
+      </div>
+      <div class="flex flex-col gap-1">
+        <Typography preset="Text sm/Semibold" text={$_("backupDate")} />
+        <Typography preset="Text sm/Reguler" text="Wednesday, January 3, 2025, at 2:37 PM" />
+        <Divider />
+      </div>
+    </div>
+  {/if}
+  <svelte:fragment slot="footer">
+    {#if currentStep === 1}
+      <Button
+        on:click={() => {
+          currentStep = 2;
+        }}
+        class="w-full"
+        disabled={!selectedBackupMethod}
+      >
+        {$_("next")}
+      </Button>
+    {:else if currentStep === 2}
+      <div class="flex gap-4 w-full">
+        <button
+          onclick={() => {
+            currentStep = 1;
+          }}
+          class="px-5"
+        >
+          {$_("back")}
+        </button>
+        <Button
+          on:click={() => {
+            currentStep = 3;
+          }}
+          class="grow"
+          disabled={!selectedSource}
+        >
+          {$_("next")}
+        </Button>
+      </div>
+    {:else if currentStep === 3}
+      <div class="flex gap-4 w-full">
+        <button
+          onclick={() => {
+            currentStep = 2;
+          }}
+          class="px-5"
+        >
+          {$_("back")}
+        </button>
+        <Button
+          on:click={() => {
+            modalRestore = false;
+            isBackup = false;
+            currentStep = 1;
+            popupModal = true;
+          }}
+          class="grow"
+        >
+          {$_("startRestore")}
+        </Button>
+      </div>
+    {/if}
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <svelte:fragment slot="header">
+    <div class="flex gap-3 items-center">
+      <Avatar size="sm" border class="!ring-0 !m-0 bg-hc-success-100 dark:bg-hc-success-600 !p-2 !h-10 !w-10">
+        <CheckCircle svgClass="w-5 h-5 text-fg-success-primary-light dark:text-fg-success-alt-dark" />
+      </Avatar>
+      {#if isBackup}
+      <Typography preset="Text lg/Semibold" text={$_("backupInProgress")} />
+      {:else} 
+      <Typography preset="Text lg/Semibold" text={$_("restoreInProgress")} />
+      {/if}
+    </div>
+  </svelte:fragment>
+  <div class="text-center">
+    <Typography preset="Text sm/Reguler" text={$_("backupInProgressDesc")} />
+    <Button class="w-full mt-8">{$_("close")}</Button>
+  </div>
+</Modal>
