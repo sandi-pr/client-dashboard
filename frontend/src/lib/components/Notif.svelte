@@ -16,7 +16,7 @@
 
     // Check if the first word is too long
     if (words[1].length > maxFirstWordLength) {
-      words[1] = words[1].slice(1, maxFirstWordLength) + "...";
+      words[1] = words[1].slice(0, maxFirstWordLength) + "...";
     }
 
     // Limit to maxWords and append "..." if necessary
