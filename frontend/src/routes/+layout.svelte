@@ -77,7 +77,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://localhost")
+    ? new CR3Call("http://192.168.8.18")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -244,11 +244,11 @@ All Rights Reserved
             icon: "stars",
             name: "aiManagement",
             children: [
-              {
-                icon: "messageChat",
-                name: "hexabot",
-                href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-              },
+              // {
+              //   icon: "messageChat",
+              //   name: "hexabot",
+              //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+              // },
               check("documentAi.documentLibrary:view")
                 ? $isBakrie
                   ? {
