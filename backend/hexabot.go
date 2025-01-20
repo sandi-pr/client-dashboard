@@ -164,6 +164,10 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		if allIdsSub != "" {
 			collection_id = collection_id + allIdsSub
 		}
+
+		library_idStr := strconv.Itoa(int(library_id))
+
+		collection_id = U.String(library_idStr) + "," + collection_id
 	}
 
 	additional_prompt, ok := ctx.Params.GetString("additional_prompt")
@@ -955,6 +959,10 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		if allIdsSub != "" {
 			collection_id = collection_id + allIdsSub
 		}
+
+		library_idStr := strconv.Itoa(int(library_id))
+
+		collection_id = U.String(library_idStr) + "," + collection_id
 	}
 
 	manage_document, ok := ctx.URLParams.GetBool("manage_document")
