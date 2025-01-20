@@ -14,6 +14,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -435,6 +436,7 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 						if !ok {
 							return ctx.Error(400, "invalid parameters documents")
 						}
+
 						document_path := string(path) + "/" + string(documentName)
 
 						dir := filepath.Dir(document_path)
@@ -448,6 +450,45 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 						documentBase64, ok := document.(map[string]interface{})["base64"].(string)
 						if !ok {
 							return ctx.Error(400, "invalid parameters documents")
+						}
+
+						ext := filepath.Ext(documentName)
+
+						ext = strings.TrimPrefix(ext, ".")
+
+						if ext == "docx" || ext == "doc" {
+							CR3 := cr3call.New(MODULE_MANAGER_URL)
+							resp, err := CR3.Call("hexa-ai-rag", "convert-docx-to-pdf", cr3call.CR3CallData{
+								Headers: U.Dict{
+									"Authorization": bearer,
+								},
+								Params: U.Dict{
+									"base64":        documentBase64,
+									"document_name": documentName,
+								},
+							}, false)
+
+							fmt.Printf("Debug: CR3.Call response: %v\n", resp)
+							if err != nil {
+								return ctx.Error(500, "Failed convert docx to pdf")
+							}
+
+							if result, ok := resp.GetDict("result"); ok {
+								if base64, ok := result.GetString("base64"); ok {
+									documentBase64 = string(base64)
+								} else {
+									return ctx.Error(500, "Failed convert docx to pdf")
+								}
+
+								if document_name, ok := result.GetString("document_name"); ok {
+									documentName = string(document_name)
+									document_path = string(path) + "/" + string(documentName)
+								} else {
+									return ctx.Error(500, "Failed convert docx to pdf")
+								}
+							} else {
+								return ctx.Error(500, "Failed convert docx to pdf")
+							}
 						}
 
 						documentFile, err := base64.StdEncoding.DecodeString(documentBase64)
@@ -1579,8 +1620,82 @@ func UpdateLibraryDocumentParent(ctx *config.ConfigContext) (int, U.Dict, *confi
 		return ctx.Error(400, "invalid parameters id")
 	}
 
+	var tmpParentPath U.String
+
+	parent, err := getLibraryDict(int(parent_id), Strapi)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if attributes, ok := parent.GetDict("attributes"); ok {
+		if path, ok := attributes.GetString("path"); ok {
+			tmpParentPath = path
+		} else {
+			return ctx.Error(500, "Internal Server Error")
+		}
+	} else {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	var tmpLibraryType U.String
+	var tmpLibraryPath U.String
+
+	library, err := getLibraryDict(int(document_id), Strapi)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if attributes, ok := library.GetDict("attributes"); ok {
+		if libraryType, ok := attributes.GetString("type"); ok {
+			tmpLibraryType = libraryType
+		} else {
+			return ctx.Error(500, "Internal Server Error")
+		}
+		if libraryPath, ok := attributes.GetString("path"); ok {
+			tmpLibraryPath = libraryPath
+		} else {
+			return ctx.Error(500, "Internal Server Error")
+		}
+	} else {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if tmpLibraryType == "collection" {
+		err := moveFolder(string(tmpLibraryPath), string(tmpParentPath))
+		if err != nil {
+			fmt.Println("Gagal memindahkan folder:", err)
+		} else {
+			fmt.Println("Folder berhasil dipindahkan")
+		}
+	} else if tmpLibraryType == "document" {
+		err := moveFile(string(tmpLibraryPath), string(tmpParentPath))
+		if err != nil {
+			fmt.Println("Gagal memindahkan file:", err)
+			return ctx.Error(500, "Failed to move document")
+		} else {
+			fmt.Println("File berhasil dipindahkan")
+		}
+	}
+
+	filename := filepath.Base(string(tmpLibraryPath))
+
+	newPath := tmpParentPath + "/" + U.String(filename)
+
+	if tmpLibraryType == "collection" {
+		err := updatePathContent(string(newPath), int64(document_id), Strapi)
+
+		if err != nil {
+			return ctx.Error(500, "Failed update path content")
+		}
+	}
+
 	status, document2, err := Strapi.Update("document-library-table", int64(document_id), U.Dict{
 		"parent_id": parent_id,
+		"path":      newPath,
 	})
 
 	if err != nil {
@@ -3294,4 +3409,234 @@ func FindLibraryForBakrie(ctx *config.ConfigContext) (int, U.Dict, *config.Retur
 
 type DeleteResponse struct {
 	DocumentId string `json:"document_id"`
+}
+
+func getLibraryDict(id int, strapi *strapi.StrapiClassic) (U.Dict, error) {
+	status, document, err := strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": id,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return U.Dict{}, err
+	}
+
+	if status != 200 {
+		fmt.Println("document", document)
+		fmt.Println(status)
+		return U.Dict{}, err
+	}
+
+	list, ok := document.GetList("data")
+
+	if !ok {
+		fmt.Println(ok)
+		return U.Dict{}, err
+	}
+
+	if len(list) < 1 {
+		return U.Dict{}, fmt.Errorf("not found")
+	}
+
+	if dict, ok := list.GetDict(0); ok {
+		return dict, nil
+	} else {
+		return U.Dict{}, err
+	}
+}
+
+func moveFile(sourcePath, destinationDir string) error {
+	err := os.MkdirAll(destinationDir, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("gagal membuat folder tujuan: %w", err)
+	}
+
+	fileName := filepath.Base(sourcePath)
+
+	destinationPath := filepath.Join(destinationDir, fileName)
+
+	err = os.Rename(sourcePath, destinationPath)
+	if err != nil {
+		return fmt.Errorf("gagal memindahkan file: %w", err)
+	}
+
+	fmt.Println("File berhasil dipindahkan ke:", destinationPath)
+	return nil
+}
+
+func copyFile(src, dst string) error {
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer sourceFile.Close()
+
+	destFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, sourceFile)
+	return err
+}
+
+func copyDir(srcDir, dstDir string) error {
+	return filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		relPath, err := filepath.Rel(srcDir, path)
+		if err != nil {
+			return err
+		}
+
+		destPath := filepath.Join(dstDir, relPath)
+
+		if info.IsDir() {
+			return os.MkdirAll(destPath, info.Mode())
+		} else {
+			return copyFile(path, destPath)
+		}
+	})
+}
+
+func moveFolder(sourcePath, destinationDir string) error {
+	folderName := filepath.Base(sourcePath)
+	destinationPath := filepath.Join(destinationDir, folderName)
+
+	err := copyDir(sourcePath, destinationPath)
+	if err != nil {
+		return err
+	}
+
+	err = os.RemoveAll(sourcePath)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Folder berhasil dipindahkan ke:", destinationPath)
+	return nil
+}
+
+func updatePathContent(pathLibrary string, idLibrary int64, strapi *strapi.StrapiClassic) error {
+	page := 1
+
+	var collectionIds U.List
+
+	for {
+		status, documentLibrarys, err := strapi.Find("document-library-table", U.Dict{
+			"filters": U.Dict{
+				"parent_id": U.Dict{
+					"$eq": int64(idLibrary),
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"sort":     "id:desc",
+			"populate": "*",
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			fmt.Println(documentLibrarys)
+			return fmt.Errorf("status not 200")
+		}
+
+		if list, ok := documentLibrarys.GetList("data"); ok {
+			if len(list) < 1 {
+				break
+			}
+
+			for i := 0; i < len(list); i++ {
+				if dict, ok := list.GetDict(i); ok {
+					id, ok := dict.GetFloat64("id")
+
+					if !ok {
+						return fmt.Errorf("failed to get id content")
+					}
+
+					if attributes, ok := dict.GetDict("attributes"); ok {
+						if typeLibrary, ok := attributes.GetString("type"); ok {
+							if pathContent, ok := attributes.GetString("path"); ok {
+								filename := filepath.Base(string(pathContent))
+
+								newPath := pathLibrary + "/" + filename
+
+								status, documentLibrarys2, err := strapi.Update("document-library-table", int64(id), U.Dict{
+									"path": newPath,
+								})
+
+								if err != nil {
+									fmt.Println(err)
+									return err
+								}
+
+								if status != 200 {
+									fmt.Println(status)
+									fmt.Println(documentLibrarys2)
+									return fmt.Errorf("failed to update path content")
+								}
+
+								if typeLibrary == "collection" {
+									collectionIds = append(collectionIds, U.Dict{
+										"id":   id,
+										"path": newPath,
+									})
+								}
+							} else {
+								return fmt.Errorf("failed to get path content")
+							}
+						} else {
+							return fmt.Errorf("failed to get type content")
+						}
+					} else {
+						return fmt.Errorf("failed to get attributes content")
+					}
+				} else {
+					return fmt.Errorf("failed to get dict content")
+				}
+			}
+
+			page = page + 1
+		} else {
+			return fmt.Errorf("failed to get data content")
+		}
+	}
+
+	if len(collectionIds) == 0 {
+		return nil
+	} else {
+		for j := 0; j < len(collectionIds); j++ {
+			if dictContent, ok := collectionIds.GetDict(j); ok {
+				id, id_ok := dictContent.GetFloat64("id")
+
+				pathContent, path_ok := dictContent.GetString("path")
+
+				if !id_ok || !path_ok {
+					return fmt.Errorf("failed to get collection content, id: %v, path: %v", id, pathContent)
+				}
+
+				err := updatePathContent(string(pathContent), int64(id), strapi)
+
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	}
 }
