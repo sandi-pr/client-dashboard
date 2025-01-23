@@ -89,12 +89,12 @@ All Rights Reserved
   ];
 
   const cardsAi = [
-    // {
-    //   icon: "messageChat",
-    //   title: "hexabot",
-    //   description: "descHexabot",
-    //   page: "hexabot",
-    // },
+    {
+      icon: "messageChat",
+      title: "hexabot",
+      description: "descHexabot",
+      page: "hexabot",
+    },
     // {
     //   icon: "archive",
     //   title: "documentCollection",
@@ -843,7 +843,7 @@ All Rights Reserved
     <SectionHeader title={$_("documentAi")} />
     <ActionCard actionItems={docAiCard} numGrid="2" />
   </div> -->
-  <!-- {#if cardsBusiness.length > 0}
+  {#if cardsBusiness.length > 0}
     <div class="flex flex-col gap-4">
       <SectionHeader title={$_("businessManagements")} />
       {#if chartActionBusiness.length > 0}
@@ -864,7 +864,7 @@ All Rights Reserved
         {/each}
       </div>
     </div>
-  {/if} -->
+  {/if}
   {#if cardsAi.length > 0}
     {#if check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")}
       <div class="flex flex-col gap-4">

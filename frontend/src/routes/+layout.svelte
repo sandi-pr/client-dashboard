@@ -191,64 +191,64 @@ All Rights Reserved
 
   const getModules = async () => {
     return [
-      // {
-      //   icon: "briefcase",
-      //   name: "crmOverview",
-      //   children: [
-      //     {
-      //       href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       icon: "user",
-      //       href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
-      //       name: "persons",
-      //     },
-      //     {
-      //       icon: "faceHappy",
-      //       href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
-      //       name: "hR",
-      //     },
-      //     {
-      //       icon: "package",
-      //       href: isFrontend
-      //         ? "/crm/product_service"
-      //         : await call.getPage("client-dashboard", "crm-product-service"),
-      //       name: "product&Services",
-      //     },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/crm/categories"
-      //     //     : await call.getPage("client-dashboard", "crm-categories"),
-      //     //   name: "categories",
-      //     // },
-      //     {
-      //       icon: "receipt",
-      //       href: isFrontend
-      //         ? "/crm/order_invoice"
-      //         : await call.getPage("client-dashboard", "crm-order-invoice"),
-      //       name: "order&Invoice",
-      //     },
-      //     {
-      //       icon: "calendar",
-      //       href: isFrontend
-      //         ? "/crm/calendar"
-      //         : await call.getPage("client-dashboard", "crm-calendar"),
-      //       name: "calendar",
-      //     },
-      //   ],
-      // },
+      {
+        icon: "briefcase",
+        name: "crmOverview",
+        children: [
+          {
+            href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+            name: "overview",
+          },
+          {
+            icon: "user",
+            href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
+            name: "persons",
+          },
+          {
+            icon: "faceHappy",
+            href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
+            name: "hR",
+          },
+          {
+            icon: "package",
+            href: isFrontend
+              ? "/crm/product_service"
+              : await call.getPage("client-dashboard", "crm-product-service"),
+            name: "product&Services",
+          },
+          // {
+          //   href: isFrontend
+          //     ? "/crm/categories"
+          //     : await call.getPage("client-dashboard", "crm-categories"),
+          //   name: "categories",
+          // },
+          {
+            icon: "receipt",
+            href: isFrontend
+              ? "/crm/order_invoice"
+              : await call.getPage("client-dashboard", "crm-order-invoice"),
+            name: "order&Invoice",
+          },
+          {
+            icon: "calendar",
+            href: isFrontend
+              ? "/crm/calendar"
+              : await call.getPage("client-dashboard", "crm-calendar"),
+            name: "calendar",
+          },
+        ],
+      },
       // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
       check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")
         ? {
             icon: "stars",
             name: "aiManagement",
             children: [
-              // {
-              //   icon: "messageChat",
-              //   name: "hexabot",
-              //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-              // },
+              {
+                icon: "messageChat",
+                name: "hexabot",
+                href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+              },
               check("documentAi.documentLibrary:view")
                 ? $isBakrie
                   ? {

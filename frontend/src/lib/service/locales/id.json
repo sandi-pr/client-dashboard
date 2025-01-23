@@ -846,5 +846,6 @@
   "settingsIndustryTypeTelecommunications": "Telekomunikasi",
   "settingsIndustryTypeRealEstate": "Properti",
   "emailAlreadyExist": "Email sudah ada",
-  "newDataset": "Dataset Baru"
+  "newDataset": "Dataset Baru",
+  "docOrDocxWillConvertToPdf": "File DOC/DOCX akan dikonversi menjadi PDF"
 }

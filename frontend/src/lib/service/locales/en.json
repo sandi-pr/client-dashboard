@@ -847,5 +847,6 @@
   "settingsIndustryTypeTelecommunications": "Telecommunications",
   "settingsIndustryTypeRealEstate": "Real Estate",
   "emailAlreadyExist": "Email already exists",
-  "newDataset": "New Dataset"
+  "newDataset": "New Dataset",
+  "docOrDocxWillConvertToPdf": "DOC/DOCX file will be converted to PDF"
 }

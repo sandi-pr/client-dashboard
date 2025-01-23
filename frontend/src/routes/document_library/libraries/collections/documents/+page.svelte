@@ -75,8 +75,8 @@
   let tmpOldName = $state("");
   let tmpDescription = $state("");
   let tmpDocumentType = $state("Documents");
-  let selectedTypeCollection = $state("Documents (TXT, PDF)");
-  let acceptedFileTypes = $state(".txt, .pdf");
+  let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
+  let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
   let search = $state("");
   let alltags = $state([]);
   let tags = $state([]);
@@ -87,6 +87,7 @@
   let checkboxUpdate = $state(false);
   let tmpId = $state(null);
   let isMobileView = $state(false);
+  let hasDocOrDocx = $state(false);
   let tabDatas = $state({
     selected: "Collections",
     data: [
@@ -621,8 +622,8 @@
     tmpDocumentType = type;
 
     if (type === "Documents") {
-      selectedTypeCollection = "Documents (TXT, PDF)";
-      acceptedFileTypes = ".txt, .pdf";
+      selectedTypeCollection = "Documents (TXT, PDF, DOC, DOCX)";
+      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
     } else if (type === "Images") {
       selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
       acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
@@ -1362,6 +1363,10 @@
   });
 
   $effect(() => {
+    hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
+  })
+
+  $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
   });
 
@@ -1635,7 +1640,7 @@
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Documents");
-            }}>Documents (TXT, PDF)</button
+            }}>Documents (TXT, PDF, DOC, DOCX)</button
           >
           <button
             class="flex p-2 w-full"
@@ -1696,6 +1701,11 @@
       <Alert color="red">
         <InfoCircleSolid slot="icon" class="w-5 h-5" />
         {$_("fileNotSupport")}
+      </Alert>
+    {:else if hasDocOrDocx}
+      <Alert color="yellow">
+        <InfoCircleSolid slot="icon" class="w-5 h-5" />
+        {$_("docOrDocxWillConvertToPdf")}
       </Alert>
     {/if}
     <!-- <label class="inline-flex items-center cursor-pointer">
