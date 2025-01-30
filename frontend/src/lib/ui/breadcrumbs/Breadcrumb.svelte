@@ -56,6 +56,54 @@
     }
   };
 
+  async function getLibraryCollectionName(libraryId) {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-library", {
+        URLQuery: {},
+        URLParams: {
+          id: libraryId,
+        },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      return response.result.attributes.name;
+    }
+  }
+
+  async function getDocumentName(documentId) {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "get-library-document", {
+          URLQuery: {},
+          URLParams: {
+            id: documentId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          return;
+        }
+
+        return response.result.data.name;
+
+      } catch (error) {
+        console.error("Error during document get:", error);
+      }
+    } else {
+      return;
+    }
+  }
+
   const updateIsMobile = () => {
     isMobile = globalThis.innerWidth <= 768; // Assume mobile screen is less than or equal to 768px
   };
@@ -74,31 +122,60 @@
     baseUrl = result.slice(0, result.lastIndexOf("/"));
   });
 
+  async function getActiveUrl() {
+    console.log(activeUrl);
+    isDetailPage(activeUrl);
+    const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
+    copyActiveUrl = activeUrl;
+    let cleanActiveUrl = activeUrl;
+    activeUrlModified = cleanActiveUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
+    activeUrlArray = await Promise.all(activeUrlModified
+      .split("/")
+      .filter((url) => url !== "client-dashboard")
+      .filter(Boolean)
+      .map(async (url, index, array) => {
+        let accumulatedPath = "";
+        for (let i = 0; i <= index; i++) {
+          accumulatedPath += `/${array[i]}`;
+        }
+        let href = accumulatedPath;
+        if (index === array.length - 1) {
+          href += queryString;
+        }
+        if (url === "collections") {
+          const params = new URLSearchParams(window.location.search);
+          const libraryId = params.get("libraryId");
+          const customName = await getLibraryCollectionName(libraryId);
+          return { name: customName, href: href, isCustomName: true };
+        } else if (url === "documents") {
+          const params = new URLSearchParams(window.location.search);
+          const collectionId = params.get("collectionId");
+          const customName = await getLibraryCollectionName(collectionId);
+          return { name: customName, href: href, isCustomName: true };
+        } else if (url === "sub_documents") {
+          const params = new URLSearchParams(window.location.search);
+          const subCollectionId = params.get("subCollectionId");
+          const customName = await getLibraryCollectionName(subCollectionId);
+          return { name: customName, href: href, isCustomName: true };
+        } else if (url === "detail" && index > 0) {
+          const prevSegment = array[index - 1];
+          if (prevSegment === "documents" || prevSegment === "sub_documents") {
+            const params = new URLSearchParams(window.location.search);
+            const documentId = params.get("documentId");
+            const title = await getDocumentName(documentId);
+            return { name: title, href: href, isCustomName: true };
+          }
+        }
+        return { name: url, href: href, isCustomName: false };
+      })
+    );
+
+    console.log("activeUrlArray", activeUrlArray);
+  }
+
   $effect(() => {
     if (activeUrl !== copyActiveUrl) {
-      console.log(activeUrl);
-      isDetailPage(activeUrl);
-      const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
-      copyActiveUrl = activeUrl;
-      let cleanActiveUrl = activeUrl;
-      activeUrlModified = cleanActiveUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
-      activeUrlArray = activeUrlModified
-        .split("/")
-        .filter((url) => url !== "client-dashboard")
-        .filter(Boolean)
-        .map((url, index, array) => {
-          let accumulatedPath = "";
-          for (let i = 0; i <= index; i++) {
-            accumulatedPath += `/${array[i]}`;
-          }
-          let href = accumulatedPath;
-          if (index === array.length - 1) {
-            href += queryString;
-          }
-          return { name: url, href: href };
-        });
-
-      console.log("activeUrlArray", activeUrlArray);
+      getActiveUrl();
     }
   });
 </script>
@@ -143,12 +220,12 @@
               {#if detail && title !== null && index === activeUrlArray.length - 1}
                 {title}
               {:else}
-                {$_(toCamelCase(postProcessName(item.name)))}
+                {item.isCustomName ? item.name : $_(toCamelCase(postProcessName(item.name)))}
               {/if}
             </button>
           {:else}
             <span class={spanClass}>
-              {$_(toCamelCase(postProcessName(item.name)))}
+              {item.isCustomName ? item.name : $_(toCamelCase(postProcessName(item.name)))}
             </span>
           {/if}
         </li>
@@ -177,18 +254,19 @@
                   queryParams[key] = value;
                 }
                 const queryString = new URLSearchParams(queryParams).toString();
-                goto(`${baseUrl}${item.href}?${queryString}`);
+                console.log(`check url: ${baseUrl}${item.href}?${queryString}`);
+                // goto(`${baseUrl}${item.href}?${queryString}`);
               }}
             >
               {#if detail && title !== null && index === activeUrlArray.length - 1}
                 {title}
               {:else}
-                {$_(toCamelCase(postProcessName(item.name)))}
+                {item.isCustomName ? item.name : $_(toCamelCase(postProcessName(item.name)))}
               {/if}
             </button>
           {:else}
             <span class={spanClass}>
-              {$_(toCamelCase(postProcessName(item.name)))}
+              {item.isCustomName ? item.name : $_(toCamelCase(postProcessName(item.name)))}
             </span>
           {/if}
         </li>
