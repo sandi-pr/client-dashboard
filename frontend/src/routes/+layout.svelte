@@ -69,7 +69,7 @@ All Rights Reserved
   let appUrl = "/";
   let userData = $state({ username: "", email: "" });
   let authority = $state("");
-  let brand = $state("");
+  let brand = $state("HexaCode.AI");
   let logoUrl = $state("");
   const isFrontend = process.env.NODE_ENV === "development";
   let hideNav = $state(false);
@@ -77,14 +77,14 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.8.18")
+    ? new CR3Call("http://192.168.18.15")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
 
   const hideLayoutListBakrie = isFrontend
     ? ["/document_collection", "/document_collection/libraries"]
-    : ["/client-dashboard/document_library", "/client-dashboard/document_library/libraries"];
+    : ["/client-dashboard/documents", "/client-dashboard/documents/libraries"];
 
   const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
 
@@ -192,108 +192,165 @@ All Rights Reserved
   const getModules = async () => {
     return [
       {
-        icon: "briefcase",
-        name: "crmOverview",
+        icon: "messageChat",
+        name: "hexaBots",
+        href: isFrontend ? "/hexabots" : await call.getPage("client-dashboard", "hexabot"),
+        children: []
+      },
+      {
+        icon: "bookOpen",
+        name: "documents",
+        href: isFrontend
+          ? "/documents"
+          : await call.getPage("client-dashboard", "document-collection-overview"),
+          children: []
+      },
+      {
+        icon: "presentation",
+        name: "Analytics",
         children: [
           {
-            href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-            name: "overview",
+            icon: "bookClosed",
+            name: "dataSources",
+            href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
           },
           {
-            icon: "user",
-            href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
-            name: "persons",
-          },
-          {
-            icon: "faceHappy",
-            href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
-            name: "hR",
-          },
-          {
-            icon: "package",
-            href: isFrontend
-              ? "/crm/product_service"
-              : await call.getPage("client-dashboard", "crm-product-service"),
-            name: "product&Services",
-          },
-          // {
-          //   href: isFrontend
-          //     ? "/crm/categories"
-          //     : await call.getPage("client-dashboard", "crm-categories"),
-          //   name: "categories",
-          // },
-          {
-            icon: "receipt",
-            href: isFrontend
-              ? "/crm/order_invoice"
-              : await call.getPage("client-dashboard", "crm-order-invoice"),
-            name: "order&Invoice",
-          },
-          {
-            icon: "calendar",
-            href: isFrontend
-              ? "/crm/calendar"
-              : await call.getPage("client-dashboard", "crm-calendar"),
-            name: "calendar",
+            icon: "lightbulb",
+            name: "insights",
+            href: isFrontend ? "/insights" : await call.getPage("client-dashboard", "insights"),
           },
         ],
       },
-      // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
-      check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")
-        ? {
-            icon: "stars",
-            name: "aiManagement",
-            children: [
-              {
-                icon: "messageChat",
-                name: "hexabot",
-                href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-              },
-              check("documentAi.documentLibrary:view")
-                ? $isBakrie
-                  ? {
-                      icon: "archive",
-                      name: "documentLibrary",
-                      href: isFrontend
-                        ? "/document_library/libraries/collections?libraryId=" +
-                          localStorage.getItem("libraryIdWebchatBakrie")
-                        : (await call.getPage("client-dashboard", "document-library-collections")) +
-                          `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
-                    }
-                  : {
-                      icon: "archive",
-                      name: "documentLibrary",
-                      href: isFrontend
-                        ? "/document_library"
-                        : await call.getPage("client-dashboard", "document-collection-overview"),
-                    }
-                : false,
-              // {
-              //   icon: "archive",
-              //   name: "documentCollection",
-              //   href: isFrontend
-              //     ? "/document_collection/collections"
-              //     : await call.getPage("client-dashboard", "document-collection-overview"),
-              // },
-              // {
-              //   icon: "fileCheck",
-              //   name: "contractReviewer",
-              //   href: isFrontend
-              //     ? "/contract_reviewer"
-              //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-              // },
-              check("aiManagement.datasets:view")
-                ? {
-                    icon: "data",
-                    name: "datasets",
-                    href: isFrontend
-                      ? "/datasets"
-                      : await call.getPage("client-dashboard", "datasets"),
-                  }
-                : false,
-            ].filter(Boolean),
+      {
+        icon: "marketplace",
+        name: "marketplace",
+        href: isFrontend
+          ? "/marketplace"
+          : await call.getPage("client-dashboard", "marketplace"),
+          children: []
+      },
+      {
+        icon: "stars",
+        name: "configurations",
+        children: [
+          {
+            icon: "messageChat",
+            name: "bots",
+            href: isFrontend ? "/bots" : await call.getPage("client-dashboard", "bots"),
+            children: []
+          },
+          {
+            icon: "data",
+            name: "finetuning",
+            href: isFrontend
+              ? "/finetuning"
+              : await call.getPage("client-dashboard", "datasets"),
           }
-        : false,
+        ],
+      },
+      // {
+      //   icon: "briefcase",
+      //   name: "crmOverview",
+      //   children: [
+      //     {
+      //       href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
+      //       name: "overview",
+      //     },
+      //     {
+      //       icon: "user",
+      //       href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
+      //       name: "persons",
+      //     },
+      //     {
+      //       icon: "faceHappy",
+      //       href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
+      //       name: "hR",
+      //     },
+      //     {
+      //       icon: "package",
+      //       href: isFrontend
+      //         ? "/crm/product_service"
+      //         : await call.getPage("client-dashboard", "crm-product-service"),
+      //       name: "product&Services",
+      //     },
+      //     // {
+      //     //   href: isFrontend
+      //     //     ? "/crm/categories"
+      //     //     : await call.getPage("client-dashboard", "crm-categories"),
+      //     //   name: "categories",
+      //     // },
+      //     {
+      //       icon: "receipt",
+      //       href: isFrontend
+      //         ? "/crm/order_invoice"
+      //         : await call.getPage("client-dashboard", "crm-order-invoice"),
+      //       name: "order&Invoice",
+      //     },
+      //     {
+      //       icon: "calendar",
+      //       href: isFrontend
+      //         ? "/crm/calendar"
+      //         : await call.getPage("client-dashboard", "crm-calendar"),
+      //       name: "calendar",
+      //     },
+      //   ],
+      // },
+      // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
+      // check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")
+      //   ? {
+      //       icon: "stars",
+      //       name: "aiManagement",
+      //       children: [
+      //         {
+      //           icon: "messageChat",
+      //           name: "hexabot",
+      //           href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
+      //         },
+      //         check("documentAi.documentLibrary:view")
+      //           ? $isBakrie
+      //             ? {
+      //                 icon: "archive",
+      //                 name: "documentLibrary",
+      //                 href: isFrontend
+      //                   ? "/document_library/libraries/collections?libraryId=" +
+      //                     localStorage.getItem("libraryIdWebchatBakrie")
+      //                   : (await call.getPage("client-dashboard", "document-library-collections")) +
+      //                     `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
+      //               }
+      //             : {
+      //                 icon: "archive",
+      //                 name: "documentLibrary",
+      //                 href: isFrontend
+      //                   ? "/document_library"
+      //                   : await call.getPage("client-dashboard", "document-collection-overview"),
+      //               }
+      //           : false,
+      //         // {
+      //         //   icon: "archive",
+      //         //   name: "documentCollection",
+      //         //   href: isFrontend
+      //         //     ? "/document_collection/collections"
+      //         //     : await call.getPage("client-dashboard", "document-collection-overview"),
+      //         // },
+      //         // {
+      //         //   icon: "fileCheck",
+      //         //   name: "contractReviewer",
+      //         //   href: isFrontend
+      //         //     ? "/contract_reviewer"
+      //         //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+      //         // },
+      //         check("aiManagement.datasets:view")
+      //           ? {
+      //               icon: "data",
+      //               name: "datasets",
+      //               href: isFrontend
+      //                 ? "/datasets"
+      //                 : await call.getPage("client-dashboard", "datasets"),
+      //             }
+      //           : false,
+      //       ].filter(Boolean),
+      //     }
+      //   : false,
       // {
       //   icon: "box",
       //   name: "documentCollection",
@@ -918,8 +975,8 @@ All Rights Reserved
         sessionStorage.setItem("sidebar_title", response.result.data.attributes.sidebar_title);
         brand = response.result.data.attributes.sidebar_title;
       } else {
-        sessionStorage.setItem("sidebar_title", "Hexapod");
-        brand = "Hexapod";
+        sessionStorage.setItem("sidebar_title", "HexaCode.AI");
+        brand = "HexaCode.AI";
       }
 
       if (response.result.data.attributes.company_logo.data !== null) {
@@ -1161,8 +1218,8 @@ All Rights Reserved
       if (!hideLayoutBakrie()) {
         const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
         let collectionList = isFrontend
-          ? window.location.pathname.trim() === "/document_collection"
-            ? "document_collection/libraries/libraries_collections/"
+          ? window.location.pathname.trim() === "/documents"
+            ? "documents/libraries/libraries_collections/"
             : "libraries/libraries_collections/"
           : await call.getPage("client-dashboard", "document-library-collections");
         const redirectUrl = `${collectionList}?libraryId=${libraryIdWebchatBakrie}`;

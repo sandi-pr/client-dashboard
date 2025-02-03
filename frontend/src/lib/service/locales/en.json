@@ -196,7 +196,7 @@
   "generalDocuments": "General Documents",
   "contractDocuments": "Contract Documents",
   "documentLatest": "Document Latest",
-  "settings": "Settings",
+  "settings": "Preferences",
   "uploadDate": "Upload Date",
   "type": "Type",
   "documentsList": "Documents List",
@@ -329,7 +329,7 @@
   "orderDate": "Order Date",
   "shippingAddress": "Shipping Address",
   "employeeId": "Employee ID",
-  "finetuning": "Fine-tuning",
+  "finetuning": "Fine-Tuning",
   "addNewFinetuningData": "Add new Fine-tuning data",
   "trainingData": "Training Data",
   "imageUpload": "Image Upload",
@@ -848,5 +848,11 @@
   "settingsIndustryTypeRealEstate": "Real Estate",
   "emailAlreadyExist": "Email already exists",
   "newDataset": "New Dataset",
-  "docOrDocxWillConvertToPdf": "DOC/DOCX file will be converted to PDF"
+  "docOrDocxWillConvertToPdf": "DOC/DOCX file will be converted to PDF",
+  "insights": "Insights",
+  "dataSources": "Data Sources",
+  "analytics": "Analytics",
+  "marketplace": "Marketplace",
+  "configurations": "Configurations",
+  "bots": "Bots"
 }

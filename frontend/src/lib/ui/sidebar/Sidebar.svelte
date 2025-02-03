@@ -26,7 +26,7 @@
   let {
     getModule,
     toCamelCase,
-    name = $bindable("Hexapod"),
+    name = $bindable("HexaCode.AI"),
     email = $bindable(""),
     brand = $bindable(""),
     logoUrl = $bindable(""),

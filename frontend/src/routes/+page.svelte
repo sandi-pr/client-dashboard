@@ -131,6 +131,12 @@ All Rights Reserved
           page: "datasets",
         }
       : false,
+      {
+        icon: "bookClosed",
+        title: "csvInsights",
+        description: "",
+        page: "csv-insights",
+      }
   ].filter(Boolean);
 
   let docAiCard = $state([]);
@@ -819,7 +825,7 @@ All Rights Reserved
       <div class="flex flex-col justify-center items-center gap-1 pt-2">
         <Typography
           preset="Display sm/Semibold"
-          text={$_("welcometoHexapod") + sessionStorage.getItem("sidebar_title") || "Hexapod"}
+          text={$_("welcometoHexapod") + sessionStorage.getItem("sidebar_title") || "HexaCode.AI"}
           color="primary"
         />
         <!-- <Typography
@@ -833,7 +839,7 @@ All Rights Reserved
     <div class="flex flex-col gap-1">
       <Typography
         preset="Display sm/Semibold"
-        text={`${$_("welcometoHexapod")} ${sessionStorage.getItem("sidebar_title") || "Hexapod"}`}
+        text={`${$_("welcometoHexapod")} ${sessionStorage.getItem("sidebar_title") || "HexaCode.AI"}`}
         color="primary"
       />
       <Typography text="{userData.username} - {userData.email}" color="tertiary" />
@@ -843,7 +849,7 @@ All Rights Reserved
     <SectionHeader title={$_("documentAi")} />
     <ActionCard actionItems={docAiCard} numGrid="2" />
   </div> -->
-  {#if cardsBusiness.length > 0}
+  <!-- {#if cardsBusiness.length > 0}
     <div class="flex flex-col gap-4">
       <SectionHeader title={$_("businessManagements")} />
       {#if chartActionBusiness.length > 0}
@@ -864,7 +870,7 @@ All Rights Reserved
         {/each}
       </div>
     </div>
-  {/if}
+  {/if} -->
   {#if cardsAi.length > 0}
     {#if check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")}
       <div class="flex flex-col gap-4">

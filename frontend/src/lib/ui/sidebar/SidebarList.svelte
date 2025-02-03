@@ -144,7 +144,7 @@
           <div></div>
         {:else if !$sidebarLargeClosed}
           <LogoBrand
-            brandName={brand !== "" ? brand : "Hexapod"}
+            brandName={brand !== "" ? brand : "HexaCode.AI"}
             href="/"
             brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
             imgClass="h-8"

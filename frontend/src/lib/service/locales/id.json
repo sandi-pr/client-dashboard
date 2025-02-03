@@ -196,7 +196,7 @@
   "generalDocuments": "Dokumen Umum",
   "contractDocuments": "Dokumen Kontrak",
   "documentLatest": "Dokumen Terbaru",
-  "settings": "Pengaturan",
+  "settings": "Preferensi",
   "uploadDate": "Tgl. Unggah",
   "type": "Tipe",
   "documentsList": "Daftar Dokumen",
@@ -329,7 +329,7 @@
   "orderDate": "Tanggal Order",
   "shippingAddress": "Alamat Pengiriman",
   "employeeId": "ID Karyawan",
-  "finetuning": "Fine-tuning",
+  "finetuning": "Fine-Tuning",
   "addNewFinetuningData": "Tambahkan data Fine-tuning baru",
   "trainingData": "Data Pelatihan",
   "imageUpload": "Unggah Gambar",
@@ -847,5 +847,11 @@
   "settingsIndustryTypeRealEstate": "Properti",
   "emailAlreadyExist": "Email sudah ada",
   "newDataset": "Dataset Baru",
-  "docOrDocxWillConvertToPdf": "File DOC/DOCX akan dikonversi menjadi PDF"
+  "docOrDocxWillConvertToPdf": "File DOC/DOCX akan dikonversi menjadi PDF",
+  "insights": "Wawasan",
+  "dataSources": "Sumber Data",
+  "analytics": "Analitik",
+  "marketplace": "Marketplace",
+  "configurations": "Konfigurasi",
+  "bots": "Bots"
 }
