@@ -774,6 +774,158 @@ func GetBotPublic(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 	return 200, dict, nil
 }
 
+func GetBotsReady(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	page, ok := ctx.Params.GetFloat64("page")
+
+	if !ok {
+		page = 1
+	}
+
+	page_size, ok := ctx.Params.GetFloat64("page_size")
+
+	if !ok {
+		page_size = 10
+	}
+
+	search, ok := ctx.Params.GetString("search")
+
+	if !ok {
+		search = ""
+	}
+
+	status, data, err := Strapi.Find("hexabot-table", U.Dict{
+		"filters": U.Dict{
+			"bot_name": U.Dict{
+				"$contains": search,
+			},
+			"status": U.Dict{
+				"$eq": "Ready",
+			},
+		},
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": page_size,
+		},
+		"populate": "*",
+		"sort":     "updatedAt:desc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := data.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	meta, ok := data.GetDict("meta")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	var bots U.Dict
+
+	bots = U.Dict{
+		"data": U.List{},
+		"meta": meta,
+	}
+
+	for i := 0; i < len(list); i++ {
+		if list[i].(U.Dict)["attributes"].(U.Dict)["bot_profile"].(U.Dict)["data"] != nil {
+
+			document_url := list[i].(U.Dict)["attributes"].(U.Dict)["bot_profile"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["url"].(U.String)
+			document_url = U.String(strings.TrimPrefix(string(document_url), "/"))
+
+			resp, err := http.Get(STRAPI_URL + string(document_url))
+			if err != nil {
+				fmt.Printf("error saat mengunduh file: %v", err)
+			}
+			defer resp.Body.Close()
+
+			data, err := io.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Printf("error saat membaca isi file: %v", err)
+			}
+
+			base64Data := base64.StdEncoding.EncodeToString(data)
+
+			existingData, ok := bots.GetList("data")
+			if !ok {
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			newData := U.Dict{
+				"id":          list[i].(U.Dict)["id"],
+				"attributes":  list[i].(U.Dict)["attributes"],
+				"bot_profile": base64Data,
+			}
+
+			// botStatus, _, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+
+			// fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	return ctx.Error(500, "Internal Server Error")
+			// }
+
+			// newData["attributes"].(U.Dict)["status"] = botStatus
+
+			bots["data"] = append(existingData, newData)
+		} else {
+			existingData, ok := bots.GetList("data")
+			if !ok {
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			// botStatus, _, err := getStatusBot(int64(list[i].(U.Dict)["id"].(U.Float64)), Strapi)
+
+			// fmt.Println("botStatus", botStatus, list[i].(U.Dict)["id"].(U.Float64))
+
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	return ctx.Error(500, "Internal Server Error")
+			// }
+
+			// list[i].(U.Dict)["attributes"].(U.Dict)["status"] = botStatus
+
+			bots["data"] = append(existingData, list[i])
+		}
+	}
+
+	return 200, bots, nil
+}
+
 func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 

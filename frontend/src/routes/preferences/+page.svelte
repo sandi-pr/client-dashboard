@@ -542,7 +542,7 @@
       selectedCompanyType = parseInt(response.result.data.attributes.company_size);
       selectedIndustryType = parseInt(response.result.data.attributes.company_industry);
 
-      sidebarTitle = response.result.data.attributes.sidebar_title || "Hexapod";
+      sidebarTitle = response.result.data.attributes.sidebar_title || "HexaCode.AI";
 
       if (response.result.data.attributes.company_logo.data !== null) {
         let ext = response.result.data.attributes.company_logo.data.attributes.ext;

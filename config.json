@@ -71,8 +71,8 @@
         },
         {
             "name": "settings",
-            "path": "/settings",
-            "file_path": "template/settings.html"
+            "path": "/preferences",
+            "file_path": "template/preferences.html"
         },
         {
             "name": "crm-categories",
@@ -156,38 +156,38 @@
         },
         {
             "name": "document-collection-overview",
-            "path": "/document_library",
-            "file_path": "template/document_library.html"
+            "path": "/documents",
+            "file_path": "template/documents.html"
         },
         {
             "name": "document-library",
-            "path": "/document_library/libraries",
-            "file_path": "template/document_library/libraries.html"
+            "path": "/documents/libraries",
+            "file_path": "template/documents/libraries.html"
         },
         {
             "name": "document-library-collections",
-            "path": "/document_library/libraries/collections",
-            "file_path": "template/document_library/libraries/collections.html"
+            "path": "/documents/libraries/collections",
+            "file_path": "template/documents/libraries/collections.html"
         },
         {
             "name": "document-library-documents",
-            "path": "/document_library/libraries/collections/documents",
-            "file_path": "template/document_library/libraries/collections/documents.html"
+            "path": "/documents/libraries/collections/documents",
+            "file_path": "template/documents/libraries/collections/documents.html"
         },
         {
             "name": "document-library-sub-documents",
-            "path": "/document_library/libraries/collections/documents/sub_documents",
-            "file_path": "template/document_library/libraries/collections/documents/sub_documents.html"
+            "path": "/documents/libraries/collections/documents/sub_documents",
+            "file_path": "template/documents/libraries/collections/documents/sub_documents.html"
         },
         {
             "name": "document-library-detail",
-            "path": "/document_library/libraries/collections/documents/detail",
-            "file_path": "template/document_library/libraries/collections/documents/detail.html"
+            "path": "/documents/libraries/collections/documents/detail",
+            "file_path": "template/documents/libraries/collections/documents/detail.html"
         },
         {
             "name": "document-library-sub-documents-detail",
-            "path": "/document_library/libraries/collections/documents/sub_documents/detail",
-            "file_path": "template/document_library/libraries/collections/documents/sub_documents/detail.html"
+            "path": "/documents/libraries/collections/documents/sub_documents/detail",
+            "file_path": "template/documents/libraries/collections/documents/sub_documents/detail.html"
         },
         {
             "name": "document-collection-chat",
@@ -296,38 +296,53 @@
         },
         {
             "name": "datasets",
-            "path": "/datasets",
-            "file_path": "template/datasets.html"
+            "path": "/finetuning",
+            "file_path": "template/finetuning.html"
         },
         {
             "name": "datasets-list",
-            "path": "/datasets/list",
-            "file_path": "template/datasets/list.html"
+            "path": "/finetuning/list",
+            "file_path": "template/finetuning/list.html"
         },
         {
             "name": "datasets-detail",
-            "path": "/datasets/detail",
-            "file_path": "template/datasets/detail.html"
+            "path": "/finetuning/detail",
+            "file_path": "template/finetuning/detail.html"
         },
         {
             "name": "hexabot",
-            "path": "/hexabot",
-            "file_path": "template/hexabot.html"
+            "path": "/hexabots",
+            "file_path": "template/hexabots.html"
         },
         {
             "name": "hexabot-create",
-            "path": "/hexabot/create",
-            "file_path": "template/hexabot/create.html"
+            "path": "/hexabots/create",
+            "file_path": "template/hexabots/create.html"
         },
         {
             "name": "hexabot-list",
-            "path": "/hexabot/list",
-            "file_path": "template/hexabot/list.html"
+            "path": "/hexabots/list",
+            "file_path": "template/hexabots/list.html"
         },
         {
             "name": "hexabot-detail",
-            "path": "/hexabot/detail",
-            "file_path": "template/hexabot/detail.html"
+            "path": "/hexabots/detail",
+            "file_path": "template/hexabots/detail.html"
+        },
+        {
+            "name": "bots",
+            "path": "/bots",
+            "file_path": "template/bots.html"
+        },
+        {
+            "name": "bots-list",
+            "path": "/bots/list",
+            "file_path": "template/bots/list.html"
+        },
+        {
+            "name": "insights",
+            "path": "/insights",
+            "file_path": "template/insights.html"
         }
     ],
     "apis": [
@@ -4694,6 +4709,31 @@
                 }
             ],
             "params": []
+        },
+        {
+            "name": "get-bots-ready",
+            "path": "/get-bots-ready",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetBotsReady"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                },
+                {
+                    "name": "search",
+                    "type": "string"
+                }
+            ]
         },
         {
             "name": "update-bot",

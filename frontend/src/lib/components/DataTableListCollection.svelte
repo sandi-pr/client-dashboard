@@ -224,7 +224,7 @@
 
 <div>
   <div
-    class={`flex items-center justify-between ${configs?.space ? configs.space : "p-4 mt-6"} gap-2 ${configs?.isCategories ? "mb-4 rounded-lg bg-secondary-light dark:bg-secondary-dark" : "border-t border-x border-primary-light dark:border-primary-dark rounded-t-lg"} ${withSeperator(configs)}`}
+    class={`flex items-center ${configs?.hideSearch ? "hidden" : ""} justify-between ${configs?.space ? configs.space : "p-4 mt-6"} gap-2 ${configs?.isCategories ? "mb-4 rounded-lg bg-secondary-light dark:bg-secondary-dark" : "border-t border-x border-primary-light dark:border-primary-dark rounded-t-lg"} ${withSeperator(configs)}`}
   >
     {#if configs?.headers}
       {#if configs?.isCategories && isEdit}

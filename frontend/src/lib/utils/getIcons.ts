@@ -34,6 +34,9 @@ import ArchiveIcon from "../icon/archive.svelte";
 import FileCheckIcon from "../icon/file-check-02.svelte";
 import UserUpIcon from "../icon/user-up.svelte";
 import EyeIcon from "../icon/eye.svelte";
+import Presentation from "../icon/presentation-chart-02.svelte";
+import Lightbulb from "../icon/lightbulb-04.svelte";
+import Marketplace from "../icon/marketplace-01.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -109,6 +112,12 @@ let getIcons = (presetIcon: String) => {
       return UserUpIcon;
     case "eye":
       return EyeIcon;
+    case "presentation":
+      return Presentation;
+    case "lightbulb":
+      return Lightbulb;
+    case "marketplace":
+      return Marketplace;
     default:
       return "";
   }
