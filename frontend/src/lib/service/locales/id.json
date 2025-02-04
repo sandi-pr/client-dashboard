@@ -889,7 +889,7 @@
   "analytics": "Analitik",
   "marketplace": "Marketplace",
   "configurations": "Konfigurasi",
-  "bots": "Bots",
+  "bots": "Bot",
   "askMyCsv": "Tanya Wawasan",
   "changeDataSource": "Ganti Sumber Data",
   "providedTable": "Tabel yang Diberikan",
@@ -908,5 +908,10 @@
   "csvInsights": "Wawasan",
   "csvInsightsBotsList": "Daftar Bot Wawasan",
   "askForInsight": "Tanya Wawasan",
-  "succesfullyDeleted": "Berhasil dihapus"
+  "succesfullyDeleted": "Berhasil dihapus",
+  "descHexabots": "Daftar HexaBots yang tersedia untuk chat.",
+  "fineTuning": "Fine-Tuning",
+  "descFineTuning": "Optimalkan model untuk akurasi dan performa yang lebih baik",
+  "descDataSources": "Koneksi dan manajemen data dari berbagai sumber dengan mudah",
+  "descInsights": "Temukan manfaat dari data Anda dengan mudah"
 }

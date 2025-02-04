@@ -908,5 +908,10 @@
   "csvInsights": "Insights",
   "csvInsightsBotsList": "Insights Bots List",
   "askForInsight": "Ask for Insight",
-  "succesfullyDeleted": "Successfully deleted"
+  "succesfullyDeleted": "Successfully deleted",
+  "descHexabots": "List of HexaBots available for chat.",
+  "fineTuning": "Fine-Tuning",
+  "descFineTuning": "Optimize models for better accuracy and performance",
+  "descDataSources": "Connect and manage data from multiple sources effortlessly",
+  "descInsights": "Uncover valuable insights from your data with ease"
 }

@@ -89,12 +89,6 @@ All Rights Reserved
   ];
 
   const cardsAi = [
-    {
-      icon: "messageChat",
-      title: "hexabot",
-      description: "descHexabot",
-      page: "hexabot",
-    },
     // {
     //   icon: "archive",
     //   title: "documentCollection",
@@ -105,14 +99,14 @@ All Rights Reserved
       ? $isBakrie
         ? {
             icon: "archive",
-            title: "documentLibrary",
+            title: "documents",
             description: "descDocumentLibrary",
             page: "document-library-collections",
             param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
           }
         : {
             icon: "archive",
-            title: "documentLibrary",
+            title: "documents",
             description: "descDocumentLibrary",
             page: "document-collection-overview",
           }
@@ -123,20 +117,38 @@ All Rights Reserved
     //   description: "descContractReviewer",
     //   page: "contract-reviewer-overview",
     // },
+    {
+      icon: "messageChat",
+      title: "bots",
+      description: "descHexabot",
+      page: "bots",
+    },
+    {
+      icon: "messageChat",
+      title: "hexaBots",
+      description: "descHexabots",
+      page: "hexabot",
+    },
+    {
+      icon: "bookClosed",
+      title: "dataSources",
+      description: "descDataSources",
+      page: "data-sources",
+    },
+    {
+      icon: "lightbulb",
+      title: "insights",
+      description: "descInsights",
+      page: "insights",
+    },
     check("aiManagement.datasets:view")
       ? {
           icon: "data",
-          title: "datasets",
-          description: "descDatasets",
+          title: "fineTuning",
+          description: "descFineTuning",
           page: "datasets",
         }
       : false,
-      {
-        icon: "bookClosed",
-        title: "csvInsights",
-        description: "",
-        page: "csv-insights",
-      }
   ].filter(Boolean);
 
   let docAiCard = $state([]);

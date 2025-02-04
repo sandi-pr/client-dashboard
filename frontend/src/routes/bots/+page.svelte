@@ -33,6 +33,8 @@
     newNotification,
     notifications,
     onProgress,
+    showAI, 
+    showNotif,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -580,7 +582,7 @@
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Typography preset="Display sm/Semibold" text={$_("hexaBots")} propClass="fluid-xl" />
+        <Typography preset="Display sm/Semibold" text={$_("bots")} propClass="fluid-xl" />
 
         <!-- Action Items -->
         <div class="flex flex-col gap-4">
@@ -624,7 +626,7 @@
           {:else if bots.length === 0}
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {:else}
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+            <div class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}>
               {#each bots as bot, index (bot.botsID)}
                 <!-- {#if bot.deployStatus === "Done"} -->
                 <Card padding="none" class="relative shadow-none grow w-full">
