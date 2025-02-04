@@ -343,6 +343,16 @@
             "name": "insights",
             "path": "/insights",
             "file_path": "template/insights.html"
+        },
+        {
+            "name": "data-sources",
+            "path": "/data_sources",
+            "file_path": "template/data_sources.html"
+        },
+        {
+            "name": "sources",
+            "path": "/data_sources/sources",
+            "file_path": "template/data_sources/sources.html"
         }
     ],
     "apis": [

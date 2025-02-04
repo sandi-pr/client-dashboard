@@ -1,6 +1,6 @@
 <script>
   import { Button, Card, Indicator, Dropdown, DropdownItem } from "flowbite-svelte";
-  import { Typography, Badge, check, industryData, bakrieLibraryId } from "$lib";
+  import { Typography, Badge, check, industryData, bakrieLibraryId, call } from "$lib";
   import { _ } from "svelte-i18n";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
@@ -10,6 +10,8 @@
   import DotIcon from "$lib/icon/dot.svelte";
   import PlusIcon from "$lib/icon/plus.svelte";
   import Folder from "$lib/icon/folder.svelte";
+
+  import { goto } from "$app/navigation";
 
   let {
     collectionName,
@@ -23,7 +25,7 @@
     functDelete = () => {},
     funcSelectCollectionWebchat = () => {},
     dropdownOpen = false,
-    funcDetailCollection = () => {},
+    // funcDetailCollection = () => {},
     libraryId = null,
   } = $props();
 
@@ -87,6 +89,12 @@
       return Stars03Icon;
     }
   };
+
+  async function funcDetailCollection() {
+    let link = await $call.getPage("client-dashboard", "sources");
+
+    goto(link);
+  }
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;

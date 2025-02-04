@@ -895,7 +895,7 @@
   "providedTable": "Tabel yang Diberikan",
   "csvInsight": "Wawasan",
   "changeYourDataSourcesFiles": "Ganti berkas sumber data Anda",
-  "addNewCsv": "Tambahkan baru",
+  "addNewCsv": "Tambahkan wawasan baru",
   "addDataSource": "Tambahkan Sumber Data",
   "descAddDataSource": "Tambahkan sumber data dan buka wawasan",
   "dataSourcesList": "Daftar Sumber Data",
@@ -907,5 +907,6 @@
   "editDataSourcesName": "Edit Nama Sumber Data",
   "csvInsights": "Wawasan",
   "csvInsightsBotsList": "Daftar Bot Wawasan",
-  "askForInsight": "Tanya Wawasan"
+  "askForInsight": "Tanya Wawasan",
+  "succesfullyDeleted": "Berhasil dihapus"
 }

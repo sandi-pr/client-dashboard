@@ -895,7 +895,7 @@
   "providedTable": "Provided Table",
   "csvInsight": "Insight",
   "changeYourDataSourcesFiles": "Change your data sources files",
-  "addNewCsv": "Add New",
+  "addNewCsv": "Add New Source",
   "addDataSource": "Add Data Source",
   "descAddDataSource": "Add data source and unlock insights",
   "dataSourcesList": "Data Sources List",
@@ -907,5 +907,6 @@
   "editDataSourcesName": "Edit Data Sources Name",
   "csvInsights": "Insights",
   "csvInsightsBotsList": "Insights Bots List",
-  "askForInsight": "Ask for Insight"
+  "askForInsight": "Ask for Insight",
+  "succesfullyDeleted": "Successfully deleted"
 }

@@ -15,7 +15,7 @@
 
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
-  import { check, onProgress } from "$lib";
+  import { check, onProgress, call } from "$lib";
 
   import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
@@ -112,7 +112,7 @@
                 <img src={DOCSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {:else if collectionListData.fileext === "docx"}
                 <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-              {:else if collectionListData.fileext === "csv"}
+              {:else if collectionListData.fileext === "csv" || collectionListData.fileext === ".csv"}
                 <img src={CSVIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {/if}
               <P class="line-clamp-2 fluid-sm font-semibold">{collectionListData.filename}</P>
@@ -121,8 +121,9 @@
           <TableBodyCell>
             <Button
               disabled={!check("documentAi.documentLibrary.document:view")}
-              on:click={() => {
-                goto(collectionListData.href);
+              on:click={async () => {
+                let link = await $call.getPage("client-dashboard", "insights");
+                goto(link);
               }}
               color="white"
               class="!p-2 focus-within:!ring-1 text-brand-tertiary-light dark:text-brand-tertiary-dark"
@@ -178,13 +179,14 @@
         <span>{pagination.page === 1 ? 1 : (pagination.page - 1) * pagination.pageSize + 1}</span>
         -
         <!-- {$_("to")} -->
-        <span
+        <!-- <span
           >{pagination.page * pagination.pageSize >= pagination.total
             ? pagination.total
             : pagination.page * pagination.pageSize}</span
-        >
+        > -->
+        <span>{collectionListDatas.length}</span>
         of
-        <span>{pagination.total}</span>
+        <span>{collectionListDatas.length}</span>
         <!-- {$_("entries")} -->
       </div>
 

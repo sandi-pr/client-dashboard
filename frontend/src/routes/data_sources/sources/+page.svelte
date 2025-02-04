@@ -87,30 +87,30 @@
   });
   let collectionListDatas = $state([]);
   let csvListDatas = $state([
-    {
-      id: 1,
-      filename: 'user_1.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
-      checked: false,
-      createdAt: 'Jan 4, 2022',
-    },
-    {
-      id: 2,
-      filename: 'user_2.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
-      checked: false,
-      createdAt: 'Jan 4, 2022',
-    },
-    {
-      id: 3,
-      filename: 'user_3.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
-      checked: false,
-      createdAt: 'Jan 4, 2022',
-    },
+    // {
+    //   id: 1,
+    //   filename: 'user_1.csv',
+    //   filesize: '200 KB',
+    //   fileext: 'csv',
+    //   checked: false,
+    //   createdAt: 'Jan 4, 2022',
+    // },
+    // {
+    //   id: 2,
+    //   filename: 'user_2.csv',
+    //   filesize: '200 KB',
+    //   fileext: 'csv',
+    //   checked: false,
+    //   createdAt: 'Jan 4, 2022',
+    // },
+    // {
+    //   id: 3,
+    //   filename: 'user_3.csv',
+    //   filesize: '200 KB',
+    //   fileext: 'csv',
+    //   checked: false,
+    //   createdAt: 'Jan 4, 2022',
+    // },
   ]);
   let childCollectionListDatas = $state([]);
   let childCollectionList = $state([]);
@@ -494,6 +494,41 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
+  }
+
+  function addDataSource() {
+    addDocumentsModal = false;
+    csvListDatas = [
+      ...csvListDatas,
+      {
+        id: csvListDatas.length + 1,
+        filename: files[0].name,
+        filesize: files[0].size,
+        fileext: files[0].ext,
+        checked: false,
+        createdAt: format(new Date(), "MMM d, yyyy"),
+      },
+    ]
+
+    localStorage.setItem("csvListDatas", JSON.stringify(csvListDatas));
+
+    files = [];
+
+    triggerToast($_("succesfullyUploaded"), true);
+  }
+
+  function deleteSource() {
+    if (checkboxDelete === false) {
+      csvListDatas = csvListDatas.filter((item) => item.id !== tmpId);
+    } else {
+      csvListDatas = csvListDatas.filter((item) => !item.checked);
+    }
+
+    localStorage.setItem("csvListDatas", JSON.stringify(csvListDatas));
+
+    tmpId = null;
+
+    triggerToast($_("succesfullyDeleted"), true);
   }
 
   async function sendDocument(single = false) {
@@ -1017,7 +1052,7 @@
   };
 
   onMount(() => {
-
+    csvListDatas = JSON.parse(localStorage.getItem("csvListDatas") || "[]");
   });
 
   $effect(() => {
@@ -1128,14 +1163,14 @@
 
 <Modal title={$_("addNewCsv")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
-    {#if step === 1}
+    {#if step === 0}
       <SelectedCard
         selectionData={source}
         bind:selectedData={selectedSource}
         isFlex
         isRadio
       />
-    {:else if step === 2}
+    {:else if step === 1}
       {#if selectedSource === 1}
         <UploadFile
           title={`${$_("uploadDocuments")}*`}
@@ -1163,7 +1198,7 @@
     {/if}
   </div>
   <svelte:fragment slot="footer">
-    {#if step === 1}
+    {#if step === 0}
     <Button
       on:click={() => {
         step = 2;
@@ -1171,18 +1206,18 @@
       class="w-full"
       disabled={!selectedSource}>{$_("next")}</Button
     >
-    {:else if step === 2}
+    {:else if step === 1}
       <div class="flex gap-4 w-full">
-        <button
+        <!-- <button
           onclick={() => {
             step = 1;
             linkCsv = "";
             files = [];
           }}
           class="px-5">{$_("back")}</button
-        >
-        <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-          >{$_("addNewDocument")}</Button
+        > -->
+        <Button onclick={addDataSource} disabled={buttonDisabled} class="w-full"
+          >{$_("upload")}</Button
         >
       </div>
     {/if}
@@ -1195,7 +1230,7 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={checkboxDelete ? deleteDocuments : deleteDocument} color="red" class="me-2"
+    <Button onclick={deleteSource} color="red" class="me-2"
       >{$_("yesImSure")}</Button
     >
     <Button color="alternative">{$_("noCancel")}</Button>
