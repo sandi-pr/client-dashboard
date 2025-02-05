@@ -205,25 +205,26 @@ All Rights Reserved
           : await call.getPage("client-dashboard", "document-collection-overview"),
           children: []
       },
-      {
-        icon: "presentation",
-        name: "Analytics",
-        children: [
-          {
-            icon: "bookClosed",
-            name: "dataSources",
-            href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
-          },
-          {
-            icon: "lightbulb",
-            name: "insights",
-            href: isFrontend ? "/insights" : await call.getPage("client-dashboard", "insights"),
-          },
-        ],
-      },
+      // {
+      //   icon: "presentation",
+      //   name: "Analytics",
+      //   children: [
+      //     {
+      //       icon: "bookClosed",
+      //       name: "dataSources",
+      //       href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
+      //     },
+      //     {
+      //       icon: "lightbulb",
+      //       name: "insights",
+      //       href: isFrontend ? "/insights" : await call.getPage("client-dashboard", "insights"),
+      //     },
+      //   ],
+      // },
       {
         icon: "marketplace",
         name: "marketplace",
+        commingSoon: true,
         href: isFrontend
           ? "/marketplace"
           : await call.getPage("client-dashboard", "marketplace"),

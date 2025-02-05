@@ -329,8 +329,8 @@
   "orderDate": "Tanggal Order",
   "shippingAddress": "Alamat Pengiriman",
   "employeeId": "ID Karyawan",
-  "finetuning": "Fine-Tuning",
-  "addNewFinetuningData": "Tambahkan data Fine-tuning baru",
+  "finetuning": "Finetuning",
+  "addNewFinetuningData": "Tambahkan data Finetuning baru",
   "trainingData": "Data Pelatihan",
   "imageUpload": "Unggah Gambar",
   "sourceText": "Teks Sumber",
@@ -910,8 +910,9 @@
   "askForInsight": "Tanya Wawasan",
   "succesfullyDeleted": "Berhasil dihapus",
   "descHexabots": "Daftar HexaBots yang tersedia untuk chat.",
-  "fineTuning": "Fine-Tuning",
+  "fineTuning": "Finetuning",
   "descFineTuning": "Optimalkan model untuk akurasi dan performa yang lebih baik",
   "descDataSources": "Koneksi dan manajemen data dari berbagai sumber dengan mudah",
-  "descInsights": "Temukan manfaat dari data Anda dengan mudah"
+  "descInsights": "Temukan manfaat dari data Anda dengan mudah",
+  "soon": "Segera"
 }

@@ -31,6 +31,7 @@
     SidebarDropdownWrapper,
     SidebarDropdownItem,
     DarkMode,
+    SidebarItem,
   } from "flowbite-svelte";
   import {
     CogOutline,
@@ -78,6 +79,7 @@
         name: item.name,
         href: item.href,
         icon: item.icon,
+        commingSoon: item.commingSoon || false,
         children: item.children,
       };
     });
@@ -231,6 +233,7 @@
               href={item.href}
               {activeUrl}
               icon={item.icon}
+              commingSoon={item.commingSoon}
               typographyData={{
                 preset: "Text md/Semibold",
                 text: $_(item.name),

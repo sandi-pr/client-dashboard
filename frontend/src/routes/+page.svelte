@@ -129,18 +129,18 @@ All Rights Reserved
       description: "descHexabots",
       page: "hexabot",
     },
-    {
-      icon: "bookClosed",
-      title: "dataSources",
-      description: "descDataSources",
-      page: "data-sources",
-    },
-    {
-      icon: "lightbulb",
-      title: "insights",
-      description: "descInsights",
-      page: "insights",
-    },
+    // {
+    //   icon: "bookClosed",
+    //   title: "dataSources",
+    //   description: "descDataSources",
+    //   page: "data-sources",
+    // },
+    // {
+    //   icon: "lightbulb",
+    //   title: "insights",
+    //   description: "descInsights",
+    //   page: "insights",
+    // },
     check("aiManagement.datasets:view")
       ? {
           icon: "data",

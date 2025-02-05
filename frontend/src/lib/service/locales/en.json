@@ -329,8 +329,8 @@
   "orderDate": "Order Date",
   "shippingAddress": "Shipping Address",
   "employeeId": "Employee ID",
-  "finetuning": "Fine-Tuning",
-  "addNewFinetuningData": "Add new Fine-tuning data",
+  "finetuning": "Finetunings",
+  "addNewFinetuningData": "Add new Finetunings data",
   "trainingData": "Training Data",
   "imageUpload": "Image Upload",
   "sourceText": "Source Text",
@@ -910,8 +910,9 @@
   "askForInsight": "Ask for Insight",
   "succesfullyDeleted": "Successfully deleted",
   "descHexabots": "List of HexaBots available for chat.",
-  "fineTuning": "Fine-Tuning",
+  "fineTuning": "Finetunings",
   "descFineTuning": "Optimize models for better accuracy and performance",
   "descDataSources": "Connect and manage data from multiple sources effortlessly",
-  "descInsights": "Uncover valuable insights from your data with ease"
+  "descInsights": "Uncover valuable insights from your data with ease",
+  "soon": "Soon"
 }
