@@ -147,7 +147,7 @@
           const libraryId = params.get("libraryId");
           const customName = await getLibraryCollectionName(libraryId);
           return { name: customName, href: href, isCustomName: true };
-        } else if (url === "documents") {
+        } else if (url === "documents" && index > 1) {
           const params = new URLSearchParams(window.location.search);
           const collectionId = params.get("collectionId");
           const customName = await getLibraryCollectionName(collectionId);
