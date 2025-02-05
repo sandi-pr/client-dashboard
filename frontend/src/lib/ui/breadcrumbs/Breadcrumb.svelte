@@ -254,8 +254,8 @@
                   queryParams[key] = value;
                 }
                 const queryString = new URLSearchParams(queryParams).toString();
-                console.log(`check url: ${baseUrl}${item.href}?${queryString}`);
-                // goto(`${baseUrl}${item.href}?${queryString}`);
+                // console.log(`check url: ${baseUrl}${item.href}?${queryString}`);
+                goto(`${baseUrl}${item.href}?${queryString}`);
               }}
             >
               {#if detail && title !== null && index === activeUrlArray.length - 1}
