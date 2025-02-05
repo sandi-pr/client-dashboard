@@ -187,7 +187,7 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("dataSourcesName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourDataSourcesTitle")} />
+      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourDataSourcesTitle")} />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
