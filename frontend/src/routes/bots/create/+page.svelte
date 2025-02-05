@@ -696,7 +696,7 @@
           return;
         }
 
-        goto(await $call.getPage("client-dashboard", "hexabot"));
+        goto(await $call.getPage("client-dashboard", "bots"));
         triggerToast("created");
       } catch (error) {
         console.log(error);
@@ -889,7 +889,7 @@
     <div class="flex text-sm gap-3">
       <Button
         on:click={async () => {
-          goto(await $call.getPage("client-dashboard", "hexabot"));
+          goto(await $call.getPage("client-dashboard", "bots"));
         }}
         color="light">{$_("cancel")}</Button
       >

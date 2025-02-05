@@ -1073,7 +1073,7 @@
           console.log(response);
           triggerLoading(false);
           triggerToast("error");
-          goto(await $call.getPage("client-dashboard", "hexabot-list"));
+          goto(await $call.getPage("client-dashboard", "bots-list"));
           return;
         }
 
@@ -1315,7 +1315,7 @@
 
         // popupModal = false;
         triggerToast("deleted");
-        goto(await $call.getPage("client-dashboard", "hexabot-list"));
+        goto(await $call.getPage("client-dashboard", "bots-list"));
       } catch (error) {
         console.log(error);
       }
@@ -1406,7 +1406,7 @@
       if (!botId) {
         triggerToast("error");
         triggerLoading(false);
-        goto(await $call.getPage("client-dashboard", "hexabot-list"));
+        goto(await $call.getPage("client-dashboard", "bots-list"));
         return;
       }
       await getModels();
@@ -1488,7 +1488,7 @@
             <div class="hidden md:flex gap-2">
               <Button
                 onclick={async function () {
-                  goto(await $call.getPage("client-dashboard", "hexabot"));
+                  goto(await $call.getPage("client-dashboard", "bots"));
                   return;
                 }}
                 color="light"
@@ -1852,7 +1852,7 @@
         <!-- <div class="flex justify-end gap-3">
           <Button
             on:click={async () => {
-              goto(await $call.getPage("client-dashboard", "hexabot-list"));
+              goto(await $call.getPage("client-dashboard", "bots-list"));
             }}
             color="light"
             class="px-3 focus-within:!ring-1">{$_("cancel")}</Button

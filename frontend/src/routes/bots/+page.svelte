@@ -97,7 +97,7 @@
     actionItems = [
       {
         disabled: !check("aiManagement.hexabots:create"),
-        href: await $call.getPage("client-dashboard", "hexabot-create"),
+        href: await $call.getPage("client-dashboard", "bots-create"),
         icon: "messagePlus",
         actionName: "Create New Bots",
         desc: "desc Create New Bots",
@@ -273,7 +273,7 @@
   async function getChartAction(readyCollection) {
     chartAction = [
       {
-        href: await $call.getPage("client-dashboard", "hexabot"),
+        href: await $call.getPage("client-dashboard", "bots-list"),
         dataName: "Total Bot",
         value: readyCollection.total,
         change: readyCollection.change,
@@ -432,7 +432,7 @@
 
   async function goToEditPage(botId) {
     goto(
-      (await $call.getPage("client-dashboard", "hexabot-detail")) +
+      (await $call.getPage("client-dashboard", "bots-detail")) +
         "?botId=" +
         botId +
         "&edit=true",
@@ -610,7 +610,7 @@
             >
             <Button
               on:click={async () => {
-                goto(await $call.getPage("client-dashboard", "hexabot-list"));
+                goto(await $call.getPage("client-dashboard", "bots-list"));
               }}
               color="light"
               class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
@@ -714,7 +714,7 @@
                         disabled={!check("aiManagement.hexabots:view")}
                         on:click={async () => {
                           goto(
-                            (await $call.getPage("client-dashboard", "hexabot-detail")) +
+                            (await $call.getPage("client-dashboard", "bots-detail")) +
                               "?botId=" +
                               bot.botsID,
                           );

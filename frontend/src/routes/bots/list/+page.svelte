@@ -339,7 +339,7 @@
                         disabled={!check("aiManagement.hexabots:view")}
                         on:click={async () => {
                           goto(
-                            (await $call.getPage("client-dashboard", "hexabot-detail")) +
+                            (await $call.getPage("client-dashboard", "bots-detail")) +
                               "?botId=" +
                               bot.botsID,
                           );

@@ -335,9 +335,19 @@
             "file_path": "template/bots.html"
         },
         {
+            "name": "bots-create",
+            "path": "/bots/create",
+            "file_path": "template/bots/create.html"
+        },
+        {
             "name": "bots-list",
             "path": "/bots/list",
             "file_path": "template/bots/list.html"
+        },
+        {
+            "name": "bots-detail",
+            "path": "/bots/detail",
+            "file_path": "template/bots/detail.html"
         },
         {
             "name": "insights",
