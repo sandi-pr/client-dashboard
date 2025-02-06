@@ -71,7 +71,7 @@
   let tmpDatasChecked = $state({});
   let configs = $state({});
   let gettingDatas = $state(false);
-  let pagination = $state({ page: 1, pageSize: 3, pageCount: 0, total: 0 });
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
 
   let platforms = $state([]);

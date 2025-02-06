@@ -16,6 +16,8 @@
   import { goto } from "$app/navigation";
   import { check, onProgress } from "$lib";
 
+  import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
+  import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
   import EyeIcon from "$lib/icon/eye.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
@@ -28,7 +30,7 @@
   import { onMount } from "svelte";
 
   export let collectionListDatas;
-  export let metadata;
+  export let pagination;
   export let checkSingle;
   export let checkAll;
   export let checkAllState;
@@ -46,36 +48,23 @@
     }
   };
 
-  const pagesGenerator = () => {
-    let length = metadata.total / metadata.pageSize;
-    length = Math.ceil(length);
-    let pages = [];
-    if (length > 6) {
-      for (let i = 0; i < 3; i++) {
-        pages.push({
-          name: `${i + 1}`,
-        });
-      }
-      pages.push({
-        name: "...",
-      });
-      // push the last 3 pages
-      for (let i = length - 3; i < length; i++) {
-        pages.push({
-          name: `${i + 1}`,
-        });
-      }
-    } else {
-      for (let i = 0; i < length; i++) {
-        pages.push({
-          name: `${i + 1}`,
-        });
-      }
-    }
-    return pages;
-  };
+  function truncateText(text, maxWords, maxFirstWordLength = 20) {
+    const words = text.split(" ");
 
-  let pages = pagesGenerator();
+    // Check if the first word is too long, or if the second word is long
+    if (words[0] && words[0].length > maxFirstWordLength) {
+      return words[0].slice(0, maxFirstWordLength) + "...";
+    } else if (words[1] && words[1].length > maxFirstWordLength) {
+      return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
+    }
+
+    // Limit to maxWords and append "..." if necessary
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(" ") + " ...";
+    }
+
+    return words.join(" ");
+  }
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
@@ -112,7 +101,7 @@
               {:else if collectionListData.fileext === "docx"}
                 <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {/if}
-              <P class="line-clamp-2 fluid-sm font-semibold">{collectionListData.filename}</P>
+              <P class="line-clamp-2 w-full truncate fluid-sm font-semibold">{truncateText(collectionListData.filename, 2)}</P>
             </div>
           </TableBodyCell>
         </TableBodyRow>
@@ -220,7 +209,7 @@
                   }}
                 />
               {/if}
-              <P class="text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("select")}</P>
+              <P class="text-brand-tertiary-light hidden dark:text-brand-tertiary-dark">{$_("select")}</P>
             </div>
           </TableBodyCell>
         </TableBodyRow>
@@ -231,7 +220,58 @@
       {/each}
     </TableBody>
   </Table>
-  <div class="flex justify-between items-center !rounded-none !rounded-b-lg !border-t-0">
+  <div class="flex justify-between !border-0">
+    {#if pagination.total > pagination.pageSize}
+      <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+        Showing
+        <span>{pagination.page === 1 ? 1 : (pagination.page - 1) * pagination.pageSize + 1}</span>
+        -
+        <!-- {$_("to")} -->
+        <span
+          >{pagination.page * pagination.pageSize >= pagination.total
+            ? pagination.total
+            : pagination.page * pagination.pageSize}</span
+        >
+        of
+        <span>{pagination.total}</span>
+        <!-- {$_("entries")} -->
+      </div>
+
+      <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+        page
+        <span>{pagination.page}</span>
+        of
+        <span>{pagination.pageCount}</span>
+      </div>
+    {/if}
+  </div>
+  {#if pagination.total > pagination.pageSize}
+    <div class="flex justify-end !border-0">
+      <Button
+        disabled={pagination.page === 1}
+        on:click={previous}
+        color="light"
+        class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
+      >
+        <ArrowLeftIcon
+          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+        />
+        previous
+      </Button>
+      <Button
+        disabled={pagination.page * pagination.pageSize >= pagination.total}
+        on:click={next}
+        color="light"
+        class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
+      >
+        next
+        <ArrowRightIcon
+          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+        />
+      </Button>
+    </div>
+  {/if}
+  <!-- <div class="flex justify-between items-center !rounded-none !rounded-b-lg !border-t-0">
     <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
       {$_("showing")}
       <span>{metadata.page === 1 ? 1 : (metadata.page - 1) * metadata.pageSize + 1}</span>
@@ -257,5 +297,5 @@
         <span slot="next">{$_("next")}</span>
       </Pagination>
     </div>
-  </div>
+  </div> -->
 </div>

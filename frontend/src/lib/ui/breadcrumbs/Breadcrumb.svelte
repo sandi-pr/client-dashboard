@@ -173,6 +173,25 @@
     console.log("activeUrlArray", activeUrlArray);
   }
 
+  function truncateText(text, maxWords, maxFirstWordLength = 20) {
+    console.log("text", text);
+    const words = text.split(" ");
+
+    // Check if the first word is too long, or if the second word is long
+    if (words[0] && words[0].length > maxFirstWordLength) {
+      return words[0].slice(0, maxFirstWordLength) + "...";
+    } else if (words[1] && words[1].length > maxFirstWordLength) {
+      return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
+    }
+
+    // Limit to maxWords and append "..." if necessary
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(" ") + " ...";
+    }
+
+    return words.join(" ");
+  }
+
   $effect(() => {
     if (activeUrl !== copyActiveUrl) {
       getActiveUrl();
@@ -220,12 +239,12 @@
               {#if detail && title !== null && index === activeUrlArray.length - 1}
                 {title}
               {:else}
-                {item.isCustomName ? item.name : $_(toCamelCase(postProcessName(item.name)))}
+                {item.isCustomName ? truncateText(item.name, 2) : $_(toCamelCase(postProcessName(item.name)))}
               {/if}
             </button>
           {:else}
             <span class={spanClass}>
-              {item.isCustomName ? item.name : $_(toCamelCase(postProcessName(item.name)))}
+              {item.isCustomName ? truncateText(item.name, 2) : $_(toCamelCase(postProcessName(item.name)))}
             </span>
           {/if}
         </li>

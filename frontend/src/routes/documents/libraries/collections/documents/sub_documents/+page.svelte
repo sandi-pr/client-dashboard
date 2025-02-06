@@ -301,10 +301,14 @@
   };
 
   const nextPage = (evt) => {
+    if (pagination.pageCount > pagination.page) pagination.page = pagination.page + 1;
+    getDocuments();
     console.log("next page");
   };
 
   const prevPage = (evt) => {
+    if (pagination.page > 1) pagination.page = pagination.page - 1;
+    getDocuments();
     console.log("prev page");
   };
 
@@ -1143,7 +1147,7 @@
                 preset="Display sm/Semibold"
                 color="primary"
                 text={collectionDatas.title}
-                propClass="fluid-xl"
+                propClass="fluid-xl line-clamp-2"
               />
             </div>
           </div>
@@ -1215,7 +1219,7 @@
         {#if collectionListDatas.length > 0}
           <DataTableLibraryCollection
             {collectionListDatas}
-            metadata={pagination}
+            {pagination}
             {checkAllState}
             {checkSingle}
             {checkAll}

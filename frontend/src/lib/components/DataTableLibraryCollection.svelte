@@ -17,6 +17,8 @@
   import { goto } from "$app/navigation";
   import { check, onProgress } from "$lib";
 
+  import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
+  import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
   import EyeIcon from "$lib/icon/eye.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
@@ -29,7 +31,7 @@
   import { onMount } from "svelte";
 
   export let collectionListDatas;
-  export let metadata;
+  export let pagination;
   export let checkSingle;
   export let checkAll;
   export let checkAllState;
@@ -46,37 +48,6 @@
       return "py-[2px] px-2 border-[1px] rounded-xl text-center w-min bg-utility-brand-50-light dark:bg-utility-brand-50-dark border-utility-brand-200-light dark:border-utility-brand-200-dark text-utility-brand-700-light dark:text-utility-brand-700-dark";
     }
   };
-
-  const pagesGenerator = () => {
-    let length = metadata.total / metadata.pageSize;
-    length = Math.ceil(length);
-    let pages = [];
-    if (length > 6) {
-      for (let i = 0; i < 3; i++) {
-        pages.push({
-          name: `${i + 1}`,
-        });
-      }
-      pages.push({
-        name: "...",
-      });
-      // push the last 3 pages
-      for (let i = length - 3; i < length; i++) {
-        pages.push({
-          name: `${i + 1}`,
-        });
-      }
-    } else {
-      for (let i = 0; i < length; i++) {
-        pages.push({
-          name: `${i + 1}`,
-        });
-      }
-    }
-    return pages;
-  };
-
-  let pages = pagesGenerator();
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
@@ -274,7 +245,58 @@
       {/each}
     </TableBody>
   </Table>
-  <div class="flex justify-between items-center !rounded-none !rounded-b-lg !border-t-0">
+  <div class="flex justify-between !border-0">
+    {#if pagination.total > pagination.pageSize}
+      <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+        Showing
+        <span>{pagination.page === 1 ? 1 : (pagination.page - 1) * pagination.pageSize + 1}</span>
+        -
+        <!-- {$_("to")} -->
+        <span
+          >{pagination.page * pagination.pageSize >= pagination.total
+            ? pagination.total
+            : pagination.page * pagination.pageSize}</span
+        >
+        of
+        <span>{pagination.total}</span>
+        <!-- {$_("entries")} -->
+      </div>
+
+      <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+        page
+        <span>{pagination.page}</span>
+        of
+        <span>{pagination.pageCount}</span>
+      </div>
+    {/if}
+  </div>
+  {#if pagination.total > pagination.pageSize}
+    <div class="flex justify-end !border-0">
+      <Button
+        disabled={pagination.page === 1}
+        on:click={previous}
+        color="light"
+        class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
+      >
+        <ArrowLeftIcon
+          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+        />
+        previous
+      </Button>
+      <Button
+        disabled={pagination.page * pagination.pageSize >= pagination.total}
+        on:click={next}
+        color="light"
+        class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
+      >
+        next
+        <ArrowRightIcon
+          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+        />
+      </Button>
+    </div>
+  {/if}
+  <!-- <div class="flex justify-between items-center !rounded-none !rounded-b-lg !border-t-0">
     <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
       {$_("showing")}
       <span>{metadata.page === 1 ? 1 : (metadata.page - 1) * metadata.pageSize + 1}</span>
@@ -297,9 +319,8 @@
         activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
       >
         <span slot="prev">{$_("previous")}</span>
-        <!--  -->
         <span slot="next">{$_("next")}</span>
       </Pagination>
     </div>
-  </div>
+  </div> -->
 </div>

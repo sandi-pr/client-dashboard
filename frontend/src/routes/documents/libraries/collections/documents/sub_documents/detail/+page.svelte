@@ -661,6 +661,25 @@ All Rights Reserved
     }
   }
 
+  function truncateText(text, maxWords, maxFirstWordLength = 20) {
+    console.log("text", text);
+    const words = text.split(" ");
+
+    // Check if the first word is too long, or if the second word is long
+    if (words[0] && words[0].length > maxFirstWordLength) {
+      return words[0].slice(0, maxFirstWordLength) + "...";
+    } else if (words[1] && words[1].length > maxFirstWordLength) {
+      return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
+    }
+
+    // Limit to maxWords and append "..." if necessary
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(" ") + " ...";
+    }
+
+    return words.join(" ");
+  }
+
   let tags = $state([]); // Daftar tag yang sudah dimasukkan pengguna
   let newTag = $state(""); // Menyimpan input dari pengguna
   let inputRef;
@@ -811,7 +830,7 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{tmpData.document_title}
+              >{truncateText(tmpData.document_title || "", 2)}
               <!-- <Button
                 outline
                 color="red"
@@ -927,7 +946,7 @@ All Rights Reserved
                 <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
                 <MultiSelect
                   --sms-min-height="40px"
-                  options={alltags} 
+                  options={alltags || []} 
                   disabled={!onEdit}
                   allowUserOptions="append"
                   bind:selected={tags}

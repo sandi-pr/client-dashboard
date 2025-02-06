@@ -44,6 +44,7 @@
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from "svelte-multiselect";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
+  import { get } from "svelte/store";
 
   let collectionId;
   let libraryId = $state(null);
@@ -168,6 +169,8 @@
           },
         });
 
+        collectionListDatas = [];
+
         if (response.status !== 200) {
           console.log(response);
           gettingDocs = false;
@@ -259,6 +262,8 @@
         });
 
         collectionListDatas = await Promise.all(promise);
+
+        console.log("collectionListDatas", collectionListDatas);
       } catch (error) {
         console.error("Error during documents get:", error);
         gettingDocs = false;
@@ -379,10 +384,14 @@
   };
 
   const nextPage = (evt) => {
+    if (pagination.pageCount > pagination.page) pagination.page = pagination.page + 1;
+    getDocuments();
     console.log("next page");
   };
 
   const prevPage = (evt) => {
+    if (pagination.page > 1) pagination.page = pagination.page - 1;
+    getDocuments();
     console.log("prev page");
   };
 
@@ -1407,7 +1416,7 @@
                 preset="Display sm/Semibold"
                 color="primary"
                 text={collectionDatas.title}
-                propClass="fluid-xl"
+                propClass="fluid-xl line-clamp-2"
               />
             </div>
           </div>
@@ -1462,7 +1471,7 @@
               on:click={() => (dropdownUpload = !dropdownUpload)}
             >
               <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-              {$_("addNew")}
+              <div class="hidden md:block">{$_("addNew")}</div>
             </Button>
             <div
               class={`z-50 ${dropdownUpload ? "absolute right-0 top-12" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
@@ -1504,7 +1513,7 @@
             {#if !checkTitle(collectionDatas.title)}
               {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
                 <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                  <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2">
+                  <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2.5">
                     <DotsVerticalIcon
                       svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
                     />
@@ -1577,7 +1586,7 @@
             {#if isMobileView}
               <DataTableLibraryCollectionVertical
                 {collectionListDatas}
-                metadata={pagination}
+                {pagination}
                 {checkAllState}
                 {checkSingle}
                 {checkAll}
@@ -1592,7 +1601,7 @@
             {:else}
               <DataTableLibraryCollection
                 {collectionListDatas}
-                metadata={pagination}
+                {pagination}
                 {checkAllState}
                 {checkSingle}
                 {checkAll}
