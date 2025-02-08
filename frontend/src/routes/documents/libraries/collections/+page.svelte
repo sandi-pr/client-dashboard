@@ -44,6 +44,7 @@
   let libraryId = $state("");
   let dropdownOpen = $state(false);
   let nameIsAvailable = $state(true);
+  let gettingDatas = $state(false);
 
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
 
@@ -102,6 +103,7 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      gettingDatas = true;
       try {
         getLibrary();
 
@@ -120,6 +122,7 @@
 
         if (response.status !== 200) {
           console.log(response);
+          gettingDatas = false;
           if (response.status === 400) {
             console.error("Invalid parameters:", response);
             triggerToast($_("invalidParameters"), true, "error");
@@ -164,8 +167,10 @@
         });
 
         collectionListDatas = await Promise.all(promise);
+        gettingDatas = false;
       } catch (error) {
         console.error("Error during collection get:", error);
+        gettingDatas = false;
         triggerToast($_("failedGetCollection"), true, "error");
       }
     } else {
@@ -729,8 +734,16 @@
               <TextareaRw onEdit={false} bind:value={collectionDatas.description} />
             </div>
           </div>
+        {:else if gettingDatas}
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
         {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          <StateCard
+            illustration={IllustrationEmpty}
+            description={$_("youDontHaveAnyDataYet")}
+          />
         {/if}
       </div>
     </div>

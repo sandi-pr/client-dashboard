@@ -37,6 +37,28 @@ import EyeIcon from "../icon/eye.svelte";
 import Presentation from "../icon/presentation-chart-02.svelte";
 import Lightbulb from "../icon/lightbulb-04.svelte";
 import Marketplace from "../icon/marketplace-01.svelte";
+import MessageChatSquare from '../icon/message-chat-square.svelte';
+import MessageHeartSquare from '../icon/message-heart-square.svelte';
+import MessageSmileSquare from '../icon/message-smile-square.svelte';
+import Star04Icon from '../icon/star-04.svelte';
+import PenToolIcon from '../icon/pen-tool-02.svelte';
+import Image03Icon from '../icon/image-03.svelte';
+import VideoRecorderIcon from '../icon/video-recorder.svelte';
+import Recording02Icon from '../icon/recording-02.svelte';
+import AiDocumentIcon from '../icon/ai-document-01.svelte';
+import FileLockIcon from '../icon/file-lock-02.svelte';
+import Settings03Icon from '../icon/settings-03.svelte';
+import MessagePlusSquare from '../icon/message-plus-square.svelte';
+import GraduationHat01 from '../icon/graduation-hat-01.svelte';
+import GraduationHat02 from '../icon/graduation-hat-02.svelte';
+import CodingIcon from '../icon/coding.svelte';
+import Globe01 from '../icon/globe-01.svelte';
+import DashboardIcon from '../icon/dashboard-01.svelte';
+import Dataflow04Icon from '../icon/dataflow-04.svelte';
+import MetaIcon from '../icon/meta.svelte';
+import GeminiIcon from '../icon/gemini.svelte';
+import DeepseekIcon from '../icon/deepseek.svelte';
+import PhoneCallIcon from '../icon/phone-call-02.svelte';
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -118,6 +140,50 @@ let getIcons = (presetIcon: String) => {
       return Lightbulb;
     case "marketplace":
       return Marketplace;
+    case "messageChatSquare":
+      return MessageChatSquare;
+    case "messageHeartSquare":
+      return MessageHeartSquare;
+    case "messageSmileSquare":
+      return MessageSmileSquare;
+    case "star04":
+      return Star04Icon;
+    case "penTool":
+      return PenToolIcon;
+    case "image03":
+      return Image03Icon;
+    case "videoRecorder":
+      return VideoRecorderIcon;
+    case "recording02":
+      return Recording02Icon;
+    case "aiDocument":
+      return AiDocumentIcon;
+    case "fileLock":
+      return FileLockIcon;
+    case "settings03":
+      return Settings03Icon;
+    case "messagePlusSquare":
+      return MessagePlusSquare;
+    case "graduationHat01":
+      return GraduationHat01;
+    case "graduationHat02":
+      return GraduationHat02;
+    case "coding":
+      return CodingIcon;
+    case "globe01":
+      return Globe01;
+    case "dashboard01":
+      return DashboardIcon;
+    case "dataflow04":
+      return Dataflow04Icon;
+    case "meta":
+      return MetaIcon;
+    case "gemini":
+      return GeminiIcon;
+    case "deepseek":
+      return DeepseekIcon;
+    case "phoneCall":
+      return PhoneCallIcon;
     default:
       return "";
   }

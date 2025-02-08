@@ -43,7 +43,7 @@ export function connectWebSocket(token, isFrontend) {
 
   if (isFrontend) {
     socket = new WebSocket(
-      `ws://192.168.18.15/client-dashboard/notification/${encodeURIComponent(token)}`,
+      `wss://lajnah.hexacode.ai/client-dashboard/notification/${encodeURIComponent(token)}`,
     )
   } else {
     socket = new WebSocket(

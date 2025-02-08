@@ -30,6 +30,7 @@
     SelectedCard,
     UploadFile,
     triggerToast,
+    triggerLoading,
     Typography,
     InputRw,
     TextareaRw,
@@ -617,6 +618,7 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      triggerLoading(true);
       let allCollection = "";
 
       // console.log("tmpDatasChecked", tmpDatasChecked);
@@ -633,7 +635,10 @@
 
       // Iterasi key dalam tmpDatasChecked
       Object.values(tmpDatasChecked).forEach((pageData) => {
-        if (!pageData) return; // Skip jika pageData undefined/null
+        if (!pageData) {
+          triggerLoading(false);
+          return;
+        }; // Skip jika pageData undefined/null
 
         console.log("pageData", pageData);
 
@@ -693,12 +698,15 @@
 
         if (response.status !== 200) {
           console.log(response);
+          triggerLoading(false);
           return;
         }
 
         goto(await $call.getPage("client-dashboard", "bots"));
+        triggerLoading(false);
         triggerToast("created");
       } catch (error) {
+        triggerLoading(false);
         console.log(error);
       }
     } else {

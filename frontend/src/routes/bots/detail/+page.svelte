@@ -1210,6 +1210,7 @@
   async function updateBot() {
     let token = localStorage.getItem("token");
     if (token) {
+      triggerLoading(true);
       let allCollection = "";
 
       let pageNow = pagination.page;
@@ -1224,7 +1225,10 @@
 
       // Iterasi key dalam tmpDatasChecked
       Object.values(tmpDatasChecked).forEach((pageData) => {
-        if (!pageData) return; // Skip jika pageData undefined/null
+        if (!pageData) {
+          triggerLoading(false);
+          return;
+        } // Skip jika pageData undefined/null
 
         console.log("pageData", pageData);
 
@@ -1284,8 +1288,10 @@
 
         console.log("update bot", response);
         onEdit = false;
+        triggerLoading(false);
         triggerToast("updated");
       } catch (error) {
+        triggerLoading(false);
         console.log(error);
       }
     }
@@ -1295,6 +1301,7 @@
     let token = localStorage.getItem("token");
 
     if (token) {
+      triggerLoading(true);
       try {
         const response = await $call.call("client-dashboard", "delete-bot", {
           URLQuery: {},
@@ -1308,15 +1315,18 @@
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
           console.log(response);
           return;
         }
 
         // popupModal = false;
+        triggerLoading(false);
         triggerToast("deleted");
         goto(await $call.getPage("client-dashboard", "bots-list"));
       } catch (error) {
+        triggerLoading(false);
         console.log(error);
       }
     }

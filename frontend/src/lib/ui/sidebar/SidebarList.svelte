@@ -45,6 +45,7 @@
   import SidebarCloseIcon from "$lib/icon/sidebar-close.svelte";
   import SidebarOpenIcon from "$lib/icon/sidebar-open.svelte";
   import { onMount } from "svelte";
+  import Divider from "$lib/components/Divider.svelte";
   import Me from "$lib/utils/me";
   import { _ } from "svelte-i18n";
 
@@ -80,6 +81,7 @@
         href: item.href,
         icon: item.icon,
         commingSoon: item.commingSoon || false,
+        divider: item.divider || false,
         children: item.children,
       };
     });
@@ -135,55 +137,55 @@
   class={` ${isHidden ? "hidden h-screen" : "fixed h-full"} !overflow-x-visible z-50 border-r border-secondary-light dark:border-secondary-dark lg:fixed lg:inset-y-0 lg:z-10 lg:flex ${$sidebarLargeClosed ? "w-20" : "w-80"} transition-all duration-300 ease-in-out`}
 >
   <SidebarWrapper
-    class="h-full lg:pt-6 lg:px-4 flex flex-col grow justify-between bg-white dark:bg-primary-dark"
+    class="h-full lg:pt-6 lg:px-4 pb-24 flex flex-col grow justify-between bg-white dark:bg-primary-dark"
     divClass="overflow-y-hidden hover:overflow-y-auto no-scrollbar py-4 px-3 bg-gray-50 rounded dark:bg-gray-800"
   >
     <SidebarGroup>
-      <div
-        class={`relative flex items-start ${!$sidebarLargeClosed ? "justify-between" : "justify-center"}`}
-      >
-        {#if isHidden}
-          <div></div>
-        {:else if !$sidebarLargeClosed}
-          <LogoBrand
-            brandName={brand !== "" ? brand : "HexaCode.AI"}
-            href="/"
-            brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
-            imgClass="h-8"
-          />
-          {#if !(innerWidth < 1024)}
-            <button
-              onclick={() => {
-                changeSidbar();
-              }}
-            >
-              <SidebarCloseIcon
-                svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark"
-              />
-            </button>
+      <div class="sticky top-0 flex flex-col bg-primary-light dark:bg-primary-dark">
+        <div
+          class={`relative flex items-start ${!$sidebarLargeClosed ? "justify-between" : "justify-center"}`}
+        >
+          {#if isHidden}
+            <div></div>
+          {:else if !$sidebarLargeClosed}
+            <LogoBrand
+              brandName={brand !== "" ? brand : "HexaCode.AI"}
+              href="/"
+              brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
+              imgClass="h-8"
+            />
+            {#if !(innerWidth < 1024)}
+              <button
+                onclick={() => {
+                  changeSidbar();
+                }}
+              >
+                <SidebarCloseIcon
+                  svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark"
+                />
+              </button>
+            {/if}
+          {:else}
+            <LogoBrand
+              brandName={""}
+              href="/"
+              brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
+              imgClass="h-8"
+            />
+            {#if !(innerWidth < 1024)}
+              <button
+                onclick={() => {
+                  changeSidbar();
+                }}
+                class="fixed left-16 z-50 overflow-visible"
+              >
+                <SidebarOpenIcon
+                  svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark"
+                />
+              </button>
+            {/if}
           {/if}
-        {:else}
-          <LogoBrand
-            brandName={""}
-            href="/"
-            brandLogo={logoUrl !== "" ? logoUrl : LogoIcon}
-            imgClass="h-8"
-          />
-          {#if !(innerWidth < 1024)}
-            <button
-              onclick={() => {
-                changeSidbar();
-              }}
-              class="fixed left-16 z-50 overflow-visible"
-            >
-              <SidebarOpenIcon
-                svgClass="w-8 h-8 cursor-pointer text-utility-brand-500-alt-light dark:text-utility-brand-500-alt-dark"
-              />
-            </button>
-          {/if}
-        {/if}
-      </div>
-      {#if !$sidebarLargeClosed}
+        </div>
         <div class="md:hidden flex gap-2 pb-1">
           <div class="grow w-full">
             <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark !py-2" />
@@ -194,8 +196,10 @@
           <LanguageSelector isMobileScreen />
         </div>
         <div class="hidden md:flex pb-4">
-          <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark" />
+          <Search placeholder={$_("search")} class={`bg-white dark:bg-primary-dark ${sidebarLargeClosed ? "px-0" : ""}`} />
         </div>
+      </div>
+      {#if !$sidebarLargeClosed}
         {#each sidebarItems as item}
           {#if item.children.length > 0}
             <SidebarDropdownWrapper
@@ -217,8 +221,9 @@
                   href={child.href}
                   {activeUrl}
                   icon={child.icon}
-                  classes="flex w-full gap-3 items-center pl-11 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                  classesActive="flex w-full gap-3 items-center pl-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  commingSoon={child.commingSoon}
+                  classes="flex w-full gap-3 items-center justify-between pl-11 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  classesActive="flex w-full gap-3 items-center justify-between pl-11 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                   typographyData={{
                     preset: "Text md/Regular",
                     text: $_(toCamelCase(child.name)),
@@ -242,9 +247,12 @@
               collapse={false}
             />
           {/if}
+          {#if item?.divider}
+            <Divider />
+          {/if}
         {/each}
       {:else}
-        <Search placeholder={$_("")} class="bg-white dark:bg-primary-dark mb-6 w-0 px-0" />
+        <!-- <Search placeholder={$_("")} class="bg-white dark:bg-primary-dark mb-6 w-0 px-0" /> -->
         {#each sidebarItems as item}
           <SidebarNavItem
             href={item.children.length > 0 ? item.children[0].href : item.href}
@@ -259,17 +267,8 @@
         {/each}
       {/if}
     </SidebarGroup>
-    <div>
-      <!-- <SidebarGroup>
-        <SidebarNavItem
-          href="/settings"
-          {activeUrl}
-          icon="setting"
-          typographyData={{ preset: "Text md/Semibold", text: $_("settings"), color: "secondary" }}
-        />
-      </SidebarGroup> -->
+    <div class="fixed bottom-0 pb-8 bg-primary-light dark:bg-primary-dark">
       <div class="relative">
-        <!-- Dropdown menu user -->
         <div
           class={`z-10 ${dropdownUser ? "fixed" : "hidden"} bottom-16 p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
         >
@@ -307,7 +306,6 @@
                 class="!ps-14"
                 label={$_("users")}
               />
-              <!-- <SidebarDropdownItem href={hrefJobLevels} class="!ps-14" label={$_("job")} /> -->
             </SidebarDropdownWrapper>
             <button
               onclick={async () => {

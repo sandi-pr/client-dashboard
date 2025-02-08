@@ -69,7 +69,7 @@ All Rights Reserved
   let appUrl = "/";
   let userData = $state({ username: "", email: "" });
   let authority = $state("");
-  let brand = $state("HexaCode.AI");
+  let brand = $state("");
   let logoUrl = $state("");
   const isFrontend = process.env.NODE_ENV === "development";
   let hideNav = $state(false);
@@ -77,7 +77,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.15")
+    ? new CR3Call("https://lajnah.hexacode.ai")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -191,12 +191,23 @@ All Rights Reserved
 
   const getModules = async () => {
     return [
-      {
-        icon: "messageChat",
-        name: "hexaBots",
-        href: isFrontend ? "/hexabots" : await call.getPage("client-dashboard", "hexabot"),
-        children: []
-      },
+      // Start of new sidebar
+      // {
+      //   icon: "messageChatSquare",
+      //   name: "assistant",
+      //   children: [
+      //     {
+      //       icon: "messageHeartSquare",
+      //       name: "hexassistant",
+      //       href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
+      //     },
+      //     {
+      //       icon: "messageSmileSquare",
+      //       name: "myBots",
+      //       href: isFrontend ? "/hexabots" : await call.getPage("client-dashboard", "hexabot"),
+      //     },
+      //   ],
+      // },
       {
         icon: "bookOpen",
         name: "documents",
@@ -205,6 +216,32 @@ All Rights Reserved
           : await call.getPage("client-dashboard", "document-collection-overview"),
           children: []
       },
+      // {
+      //   icon: "marketplace",
+      //   name: "marketplace",
+      //   commingSoon: true,
+      //   divider: true,
+      //   href: isFrontend
+      //     ? "/marketplace"
+      //     : await call.getPage("client-dashboard", "marketplace"),
+      //     children: []
+      // },
+      // {
+      //   icon: "graduationHat02",
+      //   name: "hexatutor",
+      //   children: [
+      //     {
+      //       icon: "graduationHat01",
+      //       name: "myTutor",
+      //       href: isFrontend ? "/my_tutor" : await call.getPage("client-dashboard", "my-tutor"),
+      //     },
+      //     {
+      //       icon: "coding",
+      //       name: "codingAssistant",
+      //       href: isFrontend ? "/coding_assistant" : await call.getPage("client-dashboard", "coding-assistant"),
+      //     },
+      //   ],
+      // },
       // {
       //   icon: "presentation",
       //   name: "Analytics",
@@ -221,21 +258,106 @@ All Rights Reserved
       //     },
       //   ],
       // },
+      // {
+      //   icon: "star04",
+      //   name: "aiAnalyzer",
+      //   children: [
+      //     {
+      //       icon: "penTool",
+      //       name: "handwriting",
+      //       href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      //     },
+      //     {
+      //       icon: "image03",
+      //       name: "memories",
+      //       commingSoon: true,
+      //       href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
+      //     },
+      //     {
+      //       icon: "videoRecorder",
+      //       name: "vision",
+      //       commingSoon: true,
+      //       href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
+      //     },
+      //     {
+      //       icon: "recording02",
+      //       name: "voice",
+      //       commingSoon: true,
+      //       href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      //     },
+      //   ],
+      // },
+      // {
+      //   icon: "aiDocument",
+      //   name: "smartDocument",
+      //   children: [
+      //     {
+      //       icon: "fileLock",
+      //       name: "contractReviewer",
+      //       href: isFrontend ? "/contract_reviewer" : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+      //       children: []
+      //     },
+      //     {
+      //       icon: "fileLock",
+      //       name: "sopCompliance",
+      //       href: isFrontend ? "/sop_compliance" : await call.getPage("client-dashboard", "sop-compliance"),
+      //       children: []
+      //     },
+      //     {
+      //       icon: "fileCheck",
+      //       name: "docsGenerator",
+      //       commingSoon: true,
+      //       href: isFrontend
+      //         ? "/docs_generator"
+      //         : await call.getPage("client-dashboard", "docs-generator"),
+      //     }
+      //   ],
+      // },
+      // {
+      //   icon: "globe01",
+      //   name: "llms",
+      //   children: [
+      //     {
+      //       icon: "dashboard01",
+      //       name: "overview",
+      //       href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms-overview"),
+      //       children: []
+      //     },
+      //     {
+      //       icon: "dataflow04",
+      //       name: "myModels",
+      //       href: isFrontend ? "/dataflow" : await call.getPage("client-dashboard", "dataflow"),
+      //       children: []
+      //     },
+      //     {
+      //       icon: "meta",
+      //       name: "Llama3.2",
+      //       href: isFrontend
+      //         ? "/llama"
+      //         : await call.getPage("client-dashboard", "llama"),
+      //     },
+      //     {
+      //       icon: "gemini",
+      //       name: "Gemma 2",
+      //       href: isFrontend
+      //         ? "/gemma"
+      //         : await call.getPage("client-dashboard", "gemma"),
+      //     },
+      //     {
+      //       icon: "deepseek",
+      //       name: "DeepSeek R1",
+      //       href: isFrontend
+      //         ? "/deepseek"
+      //         : await call.getPage("client-dashboard", "deepseek"),
+      //     }
+      //   ],
+      // },
       {
-        icon: "marketplace",
-        name: "marketplace",
-        commingSoon: true,
-        href: isFrontend
-          ? "/marketplace"
-          : await call.getPage("client-dashboard", "marketplace"),
-          children: []
-      },
-      {
-        icon: "stars",
+        icon: "settings03",
         name: "configurations",
         children: [
           {
-            icon: "messageChat",
+            icon: "messagePlusSquare",
             name: "bots",
             href: isFrontend ? "/bots" : await call.getPage("client-dashboard", "bots"),
             children: []
@@ -249,6 +371,16 @@ All Rights Reserved
           }
         ],
       },
+      // {
+      //   icon: "phoneCall",
+      //   name: "support",
+      //   href: isFrontend
+      //     ? "/support"
+      //     : await call.getPage("client-dashboard", "support"),
+      //     children: []
+      // },
+      // End of new sidebar
+
       // {
       //   icon: "briefcase",
       //   name: "crmOverview",
