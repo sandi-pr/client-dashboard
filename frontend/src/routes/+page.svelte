@@ -123,12 +123,12 @@ All Rights Reserved
       description: "descHexabot",
       page: "bots",
     },
-    {
-      icon: "messageChat",
-      title: "hexaBots",
-      description: "descHexabots",
-      page: "hexabot",
-    },
+    // {
+    //   icon: "messageChat",
+    //   title: "hexaBots",
+    //   description: "descHexabots",
+    //   page: "hexabot",
+    // },
     // {
     //   icon: "bookClosed",
     //   title: "dataSources",
