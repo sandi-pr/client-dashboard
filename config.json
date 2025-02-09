@@ -2485,6 +2485,24 @@
             ]
         },
         {
+            "name": "get-library-document-pub",
+            "path": "/get-library-document-pub/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibraryDocumentPub"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "update-library",
             "path": "/update-library/:id",
             "method": "PUT",

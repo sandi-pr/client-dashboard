@@ -1199,6 +1199,83 @@ func GetLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 	return 200, dict, nil
 }
 
+func GetLibraryDocumentPub(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
+
+	idStr, ok := ctx.URLParams.GetString("id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, document, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": id,
+			},
+		},
+		"populate": "*",
+	})
+
+	fmt.Println("document", document)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := document.GetList("data")
+	if len(list) == 0 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if attributes, ok := dict.GetDict("attributes"); ok {
+		var document_path U.String
+
+		document_path, ok = attributes.GetString("path")
+		if !ok {
+			document_path = ""
+		}
+
+		base64Data, err := getDocumentInBase64(string(document_path))
+
+		if err != nil {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		ext := filepath.Ext(string(document_path))
+
+		return 200, U.Dict{
+			"id":     dict["id"].(U.Float64),
+			"data":   dict["attributes"].(U.Dict),
+			"base64": base64Data,
+			"ext":    ext,
+		}, nil
+	}
+
+	return 200, dict, nil
+}
+
 func UpdateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
