@@ -1766,3 +1766,48 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 		tmpBotStatus = botStatus
 	}
 }
+
+func getCollectionHexabotByBotId(bot_id string, strapi *strapi.StrapiClassic) (U.List, error) {
+	status, documentLibrarys, err := strapi.Find("hexabot-table", U.Dict{
+		"filters": U.Dict{
+			"bot_id": U.Dict{
+				"$eq": bot_id,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println("documentLibrarys", documentLibrarys)
+		fmt.Println(err)
+		return U.List{}, err
+	}
+
+	if status != 200 {
+		fmt.Println("documentLibrarys", documentLibrarys)
+		fmt.Println(status)
+		return U.List{}, err
+	}
+
+	if list, ok := documentLibrarys.GetList("data"); ok {
+		if dict, ok := list.GetDict(0); ok {
+			if attributes, ok := dict.GetDict("attributes"); ok {
+				if collection, ok := attributes.GetString("collection_id"); ok {
+					collection_id_array := strings.Split(string(collection), ",")
+					collection_id_int := make(U.List, len(collection_id_array))
+
+					for i, str := range collection_id_array {
+						num, err := strconv.Atoi(strings.TrimSpace(str))
+						if err != nil {
+							return U.List{}, err
+						}
+						collection_id_int[i] = num
+					}
+
+					return collection_id_int, nil
+				}
+			}
+		}
+	}
+
+	return U.List{}, fmt.Errorf("failed get collection")
+}
