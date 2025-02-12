@@ -188,43 +188,43 @@
 
           params.delete("documentId");
 
-          let uploadBy = "";
+          // let uploadBy = "";
 
-          try {
-            let response = await $call.call("client-dashboard", "get-user", {
-              URLQuery: {},
-              URLParams: { id: collection.attributes.meta.upload_by.toString() },
-              Params: {},
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
+          // try {
+          //   let response = await $call.call("client-dashboard", "get-user", {
+          //     URLQuery: {},
+          //     URLParams: { id: collection.attributes.meta.upload_by.toString() },
+          //     Params: {},
+          //     Headers: {
+          //       Authorization: "Bearer " + token,
+          //     },
+          //   });
 
-            if (response.status !== 200) {
-              console.log(response);
-              gettingDocs = false;
-              if (response.status === 400) {
-                console.error("Invalid parameters:", response);
-                triggerToast($_("invalidParameters"), true, "error");
-              } else if (response.status === 401) {
-                console.error("Unauthorized access:", response);
-                triggerToast($_("unauthorized"), true, "error");
-              } else if (response.status === 500) {
-                console.error("Server error:", response);
-                triggerToast($_("serverError"), true, "error");
-              } else {
-                console.error("Unexpected status code:", response);
-                triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-              }
-              return;
-            }
+          //   if (response.status !== 200) {
+          //     console.log(response);
+          //     gettingDocs = false;
+          //     if (response.status === 400) {
+          //       console.error("Invalid parameters:", response);
+          //       triggerToast($_("invalidParameters"), true, "error");
+          //     } else if (response.status === 401) {
+          //       console.error("Unauthorized access:", response);
+          //       triggerToast($_("unauthorized"), true, "error");
+          //     } else if (response.status === 500) {
+          //       console.error("Server error:", response);
+          //       triggerToast($_("serverError"), true, "error");
+          //     } else {
+          //       console.error("Unexpected status code:", response);
+          //       triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          //     }
+          //     return;
+          //   }
 
-            uploadBy = response.result.user.username;
-          } catch (error) {
-            console.error("Error during user get:", error);
-            gettingDocs = false;
-            triggerToast($_("failedGetUser"), true, "error");
-          }
+          //   uploadBy = response.result.user.username;
+          // } catch (error) {
+          //   console.error("Error during user get:", error);
+          //   gettingDocs = false;
+          //   triggerToast($_("failedGetUser"), true, "error");
+          // }
 
           const queryParams = {};
           for (const [key, value] of params.entries()) {
@@ -240,7 +240,7 @@
                 ? []
                 : collection.attributes.meta.category.split(","),
             type: collection.attributes.meta.document_type,
-            upload_by: uploadBy,
+            upload_by: collection.attributes.meta.author,
             filesize: collection.attributes.meta.file_size,
             createdAt: format(new Date(collection.attributes.createdAt), "MMM d, yyyy"),
             href: link + "?documentId=" + collection.id + "&" + queryString,
