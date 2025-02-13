@@ -259,7 +259,8 @@
       total += data[i];
     }
 
-    let change = data[data.length - 1] - data[data.length - 2];
+    let change = data[data.length - 1];
+    // let change = data[data.length - 1] - data[data.length - 2];
 
     let changeType = change > 0 ? "increase" : change < 0 ? "decrease" : "-";
 
