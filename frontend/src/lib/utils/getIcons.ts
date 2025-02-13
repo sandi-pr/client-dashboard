@@ -61,6 +61,10 @@ import DeepseekIcon from "../icon/deepseek.svelte";
 import PhoneCallIcon from "../icon/phone-call-02.svelte";
 import ArrowLeftIcon from "../icon/arrow-left.svelte";
 import RefreshCw05Icon from "../icon/refresh-cw-05.svelte";
+import UploadCloud02Icon from "../icon/upload-cloud-02.svelte";
+import OpenAiIcon from "../icon/open-ai.svelte";
+import ArrowUpRightIcon from "../icon/arrow-up-right.svelte";
+import Check2 from "../icon/check2.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -190,6 +194,14 @@ let getIcons = (presetIcon: String) => {
       return ArrowLeftIcon;
     case "refreshCw05":
       return RefreshCw05Icon;
+    case "uploadCloud02":
+      return UploadCloud02Icon;
+    case "openAi":
+      return OpenAiIcon;
+    case "arrowUpRight":
+      return ArrowUpRightIcon;
+    case "check2":
+      return Check2;
     default:
       return "";
   }
