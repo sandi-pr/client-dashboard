@@ -2905,7 +2905,27 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 		},
 	})
 
-	fmt.Println(libraries)
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, documents, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"type": U.Dict{
+				"$eq": "document",
+			},
+			"createdAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+		},
+	})
 
 	if err != nil {
 		fmt.Println(err)
@@ -2917,7 +2937,10 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, libraries, nil
+	return 200, U.Dict{
+		"library":  libraries,
+		"document": documents,
+	}, nil
 
 }
 
