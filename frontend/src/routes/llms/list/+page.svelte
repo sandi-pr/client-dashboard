@@ -1,8 +1,11 @@
 <script>
+  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { Search } from "flowbite-svelte";
 
-  import { Typography, CardFeature } from "$lib";
+  import { Typography, CardFeature, Button } from "$lib";
+
+  let idParams = "";
 
   let cardDataArray = [
     {
@@ -110,10 +113,13 @@
       actionFooter: [
         {
           button: {
-            text: "View All",
+            text: "Try this model",
             spaceY: "",
             width: "w-full",
-            funcButton: () => (window.location.href = "/llms/list"),
+            rightIcon: "true",
+            classesSvg: "arrowUpRight",
+            svgClassReplace: "w-5 h-5 text-white",
+            funcButton: () => (window.location.href = "/llms"),
           },
         },
         {
@@ -122,7 +128,7 @@
             spaceY: "",
             width: "w-full",
             color: "alternative",
-            funcButton: () => (window.location.href = "/llms"),
+            funcButton: () => (idParams = "1"),
           },
         },
       ],
@@ -232,10 +238,13 @@
       actionFooter: [
         {
           button: {
-            text: "View All",
+            text: "Try this model",
             spaceY: "",
             width: "w-full",
-            funcButton: () => (window.location.href = "/llms/list"),
+            rightIcon: "true",
+            classesSvg: "arrowUpRight",
+            svgClassReplace: "w-5 h-5 text-white",
+            funcButton: () => (window.location.href = "/llms"),
           },
         },
         {
@@ -244,7 +253,7 @@
             spaceY: "",
             width: "w-full",
             color: "alternative",
-            funcButton: () => (window.location.href = "/llms"),
+            funcButton: () => (idParams = "2"),
           },
         },
       ],
@@ -354,10 +363,13 @@
       actionFooter: [
         {
           button: {
-            text: "View All",
+            text: "Try this model",
             spaceY: "",
             width: "w-full",
-            funcButton: () => (window.location.href = "/llms/list"),
+            rightIcon: "true",
+            classesSvg: "arrowUpRight",
+            svgClassReplace: "w-5 h-5 text-white",
+            funcButton: () => (window.location.href = "/llms"),
           },
         },
         {
@@ -366,7 +378,7 @@
             spaceY: "",
             width: "w-full",
             color: "alternative",
-            funcButton: () => (window.location.href = "/llms"),
+            funcButton: () => (idParams = "3"),
           },
         },
       ],
@@ -476,10 +488,13 @@
       actionFooter: [
         {
           button: {
-            text: "View All",
+            text: "Try this model",
             spaceY: "",
             width: "w-full",
-            funcButton: () => (window.location.href = "/llms/list"),
+            rightIcon: "true",
+            classesSvg: "arrowUpRight",
+            svgClassReplace: "w-5 h-5 text-white",
+            funcButton: () => (window.location.href = "/llms"),
           },
         },
         {
@@ -488,24 +503,43 @@
             spaceY: "",
             width: "w-full",
             color: "alternative",
-            funcButton: () => (window.location.href = "/llms"),
+            funcButton: () => (idParams = "4"),
           },
         },
       ],
     },
   ];
+
+  onMount(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    idParams = urlParams.get("id");
+    // then remove the query string
+    window.history.replaceState({}, document.title, window.location.pathname);
+  });
 </script>
 
 <div class="flex flex-col m-4 gap-4">
-  <div class="flex justify-between my-4">
-    <Typography text="Large Language Models Lists" preset="Display sm/Semibold" />
-    <div>
-      <Search class="bg-white dark:bg-hc-graydark-950" />
+  {#if idParams}
+    <div class="flex justify-between my-4">
+      <Typography text="Large Language Models Lists" preset="Display sm/Semibold" />
+      <Button
+        text="Back"
+        funcButton={() =>
+          // window.location.href = "/llms/list"
+          (idParams = "")}
+      />
     </div>
-  </div>
-  <div class="grid grid-cols-3 gap-4">
-    {#each cardDataArray as cardData}
-      <CardFeature {cardData} />
-    {/each}
-  </div>
+  {:else}
+    <div class="flex justify-between my-4">
+      <Typography text="Large Language Models Lists" preset="Display sm/Semibold" />
+      <div>
+        <Search class="bg-white dark:bg-hc-graydark-950" />
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-4">
+      {#each cardDataArray as cardData}
+        <CardFeature {cardData} />
+      {/each}
+    </div>
+  {/if}
 </div>

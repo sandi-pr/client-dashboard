@@ -138,10 +138,13 @@
       actionFooter: [
         {
           button: {
-            text: "View All",
+            text: "Try this model",
             spaceY: "",
             width: "w-full",
-            funcButton: () => (window.location.href = "/llms/list"),
+            rightIcon: "true",
+            classesSvg: "arrowUpRight",
+            svgClassReplace: "w-5 h-5 text-white",
+            funcButton: () => (window.location.href = "/llms"),
           },
         },
         {
@@ -150,7 +153,7 @@
             spaceY: "",
             width: "w-full",
             color: "alternative",
-            funcButton: () => (window.location.href = "/llms"),
+            funcButton: () => (window.location.href = "/llms/list?id=1"),
           },
         },
       ],
@@ -260,10 +263,13 @@
       actionFooter: [
         {
           button: {
-            text: "View All",
+            text: "Try this model",
             spaceY: "",
             width: "w-full",
-            funcButton: () => (window.location.href = "/llms/list"),
+            rightIcon: "true",
+            classesSvg: "arrowUpRight",
+            svgClassReplace: "w-5 h-5 text-white",
+            funcButton: () => (window.location.href = "/llms"),
           },
         },
         {
@@ -272,7 +278,7 @@
             spaceY: "",
             width: "w-full",
             color: "alternative",
-            funcButton: () => (window.location.href = "/llms"),
+            funcButton: () => (window.location.href = "/llms/list?id=2"),
           },
         },
       ],
@@ -382,10 +388,13 @@
       actionFooter: [
         {
           button: {
-            text: "View All",
+            text: "Try this model",
             spaceY: "",
             width: "w-full",
-            funcButton: () => (window.location.href = "/llms/list"),
+            rightIcon: "true",
+            classesSvg: "arrowUpRight",
+            svgClassReplace: "w-5 h-5 text-white",
+            funcButton: () => (window.location.href = "/llms"),
           },
         },
         {
@@ -394,7 +403,7 @@
             spaceY: "",
             width: "w-full",
             color: "alternative",
-            funcButton: () => (window.location.href = "/llms"),
+            funcButton: () => (window.location.href = "/llms/list?id=3"),
           },
         },
       ],
