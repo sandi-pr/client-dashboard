@@ -932,5 +932,11 @@
   "llama3.2": "Llama 3.2",
   "gemma2": "Gemma 2",
   "deepSeekR1": "DeepSeek R1",
-  "support": "Support"
+  "support": "Support",
+  "noDataFound": "No data found",
+  "hexaProductSupport": "Hexa Product Support",
+  "supportDesc": "Hi there! 👋 I'm your friendly AI-powered support assistant, ready to help you with all your product questions. Ask me anything – I'm here to make your experience as smooth as possible!",
+  "frequentlyAskedQuestion": "Frequently Asked Questions",
+  "howDoIAccessTheChatbot": "How do I access the chatbot?",
+  "howDoIAccessTheChatbotDesc": "You can access the chatbot by [explain how to access it, e.g., clicking the \"Chat\" button in the bottom right corner of the screen, going to the \"Support\" section of our website, or opening the app and selecting \"Chat\"]."
 }

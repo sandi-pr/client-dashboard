@@ -363,6 +363,21 @@
             "name": "sources",
             "path": "/data_sources/sources",
             "file_path": "template/data_sources/sources.html"
+        },
+        {
+            "name": "hexassistant",
+            "path": "/hexassistant",
+            "file_path": "template/hexassistant.html"
+        },
+        {
+            "name": "my-bots",
+            "path": "/my_bots",
+            "file_path": "template/my_bots.html"
+        },
+        {
+            "name": "support",
+            "path": "/support",
+            "file_path": "template/support.html"
         }
     ],
     "apis": [

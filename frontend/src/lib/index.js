@@ -48,6 +48,8 @@ export { default as getIcons } from "$lib/utils/getIcons";
 export { default as triggerToast } from "$lib/utils/toast";
 export { default as triggerLoading } from "$lib/utils/loading";
 export { default as ListMarkdown } from "$lib/components/ListMarkdown.svelte";
+export { default as BotCard } from "$lib/ui/cards/BotCard.svelte";
+export { default as Pagination } from "$lib/ui/pagination/Pagination.svelte";
 export { default as Divider } from "$lib/components/Divider.svelte";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export { triggerSelectCollection, selectedCollection, selectedDropdown, triggerSelectDropdown, triggerReload, reload } from "$lib/utils/selectCollection";

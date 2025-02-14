@@ -1,0 +1,15 @@
+<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Logo / Gemini" clip-path="url(#clip0_304_2464)">
+<path id="Vector" d="M32.3333 16.532C28.1816 16.7868 24.2665 18.5509 21.3253 21.4921C18.3842 24.4332 16.62 28.3484 16.3653 32.5H16.3013C16.0469 28.3482 14.2829 24.4328 11.3417 21.4916C8.40041 18.5503 4.48502 16.7864 0.333252 16.532L0.333252 16.468C4.48502 16.2136 8.40041 14.4497 11.3417 11.5084C14.2829 8.56716 16.0469 4.65176 16.3013 0.5L16.3653 0.5C16.62 4.65162 18.3842 8.56677 21.3253 11.5079C24.2665 14.4491 28.1816 16.2132 32.3333 16.468V16.532Z" fill="url(#paint0_radial_304_2464)"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_304_2464" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(3.50925 13.506) rotate(18.6832) scale(34.06 272.842)">
+<stop offset="0.067" stop-color="#9168C0"/>
+<stop offset="0.343" stop-color="#5684D1"/>
+<stop offset="0.672" stop-color="#1BA1E3"/>
+</radialGradient>
+<clipPath id="clip0_304_2464">
+<rect width="32" height="32" fill="white" transform="translate(0.333252 0.5)"/>
+</clipPath>
+</defs>
+</svg>

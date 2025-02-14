@@ -932,5 +932,11 @@
   "llama3.2": "Llama 3.2",
   "gemma2": "Gemma 2",
   "deepSeekR1": "DeepSeek R1",
-  "support": "Support"
+  "support": "Support",
+  "noDataFound": "Tidak ada data ditemukan",
+  "hexaProductSupport": "Bantuan Produk Hexa",
+  "supportDesc": "Halo! 👋 Saya adalah asisten AI yang siap membantu Anda dengan semua pertanyaan produk Hexa. Tanya apa pun – saya siap membantu Anda membuat pengalaman Anda menjadi lebih halus dan menyenangkan!",
+  "frequentlyAskedQuestion": "Pertanyaan yang Sering Diajukan",
+  "howDoIAccessTheChatbot": "Bagaimana cara mengakses chatbot?",
+  "howDoIAccessTheChatbotDesc": "Anda dapat mengakses chatbot dengan [jelaskan cara mengaksesnya, misalnya dengan mengklik tombol \"Chat\" di pojok kanan bawah layar, pergi ke bagian \"Dukungan\" di website kami, atau membuka aplikasi dan memilih \"Chat\"]."
 }
