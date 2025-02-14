@@ -20,6 +20,7 @@ import BuildingIcon from "../icon/building-08.svelte";
 import BookOpenIcon from "../icon/book-open-02.svelte";
 import DistributeVertIcon from "../icon/distribute-spacing-vertical.svelte";
 import ChevronDownIcon from "../icon/chevron-down.svelte";
+import ChevronUpIcon from "../icon/chevron-up.svelte";
 import DataIcon from "../icon/data.svelte";
 import MessagePlus from "../icon/message-plus-square.svelte";
 import BookClosedIcon from "../icon/book-closed.svelte";
@@ -112,6 +113,8 @@ let getIcons = (presetIcon: String) => {
       return DistributeVertIcon;
     case "chevronDown":
       return ChevronDownIcon;
+    case "chevronUp":
+      return ChevronUpIcon;
     case "data":
       return DataIcon;
     case "messagePlus":
