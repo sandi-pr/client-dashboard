@@ -3,513 +3,23 @@
   import { _ } from "svelte-i18n";
   import { Search, Button as ButtonFlowbite } from "flowbite-svelte";
 
-  import { Typography, CardFeature, Button, FeaturedIcon, Icon } from "$lib";
+  import {
+    Typography,
+    CardFeature,
+    Button,
+    FeaturedIcon,
+    Icon,
+    call,
+    triggerToast,
+    StateCard,
+  } from "$lib";
   import { getIcons } from "$lib";
 
-  let idParams = "1";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
 
-  let cardDataArray = [
-    {
-      iconData: {
-        icon: "gemini",
-      },
-      contentCenter: [
-        // Product Name
-        [
-          {
-            text: {
-              text: "Gemini",
-              color: "brand-secondary",
-              preset: "Text xl/Semibold",
-            },
-          },
-        ],
-        // Title
-        [
-          {
-            text: {
-              text: "DeepSeek R1",
-              color: "primary",
-              preset: "Display md/Semibold",
-            },
-          },
-        ],
-        // Subtitle
-        [
-          {
-            text: {
-              text: "Our most used models.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-          },
-        ],
-        // Point of Interest
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Finds hidden problems in data.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Understands images and text.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Predicts machine failures.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Personalizes user experiences.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Discovers new scientific insights.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-      ],
-      actionFooter: [
-        {
-          button: {
-            text: "Try this model",
-            spaceY: "",
-            width: "w-full",
-            rightIcon: "true",
-            classesSvg: "arrowUpRight",
-            svgClassReplace: "w-5 h-5 text-white",
-            funcButton: () => (window.location.href = "/llms"),
-          },
-        },
-        {
-          button: {
-            text: "Learn More",
-            spaceY: "",
-            width: "w-full",
-            color: "alternative",
-            funcButton: () => (idParams = "1"),
-          },
-        },
-      ],
-    },
-    {
-      iconData: {
-        icon: "gemini",
-      },
-      contentCenter: [
-        // Product Name
-        [
-          {
-            text: {
-              text: "Gemini",
-              color: "brand-secondary",
-              preset: "Text xl/Semibold",
-            },
-          },
-        ],
-        // Title
-        [
-          {
-            text: {
-              text: "DeepSeek R1",
-              color: "primary",
-              preset: "Display md/Semibold",
-            },
-          },
-        ],
-        // Subtitle
-        [
-          {
-            text: {
-              text: "Our most used models.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-          },
-        ],
-        // Point of Interest
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Finds hidden problems in data.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Understands images and text.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Predicts machine failures.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Personalizes user experiences.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Discovers new scientific insights.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-      ],
-      actionFooter: [
-        {
-          button: {
-            text: "Try this model",
-            spaceY: "",
-            width: "w-full",
-            rightIcon: "true",
-            classesSvg: "arrowUpRight",
-            svgClassReplace: "w-5 h-5 text-white",
-            funcButton: () => (window.location.href = "/llms"),
-          },
-        },
-        {
-          button: {
-            text: "Learn More",
-            spaceY: "",
-            width: "w-full",
-            color: "alternative",
-            funcButton: () => (idParams = "2"),
-          },
-        },
-      ],
-    },
-    {
-      iconData: {
-        icon: "gemini",
-      },
-      contentCenter: [
-        // Product Name
-        [
-          {
-            text: {
-              text: "Gemini",
-              color: "brand-secondary",
-              preset: "Text xl/Semibold",
-            },
-          },
-        ],
-        // Title
-        [
-          {
-            text: {
-              text: "DeepSeek R1",
-              color: "primary",
-              preset: "Display md/Semibold",
-            },
-          },
-        ],
-        // Subtitle
-        [
-          {
-            text: {
-              text: "Our most used models.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-          },
-        ],
-        // Point of Interest
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Finds hidden problems in data.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Understands images and text.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Predicts machine failures.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Personalizes user experiences.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Discovers new scientific insights.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-      ],
-      actionFooter: [
-        {
-          button: {
-            text: "Try this model",
-            spaceY: "",
-            width: "w-full",
-            rightIcon: "true",
-            classesSvg: "arrowUpRight",
-            svgClassReplace: "w-5 h-5 text-white",
-            funcButton: () => (window.location.href = "/llms"),
-          },
-        },
-        {
-          button: {
-            text: "Learn More",
-            spaceY: "",
-            width: "w-full",
-            color: "alternative",
-            funcButton: () => (idParams = "3"),
-          },
-        },
-      ],
-    },
-    {
-      iconData: {
-        icon: "gemini",
-      },
-      contentCenter: [
-        // Product Name
-        [
-          {
-            text: {
-              text: "Gemini",
-              color: "brand-secondary",
-              preset: "Text xl/Semibold",
-            },
-          },
-        ],
-        // Title
-        [
-          {
-            text: {
-              text: "DeepSeek R1",
-              color: "primary",
-              preset: "Display md/Semibold",
-            },
-          },
-        ],
-        // Subtitle
-        [
-          {
-            text: {
-              text: "Our most used models.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-          },
-        ],
-        // Point of Interest
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Finds hidden problems in data.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Understands images and text.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Predicts machine failures.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Personalizes user experiences.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Discovers new scientific insights.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-      ],
-      actionFooter: [
-        {
-          button: {
-            text: "Try this model",
-            spaceY: "",
-            width: "w-full",
-            rightIcon: "true",
-            classesSvg: "arrowUpRight",
-            svgClassReplace: "w-5 h-5 text-white",
-            funcButton: () => (window.location.href = "/llms"),
-          },
-        },
-        {
-          button: {
-            text: "Learn More",
-            spaceY: "",
-            width: "w-full",
-            color: "alternative",
-            funcButton: () => (idParams = "4"),
-          },
-        },
-      ],
-    },
-  ];
+  let idParams = "";
+
+  let cardDataArray = [];
 
   let detailDataArray = [
     {
@@ -951,11 +461,201 @@
 
   let hiddenContent = Array(detailDataArray.length).fill(true);
 
-  onMount(() => {
+  const getModels = async () => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        let response = await $call.call("hexa-ai-rag", "get-models", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        // console.log("models", response);
+
+        if (response.status === 200) {
+          let i = 0;
+          if (response?.result && response.result.models.length > 0) {
+            cardDataArray = response.result.models.map((model) => {
+              i++;
+              return {
+                id: i,
+                iconData: {
+                  icon: findIconFromModelName(model.name),
+                },
+                contentCenter: [
+                  // Product Name
+                  [
+                    {
+                      text: {
+                        text: "LLM",
+                        color: "brand-secondary",
+                        preset: "Text xl/Semibold",
+                      },
+                    },
+                  ],
+                  // Title
+                  [
+                    {
+                      text: {
+                        text: model.name,
+                        color: "primary",
+                        preset: "Display md/Semibold",
+                      },
+                    },
+                  ],
+                  // Subtitle
+                  [
+                    {
+                      text: {
+                        text: "Our most used models.",
+                        color: "tertiary",
+                        preset: "Text md/Regular",
+                      },
+                    },
+                  ],
+                  // Point of Interest
+                  // model.pointsOfInterest.map((point) => {
+                  //   return [
+                  //     {
+                  //       icon: {
+                  //         icon: "check2",
+                  //       },
+                  //       text: {
+                  //         text: point,
+                  //         color: "tertiary",
+                  //         preset: "Text md/Regular",
+                  //       },
+                  //       justify: "justify-start",
+                  //     },
+                  //   ];
+                  // }),
+                  [
+                    {
+                      icon: {
+                        icon: "check2",
+                      },
+                      text: {
+                        text: "Finds hidden problems in data.",
+                        color: "tertiary",
+                        preset: "Text md/Regular",
+                      },
+                      justify: "justify-start",
+                    },
+                  ],
+                  [
+                    {
+                      icon: {
+                        icon: "check2",
+                      },
+                      text: {
+                        text: "Understands images and text.",
+                        color: "tertiary",
+                        preset: "Text md/Regular",
+                      },
+                      justify: "justify-start",
+                    },
+                  ],
+                  [
+                    {
+                      icon: {
+                        icon: "check2",
+                      },
+                      text: {
+                        text: "Predicts machine failures.",
+                        color: "tertiary",
+                        preset: "Text md/Regular",
+                      },
+                      justify: "justify-start",
+                    },
+                  ],
+                  [
+                    {
+                      icon: {
+                        icon: "check2",
+                      },
+                      text: {
+                        text: "Personalizes user experiences.",
+                        color: "tertiary",
+                        preset: "Text md/Regular",
+                      },
+                      justify: "justify-start",
+                    },
+                  ],
+                  [
+                    {
+                      icon: {
+                        icon: "check2",
+                      },
+                      text: {
+                        text: "Discovers new scientific insights.",
+                        color: "tertiary",
+                        preset: "Text md/Regular",
+                      },
+                      justify: "justify-start",
+                    },
+                  ],
+                ],
+                actionFooter: [
+                  {
+                    button: {
+                      text: "Try this model",
+                      spaceY: "",
+                      width: "w-full",
+                      rightIcon: "true",
+                      classesSvg: "arrowUpRight",
+                      svgClassReplace: "w-5 h-5 text-white",
+                      funcButton: () => (window.location.href = "/llms"),
+                    },
+                  },
+                  {
+                    button: {
+                      text: "Learn More",
+                      spaceY: "",
+                      width: "w-full",
+                      color: "alternative",
+                      funcButton: () => (idParams = i),
+                    },
+                  },
+                ],
+              };
+            });
+          }
+        } else {
+          triggerToast("error");
+          console.log(response);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const findIconFromModelName = (modelName) => {
+    let icon = "gemini";
+    const lowerCaseModelName = modelName.toLowerCase();
+
+    if (lowerCaseModelName.includes("llama")) {
+      icon = "meta";
+    } else if (lowerCaseModelName.includes("deepseek")) {
+      icon = "gemini";
+    } else if (lowerCaseModelName.includes("chatgpt")) {
+      icon = "openai";
+    }
+
+    return icon;
+  };
+
+  onMount(async () => {
     const urlParams = new URLSearchParams(window.location.search);
     idParams = idParams ? idParams : urlParams.get("id");
     // then remove the query string
     window.history.replaceState({}, document.title, window.location.pathname);
+
+    await getModels();
   });
 </script>
 
@@ -1032,10 +732,14 @@
         <Search class="bg-white dark:bg-hc-graydark-950" />
       </div>
     </div>
-    <div class="grid grid-cols-3 gap-4">
-      {#each cardDataArray as cardData}
-        <CardFeature {cardData} />
-      {/each}
-    </div>
+    {#if cardDataArray.length === 0}
+      <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+    {:else}
+      <div class="grid grid-cols-3 gap-4">
+        {#each cardDataArray as cardData}
+          <CardFeature {cardData} />
+        {/each}
+      </div>
+    {/if}
   {/if}
 </div>
