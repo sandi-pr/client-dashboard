@@ -671,12 +671,15 @@
   };
 
   onMount(async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    idModel = idModel ? idModel : urlParams.get("id");
-    // then remove the query string
-    window.history.replaceState({}, document.title, window.location.pathname);
-
     await getModels();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("id")) {
+      idModel = idModel ? idModel : urlParams.get("id");
+      await getDetailData();
+      // then remove the query string
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   });
 </script>
 
