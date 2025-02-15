@@ -525,6 +525,8 @@
             color: "secondary",
             preset: "Text md/Regular",
           },
+        },
+        {
           button: {
             class: "m-4",
             color: "none",
@@ -618,6 +620,320 @@
               ],
             },
           ],
+        },
+        {
+          button: {
+            class: "m-4",
+            color: "none",
+            onClick: () => {},
+            text: {
+              text: "Read More",
+              color: "brand-secondary",
+              preset: "Text md/Semibold",
+            },
+          },
+        },
+      ],
+    },
+    {
+      headerText: {
+        text: "Best Use Case",
+        color: "secondary",
+        preset: "Text md/Semibold",
+      },
+      content: [
+        {
+          list: [
+            {
+              textGroup: [
+                {
+                  text: "Chatbots & Virtual Assistants -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Enhances user interactions with more human-like responses.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Content Creation -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Generates high-quality text for articles, blogs, and creative writing.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Code Assistance -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Helps developers with coding suggestions, debugging, and explanations.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Summarization & Data Extraction -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Condenses long documents into concise summaries.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Education & Tutoring -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Provides personalized learning support for students.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          button: {
+            class: "m-4",
+            color: "none",
+            onClick: () => {},
+            text: {
+              text: "Read More",
+              color: "brand-secondary",
+              preset: "Text md/Semibold",
+            },
+          },
+        },
+      ],
+    },
+    {
+      headerText: {
+        text: "Disadvantages",
+        color: "secondary",
+        preset: "Text md/Semibold",
+      },
+      content: [
+        {
+          list: [
+            {
+              textGroup: [
+                {
+                  text: "Computational Demand -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "May require significant hardware resources for deployment and fine-tuning.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Potential Ethical Risks -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Despite safety improvements, there may still be risks of misinformation or bias.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Limited Real-Time Awareness -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Like other LLMs, it may not have real-time or up-to-date knowledge without external integrations.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Fine-Tuning Complexity -",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Customizing the model for specific use cases can be challenging without expertise.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          button: {
+            class: "m-4",
+            color: "none",
+            onClick: () => {},
+            text: {
+              text: "Read More",
+              color: "brand-secondary",
+              preset: "Text md/Semibold",
+            },
+          },
+        },
+      ],
+    },
+    {
+      headerText: {
+        text: "Specifications",
+        color: "secondary",
+        preset: "Text md/Semibold",
+      },
+      content: [
+        {
+          text: {
+            text: "To run LLaMA 3.2 locally, your system should meet the following specifications:",
+            color: "secondary",
+            preset: "Text md/Regular",
+          },
+        },
+        {
+          text: {
+            text: "Hardware Requirements:",
+            color: "secondary",
+            preset: "Text md/Semibold",
+            propClass: "my-4",
+          },
+        },
+        {
+          list: [
+            {
+              textGroup: [
+                {
+                  text: "GPU:",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "An NVIDIA GPU with CUDA support is recommended, with at least 16GB of VRAM. This is essential for efficient model training and inference.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "RAM:",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "A minimum of 32GB is required, with 64GB recommended for handling larger models and datasets.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Storage:",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "At least 50GB of free disk space to accommodate the model files and dependencies.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          text: {
+            text: "Software Requirements:",
+            color: "secondary",
+            preset: "Text md/Semibold",
+            propClass: "my-4",
+          },
+        },
+        {
+          list: [
+            {
+              textGroup: [
+                {
+                  text: "Operating System:",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Linux is preferred for optimal performance, but macOS and Windows are also supported.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "Python:",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Version 3.8 or higher is necessary to run the required scripts and libraries.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+            {
+              textGroup: [
+                {
+                  text: "CUDA Toolkit:",
+                  color: "tertiary",
+                  preset: "Text md/Semibold",
+                },
+                {
+                  text: "Version 11.6 or newer is required for GPU acceleration.",
+                  color: "tertiary",
+                  preset: "Text md/Regular",
+                },
+              ],
+            },
+          ],
+        },
+        {
           button: {
             class: "m-4",
             color: "none",
