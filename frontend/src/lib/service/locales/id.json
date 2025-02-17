@@ -938,5 +938,7 @@
   "supportDesc": "Halo! 👋 Saya adalah asisten AI yang siap membantu Anda dengan semua pertanyaan produk Hexa. Tanya apa pun – saya siap membantu Anda membuat pengalaman Anda menjadi lebih halus dan menyenangkan!",
   "frequentlyAskedQuestion": "Pertanyaan yang Sering Diajukan",
   "howDoIAccessTheChatbot": "Bagaimana cara mengakses chatbot?",
-  "howDoIAccessTheChatbotDesc": "Anda dapat mengakses chatbot dengan [jelaskan cara mengaksesnya, misalnya dengan mengklik tombol \"Chat\" di pojok kanan bawah layar, pergi ke bagian \"Dukungan\" di website kami, atau membuka aplikasi dan memilih \"Chat\"]."
+  "howDoIAccessTheChatbotDesc": "Anda dapat mengakses chatbot dengan [jelaskan cara mengaksesnya, misalnya dengan mengklik tombol \"Chat\" di pojok kanan bawah layar, pergi ke bagian \"Dukungan\" di website kami, atau membuka aplikasi dan memilih \"Chat\"].",
+  "deployYourModel": "Luncurkan Model Anda",
+  "descDeployYourModel": "Tambahkan Modelmu ke Hexacode AI"
 }

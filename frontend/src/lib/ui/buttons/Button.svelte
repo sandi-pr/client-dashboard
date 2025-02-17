@@ -1,39 +1,75 @@
 <script lang="ts">
-  import { twMerge } from 'tailwind-merge';
-  import { Button } from 'flowbite-svelte';
-  import { getIcons } from '$lib';
+  import { twMerge } from "tailwind-merge";
+  import { Button } from "flowbite-svelte";
+  import { getIcons } from "$lib";
 
   // Ekstrak properti langsung dari $props()
-  let { color, outline, width, spaceY, text, position, icon, classesSvg, leftIcon, rightIcon, alt, funcButton }: {
-    color?: 'primary' | 'alternative' | 'blue' | 'dark' | 'green' | 'light' | 'purple' | 'red' | 'yellow' | 'none',
-    outline?: boolean,
-    width?: string,
-    spaceY?: string,
-    text?: string,
-    position?: string,
-    icon?: string,
-    classesSvg?: string,
-    leftIcon?: string,
-    rightIcon?: string,
-    alt?: string,
-    funcButton?: () => void
+  let {
+    color,
+    outline,
+    width,
+    spaceY,
+    text,
+    position,
+    icon,
+    classesSvg,
+    leftIcon,
+    rightIcon,
+    alt,
+    svgClassReplace,
+    funcButton,
+  }: {
+    color?:
+      | "primary"
+      | "alternative"
+      | "blue"
+      | "dark"
+      | "green"
+      | "light"
+      | "purple"
+      | "red"
+      | "yellow"
+      | "none";
+    outline?: boolean;
+    width?: string;
+    spaceY?: string;
+    text?: string;
+    position?: string;
+    icon?: string;
+    classesSvg?: string;
+    leftIcon?: string;
+    rightIcon?: string;
+    alt?: string;
+    svgClassReplace?: string;
+    funcButton?: () => void;
   } = $props();
 
-  let svgClass = $state("w-5 h-5 text-gray-700 dark:text-gray-400");
+  let svgClass = $state(
+    svgClassReplace ? svgClassReplace : "w-5 h-5 text-gray-700 dark:text-gray-400",
+  );
 </script>
 
-<div class={`flex ${position ?? 'justify-center'}`}>
-  <Button on:click={funcButton} color={color ?? 'primary'} outline={outline} class={`${width ?? 'w-max'} ${spaceY ?? 'mt-4'} ${text ? '' : '!px-[10px]'}`}>
+<div class={`flex ${position ?? "justify-center"}`}>
+  <Button
+    on:click={funcButton}
+    color={color ?? "primary"}
+    {outline}
+    class={`${width ?? "w-max"} ${spaceY ?? "mt-4"} ${text ? "" : "!px-[10px]"}`}
+  >
     {#if leftIcon || icon}
-    {#if classesSvg}
-      <svelte:component this={getIcons(classesSvg) } svgClass={svgClass} />
-    {:else}
-      <img src={leftIcon ?? icon} alt={alt ?? ''} class={text ? 'me-2' : ''} />
+      {#if classesSvg}
+        <svelte:component this={getIcons(classesSvg)} {svgClass} />
+      {:else}
+        <img src={leftIcon ?? icon} alt={alt ?? ""} class={text ? "me-2" : ""} />
+      {/if}
     {/if}
-    {/if}
-    {text ?? ''}
+    {text ?? ""}
     {#if rightIcon}
-      <img src={rightIcon} alt={alt ?? ''} class={text ? 'ms-2' : ''} />
+      {#if classesSvg}
+        <svelte:component this={getIcons(classesSvg)} {svgClass} />
+      {:else}
+        <img src={rightIcon ?? icon} alt={alt ?? ""} class={text ? "me-2" : ""} />
+      {/if}
     {/if}
     <slot />
   </Button>

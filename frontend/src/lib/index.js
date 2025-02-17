@@ -2,7 +2,7 @@
  * CR3 Client Dashboard
  * Package: gitlab.hexacode.org/cr3/client-dashboard
  * Maintainer: Azzis Arswendo <azzis@hexacode.org>
- * 
+ *
  * Copyright (C) 2024 Hexacode Teknologi Indonesia
  * All Rights Reserved
  */
@@ -26,6 +26,7 @@ export { default as ChartCard } from "$lib/ui/cards/ChartCard.svelte";
 export { default as ActionCard } from "$lib/ui/cards/ActionCard.svelte";
 export { default as CollectionCard } from "$lib/ui/cards/CollectionCard.svelte";
 export { default as LibraryCard } from "$lib/ui/cards/LibraryCard.svelte";
+export { default as CardFeature } from "$lib/ui/cards/CardFeature.svelte";
 export { default as Footer } from "$lib/ui/footer/Footer.svelte";
 export { default as TabBar } from "$lib/ui/tab_bar/TabBar.svelte";
 export { default as Navbar } from "$lib/ui/navbar/Navbar.svelte";
@@ -52,7 +53,14 @@ export { default as BotCard } from "$lib/ui/cards/BotCard.svelte";
 export { default as Pagination } from "$lib/ui/pagination/Pagination.svelte";
 export { default as Divider } from "$lib/components/Divider.svelte";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
-export { triggerSelectCollection, selectedCollection, selectedDropdown, triggerSelectDropdown, triggerReload, reload } from "$lib/utils/selectCollection";
+export {
+  triggerSelectCollection,
+  selectedCollection,
+  selectedDropdown,
+  triggerSelectDropdown,
+  triggerReload,
+  reload,
+} from "$lib/utils/selectCollection";
 export { triggerShowAI, showAI } from "$lib/utils/showAI";
 export { triggerShowNotif, showNotif } from "$lib/utils/showNotif";
 export { call, setCall, callReady } from "$lib/utils/call";
@@ -61,5 +69,28 @@ export { getIndustryPoints, industryData } from "$lib/utils/getIndustry";
 export { isHome, setHome } from "$lib/utils/home";
 export { selectedConversation, setSelectedConversation } from "$lib/utils/selectedConversation";
 export { check, checkAnd, checkOr } from "$lib/utils/permissions";
-export { socket, notifications, notificationsUnread, notificationsRead, notificationsNewCount, newNotification, paginationAll, paginationUnread, paginationRead, connectWebSocket, disconnectWebSocket, onProgress } from "$lib/utils/notificationStore";
-export { isBakrie, bakrieLibraryId, documentsCollectionId, imagesCollectionId, documentImagesCollectionId, handwritingCollectionId, audioCollectionId, setLibraryIds, setCollectionIds } from "$lib/utils/bakrieLibraryStore";
+export {
+  socket,
+  notifications,
+  notificationsUnread,
+  notificationsRead,
+  notificationsNewCount,
+  newNotification,
+  paginationAll,
+  paginationUnread,
+  paginationRead,
+  connectWebSocket,
+  disconnectWebSocket,
+  onProgress,
+} from "$lib/utils/notificationStore";
+export {
+  isBakrie,
+  bakrieLibraryId,
+  documentsCollectionId,
+  imagesCollectionId,
+  documentImagesCollectionId,
+  handwritingCollectionId,
+  audioCollectionId,
+  setLibraryIds,
+  setCollectionIds,
+} from "$lib/utils/bakrieLibraryStore";

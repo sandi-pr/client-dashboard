@@ -77,7 +77,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://lajnah.hexacode.ai")
+    ? new CR3Call("https://tank.hexacode.ai")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -112,22 +112,24 @@ All Rights Reserved
   };
 
   const hideLayout = () => {
-    return !hideLayoutList.some((path) => {
-      try {
-        if (path.endsWith("/*")) {
-          return globalThis.location.pathname.startsWith(path.slice(0, -1));
-        } else {
-          return globalThis.location.pathname === path;
+    return (
+      !hideLayoutList.some((path) => {
+        try {
+          if (path.endsWith("/*")) {
+            return globalThis.location.pathname.startsWith(path.slice(0, -1));
+          } else {
+            return globalThis.location.pathname === path;
+          }
+        } catch (error) {
+          console.log(error);
+          if (path.endsWith("/*")) {
+            return window.location.pathname.startsWith(path.slice(0, -1));
+          } else {
+            return window.location.pathname === path;
+          }
         }
-      } catch (error) {
-        console.log(error);
-        if (path.endsWith("/*")) {
-          return window.location.pathname.startsWith(path.slice(0, -1));
-        } else {
-          return window.location.pathname === path;
-        }
-      }
-    });
+      }) && $page.status === 200
+    );
   };
 
   const hideLayoutBakrie = () => {
@@ -214,7 +216,7 @@ All Rights Reserved
         href: isFrontend
           ? "/documents"
           : await call.getPage("client-dashboard", "document-collection-overview"),
-          children: []
+        children: [],
       },
       // {
       //   icon: "marketplace",
@@ -360,15 +362,13 @@ All Rights Reserved
             icon: "messagePlusSquare",
             name: "bots",
             href: isFrontend ? "/bots" : await call.getPage("client-dashboard", "bots"),
-            children: []
+            children: [],
           },
           {
             icon: "data",
             name: "finetuning",
-            href: isFrontend
-              ? "/finetuning"
-              : await call.getPage("client-dashboard", "datasets"),
-          }
+            href: isFrontend ? "/finetuning" : await call.getPage("client-dashboard", "datasets"),
+          },
         ],
       },
       // {

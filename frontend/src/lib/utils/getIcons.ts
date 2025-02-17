@@ -1,11 +1,11 @@
-import HomeLineIcon from '../icon/home-line.svelte';
+import HomeLineIcon from "../icon/home-line.svelte";
 import BrandIcon from "../icon/logomark.svelte";
-import SettingIcon from '../icon/settings-01.svelte';
-import HexagonIcon from '../icon/hexagon-02.svelte';
+import SettingIcon from "../icon/settings-01.svelte";
+import HexagonIcon from "../icon/hexagon-02.svelte";
 import FolderIcon from "../icon/folder.svelte";
 import UsersIcon from "../icon/users-03.svelte";
 import MessageChatIcon from "../icon/message-chat-circle.svelte";
-import BlockchainIcon from '../icon/blockchain.svelte';
+import BlockchainIcon from "../icon/blockchain.svelte";
 import BellIcon from "../icon/bell-01.svelte";
 import FileShieldIcon from "../icon/file-shield-02.svelte";
 import FIleAttachmentIcon from "../icon/file-attachment-04.svelte";
@@ -20,6 +20,7 @@ import BuildingIcon from "../icon/building-08.svelte";
 import BookOpenIcon from "../icon/book-open-02.svelte";
 import DistributeVertIcon from "../icon/distribute-spacing-vertical.svelte";
 import ChevronDownIcon from "../icon/chevron-down.svelte";
+import ChevronUpIcon from "../icon/chevron-up.svelte";
 import DataIcon from "../icon/data.svelte";
 import MessagePlus from "../icon/message-plus-square.svelte";
 import BookClosedIcon from "../icon/book-closed.svelte";
@@ -37,28 +38,34 @@ import EyeIcon from "../icon/eye.svelte";
 import Presentation from "../icon/presentation-chart-02.svelte";
 import Lightbulb from "../icon/lightbulb-04.svelte";
 import Marketplace from "../icon/marketplace-01.svelte";
-import MessageChatSquare from '../icon/message-chat-square.svelte';
-import MessageHeartSquare from '../icon/message-heart-square.svelte';
-import MessageSmileSquare from '../icon/message-smile-square.svelte';
-import Star04Icon from '../icon/star-04.svelte';
-import PenToolIcon from '../icon/pen-tool-02.svelte';
-import Image03Icon from '../icon/image-03.svelte';
-import VideoRecorderIcon from '../icon/video-recorder.svelte';
-import Recording02Icon from '../icon/recording-02.svelte';
-import AiDocumentIcon from '../icon/ai-document-01.svelte';
-import FileLockIcon from '../icon/file-lock-02.svelte';
-import Settings03Icon from '../icon/settings-03.svelte';
-import MessagePlusSquare from '../icon/message-plus-square.svelte';
-import GraduationHat01 from '../icon/graduation-hat-01.svelte';
-import GraduationHat02 from '../icon/graduation-hat-02.svelte';
-import CodingIcon from '../icon/coding.svelte';
-import Globe01 from '../icon/globe-01.svelte';
-import DashboardIcon from '../icon/dashboard-01.svelte';
-import Dataflow04Icon from '../icon/dataflow-04.svelte';
-import MetaIcon from '../icon/meta.svelte';
-import GeminiIcon from '../icon/gemini.svelte';
-import DeepseekIcon from '../icon/deepseek.svelte';
-import PhoneCallIcon from '../icon/phone-call-02.svelte';
+import MessageChatSquare from "../icon/message-chat-square.svelte";
+import MessageHeartSquare from "../icon/message-heart-square.svelte";
+import MessageSmileSquare from "../icon/message-smile-square.svelte";
+import Star04Icon from "../icon/star-04.svelte";
+import PenToolIcon from "../icon/pen-tool-02.svelte";
+import Image03Icon from "../icon/image-03.svelte";
+import VideoRecorderIcon from "../icon/video-recorder.svelte";
+import Recording02Icon from "../icon/recording-02.svelte";
+import AiDocumentIcon from "../icon/ai-document-01.svelte";
+import FileLockIcon from "../icon/file-lock-02.svelte";
+import Settings03Icon from "../icon/settings-03.svelte";
+import MessagePlusSquare from "../icon/message-plus-square.svelte";
+import GraduationHat01 from "../icon/graduation-hat-01.svelte";
+import GraduationHat02 from "../icon/graduation-hat-02.svelte";
+import CodingIcon from "../icon/coding.svelte";
+import Globe01 from "../icon/globe-01.svelte";
+import DashboardIcon from "../icon/dashboard-01.svelte";
+import Dataflow04Icon from "../icon/dataflow-04.svelte";
+import MetaIcon from "../icon/meta.svelte";
+import GeminiIcon from "../icon/gemini.svelte";
+import DeepseekIcon from "../icon/deepseek.svelte";
+import PhoneCallIcon from "../icon/phone-call-02.svelte";
+import ArrowLeftIcon from "../icon/arrow-left.svelte";
+import RefreshCw05Icon from "../icon/refresh-cw-05.svelte";
+import UploadCloud02Icon from "../icon/upload-cloud-02.svelte";
+import OpenAiIcon from "../icon/open-ai.svelte";
+import ArrowUpRightIcon from "../icon/arrow-up-right.svelte";
+import Check2 from "../icon/check2.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -106,6 +113,8 @@ let getIcons = (presetIcon: String) => {
       return DistributeVertIcon;
     case "chevronDown":
       return ChevronDownIcon;
+    case "chevronUp":
+      return ChevronUpIcon;
     case "data":
       return DataIcon;
     case "messagePlus":
@@ -184,9 +193,21 @@ let getIcons = (presetIcon: String) => {
       return DeepseekIcon;
     case "phoneCall":
       return PhoneCallIcon;
+    case "arrowLeft":
+      return ArrowLeftIcon;
+    case "refreshCw05":
+      return RefreshCw05Icon;
+    case "uploadCloud02":
+      return UploadCloud02Icon;
+    case "openAi":
+      return OpenAiIcon;
+    case "arrowUpRight":
+      return ArrowUpRightIcon;
+    case "check2":
+      return Check2;
     default:
       return "";
   }
-}
+};
 
 export default getIcons;
