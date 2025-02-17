@@ -315,45 +315,45 @@ All Rights Reserved
       //     }
       //   ],
       // },
-      // {
-      //   icon: "globe01",
-      //   name: "llms",
-      //   children: [
-      //     {
-      //       icon: "dashboard01",
-      //       name: "overview",
-      //       href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms-overview"),
-      //       children: []
-      //     },
-      //     {
-      //       icon: "dataflow04",
-      //       name: "myModels",
-      //       href: isFrontend ? "/dataflow" : await call.getPage("client-dashboard", "dataflow"),
-      //       children: []
-      //     },
-      //     {
-      //       icon: "meta",
-      //       name: "Llama3.2",
-      //       href: isFrontend
-      //         ? "/llama"
-      //         : await call.getPage("client-dashboard", "llama"),
-      //     },
-      //     {
-      //       icon: "gemini",
-      //       name: "Gemma 2",
-      //       href: isFrontend
-      //         ? "/gemma"
-      //         : await call.getPage("client-dashboard", "gemma"),
-      //     },
-      //     {
-      //       icon: "deepseek",
-      //       name: "DeepSeek R1",
-      //       href: isFrontend
-      //         ? "/deepseek"
-      //         : await call.getPage("client-dashboard", "deepseek"),
-      //     }
-      //   ],
-      // },
+      {
+        icon: "globe01",
+        name: "llms",
+        children: [
+          {
+            icon: "dashboard01",
+            name: "overview",
+            href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms-overview"),
+            children: [],
+          },
+          {
+            icon: "dataflow04",
+            name: "lists",
+            href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
+            children: [],
+          },
+          // {
+          //   icon: "meta",
+          //   name: "Llama3.2",
+          //   href: isFrontend
+          //     ? "/llama"
+          //     : await call.getPage("client-dashboard", "llama"),
+          // },
+          // {
+          //   icon: "gemini",
+          //   name: "Gemma 2",
+          //   href: isFrontend
+          //     ? "/gemma"
+          //     : await call.getPage("client-dashboard", "gemma"),
+          // },
+          // {
+          //   icon: "deepseek",
+          //   name: "DeepSeek R1",
+          //   href: isFrontend
+          //     ? "/deepseek"
+          //     : await call.getPage("client-dashboard", "deepseek"),
+          // }
+        ],
+      },
       {
         icon: "settings03",
         name: "configurations",
