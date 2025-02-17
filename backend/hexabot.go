@@ -247,11 +247,6 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		},
 	}, false)
 
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
-
 	return 200, bot, nil
 }
 
@@ -1221,6 +1216,59 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 
 	if additional_prompt != "" {
 		data["additional_prompt"] = additional_prompt
+
+		status, data, err := Strapi.Find("hexabot-table", U.Dict{
+			"filters": U.Dict{
+				"id": U.Dict{
+					"$eq": id,
+				},
+			},
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := data.GetList("data")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		dict, ok := list.GetDict(0)
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		attributes, ok := dict.GetDict("attributes")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		bot_id, ok := attributes.GetString("bot_id")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		CR3 := cr3call.New(MODULE_MANAGER_URL)
+		go CR3.Call("hexa-ai-rag", "create-knowledge", cr3call.CR3CallData{
+			Headers: U.Dict{
+				"Authorization": bearer,
+			},
+			Params: U.Dict{
+				"knowledge_id":  bot_id,
+				"system_prompt": additional_prompt,
+			},
+		}, false)
 	}
 
 	if background_align != "" {

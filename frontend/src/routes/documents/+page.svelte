@@ -673,6 +673,9 @@ All Rights Reserved
       let totalCollections = groupingDataChart(monthlyCollectionsCounts);
       let totalCollectingData = groupingDataChart(monthlyCollectingDataCounts);
 
+      console.log("totalCollectingData", totalCollectingData);
+      console.log("totalCollections", monthlyCollectingDataCounts);
+
       getChartAction(totalCollections, totalCollectingData);
       generateChartData();
     } else {
@@ -814,7 +817,7 @@ All Rights Reserved
       <!-- Reports Monitoring -->
       <div class="flex flex-col gap-4">
         <SectionHeader title={$_("reports")} />
-        <ChartCard {chartAction} chartList={[dataChartAllDocs, dataChartCollecting]} />
+        <ChartCard {chartAction} chartList={[dataChartCollecting]} />
       </div>
 
       <div class="flex flex-col gap-4">
