@@ -197,7 +197,7 @@
                       width: "w-full",
                       color: "alternative",
                       funcButton: async () => {
-                        idModel = index + 1;
+                        idModel = index;
                         await getDetailData();
                       },
                     },
