@@ -2486,7 +2486,7 @@
         },
         {
             "name": "get-library-document-pub",
-            "path": "/get-library-document-pub/:id",
+            "path": "/get-library-document-pub/:id/:bot_id",
             "method": "GET",
             "content_type": "application/json",
             "response_type": "application/json",
@@ -2498,6 +2498,11 @@
                 {
                     "name": "id",
                     "type": "textnumber",
+                    "required": true
+                },
+                {
+                    "name": "bot_id",
+                    "type": "string",
                     "required": true
                 }
             ]

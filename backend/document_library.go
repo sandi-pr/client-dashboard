@@ -1213,6 +1213,11 @@ func GetLibraryDocumentPub(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		return ctx.Error(400, "invalid parameters id")
 	}
 
+	bot_id, ok := ctx.URLParams.GetString("bot_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters bot_id")
+	}
+
 	status, document, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"id": U.Dict{
@@ -1250,6 +1255,31 @@ func GetLibraryDocumentPub(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	}
 
 	if attributes, ok := dict.GetDict("attributes"); ok {
+		allIdCollection, err := getCollectionHexabotByBotId(string(bot_id), Strapi)
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		parent_id, ok := attributes.GetFloat64("parent_id")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		found := false
+
+		for _, v := range allIdCollection {
+			if v == int(parent_id) {
+				found = true
+			}
+		}
+
+		if !found {
+			return ctx.Error(400, "Unauthorized")
+		}
+
 		var document_path U.String
 
 		document_path, ok = attributes.GetString("path")
@@ -2875,7 +2905,27 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 		},
 	})
 
-	fmt.Println(libraries)
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, documents, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"type": U.Dict{
+				"$eq": "document",
+			},
+			"createdAt": U.Dict{
+				"$gte": earlyDate,
+				"$lte": lastDate,
+			},
+		},
+	})
 
 	if err != nil {
 		fmt.Println(err)
@@ -2887,7 +2937,10 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	return 200, libraries, nil
+	return 200, U.Dict{
+		"library":  libraries,
+		"document": documents,
+	}, nil
 
 }
 

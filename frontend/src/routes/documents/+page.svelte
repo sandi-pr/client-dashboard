@@ -305,7 +305,7 @@ All Rights Reserved
       },
       series: [
         {
-          name: "Collecting data",
+          name: "Total document",
           data: monthlyCollectingDataCounts,
           color: "#17B169",
         },
@@ -333,22 +333,22 @@ All Rights Reserved
     chartReady = true;
   }
 
-  async function getChartAction(totalCollections) {
+  async function getChartAction(totalCollections, dataCollecting) {
     chartAction = [
-      {
-        href: await $call.getPage("client-dashboard", "document-library"),
-        dataName: "Total Library",
-        value: totalCollections.total,
-        change: totalCollections.change,
-        changeType: totalCollections.changeType,
-      },
       // {
-      //   href: await $call.getPage("client-dashboard", "document-collection"),
-      //   dataName: "Collecting Data",
-      //   value: dataCollecting.total,
-      //   change: dataCollecting.change,
-      //   changeType: dataCollecting.changeType,
+      //   href: await $call.getPage("client-dashboard", "document-library"),
+      //   dataName: "Total Library",
+      //   value: totalCollections.total,
+      //   change: totalCollections.change,
+      //   changeType: totalCollections.changeType,
       // },
+      {
+        href: await $call.getPage("client-dashboard", "document-collection"),
+        dataName: "Total Document",
+        value: dataCollecting.total,
+        change: dataCollecting.change,
+        changeType: dataCollecting.changeType,
+      },
     ];
   }
 
@@ -649,7 +649,8 @@ All Rights Reserved
         //   format(lastDateCurrentMonth, "yyyy-MM-dd"),
         // );
 
-        tmpMonthlyCollectionsCounts.push(response.result.meta.pagination.total);
+        tmpMonthlyCollectionsCounts.push(response.result.library.meta.pagination.total);
+        tmpMonthlyCollectingDataCounts.push(response.result.document.meta.pagination.total);
 
         earlyDateCurrentMonth = new Date(
           earlyDateCurrentMonth.getFullYear(),
@@ -664,12 +665,15 @@ All Rights Reserved
       }
 
       tmpMonthlyCollectionsCounts.reverse();
+      tmpMonthlyCollectingDataCounts.reverse();
 
       monthlyCollectionsCounts = tmpMonthlyCollectionsCounts;
+      monthlyCollectingDataCounts = tmpMonthlyCollectingDataCounts;
 
       let totalCollections = groupingDataChart(monthlyCollectionsCounts);
+      let totalCollectingData = groupingDataChart(monthlyCollectingDataCounts);
 
-      getChartAction(totalCollections);
+      getChartAction(totalCollections, totalCollectingData);
       generateChartData();
     } else {
       console.log("no token");
@@ -682,7 +686,8 @@ All Rights Reserved
       total += data[i];
     }
 
-    let change = data[data.length - 1] - data[data.length - 2];
+    let change = data[data.length - 1];
+    // let change = data[data.length - 1] - data[data.length - 2];
 
     let changeType = change > 0 ? "increase" : change < 0 ? "decrease" : "-";
 
@@ -809,7 +814,7 @@ All Rights Reserved
       <!-- Reports Monitoring -->
       <div class="flex flex-col gap-4">
         <SectionHeader title={$_("reports")} />
-        <ChartCard {chartAction} chartList={[dataChartAllDocs, dataChartCollections]} />
+        <ChartCard {chartAction} chartList={[dataChartAllDocs, dataChartCollecting]} />
       </div>
 
       <div class="flex flex-col gap-4">
