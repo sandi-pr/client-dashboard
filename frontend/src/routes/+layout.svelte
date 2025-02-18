@@ -325,12 +325,12 @@ All Rights Reserved
             href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
             children: [],
           },
-          // {
-          //   icon: "dataflow04",
-          //   name: "myModels",
-          //   href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "llms-list"),
-          //   children: []
-          // },
+          {
+            icon: "dataflow04",
+            name: "lists",
+            href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
+            children: [],
+          },
           // {
           //   icon: "meta",
           //   name: "Llama3.2",
