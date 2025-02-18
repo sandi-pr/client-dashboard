@@ -1368,6 +1368,57 @@ All Rights Reserved
     }
   }
 
+  async function CheckBotLlm() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "find-create-library-llm", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        console.log("succes get library & colection:", response);
+
+        if (response.result?.collection_id !== undefined && response.result?.library_id !== undefined) {
+          let collectionId = response.result.collection_id;
+          let libraryId = response.result.library_id;
+
+          const response2 = await call.call("client-dashboard", "find-create-bot-llm", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_id: collectionId.toString(),
+            library_id: libraryId,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          return;
+        }
+
+        if (response2.result?.bot_id !== undefined) {
+          localStorage.setItem("botLlmId", response2.result.bot_id);
+        }
+      }
+    } catch (error) {
+        console.log("bot llm err:", error);
+      }
+    }
+  }
+
   onMount(async () => {
     if (localStorage.getItem("token") === null && isFrontend) {
       const token = prompt("Please insert your token:", "");
@@ -1394,6 +1445,7 @@ All Rights Reserved
 
     await getModelsTrocr();
     await getIndustryId();
+    await CheckBotLlm();
     hideNavbar();
 
     getNotifications();
