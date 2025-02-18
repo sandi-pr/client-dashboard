@@ -941,5 +941,12 @@
   "howDoIAccessTheChatbotDesc": "Anda dapat mengakses chatbot dengan [jelaskan cara mengaksesnya, misalnya dengan mengklik tombol \"Chat\" di pojok kanan bawah layar, pergi ke bagian \"Dukungan\" di website kami, atau membuka aplikasi dan memilih \"Chat\"].",
   "deployYourModel": "Luncurkan Model Anda",
   "descDeployYourModel": "Tambahkan Modelmu ke Hexacode AI",
-  "audioPreview": "Pratinjau Suara"
+  "audioPreview": "Pratinjau Suara",
+  "descDocuments": "Organisasi, Kelola, dan Proses Berkas Anda dengan Mudah",
+  "createBots": "Buat Bot Anda Sendiri",
+  "descCreateBots": "Buat AI Assistant untuk Tugas Apapun",
+  "tryModels": "Coba LLMs Langsung",
+  "descTryModels": "Rasakan Kekuatan Generasi Teks AI yang Canggih",
+  "finetunings": "Finetuning",
+  "descFinetunings": "Optimalkan Model untuk Akurasi dan Performa yang Lebih Baik"
 }

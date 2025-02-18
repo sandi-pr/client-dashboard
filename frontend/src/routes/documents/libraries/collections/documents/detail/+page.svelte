@@ -329,7 +329,7 @@ All Rights Reserved
     }
   }
 
-  function truncateText(text, maxWords, maxFirstWordLength = 20) {
+  function truncateText(text, maxWords, maxFirstWordLength = 14) {
     console.log("text", text);
     const words = text.split(" ");
 
@@ -830,7 +830,7 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{truncateText(tmpData.document_title || "", 2)}
+              >{globalThis.innerWidth < 768 ? truncateText(tmpData.document_title || "", 2) : tmpData.document_title}
             </Heading>
           </div>
           <P

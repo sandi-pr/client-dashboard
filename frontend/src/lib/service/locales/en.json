@@ -941,5 +941,12 @@
   "howDoIAccessTheChatbotDesc": "You can access the chatbot by [explain how to access it, e.g., clicking the \"Chat\" button in the bottom right corner of the screen, going to the \"Support\" section of our website, or opening the app and selecting \"Chat\"].",
   "deployYourModel": "Deploy your model",
   "descDeployYourModel": "Add your own model to Hexacode AI",
-  "audioPreview": "Audio Preview"
+  "audioPreview": "Audio Preview",
+  "descDocuments": "Organize, Manage, and Process Your Files with Ease",
+  "createBots": "Create your own bots",
+  "descCreateBots": "Build Custom AI Assistants for Any Task",
+  "tryModels": "Try Large Language Models",
+  "descTryModels": "Experience the Power of Advanced AI Text Generation",
+  "finetunings": "Finetunings",
+  "descFinetunings": "Customize AI Models to Fit Your Unique Needs"
 }

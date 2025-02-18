@@ -109,7 +109,7 @@
 <!-- Appbar for Drawer -->
 {#if innerWidth < 1024 && !$showAI}
   <div class="lg:hidden fixed top-0 w-full z-40 px-2 py-1 md:py-3 justify-between items-center flex">
-    {#if currentUrl.split('/').length > 1 && currentUrl !== "/"}
+    {#if currentUrl.split('/').length > 2 && currentUrl !== "/"}
       <div class="p-2 rounded-lg justify-center items-center flex">
         <Button on:click={() => history.back()} color="light" class="p-2">
           <ArrowLeftIcon svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark" />

@@ -1931,7 +1931,7 @@ func FindCreateBotLlm(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 	}
 
 	if len(list) == 0 {
-		bot_name := ""
+		bot_name := "LLM Demo"
 
 		description := "this is description for try bot"
 
@@ -1957,7 +1957,7 @@ func FindCreateBotLlm(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		additional_prompt := "You are bot for try model llm"
+		additional_prompt := "Kamu adalah bot yang bertugas untuk memberikan user mencoba berbagai model LLM yang tersedia. Tugasmu adalah menunjukkan kemampuan, pengetahuan, serta keunggulan dan kelemahan masing-masing model. Pastikan untuk menjelaskan use case terbaik untuk setiap model yang kamu miliki."
 
 		need_auth := false
 
