@@ -2274,6 +2274,10 @@
                 {
                     "name": "description",
                     "type": "string"
+                },
+                {
+                    "name": "library_industry",
+                    "type": "boolean"
                 }
             ]
         },
@@ -2373,6 +2377,10 @@
                 {
                     "name": "page_size",
                     "type": "number"
+                },
+                {
+                    "name": "system_item",
+                    "type": "boolean"
                 }
             ]
         },
@@ -2865,6 +2873,18 @@
                     "type": "number"
                 }
             ]
+        },
+        {
+            "name": "find-create-library-llm",
+            "path": "/find-create-library-llm",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "FindCreateLibraryLlm"
+            },
+            "params": []
         },
         {
             "name": "create-employee",
@@ -4693,6 +4713,14 @@
                 {
                     "name": "need_auth",
                     "type": "boolean"
+                },
+                {
+                    "name": "assistant_item",
+                    "type": "boolean"
+                },
+                {
+                    "name": "system_item",
+                    "type": "boolean"
                 }
             ]
         },
@@ -4950,6 +4978,29 @@
                 }
             ],
             "params": []
+        },
+        {
+            "name": "find-create-bot-llm",
+            "path": "/find-create-bot-llm",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "FindCreateBotLlm"
+            },
+            "params": [
+                {
+                    "name": "library_id",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": true
+                }
+            ]
         },
         {
             "name": "get-count-bot-per-mount",
@@ -6012,6 +6063,9 @@
                     },
                     "status": {
                         "type": "string"
+                    },
+                    "system_item": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -6509,6 +6563,12 @@
                         "type": "string"
                     },
                     "manage_document": {
+                        "type": "boolean"
+                    },
+                    "assistant_item": {
+                        "type": "boolean"
+                    },
+                    "system_item": {
                         "type": "boolean"
                     }
                 }
