@@ -615,7 +615,7 @@
   });
 </script>
 
-<div class="flex flex-col m-4 gap-4">
+<div class="flex flex-col m-4 gap-4 pb-4 md:pb-12">
   <Typography text="Large Language Models Overview" preset="Display sm/Semibold" />
   <Typography text="Quick Actions" preset="Text lg/Semibold" propClass="my-4" />
   <Divider />

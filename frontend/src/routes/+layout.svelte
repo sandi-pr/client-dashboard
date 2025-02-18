@@ -194,22 +194,22 @@ All Rights Reserved
   const getModules = async () => {
     return [
       // Start of new sidebar
-      // {
-      //   icon: "messageChatSquare",
-      //   name: "assistant",
-      //   children: [
-      //     {
-      //       icon: "messageHeartSquare",
-      //       name: "hexassistant",
-      //       href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
-      //     },
-      //     {
-      //       icon: "messageSmileSquare",
-      //       name: "myBots",
-      //       href: isFrontend ? "/hexabots" : await call.getPage("client-dashboard", "hexabot"),
-      //     },
-      //   ],
-      // },
+      {
+        icon: "messageChatSquare",
+        name: "assistant",
+        children: [
+          {
+            icon: "messageHeartSquare",
+            name: "hexassistant",
+            href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
+          },
+          {
+            icon: "messageSmileSquare",
+            name: "myBots",
+            href: isFrontend ? "/my_bots" : await call.getPage("client-dashboard", "my-bots"),
+          },
+        ],
+      },
       {
         icon: "bookOpen",
         name: "documents",
@@ -260,35 +260,35 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      // {
-      //   icon: "star04",
-      //   name: "aiAnalyzer",
-      //   children: [
-      //     {
-      //       icon: "penTool",
-      //       name: "handwriting",
-      //       href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      //     },
-      //     {
-      //       icon: "image03",
-      //       name: "memories",
-      //       commingSoon: true,
-      //       href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
-      //     },
-      //     {
-      //       icon: "videoRecorder",
-      //       name: "vision",
-      //       commingSoon: true,
-      //       href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
-      //     },
-      //     {
-      //       icon: "recording02",
-      //       name: "voice",
-      //       commingSoon: true,
-      //       href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      //     },
-      //   ],
-      // },
+      {
+        icon: "star04",
+        name: "aiAnalyzer",
+        children: [
+          {
+            icon: "penTool",
+            name: "handwriting",
+            href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+          },
+          // {
+          //   icon: "image03",
+          //   name: "memories",
+          //   commingSoon: true,
+          //   href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
+          // },
+          // {
+          //   icon: "videoRecorder",
+          //   name: "vision",
+          //   commingSoon: true,
+          //   href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
+          // },
+          {
+            icon: "recording02",
+            name: "voice",
+            commingSoon: true,
+            href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+          },
+        ],
+      },
       // {
       //   icon: "aiDocument",
       //   name: "smartDocument",
@@ -322,35 +322,35 @@ All Rights Reserved
           {
             icon: "dashboard01",
             name: "overview",
-            href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms-overview"),
+            href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
             children: [],
           },
-          {
-            icon: "dataflow04",
-            name: "lists",
-            href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
-            children: [],
-          },
+          // {
+          //   icon: "dataflow04",
+          //   name: "myModels",
+          //   href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "llms-list"),
+          //   children: []
+          // },
           // {
           //   icon: "meta",
           //   name: "Llama3.2",
           //   href: isFrontend
-          //     ? "/llama"
-          //     : await call.getPage("client-dashboard", "llama"),
+          //     ? "/llms?tab=llama"
+          //     : await call.getPage("client-dashboard", "llms"),
           // },
           // {
           //   icon: "gemini",
           //   name: "Gemma 2",
           //   href: isFrontend
-          //     ? "/gemma"
-          //     : await call.getPage("client-dashboard", "gemma"),
+          //     ? "/llms?tab=gemma"
+          //     : await call.getPage("client-dashboard", "llms"),
           // },
           // {
           //   icon: "deepseek",
           //   name: "DeepSeek R1",
           //   href: isFrontend
-          //     ? "/deepseek"
-          //     : await call.getPage("client-dashboard", "deepseek"),
+          //     ? "/llms?tab=deepseek"
+          //     : await call.getPage("client-dashboard", "llms"),
           // }
         ],
       },
@@ -371,14 +371,14 @@ All Rights Reserved
           },
         ],
       },
-      // {
-      //   icon: "phoneCall",
-      //   name: "support",
-      //   href: isFrontend
-      //     ? "/support"
-      //     : await call.getPage("client-dashboard", "support"),
-      //     children: []
-      // },
+      {
+        icon: "phoneCall",
+        name: "support",
+        href: isFrontend
+          ? "/support"
+          : await call.getPage("client-dashboard", "support"),
+          children: []
+      },
       // End of new sidebar
 
       // {
