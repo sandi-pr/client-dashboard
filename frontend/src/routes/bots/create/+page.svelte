@@ -11,17 +11,7 @@
 -->
 
 <script>
-  import {
-    P,
-    Card,
-    Input,
-    Button,
-    Checkbox,
-    Textarea,
-    Avatar,
-    Modal,
-    Toggle,
-  } from "flowbite-svelte";
+  import { Button, Modal } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
@@ -35,13 +25,13 @@
     InputRw,
     TextareaRw,
     StateCard,
+    Dropdown,
   } from "$lib";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { goto } from "$app/navigation";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import { tr } from "date-fns/locale";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -74,6 +64,13 @@
   let gettingDatas = $state(false);
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
+  let dropdownUsecaseOpen = $state(false);
+  let usecase = $state([
+    { name: "My Bots (Default)", value: "myBots" },
+    { name: "Hexassistant", value: "hexassistant" },
+    { name: "Coding Assistant", value: "codingAssistant" },
+  ]);
+  let usecaseSelected = $state("myBots");
 
   let platforms = $state([]);
 
@@ -274,8 +271,8 @@
 
         if (checkAll) {
           datasChecked = allData.map((data) => {
-            return { 
-              id: data.id, 
+            return {
+              id: data.id,
               checked: true,
               sub_collection: data.sub_collections.map((sub) => ({
                 id: sub.id,
@@ -287,8 +284,8 @@
         } else {
           if (tmpDatasChecked[pagination.page] === undefined) {
             datasChecked = allData.map((data) => {
-              return { 
-                id: data.id, 
+              return {
+                id: data.id,
                 checked: false,
                 sub_collection: data.sub_collections.map((sub) => ({
                   id: sub.id,
@@ -439,38 +436,6 @@
 
     await getCollectionSub(selectedCollection);
   };
-
-  function handleDragOver(event) {
-    event.preventDefault();
-    dropzoneActive = true;
-  }
-
-  function handleDragLeave() {
-    dropzoneActive = false;
-  }
-
-  async function handleDrop(event) {
-    event.preventDefault();
-    dropzoneActive = false;
-
-    const files = event.dataTransfer.files;
-
-    if (files[0] && (files[0].type === "image/jpeg" || files[0].type === "image/png")) {
-      fileImageResult = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-
-        reader.readAsDataURL(files[0]);
-      });
-
-      fileImage = await readFileAsBase64(files[0]);
-      fileImageName = files[0].name;
-    } else {
-      alert("Invalid file. Please select a valid .jpg or .png file.");
-    }
-  }
 
   const handleInputFile = () => {
     const inputElement = document.createElement("input");
@@ -638,23 +603,22 @@
         if (!pageData) {
           triggerLoading(false);
           return;
-        }; // Skip jika pageData undefined/null
+        } // Skip jika pageData undefined/null
 
         console.log("pageData", pageData);
 
         const collections = pageData
           .flatMap((item) => {
             // Ambil ID dari sub_collection jika checked = true
-            const subCollectionIds = item.sub_collection
-              ?.filter((sub) => sub.checked)
-              .map((sub) => sub.id) || [];
+            const subCollectionIds =
+              item.sub_collection?.filter((sub) => sub.checked).map((sub) => sub.id) || [];
 
             // Tambahkan item.id jika checked = true
             return item.checked ? [item.id, ...subCollectionIds] : subCollectionIds;
           })
           .join(","); // Gabungkan ID dengan koma
 
-          console.log("collections check", collections);
+        console.log("collections check", collections);
 
         if (collections) {
           allCollection += collections + ",";
@@ -827,10 +791,7 @@
 
   function areAllUnchecked() {
     // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
-    const allData = [
-      ...datasChecked,
-      ...Object.values(tmpDatasChecked).flat(),
-    ];
+    const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
 
     // Cek apakah semua data tidak ada yang checked
     return allData.every((item) => item.checked === false);
@@ -953,6 +914,23 @@
           bind:selectedData={selectedplatforms}
           numGrid={3}
           isRadio
+        />
+      </div>
+    </div>
+    <Divider />
+    <div class="md:flex">
+      <Typography
+        preset="Text md/Semibold"
+        text={$_("useCase")}
+        color="secondary"
+        propClass="w-full md:w-1/4"
+      />
+      <div class="w-full md:w-auto">
+        <Dropdown
+          dropdownOpen={dropdownUsecaseOpen}
+          bind:selectedItem={usecaseSelected}
+          items={usecase}
+          isOverlay={true}
         />
       </div>
     </div>
