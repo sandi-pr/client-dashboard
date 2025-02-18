@@ -708,10 +708,18 @@ func GetLibrarys(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		page_size = 10
 	}
 
+	system_item, ok := ctx.Params.GetBool("system_item")
+	if !ok {
+		system_item = false
+	}
+
 	status, documentLibrarys, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"type": U.Dict{
 				"$eq": "library",
+			},
+			"system_item": U.Dict{
+				"$eq": system_item,
 			},
 		},
 		"pagination": U.Dict{
@@ -2898,6 +2906,9 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 			"type": U.Dict{
 				"$eq": "library",
 			},
+			"system_item": U.Dict{
+				"$eq": false,
+			},
 			"createdAt": U.Dict{
 				"$gte": earlyDate,
 				"$lte": lastDate,
@@ -3769,4 +3780,255 @@ func updatePathContent(pathLibrary string, idLibrary int64, strapi *strapi.Strap
 
 		return nil
 	}
+}
+
+func FindCreateLibraryLlm(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	status, library, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"type": U.Dict{
+				"$eq": "library",
+			},
+			"system_item": U.Dict{
+				"$eq": true,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("ayam")
+		fmt.Println(status)
+		fmt.Println(library)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if list, ok := library.GetList("data"); ok {
+		if len(list) > 0 {
+			if dict, ok := list.GetDict(0); ok {
+				if id, ok := dict.GetFloat64("id"); ok {
+					idCollection, err := findCreateLibraryCollection(int64(id), Strapi)
+
+					if err != nil {
+						fmt.Println(err)
+						return ctx.Error(500, "Internal Server Error")
+					}
+
+					return 200, U.Dict{
+						"collection_id": idCollection,
+						"library_id":    id,
+					}, nil
+				}
+			}
+		} else {
+			name := "Library LLM"
+			description := "This is a library for try LLM"
+
+			document_path := DOCUMENT_PATH + "/" + string(name)
+
+			dir := filepath.Dir(document_path)
+
+			err = os.MkdirAll(dir, os.ModePerm)
+			if err != nil {
+				fmt.Println("Gagal membuat direktori:", err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			status, library, err = Strapi.Create("document-library-table", U.Dict{
+				"type": "library",
+				"name": name,
+				"path": document_path,
+				"meta": U.Dict{
+					"description": description,
+				},
+				"system_item": true,
+			})
+
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println("bebek")
+				fmt.Println(status)
+				fmt.Println(library)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if data, ok := library.GetDict("data"); ok {
+				if id, ok := data.GetFloat64("id"); ok {
+					idCollection, err := findCreateLibraryCollection(int64(id), Strapi)
+
+					if err != nil {
+						fmt.Println(err)
+						return ctx.Error(500, "Internal Server Error")
+					}
+
+					return 200, U.Dict{
+						"collection_id": idCollection,
+						"library_id":    id,
+					}, nil
+				}
+			}
+		}
+	}
+
+	return ctx.Error(500, "Internal Server Error")
+}
+
+func findCreateLibraryCollection(id int64, strapi *strapi.StrapiClassic) (int, error) {
+	data := U.Dict{
+		"filters": U.Dict{
+			"parent_id": U.Dict{
+				"$eq": int64(id),
+			},
+			"type": U.Dict{
+				"$eq": "collection",
+			},
+		},
+		"sort":     "id:desc",
+		"populate": "*",
+	}
+
+	fmt.Println("data", data)
+
+	status, documentLibrarys, err := strapi.Find("document-library-table", data)
+
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+
+	if status != 200 {
+		fmt.Println("cicak")
+		fmt.Println(status)
+		fmt.Println(documentLibrarys)
+		return 0, fmt.Errorf("status not 200")
+	}
+
+	if list, ok := documentLibrarys.GetList("data"); ok {
+		if len(list) > 0 {
+			if dict, ok := list.GetDict(0); ok {
+				if id, ok := dict.GetFloat64("id"); ok {
+					return int(id), nil
+				}
+			}
+		} else {
+			upload_by := 0
+
+			author := "system"
+
+			name := "Collection LLM"
+
+			description := "this is collection for try LLM"
+
+			status, library, err := strapi.Find("document-library-table", U.Dict{
+				"filters": U.Dict{
+					"id": U.Dict{
+						"$eq": id,
+					},
+				},
+			})
+
+			if err != nil {
+				fmt.Println(err)
+				return 0, err
+			}
+
+			if status != 200 {
+				fmt.Println(status)
+				fmt.Println(library)
+				return 0, fmt.Errorf("status not 200")
+			}
+
+			var document_path string
+
+			if list, ok := library.GetList("data"); ok {
+				if dict, ok := list.GetDict(0); ok {
+					if attributes, ok := dict.GetDict("attributes"); ok {
+						if path, ok := attributes.GetString("path"); ok {
+							document_path = string(path) + "/" + string(name)
+						}
+					}
+				}
+			}
+
+			dir := filepath.Dir(document_path)
+
+			err = os.MkdirAll(dir, os.ModePerm)
+			if err != nil {
+				fmt.Println("Gagal membuat direktori:", err)
+				return 0, err
+			}
+
+			dataSend := U.Dict{
+				"type":      "collection",
+				"name":      name,
+				"path":      document_path,
+				"parent_id": id,
+				"meta": U.Dict{
+					"upload_by": upload_by,
+					"author":    author,
+				},
+			}
+
+			if description != "" {
+				dataSend["meta"].(U.Dict)["description"] = description
+			}
+
+			status, documentLibrary, err := strapi.Create("document-library-table", dataSend)
+
+			if err != nil {
+				fmt.Println(err)
+				return 0, err
+			}
+
+			if status != 200 {
+				fmt.Println(status)
+
+				if err2, ok := documentLibrary.GetDict("error"); ok {
+					if message, ok := err2.GetString("message"); ok {
+						return 0, fmt.Errorf(string(message))
+					}
+				}
+
+				return 0, fmt.Errorf("status not 200")
+			}
+
+			if data, ok := documentLibrary.GetDict("data"); ok {
+				if id, ok := data.GetFloat64("id"); ok {
+					return int(id), nil
+				}
+			}
+
+			return 0, fmt.Errorf("not found")
+		}
+	}
+
+	return 0, fmt.Errorf("not found")
 }
