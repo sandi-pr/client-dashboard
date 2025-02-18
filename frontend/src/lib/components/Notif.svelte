@@ -14,9 +14,11 @@
   function truncateText(text, maxWords, maxFirstWordLength = 40) {
     const words = text.split(" ");
 
-    // Check if the first word is too long
-    if (words[1].length > maxFirstWordLength) {
-      words[1] = words[1].slice(0, maxFirstWordLength) + "...";
+    // Check if the first word is too long, or if the second word is long
+    if (words[0] && words[0].length > maxFirstWordLength) {
+      return words[0].slice(0, maxFirstWordLength) + "...";
+    } else if (words[1] && words[1].length > maxFirstWordLength) {
+      return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
     }
 
     // Limit to maxWords and append "..." if necessary
@@ -81,7 +83,7 @@
               <InfoCircleIcon svgClass="w-6 h-6" />
             </svelte:fragment>
 
-            <span class="font-semibold text-gray-900 dark:text-white">{truncateText(data.attributes.title, 2)}</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{truncateText(data.attributes.title, 3)}</span>
             <div class="mt-1 gap-2">
               {#if data.attributes.type.includes("progress")}
                 <Progressbar

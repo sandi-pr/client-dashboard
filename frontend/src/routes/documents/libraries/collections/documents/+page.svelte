@@ -1439,7 +1439,7 @@
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->
-        <div class="flex items-center justify-between mb-3 md:mb-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3 md:mb-8">
           <div class="flex flex-col gap-2">
             <div class="flex gap-4">
               <Typography

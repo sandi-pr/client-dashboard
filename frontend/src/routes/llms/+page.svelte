@@ -10,6 +10,7 @@
     call,
     triggerToast,
   } from "$lib";
+  import { goto } from "$app/navigation";
 
   let actionItems = [
     {
@@ -43,381 +44,381 @@
   ];
 
   let cardDataArray = [
-    {
-      iconData: {
-        icon: "gemini",
-      },
-      contentCenter: [
-        // Product Name
-        [
-          {
-            text: {
-              text: "Gemini",
-              color: "brand-secondary",
-              preset: "Text xl/Semibold",
-            },
-          },
-        ],
-        // Title
-        [
-          {
-            text: {
-              text: "DeepSeek R1",
-              color: "primary",
-              preset: "Display md/Semibold",
-            },
-          },
-        ],
-        // Subtitle
-        [
-          {
-            text: {
-              text: "Our most used models.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-          },
-        ],
-        // Point of Interest
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Finds hidden problems in data.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Understands images and text.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Predicts machine failures.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Personalizes user experiences.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Discovers new scientific insights.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-      ],
-      actionFooter: [
-        {
-          button: {
-            text: "Try this model",
-            spaceY: "",
-            width: "w-full",
-            rightIcon: "true",
-            classesSvg: "arrowUpRight",
-            svgClassReplace: "w-5 h-5 text-white",
-            funcButton: () => (window.location.href = "/llms"),
-          },
-        },
-        {
-          button: {
-            text: "Learn More",
-            spaceY: "",
-            width: "w-full",
-            color: "alternative",
-            funcButton: () => (window.location.href = "/llms/list?id=1"),
-          },
-        },
-      ],
-    },
-    {
-      iconData: {
-        icon: "gemini",
-      },
-      contentCenter: [
-        // Product Name
-        [
-          {
-            text: {
-              text: "Gemini",
-              color: "brand-secondary",
-              preset: "Text xl/Semibold",
-            },
-          },
-        ],
-        // Title
-        [
-          {
-            text: {
-              text: "DeepSeek R1",
-              color: "primary",
-              preset: "Display md/Semibold",
-            },
-          },
-        ],
-        // Subtitle
-        [
-          {
-            text: {
-              text: "Our most used models.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-          },
-        ],
-        // Point of Interest
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Finds hidden problems in data.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Understands images and text.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Predicts machine failures.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Personalizes user experiences.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Discovers new scientific insights.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-      ],
-      actionFooter: [
-        {
-          button: {
-            text: "Try this model",
-            spaceY: "",
-            width: "w-full",
-            rightIcon: "true",
-            classesSvg: "arrowUpRight",
-            svgClassReplace: "w-5 h-5 text-white",
-            funcButton: () => (window.location.href = "/llms"),
-          },
-        },
-        {
-          button: {
-            text: "Learn More",
-            spaceY: "",
-            width: "w-full",
-            color: "alternative",
-            funcButton: () => (window.location.href = "/llms/list?id=2"),
-          },
-        },
-      ],
-    },
-    {
-      iconData: {
-        icon: "gemini",
-      },
-      contentCenter: [
-        // Product Name
-        [
-          {
-            text: {
-              text: "Gemini",
-              color: "brand-secondary",
-              preset: "Text xl/Semibold",
-            },
-          },
-        ],
-        // Title
-        [
-          {
-            text: {
-              text: "DeepSeek R1",
-              color: "primary",
-              preset: "Display md/Semibold",
-            },
-          },
-        ],
-        // Subtitle
-        [
-          {
-            text: {
-              text: "Our most used models.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-          },
-        ],
-        // Point of Interest
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Finds hidden problems in data.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Understands images and text.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Predicts machine failures.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Personalizes user experiences.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-        [
-          {
-            icon: {
-              icon: "check2",
-            },
-            text: {
-              text: "Discovers new scientific insights.",
-              color: "tertiary",
-              preset: "Text md/Regular",
-            },
-            justify: "justify-start",
-          },
-        ],
-      ],
-      actionFooter: [
-        {
-          button: {
-            text: "Try this model",
-            spaceY: "",
-            width: "w-full",
-            rightIcon: "true",
-            classesSvg: "arrowUpRight",
-            svgClassReplace: "w-5 h-5 text-white",
-            funcButton: () => (window.location.href = "/llms"),
-          },
-        },
-        {
-          button: {
-            text: "Learn More",
-            spaceY: "",
-            width: "w-full",
-            color: "alternative",
-            funcButton: () => (window.location.href = "/llms/list?id=3"),
-          },
-        },
-      ],
-    },
+    // {
+    //   iconData: {
+    //     icon: "gemini",
+    //   },
+    //   contentCenter: [
+    //     // Product Name
+    //     [
+    //       {
+    //         text: {
+    //           text: "Gemini",
+    //           color: "brand-secondary",
+    //           preset: "Text xl/Semibold",
+    //         },
+    //       },
+    //     ],
+    //     // Title
+    //     [
+    //       {
+    //         text: {
+    //           text: "DeepSeek R1",
+    //           color: "primary",
+    //           preset: "Display md/Semibold",
+    //         },
+    //       },
+    //     ],
+    //     // Subtitle
+    //     [
+    //       {
+    //         text: {
+    //           text: "Our most used models.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //       },
+    //     ],
+    //     // Point of Interest
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Finds hidden problems in data.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Understands images and text.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Predicts machine failures.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Personalizes user experiences.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Discovers new scientific insights.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //   ],
+    //   actionFooter: [
+    //     {
+    //       button: {
+    //         text: "Try this model",
+    //         spaceY: "",
+    //         width: "w-full",
+    //         rightIcon: "true",
+    //         classesSvg: "arrowUpRight",
+    //         svgClassReplace: "w-5 h-5 text-white",
+    //         funcButton: () => (window.location.href = "/llms"),
+    //       },
+    //     },
+    //     {
+    //       button: {
+    //         text: "Learn More",
+    //         spaceY: "",
+    //         width: "w-full",
+    //         color: "alternative",
+    //         funcButton: () => (window.location.href = "/llms/list?id=1"),
+    //       },
+    //     },
+    //   ],
+    // },
+    // {
+    //   iconData: {
+    //     icon: "gemini",
+    //   },
+    //   contentCenter: [
+    //     // Product Name
+    //     [
+    //       {
+    //         text: {
+    //           text: "Gemini",
+    //           color: "brand-secondary",
+    //           preset: "Text xl/Semibold",
+    //         },
+    //       },
+    //     ],
+    //     // Title
+    //     [
+    //       {
+    //         text: {
+    //           text: "DeepSeek R1",
+    //           color: "primary",
+    //           preset: "Display md/Semibold",
+    //         },
+    //       },
+    //     ],
+    //     // Subtitle
+    //     [
+    //       {
+    //         text: {
+    //           text: "Our most used models.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //       },
+    //     ],
+    //     // Point of Interest
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Finds hidden problems in data.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Understands images and text.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Predicts machine failures.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Personalizes user experiences.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Discovers new scientific insights.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //   ],
+    //   actionFooter: [
+    //     {
+    //       button: {
+    //         text: "Try this model",
+    //         spaceY: "",
+    //         width: "w-full",
+    //         rightIcon: "true",
+    //         classesSvg: "arrowUpRight",
+    //         svgClassReplace: "w-5 h-5 text-white",
+    //         funcButton: () => (window.location.href = "/llms"),
+    //       },
+    //     },
+    //     {
+    //       button: {
+    //         text: "Learn More",
+    //         spaceY: "",
+    //         width: "w-full",
+    //         color: "alternative",
+    //         funcButton: () => (window.location.href = "/llms/list?id=2"),
+    //       },
+    //     },
+    //   ],
+    // },
+    // {
+    //   iconData: {
+    //     icon: "gemini",
+    //   },
+    //   contentCenter: [
+    //     // Product Name
+    //     [
+    //       {
+    //         text: {
+    //           text: "Gemini",
+    //           color: "brand-secondary",
+    //           preset: "Text xl/Semibold",
+    //         },
+    //       },
+    //     ],
+    //     // Title
+    //     [
+    //       {
+    //         text: {
+    //           text: "DeepSeek R1",
+    //           color: "primary",
+    //           preset: "Display md/Semibold",
+    //         },
+    //       },
+    //     ],
+    //     // Subtitle
+    //     [
+    //       {
+    //         text: {
+    //           text: "Our most used models.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //       },
+    //     ],
+    //     // Point of Interest
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Finds hidden problems in data.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Understands images and text.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Predicts machine failures.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Personalizes user experiences.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //     [
+    //       {
+    //         icon: {
+    //           icon: "check2",
+    //         },
+    //         text: {
+    //           text: "Discovers new scientific insights.",
+    //           color: "tertiary",
+    //           preset: "Text md/Regular",
+    //         },
+    //         justify: "justify-start",
+    //       },
+    //     ],
+    //   ],
+    //   actionFooter: [
+    //     {
+    //       button: {
+    //         text: "Try this model",
+    //         spaceY: "",
+    //         width: "w-full",
+    //         rightIcon: "true",
+    //         classesSvg: "arrowUpRight",
+    //         svgClassReplace: "w-5 h-5 text-white",
+    //         funcButton: () => (window.location.href = "/llms"),
+    //       },
+    //     },
+    //     {
+    //       button: {
+    //         text: "Learn More",
+    //         spaceY: "",
+    //         width: "w-full",
+    //         color: "alternative",
+    //         funcButton: () => (window.location.href = "/llms/list?id=3"),
+    //       },
+    //     },
+    //   ],
+    // },
   ];
 
   const findIconFromModelName = (modelName) => {
@@ -580,7 +581,10 @@
                       rightIcon: "true",
                       classesSvg: "arrowUpRight",
                       svgClassReplace: "w-5 h-5 text-white",
-                      funcButton: () => (window.location.href = "/llms"),
+                      funcButton: async () => {
+                        let resultPage = await $call.getPage("hexabot", "home-page");
+                        goto(resultPage + "?model=" + model.model + "&id=" + localStorage.getItem("botLlmId"));
+                      },
                     },
                   },
                   {
