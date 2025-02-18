@@ -15,7 +15,10 @@
   import SidebarList from "./SidebarList.svelte";
   import LogoIcon from "$lib/icon/Logomark.svg";
   import MenuIcon from "$lib/icon/menu-02.svelte";
+  import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import { sineIn } from "svelte/easing";
+  import { page } from "$app/stores";
+  import { onMount } from "svelte";
   let hidden2 = $state(true);
   let transitionParams = {
     x: -320,
@@ -44,6 +47,21 @@
     innerWidth: number;
     logout: () => void;
   } = $props();
+
+  let url = $state("");
+  let currentUrl = $state($page.url.pathname);
+
+  $effect(() => {
+    console.log(currentUrl);
+    if (currentUrl !== $page.url.pathname) {
+      currentUrl = $page.url.pathname;
+      console.log("current url", currentUrl);
+    }
+  });
+  onMount(() => {
+    url = globalThis.location.pathname;
+    console.log("initial url", currentUrl);
+  })
 </script>
 
 <!-- Sidebar for small screen -->
@@ -90,15 +108,22 @@
 
 <!-- Appbar for Drawer -->
 {#if innerWidth < 1024 && !$showAI}
-  <div class="lg:hidden fixed top-0 w-full z-40 pl-4 pr-2 py-1 md:py-3 justify-between items-center flex">
-    <div class="justify-between items-center gap-2 flex">
+  <div class="lg:hidden fixed top-0 w-full z-40 px-2 py-1 md:py-3 justify-between items-center flex">
+    {#if currentUrl.split('/').length > 1 && currentUrl !== "/"}
+      <div class="p-2 rounded-lg justify-center items-center flex">
+        <Button on:click={() => history.back()} color="light" class="p-2">
+          <ArrowLeftIcon svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark" />
+        </Button>
+      </div>
+    {/if}
+    <div class="justify-between items-center gap-2 pl-2 flex">
       <div class="w-8 h-8 justify-center items-center flex">
         <img alt="logo" src={logoUrl !== "" ? logoUrl : LogoIcon} class="w-8 h-8" />
       </div>
       <Typography preset="Text lg/Bold" text={brand} color="primary" />
     </div>
     <div class="p-2 rounded-lg justify-center items-center flex">
-      <Button on:click={() => (hidden2 = false)} color="light">
+      <Button on:click={() => (hidden2 = false)} color="light" class="p-2">
         <MenuIcon svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark" />
       </Button>
     </div>

@@ -940,5 +940,6 @@
   "howDoIAccessTheChatbot": "How do I access the chatbot?",
   "howDoIAccessTheChatbotDesc": "You can access the chatbot by [explain how to access it, e.g., clicking the \"Chat\" button in the bottom right corner of the screen, going to the \"Support\" section of our website, or opening the app and selecting \"Chat\"].",
   "deployYourModel": "Deploy your model",
-  "descDeployYourModel": "Add your own model to Hexacode AI"
+  "descDeployYourModel": "Add your own model to Hexacode AI",
+  "audioPreview": "Audio Preview"
 }

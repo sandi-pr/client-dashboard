@@ -1003,7 +1003,11 @@ All Rights Reserved
           <div class="flex flex-col md:flex-row gap-6">
             <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                {$_("viewer")}
+                {#if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}
+                  {$_("audioPreview")}
+                {:else}
+                  {$_("viewer")}
+                {/if}
               </P>
             </div>
             <div
@@ -1018,8 +1022,8 @@ All Rights Reserved
                   <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
                 </div>
               {:else if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}
-                {#if audioUrl}
-                  <AudioPlayer src={audioUrl} />
+                {#if fileUrl}
+                  <AudioPlayer src={fileUrl} />
                 {/if}
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}

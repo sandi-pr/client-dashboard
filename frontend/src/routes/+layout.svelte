@@ -198,11 +198,11 @@ All Rights Reserved
         icon: "messageChatSquare",
         name: "assistant",
         children: [
-          {
-            icon: "messageHeartSquare",
-            name: "hexassistant",
-            href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
-          },
+          // {
+          //   icon: "messageHeartSquare",
+          //   name: "hexassistant",
+          //   href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
+          // },
           {
             icon: "messageSmileSquare",
             name: "myBots",
@@ -325,12 +325,12 @@ All Rights Reserved
             href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
             children: [],
           },
-          {
-            icon: "dataflow04",
-            name: "lists",
-            href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
-            children: [],
-          },
+          // {
+          //   icon: "dataflow04",
+          //   name: "lists",
+          //   href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
+          //   children: [],
+          // },
           // {
           //   icon: "meta",
           //   name: "Llama3.2",
@@ -371,14 +371,14 @@ All Rights Reserved
           },
         ],
       },
-      {
-        icon: "phoneCall",
-        name: "support",
-        href: isFrontend
-          ? "/support"
-          : await call.getPage("client-dashboard", "support"),
-          children: []
-      },
+      // {
+      //   icon: "phoneCall",
+      //   name: "support",
+      //   href: isFrontend
+      //     ? "/support"
+      //     : await call.getPage("client-dashboard", "support"),
+      //     children: []
+      // },
       // End of new sidebar
 
       // {
@@ -1071,6 +1071,62 @@ All Rights Reserved
         }
 
         localStorage.setItem("botIdStrapi", response.result.data.id);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("no token");
+      return;
+    }
+  }
+
+  async function createDemoBot() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      const resp = await call.call("client-dashboard", "get-bot-by-name", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: "Try LLMs Bot",
+        },
+        Headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
+
+      if (resp.status !== 404) {
+        console.log(resp);
+        gettingData = false;
+        return;
+      }
+
+      let dataSend = {
+        bot_name: "Try LLMs Bot",
+        description: "",
+        ai_engine: "llama3.2:8b",
+        library_id: parseInt(localStorage.getItem("libraryIdWebchatBakrie")),
+        collection_id: "all",
+        additional_prompt: "",
+        need_auth: false,
+      };
+
+      console.log("dataSend", dataSend);
+
+      try {
+        const response = await call.call("client-dashboard", "create-bot", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
       } catch (error) {
         console.log(error);
       }

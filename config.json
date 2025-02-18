@@ -378,6 +378,16 @@
             "name": "support",
             "path": "/support",
             "file_path": "template/support.html"
+        },
+        {
+            "name": "llms",
+            "path": "/llms",
+            "file_path": "template/llms.html"
+        },
+        {
+            "name": "llms-list",
+            "path": "/llms/list",
+            "file_path": "template/llms/list.html"
         }
     ],
     "apis": [
