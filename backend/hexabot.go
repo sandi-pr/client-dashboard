@@ -832,6 +832,9 @@ func GetBotsReady(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 			"status": U.Dict{
 				"$eq": "Ready",
 			},
+			"system_item": U.Dict{
+				"$eq": false,
+			},
 		},
 		"pagination": U.Dict{
 			"page":     page,

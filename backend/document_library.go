@@ -84,6 +84,7 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		"name":             library_name,
 		"path":             document_path,
 		"library_industry": false,
+		"system_item":      false,
 		"meta": U.Dict{
 			"upload_by": upload_by,
 			"author":    author,
