@@ -1,17 +1,7 @@
 <script>
-  import {
-    Card,
-    Button,
-    Avatar,
-  } from "flowbite-svelte";
+  import { Card, Button, Avatar } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import {
-    Typography,
-    call,
-    triggerToast,
-    check,
-    Badge,
-  } from "$lib";
+  import { Typography, call, triggerToast, check, Badge } from "$lib";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Settings03Icon from "$lib/icon/settings-03.svelte";
@@ -24,8 +14,14 @@
 
   let popupModal = $state(false);
 
-  let { bot, handleDropdownFocusLoss, index, dropdownOpen, config = null, startReading = () => {} } = $props();
-
+  let {
+    bot,
+    handleDropdownFocusLoss,
+    index,
+    dropdownOpen,
+    config = null,
+    startReading = () => {},
+  } = $props();
 </script>
 
 <Card padding="none" class="relative shadow-none grow w-full">
@@ -45,32 +41,20 @@
       <div class="flex items-center gap-3">
         <Avatar src={bot.bot_profile ? bot.bot_profile : ""} />
         <div class="flex flex-col">
-          <Typography
-            preset="Text lg/Semibold"
-            color="primary"
-            text={bot.botsName}
-          />
-          <Typography
-            preset="Text sm/Regular"
-            color="secondary"
-            text={bot.botDescription}
-          />
+          <Typography preset="Text lg/Semibold" color="primary" text={bot.botsName} />
+          <Typography preset="Text sm/Regular" color="secondary" text={bot.botDescription} />
         </div>
       </div>
       {#if check("aiManagement.hexabots:delete") && config?.detail === true}
-        <div
-          onfocusout={handleDropdownFocusLoss}
-          class=" flex items-center relative"
-        >
+        <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
           <Button
             on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
             class="focus-within:ring-0 !p-0"
             color="none"
             size="xs"
-            ><DotsVerticalIcon
-              class="text-fg-quinary-light dark:text-fg-quinary-dark"
-            /></Button
           >
+            <DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" />
+          </Button>
           <div
             class={`z-10 ${dropdownOpen[index] ? "absolute top-9 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
           >
@@ -87,10 +71,10 @@
                     dropdownOpen[index] = !dropdownOpen[index];
                     startReading(bot.botsID);
                   }}
-                  ><EyeIcon
-                    svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-                  />{$_("startReading")}</button
                 >
+                  <EyeIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+                  {$_("startReading")}
+                </button>
               {/if}
               <button
                 class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
@@ -99,10 +83,10 @@
                   tmpId = bot.botsID;
                   dropdownOpen[index] = !dropdownOpen[index];
                 }}
-                ><TrashIcon
-                  svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-                />{$_("delete")}</button
               >
+                <TrashIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+                {$_("delete")}
+              </button>
             </ul>
           </div>
         </div>
@@ -115,18 +99,14 @@
         <Button
           disabled={!check("aiManagement.hexabots:view")}
           on:click={async () => {
-            goto(
-              (await $call.getPage("client-dashboard", "bots-detail")) +
-                "?botId=" +
-                bot.botsID,
-            );
+            goto((await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + bot.botsID);
           }}
           outline
           class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
         >
           <Typography
             preset="Text sm/Semibold"
-            text={$_("detail")}
+            text={config?.detailView ? $_("view") : $_("detail")}
             color="brand-secondary"
           />
         </Button>
@@ -145,14 +125,8 @@
           outline
           class="!flex grow gap-1 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
         >
-          <Typography
-            preset="Text sm/Semibold"
-            text={$_("configure")}
-            color="secondary"
-          />
-          <Settings03Icon
-            svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark"
-          />
+          <Typography preset="Text sm/Semibold" text={$_("configure")} color="secondary" />
+          <Settings03Icon svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark" />
         </Button>
       {/if}
       {#if config?.openWebchat === true}
