@@ -578,16 +578,18 @@
             <Heading
               tag="h6"
               class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{$_("recentDeployedBots")}</Heading
             >
+              {$_("recentDeployedBots")}
+            </Heading>
             <Button
               on:click={async () => {
                 goto(await $call.getPage("client-dashboard", "bots-list"));
               }}
               color="light"
               class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
-              >{$_("viewAll")}</Button
             >
+              {$_("viewAll")}
+            </Button>
           </div>
 
           {#if gettingDatas}
