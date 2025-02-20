@@ -917,7 +917,7 @@
         />
       </div>
     </div>
-    <Divider />
+    <!-- <Divider />
     <div class="md:flex">
       <Typography
         preset="Text md/Semibold"
@@ -933,7 +933,7 @@
           isOverlay={true}
         />
       </div>
-    </div>
+    </div> -->
     <Divider />
     <div class="md:flex">
       <Typography
