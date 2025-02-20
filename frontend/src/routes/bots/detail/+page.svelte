@@ -160,6 +160,14 @@
     },
   ]);
 
+  let dropdownUsecaseOpen = $state(false);
+  let usecase = $state([
+    { name: "My Bots (Default)", value: "myBots" },
+    { name: "Hexassistant", value: "hexassistant" },
+    { name: "Coding Assistant", value: "codingAssistant" },
+  ]);
+  let usecaseSelected = $state("myBots");
+
   function getBrandColorName(selectedId, value) {
     const selectedColor = themeColors.find((color) => color.id === selectedId);
     return selectedColor
@@ -1595,6 +1603,23 @@
               numGrid={3}
               isRadio
               disabled={!onEdit}
+            />
+          </div>
+        </div>
+        <Divider />
+        <div class="md:flex">
+          <Typography
+            preset="Text md/Semibold"
+            text={$_("useCase")}
+            color="secondary"
+            propClass="w-full md:w-1/4"
+          />
+          <div class="w-full md:w-auto">
+            <Dropdown
+              dropdownOpen={dropdownUsecaseOpen}
+              bind:selectedItem={usecaseSelected}
+              items={usecase}
+              isOverlay={true}
             />
           </div>
         </div>
