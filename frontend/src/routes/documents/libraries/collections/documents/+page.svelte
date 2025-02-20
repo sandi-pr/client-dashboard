@@ -514,7 +514,11 @@
             }
           }
 
-          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images" || tmpDocumentType === "Document Audio") {
+          if (
+            tmpDocumentType === "Handwriting" ||
+            tmpDocumentType === "Document Images" ||
+            tmpDocumentType === "Document Audio"
+          ) {
             console.log("ayam");
             if (files.length > 1) {
               await sendDocument();
@@ -1402,8 +1406,8 @@
   });
 
   $effect(() => {
-    hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
-  })
+    hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
+  });
 
   $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
@@ -1543,7 +1547,11 @@
             {#if !checkTitle(collectionDatas.title)}
               {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
                 <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                  <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2.5">
+                  <Button
+                    on:click={() => (dropdownMore = !dropdownMore)}
+                    color="light"
+                    class="p-2.5"
+                  >
                     <DotsVerticalIcon
                       svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
                     />
@@ -1693,12 +1701,12 @@
               selectTypeCollection("Document Images");
             }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
           >
-          <button
+          <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Handwriting");
             }}>Handwriting (JPG, JPEG, PNG)</button
-          >
+          > -->
           <button
             class="flex p-2 w-full"
             onclick={() => {
@@ -2101,11 +2109,7 @@
     {/if}
     {#if selectedFile.type === "Document Audio"}
       <div class="flex w-full flex-col gap-3 px-4 pb-1">
-        <Typography
-          preset="Text md/Semibold"
-          text="Audio Information"
-          color="secondary"
-        />
+        <Typography preset="Text md/Semibold" text="Audio Information" color="secondary" />
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
           <textarea

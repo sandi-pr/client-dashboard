@@ -423,7 +423,11 @@
             }
           }
 
-          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images" || tmpDocumentType === "Document Audio") {
+          if (
+            tmpDocumentType === "Handwriting" ||
+            tmpDocumentType === "Document Images" ||
+            tmpDocumentType === "Document Audio"
+          ) {
             if (files.length > 1) {
               await sendDocument();
             } else {
@@ -1145,8 +1149,8 @@
   });
 
   $effect(() => {
-    hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
-  })
+    hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
+  });
 
   $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
@@ -1308,12 +1312,12 @@
               selectTypeCollection("Document Images");
             }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
           >
-          <button
+          <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Handwriting");
             }}>Handwriting (JPG, JPEG, PNG)</button
-          >
+          > -->
           <button
             class="flex p-2 w-full"
             onclick={() => {
@@ -1554,11 +1558,7 @@
     {/if}
     {#if selectedFile.type === "Document Audio"}
       <div class="flex w-full flex-col gap-3 px-4 pb-1">
-        <Typography
-          preset="Text md/Semibold"
-          text="Audio Information"
-          color="secondary"
-        />
+        <Typography preset="Text md/Semibold" text="Audio Information" color="secondary" />
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
           <textarea
