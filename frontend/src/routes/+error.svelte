@@ -4,7 +4,7 @@
   import { page } from "$app/stores";
 
   import Logo404 from "$lib/image/404.svg";
-  import Logo502 from "$lib/image/502.png";
+  import Logo502 from "$lib/icon/machine-learning.svg";
 
   const errorList = {
     404: "Oops! Page Not Found",
@@ -34,13 +34,13 @@
   class="flex flex-col items-center justify-center bg-primary-light dark:bg-primary-dark w-full h-screen"
 >
   {#if status === 404}
-    <img src={Logo404} alt="404" class="w-[40rem] h-[40rem]" />
+    <img src={Logo404} alt="404" class="w-[20rem] h-[20rem] md:w-[30rem] md:h-[30rem]" />
   {:else}
-    <img src={Logo502} alt="502" class="w-[40rem] h-[40rem]" />
+    <img src={Logo502} alt="502" class="w-[20rem] h-[20rem] md:w-[30rem] md:h-[30rem]" />
   {/if}
-  <Typography text={errorList[status]} preset="Display xl/semibold" propClass="m-8" />
+  <Typography text={errorList[status]} preset="Display xl/semibold" propClass="m-8 fluid-xl md:fluid-2xl" />
   {#if status === 404}
-    <Typography text={errorSubtitle[status]} preset="Text md/regular" />
+    <Typography text={errorSubtitle[status]} preset="Text md/regular" propClass="text-center" />
   {/if}
   <div class="flex gap-4 mt-8">
     {#if status === 404}

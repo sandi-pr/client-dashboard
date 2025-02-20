@@ -77,8 +77,8 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
-    : new CR3Call(globalThis.location.origin);
+  ? new CR3Call("http://192.168.18.14")
+  : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
 
@@ -194,22 +194,22 @@ All Rights Reserved
   const getModules = async () => {
     return [
       // Start of new sidebar
-      // {
-      //   icon: "messageChatSquare",
-      //   name: "assistant",
-      //   children: [
-      //     {
-      //       icon: "messageHeartSquare",
-      //       name: "hexassistant",
-      //       href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
-      //     },
-      //     {
-      //       icon: "messageSmileSquare",
-      //       name: "myBots",
-      //       href: isFrontend ? "/hexabots" : await call.getPage("client-dashboard", "hexabot"),
-      //     },
-      //   ],
-      // },
+      {
+        icon: "messageChatSquare",
+        name: "assistant",
+        children: [
+          // {
+          //   icon: "messageHeartSquare",
+          //   name: "hexassistant",
+          //   href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
+          // },
+          {
+            icon: "messageSmileSquare",
+            name: "myBots",
+            href: isFrontend ? "/my_bots" : await call.getPage("client-dashboard", "my-bots"),
+          },
+        ],
+      },
       {
         icon: "bookOpen",
         name: "documents",
@@ -269,18 +269,18 @@ All Rights Reserved
       //       name: "handwriting",
       //       href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
       //     },
-      //     {
-      //       icon: "image03",
-      //       name: "memories",
-      //       commingSoon: true,
-      //       href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
-      //     },
-      //     {
-      //       icon: "videoRecorder",
-      //       name: "vision",
-      //       commingSoon: true,
-      //       href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
-      //     },
+      //     // {
+      //     //   icon: "image03",
+      //     //   name: "memories",
+      //     //   commingSoon: true,
+      //     //   href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
+      //     // },
+      //     // {
+      //     //   icon: "videoRecorder",
+      //     //   name: "vision",
+      //     //   commingSoon: true,
+      //     //   href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
+      //     // },
       //     {
       //       icon: "recording02",
       //       name: "voice",
@@ -322,35 +322,35 @@ All Rights Reserved
           {
             icon: "dashboard01",
             name: "overview",
-            href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms-overview"),
+            href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
             children: [],
           },
-          {
-            icon: "dataflow04",
-            name: "lists",
-            href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
-            children: [],
-          },
+          // {
+          //   icon: "dataflow04",
+          //   name: "lists",
+          //   href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
+          //   children: [],
+          // },
           // {
           //   icon: "meta",
           //   name: "Llama3.2",
           //   href: isFrontend
-          //     ? "/llama"
-          //     : await call.getPage("client-dashboard", "llama"),
+          //     ? "/llms?tab=llama"
+          //     : await call.getPage("client-dashboard", "llms"),
           // },
           // {
           //   icon: "gemini",
           //   name: "Gemma 2",
           //   href: isFrontend
-          //     ? "/gemma"
-          //     : await call.getPage("client-dashboard", "gemma"),
+          //     ? "/llms?tab=gemma"
+          //     : await call.getPage("client-dashboard", "llms"),
           // },
           // {
           //   icon: "deepseek",
           //   name: "DeepSeek R1",
           //   href: isFrontend
-          //     ? "/deepseek"
-          //     : await call.getPage("client-dashboard", "deepseek"),
+          //     ? "/llms?tab=deepseek"
+          //     : await call.getPage("client-dashboard", "llms"),
           // }
         ],
       },
@@ -1080,6 +1080,62 @@ All Rights Reserved
     }
   }
 
+  async function createDemoBot() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      const resp = await call.call("client-dashboard", "get-bot-by-name", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: "Try LLMs Bot",
+        },
+        Headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
+
+      if (resp.status !== 404) {
+        console.log(resp);
+        gettingData = false;
+        return;
+      }
+
+      let dataSend = {
+        bot_name: "Try LLMs Bot",
+        description: "",
+        ai_engine: "llama3.2:8b",
+        library_id: parseInt(localStorage.getItem("libraryIdWebchatBakrie")),
+        collection_id: "all",
+        additional_prompt: "",
+        need_auth: false,
+      };
+
+      console.log("dataSend", dataSend);
+
+      try {
+        const response = await call.call("client-dashboard", "create-bot", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("no token");
+      return;
+    }
+  }
+
   async function getIndustryId() {
     let token = localStorage.getItem("token");
     if (token) {
@@ -1312,6 +1368,57 @@ All Rights Reserved
     }
   }
 
+  async function CheckBotLlm() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await call.call("client-dashboard", "find-create-library-llm", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        console.log("succes get library & colection:", response);
+
+        if (response.result?.collection_id !== undefined && response.result?.library_id !== undefined) {
+          let collectionId = response.result.collection_id;
+          let libraryId = response.result.library_id;
+
+          const response2 = await call.call("client-dashboard", "find-create-bot-llm", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_id: collectionId.toString(),
+            library_id: libraryId,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response2.status !== 200) {
+          console.log(response2);
+          return;
+        }
+
+        if (response2.result?.bot_id !== undefined) {
+          localStorage.setItem("botLlmId", response2.result.bot_id);
+        }
+      }
+    } catch (error) {
+        console.log("bot llm err:", error);
+      }
+    }
+  }
+
   onMount(async () => {
     if (localStorage.getItem("token") === null && isFrontend) {
       const token = prompt("Please insert your token:", "");
@@ -1338,6 +1445,7 @@ All Rights Reserved
 
     await getModelsTrocr();
     await getIndustryId();
+    await CheckBotLlm();
     hideNavbar();
 
     getNotifications();

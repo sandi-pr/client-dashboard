@@ -187,7 +187,7 @@ All Rights Reserved
       gettingDatas = true;
       collections = [];
       documents = [];
-      let response = await $call.call("client-dashboard", "get-librarys-without-usecase", {
+      let response = await $call.call("client-dashboard", "get-librarys", {
         URLQuery: {},
         URLParams: {},
         Params: {

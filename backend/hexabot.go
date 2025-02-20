@@ -55,6 +55,16 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		bot_profileStr = ""
 	}
 
+	assistant_item, ok := ctx.Params.GetBool("assistant_item")
+	if !ok {
+		assistant_item = false
+	}
+
+	system_item, ok := ctx.Params.GetBool("system_item")
+	if !ok {
+		system_item = false
+	}
+
 	var bot_profile_id U.Float64
 
 	bot_profile_id = 0
@@ -199,6 +209,8 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"need_auth":        need_auth,
 		"status":           "Inactive",
 		"manage_document":  false,
+		"assistant_item":   assistant_item,
+		"system_item":      system_item,
 	}
 
 	if description != "" {
@@ -294,6 +306,9 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		"filters": U.Dict{
 			"bot_name": U.Dict{
 				"$contains": search,
+			},
+			"system_item": U.Dict{
+				"$eq": false,
 			},
 		},
 		"pagination": U.Dict{
@@ -816,6 +831,9 @@ func GetBotsReady(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 			},
 			"status": U.Dict{
 				"$eq": "Ready",
+			},
+			"system_item": U.Dict{
+				"$eq": false,
 			},
 		},
 		"pagination": U.Dict{
@@ -1447,6 +1465,9 @@ func GetCountBotPerMount(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 				"$gte": earlyDate,
 				"$lte": lastDate,
 			},
+			"system_item": U.Dict{
+				"$eq": false,
+			},
 		},
 	})
 
@@ -1858,4 +1879,179 @@ func getCollectionHexabotByBotId(bot_id string, strapi *strapi.StrapiClassic) (U
 	}
 
 	return U.List{}, fmt.Errorf("failed get collection")
+}
+
+func FindCreateBotLlm(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+	status, data, err := Strapi.Find("hexabot-table", U.Dict{
+		"filters": U.Dict{
+			"system_item": U.Dict{
+				"$eq": true,
+			},
+		},
+		"populate": "*",
+		"sort":     "updatedAt:desc",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("ayam")
+		fmt.Println(status)
+		fmt.Println(data)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := data.GetList("data")
+
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) == 0 {
+		bot_name := "LLM Demo"
+
+		description := "this is description for try bot"
+
+		bot_profileStr := ""
+
+		assistant_item := false
+
+		system_item := true
+
+		var bot_profile_id U.Float64
+
+		bot_profile_id = 0
+
+		ai_engine := "llama3.1:8b"
+
+		library_id, ok := ctx.Params.GetFloat64("library_id")
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		collection_id, ok := ctx.Params.GetString("collection_id")
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		additional_prompt := "Kamu adalah bot yang bertugas untuk memberikan user mencoba berbagai model LLM yang tersedia. Tugasmu adalah menunjukkan kemampuan, pengetahuan, serta keunggulan dan kelemahan masing-masing model. Pastikan untuk menjelaskan use case terbaik untuk setiap model yang kamu miliki."
+
+		need_auth := false
+
+		var data U.Dict
+
+		bot_id := uuid.New().String()
+
+		data = U.Dict{
+			"bot_id":           bot_id,
+			"bot_name":         bot_name,
+			"ai_engine":        ai_engine,
+			"library_id":       int64(library_id),
+			"collection_id":    collection_id,
+			"background_align": "center",
+			"color_theme":      "purple",
+			"layout":           "Modern Minimalism",
+			"overlay_color":    "purple",
+			"username":         "User",
+			"need_auth":        need_auth,
+			"status":           "Inactive",
+			"manage_document":  false,
+			"assistant_item":   assistant_item,
+			"system_item":      system_item,
+		}
+
+		if description != "" {
+			data["description"] = description
+		}
+
+		if bot_profileStr != "" {
+			data["bot_profile"] = bot_profile_id
+		}
+
+		if additional_prompt != "" {
+			data["additional_prompt"] = additional_prompt
+		}
+
+		status, bot, err := Strapi.Create("hexabot-table", data)
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println("bebek")
+			fmt.Println(status)
+			fmt.Println(bot)
+
+			if err2, ok := bot.GetDict("error"); ok {
+				if message, ok := err2.GetString("message"); ok {
+					return ctx.Error(status, string(message))
+				}
+			}
+
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		CR3 := cr3call.New(MODULE_MANAGER_URL)
+		go CR3.Call("hexa-ai-rag", "create-knowledge", cr3call.CR3CallData{
+			Headers: U.Dict{
+				"Authorization": bearer,
+			},
+			Params: U.Dict{
+				"knowledge_id":  bot_id,
+				"system_prompt": additional_prompt,
+			},
+		}, false)
+
+		return 200, U.Dict{
+			"bot_id": bot_id,
+		}, nil
+	} else {
+		dict, ok := list.GetDict(0)
+
+		if !ok {
+			fmt.Println("bebek")
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		attributes, ok := dict.GetDict("attributes")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		bot_id, ok := attributes.GetString("bot_id")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, U.Dict{
+			"bot_id": bot_id,
+		}, nil
+	}
 }

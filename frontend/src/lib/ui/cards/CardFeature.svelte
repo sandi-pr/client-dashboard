@@ -27,7 +27,7 @@
     "w-full",
     "items-center",
     "justify-center",
-    "gap-4",
+    "gap-2 md:gap-4",
   ].join(" ");
 
   let classes = twMerge(baseStyle, propClass);

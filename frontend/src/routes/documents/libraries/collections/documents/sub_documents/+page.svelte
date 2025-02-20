@@ -29,6 +29,7 @@
     ChevronDownOutline,
     InfoCircleSolid,
   } from "flowbite-svelte-icons";
+  import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
@@ -89,6 +90,7 @@
       },
     ],
   });
+  let audioUrl = $state(null);
 
   let collectionDatas = $state({
     title: "",
@@ -354,7 +356,7 @@
                 URLParams: {},
                 Params: {
                   audio_file: files[i].base64,
-                  ext: files.name.split(".").pop(),
+                  ext: files[i].name.split(".").pop(),
                 },
                 Headers: {
                   Authorization: "Bearer " + token,
@@ -412,11 +414,16 @@
                 edited: false,
               };
 
+              if (tmpDocumentType === "Document Audio") {
+                let file = base64toBlob(files[i].base64, "audio/mpeg");
+                audioUrl = URL.createObjectURL(new Blob([file], { type: "audio/mp3" }));
+              }
+
               triggerLoading(false);
             }
           }
 
-          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
+          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images" || tmpDocumentType === "Document Audio") {
             if (files.length > 1) {
               await sendDocument();
             } else {
@@ -484,6 +491,26 @@
     }
   }
 
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  }
+
   async function sendDocument(single = false) {
     let token = localStorage.getItem("token");
 
@@ -491,6 +518,7 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
+    triggerLoading(true);
     let response = await $call.call("client-dashboard", "create-library-document", {
       URLQuery: {},
       URLParams: {},
@@ -524,6 +552,7 @@
       previewModal = false;
       addDocumentsModal = false;
       getDocuments();
+      triggerLoading(false);
       triggerToast($_("succesfullyUploaded"), true);
     }
     return;
@@ -1285,12 +1314,12 @@
               selectTypeCollection("Handwriting");
             }}>Handwriting (JPG, JPEG, PNG)</button
           >
-          <!-- <button
+          <button
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Document Audio");
             }}>Document Audio (MP3, WAV, OGG)</button
-          > -->
+          >
           <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
@@ -1497,6 +1526,9 @@
           alt="PNG Preview"
         />
       {/if}
+      {#if audioUrl}
+        <AudioPlayer src={audioUrl} />
+      {/if}
     </div>
     <!-- detected handwriting -->
     {#if selectedFile.type === "Handwriting" || selectedFile.type === "Document Images"}
@@ -1506,6 +1538,25 @@
           text={selectedFile.type === "Handwriting"
             ? "Handwriting Information"
             : "Document Information"}
+          color="secondary"
+        />
+        <div class="flex flex-col gap-1.5">
+          <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
+          <textarea
+            bind:this={textarea}
+            bind:value={dataSend.detected_text}
+            id="chat"
+            rows="1"
+            class="block p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
+          ></textarea>
+        </div>
+      </div>
+    {/if}
+    {#if selectedFile.type === "Document Audio"}
+      <div class="flex w-full flex-col gap-3 px-4 pb-1">
+        <Typography
+          preset="Text md/Semibold"
+          text="Audio Information"
           color="secondary"
         />
         <div class="flex flex-col gap-1.5">

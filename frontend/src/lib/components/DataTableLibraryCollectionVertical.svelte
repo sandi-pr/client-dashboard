@@ -84,8 +84,26 @@
   <Table hoverable={true}>
     <TableBody tableBodyClass="divide-y">
       {#each collectionListDatas as collectionListData, index (collectionListData.id)}
-        <TableBodyRow>
-          <TableBodyCell class="!p-4">{$_("fileName")}</TableBodyCell>
+        <TableBodyRow on:click={() => {goto(collectionListData.href)}}>
+          <TableBodyCell class="!py-4 !pl-4 !pr-0 w-4">
+            <div class="flex items-center">
+              {#if collectionListData.checked}
+                <Checkbox
+                  checked={collectionListData.checked}
+                  on:click={() => {
+                    checkSingle(index);
+                  }}
+                />
+              {:else}
+                <Checkbox
+                  checked={collectionListData.checked}
+                  on:click={() => {
+                    checkSingle(index);
+                  }}
+                />
+              {/if}
+            </div>
+          </TableBodyCell>
           <TableBodyCell>
             <div class="flex gap-2 items-center">
               {#if collectionListData.fileext === "jpg"}
@@ -105,7 +123,7 @@
             </div>
           </TableBodyCell>
         </TableBodyRow>
-        <TableBodyRow>
+        <!-- <TableBodyRow>
           <TableBodyCell>{$_("label")}</TableBodyCell>
           <TableBodyCell>
             <div class="flex gap-1">
@@ -122,26 +140,26 @@
               {/each}
             </div>
           </TableBodyCell>
-        </TableBodyRow>
-        <TableBodyRow>
+        </TableBodyRow> -->
+        <!-- <TableBodyRow>
           <TableBodyCell>{$_("type")}</TableBodyCell>
           <TableBodyCell>
             <div class={pillStyle()}>
               {collectionListData.type}
             </div>
           </TableBodyCell>
-        </TableBodyRow>
-        <TableBodyRow>
+        </TableBodyRow> -->
+        <!-- <TableBodyRow>
           <TableBodyCell>{$_("fileSize")}</TableBodyCell>
           <TableBodyCell>{collectionListData.filesize}</TableBodyCell>
-        </TableBodyRow>
-        <TableBodyRow>
+        </TableBodyRow> -->
+        <!-- <TableBodyRow>
           <TableBodyCell>{$_("dateUpload")}</TableBodyCell>
           <TableBodyCell>{collectionListData.createdAt}</TableBodyCell>
-        </TableBodyRow>
-        <TableBodyRow>
-          <TableBodyCell>{$_("actions")}</TableBodyCell>
-          <TableBodyCell class="flex justify-between mr-4">
+        </TableBodyRow> -->
+        <!-- <TableBodyRow> -->
+          <!-- <TableBodyCell>{$_("actions")}</TableBodyCell> -->
+          <!-- <TableBodyCell class="flex justify-between mr-4">
             <Button
               disabled={!check("documentAi.documentLibrary.document:view")}
               on:click={() => {
@@ -153,7 +171,7 @@
             >
               <EyeIcon svgClass="w-5 h-5" />
               &nbsp;{$_("view")}
-            </Button>
+            </Button> -->
             <!-- {#if check("documentAi.documentLibrary.document:delete")}
               <div on:focusout={handleDropdownFocusLoss} class=" flex items-center relative">
                 <Button
@@ -180,7 +198,7 @@
                 </div>
               </div>
             {/if} -->
-            <Button
+            <!-- <Button
               on:click={() => {
                 functDeleteCategories(collectionListData.id);
               }}
@@ -212,11 +230,11 @@
               <P class="text-brand-tertiary-light hidden dark:text-brand-tertiary-dark">{$_("select")}</P>
             </div>
           </TableBodyCell>
-        </TableBodyRow>
-        <TableBodyRow>
+        </TableBodyRow> -->
+        <!-- <TableBodyRow>
           <TableBodyCell></TableBodyCell>
           <TableBodyCell></TableBodyCell>
-        </TableBodyRow>
+        </TableBodyRow> -->
       {/each}
     </TableBody>
   </Table>

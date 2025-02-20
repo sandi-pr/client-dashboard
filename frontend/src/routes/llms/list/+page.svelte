@@ -683,8 +683,8 @@
   });
 </script>
 
-<div class="flex flex-col m-4 gap-4">
-  <div class="flex justify-between my-4">
+<div class="flex flex-col m-4 gap-4 pb-4 md:pb-12">
+  <div class="flex justify-between items-center my-4">
     <Typography
       text={cardDataSelected?.raw?.model?.name || "Large Language Models Lists"}
       preset="Display sm/Semibold"
@@ -770,7 +770,7 @@
   {:else if cardDataArray.length === 0}
     <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
   {:else}
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       {#each cardDataArray as cardData}
         <CardFeature {cardData} />
       {/each}

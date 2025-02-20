@@ -107,7 +107,7 @@ All Rights Reserved
         : {
             icon: "archive",
             title: "documents",
-            description: "descDocumentLibrary",
+            description: "descDocuments",
             page: "document-collection-overview",
           }
       : false,
@@ -119,9 +119,15 @@ All Rights Reserved
     // },
     {
       icon: "messageChat",
-      title: "bots",
-      description: "descHexabot",
+      title: "createBots",
+      description: "descCreateBots",
       page: "bots",
+    },
+    {
+      icon: "globe01",
+      title: "tryModels",
+      description: "descTryModels",
+      page: "llms",
     },
     // {
     //   icon: "messageChat",
@@ -144,8 +150,8 @@ All Rights Reserved
     check("aiManagement.datasets:view")
       ? {
           icon: "data",
-          title: "fineTuning",
-          description: "descFineTuning",
+          title: "finetunings",
+          description: "descFinetunings",
           page: "datasets",
         }
       : false,

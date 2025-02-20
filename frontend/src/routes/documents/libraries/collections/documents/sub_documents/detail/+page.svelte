@@ -661,7 +661,7 @@ All Rights Reserved
     }
   }
 
-  function truncateText(text, maxWords, maxFirstWordLength = 20) {
+  function truncateText(text, maxWords, maxFirstWordLength = 14) {
     console.log("text", text);
     const words = text.split(" ");
 
@@ -830,7 +830,7 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{truncateText(tmpData.document_title || "", 2)}
+              >{globalThis.innerWidth < 768 ? truncateText(tmpData.document_title || "", 2) : tmpData.document_title}
               <!-- <Button
                 outline
                 color="red"
@@ -1003,7 +1003,11 @@ All Rights Reserved
           <div class="flex flex-col md:flex-row gap-6">
             <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                {$_("viewer")}
+                {#if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}
+                  {$_("audioPreview")}
+                {:else}
+                  {$_("viewer")}
+                {/if}
               </P>
             </div>
             <div
@@ -1018,8 +1022,8 @@ All Rights Reserved
                   <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
                 </div>
               {:else if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}
-                {#if audioUrl}
-                  <AudioPlayer src={audioUrl} />
+                {#if fileUrl}
+                  <AudioPlayer src={fileUrl} />
                 {/if}
               {:else}
                 {#each contentFile.split("\n") as paragraphs, i}
