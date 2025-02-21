@@ -1,10 +1,9 @@
 <script>
-  import { Divider, Typography, StateCard } from "$lib";
+  import { Divider, Typography, StateCard, Icon } from "$lib";
   import { _ } from "svelte-i18n";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import UserIcon from "$lib/icon/user-01.svg";
-  import LightbulbIcon from "$lib/icon/lightbulb-04.svg";
   import File06Icon from "$lib/icon/file-06.svelte";
   import SendIcon from "$lib/icon/send-01.svg";
   import ChevronDownIcon from "$lib/icon/chevron-down.svelte";
@@ -153,6 +152,69 @@
 
   let paginationModal = $state({ page: 1, pageSize: 3, pageCount: 0, total: 0 });
 
+  let dataConversationChatsDummy = $state([
+    {
+      id: 1,
+      role: "user",
+      message: `Bisakah Anda menjelaskan apa itu kiamat?`,
+    },
+    {
+      id: 2,
+      role: "assistant",
+      message: `<think>
+Okay, the user is asking "Apa itu kiamat," which translates to "What is kiamat?" I need to explain this concept based on Islamic teachings and any provided context.
+
+From the existing answer, I see that kiamat refers to the Day of Judgment in Islam. It's crucial to elaborate on both the small and major aspects of kiamat—kiamat kecil and kiamat besar—as well as引用相关的 Quranic verses for clarity.
+
+I should structure the response to include:
+- Definition of kiamat
+- Differences between kiamat kecil and kiamat syih
+- Quranic references and scientific perspectives from the documents
+- The significance of kiamat in Islamic belief
+
+Make sure to avoid speculation and only use information from the provided context.
+</think>
+
+Kiamat adalah istilah yang merujuk pada hari akhir atau penghujung zaman di mana segala makhluk hidup akan menghadapi ajalnya dan kehidupan sebagaimana kita ketahui akan berakhir. Menurut ajaran Islam, kiamat adalah suatu peristiwa maha dahsyat yang tidak dapat dipungkiri sebagai bagian dari keyakinan muslim.
+
+### 1. **Definisi Kiamat**
+Kiamat dalam terminologi islam adalah hari dimana segala makhluk akan mati dan dihisab (diperiksa) oleh Allah SWT. Ini termasuk kiamat kecil dan kiamat besar:
+   - **Kiamat Kecil (Kiamat Syiah):**
+     Peristiwa-peristiwa yang terjadi sepanjang zaman, seperti bencana alam, erupsi gunung berapi, dan jatuhnya meteor, yang mengakibatkan kepunahan massal atau perubahan besar dalam kehidupan di muka bumi.
+   - **Kiamat Besar (Kiamat Syih):**
+     Hari akhir dimana seluruh alam semesta akan musnah dan segala makhluk hidup akan dimintahkan pertanggungjawaban.
+
+### 2. **Penggambaran Kiamat dalam Al-Qur'an**
+Al-Qur'an menggambarkan kiamat dengan gambaran yang sangat dramatis. Beberapa surah seperti Surah al-Qari'ah, Surah az-Zumar, dan Surah ad-Dukhan menceritakan tentang kehancuran bumi dan langit pada hari itu:
+
+- **Surah al-Qari'ah (101):**
+  "Danhari yang kiamatnya adalah hari yang menakutkan."
+
+- **Surah az-Zumar (39:68):**
+  "Danhari itu, tidak ada jiwa yang dapat memberikan hadiah kepada jiwa lain melain dari karena ridha Allah SWT."
+
+### 3. **Kiamat dan Ilmu Pengetahuan**
+Dari sisi ilmu pengetahuan, kiamat besar dapat disimak sebagai peristiwa dimana alam semesta ini akan berakhir sesuai dengan hadis-hadis nabi yang menyebutkan tentang hari kiamat.
+
+### 4. **Peran Air di Surga dan Neraka**
+Di dalam Al-Qur'an, air juga dijadikan simbol kehidupan yang melimpah di surga (Jannah) dan menjadi puniyah untuk muktabar di neraka. Ini tercermin dalam ayat-ayat seperti:
+
+- **Surah As-Saffat (37:44):**
+  "Dan Dia menjanjikan kepada mereka air yang tidak berkurang dan buah-buah yang tidak ada habisnya."
+
+### 5. **Simbolisme Air**
+Air di dalam Al-Qur'an juga menjadi simbol kebersihan, kehidupan, dan pertumbuhan. Ini tercermin dari ayat-ayat seperti:
+
+- **Surah Al-Ma'ida (5:6):**
+  "Dan jika kamu tidak menemukan air, maka bersuci dengan tanah yang baik."
+
+### Kesimpulan
+Kiamat adalah peristiwa akhir zaman yang ditandai dengan kehancuran segala makhluk dan alam semesta ini kembali kepada Sang Pencipta. Air menjadi bagian penting dalam konteks kehidupan di dunia dan surga, menegaskan betapa besar nikmat Allah SWT terhadap umat-Nya.
+
+Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/bakrie/document_detail?documentId=3&page=1 "file (Page 1)"), [P5](/bakrie/document_detail?documentId=3&page=5 "file (Page 5)")], [PT_BUMI_RESOURC......](/bakrie/document_detail?documentId=5&page=1 "PT_BUMI_RESOURCES_TBK")[[P1](/bakrie/document_detail?documentId=5&page=1 "PT_BUMI_RESOURCES_TBK (Page 1)"), [P2](/bakrie/document_detail?documentId=5&page=2 "PT_BUMI_RESOURCES_TBK (Page 2)"), [P3](/bakrie/document_detail?documentId=5&page=3 "PT_BUMI_RESOURCES_TBK (Page 3)"), [P4](/bakrie/document_detail?documentId=5&page=4 "PT_BUMI_RESOURCES_TBK (Page 4)"), [P5](/bakrie/document_detail?documentId=5&page=5 "PT_BUMI_RESOURCES_TBK (Page 5)")]`,
+    },
+  ]);
+
   const autosize = () => {
     textarea.addEventListener("input", (e) => {
       setTimeout(() => {
@@ -168,6 +230,14 @@
   };
 
   async function sendMessageInput() {
+    dataConversationChatsDummy = [
+      ...dataConversationChatsDummy,
+      {
+        id: dataConversationChatsDummy.length + 1,
+        role: "user",
+        message: messageInput,
+      },
+    ];
     messageInput = "";
     resetTextarea();
     console.log("messageInput", messageInput);
@@ -188,7 +258,7 @@
 
   const onclickSend = () => {
     if (messageInput.trim() !== "") {
-      // sendMessageInput();
+      sendMessageInput();
     }
   };
 
@@ -326,6 +396,7 @@
 <Divider />
 
 <div class="flex flex-col md:flex-row w-full pb-12">
+  <!-- table preview -->
   <div class="w-full md:w-1/2 pt-8 px-4 flex flex-col gap-6">
     <Typography preset="Text md/Semibold" text={$_("providedTable")} />
     {#if currentArrayData.length === 0}
@@ -375,47 +446,33 @@
       </div>
     {/if}
   </div>
+  <!-- chat -->
   <div class="w-full md:w-1/2 pt-8 px-4 flex flex-col gap-4">
     <Typography preset="Text md/Semibold" text={$_("csvInsight")} />
-    <div class="flex gap-4 p-4">
-      <div
-        class="w-8 h-7 md:w-12 md:h-11 flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
-      >
-        <div>
-          <img src={UserIcon} alt="User" class="w-4 h-4 md:w-6 md:h-6" />
+    {#each dataConversationChatsDummy as chat}
+      <div class="flex gap-4 p-4">
+        {#if chat.role === "assistant"}
+          <div
+            class="w-8 h-7 md:w-12 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
+          >
+            <Icon name="lightbulb04" color="primary-onbrand" />
+          </div>
+        {:else}
+          <div
+            class="w-8 h-7 md:w-12 md:h-11 flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+          >
+            <img src={UserIcon} alt="User" class="w-4 h-4 md:w-6 md:h-6" />
+          </div>
+        {/if}
+        <div class="w-full">
+          <div
+            class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
+          >
+            <Markdown md={chat.message} {plugins} />
+          </div>
         </div>
       </div>
-      <div class="w-full">
-        <div
-          class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
-        >
-          <Markdown
-            md={"Hi! I’m your smart CSV assistant. Drop a file, ask me anything, and let’s unlock the secrets hidden in your data!"}
-            {plugins}
-          />
-        </div>
-      </div>
-    </div>
-
-    <div class="flex gap-4 p-4">
-      <div
-        class="w-8 h-7 md:w-12 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
-      >
-        <div>
-          <img src={LightbulbIcon} alt="User" class="w-4 h-4 md:w-6 md:h-6" />
-        </div>
-      </div>
-      <div class="w-full">
-        <div
-          class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
-        >
-          <Markdown
-            md={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. In elit tellus, ullamcorper ut placerat sit amet, volutpat id erat. Duis elit justo, congue a tincidunt consequat, varius ut nibh. Ut eget mauris malesuada, dictum nulla sollicitudin, vulputate dolor. Integer aliquam viverra libero, eget tincidunt risus pharetra ut. Aenean lobortis, diam at tempor tempus, diam arcu fermentum mauris, id rutrum augue ante et tortor. Donec suscipit mi ornare nunc facilisis, et placerat ligula aliquam. Nam a ante faucibus, feugiat nibh eget, laoreet magna."}
-            {plugins}
-          />
-        </div>
-      </div>
-    </div>
+    {/each}
 
     <form onsubmit={messageInput !== "" ? sendMessageInput : () => {}} class="w-full p-6">
       <div class="flex items-center">
@@ -427,7 +484,7 @@
             onkeydown={handleKeyDown}
             id="chat"
             rows="1"
-            class="block resize-none p-2.5 w-full fluid-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-xl border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:border-utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
+            class="block resize-none p-2.5 w-full fluid-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-3xl border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:border-utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
             placeholder="Send a message..."
           ></textarea>
           <Button
