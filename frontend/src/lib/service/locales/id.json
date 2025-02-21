@@ -960,5 +960,6 @@
   "handwritingBotsList": "Daftar Bot Tulisan Tangan",
   "addHandwriting": "Tambah Tulisan Tangan",
   "addCsv": "Tambah CSV baru",
-  "addSubCollection": "Tambah Sub Koleksi"
+  "addSubCollection": "Tambah Sub Koleksi",
+  "noDataAvailable": "Tidak ada data yang tersedia"
 }
