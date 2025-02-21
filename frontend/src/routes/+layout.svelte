@@ -198,15 +198,20 @@ All Rights Reserved
         icon: "messageChatSquare",
         name: "assistant",
         children: [
-          // {
-          //   icon: "messageHeartSquare",
-          //   name: "hexassistant",
-          //   href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
-          // },
+          {
+            icon: "messageHeartSquare",
+            name: "hexassistant",
+            href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
+          },
           {
             icon: "messageSmileSquare",
             name: "myBots",
             href: isFrontend ? "/my_bots" : await call.getPage("client-dashboard", "my-bots"),
+          },
+          {
+            icon: "code01",
+            name: "codingAssistant",
+            href: isFrontend ? "/coding_assistant" : await call.getPage("client-dashboard", "coding-assistant"),
           },
         ],
       },
@@ -244,51 +249,51 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      // {
-      //   icon: "presentation",
-      //   name: "Analytics",
-      //   children: [
-      //     {
-      //       icon: "bookClosed",
-      //       name: "dataSources",
-      //       href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
-      //     },
-      //     {
-      //       icon: "lightbulb",
-      //       name: "insights",
-      //       href: isFrontend ? "/insights" : await call.getPage("client-dashboard", "insights"),
-      //     },
-      //   ],
-      // },
-      // {
-      //   icon: "star04",
-      //   name: "aiAnalyzer",
-      //   children: [
-      //     {
-      //       icon: "penTool",
-      //       name: "handwriting",
-      //       href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      //     },
-      //     // {
-      //     //   icon: "image03",
-      //     //   name: "memories",
-      //     //   commingSoon: true,
-      //     //   href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
-      //     // },
-      //     // {
-      //     //   icon: "videoRecorder",
-      //     //   name: "vision",
-      //     //   commingSoon: true,
-      //     //   href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
-      //     // },
-      //     {
-      //       icon: "recording02",
-      //       name: "voice",
-      //       commingSoon: true,
-      //       href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      //     },
-      //   ],
-      // },
+      {
+        icon: "presentation",
+        name: "Analytics",
+        children: [
+          {
+            icon: "bookClosed",
+            name: "dataSources",
+            href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
+          },
+          {
+            icon: "lightbulb",
+            name: "insights",
+            href: isFrontend ? "/insights" : await call.getPage("client-dashboard", "insights"),
+          },
+        ],
+      },
+      {
+        icon: "star04",
+        name: "aiAnalyzer",
+        children: [
+          {
+            icon: "penTool",
+            name: "handwriting",
+            href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+          },
+          // {
+          //   icon: "image03",
+          //   name: "memories",
+          //   commingSoon: true,
+          //   href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
+          // },
+          // {
+          //   icon: "videoRecorder",
+          //   name: "vision",
+          //   commingSoon: true,
+          //   href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
+          // },
+          // {
+          //   icon: "recording02",
+          //   name: "voice",
+          //   commingSoon: true,
+          //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+          // },
+        ],
+      },
       // {
       //   icon: "aiDocument",
       //   name: "smartDocument",

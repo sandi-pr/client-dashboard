@@ -951,5 +951,15 @@
   "descTryModels": "Rasakan Kekuatan Generasi Teks AI yang Canggih",
   "finetunings": "Finetuning",
   "descFinetunings": "Optimalkan Model untuk Akurasi dan Performa yang Lebih Baik",
-  "noDataAvailable": "Tidak ada data yang tersedia"
+  "noDataAvailable": "Tidak ada data yang tersedia",
+  "handwritingReader": "Pratinjau Tulisan Tangan",
+  "addNewHandwritingToRead": "Tambahkan Tulisan Tangan Baru untuk Dibaca",
+  "descAddNewHandwritingToRead": "Scan tulisan tangan Anda secara langsung.",
+  "chatWithHandwritingAssistant": "Chat dengan Asisten Tulisan Tangan",
+  "descChatWithHandwritingAssistant": "Mengerti, mengonversi, dan berinteraksi dengan asisten kami.",
+  "handwritingCollection": "Koleksi Tulisan Tangan",
+  "handwritingBotsList": "Daftar Bot Tulisan Tangan",
+  "addHandwriting": "Tambah Tulisan Tangan",
+  "addCsv": "Tambah CSV baru",
+  "addSubCollection": "Tambah Sub Koleksi"
 }

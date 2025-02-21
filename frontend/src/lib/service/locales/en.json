@@ -951,5 +951,15 @@
   "descTryModels": "Experience the Power of Advanced AI Text Generation",
   "finetunings": "Finetunings",
   "descFinetunings": "Customize AI Models to Fit Your Unique Needs",
-  "noDataAvailable": "No data available"
+  "noDataAvailable": "No data available",
+  "handwritingReader": "Handwriting Reader",
+  "addNewHandwritingToRead": "Add New Handwriting to Read",
+  "descAddNewHandwritingToRead": "Scan and decode handwritten text instantly.",
+  "chatWithHandwritingAssistant": "Chat with Handwriting Assistant",
+  "descChatWithHandwritingAssistant": "Understand, convert, and interact with our assistant.",
+  "handwritingCollection": "Handwriting Collection",
+  "handwritingBotsList": "Handwriting Bots List",
+  "addHandwriting": "Add Handwriting",
+  "addCsv": "Add New CSV",
+  "addSubCollection": "Add Sub Collection"
 }

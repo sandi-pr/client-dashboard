@@ -1,0 +1,325 @@
+<script>
+  import {
+    Button,
+    Toast,
+    Modal,
+    Search,
+  } from "flowbite-svelte";
+  import { _ } from "svelte-i18n";
+  import {
+    Typography,
+    call,
+    triggerToast,
+    StateCard,
+    newNotification,
+    notifications,
+    showAI, 
+    showNotif,
+    BotCard,
+    Pagination,
+  } from "$lib";
+  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  import Logomark from "$lib/icon/Logomark.svg";
+  import MetaIcon from "$lib/icon/meta.svg";
+  import GeminiIcon from "$lib/icon/gemini.svg";
+  import DeepseekIcon from "$lib/icon/deepseek.svg";
+  import AvatarHandwriting from "$lib/icon/avatar-handwritting.svg";
+  import AvatarCoding from "$lib/icon/avatar-coding.svg";
+  import { onMount } from "svelte";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
+
+  let searchTerm = $state("");
+  let serachPagination = $state(false);
+  let gettingDatas = $state(false);
+  let bots = $state([]);
+  let tmpId = $state(null);
+  let page = $state(1);
+  let pagination = $state({
+    total: 0,
+    page: 0,
+    pageSize: 0,
+  });
+
+  let dummyBot = $state([
+    {
+      botsName: "Coding Assistant",
+      botDescription: "Bot’s Description, Lorem ipsum dolor sit amet consectetur",
+      botsID: 1,
+      urlBot: "#",
+      deployStatus: "Ready",
+      bot_profile: AvatarCoding,
+    }
+  ])
+
+  let popupModal = $state(false);
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+    trigger();
+  }
+
+  let open = $state(false);
+  let counter = 6;
+
+  function trigger() {
+    open = true;
+    counter = 6;
+    timeout();
+  }
+
+  function timeout() {
+    if (--counter > 0) return setTimeout(timeout, 1000);
+    open = false;
+  }
+
+  async function getBots() {
+    let token = localStorage.getItem("token");
+
+    if (searchTerm !== "" && !serachPagination) {
+      pagination.page = 1;
+    }
+
+    if (token) {
+      gettingDatas = true;
+      try {
+        // const response = await $call.call("client-dashboard", "get-bots", {
+        const response = await $call.call("client-dashboard", "get-bots-ready", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 10,
+            search: searchTerm,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response === null) {
+          gettingDatas = false;
+          console.log(response);
+          return;
+        }
+
+        if (response.status !== 200) {
+          gettingDatas = false;
+          console.log(response);
+          return;
+        }
+
+        pagination = response.result.meta.pagination;
+
+        let tmp = response.result.data.map(async (bot) => {
+          let fileImageResult = "";
+          if (bot.attributes.bot_profile.data !== null) {
+            let ext = bot.attributes.bot_profile.data.attributes.ext;
+
+            let fileType;
+            if (ext === ".png") {
+              fileType = "image/png";
+            } else if (ext === ".jpg") {
+              fileType = "image/jpg";
+            } else if (ext === ".jpeg") {
+              fileType = "image/jpeg";
+            } else if (ext === ".svg") {
+              fileType = "image/svg+xml";
+            } else {
+              fileType = "image/png";
+            }
+
+            if (bot.bot_profile !== "") {
+              let fileImage = bot.bot_profile;
+              let blob = base64toBlob(fileImage, fileType);
+              fileImageResult = URL.createObjectURL(blob);
+            }
+          }
+
+          let urlBot =
+            (await $call.getPage("hexabot", "home-page")) + "?id=" + bot.attributes.bot_id;
+
+          return {
+            botsName: bot.attributes.bot_name,
+            botDescription: bot.attributes.description,
+            botsID: bot.id,
+            // clientID: bot.attributes.client_id,
+            activationTime: bot.attributes.createdAt,
+            urlBot: urlBot,
+            timestamp: bot.attributes.updatedAt,
+            deployStatus: bot.attributes.status,
+            deployedPlatform: bot.attributes.ai_engine,
+            bot_profile: fileImageResult,
+          };
+        });
+
+        bots = await Promise.all(tmp);
+
+        dropdownOpen = [];
+        for (let i = 0; i < bots.length; i++) {
+          dropdownOpen.push(false);
+        }
+
+        gettingDatas = false;
+        console.log(bots);
+      } catch (error) {
+        gettingDatas = false;
+        console.log(error);
+      }
+    } else {
+      console.log("token not found");
+    }
+  }
+
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  }
+
+  function nextPage() {
+    if (page < pagination.pageCount) {
+      if (searchTerm !== "") {
+        serachPagination = true;
+      } else {
+        serachPagination = false;
+      }
+      page = page + 1;
+      getBots();
+    }
+  }
+
+  function previousPage() {
+    if (page > 1) {
+      if (searchTerm !== "") {
+        serachPagination = true;
+      } else {
+        serachPagination = false;
+      }
+      page = page - 1;
+      getBots();
+    }
+  }
+
+  let dropdownOpen = $state([]);
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    for (let i = 0; i < dropdownOpen.length; i++) {
+      dropdownOpen[i] = false;
+    }
+  };
+
+  async function deleteBot(id) {
+    let token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "delete-bot", {
+          URLQuery: {},
+          URLParams: {
+            id: id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        tmpId = null;
+        popupModal = false;
+        triggerToast("deleted");
+        getBots();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  onMount(() => {
+    // getBots();
+  });
+
+  $effect(() => {
+    if ($newNotification) {
+      if ($notifications[0].attributes.type === "hexabot") {
+        getBots();
+      }
+    }
+  });
+</script>
+
+<div class="flex dark:bg-hc-graydark-950">
+  <div class="w-full pb-10">
+    <div class="flex flex-col m-4">
+      <!-- <Navbar /> -->
+
+      <div class="flex flex-col gap-8">
+        <!-- User Information -->
+        <Typography preset="Display sm/Semibold" text={$_("codingAssistant")} color="secondary" />
+
+        <!-- Bots List Data -->
+        <div>
+          <Search
+            class="bg-primary-light dark:bg-primary-dark mb-2 md:mb-8 rounded-lg"
+            placeholder={$_("search")}
+            bind:value={searchTerm}
+          />
+
+          {#if gettingDatas}
+            <div class="flex flex-col gap-4 w-full">
+              <StateCard
+                illustration={IllustrationProgress}
+                description={$_("fetchingDataPleaseWait")}
+              />
+            </div>
+          {:else if dummyBot.length === 0}
+            <StateCard illustration={IllustrationEmpty} description={searchTerm !== "" ? $_("noDataFound") : $_("youDontHaveAnyDataYet")} />
+          {:else}
+            <div class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}>
+              {#each dummyBot as bot, index (bot.botsID)}
+                <BotCard {bot} {index} {dropdownOpen} config={{ openWebchat: true }} {handleDropdownFocusLoss} />
+              {/each}
+            </div>
+            <!-- <Pagination {pagination} {previousPage} {nextPage} /> -->
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="flex justify-center">
+  <Toast bind:open>{$_("copiedToClipboard")}</Toast>
+</div>
+
+<Modal bind:open={popupModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={() => deleteBot(tmpId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
+</Modal>

@@ -2381,6 +2381,10 @@
                 {
                     "name": "system_item",
                     "type": "boolean"
+                },
+                {
+                    "name": "module_type",
+                    "type": "string"
                 }
             ]
         },
@@ -2502,7 +2506,7 @@
         {
             "name": "get-library-document",
             "path": "/get-library-document/:id",
-            "method": "GET",
+            "method": "POST",
             "content_type": "application/json",
             "response_type": "application/json",
             "callback": {
@@ -2515,7 +2519,55 @@
                     "type": "textnumber",
                     "required": true
                 }
+            ],
+            "params": []
+        },
+        {
+            "name": "get-library-document-csv",
+            "path": "/get-library-document-csv/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibraryDocumentCSV"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
             ]
+        },
+        {
+            "name": "get-library-document-name",
+            "path": "/get-library-document-name/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetLibraryDocumentName"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": []
         },
         {
             "name": "get-library-document-pub",
@@ -6066,6 +6118,9 @@
                     },
                     "system_item": {
                         "type": "boolean"
+                    },
+                    "module_type": {
+                        "type": "string"
                     }
                 }
             },

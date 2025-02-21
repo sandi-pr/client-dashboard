@@ -145,25 +145,33 @@
         if (url === "collections") {
           const params = new URLSearchParams(window.location.search);
           const libraryId = params.get("libraryId");
-          const customName = await getLibraryCollectionName(libraryId);
-          return { name: customName, href: href, isCustomName: true };
+          if (libraryId !== null) {
+            const customName = await getLibraryCollectionName(libraryId);
+            return { name: customName, href: href, isCustomName: true };
+          }
         } else if (url === "documents" && index > 1) {
           const params = new URLSearchParams(window.location.search);
           const collectionId = params.get("collectionId");
-          const customName = await getLibraryCollectionName(collectionId);
-          return { name: customName, href: href, isCustomName: true };
+          if (collectionId !== null) {
+            const customName = await getLibraryCollectionName(collectionId);
+            return { name: customName, href: href, isCustomName: true };
+          }
         } else if (url === "sub_documents") {
           const params = new URLSearchParams(window.location.search);
           const subCollectionId = params.get("subCollectionId");
-          const customName = await getLibraryCollectionName(subCollectionId);
-          return { name: customName, href: href, isCustomName: true };
+          if (subCollectionId !== null) {
+            const customName = await getLibraryCollectionName(subCollectionId);
+            return { name: customName, href: href, isCustomName: true };
+          }
         } else if (url === "detail" && index > 0) {
           const prevSegment = array[index - 1];
           if (prevSegment === "documents" || prevSegment === "sub_documents") {
             const params = new URLSearchParams(window.location.search);
             const documentId = params.get("documentId");
-            const title = await getDocumentName(documentId);
-            return { name: title, href: href, isCustomName: true };
+            if (documentId !== null) {
+              const title = await getDocumentName(documentId);
+              return { name: title, href: href, isCustomName: true };
+            }
           }
         }
         return { name: url, href: href, isCustomName: false };
