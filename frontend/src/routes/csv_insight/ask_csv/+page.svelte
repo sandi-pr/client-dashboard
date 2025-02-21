@@ -1,18 +1,28 @@
 <script>
-  import { Divider, Typography, StateCard } from '$lib';
-  import { _ } from 'svelte-i18n';  
+  import { Divider, Typography, StateCard } from "$lib";
+  import { _ } from "svelte-i18n";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import UserIcon from "$lib/icon/user-01.svg";
   import LightbulbIcon from "$lib/icon/lightbulb-04.svg";
-  import File06Icon from '$lib/icon/file-06.svelte';
+  import File06Icon from "$lib/icon/file-06.svelte";
   import SendIcon from "$lib/icon/send-01.svg";
   import ChevronDownIcon from "$lib/icon/chevron-down.svelte";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import { Button, Modal, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from 'flowbite-svelte';
-  import { onMount } from 'svelte';
+  import {
+    Button,
+    Modal,
+    Table,
+    TableBody,
+    TableBodyCell,
+    TableBodyRow,
+    TableHead,
+    TableHeadCell,
+    Pagination,
+  } from "flowbite-svelte";
+  import { onMount } from "svelte";
 
   const plugins = [gfmPlugin()];
 
@@ -22,12 +32,107 @@
   let allData = $state([
     {
       id: 1,
-      file_name: 'quarterly_revenue.csv',
+      customer_id: 1,
+      name: "John Doe",
+      rating: 5,
+      date: "2021-08-01",
     },
     {
       id: 2,
-      file_name: 'ad_campaign_performance.csv',
-    }
+      customer_id: 2,
+      name: "Jane Doe",
+      rating: 4,
+      date: "2021-08-02",
+    },
+    {
+      id: 3,
+      customer_id: 3,
+      name: "John Smith",
+      rating: 3,
+      date: "2021-08-03",
+    },
+    {
+      id: 4,
+      customer_id: 4,
+      name: "Jane Smith",
+      rating: 2,
+      date: "2021-08-04",
+    },
+    {
+      id: 5,
+      customer_id: 5,
+      name: "John Doe",
+      rating: 1,
+      date: "2021-08-05",
+    },
+    {
+      id: 6,
+      customer_id: 6,
+      name: "Jane Doe",
+      rating: 5,
+      date: "2021-08-06",
+    },
+    {
+      id: 7,
+      customer_id: 7,
+      name: "John Smith",
+      rating: 4,
+      date: "2021-08-07",
+    },
+    {
+      id: 8,
+      customer_id: 8,
+      name: "Jane Smith",
+      rating: 3,
+      date: "2021-08-08",
+    },
+    {
+      id: 9,
+      customer_id: 9,
+      name: "John Doe",
+      rating: 2,
+      date: "2021-08-09",
+    },
+    {
+      id: 10,
+      customer_id: 10,
+      name: "Jane Doe",
+      rating: 1,
+      date: "2021-08-10",
+    },
+    {
+      id: 11,
+      customer_id: 11,
+      name: "John Smith",
+      rating: 5,
+      date: "2021-08-11",
+    },
+    {
+      id: 12,
+      customer_id: 12,
+      name: "Jane Smith",
+      rating: 4,
+      date: "2021-08-12",
+    },
+    {
+      id: 13,
+      customer_id: 13,
+      name: "John Doe",
+      rating: 3,
+      date: "2021-08-13",
+    },
+  ]);
+  let currentArrayData = $state([]);
+  let allDataMeta = $state({ page: 1, pageSize: 10, pageCount: 2, total: 13 });
+  let allDataModal = $state([
+    {
+      id: 1,
+      file_name: "quarterly_revenue.csv",
+    },
+    {
+      id: 2,
+      file_name: "ad_campaign_performance.csv",
+    },
   ]);
   let datasChecked = $state([
     {
@@ -37,16 +142,16 @@
     {
       id: 2,
       checked: false,
-    }
+    },
   ]);
   let tmpDatasChecked = $state({});
-  let configs = $state({hideSearch: true});
+  let configs = $state({ hideSearch: true });
   let searchTerm = $state("");
   let gettingDatas = $state(false);
   let innerWidth = $state(0);
   let winInnerWidth = $derived(innerWidth);
-  
-  let pagination = $state({ page: 1, pageSize: 3, pageCount: 0, total: 0 });
+
+  let paginationModal = $state({ page: 1, pageSize: 3, pageCount: 0, total: 0 });
 
   const autosize = () => {
     textarea.addEventListener("input", (e) => {
@@ -73,17 +178,13 @@
       if (event.key === "Enter") {
         if (!event.shiftKey) {
           event.preventDefault();
-          if (
-            messageInput.trim() !== ""
-          ) {
+          if (messageInput.trim() !== "") {
             onclickSend();
           }
         }
       }
     }
   };
-
-  
 
   const onclickSend = () => {
     if (messageInput.trim() !== "") {
@@ -92,9 +193,9 @@
   };
 
   async function next() {
-    if (pagination.page >= pagination.pageCount) return;
+    if (paginationModal.page >= paginationModal.pageCount) return;
 
-    let pageNow = pagination.page;
+    let pageNow = paginationModal.page;
     if (tmpDatasChecked[pageNow] === undefined) {
       tmpDatasChecked = {
         ...tmpDatasChecked,
@@ -104,14 +205,14 @@
       tmpDatasChecked[pageNow] = datasChecked;
     }
 
-    pagination.page = pagination.page + 1;
+    paginationModal.page = paginationModal.page + 1;
     // TODO: create function getCsv();
   }
 
   async function previous() {
-    if (pagination.page <= 1) return;
+    if (paginationModal.page <= 1) return;
 
-    let pageNow = pagination.page;
+    let pageNow = paginationModal.page;
     if (tmpDatasChecked[pageNow] === undefined) {
       tmpDatasChecked = {
         ...tmpDatasChecked,
@@ -121,7 +222,7 @@
       tmpDatasChecked[pageNow] = datasChecked;
     }
 
-    pagination.page = pagination.page - 1;
+    paginationModal.page = paginationModal.page - 1;
     // TODO: create function getCsv();
   }
 
@@ -146,7 +247,7 @@
       return data;
     });
 
-    let pageNow = pagination.page;
+    let pageNow = paginationModal.page;
     if (tmpDatasChecked[pageNow] === undefined) {
       tmpDatasChecked = {
         ...tmpDatasChecked,
@@ -160,16 +261,23 @@
 
   function areAllUnchecked() {
     // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
-    const allData = [
-      ...datasChecked,
-      ...Object.values(tmpDatasChecked).flat(),
-    ];
+    const allDataModal = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
 
     // Cek apakah semua data tidak ada yang checked
-    return allData.every((item) => item.checked === false);
+    return allDataModal.every((item) => item.checked === false);
   }
 
+  const underscoreToSpace = (text) => {
+    return text.replace(/_/g, " ");
+  };
+
   onMount(() => {
+    if (allDataMeta) {
+      currentArrayData = allData.slice(
+        (allDataMeta.page - 1) * allDataMeta.pageSize,
+        allDataMeta.page * allDataMeta.pageSize,
+      );
+    }
     if (textarea) {
       autosize();
     }
@@ -182,7 +290,6 @@
       globalThis.removeEventListener("resize", resizeHandler);
     };
   });
-
 </script>
 
 <div class="flex items-center justify-between mb-3 md:mb-8 pt-5 px-4">
@@ -201,11 +308,17 @@
     <Button
       color="light"
       class="min-w-max gap-1.5 px-3.5"
-      on:click={() => {modalOpen = true;}}
+      on:click={() => {
+        modalOpen = true;
+      }}
     >
       <File06Icon svgClass="w-5 h-5 text-fg-brand-primary-light dark:text-fg-brand-primary-dark" />
-      <div class="font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark">{$_("changeDataSource")}</div>
-      <ChevronDownIcon svgClass="w-5 h-5 text-fg-brand-primary-light dark:text-fg-brand-primary-dark" />
+      <div class="font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark">
+        {$_("changeDataSource")}
+      </div>
+      <ChevronDownIcon
+        svgClass="w-5 h-5 text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
+      />
     </Button>
   </div>
 </div>
@@ -215,34 +328,52 @@
 <div class="flex flex-col md:flex-row w-full pb-12">
   <div class="w-full md:w-1/2 pt-8 px-4 flex flex-col gap-6">
     <Typography preset="Text md/Semibold" text={$_("providedTable")} />
-    <Table>
-      <TableHead>
-        <TableHeadCell>Product name</TableHeadCell>
-        <TableHeadCell>Color</TableHeadCell>
-        <TableHeadCell>Category</TableHeadCell>
-        <TableHeadCell>Price</TableHeadCell>
-      </TableHead>
-      <TableBody tableBodyClass="divide-y">
-        <TableBodyRow>
-          <TableBodyCell>Apple MacBook Pro 17"</TableBodyCell>
-          <TableBodyCell>Sliver</TableBodyCell>
-          <TableBodyCell>Laptop</TableBodyCell>
-          <TableBodyCell>$2999</TableBodyCell>
-        </TableBodyRow>
-        <TableBodyRow>
-          <TableBodyCell>Microsoft Surface Pro</TableBodyCell>
-          <TableBodyCell>White</TableBodyCell>
-          <TableBodyCell>Laptop PC</TableBodyCell>
-          <TableBodyCell>$1999</TableBodyCell>
-        </TableBodyRow>
-        <TableBodyRow>
-          <TableBodyCell>Magic Mouse 2</TableBodyCell>
-          <TableBodyCell>Black</TableBodyCell>
-          <TableBodyCell>Accessories</TableBodyCell>
-          <TableBodyCell>$99</TableBodyCell>
-        </TableBodyRow>
-      </TableBody>
-    </Table>
+    {#if currentArrayData.length === 0}
+      <StateCard illustration={IllustrationEmpty} description={$_("noDataAvailable")} />
+    {:else}
+      <div>
+        <Table innerDivClass="rounded-lg">
+          <TableHead>
+            {#each Object.keys(currentArrayData[0]) as key}
+              {#if key === "id"}
+                <!-- empty -->
+              {:else}
+                <TableHeadCell>{underscoreToSpace(key)}</TableHeadCell>
+              {/if}
+            {/each}
+          </TableHead>
+          <TableBody tableBodyClass="divide-y">
+            {#each currentArrayData as data}
+              <TableBodyRow>
+                {#each Object.entries(data) as [key, value]}
+                  {#if key === "id"}
+                    <!-- empty -->
+                  {:else}
+                    <TableBodyCell>{value}</TableBodyCell>
+                  {/if}
+                {/each}
+              </TableBodyRow>
+            {/each}
+          </TableBody>
+        </Table>
+        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-3">
+          <Typography
+            preset="Text sm/Regular"
+            text={`Showing ${allDataMeta.page * allDataMeta.pageSize - allDataMeta.pageSize + 1} to ${
+              allDataMeta.page * allDataMeta.pageSize
+            } of ${allDataMeta.total} entries`}
+          />
+          <Pagination
+            on:next={next}
+            on:previous={previous}
+            activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
+          >
+            <span slot="prev">{$_("previous")}</span>
+            <span slot="next">{$_("next")}</span>
+          </Pagination>
+        </div>
+      </div>
+    {/if}
   </div>
   <div class="w-full md:w-1/2 pt-8 px-4 flex flex-col gap-4">
     <Typography preset="Text md/Semibold" text={$_("csvInsight")} />
@@ -258,7 +389,10 @@
         <div
           class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
         >
-          <Markdown md={"Hi! I’m your smart CSV assistant. Drop a file, ask me anything, and let’s unlock the secrets hidden in your data!"} {plugins} />
+          <Markdown
+            md={"Hi! I’m your smart CSV assistant. Drop a file, ask me anything, and let’s unlock the secrets hidden in your data!"}
+            {plugins}
+          />
         </div>
       </div>
     </div>
@@ -275,15 +409,15 @@
         <div
           class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
         >
-          <Markdown md={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. In elit tellus, ullamcorper ut placerat sit amet, volutpat id erat. Duis elit justo, congue a tincidunt consequat, varius ut nibh. Ut eget mauris malesuada, dictum nulla sollicitudin, vulputate dolor. Integer aliquam viverra libero, eget tincidunt risus pharetra ut. Aenean lobortis, diam at tempor tempus, diam arcu fermentum mauris, id rutrum augue ante et tortor. Donec suscipit mi ornare nunc facilisis, et placerat ligula aliquam. Nam a ante faucibus, feugiat nibh eget, laoreet magna."} {plugins} />
+          <Markdown
+            md={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. In elit tellus, ullamcorper ut placerat sit amet, volutpat id erat. Duis elit justo, congue a tincidunt consequat, varius ut nibh. Ut eget mauris malesuada, dictum nulla sollicitudin, vulputate dolor. Integer aliquam viverra libero, eget tincidunt risus pharetra ut. Aenean lobortis, diam at tempor tempus, diam arcu fermentum mauris, id rutrum augue ante et tortor. Donec suscipit mi ornare nunc facilisis, et placerat ligula aliquam. Nam a ante faucibus, feugiat nibh eget, laoreet magna."}
+            {plugins}
+          />
         </div>
       </div>
     </div>
 
-    <form
-      onsubmit={messageInput !== "" ? sendMessageInput : () => {}}
-      class="w-full p-6"
-    >
+    <form onsubmit={messageInput !== "" ? sendMessageInput : () => {}} class="w-full p-6">
       <div class="flex items-center">
         <div class="w-full flex gap-4">
           <!-- svelte-ignore event_directive_deprecated -->
@@ -311,14 +445,8 @@
 
 <Modal bind:open={modalOpen} outsideclose>
   <svelte:fragment slot="header">
-    <div
-      class={`grow pt-2`}
-    >
-      <Typography
-        preset="Text md/Bold"
-        text={$_("changeDataSource")}
-        color="primary"
-      />
+    <div class={`grow pt-2`}>
+      <Typography preset="Text md/Bold" text={$_("changeDataSource")} color="primary" />
       <Typography
         preset="Text sm/Regular"
         text={$_("changeYourDataSourcesFiles")}
@@ -326,10 +454,10 @@
       />
     </div>
   </svelte:fragment>
-  {#if allData.length > 0 || searchTerm !== ""}
+  {#if allDataModal.length > 0 || searchTerm !== ""}
     {#if !gettingDatas}
       <DataTableListCollection
-        bind:datas={allData}
+        bind:datas={allDataModal}
         bind:datasChecked
         bind:configs
         bind:gettingDatas
