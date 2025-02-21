@@ -6,7 +6,6 @@
     Checkbox,
     TableBody,
     TableHead,
-    Pagination,
     TableBodyRow,
     TableBodyCell,
     TableHeadCell,
@@ -15,7 +14,7 @@
 
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
-  import { check, onProgress, call } from "$lib";
+  import { check, onProgress, call, Pagination } from "$lib";
 
   import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
@@ -48,10 +47,20 @@
     dropdownActionOpen = dropdownActionOpen.map((item) => false);
   };
 
+  const pillStyle = (style) => {
+    if (style === "brand") {
+      return "py-[2px] px-2 border-[1px] rounded-xl text-center w-min bg-utility-brand-50-light dark:bg-utility-brand-50-dark border-utility-brand-200-light dark:border-utility-brand-200-dark text-utility-brand-700-light dark:text-utility-brand-700-dark";
+    } else {
+      return "py-[2px] px-2 border-[1px] rounded-xl text-center w-min bg-utility-brand-50-light dark:bg-utility-brand-50-dark border-utility-brand-200-light dark:border-utility-brand-200-dark text-utility-brand-700-light dark:text-utility-brand-700-dark";
+    }
+  };
+
   onMount(() => {
     for (const data of collectionListDatas) {
       dropdownActionOpen.push(false);
     }
+
+    console.log("cek pagination", pagination);
   });
 </script>
 
@@ -63,13 +72,13 @@
     <TableHead>
       <TableHeadCell class="!p-4">
         {#if checkAllState}
-          <Checkbox checked on:click={checkAll} />
+          <Checkbox checked={checkAllState} on:click={checkAll} />
         {:else}
           <Checkbox on:click={checkAll} />
         {/if}
       </TableHeadCell>
       <TableHeadCell>{$_("fileName")}</TableHeadCell>
-      <TableHeadCell>{$_("action")}</TableHeadCell>
+      <TableHeadCell>{$_("type")}</TableHeadCell>
       <TableHeadCell>{$_("fileSize")}</TableHeadCell>
       <TableHeadCell>{$_("uploadDetail")}</TableHeadCell>
       <TableHeadCell></TableHeadCell>
@@ -119,7 +128,10 @@
             </div>
           </TableBodyCell>
           <TableBodyCell>
-            <Button
+            <div class={pillStyle()}>
+              {collectionListData.type}
+            </div>
+            <!-- <Button
               disabled={!check("documentAi.documentLibrary.document:view")}
               on:click={async () => {
                 let link = await $call.getPage("client-dashboard", "insights");
@@ -131,7 +143,7 @@
             >
               {$_("askMyCsv")}&nbsp;
               <Star04Icon svgClass="w-5 h-5" />
-            </Button>
+            </Button> -->
           </TableBodyCell>
           <TableBodyCell>{collectionListData.filesize}</TableBodyCell>
           <TableBodyCell>
@@ -172,22 +184,16 @@
       {/each}
     </TableBody>
   </Table>
-  <div class="flex justify-between !border-0">
+  <Pagination {pagination} previousPage={previous} nextPage={next} />
+  <!-- <div class="flex justify-between !border-0">
     {#if pagination.total > 0}
       <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
         Showing
         <span>{pagination.page === 1 ? 1 : (pagination.page - 1) * pagination.pageSize + 1}</span>
         -
-        <!-- {$_("to")} -->
-        <!-- <span
-          >{pagination.page * pagination.pageSize >= pagination.total
-            ? pagination.total
-            : pagination.page * pagination.pageSize}</span
-        > -->
         <span>{collectionListDatas.length}</span>
         of
         <span>{collectionListDatas.length}</span>
-        <!-- {$_("entries")} -->
       </div>
 
       <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
@@ -223,5 +229,5 @@
         />
       </Button>
     </div>
-  {/if}
+  {/if} -->
 </div>

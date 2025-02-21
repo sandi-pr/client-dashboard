@@ -30,7 +30,7 @@
 
   let searchTerm = $state("");
   let serachPagination = $state(false);
-  let gettingDatas = $state(true);
+  let gettingDatas = $state(false);
   let bots = $state([]);
   let tmpId = $state(null);
   let page = $state(1);
@@ -288,7 +288,7 @@
   }
 
   onMount(() => {
-    getBots();
+    // getBots();
   });
 
   $effect(() => {
@@ -332,7 +332,7 @@
                 <BotCard {bot} {index} {dropdownOpen} config={{ openWebchat: true }} {handleDropdownFocusLoss} />
               {/each}
             </div>
-            <Pagination {pagination} {previousPage} {nextPage} />
+            <!-- <Pagination {pagination} {previousPage} {nextPage} /> -->
           {/if}
         </div>
       </div>

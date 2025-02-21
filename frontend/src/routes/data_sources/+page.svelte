@@ -150,6 +150,7 @@ All Rights Reserved
                 collectionName={document.collectionName}
                 totalDocuments={document.totalDocuments}
                 status={document.status}
+                linkIsFrontend={'/data_sources/collections/documents?collectionName=' + document.collectionName}
                 functEdit={() => {
                   tmpCollectionId = document.collectionId;
                   tmpCollectionName = document.collectionName;

@@ -25,9 +25,12 @@
     functDelete = () => {},
     funcSelectCollectionWebchat = () => {},
     dropdownOpen = false,
+    linkIsFrontend = "",
     // funcDetailCollection = () => {},
     libraryId = null,
   } = $props();
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let validCollections =
     industryData
@@ -91,7 +94,12 @@
   };
 
   async function funcDetailCollection() {
-    let link = await $call.getPage("client-dashboard", "sources");
+    let link;
+    if (isFrontend) {
+      link = linkIsFrontend;
+    } else {
+      link = await $call.getPage("client-dashboard", "sources");
+    }
 
     goto(link);
   }
