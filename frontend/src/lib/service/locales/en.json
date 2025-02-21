@@ -950,5 +950,6 @@
   "tryModels": "Try Large Language Models",
   "descTryModels": "Experience the Power of Advanced AI Text Generation",
   "finetunings": "Finetunings",
-  "descFinetunings": "Customize AI Models to Fit Your Unique Needs"
+  "descFinetunings": "Customize AI Models to Fit Your Unique Needs",
+  "noDataAvailable": "No data available"
 }

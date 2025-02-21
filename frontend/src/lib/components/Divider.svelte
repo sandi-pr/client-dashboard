@@ -10,4 +10,13 @@
   This file is part of the "Crossroads" project.
 -->
 
-<div class="w-full border-b border-hc-graylight-200 dark:border-hc-graydark-800"></div>
+<script>
+  import { twMerge } from "tailwind-merge";
+  export let className = "";
+
+  let defaultClass = "w-full border-b border-hc-graylight-200 dark:border-hc-graydark-800";
+
+  let classes = twMerge(defaultClass, className);
+</script>
+
+<div class={classes}></div>

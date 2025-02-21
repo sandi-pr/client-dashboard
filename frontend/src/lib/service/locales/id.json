@@ -950,5 +950,6 @@
   "tryModels": "Coba LLMs Langsung",
   "descTryModels": "Rasakan Kekuatan Generasi Teks AI yang Canggih",
   "finetunings": "Finetuning",
-  "descFinetunings": "Optimalkan Model untuk Akurasi dan Performa yang Lebih Baik"
+  "descFinetunings": "Optimalkan Model untuk Akurasi dan Performa yang Lebih Baik",
+  "noDataAvailable": "Tidak ada data yang tersedia"
 }
