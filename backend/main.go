@@ -28,6 +28,7 @@ var botIdProccess = hctypes.List{}
 var notificationWS *NotificationWebSocket
 
 var checkUserId = true
+var metaDataCSV = hctypes.Dict{}
 
 func init() {
 	MODULE_MANAGER_URL = os.Getenv("MODULE_MANAGER_URL")

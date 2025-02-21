@@ -12,9 +12,11 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -69,6 +71,11 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		description = ""
 	}
 
+	module_type, ok := ctx.Params.GetString("module_type")
+	if !ok {
+		module_type = "document"
+	}
+
 	document_path := DOCUMENT_PATH + "/" + string(library_name)
 
 	dir := filepath.Dir(document_path)
@@ -85,6 +92,7 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 		"path":             document_path,
 		"library_industry": false,
 		"system_item":      false,
+		"module_type":      module_type,
 		"meta": U.Dict{
 			"upload_by": upload_by,
 			"author":    author,
@@ -97,15 +105,15 @@ func CreateLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPEr
 
 	status, documentLibrary, err := Strapi.Create("document-library-table", dataSend)
 
-	fmt.Println("result", documentLibrary)
-
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println(documentLibrary)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	if status != 200 {
 		fmt.Println(status)
+		fmt.Println(documentLibrary)
 
 		if err2, ok := documentLibrary.GetDict("error"); ok {
 			if message, ok := err2.GetString("message"); ok {
@@ -714,6 +722,11 @@ func GetLibrarys(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 		system_item = false
 	}
 
+	module_type, ok := ctx.Params.GetString("module_type")
+	if !ok {
+		module_type = "document"
+	}
+
 	status, documentLibrarys, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"type": U.Dict{
@@ -721,6 +734,9 @@ func GetLibrarys(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 			},
 			"system_item": U.Dict{
 				"$eq": system_item,
+			},
+			"module_type": U.Dict{
+				"$eq": module_type,
 			},
 		},
 		"pagination": U.Dict{
@@ -777,6 +793,11 @@ func GetLibrarysWithoutUsecase(ctx *config.ConfigContext) (int, U.Dict, *config.
 		page_size = 10
 	}
 
+	module_type, ok := ctx.Params.GetString("module_type")
+	if !ok {
+		module_type = "document"
+	}
+
 	status, documentLibrarys, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"type": U.Dict{
@@ -784,6 +805,9 @@ func GetLibrarysWithoutUsecase(ctx *config.ConfigContext) (int, U.Dict, *config.
 			},
 			"library_industry": U.Dict{
 				"$eq": false,
+			},
+			"module_type": U.Dict{
+				"$eq": module_type,
 			},
 		},
 		"pagination": U.Dict{
@@ -1117,81 +1141,86 @@ func GetLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
 	if !bearer_ok {
+		fmt.Println("[ERROR] Tidak ada token Authorization")
 		return ctx.Error(401, "Unauthorized")
 	}
 
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
 
 	status, me, err := Strapi.UsersMe()
+	fmt.Println("[DEBUG] Status UsersMe:", status, "Data:", me)
+
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("[ERROR] Gagal mendapatkan data pengguna:", err)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	if status != 200 {
-		fmt.Println(status)
+		fmt.Println("[ERROR] Status UsersMe bukan 200:", status)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	fmt.Println(me)
-
 	idStr, ok := ctx.URLParams.GetString("id")
+
 	if !ok {
+		fmt.Println("[ERROR] Parameter ID tidak ditemukan")
 		return ctx.Error(400, "invalid parameters id")
 	}
 
 	id, err := strconv.Atoi(string(idStr))
 	if err != nil {
+		fmt.Println("[ERROR] ID bukan angka:", err)
 		return ctx.Error(400, "invalid parameters id")
 	}
 
 	status, document, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"id": U.Dict{
-				"$eq": id,
+				"$eq": int64(id),
 			},
 		},
 		"populate": "*",
 	})
 
-	fmt.Println("document", document)
-
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("[ERROR] Gagal mendapatkan dokumen:", err)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	if status != 200 {
-		fmt.Println(status)
+		fmt.Println("[ERROR] Status Find bukan 200:", status)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	list, ok := document.GetList("data")
+
 	if len(list) == 0 {
+		fmt.Println("[ERROR] Dokumen tidak ditemukan")
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	if !ok {
+		fmt.Println("[ERROR] Data dokumen tidak valid")
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	dict, ok := list.GetDict(0)
 
 	if !ok {
+		fmt.Println("[ERROR] Data dict tidak valid")
 		return ctx.Error(500, "Internal Server Error")
 	}
 
 	if attributes, ok := dict.GetDict("attributes"); ok {
 		var document_path U.String
-
 		document_path, ok = attributes.GetString("path")
 		if !ok {
 			document_path = ""
 		}
 
 		base64Data, err := getDocumentInBase64(string(document_path))
-
 		if err != nil {
+			fmt.Println("[ERROR] Gagal mendapatkan base64 dokumen:", err)
 			return ctx.Error(500, "Internal Server Error")
 		}
 
@@ -1203,6 +1232,194 @@ func GetLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 			"base64": base64Data,
 			"ext":    ext,
 		}, nil
+	}
+
+	return ctx.Error(500, "Internal Server Error")
+}
+
+func GetLibraryDocumentCSV(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		fmt.Println("[ERROR] Tidak ada token Authorization")
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	fmt.Println("[DEBUG] Status UsersMe:", status, "Data:", me)
+
+	if err != nil {
+		fmt.Println("[ERROR] Gagal mendapatkan data pengguna:", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("[ERROR] Status UsersMe bukan 200:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	idStr, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		fmt.Println("[ERROR] Parameter ID tidak ditemukan")
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		fmt.Println("[ERROR] ID bukan angka:", err)
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	page, page_ok := ctx.Params.GetFloat64("page")
+	if !page_ok {
+		page = 1
+	}
+
+	page_size, page_size_ok := ctx.Params.GetFloat64("page_size")
+	if !page_size_ok {
+		page_size = 15
+	}
+
+	status, document, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": int64(id),
+			},
+		},
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println("[ERROR] Gagal mendapatkan dokumen:", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("[ERROR] Status Find bukan 200:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := document.GetList("data")
+
+	if len(list) == 0 {
+		fmt.Println("[ERROR] Dokumen tidak ditemukan")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if !ok {
+		fmt.Println("[ERROR] Data dokumen tidak valid")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		fmt.Println("[ERROR] Data dict tidak valid")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if attributes, ok := dict.GetDict("attributes"); ok {
+		var document_path U.String
+		document_path, ok = attributes.GetString("path")
+		if !ok {
+			document_path = ""
+		}
+
+		ext := filepath.Ext(string(document_path))
+
+		result, err := getDocumentCsvPerPage(string(document_path), int(page), int(page_size))
+
+		if err != nil {
+			fmt.Println("[ERROR] Gagal mendapatkan halaman dokumen:", err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		return 200, U.Dict{
+			"id":     dict["id"].(U.Float64),
+			"data":   dict["attributes"].(U.Dict),
+			"result": result,
+			"ext":    ext,
+		}, nil
+	}
+
+	return ctx.Error(500, "Internal Server Error")
+}
+
+func GetLibraryDocumentName(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		fmt.Println("[ERROR] Tidak ada token Authorization")
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	fmt.Println("[DEBUG] Status UsersMe:", status, "Data:", me)
+
+	if err != nil {
+		fmt.Println("[ERROR] Gagal mendapatkan data pengguna:", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("[ERROR] Status UsersMe bukan 200:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	idStr, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		fmt.Println("[ERROR] Parameter ID tidak ditemukan")
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		fmt.Println("[ERROR] ID bukan angka:", err)
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	status, document, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": int64(id),
+			},
+		},
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println("[ERROR] Gagal mendapatkan dokumen:", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("[ERROR] Status Find bukan 200:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := document.GetList("data")
+
+	if len(list) == 0 {
+		fmt.Println("[ERROR] Dokumen tidak ditemukan")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if !ok {
+		fmt.Println("[ERROR] Data dokumen tidak valid")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict, ok := list.GetDict(0)
+
+	if !ok {
+		fmt.Println("[ERROR] Data dict tidak valid")
+		return ctx.Error(500, "Internal Server Error")
 	}
 
 	return 200, dict, nil
@@ -2705,6 +2922,105 @@ func getDocumentInBase64(document_path string) (string, error) {
 	return encoded, nil
 }
 
+func getDocumentCsvPerPage(document_path string, page, page_size int) (PaginationResult, error) {
+	file, err := os.Open(document_path)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return PaginationResult{}, fmt.Errorf("gagal membuka file: %v", err)
+	}
+	defer file.Close()
+
+	fmt.Println("Reading CSV file...")
+	reader := csv.NewReader(file)
+	reader.LazyQuotes = true
+	reader.TrimLeadingSpace = true
+
+	headers, err := reader.Read()
+	if err != nil {
+		fmt.Println("Error reading CSV headers:", err)
+		return PaginationResult{}, fmt.Errorf("gagal membaca header CSV: %v", err)
+	}
+	fmt.Println("CSV Headers:", headers)
+
+	start := (page - 1) * page_size
+	end := start + page_size
+
+	var result []map[string]interface{}
+	totalItems := 0
+
+	if meta, exists := metaDataCSV[document_path]; exists {
+		fmt.Println("Using cached meta data")
+		totalItems = meta.(MetaCSV).TotalItems
+	} else {
+		fmt.Println("Calculating total items...")
+		for {
+			_, err := reader.Read()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				fmt.Println("Error reading row:", err)
+				return PaginationResult{}, fmt.Errorf("gagal membaca baris CSV: %v", err)
+			}
+			totalItems++
+		}
+		metaDataCSV[document_path] = MetaCSV{
+			TotalItems: totalItems,
+		}
+	}
+
+	totalPages := int(math.Ceil(float64(totalItems) / float64(page_size)))
+
+	file.Seek(0, io.SeekStart)
+	reader = csv.NewReader(file)
+	reader.LazyQuotes = true
+	reader.TrimLeadingSpace = true
+	reader.Read()
+
+	for i := 0; i < totalItems; i++ {
+		row, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			fmt.Println("Error reading row:", err)
+			return PaginationResult{}, fmt.Errorf("gagal membaca baris CSV: %v", err)
+		}
+		if i < start {
+			continue
+		}
+		if i >= end {
+			break
+		}
+		if len(row) != len(headers) {
+			fmt.Println("Skipping row due to mismatched column count:", row)
+			continue
+		}
+		rowData := make(map[string]interface{})
+		for j, value := range row {
+			value = strings.TrimSpace(value)
+			if intValue, err := strconv.Atoi(value); err == nil {
+				rowData[headers[j]] = intValue
+			} else if floatValue, err := strconv.ParseFloat(value, 64); err == nil {
+				rowData[headers[j]] = floatValue
+			} else {
+				rowData[headers[j]] = value
+			}
+		}
+		result = append(result, rowData)
+	}
+
+	fmt.Println("Pagination processing complete, returning result")
+
+	return PaginationResult{
+		Data:        result,
+		TotalItems:  totalItems,
+		TotalPages:  totalPages,
+		CurrentPage: page,
+		PageSize:    page_size,
+	}, nil
+}
+
 func GetStatusLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
@@ -2902,6 +3218,11 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 		return ctx.Error(400, "invalid parameters")
 	}
 
+	module_type, ok := ctx.Params.GetString("module_type")
+	if !ok {
+		module_type = "document"
+	}
+
 	status, libraries, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"type": U.Dict{
@@ -2909,6 +3230,9 @@ func GetCountLibrariesPerMonth(ctx *config.ConfigContext) (int, U.Dict, *config.
 			},
 			"system_item": U.Dict{
 				"$eq": false,
+			},
+			"module_type": U.Dict{
+				"$eq": module_type,
 			},
 			"createdAt": U.Dict{
 				"$gte": earlyDate,
@@ -3549,240 +3873,6 @@ func FindLibraryForBakrie(ctx *config.ConfigContext) (int, U.Dict, *config.Retur
 	return 200, library, nil
 }
 
-type DeleteResponse struct {
-	DocumentId string `json:"document_id"`
-}
-
-func getLibraryDict(id int, strapi *strapi.StrapiClassic) (U.Dict, error) {
-	status, document, err := strapi.Find("document-library-table", U.Dict{
-		"filters": U.Dict{
-			"id": U.Dict{
-				"$eq": id,
-			},
-		},
-	})
-
-	if err != nil {
-		fmt.Println(err)
-		return U.Dict{}, err
-	}
-
-	if status != 200 {
-		fmt.Println("document", document)
-		fmt.Println(status)
-		return U.Dict{}, err
-	}
-
-	list, ok := document.GetList("data")
-
-	if !ok {
-		fmt.Println(ok)
-		return U.Dict{}, err
-	}
-
-	if len(list) < 1 {
-		return U.Dict{}, fmt.Errorf("not found")
-	}
-
-	if dict, ok := list.GetDict(0); ok {
-		return dict, nil
-	} else {
-		return U.Dict{}, err
-	}
-}
-
-func moveFile(sourcePath, destinationDir string) error {
-	err := os.MkdirAll(destinationDir, os.ModePerm)
-	if err != nil {
-		return fmt.Errorf("gagal membuat folder tujuan: %w", err)
-	}
-
-	fileName := filepath.Base(sourcePath)
-
-	destinationPath := filepath.Join(destinationDir, fileName)
-
-	err = os.Rename(sourcePath, destinationPath)
-	if err != nil {
-		return fmt.Errorf("gagal memindahkan file: %w", err)
-	}
-
-	fmt.Println("File berhasil dipindahkan ke:", destinationPath)
-	return nil
-}
-
-func copyFile(src, dst string) error {
-	sourceFile, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer sourceFile.Close()
-
-	destFile, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer destFile.Close()
-
-	_, err = io.Copy(destFile, sourceFile)
-	return err
-}
-
-func copyDir(srcDir, dstDir string) error {
-	return filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		relPath, err := filepath.Rel(srcDir, path)
-		if err != nil {
-			return err
-		}
-
-		destPath := filepath.Join(dstDir, relPath)
-
-		if info.IsDir() {
-			return os.MkdirAll(destPath, info.Mode())
-		} else {
-			return copyFile(path, destPath)
-		}
-	})
-}
-
-func moveFolder(sourcePath, destinationDir string) error {
-	folderName := filepath.Base(sourcePath)
-	destinationPath := filepath.Join(destinationDir, folderName)
-
-	err := copyDir(sourcePath, destinationPath)
-	if err != nil {
-		return err
-	}
-
-	err = os.RemoveAll(sourcePath)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Folder berhasil dipindahkan ke:", destinationPath)
-	return nil
-}
-
-func updatePathContent(pathLibrary string, idLibrary int64, strapi *strapi.StrapiClassic) error {
-	page := 1
-
-	var collectionIds U.List
-
-	for {
-		status, documentLibrarys, err := strapi.Find("document-library-table", U.Dict{
-			"filters": U.Dict{
-				"parent_id": U.Dict{
-					"$eq": int64(idLibrary),
-				},
-			},
-			"pagination": U.Dict{
-				"page":     page,
-				"pageSize": 25,
-			},
-			"sort":     "id:desc",
-			"populate": "*",
-		})
-
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-
-		if status != 200 {
-			fmt.Println(status)
-			fmt.Println(documentLibrarys)
-			return fmt.Errorf("status not 200")
-		}
-
-		if list, ok := documentLibrarys.GetList("data"); ok {
-			if len(list) < 1 {
-				break
-			}
-
-			for i := 0; i < len(list); i++ {
-				if dict, ok := list.GetDict(i); ok {
-					id, ok := dict.GetFloat64("id")
-
-					if !ok {
-						return fmt.Errorf("failed to get id content")
-					}
-
-					if attributes, ok := dict.GetDict("attributes"); ok {
-						if typeLibrary, ok := attributes.GetString("type"); ok {
-							if pathContent, ok := attributes.GetString("path"); ok {
-								filename := filepath.Base(string(pathContent))
-
-								newPath := pathLibrary + "/" + filename
-
-								status, documentLibrarys2, err := strapi.Update("document-library-table", int64(id), U.Dict{
-									"path": newPath,
-								})
-
-								if err != nil {
-									fmt.Println(err)
-									return err
-								}
-
-								if status != 200 {
-									fmt.Println(status)
-									fmt.Println(documentLibrarys2)
-									return fmt.Errorf("failed to update path content")
-								}
-
-								if typeLibrary == "collection" {
-									collectionIds = append(collectionIds, U.Dict{
-										"id":   id,
-										"path": newPath,
-									})
-								}
-							} else {
-								return fmt.Errorf("failed to get path content")
-							}
-						} else {
-							return fmt.Errorf("failed to get type content")
-						}
-					} else {
-						return fmt.Errorf("failed to get attributes content")
-					}
-				} else {
-					return fmt.Errorf("failed to get dict content")
-				}
-			}
-
-			page = page + 1
-		} else {
-			return fmt.Errorf("failed to get data content")
-		}
-	}
-
-	if len(collectionIds) == 0 {
-		return nil
-	} else {
-		for j := 0; j < len(collectionIds); j++ {
-			if dictContent, ok := collectionIds.GetDict(j); ok {
-				id, id_ok := dictContent.GetFloat64("id")
-
-				pathContent, path_ok := dictContent.GetString("path")
-
-				if !id_ok || !path_ok {
-					return fmt.Errorf("failed to get collection content, id: %v, path: %v", id, pathContent)
-				}
-
-				err := updatePathContent(string(pathContent), int64(id), strapi)
-
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		return nil
-	}
-}
-
 func FindCreateLibraryLlm(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
@@ -4032,4 +4122,250 @@ func findCreateLibraryCollection(id int64, strapi *strapi.StrapiClassic) (int, e
 	}
 
 	return 0, fmt.Errorf("not found")
+}
+
+func getLibraryDict(id int, strapi *strapi.StrapiClassic) (U.Dict, error) {
+	status, document, err := strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$eq": id,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return U.Dict{}, err
+	}
+
+	if status != 200 {
+		fmt.Println("document", document)
+		fmt.Println(status)
+		return U.Dict{}, err
+	}
+
+	list, ok := document.GetList("data")
+
+	if !ok {
+		fmt.Println(ok)
+		return U.Dict{}, err
+	}
+
+	if len(list) < 1 {
+		return U.Dict{}, fmt.Errorf("not found")
+	}
+
+	if dict, ok := list.GetDict(0); ok {
+		return dict, nil
+	} else {
+		return U.Dict{}, err
+	}
+}
+
+func moveFile(sourcePath, destinationDir string) error {
+	err := os.MkdirAll(destinationDir, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("gagal membuat folder tujuan: %w", err)
+	}
+
+	fileName := filepath.Base(sourcePath)
+
+	destinationPath := filepath.Join(destinationDir, fileName)
+
+	err = os.Rename(sourcePath, destinationPath)
+	if err != nil {
+		return fmt.Errorf("gagal memindahkan file: %w", err)
+	}
+
+	fmt.Println("File berhasil dipindahkan ke:", destinationPath)
+	return nil
+}
+
+func copyFile(src, dst string) error {
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer sourceFile.Close()
+
+	destFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, sourceFile)
+	return err
+}
+
+func copyDir(srcDir, dstDir string) error {
+	return filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		relPath, err := filepath.Rel(srcDir, path)
+		if err != nil {
+			return err
+		}
+
+		destPath := filepath.Join(dstDir, relPath)
+
+		if info.IsDir() {
+			return os.MkdirAll(destPath, info.Mode())
+		} else {
+			return copyFile(path, destPath)
+		}
+	})
+}
+
+func moveFolder(sourcePath, destinationDir string) error {
+	folderName := filepath.Base(sourcePath)
+	destinationPath := filepath.Join(destinationDir, folderName)
+
+	err := copyDir(sourcePath, destinationPath)
+	if err != nil {
+		return err
+	}
+
+	err = os.RemoveAll(sourcePath)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Folder berhasil dipindahkan ke:", destinationPath)
+	return nil
+}
+
+func updatePathContent(pathLibrary string, idLibrary int64, strapi *strapi.StrapiClassic) error {
+	page := 1
+
+	var collectionIds U.List
+
+	for {
+		status, documentLibrarys, err := strapi.Find("document-library-table", U.Dict{
+			"filters": U.Dict{
+				"parent_id": U.Dict{
+					"$eq": int64(idLibrary),
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"sort":     "id:desc",
+			"populate": "*",
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			fmt.Println(documentLibrarys)
+			return fmt.Errorf("status not 200")
+		}
+
+		if list, ok := documentLibrarys.GetList("data"); ok {
+			if len(list) < 1 {
+				break
+			}
+
+			for i := 0; i < len(list); i++ {
+				if dict, ok := list.GetDict(i); ok {
+					id, ok := dict.GetFloat64("id")
+
+					if !ok {
+						return fmt.Errorf("failed to get id content")
+					}
+
+					if attributes, ok := dict.GetDict("attributes"); ok {
+						if typeLibrary, ok := attributes.GetString("type"); ok {
+							if pathContent, ok := attributes.GetString("path"); ok {
+								filename := filepath.Base(string(pathContent))
+
+								newPath := pathLibrary + "/" + filename
+
+								status, documentLibrarys2, err := strapi.Update("document-library-table", int64(id), U.Dict{
+									"path": newPath,
+								})
+
+								if err != nil {
+									fmt.Println(err)
+									return err
+								}
+
+								if status != 200 {
+									fmt.Println(status)
+									fmt.Println(documentLibrarys2)
+									return fmt.Errorf("failed to update path content")
+								}
+
+								if typeLibrary == "collection" {
+									collectionIds = append(collectionIds, U.Dict{
+										"id":   id,
+										"path": newPath,
+									})
+								}
+							} else {
+								return fmt.Errorf("failed to get path content")
+							}
+						} else {
+							return fmt.Errorf("failed to get type content")
+						}
+					} else {
+						return fmt.Errorf("failed to get attributes content")
+					}
+				} else {
+					return fmt.Errorf("failed to get dict content")
+				}
+			}
+
+			page = page + 1
+		} else {
+			return fmt.Errorf("failed to get data content")
+		}
+	}
+
+	if len(collectionIds) == 0 {
+		return nil
+	} else {
+		for j := 0; j < len(collectionIds); j++ {
+			if dictContent, ok := collectionIds.GetDict(j); ok {
+				id, id_ok := dictContent.GetFloat64("id")
+
+				pathContent, path_ok := dictContent.GetString("path")
+
+				if !id_ok || !path_ok {
+					return fmt.Errorf("failed to get collection content, id: %v, path: %v", id, pathContent)
+				}
+
+				err := updatePathContent(string(pathContent), int64(id), strapi)
+
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	}
+}
+
+type DeleteResponse struct {
+	DocumentId string `json:"document_id"`
+}
+
+type PaginationResult struct {
+	Data        []map[string]interface{} `json:"data"`
+	TotalItems  int                      `json:"total_items"`
+	TotalPages  int                      `json:"total_pages"`
+	CurrentPage int                      `json:"current_page"`
+	PageSize    int                      `json:"page_size"`
+}
+
+type MetaCSV struct {
+	TotalItems int `json:"total_items"`
 }
