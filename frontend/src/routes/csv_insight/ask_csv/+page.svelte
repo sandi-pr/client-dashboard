@@ -402,8 +402,10 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
     {#if currentArrayData.length === 0}
       <StateCard illustration={IllustrationEmpty} description={$_("noDataAvailable")} />
     {:else}
-      <div>
-        <Table innerDivClass="rounded-lg">
+      <div
+        class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl pt-4"
+      >
+        <Table class="w-full">
           <TableHead>
             {#each Object.keys(currentArrayData[0]) as key}
               {#if key === "id"}
@@ -415,7 +417,7 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
           </TableHead>
           <TableBody tableBodyClass="divide-y">
             {#each currentArrayData as data}
-              <TableBodyRow>
+              <TableBodyRow class="border-0 !border-gray-200 dark:!border-gray-700">
                 {#each Object.entries(data) as [key, value]}
                   {#if key === "id"}
                     <!-- empty -->
@@ -427,7 +429,7 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
             {/each}
           </TableBody>
         </Table>
-        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-3">
+        <div class="flex justify-between items-center p-3 rounded-b-xl">
           <Typography
             preset="Text sm/Regular"
             text={`Showing ${allDataMeta.page * allDataMeta.pageSize - allDataMeta.pageSize + 1} to ${
