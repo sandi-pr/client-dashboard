@@ -2,8 +2,6 @@
   import { onMount } from "svelte";
   import {
     P,
-    A,
-    Card,
     Modal,
     Button,
     Avatar,
@@ -12,14 +10,7 @@
     // DropdownItem,
   } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import { DotsVerticalOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import MessagePlus from "$lib/icon/message-plus-square.svelte";
-  // import MessageChatSquare from "$lib/icon/message-chat-square.svelte";
-  // import FileAttachment_02 from "$lib/icon/file-attachment-02.svelte";
-  // import PencilLine from "$lib/icon/pencil-line.svelte";
-  import CopyIcon from "$lib/icon/copy-03.svelte";
-  import Eye from "$lib/icon/eye.svelte";
-  import { toCamelCase } from "$lib/utils/toCamelCase.js";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import {
     Typography,
     SectionHeader,
@@ -30,22 +21,16 @@
     StateCard,
     check,
     Badge,
-    newNotification,
     notifications,
     onProgress,
-    showAI, 
+    showAI,
     showNotif,
     BotCard,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
-  import Copy01Icon from "$lib/icon/copy-01.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
-  import EyeIcon from "$lib/icon/eye.svelte";
-  import TrashIcon from "$lib/icon/trash-03.svelte";
   import { goto } from "$app/navigation";
   import { format } from "date-fns";
   // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
@@ -68,8 +53,6 @@
 
   let chartReady = $state(false);
 
-  let Header;
-
   let bots = $state([]);
 
   let tmpId = $state(null);
@@ -79,20 +62,6 @@
   let deployStatusModal = $state(false);
 
   let gettingDatas = $state(true);
-
-  const classStatusType = (type) => {
-    if (type === "Done") {
-      return "bg-hc-success-50 border-hc-success-200 text-hc-success-700 dark:bg-hc-success-900 dark:border-hc-success-700 dark:text-hc-success-300";
-    } else if (type === "Not Ready") {
-      return "bg-hc-error-50 border-hc-error-200 text-hc-error-700 dark:bg-hc-error-900 dark:border-hc-error-700 dark:text-hc-error-300";
-    } else if (type === "On Progress") {
-      return "bg-hc-warning-50 border-hc-warning-200 text-hc-warning-700 dark:bg-hc-warning-900 dark:border-hc-warning-700 dark:text-hc-warning-300";
-    } else if (type === "WhatsApp") {
-      return "text-utility-success-700-light dark:text-utility-success-700-dark bg-utility-success-50-light dark:bg-utility-success-50-dark border-utility-success-200-light dark:border-utility-success-200-dark";
-    } else if (type === "Web") {
-      return "text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950 border-sky-200 dark:border-sky-800";
-    }
-  };
 
   async function getActionItems() {
     actionItems = [
@@ -434,10 +403,7 @@
 
   async function goToEditPage(botId) {
     goto(
-      (await $call.getPage("client-dashboard", "bots-detail")) +
-        "?botId=" +
-        botId +
-        "&edit=true",
+      (await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + botId + "&edit=true",
     );
   }
 
@@ -584,7 +550,11 @@
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Typography preset="Display sm/Semibold" text={$_("bots")} propClass="fluid-xl" />
+        <Typography
+          preset="Display sm/Semibold"
+          text={$_("hexabotsDeployment")}
+          propClass="fluid-xl"
+        />
 
         <!-- Action Items -->
         <div class="flex flex-col gap-4">
@@ -595,10 +565,10 @@
         </div>
 
         <!-- Reports Monitoring -->
-        <div class="flex flex-col gap-4">
+        <!-- <div class="flex flex-col gap-4">
           <SectionHeader title={$_("reports")} />
           <ChartCard {chartAction} chartList={[dataChartCollections]} />
-        </div>
+        </div> -->
 
         <!-- Document Table Data -->
         <div>
@@ -608,16 +578,18 @@
             <Heading
               tag="h6"
               class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{$_("recentDeployedBots")}</Heading
             >
+              {$_("recentDeployedBots")}
+            </Heading>
             <Button
               on:click={async () => {
                 goto(await $call.getPage("client-dashboard", "bots-list"));
               }}
               color="light"
               class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
-              >{$_("viewAll")}</Button
             >
+              {$_("viewAll")}
+            </Button>
           </div>
 
           {#if gettingDatas}
@@ -628,9 +600,18 @@
           {:else if bots.length === 0}
             <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
           {:else}
-            <div class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}>
+            <div
+              class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}
+            >
               {#each bots as bot, index (bot.botsID)}
-                <BotCard {bot} {index} {dropdownOpen} config={{ startReading: true, detail: true, openWebchat: true }} {handleDropdownFocusLoss} {startReading} />
+                <BotCard
+                  {bot}
+                  {index}
+                  {dropdownOpen}
+                  config={{ startReading: true, detail: true, detailView: true, configure: true }}
+                  {handleDropdownFocusLoss}
+                  {startReading}
+                />
               {/each}
             </div>
           {/if}

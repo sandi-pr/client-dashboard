@@ -109,13 +109,13 @@
 <!-- Appbar for Drawer -->
 {#if innerWidth < 1024 && !$showAI}
   <div class="lg:hidden fixed top-0 w-full z-40 px-2 py-1 md:py-3 justify-between items-center flex">
-    {#if currentUrl.split('/').length > 2 && currentUrl !== "/"}
+    <!-- {#if currentUrl.startsWith('/client-dashboard/') && currentUrl.split('/').length > 3}
       <div class="p-2 rounded-lg justify-center items-center flex">
         <Button on:click={() => history.back()} color="light" class="p-2">
           <ArrowLeftIcon svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark" />
         </Button>
       </div>
-    {/if}
+    {/if} -->
     <div class="justify-between items-center gap-2 pl-2 flex">
       <div class="w-8 h-8 justify-center items-center flex">
         <img alt="logo" src={logoUrl !== "" ? logoUrl : LogoIcon} class="w-8 h-8" />

@@ -66,6 +66,9 @@ import UploadCloud02Icon from "../icon/upload-cloud-02.svelte";
 import OpenAiIcon from "../icon/open-ai.svelte";
 import ArrowUpRightIcon from "../icon/arrow-up-right.svelte";
 import Check2 from "../icon/check2.svelte";
+import Lightbulb04 from "../icon/lightbulb-04.svelte";
+import PenToolPlusIcon from "../icon/pen-tool-plus.svelte";
+import Code01Icon from "../icon/code-01.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -205,6 +208,12 @@ let getIcons = (presetIcon: String) => {
       return ArrowUpRightIcon;
     case "check2":
       return Check2;
+    case "lightbulb04":
+      return Lightbulb04;
+    case "penToolPlus":
+      return PenToolPlusIcon;
+    case "code01":
+      return Code01Icon;
     default:
       return "";
   }

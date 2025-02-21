@@ -77,8 +77,8 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-  ? new CR3Call("https://tank.hexacode.ai")
-  : new CR3Call(globalThis.location.origin);
+    ? new CR3Call("https://tank.hexacode.ai")
+    : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
 
@@ -1393,32 +1393,35 @@ All Rights Reserved
 
         console.log("succes get library & colection:", response);
 
-        if (response.result?.collection_id !== undefined && response.result?.library_id !== undefined) {
+        if (
+          response.result?.collection_id !== undefined &&
+          response.result?.library_id !== undefined
+        ) {
           let collectionId = response.result.collection_id;
           let libraryId = response.result.library_id;
 
           const response2 = await call.call("client-dashboard", "find-create-bot-llm", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_id: collectionId.toString(),
-            library_id: libraryId,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_id: collectionId.toString(),
+              library_id: libraryId,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
 
-        if (response2.status !== 200) {
-          console.log(response2);
-          return;
-        }
+          if (response2.status !== 200) {
+            console.log(response2);
+            return;
+          }
 
-        if (response2.result?.bot_id !== undefined) {
-          localStorage.setItem("botLlmId", response2.result.bot_id);
+          if (response2.result?.bot_id !== undefined) {
+            localStorage.setItem("botLlmId", response2.result.bot_id);
+          }
         }
-      }
-    } catch (error) {
+      } catch (error) {
         console.log("bot llm err:", error);
       }
     }
