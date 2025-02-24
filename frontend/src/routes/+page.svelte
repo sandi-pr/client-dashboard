@@ -178,12 +178,14 @@ All Rights Reserved
       title: "memories",
       description: "descMemories",
       page: "#",
+      comingSoon: true,
     },
     {
       icon: "videoRecorder",
       title: "vision",
       description: "descVision",
       page: "#",
+      comingSoon: true,
     },
   ];
 
@@ -975,6 +977,7 @@ All Rights Reserved
             title={$_(card.title)}
             description={$_(card.description)}
             onclick={() => navigateToPage(card.page)}
+            comingSoon={card?.comingSoon}
           />
         {/each}
       </div>
@@ -998,6 +1001,7 @@ All Rights Reserved
                 title={$_(card.title)}
                 description={$_(card.description)}
                 onclick={() => navigateToPage(card.page, card.param)}
+                comingSoon={card?.comingSoon}
               />
             {/if}
           {/each}
@@ -1016,6 +1020,7 @@ All Rights Reserved
             title={$_(card.title)}
             description={$_(card.description)}
             onclick={() => navigateToPage(card.page)}
+            comingSoon={card?.comingSoon}
           />
         {/each}
       </div>
@@ -1032,6 +1037,7 @@ All Rights Reserved
             title={$_(card.title)}
             description={$_(card.description)}
             onclick={() => navigateToPage(card.page)}
+            comingSoon={card?.comingSoon}
           />
         {/each}
       </div>
@@ -1048,6 +1054,7 @@ All Rights Reserved
             title={$_(card.title)}
             description={$_(card.description)}
             onclick={() => navigateToPage(card.page)}
+            comingSoon={card?.comingSoon}
           />
         {/each}
       </div>
@@ -1064,6 +1071,7 @@ All Rights Reserved
             title={$_(card.title)}
             description={$_(card.description)}
             onclick={() => navigateToPage(card.page)}
+            comingSoon={card?.comingSoon}
           />
         {/each}
       </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { getIcons, Typography, FeaturedIcon } from "$lib";
-  import { Card, Button } from "flowbite-svelte";
+  import { getIcons, Typography, FeaturedIcon, Badge } from "$lib";
+  import { Card } from "flowbite-svelte";
 
   let {
     type,
@@ -11,7 +11,8 @@
     title,
     description,
     subtext,
-    onclick
+    onclick,
+    comingSoon,
   }: {
     type?: string;
     href?: string;
@@ -22,11 +23,18 @@
     description: string;
     subtext?: string;
     onclick?: () => void;
+    comingSoon?: boolean;
   } = $props();
 </script>
 
 <button>
-  <Card {href} on:click={onclick} horizontal={true} class={`md:items-center !gap-1 md:!gap-3 w-full ${type === "ledger" ? "!p-6 border-secondary-light dark:border-secondary-dark" : "min-h-28 !p-4 border-brand-light dark:border-primary-dark gap-3"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark shadow-sm hover:no-underline`} size="none">
+  <Card
+    {href}
+    on:click={onclick}
+    horizontal={true}
+    class={`md:items-center !gap-1 md:!gap-3 w-full ${type === "ledger" ? "!p-6 border-secondary-light dark:border-secondary-dark" : "min-h-28 !p-4 border-brand-light dark:border-primary-dark gap-3"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark shadow-sm hover:no-underline`}
+    size="none"
+  >
     {#if icon}
       <FeaturedIcon classesSvg={getIcons(icon)} />
     {/if}
@@ -41,7 +49,15 @@
     {:else}
       <div class="gap-[2px]">
         <Typography preset="Text md/Semibold" text={title} color="primary" />
-        <Typography preset="Text sm/Regular" text={description} color="secondary" propClass="!leading-tight" />
+        <Typography
+          preset="Text sm/Regular"
+          text={description}
+          color="secondary"
+          propClass="!leading-tight !pb-2"
+        />
+        {#if comingSoon}
+          <Badge type="brand" text="Coming soon" />
+        {/if}
       </div>
     {/if}
   </Card>
