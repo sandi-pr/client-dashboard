@@ -962,5 +962,17 @@
   "addHandwriting": "Add Handwriting",
   "addCsv": "Add New CSV",
   "addSubCollection": "Add Sub Collection",
-  "noDataAvailable": "No data available"
+  "tryCodingAssistant": "Try our Coding Assistant",
+  "descTryCodingAssistant": "Get instant help with your coding projects.",
+  "descHandwriting": "Store a wide variety of documents here, customized for any use case and industry-specific needs—anything!",
+  "descVoice": "Store a wide variety of documents here, customized for any use case and industry-specific needs—anything!",
+  "descMemories": "Store a wide variety of documents here, customized for any use case and industry-specific needs—anything!",
+  "descVision": "Store a wide variety of documents here, customized for any use case and industry-specific needs—anything!",
+  "createYourOwnTutor": "Create your own tutor",
+  "descCreateYourOwnTutor": "Build Custom AI Tutors for Any Subject",
+  "tryOurTutor": "Try our Tutor",
+  "descTryOurTutor": "Get instant help with your learning projects.",
+  "analytic": "Analytic",
+  "hexaTutor": "HexaTutor",
+  "descDocsGenerator": "Generate Documents with AI Assistance"
 }

@@ -1,7 +1,7 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
   - Taqie Fadlillah <taqief@hexacode.org>
@@ -12,25 +12,13 @@ All Rights Reserved
 
 <script>
   import { CR3Call } from "hexacomponents-svelte";
-  import {
-    Card,
-    Typography,
-    SectionHeader,
-    triggerLoading,
-    ChartCard,
-    ActionCard,
-    industryData,
-    check,
-    isBakrie,
-  } from "$lib";
+  import { Card, Typography, SectionHeader, ChartCard, industryData, check, isBakrie } from "$lib";
   import { StateCard } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
-  import { Alert, CloseButton, P } from "flowbite-svelte";
+  import { Alert, CloseButton } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
-  import { onMount, tick } from "svelte";
-  import { writable } from "svelte/store";
-  import LoadingContainer from "../lib/components/LoadingContainer.svelte";
+  import { onMount } from "svelte";
   import { call, showAI, showNotif } from "$lib";
 
   let userData = $state({ username: "", email: "", brand: "" });
@@ -88,6 +76,15 @@ All Rights Reserved
     },
   ];
 
+  const cardsDocument = [
+    {
+      icon: "bookOpen",
+      title: "documents",
+      description: "descDocumentLibrary",
+      page: "document-collection-overview",
+    },
+  ];
+
   const cardsAi = [
     // {
     //   icon: "archive",
@@ -95,34 +92,40 @@ All Rights Reserved
     //   description: "descDocumentCollection",
     //   page: "document-collection-overview",
     // },
-    check("documentAi.documentLibrary:view")
-      ? $isBakrie
-        ? {
-            icon: "archive",
-            title: "documents",
-            description: "descDocumentLibrary",
-            page: "document-library-collections",
-            param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
-          }
-        : {
-            icon: "archive",
-            title: "documents",
-            description: "descDocuments",
-            page: "document-collection-overview",
-          }
-      : false,
+    {
+      icon: "messagePlusSquare",
+      title: "createBots",
+      description: "descCreateBots",
+      page: "bots",
+    },
+    {
+      icon: "codeSquare01",
+      title: "tryCodingAssistant",
+      description: "descTryCodingAssistant",
+      page: "coding-assistant",
+    },
+    // check("documentAi.documentLibrary:view")
+    //   ? $isBakrie
+    //     ? {
+    //         icon: "archive",
+    //         title: "documents",
+    //         description: "descDocumentLibrary",
+    //         page: "document-library-collections",
+    //         param: `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
+    //       }
+    //     : {
+    //         icon: "archive",
+    //         title: "documents",
+    //         description: "descDocuments",
+    //         page: "document-collection-overview",
+    //       }
+    //   : false,
     // {
     //   icon: "fileCheck",
     //   title: "contractReviewer",
     //   description: "descContractReviewer",
     //   page: "contract-reviewer-overview",
     // },
-    {
-      icon: "messageChat",
-      title: "createBots",
-      description: "descCreateBots",
-      page: "bots",
-    },
     {
       icon: "globe01",
       title: "tryModels",
@@ -156,6 +159,78 @@ All Rights Reserved
         }
       : false,
   ].filter(Boolean);
+
+  const cardsAnalyzer = [
+    {
+      icon: "penTool",
+      title: "handwriting",
+      description: "descHandwriting",
+      page: "handwriting",
+    },
+    {
+      icon: "recording02",
+      title: "voice",
+      description: "descVoice",
+      page: "#",
+    },
+    {
+      icon: "image01",
+      title: "memories",
+      description: "descMemories",
+      page: "#",
+    },
+    {
+      icon: "videoRecorder",
+      title: "vision",
+      description: "descVision",
+      page: "#",
+    },
+  ];
+
+  const cardsHexaTutor = [
+    {
+      icon: "graduationHat02",
+      title: "createYourOwnTutor",
+      description: "descCreateYourOwnTutor",
+      page: "#",
+    },
+    {
+      icon: "graduationHat01",
+      title: "tryOurTutor",
+      description: "descTryOurTutor",
+      page: "#",
+    },
+  ];
+
+  const cardsAnalytic = [
+    {
+      icon: "bookClosed",
+      title: "dataSources",
+      description: "descDataSources",
+      page: "data-sources",
+    },
+    {
+      icon: "lightbulb",
+      title: "insights",
+      description: "descInsights",
+      page: "csv-insight",
+    },
+  ];
+
+  const cardsSmartDocument = [
+    {
+      icon: "bookOpen",
+      title: "contractReviewer",
+      description: "descContractReviewer",
+      page: "contract-reviewer",
+    },
+    {
+      icon: "bookClosed",
+      title: "docsGenerator",
+      description: "descDocsGenerator",
+      page: "#",
+    },
+  ];
 
   let docAiCard = $state([]);
 
@@ -741,14 +816,14 @@ All Rights Reserved
     };
   }
 
-  function setFristTime() {
+  function setIsFirstTime() {
     isFirstTime = false;
     localStorage.setItem("isFirstTime", isFirstTime);
   }
 
   let isFirstTimeTimeoutId;
 
-  function getFristTime() {
+  function getIsFirstTime() {
     if (typeof localStorage !== "undefined") {
       isFirstTime = localStorage.getItem("isFirstTime") === "false" ? false : true;
       console.log("isFirstTime", isFirstTime);
@@ -824,14 +899,14 @@ All Rights Reserved
     // await getCompanyType();
     // getActionItems();
     // getCountPerModulePerMonth();
-    getFristTime();
+    getIsFirstTime();
     CheckSetup();
   });
 </script>
 
 <div class="flex flex-col gap-8 px-4 md:py-6">
   {#if isFirstTime}
-    <Alert dismissable on:close={setFristTime} class="relative flex justify-center">
+    <Alert dismissable on:close={setIsFirstTime} class="relative flex justify-center">
       <CloseButton
         slot="close-button"
         let:close
@@ -889,6 +964,23 @@ All Rights Reserved
       </div>
     </div>
   {/if} -->
+  <!-- Documents Section -->
+  {#if cardsDocument.length > 0}
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("documentLibrary")} />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {#each cardsDocument as card}
+          <Card
+            icon={card.icon}
+            title={$_(card.title)}
+            description={$_(card.description)}
+            onclick={() => navigateToPage(card.page)}
+          />
+        {/each}
+      </div>
+    </div>
+  {/if}
+  <!-- AI Section -->
   {#if cardsAi.length > 0}
     {#if check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")}
       <div class="flex flex-col gap-4">
@@ -897,7 +989,7 @@ All Rights Reserved
           <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
         {/if}
         <div
-          class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"} gap-4`}
+          class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2"} gap-4`}
         >
           {#each cardsAi as card}
             {#if !chartActionAi.find((item) => item.title === card.title)}
@@ -912,6 +1004,70 @@ All Rights Reserved
         </div>
       </div>
     {/if}
+  {/if}
+  <!-- Analyzer Section -->
+  {#if cardsAnalyzer.length > 0}
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("aiAnalyzer")} />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {#each cardsAnalyzer as card}
+          <Card
+            icon={card.icon}
+            title={$_(card.title)}
+            description={$_(card.description)}
+            onclick={() => navigateToPage(card.page)}
+          />
+        {/each}
+      </div>
+    </div>
+  {/if}
+  <!-- Hexa Tutor Section -->
+  {#if cardsHexaTutor.length > 0}
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("hexaTutor")} />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {#each cardsHexaTutor as card}
+          <Card
+            icon={card.icon}
+            title={$_(card.title)}
+            description={$_(card.description)}
+            onclick={() => navigateToPage(card.page)}
+          />
+        {/each}
+      </div>
+    </div>
+  {/if}
+  <!-- Analytic Section -->
+  {#if cardsAnalytic.length > 0}
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("analytic")} />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {#each cardsAnalytic as card}
+          <Card
+            icon={card.icon}
+            title={$_(card.title)}
+            description={$_(card.description)}
+            onclick={() => navigateToPage(card.page)}
+          />
+        {/each}
+      </div>
+    </div>
+  {/if}
+  <!-- Smart Document Section -->
+  {#if cardsSmartDocument.length > 0}
+    <div class="flex flex-col gap-4">
+      <SectionHeader title={$_("smartDocument")} />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {#each cardsSmartDocument as card}
+          <Card
+            icon={card.icon}
+            title={$_(card.title)}
+            description={$_(card.description)}
+            onclick={() => navigateToPage(card.page)}
+          />
+        {/each}
+      </div>
+    </div>
   {/if}
 </div>
 

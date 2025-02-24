@@ -962,5 +962,17 @@
   "addHandwriting": "Tambah Tulisan Tangan",
   "addCsv": "Tambah CSV baru",
   "addSubCollection": "Tambah Sub Koleksi",
-  "noDataAvailable": "Tidak ada data yang tersedia"
+  "tryCodingAssistant": "Coba asisten pemrograman",
+  "descTryCodingAssistant": "Dapatkan bantuan instant untuk kode Anda",
+  "descHandwriting" : "Store a wide variety of documents here, customized for any use case and industry-specific needs—anything!",
+  "descVoice": "Store a wide variety of documents here, customized for any use case and industry-specific needs—anything!",
+  "descMemories": "Store a wide variety of documents here, customized for any use case and industry-specific needs—anything!",
+  "descVision": "Store a wide variety of documents here, customized for any use case and industry-specific needs—anything!",
+  "createYourOwnTutor": "Buat Tutor Anda Sendiri",
+  "descCreateYourOwnTutor": "Dapatkan bantuan instan dengan proyek pembelajaran Anda",
+  "tryOurTutor": "Coba Tutor Kami",
+  "descTryOurTutor": "Dapatkan bantuan instan dengan proyek pembelajaran Anda",
+  "analytic": "Analitik",
+  "hexaTutor": "HexaTutor",
+  "descDocsGenerator": "Membuat dokumen dengan menggunakan AI"
 }

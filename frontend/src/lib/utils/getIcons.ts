@@ -69,6 +69,8 @@ import Check2 from "../icon/check2.svelte";
 import Lightbulb04 from "../icon/lightbulb-04.svelte";
 import PenToolPlusIcon from "../icon/pen-tool-plus.svelte";
 import Code01Icon from "../icon/code-01.svelte";
+import CodeSquare01Icon from "../icon/code-square-01.svelte";
+import Image01 from "../icon/image-01.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -214,6 +216,10 @@ let getIcons = (presetIcon: String) => {
       return PenToolPlusIcon;
     case "code01":
       return Code01Icon;
+    case "codeSquare01":
+      return CodeSquare01Icon;
+    case "image01":
+      return Image01;
     default:
       return "";
   }

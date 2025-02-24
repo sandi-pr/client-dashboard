@@ -77,8 +77,8 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-  ? new CR3Call("http://192.168.18.14")
-  : new CR3Call(globalThis.location.origin);
+    ? new CR3Call("https://tank.hexacode.ai")
+    : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
 
@@ -201,7 +201,9 @@ All Rights Reserved
           {
             icon: "messageHeartSquare",
             name: "hexassistant",
-            href: isFrontend ? "/hexassistant" : await call.getPage("client-dashboard", "hexassistant"),
+            href: isFrontend
+              ? "/hexassistant"
+              : await call.getPage("client-dashboard", "hexassistant"),
           },
           {
             icon: "messageSmileSquare",
@@ -211,7 +213,9 @@ All Rights Reserved
           {
             icon: "code01",
             name: "codingAssistant",
-            href: isFrontend ? "/coding_assistant" : await call.getPage("client-dashboard", "coding-assistant"),
+            href: isFrontend
+              ? "/coding_assistant"
+              : await call.getPage("client-dashboard", "coding-assistant"),
           },
         ],
       },
@@ -256,7 +260,9 @@ All Rights Reserved
           {
             icon: "bookClosed",
             name: "dataSources",
-            href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
+            href: isFrontend
+              ? "/data_sources"
+              : await call.getPage("client-dashboard", "data-sources"),
           },
           {
             icon: "lightbulb",
@@ -272,7 +278,9 @@ All Rights Reserved
           {
             icon: "penTool",
             name: "handwriting",
-            href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+            href: isFrontend
+              ? "/handwriting"
+              : await call.getPage("client-dashboard", "handwriting"),
           },
           // {
           //   icon: "image03",
