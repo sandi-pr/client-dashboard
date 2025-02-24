@@ -961,5 +961,6 @@
   "handwritingBotsList": "Handwriting Bots List",
   "addHandwriting": "Add Handwriting",
   "addCsv": "Add New CSV",
-  "addSubCollection": "Add Sub Collection"
+  "addSubCollection": "Add Sub Collection",
+  "noDataAvailable": "No data available"
 }

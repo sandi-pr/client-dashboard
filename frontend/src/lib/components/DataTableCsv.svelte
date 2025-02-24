@@ -40,6 +40,8 @@
   export let previous;
   export let functDeleteCategories;
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let dropdownActionOpen = [];
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
@@ -81,6 +83,7 @@
       <TableHeadCell>{$_("type")}</TableHeadCell>
       <TableHeadCell>{$_("fileSize")}</TableHeadCell>
       <TableHeadCell>{$_("uploadDetail")}</TableHeadCell>
+      <TableHeadCell></TableHeadCell>
       <TableHeadCell></TableHeadCell>
     </TableHead>
     <TableBody tableBodyClass="divide-y">
@@ -153,6 +156,20 @@
             </div>
           </TableBodyCell>
           <TableBodyCell>
+            <Button
+              disabled={!check("documentAi.documentLibrary.document:view")}
+              on:click={() => {
+                goto(isFrontend ? `/data_sources/collections/documents/detail?docName=${collectionListData.filename}` : collectionListData.href);
+              }}
+              color="white"
+              class="!p-2 focus-within:!ring-1 text-brand-tertiary-light dark:text-brand-tertiary-dark"
+              size="lg"
+            >
+              <EyeIcon svgClass="w-5 h-5" />
+              &nbsp;{$_("view")}
+            </Button>
+          </TableBodyCell>
+          <TableBodyCell>
             {#if check("documentAi.documentLibrary.document:delete")}
               <div class=" flex items-center relative">
                 <Button
@@ -185,49 +202,4 @@
     </TableBody>
   </Table>
   <Pagination {pagination} previousPage={previous} nextPage={next} />
-  <!-- <div class="flex justify-between !border-0">
-    {#if pagination.total > 0}
-      <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-        Showing
-        <span>{pagination.page === 1 ? 1 : (pagination.page - 1) * pagination.pageSize + 1}</span>
-        -
-        <span>{collectionListDatas.length}</span>
-        of
-        <span>{collectionListDatas.length}</span>
-      </div>
-
-      <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-        page
-        <span>{pagination.page}</span>
-        of
-        <span>{pagination.pageCount}</span>
-      </div>
-    {/if}
-  </div>
-  {#if pagination.pageCount > 1}
-    <div class="flex justify-end !border-0">
-      <Button
-        disabled={pagination.page === 1}
-        on:click={previous}
-        color="light"
-        class="fluid-sm gap-1 md:gap-2 rounded-l-lg rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
-      >
-        <ArrowLeftIcon
-          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
-        />
-        previous
-      </Button>
-      <Button
-        disabled={pagination.page === pagination.pageCount}
-        on:click={next}
-        color="light"
-        class="fluid-sm gap-1 md:gap-2 rounded-r-lg rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
-      >
-        next
-        <ArrowRightIcon
-          svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
-        />
-      </Button>
-    </div>
-  {/if} -->
 </div>
