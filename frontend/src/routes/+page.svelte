@@ -54,6 +54,7 @@ All Rights Reserved
   let dataChartAllAi = $state([]);
   let selectedIndustryType = $state(null);
   let hiddenContent = $state([]);
+  let cardsArrays = $state([]);
 
   const cardsBusiness = [
     {
@@ -906,25 +907,13 @@ All Rights Reserved
   };
 
   const cardsNotEmpty = (cardsArrays) => {
-    // const combinedCards = cardsArrays.flat().map((card) => {
-    //   return {
-    //     icon: card.icon,
-    //     title: card.title,
-    //     description: card.description,
-    //     page: card.page,
-    //     comingSoon: card?.comingSoon,
-    //   };
-    // });
-
-    // console.log("cards", combinedCards);
-    // return combinedCards;
+    // console.log("cardsArrays", cardsArrays);
     let counter = 0;
-    for (let i = 0; i < cardsArrays.length; i++) {
-      if (cardsArrays[i].length > 0) {
+    for (let cardArray of cardsArrays) {
+      if (cardArray.array.length > 0) {
         counter++;
       }
     }
-
     return counter;
   };
 
@@ -936,21 +925,23 @@ All Rights Reserved
     // await getCompanyType();
     // getActionItems();
     // getCountPerModulePerMonth();
-    let totalCardsSection = cardsNotEmpty([
-      cardsDocument,
-      cardsAi,
-      cardsAnalyzer,
-      cardsHexaTutor,
-      cardsAnalytic,
-      cardsSmartDocument,
-    ]);
+    cardsArrays = [
+      { name: "documentLibrary", array: cardsDocument },
+      { name: "aiManagements", array: cardsAi },
+      { name: "aiAnalyzer", array: cardsAnalyzer },
+      { name: "hexaTutor", array: cardsHexaTutor },
+      { name: "analytic", array: cardsAnalytic },
+      { name: "smartDocument", array: cardsSmartDocument },
+    ];
+
+    let totalCardsSection = cardsNotEmpty(cardsArrays);
     hiddenContent = Array.from({ length: totalCardsSection }, () => true);
     getIsFirstTime();
     CheckSetup();
   });
 </script>
 
-<div class="flex flex-col gap-8 px-4 md:py-6">
+<div class="flex flex-col gap-8 px-4 md:py-6 mb-20">
   {#if isFirstTime}
     <Alert dismissable on:close={setIsFirstTime} class="relative flex justify-center">
       <CloseButton
@@ -1010,207 +1001,61 @@ All Rights Reserved
       </div>
     </div>
   {/if} -->
-  <!-- Documents Section -->
-  {#if cardsDocument.length > 0}
-    <div class="flex flex-col gap-4">
-      <ButtonFlowbite
-        class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
-        color="none"
-        outline
-        on:click={() => (hiddenContent[0] = !hiddenContent[0])}
-      >
-        <Typography text={$_("documentLibrary")} preset="Text lg/Semibold" />
-        {#if hiddenContent[0]}
-          <Icon name="chevronUp" />
-        {:else}
-          <Icon name="chevronDown" />
-        {/if}
-      </ButtonFlowbite>
-      {#if hiddenContent[0]}
-        <Divider />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {#each cardsDocument as card}
-            <Card
-              icon={card.icon}
-              title={$_(card.title)}
-              description={$_(card.description)}
-              onclick={() => navigateToPage(card.page)}
-              comingSoon={card?.comingSoon}
-            />
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {/if}
-  <!-- AI Section -->
-  {#if cardsAi.length > 0}
-    {#if check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")}
+
+  {#each cardsArrays as cardArray, index}
+    {#if cardArray.array.length > 0}
       <div class="flex flex-col gap-4">
         <ButtonFlowbite
           class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
           color="none"
           outline
-          on:click={() => (hiddenContent[1] = !hiddenContent[1])}
+          on:click={() => (hiddenContent[index] = !hiddenContent[index])}
         >
-          <Typography text={$_("aiManagements")} preset="Text lg/Semibold" />
-          {#if hiddenContent[1]}
+          <Typography text={$_(cardArray.name)} preset="Text lg/Semibold" />
+          {#if hiddenContent[index]}
             <Icon name="chevronUp" />
           {:else}
             <Icon name="chevronDown" />
           {/if}
         </ButtonFlowbite>
-        {#if hiddenContent[1]}
+        {#if hiddenContent[index]}
           <Divider />
-          {#if chartActionAi.length > 0}
-            <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
-          {/if}
-          <div
-            class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2"} gap-4`}
-          >
-            {#each cardsAi as card}
-              {#if !chartActionAi.find((item) => item.title === card.title)}
+          {#if cardArray.name === "aiAnalyzer"}
+            {#if chartActionAi.length > 0}
+              <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
+            {/if}
+            <div
+              class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 md:grid-cols-2"} gap-4`}
+            >
+              {#each cardArray.array as card}
+                {#if !chartActionAi.find((item) => item.title === card.title)}
+                  <Card
+                    icon={card.icon}
+                    title={$_(card.title)}
+                    description={$_(card.description)}
+                    onclick={() => navigateToPage(card.page, card.param)}
+                    comingSoon={card?.comingSoon}
+                  />
+                {/if}
+              {/each}
+            </div>
+          {:else}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {#each cardArray.array as card}
                 <Card
                   icon={card.icon}
                   title={$_(card.title)}
                   description={$_(card.description)}
-                  onclick={() => navigateToPage(card.page, card.param)}
+                  onclick={() => navigateToPage(card.page)}
                   comingSoon={card?.comingSoon}
                 />
-              {/if}
-            {/each}
-          </div>
+              {/each}
+            </div>
+          {/if}
         {/if}
       </div>
     {/if}
-  {/if}
-  <!-- Analyzer Section -->
-  {#if cardsAnalyzer.length > 0}
-    <div class="flex flex-col gap-4">
-      <ButtonFlowbite
-        class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
-        color="none"
-        outline
-        on:click={() => (hiddenContent[2] = !hiddenContent[2])}
-      >
-        <Typography text={$_("aiAnalyzer")} preset="Text lg/Semibold" />
-        {#if hiddenContent[2]}
-          <Icon name="chevronUp" />
-        {:else}
-          <Icon name="chevronDown" />
-        {/if}
-      </ButtonFlowbite>
-      {#if hiddenContent[2]}
-        <Divider />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {#each cardsAnalyzer as card}
-            <Card
-              icon={card.icon}
-              title={$_(card.title)}
-              description={$_(card.description)}
-              onclick={() => navigateToPage(card.page)}
-              comingSoon={card?.comingSoon}
-            />
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {/if}
-  <!-- Hexa Tutor Section -->
-  {#if cardsHexaTutor.length > 0}
-    <div class="flex flex-col gap-4">
-      <ButtonFlowbite
-        class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
-        color="none"
-        outline
-        on:click={() => (hiddenContent[3] = !hiddenContent[3])}
-      >
-        <Typography text={$_("hexaTutor")} preset="Text lg/Semibold" />
-        {#if hiddenContent[3]}
-          <Icon name="chevronUp" />
-        {:else}
-          <Icon name="chevronDown" />
-        {/if}
-      </ButtonFlowbite>
-      {#if hiddenContent[3]}
-        <Divider />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {#each cardsHexaTutor as card}
-            <Card
-              icon={card.icon}
-              title={$_(card.title)}
-              description={$_(card.description)}
-              onclick={() => navigateToPage(card.page)}
-              comingSoon={card?.comingSoon}
-            />
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {/if}
-  <!-- Analytic Section -->
-  {#if cardsAnalytic.length > 0}
-    <div class="flex flex-col gap-4">
-      <ButtonFlowbite
-        class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
-        color="none"
-        outline
-        on:click={() => (hiddenContent[4] = !hiddenContent[4])}
-      >
-        <Typography text={$_("analytic")} preset="Text lg/Semibold" />
-        {#if hiddenContent[4]}
-          <Icon name="chevronUp" />
-        {:else}
-          <Icon name="chevronDown" />
-        {/if}
-      </ButtonFlowbite>
-      {#if hiddenContent[4]}
-        <Divider />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {#each cardsAnalytic as card}
-            <Card
-              icon={card.icon}
-              title={$_(card.title)}
-              description={$_(card.description)}
-              onclick={() => navigateToPage(card.page)}
-              comingSoon={card?.comingSoon}
-            />
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {/if}
-  <!-- Smart Document Section -->
-  {#if cardsSmartDocument.length > 0}
-    <div class="flex flex-col gap-4">
-      <ButtonFlowbite
-        class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
-        color="none"
-        outline
-        on:click={() => (hiddenContent[5] = !hiddenContent[5])}
-      >
-        <Typography text={$_("smartDocument")} preset="Text lg/Semibold" />
-        {#if hiddenContent[5]}
-          <Icon name="chevronUp" />
-        {:else}
-          <Icon name="chevronDown" />
-        {/if}
-      </ButtonFlowbite>
-      {#if hiddenContent[5]}
-        <Divider />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {#each cardsSmartDocument as card}
-            <Card
-              icon={card.icon}
-              title={$_(card.title)}
-              description={$_(card.description)}
-              onclick={() => navigateToPage(card.page)}
-              comingSoon={card?.comingSoon}
-            />
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {/if}
+  {/each}
 </div>
 
 <!-- <LoadingContainer /> -->
