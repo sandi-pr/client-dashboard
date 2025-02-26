@@ -1,7 +1,7 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
   - Taqie Fadlillah <taqief@hexacode.org>
@@ -26,7 +26,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
-  import { Button, Modal, Input, Alert, Select, Helper } from "flowbite-svelte";
+  import { Button, Modal, Input, Helper, Search } from "flowbite-svelte";
   import PlusIcon from "$lib/icon/plus.svg";
   import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
   import {
@@ -113,6 +113,8 @@ All Rights Reserved
   let statusRAG = $state("");
   let timer;
 
+  let searchTerm = $state("");
+
   async function createCollection() {
     let token = localStorage.getItem("token");
 
@@ -193,6 +195,7 @@ All Rights Reserved
         Params: {
           page: page,
           page_size: 20,
+          search: searchTerm,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -539,11 +542,12 @@ All Rights Reserved
 
           <!-- Bots List Data -->
           <div>
-            <!-- <Search
-            class="bg-white dark:bg-hc-graydark-950 mb-6 rounded-lg"
-            placeholder={$_("searchBotName")}
-            bind:value={searchTerm}
-          /> -->
+            <Search
+              class="bg-primary-light dark:bg-primary-dark mb-2 md:mb-8 rounded-lg"
+              placeholder={$_("searchLibraryName")}
+              bind:value={searchTerm}
+              on:input={getCollections}
+            />
             {#if datas.length > 0}
               {#if !gettingDatas}
                 <div

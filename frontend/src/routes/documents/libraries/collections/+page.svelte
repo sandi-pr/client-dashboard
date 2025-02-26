@@ -659,7 +659,9 @@
           </div>
         </div>
 
-        <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+        {#if collectionListDatas.length > 0}
+          <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+        {/if}
 
         {#if tabDatas.selected === "My Collections" && collectionListDatas.length > 0}
           <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
@@ -742,8 +744,20 @@
         {:else}
           <StateCard
             illustration={IllustrationEmpty}
-            description={$_("youDontHaveAnyDataYet")}
+            description={$_("youDontHaveAnyCollectionYet")}
           />
+          <Button
+            disabled={!check("documentAi.documentLibrary.collection:create")}
+            on:click={() => {
+              addCollectionModal = true;
+              nameIsAvailable = true;
+              tmpCollectionName = "";
+              tmpDescription = "";
+            }}
+            class="mt-4 self-center w-fit"
+          >
+            {$_("addCollection")}
+          </Button>
         {/if}
       </div>
     </div>

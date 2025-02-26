@@ -974,5 +974,7 @@
   "descTryOurTutor": "Get instant help with your learning projects.",
   "analytic": "Analytic",
   "hexaTutor": "HexaTutor",
-  "descDocsGenerator": "Generate Documents with AI Assistance"
+  "descDocsGenerator": "Generate Documents with AI Assistance",
+  "youDontHaveAnyCollectionYet": "You don't have any collection yet",
+  "searchLibraryName": "Search Library Name"
 }

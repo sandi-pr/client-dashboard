@@ -974,5 +974,7 @@
   "descTryOurTutor": "Dapatkan bantuan instan dengan proyek pembelajaran Anda",
   "analytic": "Analitik",
   "hexaTutor": "HexaTutor",
-  "descDocsGenerator": "Membuat dokumen dengan menggunakan AI"
+  "descDocsGenerator": "Membuat dokumen dengan menggunakan AI",
+  "youDontHaveAnyCollectionYet": "Anda belum memiliki koleksi",
+  "searchLibraryName": "Cari Nama Pustaka"
 }

@@ -63,6 +63,7 @@
   let dropdownMore = $state(false);
   let editCollectionModal = $state(false);
   let dropdownUpload = $state(false);
+  let dropdownUploadEmpty = $state(false);
   let fileNotSupport = $state(false);
   let buttonDisabled = $state(false);
   let gettingDatas = $state(false);
@@ -1370,6 +1371,7 @@
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
     dropdownOpen = false;
     dropdownUpload = false;
+    dropdownUploadEmpty = false;
     dropdownMore = false;
   };
 
@@ -1477,7 +1479,7 @@
                   // id
                 }}
                 disabled={!check("documentAi.documentLibrary.document:delete")}
-                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
+                class="p-2 md:px-3 md:py-2 gap-2 text-error-primary-light dark:text-error-primary-dark hover:text-error-primary-light dark:hover:text-error-primary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark"
                 outline
               >
                 <Trash01Icon svgClass="w-5 h-5" />
@@ -1499,7 +1501,8 @@
               </Button>
             {/if}
             <Button
-              color="light"
+              color="primary"
+              outline
               class="min-w-max gap-1.5"
               disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={() => (dropdownUpload = !dropdownUpload)}
@@ -1582,8 +1585,10 @@
                             tmpCollectionId = collectionId;
                             tmpCollectionName = collectionDatas.title;
                             deleteModal = true;
-                          }}>{$_("delete")}</button
+                          }}
                         >
+                          {$_("delete")}
+                        </button>
                       {/if}
                     </ul>
                   </div>
@@ -1660,6 +1665,57 @@
           />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          <div
+            class="relative w-full justify-center flex mb-40"
+            onfocusout={handleDropdownFocusLoss}
+          >
+            <Button
+              color="primary"
+              class="w-fit gap-1.5 mt-4"
+              disabled={!check("documentAi.documentLibrary.document:create")}
+              on:click={() => (dropdownUploadEmpty = !dropdownUploadEmpty)}
+            >
+              <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+              <div class="hidden md:block">{$_("addNew")}</div>
+            </Button>
+            <div
+              class={`z-50 ${dropdownUploadEmpty ? "absolute top-[190%] left-1/2 transform -translate-x-1/2 -translate-y-1/2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+            >
+              <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    addCollectionModal = true;
+                    tmpCollectionName = "";
+                    tmpDescription = "";
+                    attributeNotUnique = false;
+                    dropdownUploadEmpty = false;
+                    nameIsAvailable = true;
+                  }}
+                >
+                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addCollection")}
+                </button>
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  onclick={() => {
+                    addDocumentsModal = true;
+                    tags = [];
+                    files = [];
+                    tmpDocumentTitle = "";
+                    tmpDocumentDescription = "";
+                    attributeNotUnique = false;
+                    dropdownUploadEmpty = false;
+                    nameIsAvailable = true;
+                  }}
+                >
+                  <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addDocument")}
+                </button>
+              </ul>
+            </div>
+          </div>
         {/if}
       </div>
     </div>
