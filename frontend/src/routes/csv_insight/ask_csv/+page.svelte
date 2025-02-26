@@ -1,5 +1,5 @@
 <script>
-  import { Divider, Typography, StateCard, Icon } from "$lib";
+  import { Divider, Typography, StateCard, Icon, call, SelectedCard } from "$lib";
   import { _ } from "svelte-i18n";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
@@ -22,6 +22,8 @@
     Pagination,
   } from "flowbite-svelte";
   import { onMount } from "svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   const plugins = [gfmPlugin()];
 
@@ -121,6 +123,7 @@
       date: "2021-08-13",
     },
   ]);
+  let allDataCollection = $state([]);
   let currentArrayData = $state([]);
   let allDataMeta = $state({ page: 1, pageSize: 10, pageCount: 2, total: 13 });
   let allDataModal = $state([
@@ -149,8 +152,20 @@
   let gettingDatas = $state(false);
   let innerWidth = $state(0);
   let winInnerWidth = $derived(innerWidth);
+  let isSelectedLibrary = $state(false);
+  let collections = $state([]);
+  let initCollections = $state([]);
+  let selectedCollection = $state("");
+  let configsChecked = $state({});
+  let tmpSelectedCollection = $state("");
+  let oldSelectedCollection = $state("");
+  let search = $state(false);
+  let checkAll = $state(false);
+  let selectCsv = $state(true);
 
   let paginationModal = $state({ page: 1, pageSize: 3, pageCount: 0, total: 0 });
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
+  let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
 
   let dataConversationChatsDummy = $state([
     {
@@ -341,6 +356,308 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
     return text.replace(/_/g, " ");
   };
 
+  async function getCollections() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let pageNow = 1;
+      initCollections = [];
+      while (true) {
+        let response = await $call.call("client-dashboard", "get-librarys", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: pageNow,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          initCollections = initCollections.concat(response.result.data);
+          pageNow++;
+        } else {
+          break;
+        }
+      }
+
+      console.log("libraries", initCollections);
+
+      collections = initCollections.map((collection) => {
+        return {
+          value: collection.id,
+          id: collection.id,
+          name: collection.attributes.name,
+          description: collection.attributes.meta?.description,
+        };
+      });
+    }
+  }
+
+  async function getCollectionSub(id) {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      if (!search) {
+        gettingDatas = true;
+      }
+      let response = await $call.call("client-dashboard", "get-library-collections", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: pagination.page,
+          page_size: pagination.pageSize,
+          parent_id: id,
+          search: searchTerm,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        gettingDatas = false;
+        return;
+      }
+
+      console.log("collections", response);
+
+      if (response.result.data.length > 0) {
+        pagination = response.result.meta.pagination;
+        configsChecked = {
+          search: true,
+          searchHandler: handleSearch,
+          pagination: response.result.meta.pagination,
+          space: "p-4",
+          actionInLeft: true,
+          actions: [
+            {
+              id: "deselect_all",
+              name: "Deselect All",
+              onclick: () => {
+                handleCheckAllCollection(false);
+              },
+            },
+            {
+              id: "select_all",
+              name: "Select All",
+              type: "brand-inverse",
+              onclick: () => {
+                handleCheckAllCollection(true);
+              },
+            },
+          ],
+        };
+        let promises = response.result.data.map(async (document) => {
+          const sub_collections = await getSubCollections(document.id);
+          return {
+            id: document.id,
+            collection_name: document.attributes.name,
+            sub_collections,
+          };
+        });
+        allDataCollection = await Promise.all(promises);
+        console.log("all data", allDataCollection);
+        datasChecked = allDataCollection.map((data) => {
+          return {
+            id: data.id,
+            checked: false,
+            sub_collection: data.sub_collections.map((sub) => ({
+              id: sub.id,
+              checked: false,
+            })),
+          };
+        });
+
+        if (checkAll) {
+          datasChecked = allDataCollection.map((data) => {
+            return {
+              id: data.id,
+              checked: true,
+              sub_collection: data.sub_collections.map((sub) => ({
+                id: sub.id,
+                checked: true,
+              })),
+            };
+          });
+        } else {
+          if (tmpDatasChecked[pagination.page] === undefined) {
+            if (selectedCollection === tmpSelectedCollection) {
+              tmpSelectedCollection = null;
+              datasChecked = datasChecked.map((data) => {
+                if (collectionsChecked.includes(data.id)) {
+                  data.checked = true;
+                }
+
+                // Perbarui status checked untuk setiap sub_collection
+                data.sub_collection = data.sub_collection.map((sub) => {
+                  if (collectionsChecked.includes(sub.id)) {
+                    sub.checked = true;
+                  }
+                  return sub;
+                });
+
+                return data;
+              });
+            } else {
+              datasChecked = allDataCollection.map((data) => {
+                return { id: data.id, checked: false };
+              });
+            }
+          } else {
+            datasChecked = tmpDatasChecked[pagination.page];
+          }
+        }
+      } else {
+        pagination = response.result.meta.pagination;
+        allDataCollection = [];
+        datasChecked = [];
+        configsChecked = {
+          search: true,
+          searchHandler: handleSearch,
+          pagination: response.result.meta.pagination,
+          space: "p-4",
+          actionInLeft: true,
+          actions: [
+            {
+              id: "deselect_all",
+              name: "Deselect All",
+              onclick: () => {
+                handleCheckAllCollection(false);
+              },
+            },
+            {
+              id: "select_all",
+              name: "Select All",
+              type: "brand-inverse",
+              onclick: () => {
+                handleCheckAllCollection(true);
+              },
+            },
+          ],
+          // actions: [
+          //   {
+          //     id: "delete",
+          //     name: "Delete",
+          //     icon: "trash",
+          //     type: "error",
+          //     disabled: datasChecked.find((data) => data.checked) ? false : true,
+          //     onclick: () => {
+          //       if (datasChecked.find((data) => data.checked)) {
+          //         popupModal = true;
+          //       }
+          //     },
+          //   },
+          //   {
+          //     id: "add_new",
+          //     name: "Add New",
+          //     icon: "plus",
+          //     type: "brand-inverse",
+          //     onclick: () => {
+          //       selectTypeCollection("Documents");
+          //       addDocumentsModal = true;
+          //       addOtherCategory = false;
+          //     },
+          //   },
+          // ],
+        };
+      }
+
+      gettingDatas = false;
+      search = false;
+    }
+  }
+
+  async function getSubCollections(id) {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      gettingDatas = true;
+      const aggregatedData = [];
+
+      paginationCollection.page = 1;
+
+      do {
+        let response = await $call.call("client-dashboard", "get-library-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: paginationCollection.page,
+            page_size: paginationCollection.pageSize,
+            parent_id: parseInt(id),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          gettingDatas = false;
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          return;
+        }
+
+        aggregatedData.push(...response.result.data);
+
+        paginationCollection = response.result.meta.pagination;
+
+        paginationCollection.page++;
+      } while (paginationCollection.page <= paginationCollection.pageCount);
+
+      const promise = aggregatedData.map(async (collection) => ({
+        id: collection.id,
+        collection_name: collection.attributes.name,
+      }));
+
+      const subCollectionList = await Promise.all(promise);
+      console.log("subCollectionList", subCollectionList);
+      gettingDatas = false;
+      return subCollectionList;
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      gettingDatas = false;
+      return;
+    }
+  }
+
+  const handleSearch = async (value) => {
+    search = true;
+    pagination.page = 1;
+    searchTerm = value;
+
+    await getCollectionSub(selectedCollection);
+  };
+
+  $effect(() => {
+    if (selectedCollection) {
+      if (typeof selectedCollection === "number" && selectedCollection !== oldSelectedCollection) {
+        oldSelectedCollection = selectedCollection;
+        tmpDatasChecked = [];
+        getCollectionSub(selectedCollection);
+      }
+    }
+  });
+
   onMount(() => {
     if (allDataMeta) {
       currentArrayData = allData.slice(
@@ -356,6 +673,7 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
     };
     globalThis.addEventListener("resize", resizeHandler);
     resizeHandler(); // call once initially to set the correct value
+    getCollections();
     return () => {
       globalThis.removeEventListener("resize", resizeHandler);
     };
@@ -502,7 +820,7 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
   </div>
 </div>
 
-<Modal bind:open={modalOpen} outsideclose>
+<!-- <Modal bind:open={modalOpen} outsideclose>
   <svelte:fragment slot="header">
     <div class={`grow pt-2`}>
       <Typography preset="Text md/Bold" text={$_("changeDataSource")} color="primary" />
@@ -549,5 +867,100 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
         disabled={areAllUnchecked()}>{$_("finish")}</Button
       >
     </div>
+  </svelte:fragment>
+</Modal> -->
+
+<Modal bind:open={modalOpen} outsideclose>
+  <svelte:fragment slot="header">
+    <div class="flex gap-4 me-6 grow w-full">
+      <div
+        class="grow pt-2 border-t-4 border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark"
+      >
+        <Typography
+          preset="Text md/Bold"
+          text={$_("chooseDocumentsLibrary")}
+          color={!isSelectedLibrary ? "brand-secondary" : "secondary"}
+        />
+        <Typography
+          preset="Text sm/Regular"
+          text={$_("documentLibraryAsThePrimarySource")}
+          color={!isSelectedLibrary ? "brand-tertiary" : "tertiary"}
+        />
+      </div>
+
+      <div
+        class={`grow pt-2 border-t-4 ${isSelectedLibrary ? "border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark" : "border-utility-gray-200-light dark:border-utility-gray-200-dark"}`}
+      >
+        <Typography
+          preset="Text md/Bold"
+          text={$_("chooseWhichCollections")}
+          color={isSelectedLibrary ? "brand-secondary" : "secondary"}
+        />
+        <Typography
+          preset="Text sm/Regular"
+          text={$_("chooseTheOneYouWantToInclude")}
+          color={isSelectedLibrary ? "brand-tertiary" : "tertiary"}
+        />
+      </div>
+    </div>
+  </svelte:fragment>
+  {#if !isSelectedLibrary}
+    <div class="flex flex-col justify-center gap-4">
+      <Typography preset="Text sm/Medium" text={$_("latestDocumentLibrary")} color="quaterary" />
+
+      <SelectedCard
+        selectionData={collections}
+        bind:selectedData={selectedCollection}
+        numGrid={2}
+        isRadio
+      />
+    </div>
+  {:else if allDataCollection.length > 0 || searchTerm !== ""}
+    {#if !gettingDatas}
+      <DataTableListCollection
+        bind:datas={allDataCollection}
+        bind:datasChecked
+        bind:configs={configsChecked}
+        bind:gettingDatas
+        bind:next
+        bind:previous
+        bind:handleCheckAll
+        bind:handleCheck
+        {selectCsv}
+      />
+    {:else}
+      <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+    {/if}
+  {:else if gettingDatas}
+    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+  {:else}
+    <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+  {/if}
+  <svelte:fragment slot="footer">
+    {#if !isSelectedLibrary}
+      <Button
+        on:click={() => {
+          isSelectedLibrary = true;
+        }}
+        class="w-full"
+        disabled={!selectedCollection}>{$_("next")}</Button
+      >
+    {:else}
+      <div class="flex gap-4 w-full">
+        <button
+          onclick={() => {
+            isSelectedLibrary = false;
+          }}
+          class="px-5">{$_("goBack")}</button
+        >
+        <Button
+          on:click={() => {
+            modalOpen = false;
+          }}
+          class="grow"
+          disabled={areAllUnchecked()}>{$_("finish")}</Button
+        >
+      </div>
+    {/if}
   </svelte:fragment>
 </Modal>

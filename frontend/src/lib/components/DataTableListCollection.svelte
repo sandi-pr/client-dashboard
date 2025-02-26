@@ -25,6 +25,7 @@
     TableHead,
     TableHeadCell,
     Checkbox,
+    Radio,
   } from "flowbite-svelte";
   import Dropdown from "$lib/ui/buttons/Dropdown.svelte";
   import * as Icon from "flowbite-svelte-icons";
@@ -67,6 +68,7 @@
   export let editCategories;
   export let tmpCategoriesName;
   export let statusRag;
+  export let selectCsv = false;
 
   let dropdownToggle = true;
   let isEdit = false;
@@ -245,9 +247,9 @@
           />
         </button>
       {:else}
-        <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
-          >{configs?.isCategories ? configs?.headers : $_(toCamelCase(configs.headers))}</Heading
-        >
+        <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50">
+          {configs?.isCategories ? configs?.headers : $_(toCamelCase(configs.headers))}
+        </Heading>
       {/if}
     {/if}
     <div
@@ -276,10 +278,9 @@
                 class="focus-within:ring-0 !p-0"
                 color="none"
                 size="xs"
-                ><DotsVerticalIcon
-                  class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                /></Button
               >
+                <DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" />
+              </Button>
               <div
                 class={`z-10 ${dropdownActionOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
               >
@@ -293,8 +294,10 @@
                     onclick={() => {
                       functDeleteCategories(configs?.headers),
                         (dropdownActionOpen = !dropdownActionOpen);
-                    }}>{$_("delete")}</button
+                    }}
                   >
+                    {$_("delete")}
+                  </button>
                 </ul>
               </div>
             </div>
@@ -379,20 +382,22 @@
         <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
           {#if datasChecked && datasChecked.length > 0}
             <TableHeadCell class="!p-4">
-              <Checkbox
-                class="!me-0"
-                checked={allChecked}
-                onclick={() => {
-                  if (configs?.isCategories) {
-                    handleCheckAll(configs?.headers, allChecked);
-                  } else if (configs?.collectionId) {
-                    handleCheckAll(configs?.collectionId, allChecked);
-                  } else {
-                    handleCheckAll(allChecked);
-                    allChecked = !allChecked;
-                  }
-                }}
-              />
+              {#if !selectCsv}
+                <Checkbox
+                  class="!me-0"
+                  checked={allChecked}
+                  onclick={() => {
+                    if (configs?.isCategories) {
+                      handleCheckAll(configs?.headers, allChecked);
+                    } else if (configs?.collectionId) {
+                      handleCheckAll(configs?.collectionId, allChecked);
+                    } else {
+                      handleCheckAll(allChecked);
+                      allChecked = !allChecked;
+                    }
+                  }}
+                />
+              {/if}
               <!-- <input
                 type="checkbox"
                 id="checkAll"
@@ -426,27 +431,28 @@
           {#each datas as data, index (data.id)}
             <TableBodyRow
               class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
-                        
             >
               {#if datasChecked}
                 <TableBodyCell class="!px-4 w-10">
-                  <Checkbox
-                    class="!me-0"
-                    checked={getCheckedStatus(data.id)}
-                    indeterminate={getIndeterminateStatus(data.id)}
-                    onclick={() => {
-                      if (configs?.isCategories) {
-                        handleCheck(configs?.headers, data.id);
-                      } else if (configs?.collectionId) {
-                        handleCheck(configs?.collectionId, allChecked);
-                      } else {
-                        handleCheck(data.id);
-                        if (data.sub_collections.length > 0 && openRow !== data.id) {
-                          toggleRow(data.id);
+                  {#if !selectCsv}
+                    <Checkbox
+                      class="!me-0"
+                      checked={getCheckedStatus(data.id)}
+                      indeterminate={getIndeterminateStatus(data.id)}
+                      onclick={() => {
+                        if (configs?.isCategories) {
+                          handleCheck(configs?.headers, data.id);
+                        } else if (configs?.collectionId) {
+                          handleCheck(configs?.collectionId, allChecked);
+                        } else {
+                          handleCheck(data.id);
+                          if (data.sub_collections.length > 0 && openRow !== data.id) {
+                            toggleRow(data.id);
+                          }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  {/if}
                   <!-- <input
                     type="checkbox"
                     id={data.id}
@@ -489,9 +495,13 @@
                           {data[key]}
                           {#if data.sub_collections.length > 0}
                             {#if openRow === data.id}
-                              <ChevronUpIcon svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400" />
+                              <ChevronUpIcon
+                                svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400"
+                              />
                             {:else}
-                              <ChevronDownIcon svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400" />
+                              <ChevronDownIcon
+                                svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400"
+                              />
                             {/if}
                           {/if}
                         </button>
@@ -577,11 +587,15 @@
               {#each data.sub_collections as sub}
                 <TableBodyRow>
                   <TableBodyCell class="!px-4 w-10">
-                    <Checkbox
-                      class="!me-0"
-                      checked={getCheckedStatus(data.id, sub.id)}
-                      onclick={() => handleCheck(sub.id, true, data.id)}
-                    />
+                    {#if !selectCsv}
+                      <Checkbox
+                        class="!me-0"
+                        checked={getCheckedStatus(data.id, sub.id)}
+                        onclick={() => handleCheck(sub.id, true, data.id)}
+                      />
+                    {:else}
+                      <Radio value={"test"} group={"hello2"}></Radio>
+                    {/if}
                     <!-- <input
                       type="checkbox"
                       id={sub.id}
@@ -591,7 +605,9 @@
                       class="rounded h-5 w-5 dark:bg-primary-dark text-white focus:outline-none checked:bg-hc-brand-500 checked:dark:bg-hc-brand-500 focus:ring-2 focus:ring-hc-brand-500"
                     /> -->
                   </TableBodyCell>
-                  <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400 bg-secondary-light dark:bg-secondary-dark">
+                  <TableBodyCell
+                    class="text-hc-graylight-600 dark:text-hc-graydark-400 bg-secondary-light dark:bg-secondary-dark"
+                  >
                     {sub.collection_name}
                   </TableBodyCell>
                 </TableBodyRow>
@@ -604,8 +620,8 @@
         <div class="flex justify-between !border-t-0 !rounded-t-none rounded-b-lg">
           <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
             {$_("showing")}
-            <span
-              >{configs.pagination.page === 1
+            <span>
+              {configs.pagination.page === 1
                 ? configs.pagination.total === 0
                   ? 0
                   : 1
@@ -613,8 +629,8 @@
             >
             -
             <!-- {$_("to")} -->
-            <span
-              >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
+            <span>
+              {configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
                 ? configs.pagination.total
                 : configs.pagination.page * configs.pagination.pageSize}</span
             >
