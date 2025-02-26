@@ -93,6 +93,14 @@
     // console.log("openRow", openRow);
   };
 
+  let openRowSub = null;
+
+  const toggleRowSub = (id) => {
+    openRowSub = openRowSub === id ? null : id;
+
+    // console.log("openRowSub", openRowSub);
+  };
+
   let pages;
   if (configs?.pagination && Object.keys(configs.pagination).length > 0) {
     pages = pagesBuilder(configs.pagination);
@@ -586,15 +594,17 @@
             {#if openRow === data.id && data.sub_collections?.length > 0}
               {#each data.sub_collections as sub}
                 <TableBodyRow>
-                  <TableBodyCell class="!px-4 w-10">
+                  <TableBodyCell
+                    class="!px-4 w-10 {!selectCsv
+                      ? ''
+                      : 'text-hc-graylight-600 dark:text-hc-graydark-400 bg-secondary-light dark:bg-secondary-dark'}"
+                  >
                     {#if !selectCsv}
                       <Checkbox
                         class="!me-0"
                         checked={getCheckedStatus(data.id, sub.id)}
                         onclick={() => handleCheck(sub.id, true, data.id)}
                       />
-                    {:else}
-                      <Radio value={"test"} group={"hello2"}></Radio>
                     {/if}
                     <!-- <input
                       type="checkbox"
@@ -608,7 +618,43 @@
                   <TableBodyCell
                     class="text-hc-graylight-600 dark:text-hc-graydark-400 bg-secondary-light dark:bg-secondary-dark"
                   >
-                    {sub.collection_name}
+                    {#if !selectCsv}
+                      {sub.collection_name}
+                    {:else}
+                      <button
+                        onclick={() => {
+                          if (data.sub_collections.length > 0) {
+                            toggleRowSub(data.id);
+                          }
+                        }}
+                        class="flex justify-between w-full"
+                      >
+                        {sub.collection_name}
+                        {#if openRowSub === data.id}
+                          <ChevronUpIcon
+                            svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400"
+                          />
+                        {:else}
+                          <ChevronDownIcon
+                            svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400"
+                          />
+                        {/if}
+                      </button>
+                    {/if}
+                  </TableBodyCell>
+                </TableBodyRow>
+                <TableBodyRow class={openRowSub === data.id ? "" : "hidden"}>
+                  <TableBodyCell
+                    class="!px-4 w-10 {!selectCsv
+                      ? ''
+                      : 'text-hc-graylight-600 dark:text-hc-graydark-400 bg-secondary-light dark:bg-secondary-dark'}"
+                  >
+                    <Radio value={"test"} group={"hello2"}></Radio></TableBodyCell
+                  >
+                  <TableBodyCell
+                    class="text-hc-graylight-600 dark:text-hc-graydark-400 bg-secondary-light dark:bg-secondary-dark"
+                  >
+                    Blyat
                   </TableBodyCell>
                 </TableBodyRow>
               {/each}

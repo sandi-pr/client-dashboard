@@ -820,56 +820,6 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
   </div>
 </div>
 
-<!-- <Modal bind:open={modalOpen} outsideclose>
-  <svelte:fragment slot="header">
-    <div class={`grow pt-2`}>
-      <Typography preset="Text md/Bold" text={$_("changeDataSource")} color="primary" />
-      <Typography
-        preset="Text sm/Regular"
-        text={$_("changeYourDataSourcesFiles")}
-        color="tertiary"
-      />
-    </div>
-  </svelte:fragment>
-  {#if allDataModal.length > 0 || searchTerm !== ""}
-    {#if !gettingDatas}
-      <DataTableListCollection
-        bind:datas={allDataModal}
-        bind:datasChecked
-        bind:configs
-        bind:gettingDatas
-        bind:next
-        bind:previous
-        bind:handleCheckAll
-        bind:handleCheck
-      />
-    {:else}
-      <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
-    {/if}
-  {:else if gettingDatas}
-    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
-  {:else}
-    <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-  {/if}
-  <svelte:fragment slot="footer">
-    <div class="flex gap-4 w-full">
-      <button
-        onclick={() => {
-          modalOpen = false;
-        }}
-        class="px-5">{$_("cancel")}</button
-      >
-      <Button
-        on:click={() => {
-          // TODO: send data to the API
-        }}
-        class="grow"
-        disabled={areAllUnchecked()}>{$_("finish")}</Button
-      >
-    </div>
-  </svelte:fragment>
-</Modal> -->
-
 <Modal bind:open={modalOpen} outsideclose>
   <svelte:fragment slot="header">
     <div class="flex gap-4 me-6 grow w-full">
