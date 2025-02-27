@@ -360,6 +360,41 @@
             "file_path": "template/data_sources.html"
         },
         {
+            "name": "data-sources-collections",
+            "path": "/data_sources/collections",
+            "file_path": "template/data_sources/collections.html"
+        },
+        {
+            "name": "data-sources-documents", 
+            "path": "/data_sources/collections/documents", 
+            "file_path": "template/data_sources/collections/documents.html"
+        },
+        {
+            "name": "data-sources-detail",
+            "path": "/data_sources/collections/documents/detail",
+            "file_path": "template/data_sources/collections/documents/detail.html"
+        },
+        {
+            "name": "data-sources-sub-documents",
+            "path": "/data_sources/collections/documents/sub_documents",
+            "file_path": "template/data_sources/collections/documents/sub_documents.html"
+        },
+        {
+            "name": "data-sources-sub-documents-detail",
+            "path": "/data_sources/collections/documents/sub_documents/detail",
+            "file_path": "template/data_sources/collections/documents/sub_documents/detail.html"
+        },
+        {
+            "name": "csv-insight",
+            "path": "csv_insight",
+            "file_path": "template/csv_insight.html"
+        },
+        {
+            "name": "csv-insight-ask-csv",
+            "path": "csv_insight/ask_csv",
+            "file_path": "template/csv_insight/ask_csv.html"
+        },
+        {
             "name": "sources",
             "path": "/data_sources/sources",
             "file_path": "template/data_sources/sources.html"
@@ -4773,6 +4808,10 @@
                 {
                     "name": "system_item",
                     "type": "boolean"
+                },
+                {
+                    "name": "module_type",
+                    "type": "string"
                 }
             ]
         },
@@ -4797,6 +4836,10 @@
                 },
                 {
                     "name": "search",
+                    "type": "string"
+                },
+                {
+                    "name": "module_type",
                     "type": "string"
                 }
             ]
@@ -4879,6 +4922,10 @@
                 },
                 {
                     "name": "search",
+                    "type": "string"
+                },
+                {
+                    "name": "module_type",
                     "type": "string"
                 }
             ]
@@ -6625,6 +6672,9 @@
                     },
                     "system_item": {
                         "type": "boolean"
+                    },
+                    "module_type": {
+                        "type": "string"
                     }
                 }
             },

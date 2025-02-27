@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, Alert, Select, P, Helper } from "flowbite-svelte";
+  import { Button, Modal, Input, P, Helper } from "flowbite-svelte";
 
   import { call } from "$lib";
   import {
@@ -10,48 +10,39 @@
     triggerToast,
     InputRw,
     TextareaRw,
-    LibraryCard,
     check,
-    bakrieLibraryId,
-    isBakrie,
+    datasourceLibraryId,
   } from "$lib";
   import DataSourcesCard from "$lib/ui/cards/DataSourcesCard.svelte";
   import TabBar from "$lib/components/TabBar.svelte";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
 
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
-  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
-  import Stars03Icon from "$lib/icon/stars-03.svelte";
-  import Folder from "$lib/icon/folder.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
 
   let addCollectionModal = $state(false);
+  let attributeNotUnique = $state(false);
   let editModal = $state(false);
-  let editLibraryModal = $state(false);
   let deleteModal = $state(false);
-  let deleteLibraryModal = $state(false);
   let tmpCollectionName = $state("");
   let tmpOldName = $state("");
   let tmpDescription = $state("");
-  let tmpLibraryName = $state("");
-  let tmpDescLibrary = $state("");
   let tmpCollectionId = $state("");
   let libraryId = $state("");
   let dropdownOpen = $state(false);
   let nameIsAvailable = $state(true);
   let gettingDatas = $state(false);
-  let latestDataSources = $state([]);
 
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
 
   let collectionDatas = $state({
-    title: "Data Sources List",
+    title: "",
     description: "",
     createdAt: "",
   });
@@ -98,6 +89,8 @@
         description: response.result.attributes?.meta?.description || "",
         createdAt: format(new Date(response.result.attributes.createdAt), "dd-MM-yyyy"),
       };
+
+      console.log("collectionDatas", collectionDatas);
     }
   }
 
@@ -147,28 +140,24 @@
         // type: "",
         // status: "reading",
 
-        let link = await $call.getPage("client-dashboard", "document-library-documents");
+        let link = await $call.getPage("client-dashboard", "data-sources-documents");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
 
           params.delete("collectionId");
 
-          const queryParams = {};
-          for (const [key, value] of params.entries()) {
-            queryParams[key] = value;
-          }
-          const queryString = new URLSearchParams(queryParams).toString();
           return {
             id: collection.id,
             collectionName: collection.attributes.name,
             description: collection.attributes?.meta?.description || "",
             type: collection.attributes.type,
-            href: link + "?collectionId=" + collection.id + "&" + queryString,
+            href: link + "?collectionId=" + collection.id + "&" + `libraryId=${$datasourceLibraryId}`,
           };
         });
 
         collectionListDatas = await Promise.all(promise);
+        console.log("collectionListDatas", collectionListDatas);
         gettingDatas = false;
       } catch (error) {
         console.error("Error during collection get:", error);
@@ -185,155 +174,45 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      try {
-        let dataSend = {};
-        if ($isBakrie) {
-          dataSend = {
-            collection_name: tmpCollectionName,
-            description: tmpDescription,
-            parent_id: parseInt(libraryId),
-            // bakrie
-            bot_id: localStorage.getItem("botIdStrapi").toString(),
-          };
+      let response = await $call.call("client-dashboard", "create-library-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_name: tmpCollectionName,
+          description: tmpDescription,
+          parent_id: parseInt(libraryId),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
         } else {
-          dataSend = {
-            collection_name: tmpCollectionName,
-            description: tmpDescription,
-            parent_id: parseInt(libraryId),
-          };
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
         }
-
-        let response = await $call.call("client-dashboard", "create-library-collection", {
-          URLQuery: {},
-          URLParams: {},
-          Params: dataSend,
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          console.log(response);
-          if (response.status === 400) {
-            console.error("Invalid parameters:", response);
-            triggerToast($_("invalidParameters"), true, "error");
-          } else if (response.status === 401) {
-            console.error("Unauthorized access:", response);
-            triggerToast($_("unauthorized"), true, "error");
-          } else if (response.status === 500) {
-            console.error("Server error:", response);
-            triggerToast($_("serverError"), true, "error");
-          } else {
-            console.error("Unexpected status code:", response);
-            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-          }
-          return;
-        }
-
-        // console.log(response);
-
-        tmpCollectionName = "";
-        tmpDescription = "";
-        addCollectionModal = false;
-
-        triggerToast($_("successCreateCollection"), true);
-        getCollections();
-        // goto(await $call.getPage("client-dashboard", "document-library"));
-      } catch (error) {
-        console.error("Error during collection creation:", error);
-        triggerToast($_("failedCreateCollection"), true, "error");
+        return;
       }
-    } else {
-      triggerToast($_("unauthorized"), true, "error");
-      return;
-    }
-  }
 
-  function createDataSources() {
-    latestDataSources = [
-      ...latestDataSources,
-      {
-        collectionId: latestDataSources.length + 1,
-        collectionName: tmpCollectionName,
-      },
-    ];
+      tmpCollectionName = "";
+      tmpDescription = "";
+      attributeNotUnique = false;
 
-    localStorage.setItem("latestDataSources", JSON.stringify(latestDataSources));
+      triggerToast($_("successCreateCollection"), true);
 
-    tmpCollectionName = "";
-    addCollectionModal = false;
-  }
-
-  let editIndex = $state(0);
-
-  function editDataSourcesName() {
-    latestDataSources[editIndex].collectionName = tmpCollectionName;
-    localStorage.setItem("latestDataSources", JSON.stringify(latestDataSources));
-    editModal = false;
-
-    triggerToast($_("succesfullyUpdated"), true);
-  }
-
-  function deleteDataSources(id) {
-    latestDataSources = latestDataSources.filter(
-      (item) => item.collectionId !== id,
-    );
-    localStorage.setItem("latestDataSources", JSON.stringify(latestDataSources));
-    deleteModal = false;
-
-    triggerToast($_("succesfullyDeleted"), true);
-  }
-
-  async function editLibraryName() {
-    let token = localStorage.getItem("token");
-
-    if (token !== null) {
-      try {
-        let response = await $call.call("client-dashboard", "update-library", {
-          URLQuery: {},
-          URLParams: {
-            id: libraryId.toString(),
-          },
-          Params: {
-            library_name: tmpLibraryName,
-            description: tmpDescLibrary,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          console.log(response);
-          if (response.status === 400) {
-            console.error("Invalid parameters:", response);
-            triggerToast($_("invalidParameters"), true, "error");
-          } else if (response.status === 401) {
-            console.error("Unauthorized access:", response);
-            triggerToast($_("unauthorized"), true, "error");
-          } else if (response.status === 500) {
-            console.error("Server error:", response);
-            triggerToast($_("serverError"), true, "error");
-          } else {
-            console.error("Unexpected status code:", response);
-            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-          }
-          return;
-        }
-
-        tmpLibraryName = "";
-        tmpDescLibrary = "";
-
-        editLibraryModal = false;
-        triggerToast($_("successUpdateLibrary"), true);
-        getCollections();
-      } catch (error) {
-        console.error("Error during library editing:", error);
-        triggerToast($_("failedEditLibrary"), true, "error");
-      }
-    } else {
-      triggerToast($_("unauthorized"), true, "error");
-      return;
+      addCollectionModal = false;
+      getCollections();
     }
   }
 
@@ -383,75 +262,6 @@
       } catch (error) {
         console.error("Error during collection editing:", error);
         triggerToast($_("failedEditCollection"), true, "error");
-      }
-    } else {
-      triggerToast($_("unauthorized"), true, "error");
-      return;
-    }
-  }
-
-  async function deleteLibrary() {
-    let token = localStorage.getItem("token");
-
-    if (token !== null) {
-      try {
-        // for (const document of documents) {
-        //   if (document.attributes.collection_id === tmpCollectionId) {
-        //     let response = await $call.call("client-dashboard", "delete-document", {
-        //       URLQuery: {},
-        //       URLParams: {
-        //         id: document.id.toString(),
-        //       },
-        //       Params: {},
-        //       Headers: {
-        //         Authorization: "Bearer " + token,
-        //       },
-        //     });
-        //     if (response.status !== 200) {
-        //       console.log(response);
-        //       triggerToast("error");
-        //       return;
-        //     }
-        //   }
-        // }
-        let response = await $call.call("client-dashboard", "delete-library", {
-          URLQuery: {},
-          URLParams: {
-            id: libraryId.toString(),
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          console.log(response);
-          if (response.status === 400) {
-            console.error("Invalid parameters:", response);
-            triggerToast($_("invalidParameters"), true, "error");
-          } else if (response.status === 401) {
-            console.error("Unauthorized access:", response);
-            triggerToast($_("unauthorized"), true, "error");
-          } else if (response.status === 500) {
-            console.error("Server error:", response);
-            triggerToast($_("serverError"), true, "error");
-          } else {
-            console.error("Unexpected status code:", response);
-            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-          }
-          return;
-        }
-
-        console.log("ayam", response);
-
-        triggerToast($_("successDeleteLibrary"), true);
-
-        getCollections();
-        deleteLibraryModal = false;
-      } catch (error) {
-        console.error("Error during library deletion:", error);
-        triggerToast($_("failedDeleteLibrary"), true, "error");
       }
     } else {
       triggerToast($_("unauthorized"), true, "error");
@@ -558,11 +368,6 @@
     }
   };
 
-  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    dropdownOpen = false;
-  };
-
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -571,26 +376,13 @@
     const unsubscribe = page.subscribe(async ($page) => {
       libraryId = $page.url.searchParams.get("libraryId");
       if (libraryId === null) {
-        // goto(await $call.getPage("client-dashboard", "document-library"));
+        goto(await $call.getPage("client-dashboard", "data-sources"));
         return;
       }
-      // getCollections();
+      getCollections();
     });
-    latestDataSources = JSON.parse(localStorage.getItem("latestDataSources")) || [];
     return () => unsubscribe();
   });
-
-  // $effect(() => {
-  //   const unsubscribe = page.subscribe(async ($page) => {
-  //     libraryId = $page.url.searchParams.get("libraryId");
-  //     if (libraryId === null) {
-  //       goto(await $call.getPage("client-dashboard", "document-library"));
-  //       return;
-  //     }
-  //     getCollections();
-  //   });
-  //   onDestroy(() => unsubscribe());
-  // });
 </script>
 
 <div class="flex dark:bg-primary-dark">
@@ -648,71 +440,23 @@
               <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("addCollection")}</div>
             </Button>
-            {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
-              <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                <Button on:click={() => (dropdownOpen = !dropdownOpen)} color="light" class="p-2">
-                  <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                </Button>
-                <div
-                  class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-                >
-                  <ul class="py-2 grow text-sm">
-                    {#if check("documentAi.documentLibrary.collection:edit")}
-                      <button
-                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                        onclick={() => {
-                          dropdownOpen = !dropdownOpen;
-                          tmpLibraryName = collectionDatas.title;
-                          tmpOldName = collectionDatas.collectionName;
-                          tmpDescLibrary = collectionDatas.description;
-                          nameIsAvailable = true;
-                          editLibraryModal = true;
-                        }}>{$_("editLibraryName")}</button
-                      >
-                    {/if}
-                    {#if check("documentAi.documentLibrary.collection:delete")}
-                      <button
-                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                        onclick={() => {
-                          dropdownOpen = !dropdownOpen;
-                          deleteLibraryModal = true;
-                        }}>{$_("delete")}</button
-                      >
-                    {/if}
-                  </ul>
-                </div>
-              </div>
-            {/if}
-            <!-- <Button
-              on:click={() => {
-                // addLibraryModal = true;
-                // tmpCollectionName = "";
-                // tmpDescription = "";
-              }}
-              color="light"
-              class="p-2"
-            >
-              <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-            </Button> -->
           </div>
         </div>
 
         <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
-        {#if tabDatas.selected === "My Collections" && latestDataSources.length > 0}
+        {#if tabDatas.selected === "My Collections" && collectionListDatas.length > 0}
           <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-            {#each latestDataSources as document, index}
+            {#each collectionListDatas as document, index}
             <DataSourcesCard
               collectionName={document.collectionName}
               totalDocuments={document.totalDocuments}
               status={document.status}
-              linkIsFrontend={'/data_sources/collections/documents?collectionName=' + document.collectionName}
               functEdit={() => {
                 tmpCollectionId = document.collectionId;
                 tmpCollectionName = document.collectionName;
                 tmpDescription = document.description;
                 nameIsAvailable = true;
-                editIndex = index;
                 editModal = true;
               }}
               functDelete={() => {
@@ -794,7 +538,7 @@
   </div>
   <svelte:fragment slot="footer">
     <Button
-      onclick={createDataSources}
+      onclick={createCollection}
       disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewCollection")}</Button
     >
@@ -828,37 +572,8 @@
       class="me-2 w-full">{$_("save")}</Button
     > -->
     <Button
-      onclick={editDataSourcesName}
+      onclick={editCollectionName}
       disabled={!tmpCollectionName || !nameIsAvailable}
-      class="me-2 w-full">{$_("save")}</Button
-    >
-  </svelte:fragment>
-</Modal>
-
-<Modal title={$_("editLibraryName")} bind:open={editLibraryModal} size="xs" autoclose>
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
-      <Input
-        bind:value={tmpLibraryName}
-        on:input={handleInput}
-        placeholder={$_("whatIsYourLibraryTitle")}
-      />
-      {#if !nameIsAvailable}
-        <Helper color="red">
-          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-        </Helper>
-      {/if}
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
-      <Input bind:value={tmpDescLibrary} placeholder={$_("egDescription")} />
-    </div>
-  </div>
-  <svelte:fragment slot="footer">
-    <Button
-      onclick={editLibraryName}
-      disabled={!tmpLibraryName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>
@@ -872,23 +587,7 @@
       {$_("collection")}
       "{tmpCollectionName}"?
     </h3>
-    <!-- <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button> -->
-     <Button onclick={() => deleteDataSources(tmpCollectionId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
-  </div>
-</Modal>
-
-<Modal bind:open={deleteLibraryModal} size="xs" autoclose>
-  <div class="text-center">
-    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
-    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      {$_("areYouSureYouWantToDelete")}
-      {$_("library")}
-      {collectionDatas.title}?
-    </h3>
-    <Button onclick={deleteLibrary} color="red" class="me-2">{$_("yesImSure")}</Button>
-    <Button color="alternative" onclick={() => (deleteLibraryModal = false)}
-      >{$_("noCancel")}</Button
-    >
   </div>
 </Modal>

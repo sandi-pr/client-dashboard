@@ -26,7 +26,7 @@
     funcSelectCollectionWebchat = () => {},
     dropdownOpen = false,
     linkIsFrontend = "",
-    // funcDetailCollection = () => {},
+    funcDetailCollection = () => {},
     libraryId = null,
   } = $props();
 
@@ -92,17 +92,6 @@
       return Stars03Icon;
     }
   };
-
-  async function funcDetailCollection() {
-    let link;
-    if (isFrontend) {
-      link = linkIsFrontend;
-    } else {
-      link = await $call.getPage("client-dashboard", "sources");
-    }
-
-    goto(link);
-  }
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;

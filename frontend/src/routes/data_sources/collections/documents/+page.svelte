@@ -70,7 +70,7 @@
   let gettingDatas = $state(false);
   let gettingDocs = $state(false);
   let buttonDisabledCheckAction = $state(false);
-  let pagination = $state({ page: 1, pageSize: 5, pageCount: 1, total: 0 });
+  let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
@@ -226,11 +226,9 @@
           return;
         }
 
-        // console.log("documets", response.result.data);
-
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "document-library-detail");
+        let link = await $call.getPage("client-dashboard", "data-sources-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -362,7 +360,7 @@
           return;
         }
 
-        console.log(response);
+        console.log("sub collection created", response);
 
         tmpCollectionName = "";
         tmpDescription = "";
@@ -453,46 +451,8 @@
     triggerToast($_("succesfullyUploaded"), true);
   }
 
-  // const checkSingle = (index) => {
-  //   collectionListDatas = collectionListDatas.map((data, i) => {
-  //     if (i === index) {
-  //       return {
-  //         ...data,
-  //         checked: !data.checked,
-  //       };
-  //     }
-  //     return data;
-  //   });
-  // };
-
-  // const checkAll = () => {
-  //   let findCheckAll = true;
-  //   for (const data of collectionListDatas) {
-  //     if (data.checked === false) {
-  //       findCheckAll = false;
-  //       break;
-  //     }
-  //   }
-
-  //   if (findCheckAll) {
-  //     collectionListDatas = collectionListDatas.map((data) => {
-  //       return {
-  //         ...data,
-  //         checked: false,
-  //       };
-  //     });
-  //   } else {
-  //     collectionListDatas = collectionListDatas.map((data) => {
-  //       return {
-  //         ...data,
-  //         checked: true,
-  //       };
-  //     });
-  //   }
-  // };
-
   const checkSingle = (index) => {
-    csvListDatas = csvListDatas.map((data, i) => {
+    collectionListDatas = collectionListDatas.map((data, i) => {
       if (i === index) {
         return {
           ...data,
@@ -505,7 +465,7 @@
 
   const checkAll = () => {
     let findCheckAll = true;
-    for (const data of csvListDatas) {
+    for (const data of collectionListDatas) {
       if (data.checked === false) {
         findCheckAll = false;
         break;
@@ -513,14 +473,14 @@
     }
 
     if (findCheckAll) {
-      csvListDatas = csvListDatas.map((data) => {
+      collectionListDatas = collectionListDatas.map((data) => {
         return {
           ...data,
           checked: false,
         };
       });
     } else {
-      csvListDatas = csvListDatas.map((data) => {
+      collectionListDatas = collectionListDatas.map((data) => {
         return {
           ...data,
           checked: true,
@@ -528,6 +488,44 @@
       });
     }
   };
+
+  // const checkSingle = (index) => {
+  //   csvListDatas = csvListDatas.map((data, i) => {
+  //     if (i === index) {
+  //       return {
+  //         ...data,
+  //         checked: !data.checked,
+  //       };
+  //     }
+  //     return data;
+  //   });
+  // };
+
+  // const checkAll = () => {
+  //   let findCheckAll = true;
+  //   for (const data of csvListDatas) {
+  //     if (data.checked === false) {
+  //       findCheckAll = false;
+  //       break;
+  //     }
+  //   }
+
+  //   if (findCheckAll) {
+  //     csvListDatas = csvListDatas.map((data) => {
+  //       return {
+  //         ...data,
+  //         checked: false,
+  //       };
+  //     });
+  //   } else {
+  //     csvListDatas = csvListDatas.map((data) => {
+  //       return {
+  //         ...data,
+  //         checked: true,
+  //       };
+  //     });
+  //   }
+  // };
 
   // const nextPage = (evt) => {
   //   if (pagination.pageCount > pagination.page) pagination.page = pagination.page + 1;
@@ -569,170 +567,47 @@
         triggerLoading(true);
 
         for (let i = 0; i < files.length; i++) {
-          if (
-            tmpDocumentType === "Handwriting" ||
-            tmpDocumentType === "Document Images" ||
-            tmpDocumentType === "Document Audio"
-          ) {
-            let response3;
-            if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images") {
-              response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  image: files[i].base64,
-                  model:
-                    tmpDocumentType === "Document Images"
-                      ? "trocr:base"
-                      : sessionStorage.getItem("model_trocr"),
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
-              // console.log("trocr-predict", response3);
-              // response3 = {
-              //   status: 200,
-              //   result: {
-              //     slices: [],
-              //     text: "Belajian Tikin Bahagia\nHari-hari gajian selalu karena udah makan dalam\nnikin\nnakan.\nHal-\nbak aja uang ters-\nn kelasan dari pada menyat mengak dalam lari\nmelam lari bikin kita.\nmelu kita,\nmeli kita aja pada uang bisa,\npada bisa pada bahwa jaju kali bisa uang mengikin kekali bah turu kosia.\nTer.\nTakarta,\nTerimas AHY berkeni\nTerinti kali yang takarta.",
-              //   },
-              // };
+
+          let index = 1;
+          let originalName = files[i].name.split(".").slice(0, -1).join(".");
+          let newName = originalName;
+
+          for (let i = 0; i < index; i++) {
+            let statusAvailable = await checkLibraryName(newName.trim());
+
+            if (statusAvailable === true) {
+              break;
             } else {
-              response3 = await $call.call("hexa-ai-rag", "audio-predict", {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  audio_file: files[i].base64,
-                  ext: files[i].name.split(".").pop(),
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              });
-              console.log("audio-predict", response3);
-            }
-
-            if (response3.status !== 200) {
-              addDocumentsModal = true;
-              triggerLoading(false);
-              if (response3.status === 400) {
-                console.error("Invalid parameters:", response3);
-                triggerToast($_("invalidParameters"), true, "error");
-              } else if (response3.status === 401) {
-                console.error("Unauthorized access:", response3);
-                triggerToast($_("unauthorized"), true, "error");
-              } else if (response3.status === 500) {
-                console.error("Server error:", response3);
-                triggerToast($_("serverError"), true, "error");
-              } else {
-                console.error("Unexpected status code:", response3);
-                triggerToast(`${$_("unexpectedError")}: ${response3.status}`, true, "error");
-              }
-              return;
-            }
-
-            if (response3?.result?.text !== null) {
-              let index = 1;
-              let originalName = files[i].name.split(".").slice(0, -1).join(".");
-              let newName = originalName;
-
-              for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim());
-
-                if (statusAvailable === true) {
-                  break;
-                } else {
-                  newName = `${originalName}(${index})`;
-                  index++;
-                }
-              }
-
-              files[i].name = newName + files[i].ext;
-
-              dataSend = {
-                document_name: files.length > 1 ? files[i].document_title : tmpDocumentTitle,
-                description: tmpDocumentDescription,
-                parent_id: parseInt(collectionId),
-                documents: JSON.stringify([files[i]]),
-                document_type: tmpDocumentType,
-                category: tags.join(","),
-                detected_text: response3.result.text,
-                result_trocr: JSON.stringify(response3.result),
-                edited: false,
-              };
-
-              // convert base64 to url
-              if (tmpDocumentType === "Document Audio") {
-                let file = base64toBlob(files[i].base64, "audio/mpeg");
-                audioUrl = URL.createObjectURL(new Blob([file], { type: "audio/mp3" }));
-              }
-              triggerLoading(false);
+              newName = `${originalName}(${index})`;
+              index++;
             }
           }
 
-          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images" || tmpDocumentType === "Document Audio") {
-            console.log("ayam");
-            if (files.length > 1) {
-              await sendDocument();
-            } else {
-              console.log("bebek");
-              previewModal = true;
-              selectedFile = files[0];
-            }
-          } else {
-            console.log("cacing");
+          files[i].name = newName + files[i].ext;
 
-            let index = 1;
-            let originalName = files[i].name.split(".").slice(0, -1).join(".");
-            let newName = originalName;
+          dataSend = {
+            document_name: files.length > 1 ? newName : tmpDocumentTitle,
+            description: tmpDocumentDescription,
+            parent_id: parseInt(collectionId),
+            documents: JSON.stringify([files[i]]),
+            document_type: tmpDocumentType,
+            category: tags.join(","),
+          };
 
-            for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim());
-
-              if (statusAvailable === true) {
-                break;
-              } else {
-                newName = `${originalName}(${index})`;
-                index++;
-              }
-            }
-
-            files[i].name = newName + files[i].ext;
-
-            dataSend = {
-              document_name: files.length > 1 ? newName : tmpDocumentTitle,
-              description: tmpDocumentDescription,
-              parent_id: parseInt(collectionId),
-              documents: JSON.stringify([files[i]]),
-              document_type: tmpDocumentType,
-              category: tags.join(","),
-            };
-
-            // console.log("data send", dataSend);
-            await sendDocument();
-          }
+          // console.log("data send", dataSend);
+          await sendDocument();
         }
 
         files = [];
+        dataSend = null;
 
         tmpDocumentTitle = "";
         tmpDocumentDescription = "";
         tags = [];
         attributeNotUnique = false;
+        getDocuments();
         triggerLoading(false);
-
-        if (
-          tmpDocumentType !== "Handwriting" &&
-          tmpDocumentType !== "Document Images" &&
-          tmpDocumentType !== "Document Audio"
-        ) {
-          dataSend = null;
-          previewModal = false;
-          addDocumentsModal = false;
-          getDocuments();
-          triggerToast($_("succesfullyUploaded"), true);
-        }
+        triggerToast($_("succesfullyUploaded"), true);
       } catch (error) {
         addDocumentsModal = true;
         console.error("Error during document upload:", error);
@@ -807,9 +682,6 @@
       dataSend = null;
       previewModal = false;
       addDocumentsModal = false;
-      getDocuments();
-      triggerLoading(false);
-      triggerToast($_("succesfullyUploaded"), true);
     }
     return;
   }
@@ -1531,34 +1403,34 @@
       window.history.back();
       return;
     }
-    // const unsubscribe = page.subscribe(async ($page) => {
-    //   collectionId = $page.url.searchParams.get("collectionId");
-    //   libraryId = $page.url.searchParams.get("libraryId");
-    //   if (
-    //     collectionId === null ||
-    //     collectionId === undefined ||
-    //     libraryId === null ||
-    //     libraryId === undefined
-    //   ) {
-    //     goto(await $call.getPage("client-dashboard", "document-library"));
-    //     return;
-    //   }
-    //   getCollections(true, false);
-    //   getCollections(false, false);
-    //   getDocuments();
-    //   getLabels();
-    // });
+    const unsubscribe = page.subscribe(async ($page) => {
+      collectionId = $page.url.searchParams.get("collectionId");
+      libraryId = $page.url.searchParams.get("libraryId");
+      if (
+        collectionId === null ||
+        collectionId === undefined ||
+        libraryId === null ||
+        libraryId === undefined
+      ) {
+        goto(await $call.getPage("client-dashboard", "data-sources"));
+        return;
+      }
+      getCollections(true, false);
+      getCollections(false, false);
+      getDocuments();
+      getLabels();
+    });
 
-    subDataSources = JSON.parse(localStorage.getItem("subDataSources")) || [];
-    csvListDatas = JSON.parse(localStorage.getItem("csvListDatas")) || [];
+    // subDataSources = JSON.parse(localStorage.getItem("subDataSources")) || [];
+    // csvListDatas = JSON.parse(localStorage.getItem("csvListDatas")) || [];
     
-    collectionDatas.title = $page.url.searchParams.get("collectionName");
+    // collectionDatas.title = $page.url.searchParams.get("collectionName");
 
     checkMobileView();
     window.addEventListener("resize", checkMobileView);
 
     return () => {
-      // unsubscribe();
+      unsubscribe();
       window.removeEventListener("resize", checkMobileView);
     };
   });
@@ -1567,31 +1439,31 @@
     hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
   })
 
+  $effect(() => {
+    checkAllState = collectionListDatas.every((data) => data.checked === true);
+  });
+
+  $effect(() => {
+    buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
+  });
+
   // $effect(() => {
-  //   checkAllState = collectionListDatas.every((data) => data.checked === true);
+  //   pagination.total = csvListDatas.length;
+  //   pagination.pageCount = Math.ceil(pagination.total / pagination.pageSize);
+
+  //   let start = (pagination.page - 1) * pagination.pageSize;
+  //   let end = start + pagination.pageSize;
+
+  //   csvListData = csvListDatas.slice(start, end);
   // });
 
   // $effect(() => {
-  //   buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
+  //   checkAllState = csvListDatas.every((data) => data.checked === true);
   // });
 
-  $effect(() => {
-    pagination.total = csvListDatas.length;
-    pagination.pageCount = Math.ceil(pagination.total / pagination.pageSize);
-
-    let start = (pagination.page - 1) * pagination.pageSize;
-    let end = start + pagination.pageSize;
-
-    csvListData = csvListDatas.slice(start, end);
-  });
-
-  $effect(() => {
-    checkAllState = csvListDatas.every((data) => data.checked === true);
-  });
-
-  $effect(() => {
-    buttonDisabledCheckAction = !csvListDatas.some((data) => data.checked === true);
-  });
+  // $effect(() => {
+  //   buttonDisabledCheckAction = !csvListDatas.some((data) => data.checked === true);
+  // });
 
   $effect(() => {
     buttonDisabled =
@@ -1765,45 +1637,22 @@
           </div>
         </div>
 
-        {#if subDataSources.length > 0 || csvListDatas.length > 0}
+        {#if childCollectionList.length > 0 || collectionListDatas.length > 0}
           <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
-            {#each subDataSources as document, index}
-              <!-- <LibraryCard
-                collectionName={collection.collectionName}
-                usedFor="libraries_collections"
-                functEdit={() => {
-                  tmpCollectionId = collection.id;
-                  tmpCollectionName = collection.collectionName;
-                  tmpOldName = collection.collectionName;
-                  tmpDescription = collection.description;
-                  nameIsAvailable = true;
-                  editModal = true;
-                }}
-                functDelete={() => {
-                  tmpCollectionId = collection.id;
-                  tmpCollectionName = collection.collectionName;
-                  deleteModal = true;
-                }}
-                funcDetailCollection={() => {
-                  goto(collection.href);
-                }}
-                {libraryId}
-              /> -->
+            {#each childCollectionList as document, index}
               <DataSourcesCard
                 collectionName={document.collectionName}
                 totalDocuments={document.totalDocuments}
                 status={document.status}
-                linkIsFrontend={'/data_sources/collections/documents/sub_documents?collectionName=' + document.collectionName}
                 functEdit={() => {
-                  tmpCollectionId = document.collectionId;
+                  tmpCollectionId = document.id;
                   tmpCollectionName = document.collectionName;
                   tmpDescription = document.description;
                   nameIsAvailable = true;
-                  editIndex = index;
                   editModal = true;
                 }}
                 functDelete={() => {
-                  tmpCollectionId = document.collectionId;
+                  tmpCollectionId = document.id;
                   tmpCollectionName = document.collectionName;
                   deleteModal = true;
                 }}
@@ -1814,24 +1663,10 @@
             {/each}
           </div>
           <Divider />
-          {#if csvListData.length > 0}
+          {#if collectionListDatas.length > 0}
             {#if isMobileView}
-              <!-- <DataTableLibraryCollectionVertical
+              <DataTableLibraryCollectionVertical
                 {collectionListDatas}
-                {pagination}
-                {checkAllState}
-                {checkSingle}
-                {checkAll}
-                next={nextPage}
-                previous={prevPage}
-                functDeleteCategories={(id) => {
-                  tmpId = id;
-                  popupModal = true;
-                  checkboxDelete = false;
-                }}
-              /> -->
-              <DataTableCsv
-                collectionListDatas={csvListData}
                 {pagination}
                 {checkAllState}
                 {checkSingle}
@@ -1845,22 +1680,8 @@
                 }}
               />
             {:else}
-              <!-- <DataTableLibraryCollection
+              <DataTableLibraryCollection
                 {collectionListDatas}
-                {pagination}
-                {checkAllState}
-                {checkSingle}
-                {checkAll}
-                next={nextPage}
-                previous={prevPage}
-                functDeleteCategories={(id) => {
-                  tmpId = id;
-                  popupModal = true;
-                  checkboxDelete = false;
-                }}
-              /> -->
-              <DataTableCsv
-                collectionListDatas={csvListData}
                 {pagination}
                 {checkAllState}
                 {checkSingle}
@@ -2011,10 +1832,7 @@
     {/if}
   </div>
   <svelte:fragment slot="footer">
-    <!-- <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-      >{$_("addNewDocument")}</Button
-    > -->
-    <Button onclick={addDataSource} disabled={buttonDisabled} class="w-full"
+    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
       >{$_("add")}</Button
     >
   </svelte:fragment>
@@ -2106,10 +1924,9 @@
       {$_("areYouSureYouWantToDelete")}
       {checkboxDelete ? $_("theseDocuments") : $_("thisDocument")}
     </h3>
-    <!-- <Button onclick={checkboxDelete ? deleteDocuments : deleteDocument} color="red" class="me-2"
+    <Button onclick={checkboxDelete ? deleteDocuments : deleteDocument} color="red" class="me-2"
       >{$_("yesImSure")}</Button
-    > -->
-    <Button onclick={deleteSource} color="red" class="me-2">{$_("yesImSure")}</Button>
+    >
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
@@ -2225,13 +2042,8 @@
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <!-- <Button
-      onclick={createCollection}
-      disabled={!tmpCollectionName || !nameIsAvailable}
-      class="w-full">{$_("addNewCollection")}</Button
-    > -->
     <Button
-      onclick={createDataSources}
+      onclick={createCollection}
       disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewSubCollection")}</Button
     >
@@ -2259,16 +2071,11 @@
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <!-- <Button
+    <Button
       onclick={editCollectionName}
       disabled={!tmpCollectionName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
-    > -->
-  <Button
-    onclick={editDataSourcesName}
-    disabled={!tmpCollectionName || !nameIsAvailable}
-    class="me-2 w-full">{$_("save")}</Button
-  >
+    >
   </svelte:fragment>
 </Modal>
 
@@ -2280,12 +2087,11 @@
       {$_("collection")}
       "{tmpCollectionName}"?
     </h3>
-    <!-- <Button
+    <Button
       onclick={tmpCollectionId === collectionId ? deleteCollection : deleteDocumentCollection}
       color="red"
       class="me-2">{$_("yesImSure")}</Button
-    > -->
-    <Button onclick={() => deleteDataSources(tmpCollectionId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+    >
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>

@@ -976,5 +976,18 @@
   "hexaTutor": "HexaTutor",
   "descDocsGenerator": "Generate Documents with AI Assistance",
   "youDontHaveAnyCollectionYet": "You don't have any collection yet",
-  "searchLibraryName": "Search Library Name"
+  "searchLibraryName": "Search Library Name",
+  "addNewHandwriting": "Add New Handwriting",
+  "voiceAnalyzer": "Voice Analyzer",
+  "addNewVoiceRecord": "Add New Voice Record",
+  "descAddNewVoiceRecord": "Scan and decode voice to text instantly.",
+  "chatWithVoiceAssistant": "Chat with Voice Assistant",
+  "descChatWithVoiceAssistant": "Understand, convert, and interact with our assistant.",
+  "voiceCollection": "Voice Collection",
+  "voiceBotsList": "Voice Bots List",
+  "addNewAudio": "Add New Audio",
+  "addAudio": "Add Audio",
+  "chooseCollectionAsDataSource": "Choose collection as data source",
+  "chooseCsvfile": "Choose CSV file",
+  "selectDataSource": "Select Data Source"
 }

@@ -159,7 +159,7 @@
             <Button
               disabled={!check("documentAi.documentLibrary.document:view")}
               on:click={() => {
-                goto(isFrontend ? `/data_sources/collections/documents/detail?docName=${collectionListData.filename}` : collectionListData.href);
+                goto(collectionListData.href);
               }}
               color="white"
               class="!p-2 focus-within:!ring-1 text-brand-tertiary-light dark:text-brand-tertiary-dark"

@@ -37,6 +37,7 @@
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
+  import PenToolPlusIcon from "$lib/icon/pen-tool-plus.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -76,8 +77,8 @@
   let tmpCollectionName = $state("");
   let tmpOldName = $state("");
   let tmpDescription = $state("");
-  let tmpDocumentType = $state("Documents");
-  let selectedTypeCollection = $state("Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)");
+  let tmpDocumentType = $state("Handwriting");
+  let selectedTypeCollection = $state("Handwriting (JPG, JPEG, PNG)");
   let acceptedFileTypes = $state(".jpg, .jpeg, .png");
   let search = $state("");
   let alltags = $state([]);
@@ -1495,12 +1496,12 @@
               </Button>
             {/if}
             <Button
-              color="light"
+              outline
               class="min-w-max gap-1.5"
               disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={() => (dropdownUpload = !dropdownUpload)}
             >
-              <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+              <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("addNew")}</div>
             </Button>
             <div
@@ -1534,9 +1535,9 @@
                     dropdownUpload = false;
                     nameIsAvailable = true;
                   }}
-                  ><FilePlus02Icon
+                  ><PenToolPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("addDocument")}</button
+                  />{$_("addNewHandwriting")}</button
                 >
               </ul>
             </div>
@@ -1668,7 +1669,7 @@
         class="flex justify-between"
       >
         {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
+        <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
       </Button>
       <div
         class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}

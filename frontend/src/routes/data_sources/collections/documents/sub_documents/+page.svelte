@@ -23,6 +23,7 @@
     LibraryCard,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
+  import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
   import DataTableCsv from "$lib/components/DataTableCsv.svelte";
   import {
     SearchOutline,
@@ -82,6 +83,7 @@
   let checkboxDelete = $state(false);
   let checkboxUpdate = $state(false);
   let hasDocOrDocx = $state(false);
+  let isMobileView = $state(false);
   let tmpId = $state(null);
   let tabDatas = $state({
     selected: "Collections",
@@ -212,50 +214,12 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "document-library-sub-documents-detail");
+        let link = await $call.getPage("client-dashboard", "data-sources-sub-documents-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
 
           params.delete("documentId");
-
-          // let uploadBy = "";
-
-          // try {
-          //   let response = await $call.call("client-dashboard", "get-user", {
-          //     URLQuery: {},
-          //     URLParams: { id: collection.attributes.meta.upload_by.toString() },
-          //     Params: {},
-          //     Headers: {
-          //       Authorization: "Bearer " + token,
-          //     },
-          //   });
-
-          //   if (response.status !== 200) {
-          //     console.log(response);
-          //     gettingDocs = false;
-          //     if (response.status === 400) {
-          //       console.error("Invalid parameters:", response);
-          //       triggerToast($_("invalidParameters"), true, "error");
-          //     } else if (response.status === 401) {
-          //       console.error("Unauthorized access:", response);
-          //       triggerToast($_("unauthorized"), true, "error");
-          //     } else if (response.status === 500) {
-          //       console.error("Server error:", response);
-          //       triggerToast($_("serverError"), true, "error");
-          //     } else {
-          //       console.error("Unexpected status code:", response);
-          //       triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-          //     }
-          //     return;
-          //   }
-
-          //   uploadBy = response.result.user.username;
-          // } catch (error) {
-          //   console.error("Error during user get:", error);
-          //   gettingDocs = false;
-          //   triggerToast($_("failedGetUser"), true, "error");
-          // }
 
           const queryParams = {};
           for (const [key, value] of params.entries()) {
@@ -293,46 +257,8 @@
     }
   }
 
-  // const checkSingle = (index) => {
-  //   collectionListDatas = collectionListDatas.map((data, i) => {
-  //     if (i === index) {
-  //       return {
-  //         ...data,
-  //         checked: !data.checked,
-  //       };
-  //     }
-  //     return data;
-  //   });
-  // };
-
-  // const checkAll = () => {
-  //   let findCheckAll = true;
-  //   for (const data of collectionListDatas) {
-  //     if (data.checked === false) {
-  //       findCheckAll = false;
-  //       break;
-  //     }
-  //   }
-
-  //   if (findCheckAll) {
-  //     collectionListDatas = collectionListDatas.map((data) => {
-  //       return {
-  //         ...data,
-  //         checked: false,
-  //       };
-  //     });
-  //   } else {
-  //     collectionListDatas = collectionListDatas.map((data) => {
-  //       return {
-  //         ...data,
-  //         checked: true,
-  //       };
-  //     });
-  //   }
-  // };
-
   const checkSingle = (index) => {
-    csvListDatas = csvListDatas.map((data, i) => {
+    collectionListDatas = collectionListDatas.map((data, i) => {
       if (i === index) {
         return {
           ...data,
@@ -345,7 +271,7 @@
 
   const checkAll = () => {
     let findCheckAll = true;
-    for (const data of csvListDatas) {
+    for (const data of collectionListDatas) {
       if (data.checked === false) {
         findCheckAll = false;
         break;
@@ -353,14 +279,14 @@
     }
 
     if (findCheckAll) {
-      csvListDatas = csvListDatas.map((data) => {
+      collectionListDatas = collectionListDatas.map((data) => {
         return {
           ...data,
           checked: false,
         };
       });
     } else {
-      csvListDatas = csvListDatas.map((data) => {
+      collectionListDatas = collectionListDatas.map((data) => {
         return {
           ...data,
           checked: true,
@@ -368,6 +294,44 @@
       });
     }
   };
+
+  // const checkSingle = (index) => {
+  //   csvListDatas = csvListDatas.map((data, i) => {
+  //     if (i === index) {
+  //       return {
+  //         ...data,
+  //         checked: !data.checked,
+  //       };
+  //     }
+  //     return data;
+  //   });
+  // };
+
+  // const checkAll = () => {
+  //   let findCheckAll = true;
+  //   for (const data of csvListDatas) {
+  //     if (data.checked === false) {
+  //       findCheckAll = false;
+  //       break;
+  //     }
+  //   }
+
+  //   if (findCheckAll) {
+  //     csvListDatas = csvListDatas.map((data) => {
+  //       return {
+  //         ...data,
+  //         checked: false,
+  //       };
+  //     });
+  //   } else {
+  //     csvListDatas = csvListDatas.map((data) => {
+  //       return {
+  //         ...data,
+  //         checked: true,
+  //       };
+  //     });
+  //   }
+  // };
 
   // const nextPage = (evt) => {
   //   if (pagination.pageCount > pagination.page) pagination.page = pagination.page + 1;
@@ -1234,46 +1198,57 @@
     dropdownOpen = false;
   };
 
+  const checkMobileView = () => {
+    isMobileView = window.innerWidth <= 768;
+  };
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
       return;
     }
-    // const unsubscribe = page.subscribe(async ($page) => {
-    //   subCollectionId = $page.url.searchParams.get("subCollectionId");
-    //   collectionId = $page.url.searchParams.get("collectionId");
-    //   libraryId = $page.url.searchParams.get("libraryId");
-    //   if (
-    //     collectionId === null ||
-    //     collectionId === undefined ||
-    //     libraryId === null ||
-    //     libraryId === undefined
-    //   ) {
-    //     goto(await $call.getPage("client-dashboard", "document-library"));
-    //     return;
-    //   }
-    //   getCollections(true);
-    //   getCollections();
-    //   getDocuments();
-    //   getLabels();
-    // });
-    // return () => unsubscribe();
-    csvListDatas = JSON.parse(localStorage.getItem("csvListDatas")) || [];
+    const unsubscribe = page.subscribe(async ($page) => {
+      subCollectionId = $page.url.searchParams.get("subCollectionId");
+      collectionId = $page.url.searchParams.get("collectionId");
+      libraryId = $page.url.searchParams.get("libraryId");
+      if (
+        collectionId === null ||
+        collectionId === undefined ||
+        libraryId === null ||
+        libraryId === undefined
+      ) {
+        goto(await $call.getPage("client-dashboard", "data-sources"));
+        return;
+      }
+      getCollections(true);
+      getCollections();
+      getDocuments();
+      getLabels();
+    });
 
-    collectionDatas.title = $page.url.searchParams.get("collectionName");
+    checkMobileView();
+    window.addEventListener("resize", checkMobileView);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("resize", checkMobileView);
+    };
+    // csvListDatas = JSON.parse(localStorage.getItem("csvListDatas")) || [];
+
+    // collectionDatas.title = $page.url.searchParams.get("collectionName");
   });
 
   $effect(() => {
     hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
   })
 
-  // $effect(() => {
-  //   checkAllState = collectionListDatas.every((data) => data.checked === true);
-  // });
+  $effect(() => {
+    checkAllState = collectionListDatas.every((data) => data.checked === true);
+  });
 
-  // $effect(() => {
-  //   buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
-  // });
+  $effect(() => {
+    buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
+  });
 
   $effect(() => {
     pagination.total = csvListDatas.length;
@@ -1285,13 +1260,13 @@
     csvListData = csvListDatas.slice(start, end);
   });
 
-  $effect(() => {
-    checkAllState = csvListDatas.every((data) => data.checked === true);
-  });
+  // $effect(() => {
+  //   checkAllState = csvListDatas.every((data) => data.checked === true);
+  // });
 
-  $effect(() => {
-    buttonDisabledCheckAction = !csvListDatas.some((data) => data.checked === true);
-  });
+  // $effect(() => {
+  //   buttonDisabledCheckAction = !csvListDatas.some((data) => data.checked === true);
+  // });
 
   $effect(() => {
     buttonDisabled =
@@ -1382,36 +1357,38 @@
 
         <Divider />
 
-        {#if csvListData.length > 0}
-          <!-- <DataTableLibraryCollection
-            {collectionListDatas}
-            {pagination}
-            {checkAllState}
-            {checkSingle}
-            {checkAll}
-            next={nextPage}
-            previous={prevPage}
-            functDeleteCategories={(id) => {
-              tmpId = id;
-              popupModal = true;
-              checkboxDelete = false;
-            }}
-          /> -->
-
-          <DataTableCsv
-            collectionListDatas={csvListData}
-            {pagination}
-            {checkAllState}
-            {checkSingle}
-            {checkAll}
-            next={nextPage}
-            previous={prevPage}
-            functDeleteCategories={(id) => {
-              tmpId = id;
-              popupModal = true;
-              checkboxDelete = false;
-            }}
-          />
+        {#if collectionListDatas.length > 0}
+          {#if isMobileView}
+            <DataTableLibraryCollectionVertical
+              {collectionListDatas}
+              {pagination}
+              {checkAllState}
+              {checkSingle}
+              {checkAll}
+              next={nextPage}
+              previous={prevPage}
+              functDeleteCategories={(id) => {
+                tmpId = id;
+                popupModal = true;
+                checkboxDelete = false;
+              }}
+            />
+          {:else}
+            <DataTableLibraryCollection
+              {collectionListDatas}
+              {pagination}
+              {checkAllState}
+              {checkSingle}
+              {checkAll}
+              next={nextPage}
+              previous={prevPage}
+              functDeleteCategories={(id) => {
+                tmpId = id;
+                popupModal = true;
+                checkboxDelete = false;
+              }}
+            />
+          {/if}
         {:else if gettingDocs}
           <StateCard
             illustration={IllustrationProgress}
@@ -1548,12 +1525,12 @@
     {/if}
   </div>
   <svelte:fragment slot="footer">
-    <!-- <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
+    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
       >{$_("addNewDocument")}</Button
-    > -->
-    <Button onclick={addDataSource} disabled={buttonDisabled} class="w-full"
-      >{$_("add")}</Button
     >
+    <!-- <Button onclick={addDataSource} disabled={buttonDisabled} class="w-full"
+      >{$_("add")}</Button
+    > -->
   </svelte:fragment>
 </Modal>
 
@@ -1564,10 +1541,10 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <!-- <Button onclick={checkboxDelete ? deleteDocuments : deleteDocument} color="red" class="me-2"
+    <Button onclick={checkboxDelete ? deleteDocuments : deleteDocument} color="red" class="me-2"
       >{$_("yesImSure")}</Button
-    > -->
-    <Button onclick={deleteSource} color="red" class="me-2">{$_("yesImSure")}</Button>
+    >
+    <!-- <Button onclick={deleteSource} color="red" class="me-2">{$_("yesImSure")}</Button> -->
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

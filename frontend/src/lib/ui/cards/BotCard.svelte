@@ -5,6 +5,7 @@
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Settings03Icon from "$lib/icon/settings-03.svelte";
+  import Star04Icon from "$lib/icon/star-04.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
   import EyeIcon from "$lib/icon/eye.svelte";
   import TrashIcon from "$lib/icon/trash-03.svelte";
@@ -144,6 +145,25 @@
             color={config?.detail === true ? "secondary" : "brand-secondary"}
           />
           <ArrowUpRightIcon
+            svgClass={`w-5 h-5 ${config?.detail === true ? "text-secondary-light dark:text-secondary-dark" : "text-brand-secondary-light dark:text-brand-secondary-dark"}`}
+          />
+        </Button>
+      {/if}
+      {#if config?.insights === true}
+        <Button
+          on:click={() => {
+            // window.open(bot.urlBot);
+            goto(bot.urlBot);
+          }}
+          outline
+          class={`!flex grow gap-1.5 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg ${config?.detail === true ? "border-secondary-light dark:border-secondary-dark" : "border-button-secondary-color-light dark:border-button-secondary-color-dark"}`}
+        >
+          <Typography
+            preset="Text sm/Semibold"
+            text={$_("askForInsight")}
+            color={config?.detail === true ? "secondary" : "brand-secondary"}
+          />
+          <Star04Icon
             svgClass={`w-5 h-5 ${config?.detail === true ? "text-secondary-light dark:text-secondary-dark" : "text-brand-secondary-light dark:text-brand-secondary-dark"}`}
           />
         </Button>

@@ -43,7 +43,7 @@ export function connectWebSocket(token, isFrontend) {
 
   if (isFrontend) {
     socket = new WebSocket(
-      `wss://tank.hexacode.ai/client-dashboard/notification/${encodeURIComponent(token)}`,
+      `ws://192.168.18.14/client-dashboard/notification/${encodeURIComponent(token)}`,
     )
   } else {
     socket = new WebSocket(
@@ -59,7 +59,7 @@ export function connectWebSocket(token, isFrontend) {
   socket.onmessage = (event) => {
     try {
       const message = JSON.parse(event.data);
-      console.log("Received notification:", message);
+      // console.log("Received notification:", message);
 
       if (message.type === "progress-update") {
         let docId = message.meta?.document_id;

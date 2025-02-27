@@ -917,7 +917,7 @@
   "soon": "Segera",
   "myBots": "Bot Saya",
   "hexassistant": "Hexassistant",
-  "aiAnalyzer": "AI Analitik",
+  "aiAnalyzer": "AI Analisa",
   "memories": "Memori",
   "vision": "Vision",
   "voice": "Suara",
@@ -976,5 +976,18 @@
   "hexaTutor": "HexaTutor",
   "descDocsGenerator": "Membuat dokumen dengan menggunakan AI",
   "youDontHaveAnyCollectionYet": "Anda belum memiliki koleksi",
-  "searchLibraryName": "Cari Nama Pustaka"
+  "searchLibraryName": "Cari Nama Pustaka",
+  "addNewHandwriting": "Tambah Tulisan Tangan Baru",
+  "voiceAnalyzer": "Analisa Suara",
+  "addNewVoiceRecord": "Tambahkan Rekaman Suara Baru",
+  "descAddNewVoiceRecord": "Scan dan dekripsi suara Anda secara langsung.",
+  "chatWithVoiceAssistant": "Chat dengan Asisten Suara",
+  "descChatWithVoiceAssistant": "Mengerti, mengonversi, dan berinteraksi dengan asisten kami.",
+  "voiceCollection": "Koleksi Suara",
+  "voiceBotsList": "Daftar Bot Suara",
+  "addNewAudio": "Tambahkan Audio Baru",
+  "addAudio": "Tambahkan Audio",
+  "chooseCollectionAsDataSource": "Pilih koleksi sebagai sumber data",
+  "chooseCsvfile": "Pilih file CSV",
+  "selectDataSource": "Pilih Sumber Data"
 }

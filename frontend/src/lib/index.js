@@ -94,3 +94,11 @@ export {
   setLibraryIds,
   setCollectionIds,
 } from "$lib/utils/bakrieLibraryStore";
+export {
+  voiceLibraryId,
+  setVoiceLibraryIds,
+} from "$lib/utils/voiceLibraryStore";
+export {
+  datasourceLibraryId,
+  setDatasourceLibraryIds,
+} from "$lib/utils/datasourceLibraryStore";

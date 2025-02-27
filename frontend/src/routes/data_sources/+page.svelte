@@ -11,7 +11,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input } from "flowbite-svelte";
+  import { Modal, Button, Input, Helper } from "flowbite-svelte";
   import {
     StateCard,
     Typography,
@@ -30,10 +30,17 @@ All Rights Reserved
   import {
     showAI,
     showNotif,
+    call,
+    datasourceLibraryId,
+    setDatasourceLibraryIds,
+    triggerToast,
   } from "$lib";
 
+  let collections = $state([]);
+  let latestDocumentCollection = $state([]);
   let files = $state([]);
   let actionItems = $state([]);
+  let tmpOldName = $state("");
   let tmpCollectionName = $state("");
   let tmpDescription = $state("");
   let tmpCollectionId = $state("");
@@ -42,7 +49,6 @@ All Rights Reserved
   let editModal = $state(false);
   let deleteModal = $state(false);
   let timer;
-  let attributeNotUnique = $state(false);
   let nameIsAvailable = $state(true);
 
   async function getActionItems() {
@@ -50,7 +56,6 @@ All Rights Reserved
       {
         onclick: () => {
           addLibraryModal = true;
-          attributeNotUnique = false;
           tmpCollectionName = "";
           tmpDescription = "";
         },
@@ -62,44 +67,296 @@ All Rights Reserved
     ];
   }
 
-  let latestDataSources = $state([]);
-
   let gettingDatas = $state(false);
 
-  function createDataSources() {
-    latestDataSources = [
-      ...latestDataSources,
-      {
-        collectionId: latestDataSources.length + 1,
-        collectionName: tmpCollectionName,
-      },
-    ];
+  async function getCollections() {
+    let token = localStorage.getItem("token");
 
-    localStorage.setItem("latestDataSources", JSON.stringify(latestDataSources));
+    if (token !== null) {
+      gettingDatas = true;
+      collections = [];
+      let response = await $call.call("client-dashboard", "get-library-collections", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: 1,
+          page_size: 8,
+          parent_id: parseInt($datasourceLibraryId),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-    tmpCollectionName = "";
-    addLibraryModal = false;
+      if (response.status !== 200) {
+        console.log(response);
+        gettingDatas = false;
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
+        return;
+      }
+
+      if (response.result.data.length > 0) {
+        collections = collections.concat(response.result.data);
+      }
+
+      let link = await $call.getPage("client-dashboard", "data-sources-documents");
+
+      let promise = collections.map(async (collection) => {
+        console.log("collection", collection);
+        let response4 = await $call.call("client-dashboard", "get-status-library", {
+          URLQuery: {},
+          URLParams: {
+            id: collection.id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response4.status !== 200) {
+          console.log(response4);
+          gettingDatas = false;
+          return;
+        }
+
+        return {
+          id: collection.id,
+          collectionName: collection.attributes.name,
+          description: collection.attributes?.meta?.description || "",
+          type: collection.attributes.type,
+          href: link + "?collectionId=" + collection.id + "&" + `libraryId=${$datasourceLibraryId}`,
+        };
+      });
+
+      latestDocumentCollection = await Promise.all(promise);
+
+      console.log("latestDocumentCollection", latestDocumentCollection);
+
+      gettingDatas = false;
+    }
   }
 
-  let editIndex = $state(0);
+  const handleInput = async (event) => {
+    const name = event.target.value;
+    const status = await checkLibraryName(name.trim());
 
-  function editDataSourcesName() {
-    latestDataSources[editIndex].collectionName = tmpCollectionName;
-    localStorage.setItem("latestDataSources", JSON.stringify(latestDataSources));
-    editModal = false;
+    if (tmpOldName === name) {
+      nameIsAvailable = true;
+    } else if (status === false) {
+      nameIsAvailable = false;
+    } else if (status === true) {
+      nameIsAvailable = true;
+    }
+  };
+
+  const checkLibraryName = async (name) => {
+    let token = localStorage.getItem("token");
+    if (!name || !token) {
+      return null;
+    }
+
+    try {
+      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: name,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("cek resp", resp);
+
+      if (resp === null) {
+        throw new Error("Server sibuk");
+      }
+
+      if (resp.status === 200) {
+        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
+      } else {
+        console.error("Error memeriksa name:", resp);
+        return null;
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return null;
+    }
+  };
+
+  async function createCollection() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "create-library-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_name: tmpCollectionName,
+          description: tmpDescription,
+          parent_id: parseInt($datasourceLibraryId),
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
+        return;
+      }
+
+      tmpCollectionName = "";
+      tmpDescription = "";
+
+      triggerToast($_("successCreateCollection"), true);
+
+      addLibraryModal = false;
+      getCollections();
+    }
   }
 
-  function deleteDataSources(id) {
-    latestDataSources = latestDataSources.filter(
-      (item) => item.collectionId !== id,
-    );
-    localStorage.setItem("latestDataSources", JSON.stringify(latestDataSources));
-    deleteModal = false;
+  async function editCollectionName() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "update-library-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
+          },
+          Params: {
+            collection_name: tmpCollectionName,
+            description: tmpDescription,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          return;
+        }
+
+        tmpCollectionName = "";
+        tmpDescription = "";
+
+        editModal = false;
+        triggerToast($_("successUpdateCollection"), true);
+        getCollections();
+      } catch (error) {
+        console.error("Error during collection editing:", error);
+        triggerToast($_("failedEditCollection"), true, "error");
+      }
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  }
+
+  async function deleteDocumentCollection() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "delete-library-collection", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpCollectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          return;
+        }
+
+        triggerToast($_("successDeleteCollection"), true);
+
+        getCollections();
+        deleteModal = false;
+      } catch (error) {
+        console.error("Error during collection deletion:", error);
+        triggerToast($_("failedDeleteCollection"), true, "error");
+      }
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  }
+
+  async function viewAll() {
+    let link = await $call.getPage("client-dashboard", "data-sources-collections");
+    goto(link + `?libraryId=${$datasourceLibraryId}`);
   }
 
   onMount(async () => {
     getActionItems();
-    latestDataSources = JSON.parse(localStorage.getItem("latestDataSources")) || [];
+
+    let idDatasource = localStorage.getItem("libraryIdDatasource");
+    await setDatasourceLibraryIds(idDatasource);
+
+    getCollections();
+    // latestDataSources = JSON.parse(localStorage.getItem("latestDataSources")) || [];
   });
 
   onDestroy(() => {
@@ -137,15 +394,15 @@ All Rights Reserved
         class="flex items-center justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
       >
         <Typography preset="Text lg/Semibold" color="primary" text={$_("dataSourcesList")} />
-        <!-- <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button> -->
+        <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
       </div>
 
       <div>
-        {#if latestDataSources.length > 0}
+        {#if latestDocumentCollection.length > 0}
           <div
             class={`${$showAI || $showNotif ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
           >
-            {#each latestDataSources as document, index}
+            {#each latestDocumentCollection as document, index}
               <DataSourcesCard
                 collectionName={document.collectionName}
                 totalDocuments={document.totalDocuments}
@@ -153,11 +410,10 @@ All Rights Reserved
                 linkIsFrontend={'/data_sources/collections/documents?collectionName=' + document.collectionName}
                 functEdit={() => {
                   tmpCollectionId = document.collectionId;
+                  tmpOldName = document.collectionName;
                   tmpCollectionName = document.collectionName;
                   tmpDescription = document.description;
-                  attributeNotUnique = false;
                   nameIsAvailable = true;
-                  editIndex = index;
                   editModal = true;
                 }}
                 functDelete={() => {
@@ -188,7 +444,12 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("dataSourcesName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourDataSourcesTitle")} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourDataSourcesTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
@@ -197,8 +458,8 @@ All Rights Reserved
   </div>
   <svelte:fragment slot="footer">
     <Button
-      onclick={createDataSources}
-      disabled={!tmpCollectionName}
+      onclick={createCollection}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewDataSources")}</Button
     >
   </svelte:fragment>
@@ -208,7 +469,12 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("dataSourcesName")}*`} />
-      <Input bind:value={tmpCollectionName} placeholder={$_("whatIsYourDataSourcesTitle")} />
+      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourDataSourcesTitle")} />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
@@ -217,8 +483,8 @@ All Rights Reserved
   </div>
   <svelte:fragment slot="footer">
     <Button
-      onclick={editDataSourcesName}
-      disabled={!tmpCollectionName}
+      onclick={editCollectionName}
+      disabled={!tmpCollectionName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
   </svelte:fragment>
@@ -230,9 +496,9 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
       {$_("library")}
-      {tmpCollectionName}?
+      "{tmpCollectionName}"?
     </h3>
-    <Button onclick={() => deleteDataSources(tmpCollectionId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>

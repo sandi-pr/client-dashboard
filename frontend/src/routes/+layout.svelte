@@ -43,6 +43,8 @@ All Rights Reserved
     setCollectionIds,
     bakrieLibraryId,
     handwritingCollectionId,
+    setDatasourceLibraryIds,
+    datasourceLibraryId,
     onProgress,
     isBakrie,
     check,
@@ -77,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -940,6 +942,33 @@ All Rights Reserved
     }
   }
 
+  async function checkLibrariesDatasouce() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "find-create-library-by-name", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          library_name: "Data Source List",
+          description: "Data Source Collection",
+        },
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log("status not 200", response);
+        return;
+      }
+
+      console.log("created datasource library", response);
+
+      localStorage.setItem("libraryIdDatasource", response.result.id);
+      setDatasourceLibraryIds(response.result.id);
+    }
+  }
+
   async function checkCollectionsBakrie() {
     try {
       const bakrieCollection = [
@@ -1084,6 +1113,70 @@ All Rights Reserved
         }
 
         localStorage.setItem("botIdStrapi", response.result.data.id);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("no token");
+      return;
+    }
+  }
+
+  async function createVoiceBot() {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      const resp = await call.call("client-dashboard", "get-bot-by-name", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: "CSV Insights Bots",
+        },
+        Headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
+
+      console.log("------", resp);
+
+      if (resp.status !== 404) {
+        console.log("bot already exists", resp);
+        // localStorage.setItem("botIdStrapi", resp.result.id);
+        // gettingData = false;
+        return;
+      }
+
+      let dataSend = {
+        bot_name: "CSV Insights Bots",
+        description: "",
+        ai_engine: "llama3.1:8b",
+        library_id: $datasourceLibraryId,
+        collection_id: "all",
+        additional_prompt: "",
+        need_auth: false,
+        module_type: "insights",
+      };
+
+      // console.log("dataSend", dataSend);
+
+      try {
+        const response = await call.call("client-dashboard", "create-bot", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("createVoiceBot", response);
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        // localStorage.setItem("botIdStrapi", response.result.data.id);
       } catch (error) {
         console.log(error);
       }
@@ -1458,6 +1551,9 @@ All Rights Reserved
     if (localStorage.getItem("lang") !== null) {
       locale.set(localStorage.getItem("lang"));
     }
+
+    await checkLibrariesDatasouce();
+    await createVoiceBot();
 
     await getModelsTrocr();
     await getIndustryId();

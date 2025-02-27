@@ -27,6 +27,7 @@
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import CSVIcon from "$lib/icon/csv.svg";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import { onMount } from "svelte";
 
@@ -103,11 +104,7 @@
     </TableHead>
     <TableBody tableBodyClass="divide-y">
       {#each collectionListDatas as collectionListData, index (collectionListData.id)}
-        <TableBodyRow
-          on:click={() => {
-            checkSingle(index);
-          }}
-        >
+        <TableBodyRow>
           <TableBodyCell class="!p-4">
             {#if collectionListData.checked}
               <Checkbox
@@ -139,6 +136,8 @@
                 <img src={DOCSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {:else if collectionListData.fileext === "docx"}
                 <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+              {:else if collectionListData.fileext === "csv" || collectionListData.fileext === ".csv"}
+                <img src={CSVIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {/if}
               <P class="line-clamp-2 fluid-sm font-semibold">{collectionListData.filename}</P>
             </div>
@@ -201,7 +200,7 @@
               <DotsVerticalIcon svgClass="w-5 h-5 !text-quinary-light !dark:text-quinary-dark" />
             </Button> -->
 
-            <!-- {#if check("documentAi.documentLibrary.document:delete")}
+            {#if check("documentAi.documentLibrary.document:delete")}
               <div class=" flex items-center relative">
                 <Button
                   on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
@@ -226,8 +225,8 @@
                   </ul>
                 </div>
               </div>
-            {/if} -->
-            <Button
+            {/if}
+            <!-- <Button
               on:click={() => {
                 functDeleteCategories(collectionListData.id);
               }}
@@ -239,7 +238,7 @@
               <Trash01Icon svgClass="w-5 h-5" />
               &nbsp;&nbsp;
               <P class="text-brand-tertiary-light dark:text-brand-tertiary-dark">{$_("delete")}</P>
-            </Button>
+            </Button> -->
           </TableBodyCell>
         </TableBodyRow>
       {/each}

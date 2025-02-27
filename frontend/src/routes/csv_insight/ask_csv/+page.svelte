@@ -1,5 +1,5 @@
 <script>
-  import { Divider, Typography, StateCard, Icon, call, SelectedCard } from "$lib";
+  import { Divider, Typography, StateCard, Icon, call, SelectedCard, datasourceLibraryId, Pagination } from "$lib";
   import { _ } from "svelte-i18n";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
@@ -19,9 +19,9 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
-    Pagination,
   } from "flowbite-svelte";
   import { onMount } from "svelte";
+  import { id } from "date-fns/locale";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -30,112 +30,8 @@
   let messageInput = $state("");
   let textarea = $state(null);
   let modalOpen = $state(false);
-  let allData = $state([
-    {
-      id: 1,
-      customer_id: 1,
-      name: "John Doe",
-      rating: 5,
-      date: "2021-08-01",
-    },
-    {
-      id: 2,
-      customer_id: 2,
-      name: "Jane Doe",
-      rating: 4,
-      date: "2021-08-02",
-    },
-    {
-      id: 3,
-      customer_id: 3,
-      name: "John Smith",
-      rating: 3,
-      date: "2021-08-03",
-    },
-    {
-      id: 4,
-      customer_id: 4,
-      name: "Jane Smith",
-      rating: 2,
-      date: "2021-08-04",
-    },
-    {
-      id: 5,
-      customer_id: 5,
-      name: "John Doe",
-      rating: 1,
-      date: "2021-08-05",
-    },
-    {
-      id: 6,
-      customer_id: 6,
-      name: "Jane Doe",
-      rating: 5,
-      date: "2021-08-06",
-    },
-    {
-      id: 7,
-      customer_id: 7,
-      name: "John Smith",
-      rating: 4,
-      date: "2021-08-07",
-    },
-    {
-      id: 8,
-      customer_id: 8,
-      name: "Jane Smith",
-      rating: 3,
-      date: "2021-08-08",
-    },
-    {
-      id: 9,
-      customer_id: 9,
-      name: "John Doe",
-      rating: 2,
-      date: "2021-08-09",
-    },
-    {
-      id: 10,
-      customer_id: 10,
-      name: "Jane Doe",
-      rating: 1,
-      date: "2021-08-10",
-    },
-    {
-      id: 11,
-      customer_id: 11,
-      name: "John Smith",
-      rating: 5,
-      date: "2021-08-11",
-    },
-    {
-      id: 12,
-      customer_id: 12,
-      name: "Jane Smith",
-      rating: 4,
-      date: "2021-08-12",
-    },
-    {
-      id: 13,
-      customer_id: 13,
-      name: "John Doe",
-      rating: 3,
-      date: "2021-08-13",
-    },
-  ]);
   let allDataCollection = $state([]);
   let currentArrayData = $state([]);
-  let allDataMeta = $state({ page: 1, pageSize: 10, pageCount: 2, total: 13 });
-  let allDataModal = $state([
-    {
-      id: 1,
-      file_name: "quarterly_revenue.csv",
-    },
-    {
-      id: 2,
-      file_name: "ad_campaign_performance.csv",
-    },
-  ]);
   let datasChecked = $state([
     {
       id: 1,
@@ -146,6 +42,7 @@
       checked: false,
     },
   ]);
+  let libraryId = $state(null);
   let tmpDatasChecked = $state({});
   let configs = $state({ hideSearch: true });
   let searchTerm = $state("");
@@ -156,6 +53,7 @@
   let collections = $state([]);
   let initCollections = $state([]);
   let selectedCollection = $state("");
+  let selectedDocument = $state("");
   let configsChecked = $state({});
   let tmpSelectedCollection = $state("");
   let oldSelectedCollection = $state("");
@@ -166,69 +64,164 @@
   let paginationModal = $state({ page: 1, pageSize: 3, pageCount: 0, total: 0 });
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
+  let paginationNew = $state({ page: 1, pageSize: 24, pageCount: 1, total: 0 });
+  let csvMeta = $state({ page: 1, pageSize: 5, pageCount: 2, total: 0 });
 
-  let dataConversationChatsDummy = $state([
-    {
-      id: 1,
-      role: "user",
-      message: `Bisakah Anda menjelaskan apa itu kiamat?`,
-    },
-    {
-      id: 2,
-      role: "assistant",
-      message: `<think>
-Okay, the user is asking "Apa itu kiamat," which translates to "What is kiamat?" I need to explain this concept based on Islamic teachings and any provided context.
+  let dataConversationChats = $state([]);
 
-From the existing answer, I see that kiamat refers to the Day of Judgment in Islam. It's crucial to elaborate on both the small and major aspects of kiamat—kiamat kecil and kiamat besar—as well as引用相关的 Quranic verses for clarity.
+  let documentPath = $state("");
+  let documentTitle = $state("CSV Insight");
 
-I should structure the response to include:
-- Definition of kiamat
-- Differences between kiamat kecil and kiamat syih
-- Quranic references and scientific perspectives from the documents
-- The significance of kiamat in Islamic belief
+  let ws;
+  let current_session_user = $state("");
+  let current_session_id = $state("");
+  let image = $state("");
+  let message = $state("");
+  let isTyping = $state(false);
+  let fileDetail = $state({});
 
-Make sure to avoid speculation and only use information from the provided context.
-</think>
+  function connectWebSocket() {
+    var base_url =
+      (location.protocol == "https:" ? "wss:" : "ws:") +
+      "//" +
+      location.hostname +
+      (location.port == "" ? "" : ":" + location.port);
 
-Kiamat adalah istilah yang merujuk pada hari akhir atau penghujung zaman di mana segala makhluk hidup akan menghadapi ajalnya dan kehidupan sebagaimana kita ketahui akan berakhir. Menurut ajaran Islam, kiamat adalah suatu peristiwa maha dahsyat yang tidak dapat dipungkiri sebagai bagian dari keyakinan muslim.
+    // if (need_auth) {
+    if (isFrontend) {
+      ws = new WebSocket(
+        `http://192.168.18.14/insight/c/${encodeURIComponent(localStorage.getItem("token"))}`,
+      );
+    } else {
+      ws = new WebSocket(
+        `${base_url}/insight/c/${encodeURIComponent(localStorage.getItem("token"))}`,
+      );
+    }
+    // } else {
+    //   ws = new WebSocket(`${base_url}/hexa-ai-rag/pub/c/${localStorage.getItem("botId")}`);
+    // }
 
-### 1. **Definisi Kiamat**
-Kiamat dalam terminologi islam adalah hari dimana segala makhluk akan mati dan dihisab (diperiksa) oleh Allah SWT. Ini termasuk kiamat kecil dan kiamat besar:
-   - **Kiamat Kecil (Kiamat Syiah):**
-     Peristiwa-peristiwa yang terjadi sepanjang zaman, seperti bencana alam, erupsi gunung berapi, dan jatuhnya meteor, yang mengakibatkan kepunahan massal atau perubahan besar dalam kehidupan di muka bumi.
-   - **Kiamat Besar (Kiamat Syih):**
-     Hari akhir dimana seluruh alam semesta akan musnah dan segala makhluk hidup akan dimintahkan pertanggungjawaban.
+    ws.onopen = function (event) {
+      console.log("WebSocket connected", event);
+      Joining();
+    };
 
-### 2. **Penggambaran Kiamat dalam Al-Qur'an**
-Al-Qur'an menggambarkan kiamat dengan gambaran yang sangat dramatis. Beberapa surah seperti Surah al-Qari'ah, Surah az-Zumar, dan Surah ad-Dukhan menceritakan tentang kehancuran bumi dan langit pada hari itu:
+    ws.onerror = function (error) {
+      console.error("WebSocket error occurred:", error);
+    };
 
-- **Surah al-Qari'ah (101):**
-  "Danhari yang kiamatnya adalah hari yang menakutkan."
+    ws.onmessage = function (event) {
+      console.log("Received WebSocket message:", event.data);
+      const data = JSON.parse(event.data);
 
-- **Surah az-Zumar (39:68):**
-  "Danhari itu, tidak ada jiwa yang dapat memberikan hadiah kepada jiwa lain melain dari karena ridha Allah SWT."
+      if (data?.file_detail) {
+        fileDetail = data.file_detail;
+        // console.log("fileDetail", fileDetail);
+      }
 
-### 3. **Kiamat dan Ilmu Pengetahuan**
-Dari sisi ilmu pengetahuan, kiamat besar dapat disimak sebagai peristiwa dimana alam semesta ini akan berakhir sesuai dengan hadis-hadis nabi yang menyebutkan tentang hari kiamat.
+      current_session_user = data.session_user;
 
-### 4. **Peran Air di Surga dan Neraka**
-Di dalam Al-Qur'an, air juga dijadikan simbol kehidupan yang melimpah di surga (Jannah) dan menjadi puniyah untuk muktabar di neraka. Ini tercermin dalam ayat-ayat seperti:
+      if (data.session_id && data.session_id !== "dummy") {
+        current_session_id = data.session_id;
+      }
 
-- **Surah As-Saffat (37:44):**
-  "Dan Dia menjanjikan kepada mereka air yang tidak berkurang dan buah-buah yang tidak ada habisnya."
+      isTyping = data.action.is_typing;
 
-### 5. **Simbolisme Air**
-Air di dalam Al-Qur'an juga menjadi simbol kebersihan, kehidupan, dan pertumbuhan. Ini tercermin dari ayat-ayat seperti:
+      if (data.type === "content") {
+        message = data.content.message;
+        image = data.content.image;
 
-- **Surah Al-Ma'ida (5:6):**
-  "Dan jika kamu tidak menemukan air, maka bersuci dengan tanah yang baik."
+        // if (image){
+        //   image = base64toBlob(image, "image/png");
+        // }
 
-### Kesimpulan
-Kiamat adalah peristiwa akhir zaman yang ditandai dengan kehancuran segala makhluk dan alam semesta ini kembali kepada Sang Pencipta. Air menjadi bagian penting dalam konteks kehidupan di dunia dan surga, menegaskan betapa besar nikmat Allah SWT terhadap umat-Nya.
+        if (data.content.role === "assistant") {
+          dataConversationChats = [
+            ...dataConversationChats,
+            {
+              id: dataConversationChats.length + 1,
+              message: message,
+              role: data.content.role,
+              image: image,
+            }
+          ]
+        }
 
-Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/bakrie/document_detail?documentId=3&page=1 "file (Page 1)"), [P5](/bakrie/document_detail?documentId=3&page=5 "file (Page 5)")], [PT_BUMI_RESOURC......](/bakrie/document_detail?documentId=5&page=1 "PT_BUMI_RESOURCES_TBK")[[P1](/bakrie/document_detail?documentId=5&page=1 "PT_BUMI_RESOURCES_TBK (Page 1)"), [P2](/bakrie/document_detail?documentId=5&page=2 "PT_BUMI_RESOURCES_TBK (Page 2)"), [P3](/bakrie/document_detail?documentId=5&page=3 "PT_BUMI_RESOURCES_TBK (Page 3)"), [P4](/bakrie/document_detail?documentId=5&page=4 "PT_BUMI_RESOURCES_TBK (Page 4)"), [P5](/bakrie/document_detail?documentId=5&page=5 "PT_BUMI_RESOURCES_TBK (Page 5)")]`,
-    },
-  ]);
+
+        console.log("masuk berapa");
+
+        console.log("cekkk dataConversationChats", dataConversationChats);
+
+        // console.log("data.content", data.content);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket disconnected.");
+      // Opsi: coba reconnect otomatis jika diperlukan
+      setTimeout(() => {
+        connectWebSocket();
+      }, 3000);
+    };
+  }
+
+  const SendMessage = (message) => {
+    console.log("SendMessage", message);
+    ws.send(JSON.stringify(message));
+  };
+
+  const Joining = (session_user) => {
+    console.log("Joining", session_user);
+    if (session_user !== null && session_user !== undefined) {
+      console.log("Joining existing");
+      SendMessage({
+        type: "joining",
+        joining: {
+          session_user: session_user,
+        },
+      });
+    } else {
+      console.log("Joining new");
+      SendMessage({
+        type: "joining",
+        // joining: {
+        //   session_user: session_user,
+        // },
+      });
+    }
+  };
+
+  // const Leaving = (session_user) => {
+  //   SendMessage({
+  //     type: "leaving",
+  //     session_user: session_user,
+  //   });
+  // };
+
+  const Select = (session_user, path) => {
+    SendMessage({
+      type: "select",
+      session_user: session_user,
+      local_path: path,
+    });
+  };
+
+  const Message = (session_user, session_id, message) => {
+    SendMessage({
+      type: "content",
+      session_id: session_id,
+      session_user: session_user,
+      file_detail: {
+        name: "dummy",
+        local_path: "dummy",
+        description: "dummy",
+      },
+      content: {
+        role: "user",
+        message: message,
+      },
+    });
+  };
 
   const autosize = () => {
     textarea.addEventListener("input", (e) => {
@@ -245,14 +238,18 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
   };
 
   async function sendMessageInput() {
-    dataConversationChatsDummy = [
-      ...dataConversationChatsDummy,
+    dataConversationChats = [];
+    dataConversationChats = [
+      ...dataConversationChats,
       {
-        id: dataConversationChatsDummy.length + 1,
+        id: dataConversationChats.length + 1,
         role: "user",
         message: messageInput,
       },
     ];
+
+    console.log("dataConversationChats", dataConversationChats);
+    Message(current_session_user, current_session_id, messageInput);
     messageInput = "";
     resetTextarea();
     console.log("messageInput", messageInput);
@@ -278,37 +275,29 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
   };
 
   async function next() {
-    if (paginationModal.page >= paginationModal.pageCount) return;
-
-    let pageNow = paginationModal.page;
-    if (tmpDatasChecked[pageNow] === undefined) {
-      tmpDatasChecked = {
-        ...tmpDatasChecked,
-        [pageNow]: datasChecked,
-      };
-    } else {
-      tmpDatasChecked[pageNow] = datasChecked;
-    }
-
-    paginationModal.page = paginationModal.page + 1;
-    // TODO: create function getCsv();
+    if (csvMeta.page >= csvMeta.pageCount) return;
+    csvMeta.page += 1;
+    getCsvData();
   }
 
   async function previous() {
-    if (paginationModal.page <= 1) return;
-
-    let pageNow = paginationModal.page;
-    if (tmpDatasChecked[pageNow] === undefined) {
-      tmpDatasChecked = {
-        ...tmpDatasChecked,
-        [pageNow]: datasChecked,
-      };
-    } else {
-      tmpDatasChecked[pageNow] = datasChecked;
+    if (csvMeta.page > 1) {
+      csvMeta.page -= 1;
+      getCsvData();
     }
+  }
 
-    paginationModal.page = paginationModal.page - 1;
-    // TODO: create function getCsv();
+  async function nextCollectionDoc() {
+    if (pagination.page >= pagination.pageCount) return;
+    pagination.page += 1;
+    getCollectionSub(selectedCollection);
+  }
+
+  async function previousCollectionDoc() {
+    if (pagination.page > 1) {
+      pagination.page -= 1;
+      getCollectionSub(selectedCollection);
+    }
   }
 
   async function handleCheckAll(allChecked) {
@@ -363,12 +352,13 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
       let pageNow = 1;
       initCollections = [];
       while (true) {
-        let response = await $call.call("client-dashboard", "get-librarys", {
+        let response = await $call.call("client-dashboard", "get-library-collections", {
           URLQuery: {},
           URLParams: {},
           Params: {
             page: pageNow,
             page_size: 25,
+            parent_id: parseInt(libraryId),
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -407,13 +397,13 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
       if (!search) {
         gettingDatas = true;
       }
-      let response = await $call.call("client-dashboard", "get-library-collections", {
+      let response = await $call.call("client-dashboard", "find-library-by-parent-id", {
         URLQuery: {},
         URLParams: {},
         Params: {
           page: pagination.page,
           page_size: pagination.pageSize,
-          parent_id: id,
+          parent_id: parseInt(id),
           search: searchTerm,
         },
         Headers: {
@@ -427,7 +417,7 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
         return;
       }
 
-      console.log("collections", response);
+      console.log("sub collections", response);
 
       if (response.result.data.length > 0) {
         pagination = response.result.meta.pagination;
@@ -436,30 +426,32 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
           searchHandler: handleSearch,
           pagination: response.result.meta.pagination,
           space: "p-4",
-          actionInLeft: true,
-          actions: [
-            {
-              id: "deselect_all",
-              name: "Deselect All",
-              onclick: () => {
-                handleCheckAllCollection(false);
-              },
-            },
-            {
-              id: "select_all",
-              name: "Select All",
-              type: "brand-inverse",
-              onclick: () => {
-                handleCheckAllCollection(true);
-              },
-            },
-          ],
+          // actionInLeft: true,
+          // actions: [
+          //   {
+          //     id: "deselect_all",
+          //     name: "Deselect All",
+          //     onclick: () => {
+          //       handleCheckAllCollection(false);
+          //     },
+          //   },
+          //   {
+          //     id: "select_all",
+          //     name: "Select All",
+          //     type: "brand-inverse",
+          //     onclick: () => {
+          //       handleCheckAllCollection(true);
+          //     },
+          //   },
+          // ],
         };
         let promises = response.result.data.map(async (document) => {
-          const sub_collections = await getSubCollections(document.id);
+          const sub_collections = await getSubDocuments(document.id);
           return {
             id: document.id,
-            collection_name: document.attributes.name,
+            name: document.attributes.name,
+            type: document.attributes.type,
+            path: document.attributes.path,
             sub_collections,
           };
         });
@@ -524,24 +516,25 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
           searchHandler: handleSearch,
           pagination: response.result.meta.pagination,
           space: "p-4",
-          actionInLeft: true,
-          actions: [
-            {
-              id: "deselect_all",
-              name: "Deselect All",
-              onclick: () => {
-                handleCheckAllCollection(false);
-              },
-            },
-            {
-              id: "select_all",
-              name: "Select All",
-              type: "brand-inverse",
-              onclick: () => {
-                handleCheckAllCollection(true);
-              },
-            },
-          ],
+          actionInLeft: false,
+          // actionInLeft: true,
+          // actions: [
+            // {
+            //   id: "deselect_all",
+            //   name: "Deselect All",
+            //   onclick: () => {
+            //     handleCheckAllCollection(false);
+            //   },
+            // },
+            // {
+            //   id: "select_all",
+            //   name: "Select All",
+            //   type: "brand-inverse",
+            //   onclick: () => {
+            //     handleCheckAllCollection(true);
+            //   },
+            // },
+          // ],
           // actions: [
           //   {
           //     id: "delete",
@@ -640,6 +633,142 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
     }
   }
 
+  async function getSubDocuments(id) {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      gettingDatas = true;
+      const aggregatedData = [];
+
+      paginationCollection.page = 1;
+
+      do {
+        let response = await $call.call("client-dashboard", "get-library-documents", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: paginationCollection.page,
+            page_size: paginationCollection.pageSize,
+            parent_id: parseInt(id),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          gettingDatas = false;
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          return;
+        }
+
+        aggregatedData.push(...response.result.data);
+
+        paginationCollection = response.result.meta.pagination;
+
+        paginationCollection.page++;
+      } while (paginationCollection.page <= paginationCollection.pageCount);
+
+      const promise = aggregatedData.map(async (collection) => ({
+        id: collection.id,
+        collection_name: collection.attributes.name,
+        path: collection.attributes.path,
+      }));
+
+      const subCollectionList = await Promise.all(promise);
+      console.log("subDocumentList", subCollectionList);
+      gettingDatas = false;
+      return subCollectionList;
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      gettingDatas = false;
+      return;
+    }
+  }
+
+  async function getCsvData() {
+    gettingDatas = true;
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      try {
+        let response = await $call.call("client-dashboard", "get-library-document-csv", {
+          URLQuery: {},
+          URLParams: {
+            id: selectedDocument.toString(),
+          },
+          Params: {
+            page: csvMeta.page,
+            page_size: csvMeta.pageSize,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        csvMeta.pageCount = response.result.result.total_pages;
+        csvMeta.total = response.result.result.total_items;
+
+        console.log("document csv response", response);
+
+        documentPath = response.result.data.path;
+
+        documentTitle = response.result.data.name;
+
+        console.log("documentPath", documentPath);
+
+        if (response.status !== 200) {
+          console.log(response);
+          triggerLoading(false);
+          gettingDatas = false;
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          }
+          goto(await $call.getPage("client-dashboard", "document-library"));
+          return;
+        }
+
+        csvMeta.pageCount = response.result.result.total_pages;
+        csvMeta.total = response.result.result.total_items;
+
+        currentArrayData = response.result.result.data;
+
+        console.log("currentArrayData", currentArrayData);
+
+        gettingDatas = false;
+      } catch (error) {
+        gettingDatas = false;
+        console.error("Error during document get:", error);
+        triggerToast($_("failedGetDocument"), true, "error");
+      }
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  }
+
   const handleSearch = async (value) => {
     search = true;
     pagination.page = 1;
@@ -658,21 +787,31 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
     }
   });
 
-  onMount(() => {
-    if (allDataMeta) {
-      currentArrayData = allData.slice(
-        (allDataMeta.page - 1) * allDataMeta.pageSize,
-        allDataMeta.page * allDataMeta.pageSize,
-      );
+  $effect(() => {
+    if (selectedDocument) {
+      console.log("selectedDocument", selectedDocument);
     }
+  });
+
+  onMount(() => {
+    // if (allDataMeta) {
+    //   currentArrayData = allData.slice(
+    //     (allDataMeta.page - 1) * allDataMeta.pageSize,
+    //     allDataMeta.page * allDataMeta.pageSize,
+    //   );
+    // }
+
+    connectWebSocket();
     if (textarea) {
       autosize();
     }
     const resizeHandler = () => {
       innerWidth = globalThis.innerWidth;
     };
+    libraryId = localStorage.getItem("libraryId") || $datasourceLibraryId;
     globalThis.addEventListener("resize", resizeHandler);
     resizeHandler(); // call once initially to set the correct value
+    // getContentLibrary();
     getCollections();
     return () => {
       globalThis.removeEventListener("resize", resizeHandler);
@@ -686,7 +825,7 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
       <Typography
         preset="Display sm/Semibold"
         color="primary"
-        text="Customer Feedback Data"
+        text={documentTitle}
         propClass="fluid-xl"
       />
     </div>
@@ -701,7 +840,7 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
       }}
     >
       <File06Icon svgClass="w-5 h-5 text-fg-brand-primary-light dark:text-fg-brand-primary-dark" />
-      <div class="font-semibold text-fg-brand-primary-light dark:text-fg-brand-primary-dark">
+      <div class="font-semibold hidden md:block text-fg-brand-primary-light dark:text-fg-brand-primary-dark">
         {$_("changeDataSource")}
       </div>
       <ChevronDownIcon
@@ -715,10 +854,10 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
 
 <div class="flex flex-col md:flex-row w-full pb-12">
   <!-- table preview -->
-  <div class="w-full md:w-1/2 pt-8 px-4 flex flex-col gap-6">
+  <div class={`w-full md:w-1/2 pt-8 px-4 flex flex-col gap-6`}>
     <Typography preset="Text md/Semibold" text={$_("providedTable")} />
     {#if currentArrayData.length === 0}
-      <StateCard illustration={IllustrationEmpty} description={$_("noDataAvailable")} />
+      <StateCard illustration={IllustrationEmpty} description={$_("noDataAvailable")} funcButton={() => (modalOpen = true)} actionText={$_("selectDataSource")} />
     {:else}
       <div
         class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl pt-4"
@@ -747,7 +886,8 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
             {/each}
           </TableBody>
         </Table>
-        <div class="flex justify-between items-center p-3 rounded-b-xl">
+        <Pagination pagination={csvMeta} previousPage={previous} nextPage={next} />
+        <!-- <div class="flex justify-between items-center p-3 rounded-b-xl">
           <Typography
             preset="Text sm/Regular"
             text={`Showing ${allDataMeta.page * allDataMeta.pageSize - allDataMeta.pageSize + 1} to ${
@@ -762,37 +902,55 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
             <span slot="prev">{$_("previous")}</span>
             <span slot="next">{$_("next")}</span>
           </Pagination>
-        </div>
+        </div> -->
       </div>
     {/if}
   </div>
   <!-- chat -->
   <div class="w-full md:w-1/2 pt-8 px-4 flex flex-col gap-4">
     <Typography preset="Text md/Semibold" text={$_("csvInsight")} />
-    {#each dataConversationChatsDummy as chat}
+    {#each dataConversationChats as chat}
       <div class="flex gap-4 p-4">
         {#if chat.role === "assistant"}
           <div
-            class="w-8 h-7 md:w-12 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
+            class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
           >
             <Icon name="lightbulb04" color="primary-onbrand" />
           </div>
         {:else}
           <div
-            class="w-8 h-7 md:w-12 md:h-11 flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+            class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
           >
             <img src={UserIcon} alt="User" class="w-4 h-4 md:w-6 md:h-6" />
           </div>
         {/if}
-        <div class="w-full">
-          <div
-            class="prose max-w-none font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
-          >
-            <Markdown md={chat.message} {plugins} />
+        <div class="w-5/6">
+          <div class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark">
+            {#if chat.role === "assistant"}
+              <pre class="whitespace-pre-wrap break-words overflow-auto p-2">{chat.message}</pre>
+            {:else}
+              <Markdown md={chat.message} {plugins} />
+            {/if}
+            {#if chat.image}
+              <img src={chat.image} alt="Image" class="w-full" />
+            {/if}
           </div>
         </div>
       </div>
     {/each}
+
+    {#if isTyping}
+    <div class="flex gap-4 p-4">
+      <div
+        class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
+      >
+        <Icon name="lightbulb04" color="primary-onbrand" />
+      </div>
+      <div class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark">
+        <pre class="whitespace-pre-wrap break-words overflow-auto p-2">Typing...</pre>
+      </div>
+    </div>
+    {/if}
 
     <form onsubmit={messageInput !== "" ? sendMessageInput : () => {}} class="w-full p-6">
       <div class="flex items-center">
@@ -802,13 +960,14 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
             bind:this={textarea}
             bind:value={messageInput}
             onkeydown={handleKeyDown}
+            disabled={isTyping || currentArrayData.length === 0}
             id="chat"
             rows="1"
             class="block resize-none p-2.5 w-full fluid-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-3xl border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:border-utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
             placeholder="Send a message..."
           ></textarea>
           <Button
-            disabled={!messageInput}
+            disabled={!messageInput || isTyping || currentArrayData.length === 0}
             onclick={onclickSend}
             class="rounded-full h-11 w-11 !p-3"
           >
@@ -828,12 +987,12 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
       >
         <Typography
           preset="Text md/Bold"
-          text={$_("chooseDocumentsLibrary")}
+          text={$_("chooseCollection")}
           color={!isSelectedLibrary ? "brand-secondary" : "secondary"}
         />
         <Typography
           preset="Text sm/Regular"
-          text={$_("documentLibraryAsThePrimarySource")}
+          text={$_("chooseCollectionAsDataSource")}
           color={!isSelectedLibrary ? "brand-tertiary" : "tertiary"}
         />
       </div>
@@ -843,7 +1002,7 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
       >
         <Typography
           preset="Text md/Bold"
-          text={$_("chooseWhichCollections")}
+          text={$_("chooseCsvfile")}
           color={isSelectedLibrary ? "brand-secondary" : "secondary"}
         />
         <Typography
@@ -872,10 +1031,12 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
         bind:datasChecked
         bind:configs={configsChecked}
         bind:gettingDatas
-        bind:next
-        bind:previous
+        bind:next={nextCollectionDoc}
+        bind:previous={previousCollectionDoc}
         bind:handleCheckAll
         bind:handleCheck
+        bind:selectedData={selectedDocument}
+        bind:searchTerm
         {selectCsv}
       />
     {:else}
@@ -904,11 +1065,13 @@ Reference: [file...](/bakrie/document_detail?documentId=3&page=1 "file")[[P1](/b
           class="px-5">{$_("goBack")}</button
         >
         <Button
-          on:click={() => {
+          on:click={async () => {
             modalOpen = false;
+            await getCsvData();
+            Select(current_session_user, documentPath);
           }}
           class="grow"
-          disabled={areAllUnchecked()}>{$_("finish")}</Button
+          disabled={selectedDocument === ""}>{$_("finish")}</Button
         >
       </div>
     {/if}

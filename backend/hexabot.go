@@ -65,6 +65,11 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		system_item = false
 	}
 
+	module_type, ok := ctx.Params.GetString("module_type")
+	if !ok {
+		module_type = "document"
+	}
+
 	var bot_profile_id U.Float64
 
 	bot_profile_id = 0
@@ -211,6 +216,7 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"manage_document":  false,
 		"assistant_item":   assistant_item,
 		"system_item":      system_item,
+		"module_type":      module_type,
 	}
 
 	if description != "" {
@@ -302,6 +308,12 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 		search = ""
 	}
 
+	module_type, ok := ctx.Params.GetString("module_type")
+
+	if !ok {
+		module_type = "document"
+	}
+
 	status, data, err := Strapi.Find("hexabot-table", U.Dict{
 		"filters": U.Dict{
 			"bot_name": U.Dict{
@@ -309,6 +321,9 @@ func GetBots(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 			},
 			"system_item": U.Dict{
 				"$eq": false,
+			},
+			"module_type": U.Dict{
+				"$eq": module_type,
 			},
 		},
 		"pagination": U.Dict{
@@ -824,6 +839,11 @@ func GetBotsReady(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 		search = ""
 	}
 
+	module_type, ok := ctx.Params.GetString("module_type")
+	if !ok {
+		module_type = "document"
+	}
+
 	status, data, err := Strapi.Find("hexabot-table", U.Dict{
 		"filters": U.Dict{
 			"bot_name": U.Dict{
@@ -834,6 +854,9 @@ func GetBotsReady(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErr
 			},
 			"system_item": U.Dict{
 				"$eq": false,
+			},
+			"module_type": U.Dict{
+				"$eq": module_type,
 			},
 		},
 		"pagination": U.Dict{

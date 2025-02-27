@@ -18,6 +18,7 @@ All Rights Reserved
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import CSVIcon from "$lib/icon/csv.svg";
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import EyeIcon from "$lib/icon/eye.svelte";
   import UploadFileIcon from "$lib/icon/upload-01.svelte";
@@ -162,6 +163,8 @@ All Rights Reserved
             <img src={JPEGSolidIcon} alt="" />
           {:else if file.name.includes(".png") || file.name.includes(".PNG")}
             <img src={PNGSolidIcon} alt="" />
+          {:else if file.name.includes(".csv") || file.name.includes(".CSV")}
+            <img src={CSVIcon} alt="" />
           {/if}
           <div class="flex flex-col max-w-72 justify-center">
             <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />

@@ -16,6 +16,8 @@ All Rights Reserved
     StateCard,
     Typography,
     triggerToast,
+    call,
+    BotCard,
   } from "$lib";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import LightbulbIcon from "$lib/icon/lightbulb-04.svg";
@@ -44,6 +46,8 @@ All Rights Reserved
   let timer;
 
   let latestDataSources = $state([]);
+  
+  let bots = $state([]);
 
   let gettingDatas = $state(false);
 
@@ -87,8 +91,121 @@ All Rights Reserved
     }
   };
 
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  }
+
+  async function getBots() {
+    let token = localStorage.getItem("token");
+
+    if (token) {
+      gettingDatas = true;
+      try {
+        // const response = await $call.call("client-dashboard", "get-bots", {
+        const response = await $call.call("client-dashboard", "get-bots", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: 1,
+            page_size: 10,
+            search: "",
+            module_type: "insights",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response === null) {
+          gettingDatas = false;
+          console.log("response null", response);
+          return;
+        }
+
+        if (response.status !== 200) {
+          gettingDatas = false;
+          console.log("status not 200", response);
+          return;
+        }
+
+        let tmp = response.result.data.map(async (bot) => {
+          let fileImageResult = "";
+          if (bot.attributes.bot_profile.data !== null) {
+            let ext = bot.attributes.bot_profile.data.attributes.ext;
+
+            let fileType;
+            if (ext === ".png") {
+              fileType = "image/png";
+            } else if (ext === ".jpg") {
+              fileType = "image/jpg";
+            } else if (ext === ".jpeg") {
+              fileType = "image/jpeg";
+            } else if (ext === ".svg") {
+              fileType = "image/svg+xml";
+            } else {
+              fileType = "image/png";
+            }
+
+            if (bot.bot_profile !== "") {
+              let fileImage = bot.bot_profile;
+              let blob = base64toBlob(fileImage, fileType);
+              fileImageResult = URL.createObjectURL(blob);
+            }
+          }
+
+          let urlBot = await $call.getPage("client-dashboard", "csv-insight-ask-csv");
+
+          return {
+            botsName: bot.attributes.bot_name,
+            botDescription: bot.attributes.description,
+            botsID: bot.id,
+            // clientID: bot.attributes.client_id,
+            activationTime: bot.attributes.createdAt,
+            urlBot: urlBot,
+            timestamp: bot.attributes.updatedAt,
+            deployStatus: bot.attributes.status,
+            deployedPlatform: bot.attributes.ai_engine,
+            bot_profile: fileImageResult,
+          };
+        });
+
+        bots = await Promise.all(tmp);
+
+        dropdownOpen = [];
+        for (let i = 0; i < bots.length; i++) {
+          dropdownOpen.push(false);
+        }
+
+        gettingDatas = false;
+        console.log("cek bot insight", bots);
+      } catch (error) {
+        gettingDatas = false;
+        console.log(error);
+      }
+    } else {
+      console.log("token not found");
+    }
+  }
+
   onMount(async () => {
-    latestDataSources = JSON.parse(localStorage.getItem("latestDataSources")) || [];
+    // latestDataSources = JSON.parse(localStorage.getItem("latestDataSources")) || [];
+    getBots();
   });
 
   onDestroy(() => {
@@ -122,126 +239,10 @@ All Rights Reserved
       </div>
 
       <div>
-        {#if latestDataSources.length > 0}
-          <div
-            class={`${$showAI || $showNotif ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
-          >
-            {#each latestDataSources as bot, index}
-              <Card padding="none" class="relative shadow-none grow w-full">
-                <!-- {#if bot.deployStatus === "Reading"}
-                  <div class="absolute top-2 right-2">
-                    <Badge type="warning" text={bot.deployStatus} />
-                  </div>
-                {:else if bot.deployStatus === "Ready"}
-                  <div class="absolute top-2 right-2">
-                    <Badge type="success" text={bot.deployStatus} />
-                  </div>
-                {/if} -->
-                <div
-                  class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
-                >
-                  <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                      <Avatar src={LightbulbIcon} class="p-2 bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark" />
-                      <div class="flex flex-col">
-                        <Typography
-                          preset="Text lg/Semibold"
-                          color="primary"
-                          text={bot.collectionName}
-                        />
-                      </div>
-                    </div>
-                    <div
-                      onfocusout={handleDropdownFocusLoss}
-                      class=" flex items-center relative"
-                    >
-                      <Button
-                        on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
-                        class="focus-within:ring-0 !p-0"
-                        color="none"
-                        size="xs"
-                        ><DotsVerticalIcon
-                          class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                        /></Button
-                      >
-                      <div
-                        class={`z-10 ${dropdownOpen[index] ? "absolute top-0 right-4" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-                      >
-                        <ul class="py-2 grow text-sm">
-                          <!-- <button
-                            class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                            onclick={goToEditPage(bot.botsID)}>{$_("edit")}</button
-                          > -->
-                          <button
-                            class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                            onclick={() => {
-                              popupModal = true;
-                              tmpId = bot.botsID;
-                              dropdownOpen[index] = !dropdownOpen[index];
-                            }}
-                            >{$_("delete")}</button
-                          >
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex gap-4 px-4 pt-4 pb-6">
-                  <div class="grow gap-3">
-                    <Button
-                      on:click={async () => {
-                        goto(bot.href);
-                      }}
-                      outline
-                      class="!flex w-full gap-1.5 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
-                    >
-                      <Typography
-                        preset="Text sm/Semibold"
-                        text={$_("askForInsight")}
-                        color="brand-secondary"
-                      />
-                      <Star04Icon svgClass="w-4 h-4 text-brand-secondary-light dark:text-brand-secondary-dark" />
-                    </Button>
-                  </div>
-                  <button
-                    onclick={() => {
-                      navigator.clipboard
-                        .writeText(bot.urlBot)
-                        .then(() => {
-                          console.log("Text copied to clipboard");
-                          triggerToast("copyToClipboard");
-                        })
-                        .catch((err) => {
-                          console.error("Failed to copy: ", err);
-                        });
-                    }}
-                  >
-                    <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                  </button>
-                </div>
-              </Card>
-              <!-- <DataSourcesCard
-                collectionName={document.collectionName}
-                totalDocuments={document.totalDocuments}
-                status={document.status}
-                functEdit={() => {
-                  tmpCollectionId = document.collectionId;
-                  tmpCollectionName = document.collectionName;
-                  tmpDescription = document.description;
-                  attributeNotUnique = false;
-                  nameIsAvailable = true;
-                  editIndex = index;
-                  editModal = true;
-                }}
-                functDelete={() => {
-                  tmpCollectionId = document.collectionId;
-                  tmpCollectionName = document.collectionName;
-                  deleteModal = true;
-                }}
-                funcDetailCollection={() => {
-                  goto(document.href);
-                }}
-              /> -->
+        {#if bots.length > 0}
+          <div class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}>
+            {#each bots as bot, index (bot.botsID)}
+              <BotCard {bot} {index} {dropdownOpen} config={{ insights: true }} {handleDropdownFocusLoss} />
             {/each}
           </div>
         {:else if gettingDatas}

@@ -33,6 +33,7 @@
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
+  import PenToolPlusIcon from "$lib/icon/pen-tool-plus.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -69,9 +70,9 @@
   let tmpCollectionName = $state("");
   let tmpOldName = $state("");
   let tmpDescription = $state("");
-  let tmpDocumentType = $state("Documents");
-  let selectedTypeCollection = $state("Documents (TXT, PDF, DOC, DOCX)");
-  let acceptedFileTypes = $state(".txt, .pdf, .doc, .docx");
+  let tmpDocumentType = $state("Handwriting");
+  let selectedTypeCollection = $state("Handwriting (JPG, JPEG, PNG)");
+  let acceptedFileTypes = $state(".jpg, .jpeg, .png");
   let search = $state("");
   let alltags = $state([]);
   let tags = $state([]);
@@ -1237,8 +1238,8 @@
               }}
               class="p-2 md:px-3 md:py-2 gap-2 whitespace-nowrap"
             >
-              <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-              <div class="hidden md:block">{$_("addDocument")}</div>
+              <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+              <div class="hidden md:block">{$_("addNewHandwriting")}</div>
             </Button>
           </div>
         </div>
@@ -1274,17 +1275,16 @@
   <ToastContainer />
 </div>
 
-<Modal title={$_("addDocuments")} bind:open={addDocumentsModal} size="xs">
+<Modal title={$_("addHandwriting")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
       <Button
         color="light"
         class="flex justify-between"
-        on:click={() => (dropdownOpen = !dropdownOpen)}
       >
         {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
+        <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
       </Button>
       <div
         class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
@@ -1362,6 +1362,15 @@
         {$_("docOrDocxWillConvertToPdf")}
       </Alert>
     {/if}
+    <!-- <label class="inline-flex items-center cursor-pointer">
+      <input type="checkbox" value="" class="hidden peer" bind:checked={bulk_upload} />
+      <div
+        class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
+      ></div>
+      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+        >{$_("bulkUpload")}</span
+      >
+    </label> -->
     {#if files.length === 1 && !isProcess}
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />

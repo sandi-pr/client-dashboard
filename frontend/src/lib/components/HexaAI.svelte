@@ -41,7 +41,7 @@
   let dataConversatonLogs = $state([
     {
       role: "assistant",
-      message: "Hello, I'm your Hexa AI assistant. How can I help you today?",
+      message: "Below are the first few lines of a CSV file. You need to write a Python program to solve the provided question.\n\nHeader and first few lines of CSV file:\nno_hs,jumlah_satuan,kode_satuan,nilai_invoice,kode_valuta,nilai_dpbm,barang_asal,barang_uraian,flag_larangan_terbatas\n95069100,500,SET,1365.0,USD,13391.0,CN,SCOREBOARD,T\n65061090,8,PCE,1076789.16,IDR,1.0,JP,HELMET,T\n65061090,10,PCE,206.63,USD,13445.0,CN,HELMET,T\n65069100,4200,PCE,2180.06,USD,13445.0,CN,HELMET,T\n65061090,8,PCE,603000.0,IDR,1.0,JP,HELMET,T\n65061090,2000,PCE,1368.72,USD,13445.0,CN,HELMET,T\n65061090,1,PCE,30.77,EUR,16227.31,DE,HELMET,T\n42029990,80,PCE,124.8,USD,13554.0,CN,BAG,T\n42021190,2400,PCE,3596.44,USD,13554.0,CN,BAG,T\n\nQuestion: buatin chart dong dari data itu\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# Load the csv file\ndf = pd.read_csv('/document/HS01_1 copy.csv')\n\n# Plot the barang_asal column\ndf['barang_asal'].value_counts().plot(kind='bar')\n\n# Set the title and labels\nplt.title('Distribution of Barang Asal')\nplt.xlabel('Barang Asal')\nplt.ylabel('Frequency')\n\n# Show the plot\nplt.show()\n\n# Print the result\nprint(\"The bar chart has been successfully created.\")",  
     },
   ]);
 
