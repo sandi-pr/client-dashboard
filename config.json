@@ -386,12 +386,12 @@
         },
         {
             "name": "csv-insight",
-            "path": "csv_insight",
+            "path": "/csv_insight",
             "file_path": "template/csv_insight.html"
         },
         {
             "name": "csv-insight-ask-csv",
-            "path": "csv_insight/ask_csv",
+            "path": "/csv_insight/ask_csv",
             "file_path": "template/csv_insight/ask_csv.html"
         },
         {

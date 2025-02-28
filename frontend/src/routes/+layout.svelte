@@ -630,7 +630,6 @@ All Rights Reserved
     const fp = await FingerprintJS.load();
 
     const result = await fp.get();
-    console.log("Fingerprint:", result.visitorId);
 
     return result.visitorId;
   };
