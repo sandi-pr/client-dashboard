@@ -200,25 +200,25 @@ All Rights Reserved
         icon: "messageChatSquare",
         name: "assistant",
         children: [
-          {
-            icon: "messageHeartSquare",
-            name: "hexassistant",
-            href: isFrontend
-              ? "/hexassistant"
-              : await call.getPage("client-dashboard", "hexassistant"),
-          },
+          // {
+          //   icon: "messageHeartSquare",
+          //   name: "hexassistant",
+          //   href: isFrontend
+          //     ? "/hexassistant"
+          //     : await call.getPage("client-dashboard", "hexassistant"),
+          // },
           {
             icon: "messageSmileSquare",
             name: "myBots",
             href: isFrontend ? "/my_bots" : await call.getPage("client-dashboard", "my-bots"),
           },
-          {
-            icon: "code01",
-            name: "codingAssistant",
-            href: isFrontend
-              ? "/coding_assistant"
-              : await call.getPage("client-dashboard", "coding-assistant"),
-          },
+          // {
+          //   icon: "code01",
+          //   name: "codingAssistant",
+          //   href: isFrontend
+          //     ? "/coding_assistant"
+          //     : await call.getPage("client-dashboard", "coding-assistant"),
+          // },
         ],
       },
       {
@@ -255,24 +255,24 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      {
-        icon: "presentation",
-        name: "Analytics",
-        children: [
-          {
-            icon: "bookClosed",
-            name: "dataSources",
-            href: isFrontend
-              ? "/data_sources"
-              : await call.getPage("client-dashboard", "data-sources"),
-          },
-          {
-            icon: "lightbulb",
-            name: "insights",
-            href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-          },
-        ],
-      },
+      // {
+      //   icon: "presentation",
+      //   name: "Analytics",
+      //   children: [
+      //     {
+      //       icon: "bookClosed",
+      //       name: "dataSources",
+      //       href: isFrontend
+      //         ? "/data_sources"
+      //         : await call.getPage("client-dashboard", "data-sources"),
+      //     },
+      //     {
+      //       icon: "lightbulb",
+      //       name: "insights",
+      //       href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+      //     },
+      //   ],
+      // },
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",

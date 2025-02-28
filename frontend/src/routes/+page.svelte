@@ -111,12 +111,12 @@ All Rights Reserved
       description: "descCreateBots",
       page: "bots",
     },
-    {
-      icon: "codeSquare01",
-      title: "tryCodingAssistant",
-      description: "descTryCodingAssistant",
-      page: "coding-assistant",
-    },
+    // {
+    //   icon: "codeSquare01",
+    //   title: "tryCodingAssistant",
+    //   description: "descTryCodingAssistant",
+    //   page: "coding-assistant",
+    // },
     // check("documentAi.documentLibrary:view")
     //   ? $isBakrie
     //     ? {
@@ -928,10 +928,10 @@ All Rights Reserved
     cardsArrays = [
       { name: "documentLibrary", array: cardsDocument },
       { name: "aiManagements", array: cardsAi },
-      { name: "aiAnalyzer", array: cardsAnalyzer },
-      { name: "hexaTutor", array: cardsHexaTutor },
-      { name: "analytic", array: cardsAnalytic },
-      { name: "smartDocument", array: cardsSmartDocument },
+      // { name: "aiAnalyzer", array: cardsAnalyzer },
+      // { name: "hexaTutor", array: cardsHexaTutor },
+      // { name: "analytic", array: cardsAnalytic },
+      // { name: "smartDocument", array: cardsSmartDocument },
     ];
 
     let totalCardsSection = cardsNotEmpty(cardsArrays);
