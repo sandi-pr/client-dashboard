@@ -1757,12 +1757,12 @@
               selectTypeCollection("Document Images");
             }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
           >
-          <!-- <button
+          <button
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Handwriting");
             }}>Handwriting (JPG, JPEG, PNG)</button
-          > -->
+          >
           <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
