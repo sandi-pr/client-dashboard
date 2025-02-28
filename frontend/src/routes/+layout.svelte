@@ -269,7 +269,7 @@ All Rights Reserved
           {
             icon: "lightbulb",
             name: "insights",
-            href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "insights"),
+            href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
           },
         ],
       },
