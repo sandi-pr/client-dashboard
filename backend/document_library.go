@@ -3314,6 +3314,11 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 		return ctx.Error(400, "invalid parameters description")
 	}
 
+	module_type, ok := ctx.Params.GetString("module_type")
+	if !ok {
+		module_type = "document"
+	}
+
 	status, library, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"type": U.Dict{
@@ -3321,6 +3326,9 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 			},
 			"name": U.Dict{
 				"$eq": name,
+			},
+			"module_type": U.Dict{
+				"$eq": module_type,
 			},
 		},
 	})
@@ -3363,6 +3371,7 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 					"description": description,
 				},
 				"library_industry": true,
+				"module_type":      module_type,
 			})
 
 			if err != nil {
