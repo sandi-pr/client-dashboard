@@ -90,7 +90,7 @@
     // if (need_auth) {
     if (isFrontend) {
       ws = new WebSocket(
-        `http://192.168.18.14/insight/c/${encodeURIComponent(localStorage.getItem("token"))}`,
+        `http://192.168.18.15/insight/c/${encodeURIComponent(localStorage.getItem("token"))}`,
       );
     } else {
       ws = new WebSocket(
@@ -211,11 +211,7 @@
       type: "content",
       session_id: session_id,
       session_user: session_user,
-      file_detail: {
-        name: "dummy",
-        local_path: "dummy",
-        description: "dummy",
-      },
+      file_detail: fileDetail,
       content: {
         role: "user",
         message: message,

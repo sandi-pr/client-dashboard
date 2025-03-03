@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.14")
+    ? new CR3Call("http://192.168.18.15")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -255,24 +255,24 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      // {
-      //   icon: "presentation",
-      //   name: "Analytics",
-      //   children: [
-      //     {
-      //       icon: "bookClosed",
-      //       name: "dataSources",
-      //       href: isFrontend
-      //         ? "/data_sources"
-      //         : await call.getPage("client-dashboard", "data-sources"),
-      //     },
-      //     {
-      //       icon: "lightbulb",
-      //       name: "insights",
-      //       href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      //     },
-      //   ],
-      // },
+      {
+        icon: "presentation",
+        name: "Analytics",
+        children: [
+          {
+            icon: "bookClosed",
+            name: "dataSources",
+            href: isFrontend
+              ? "/data_sources"
+              : await call.getPage("client-dashboard", "data-sources"),
+          },
+          {
+            icon: "lightbulb",
+            name: "insights",
+            href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+          },
+        ],
+      },
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",

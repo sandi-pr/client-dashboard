@@ -930,7 +930,7 @@ All Rights Reserved
       { name: "aiManagements", array: cardsAi },
       // { name: "aiAnalyzer", array: cardsAnalyzer },
       // { name: "hexaTutor", array: cardsHexaTutor },
-      // { name: "analytic", array: cardsAnalytic },
+      { name: "analytic", array: cardsAnalytic },
       // { name: "smartDocument", array: cardsSmartDocument },
     ];
 
