@@ -3363,7 +3363,7 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 				return ctx.Error(500, "Internal Server Error")
 			}
 
-			status, _, err = Strapi.Create("document-library-table", U.Dict{
+			status, library2, err := Strapi.Create("document-library-table", U.Dict{
 				"type": "library",
 				"name": name,
 				"path": document_path,
@@ -3384,7 +3384,7 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 				return ctx.Error(500, "Internal Server Error")
 			}
 
-			if data, ok := library.GetDict("data"); ok {
+			if data, ok := library2.GetDict("data"); ok {
 				if id, ok := data.GetFloat64("id"); ok {
 					return 200, U.Dict{
 						"id": id,

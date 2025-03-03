@@ -151,38 +151,40 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		collection_id_array := strings.Split(string(collection_id), ",")
-		collection_id_int := make([]int, len(collection_id_array))
+		if collection_id != "" {
+			collection_id_array := strings.Split(string(collection_id), ",")
+			collection_id_int := make([]int, len(collection_id_array))
 
-		for i, str := range collection_id_array {
-			num, err := strconv.Atoi(strings.TrimSpace(str))
-			if err != nil {
-				return ctx.Error(500, "Internal Server Error")
-			}
-			collection_id_int[i] = num
-		}
-
-		var allIdsSub U.String
-
-		for i := 0; i < len(collection_id_int); i++ {
-			collection_id_sub, err := getAllIdCollection(int(collection_id_int[i]), Strapi)
-			if err != nil {
-				fmt.Println(err)
-				return ctx.Error(500, "Internal Server Error")
+			for i, str := range collection_id_array {
+				num, err := strconv.Atoi(strings.TrimSpace(str))
+				if err != nil {
+					return ctx.Error(500, "Internal Server Error")
+				}
+				collection_id_int[i] = num
 			}
 
-			if collection_id_sub != "" {
-				allIdsSub = allIdsSub + "," + collection_id_sub
+			var allIdsSub U.String
+
+			for i := 0; i < len(collection_id_int); i++ {
+				collection_id_sub, err := getAllIdCollection(int(collection_id_int[i]), Strapi)
+				if err != nil {
+					fmt.Println(err)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				if collection_id_sub != "" {
+					allIdsSub = allIdsSub + "," + collection_id_sub
+				}
 			}
+
+			if allIdsSub != "" {
+				collection_id = collection_id + allIdsSub
+			}
+
+			library_idStr := strconv.Itoa(int(library_id))
+
+			collection_id = U.String(library_idStr) + "," + collection_id
 		}
-
-		if allIdsSub != "" {
-			collection_id = collection_id + allIdsSub
-		}
-
-		library_idStr := strconv.Itoa(int(library_id))
-
-		collection_id = U.String(library_idStr) + "," + collection_id
 	}
 
 	additional_prompt, ok := ctx.Params.GetString("additional_prompt")
@@ -205,7 +207,6 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"bot_name":         bot_name,
 		"ai_engine":        ai_engine,
 		"library_id":       int64(library_id),
-		"collection_id":    collection_id,
 		"background_align": "center",
 		"color_theme":      "purple",
 		"layout":           "Modern Minimalism",
@@ -221,6 +222,10 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 
 	if description != "" {
 		data["description"] = description
+	}
+
+	if collection_id != "" {
+		data["collection_id"] = collection_id
 	}
 
 	// if bot_profileStr != "" {
@@ -1119,38 +1124,40 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 			return ctx.Error(500, "Internal Server Error")
 		}
 
-		collection_id_array := strings.Split(string(collection_id), ",")
-		collection_id_int := make([]int, len(collection_id_array))
+		if collection_id != "" {
+			collection_id_array := strings.Split(string(collection_id), ",")
+			collection_id_int := make([]int, len(collection_id_array))
 
-		for i, str := range collection_id_array {
-			num, err := strconv.Atoi(strings.TrimSpace(str))
-			if err != nil {
-				return ctx.Error(500, "Internal Server Error")
-			}
-			collection_id_int[i] = num
-		}
-
-		var allIdsSub U.String
-
-		for i := 0; i < len(collection_id_int); i++ {
-			collection_id_sub, err := getAllIdCollection(int(collection_id_int[i]), Strapi)
-			if err != nil {
-				fmt.Println(err)
-				return ctx.Error(500, "Internal Server Error")
+			for i, str := range collection_id_array {
+				num, err := strconv.Atoi(strings.TrimSpace(str))
+				if err != nil {
+					return ctx.Error(500, "Internal Server Error")
+				}
+				collection_id_int[i] = num
 			}
 
-			if collection_id_sub != "" {
-				allIdsSub = allIdsSub + "," + collection_id_sub
+			var allIdsSub U.String
+
+			for i := 0; i < len(collection_id_int); i++ {
+				collection_id_sub, err := getAllIdCollection(int(collection_id_int[i]), Strapi)
+				if err != nil {
+					fmt.Println(err)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				if collection_id_sub != "" {
+					allIdsSub = allIdsSub + "," + collection_id_sub
+				}
 			}
+
+			if allIdsSub != "" {
+				collection_id = collection_id + allIdsSub
+			}
+
+			library_idStr := strconv.Itoa(int(library_id))
+
+			collection_id = U.String(library_idStr) + "," + collection_id
 		}
-
-		if allIdsSub != "" {
-			collection_id = collection_id + allIdsSub
-		}
-
-		library_idStr := strconv.Itoa(int(library_id))
-
-		collection_id = U.String(library_idStr) + "," + collection_id
 	}
 
 	manage_document, ok := ctx.URLParams.GetBool("manage_document")
@@ -1235,7 +1242,6 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"deployed_platform": deployed_platform,
 		"username":          username,
 		"need_auth":         need_auth,
-		"collection_id":     collection_id,
 		"manage_document":   manage_document,
 	}
 
@@ -1253,6 +1259,10 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 
 	if user_profileStr != "" {
 		data["user_profile"] = user_profile_id
+	}
+
+	if collection_id != "" {
+		data["collection_id"] = collection_id
 	}
 
 	if additional_prompt != "" {
@@ -1514,6 +1524,7 @@ func getAllIdCollection(library_id int, strapi *strapi.StrapiClassic) (U.String,
 	page := 1
 
 	for {
+		fmt.Println("Fetching collections for library_id:", library_id, "page:", page)
 		status, documentLibrarys, err := strapi.Find("document-library-table", U.Dict{
 			"filters": U.Dict{
 				"parent_id": U.Dict{
@@ -1530,17 +1541,18 @@ func getAllIdCollection(library_id int, strapi *strapi.StrapiClassic) (U.String,
 		})
 
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error fetching collections:", err)
 			return "", err
 		}
 
 		if status != 200 {
-			fmt.Println(status)
-			return "", err
+			fmt.Println("Unexpected status code:", status)
+			return "", fmt.Errorf("unexpected status code: %d", status)
 		}
 
 		if list, ok := documentLibrarys.GetList("data"); ok {
 			if len(list) < 1 {
+				fmt.Println("No more collections found, breaking loop")
 				break
 			}
 
@@ -1548,20 +1560,30 @@ func getAllIdCollection(library_id int, strapi *strapi.StrapiClassic) (U.String,
 				if dict, ok := list.GetDict(i); ok {
 					if id, ok := dict.GetFloat64("id"); ok {
 						allIds = append(allIds, id)
-						page = page + 1
 					} else {
-						return "", err
+						fmt.Println("Error: missing id in collection")
+						return "", fmt.Errorf("missing id in collection")
 					}
 				} else {
-					return "", err
+					fmt.Println("Error: invalid data structure")
+					return "", fmt.Errorf("invalid data structure")
 				}
 			}
 		} else {
-
-			return "", err
+			fmt.Println("Error: No 'data' field in response")
+			return "", fmt.Errorf("no 'data' field in response")
 		}
+
+		page++ // Pindah ke halaman berikutnya
 	}
 
+	// Jika tidak ada collection_id ditemukan
+	if len(allIds) == 0 {
+		fmt.Println("No collections found for library_id:", library_id)
+		return "", nil // Tidak error, tapi data kosong
+	}
+
+	// Convert list ke string
 	var strNums []string
 	for i := 0; i < len(allIds); i++ {
 		if num, ok := allIds.GetFloat64(i); ok {
@@ -1569,8 +1591,8 @@ func getAllIdCollection(library_id int, strapi *strapi.StrapiClassic) (U.String,
 		}
 	}
 
-	var result U.String
-	result = U.String(strings.Join(strNums, ","))
+	result := U.String(strings.Join(strNums, ","))
+	fmt.Println("Final collection IDs:", result)
 
 	return result, nil
 }
