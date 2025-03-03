@@ -89,7 +89,7 @@ All Rights Reserved
   let tmpDocumentType = $state("");
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
-  let addLibraryModal = $state(false);
+  let addCollectionModal = $state(false);
   let addDocumentsModal = $state(false);
   let editModal = $state(false);
   let deleteModal = $state(false);
@@ -421,7 +421,6 @@ All Rights Reserved
   }
 
   async function createCollection() {
-    console.log(files);
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -431,7 +430,7 @@ All Rights Reserved
         Params: {
           collection_name: tmpCollectionName,
           description: tmpDescription,
-          parent_id: parseInt($voiceLibraryId),
+          parent_id: parseInt(libraryId),
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -458,14 +457,11 @@ All Rights Reserved
 
       tmpCollectionName = "";
       tmpDescription = "";
-      attributeNotUnique = false;
 
       triggerToast($_("successCreateCollection"), true);
 
-      addLibraryModal = false;
+      addCollectionModal = false;
       getCollections();
-      getCountDocumentsPerMonth();
-      // goto(await $call.getPage("client-dashboard", "document-collection"));
     }
   }
 
@@ -555,13 +551,13 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await $call.call("client-dashboard", "update-library", {
+        let response = await $call.call("client-dashboard", "update-library-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
           },
           Params: {
-            library_name: tmpCollectionName,
+            collection_name: tmpCollectionName,
             description: tmpDescription,
           },
           Headers: {
@@ -570,34 +566,36 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          if (response && response.errors) {
-            const errors = response.errors.flatMap((error) =>
-              error.errors.flatMap((subError) => subError.message),
-            );
-
-            if (errors.includes("This attribute must be unique")) {
-              attributeNotUnique = true;
-            } else {
-              console.log("Pesan error :", errors);
-              triggerToast("error");
-            }
+          console.log(response);
+          if (response.status === 400) {
+            console.error("Invalid parameters:", response);
+            triggerToast($_("invalidParameters"), true, "error");
+          } else if (response.status === 401) {
+            console.error("Unauthorized access:", response);
+            triggerToast($_("unauthorized"), true, "error");
+          } else if (response.status === 500) {
+            console.error("Server error:", response);
+            triggerToast($_("serverError"), true, "error");
+          } else {
+            console.error("Unexpected status code:", response);
+            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
           }
           return;
         }
 
         tmpCollectionName = "";
         tmpDescription = "";
-        attributeNotUnique = false;
 
         editModal = false;
-        triggerToast("updated");
+        triggerToast($_("successUpdateCollection"), true);
         getCollections();
       } catch (error) {
-        console.log(error);
-        triggerToast("error");
+        console.error("Error during collection editing:", error);
+        triggerToast($_("failedEditCollection"), true, "error");
       }
     } else {
-      console.log("Token not found");
+      triggerToast($_("unauthorized"), true, "error");
+      return;
     }
   }
 
@@ -929,14 +927,14 @@ All Rights Reserved
   </div>
 {/if}
 
-<Modal title={$_("createNewLibrary")} bind:open={addLibraryModal} size="xs">
+<Modal title={$_("createNewCollection")} bind:open={addCollectionModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
         on:input={handleInput}
-        placeholder={$_("whatIsYourLibraryTitle")}
+        placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
         <Helper color="red">
@@ -953,19 +951,19 @@ All Rights Reserved
     <Button
       onclick={createCollection}
       disabled={!tmpCollectionName || !nameIsAvailable}
-      class="w-full">{$_("addNewLibrary")}</Button
+      class="w-full">{$_("addNewCollection")}</Button
     >
   </svelte:fragment>
 </Modal>
 
-<Modal title={$_("editLibraryName")} bind:open={editModal} size="xs">
+<Modal title={$_("editCollectionName")} bind:open={editModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
         on:input={handleInput}
-        placeholder={$_("whatIsYourLibraryTitle")}
+        placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
         <Helper color="red">
@@ -974,7 +972,7 @@ All Rights Reserved
       {/if}
     </div>
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
       <Input bind:value={tmpDescription} placeholder={$_("egDescription")} />
     </div>
   </div>

@@ -1057,11 +1057,16 @@ All Rights Reserved
   {#each cardsArrays as cardArray, index}
     {#if cardArray.array.length > 0}
       <div class="flex flex-col gap-4">
-        <ButtonFlowbite
+        <!-- <ButtonFlowbite
           class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
           color="none"
           outline
           on:click={() => (hiddenContent[index] = !hiddenContent[index])}
+        > -->
+        <ButtonFlowbite
+          class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
+          color="none"
+          outline
         >
           <Typography text={$_(cardArray.name)} preset="Text lg/Semibold" />
           {#if hiddenContent[index]}

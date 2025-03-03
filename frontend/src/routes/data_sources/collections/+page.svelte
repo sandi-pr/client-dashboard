@@ -152,7 +152,7 @@
             collectionName: collection.attributes.name,
             description: collection.attributes?.meta?.description || "",
             type: collection.attributes.type,
-            href: link + "?collectionId=" + collection.id + "&" + `libraryId=${$datasourceLibraryId}`,
+            href: link + "?collectionId=" + collection.id + "&" + `libraryId=${libraryId}`,
           };
         });
 

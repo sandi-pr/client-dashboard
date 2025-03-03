@@ -36,6 +36,7 @@ All Rights Reserved
     triggerToast,
   } from "$lib";
 
+  let libraryId;
   let collections = $state([]);
   let latestDocumentCollection = $state([]);
   let files = $state([]);
@@ -81,7 +82,7 @@ All Rights Reserved
         Params: {
           page: 1,
           page_size: 8,
-          parent_id: parseInt($datasourceLibraryId),
+          parent_id: parseInt(libraryId),
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -137,7 +138,7 @@ All Rights Reserved
           collectionName: collection.attributes.name,
           description: collection.attributes?.meta?.description || "",
           type: collection.attributes.type,
-          href: link + "?collectionId=" + collection.id + "&" + `libraryId=${$datasourceLibraryId}`,
+          href: link + "?collectionId=" + collection.id + "&" + `libraryId=${libraryId}`,
         };
       });
 
@@ -208,7 +209,7 @@ All Rights Reserved
         Params: {
           collection_name: tmpCollectionName,
           description: tmpDescription,
-          parent_id: parseInt($datasourceLibraryId),
+          parent_id: parseInt(libraryId),
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -346,14 +347,16 @@ All Rights Reserved
 
   async function viewAll() {
     let link = await $call.getPage("client-dashboard", "data-sources-collections");
-    goto(link + `?libraryId=${$datasourceLibraryId}`);
+    goto(link + `?libraryId=${libraryId}`);
   }
 
   onMount(async () => {
     getActionItems();
 
-    let idDatasource = localStorage.getItem("libraryIdDatasource");
-    await setDatasourceLibraryIds(idDatasource);
+    // let idDatasource = localStorage.getItem("libraryIdDatasource");
+    // await setDatasourceLibraryIds(idDatasource);
+
+    libraryId = localStorage.getItem("libraryId" + "insights");
 
     getCollections();
     // latestDataSources = JSON.parse(localStorage.getItem("latestDataSources")) || [];
