@@ -428,7 +428,7 @@
     if (lowerCaseModelName.includes("llama")) {
       icon = "meta";
     } else if (lowerCaseModelName.includes("deepseek")) {
-      icon = "gemini";
+      icon = "deepseek";
     } else if (lowerCaseModelName.includes("chatgpt")) {
       icon = "openai";
     }

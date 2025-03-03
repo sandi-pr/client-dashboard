@@ -1220,20 +1220,23 @@ All Rights Reserved
       "name_library": "Data Source List",
       "bot_name": "CSV Insights Bots",
       "module_type": "insights",
+      "additional_prompt": "",
     },
     {
       "name_library": "Voice Analyzer",
       "bot_name": "Voice’s Assistant",
       "module_type": "voice",
+      "additional_prompt": "You are bot assistant for Voice Analyzer. You will help me to analyze voice data.",
     },
     {
       "name_library": "Handwriting Reader",
       "bot_name": "Handwriting’s Assistant",
       "module_type": "handwriting",
+      "additional_prompt": "You are bot assistant for Handwriting Reader. You will help me to analyze handwriting data.",
     },
   ]
 
-  async function createCoreModule(libraryName, botName, moduleType) {
+  async function createCoreModule(libraryName, botName, moduleType, additionalPrompt) {
     let token = localStorage.getItem("token");
     if (token) {
       const response = await call.call("client-dashboard", "find-create-library-by-name", {
@@ -1287,7 +1290,7 @@ All Rights Reserved
         ai_engine: "llama3.1:8b",
         library_id: response.result.id,
         collection_id: "all",
-        additional_prompt: "",
+        additional_prompt: additionalPrompt,
         need_auth: false,
         module_type: moduleType,
       };
@@ -1686,7 +1689,7 @@ All Rights Reserved
 
     coreModule.forEach(async (module) => {
       // // console.log(1111);
-      await createCoreModule(module.name_library, module.bot_name, module.module_type);
+      await createCoreModule(module.name_library, module.bot_name, module.module_type, module.additional_prompt);
     });
 
     await getModelsTrocr();

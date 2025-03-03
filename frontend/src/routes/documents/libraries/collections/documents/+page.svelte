@@ -1733,7 +1733,7 @@
         on:click={() => (dropdownOpen = !dropdownOpen)}
       >
         {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
+        <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
       </Button>
       <div
         class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
@@ -1745,7 +1745,7 @@
               selectTypeCollection("Documents");
             }}>Documents (TXT, PDF, DOC, DOCX)</button
           >
-          <button
+          <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Images");
@@ -1756,7 +1756,7 @@
             onclick={() => {
               selectTypeCollection("Document Images");
             }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
+          > -->
           <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
