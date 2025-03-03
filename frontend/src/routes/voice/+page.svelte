@@ -119,7 +119,7 @@ All Rights Reserved
     actionItems = [
       {
         onclick: () => {
-          addLibraryModal = true;
+          addCollectionModal = true;
           attributeNotUnique = false;
           tmpCollectionName = "";
           tmpDescription = "";
@@ -390,7 +390,7 @@ All Rights Reserved
   let gettingDatas = $state(false);
 
   async function viewAll() {
-    goto(await $call.getPage("client-dashboard", "voice-collections"));
+    goto(await $call.getPage("client-dashboard", "voice-collections") + "?libraryId=" + libraryId);
   }
 
   async function checkLibrariesVoice() {
@@ -800,8 +800,10 @@ All Rights Reserved
     // await checkLibrariesVoice();
     libraryId = localStorage.getItem("libraryId" + "voice");
     botId = localStorage.getItem("botId" + "voice");
-    bots.urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
-    bots.botsID = botId;
+    bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
+    bots[0].botsID = botId;
+
+    console.log("bots.urlBot", bots[0].urlBot);
     getActionItems();
     getCountDocumentsPerMonth();
     getCollections();
@@ -850,7 +852,9 @@ All Rights Reserved
           class="flex items-center justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
         >
           <Typography preset="Text lg/Semibold" color="primary" text={$_("voiceCollection")} />
-          <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
+          {#if latestDocumentCollection.length > 0}
+            <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
+          {/if}
         </div>
 
         <div>
@@ -991,7 +995,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
       {$_("library")}
-      {tmpCollectionName}?
+      "{tmpCollectionName}"?
     </h3>
     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>

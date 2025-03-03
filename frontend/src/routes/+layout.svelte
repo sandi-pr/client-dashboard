@@ -1276,7 +1276,7 @@ All Rights Reserved
 
       if (resp.status !== 404) {
         // console.log("bot already exists" + botName, resp);
-        localStorage.setItem("botId" + moduleType, resp.result.id);
+        localStorage.setItem("botId" + moduleType, resp.result.attributes.bot_id);
         // gettingData = false;
         return;
       }
@@ -1303,7 +1303,7 @@ All Rights Reserved
         });
 
         // console.log("createCustomBot" + botName, response2);
-        localStorage.setItem("botId" + moduleType, response2.result.data.id);
+        localStorage.setItem("botId" + moduleType, response2.result.attributes.bot_id);
 
         if (response2.status !== 200) {
           // console.log(response2);

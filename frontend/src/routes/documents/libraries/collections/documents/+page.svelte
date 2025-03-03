@@ -1527,7 +1527,7 @@
                   }}
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("addCollection")}</button
+                  />{$_("addSubCollection")}</button
                 >
                 <button
                   class="flex p-2 w-full gap-1.5"
@@ -1695,7 +1695,7 @@
                   }}
                 >
                   <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                  {$_("addCollection")}
+                  {$_("addSubCollection")}
                 </button>
                 <button
                   class="flex p-2 w-full gap-1.5"
@@ -1757,12 +1757,12 @@
               selectTypeCollection("Document Images");
             }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
           >
-          <button
+          <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
               selectTypeCollection("Handwriting");
             }}>Handwriting (JPG, JPEG, PNG)</button
-          >
+          > -->
           <!-- <button
             class="flex p-2 w-full"
             onclick={() => {
@@ -2099,7 +2099,7 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
       {$_("collection")}
-      {tmpCollectionName}?
+      "{tmpCollectionName}"?
     </h3>
     <Button
       onclick={tmpCollectionId === collectionId ? deleteCollection : deleteDocumentCollection}

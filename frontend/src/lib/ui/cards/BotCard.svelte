@@ -134,6 +134,7 @@
         <Button
           disabled={bot.deployStatus !== "Ready"}
           on:click={() => {
+            console.log("open webchat", bot.urlBot);
             window.open(bot.urlBot, "_blank");
           }}
           outline

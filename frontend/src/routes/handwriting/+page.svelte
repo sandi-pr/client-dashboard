@@ -390,7 +390,7 @@ All Rights Reserved
   let gettingDatas = $state(false);
 
   async function viewAll() {
-    goto(await $call.getPage("client-dashboard", "handwriting-collections"));
+    goto(await $call.getPage("client-dashboard", "handwriting-collections") + "?libraryId=" + libraryId);
   }
 
   async function createCollection() {
@@ -521,6 +521,8 @@ All Rights Reserved
 
   async function editCollectionName() {
     let token = localStorage.getItem("token");
+
+    console.log("tmpCollectionId", tmpCollectionId);
 
     if (token !== null) {
       try {
@@ -772,8 +774,8 @@ All Rights Reserved
     }
     libraryId = localStorage.getItem("libraryId" + "handwriting");
     botId = localStorage.getItem("botId" + "handwriting");
-    bots.urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
-    bots.botsID = botId;
+    bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
+    bots[0].botsID = botId;
     getActionItems();
     getCountDocumentsPerMonth();
     getCollections();
@@ -822,7 +824,9 @@ All Rights Reserved
           class="flex items-center justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
         >
           <Typography preset="Text lg/Semibold" color="primary" text={$_("handwritingCollection")} />
-          <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
+          {#if latestDocumentCollection.length > 0}
+            <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
+          {/if}
         </div>
 
         <div>
@@ -834,6 +838,7 @@ All Rights Reserved
                 <LibraryCard
                   collectionName={document.collectionName}
                   totalDocuments={document.totalDocuments}
+                  usedFor="libraries_collections"
                   status={document.status}
                   functButton={() => {
                     // selectCollection({
@@ -844,7 +849,7 @@ All Rights Reserved
                     // });
                   }}
                   functAddDocuments={() => {
-                    tmpCollectionId = document.collectionId;
+                    tmpCollectionId = document.id;
                     tmpHref = document.href;
                     // categories = document.categories;
                     // selectTypeCollection("Documents");
@@ -854,7 +859,7 @@ All Rights Reserved
                     addDocumentsModal = true;
                   }}
                   functEdit={() => {
-                    tmpCollectionId = document.collectionId;
+                    tmpCollectionId = document.id;
                     tmpCollectionName = document.collectionName;
                     tmpOldName = document.collectionName;
                     tmpDescription = document.description;
@@ -863,7 +868,7 @@ All Rights Reserved
                     editModal = true;
                   }}
                   functDelete={() => {
-                    tmpCollectionId = document.collectionId;
+                    tmpCollectionId = document.id;
                     tmpCollectionName = document.collectionName;
                     deleteModal = true;
                   }}
@@ -1003,7 +1008,7 @@ All Rights Reserved
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
       {$_("library")}
-      {tmpCollectionName}?
+      "{tmpCollectionName}"?
     </h3>
     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>

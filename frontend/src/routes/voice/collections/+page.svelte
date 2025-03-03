@@ -610,52 +610,6 @@
               <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("addCollection")}</div>
             </Button>
-            {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
-              <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                <Button on:click={() => (dropdownOpen = !dropdownOpen)} color="light" class="p-2">
-                  <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                </Button>
-                <div
-                  class={`z-10 ${dropdownOpen ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-                >
-                  <ul class="py-2 grow text-sm">
-                    {#if check("documentAi.documentLibrary.collection:edit")}
-                      <button
-                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                        onclick={() => {
-                          dropdownOpen = !dropdownOpen;
-                          tmpLibraryName = collectionDatas.title;
-                          tmpOldName = collectionDatas.collectionName;
-                          tmpDescLibrary = collectionDatas.description;
-                          nameIsAvailable = true;
-                          editLibraryModal = true;
-                        }}>{$_("editLibraryName")}</button
-                      >
-                    {/if}
-                    {#if check("documentAi.documentLibrary.collection:delete")}
-                      <button
-                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                        onclick={() => {
-                          dropdownOpen = !dropdownOpen;
-                          deleteLibraryModal = true;
-                        }}>{$_("delete")}</button
-                      >
-                    {/if}
-                  </ul>
-                </div>
-              </div>
-            {/if}
-            <!-- <Button
-              on:click={() => {
-                // addLibraryModal = true;
-                // tmpCollectionName = "";
-                // tmpDescription = "";
-              }}
-              color="light"
-              class="p-2"
-            >
-              <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-            </Button> -->
           </div>
         </div>
 
@@ -844,7 +798,7 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
       {$_("collection")}
-      {tmpCollectionName}?
+      "{tmpCollectionName}"?
     </h3>
     <Button onclick={deleteDocumentCollection} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>

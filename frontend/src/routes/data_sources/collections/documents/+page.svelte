@@ -1719,7 +1719,7 @@
         class="flex justify-between"
       >
         {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" />
+        <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
       </Button>
       <div
         class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}

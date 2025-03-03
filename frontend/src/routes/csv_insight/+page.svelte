@@ -65,7 +65,7 @@
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
   let paginationNew = $state({ page: 1, pageSize: 24, pageCount: 1, total: 0 });
-  let csvMeta = $state({ page: 1, pageSize: 5, pageCount: 2, total: 0 });
+  let csvMeta = $state({ page: 1, pageSize: 10, pageCount: 2, total: 0 });
 
   let dataConversationChats = $state([]);
 
