@@ -405,9 +405,9 @@
             "file_path": "template/hexassistant.html"
         },
         {
-            "name": "my-bots",
-            "path": "/my_bots",
-            "file_path": "template/my_bots.html"
+            "name": "assistant",
+            "path": "/assistant",
+            "file_path": "template/assistant.html"
         },
         {
             "name": "support",
@@ -423,6 +423,66 @@
             "name": "llms-list",
             "path": "/llms/list",
             "file_path": "template/llms/list.html"
+        },
+        {
+            "name": "voice",
+            "path": "/voice",
+            "file_path": "template/voice.html"
+        },
+        {
+            "name": "voice-collections",
+            "path": "/voice/collections",
+            "file_path": "template/voice/collections.html"
+        },
+        {
+            "name": "voice-documents", 
+            "path": "/voice/collections/documents", 
+            "file_path": "template/voice/collections/documents.html"
+        },
+        {
+            "name": "voice-detail",
+            "path": "/voice/collections/documents/detail",
+            "file_path": "template/voice/collections/documents/detail.html"
+        },
+        {
+            "name": "voice-sub-documents",
+            "path": "/voice/collections/documents/sub_documents",
+            "file_path": "template/voice/collections/documents/sub_documents.html"
+        },
+        {
+            "name": "voice-sub-documents-detail",
+            "path": "/voice/collections/documents/sub_documents/detail",
+            "file_path": "template/voice/collections/documents/sub_documents/detail.html"
+        },
+        {
+            "name": "handwriting",
+            "path": "/handwriting",
+            "file_path": "template/handwriting.html"
+        },
+        {
+            "name": "handwriting-collections",
+            "path": "/handwriting/collections",
+            "file_path": "template/handwriting/collections.html"
+        },
+        {
+            "name": "handwriting-documents", 
+            "path": "/handwriting/collections/documents", 
+            "file_path": "template/handwriting/collections/documents.html"
+        },
+        {
+            "name": "handwriting-detail",
+            "path": "/handwriting/collections/documents/detail",
+            "file_path": "template/handwriting/collections/documents/detail.html"
+        },
+        {
+            "name": "handwriting-sub-documents",
+            "path": "/handwriting/collections/documents/sub_documents",
+            "file_path": "template/handwriting/collections/documents/sub_documents.html"
+        },
+        {
+            "name": "handwriting-sub-documents-detail",
+            "path": "/handwriting/collections/documents/sub_documents/detail",
+            "file_path": "template/handwriting/collections/documents/sub_documents/detail.html"
         }
     ],
     "apis": [
@@ -2860,6 +2920,10 @@
                     "name": "description",
                     "type": "text",
                     "required": true
+                },
+                {
+                    "name": "module_type",
+                    "type": "text"
                 }
             ]
         },

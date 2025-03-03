@@ -89,6 +89,57 @@ All Rights Reserved
     },
   ];
 
+  const cardsQuickActions = [
+    {
+      icon: "bookOpen",
+      title: "documents",
+      description: "descDocumentLibrary",
+      page: "document-collection-overview",
+    },
+    {
+      icon: "bookClosed",
+      title: "dataSources",
+      description: "descDataSources",
+      page: "data-sources",
+    },
+    {
+      icon: "lightbulb",
+      title: "insights",
+      description: "descInsights",
+      page: "csv-insight",
+    },
+    {
+      icon: "penTool",
+      title: "handwriting",
+      description: "descHandwriting",
+      page: "handwriting",
+    },
+    {
+      icon: "recording02",
+      title: "voice",
+      description: "descVoice",
+      page: "voice",
+    },
+    {
+      icon: "messagePlusSquare",
+      title: "createBots",
+      description: "descCreateBots",
+      page: "bots",
+    },
+    {
+      icon: "globe01",
+      title: "tryModels",
+      description: "descTryModels",
+      page: "llms",
+    },
+    {
+      icon: "data",
+      title: "finetunings",
+      description: "descFinetunings",
+      page: "datasets",
+    }
+  ];
+
   const cardsDocument = [
     {
       icon: "bookOpen",
@@ -926,11 +977,12 @@ All Rights Reserved
     // getActionItems();
     // getCountPerModulePerMonth();
     cardsArrays = [
-      { name: "documentLibrary", array: cardsDocument },
-      { name: "aiManagements", array: cardsAi },
+      { name: "quickActions", array: cardsQuickActions },
+      // { name: "documentLibrary", array: cardsDocument },
+      // { name: "aiManagements", array: cardsAi },
       // { name: "aiAnalyzer", array: cardsAnalyzer },
       // { name: "hexaTutor", array: cardsHexaTutor },
-      { name: "analytic", array: cardsAnalytic },
+      // { name: "analytic", array: cardsAnalytic },
       // { name: "smartDocument", array: cardsSmartDocument },
     ];
 

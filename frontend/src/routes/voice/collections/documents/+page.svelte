@@ -37,7 +37,7 @@
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
-  import PenToolPlusIcon from "$lib/icon/pen-tool-plus.svelte";
+  import Recording02Icon from "$lib/icon/recording-02.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -77,9 +77,9 @@
   let tmpCollectionName = $state("");
   let tmpOldName = $state("");
   let tmpDescription = $state("");
-  let tmpDocumentType = $state("Handwriting");
-  let selectedTypeCollection = $state("Handwriting (JPG, JPEG, PNG)");
-  let acceptedFileTypes = $state(".jpg, .jpeg, .png");
+  let tmpDocumentType = $state("Document Audio");
+  let selectedTypeCollection = $state("Document Audio (MP3, WAV, OGG)");
+  let acceptedFileTypes = $state(".mp3, .wav, .ogg");
   let search = $state("");
   let alltags = $state([]);
   let tags = $state([]);
@@ -196,7 +196,7 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "document-library-detail");
+        let link = await $call.getPage("client-dashboard", "voice-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -1028,9 +1028,9 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "document-library-sub-documents");
+        link = await $call.getPage("client-dashboard", "voice-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "document-library-documents");
+        link = await $call.getPage("client-dashboard", "voice-documents");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1226,7 +1226,7 @@
 
         deleteModal = false;
         const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-        let link = await $call.getPage("client-dashboard", "document-library");
+        let link = await $call.getPage("client-dashboard", "voice");
         goto(`${link}?libraryId=${libraryIdWebchatBakrie}`);
       } catch (error) {
         console.error("Error during collection deletion:", error);
@@ -1384,7 +1384,7 @@
         libraryId === null ||
         libraryId === undefined
       ) {
-        goto(await $call.getPage("client-dashboard", "document-library"));
+        goto(await $call.getPage("client-dashboard", "voice"));
         return;
       }
       getCollections(true, false);
@@ -1501,7 +1501,7 @@
               disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={() => (dropdownUpload = !dropdownUpload)}
             >
-              <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+              <Recording02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("addNew")}</div>
             </Button>
             <div
@@ -1535,9 +1535,9 @@
                     dropdownUpload = false;
                     nameIsAvailable = true;
                   }}
-                  ><PenToolPlusIcon
+                  ><Recording02Icon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("addNewHandwriting")}</button
+                  />{$_("addNewAudio")}</button
                 >
               </ul>
             </div>
@@ -1660,7 +1660,7 @@
   <ToastContainer />
 </div>
 
-<Modal title={$_("addHandwriting")} bind:open={addDocumentsModal} size="xs">
+<Modal title={$_("addAudio")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />

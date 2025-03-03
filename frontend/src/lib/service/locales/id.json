@@ -989,5 +989,6 @@
   "addAudio": "Tambahkan Audio",
   "chooseCollectionAsDataSource": "Pilih koleksi sebagai sumber data",
   "chooseCsvfile": "Pilih file CSV",
-  "selectDataSource": "Pilih Sumber Data"
+  "selectDataSource": "Pilih Sumber Data",
+  "quickActions": "Tindakan Cepat"
 }

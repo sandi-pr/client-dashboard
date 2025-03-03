@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.15")
+    ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -103,7 +103,7 @@ All Rights Reserved
           return globalThis.location.pathname === path;
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         if (path.endsWith("/*")) {
           return window.location.pathname.startsWith(path.slice(0, -1));
         } else {
@@ -123,7 +123,7 @@ All Rights Reserved
             return globalThis.location.pathname === path;
           }
         } catch (error) {
-          console.log(error);
+          // console.log(error);
           if (path.endsWith("/*")) {
             return window.location.pathname.startsWith(path.slice(0, -1));
           } else {
@@ -157,7 +157,7 @@ All Rights Reserved
         return currentPath === path;
       }
     });
-    console.log(hideNav);
+    // console.log(hideNav);
   };
 
   const changeShowAI = async () => {
@@ -166,7 +166,7 @@ All Rights Reserved
       goto(url);
       return;
     } else {
-      console.log($showAI);
+      // console.log($showAI);
       triggerShowAI(!$showAI);
       if (!$showAI) {
         triggerReload(true);
@@ -190,7 +190,7 @@ All Rights Reserved
     triggerReload(true);
     localStorage.setItem("showNotif", $showNotif ? "true" : "false");
 
-    console.log($showNotif);
+    // console.log($showNotif);
   };
 
   const getModules = async () => {
@@ -199,6 +199,7 @@ All Rights Reserved
       {
         icon: "messageChatSquare",
         name: "assistant",
+        href: isFrontend ? "/assistant" : await call.getPage("client-dashboard", "assistant"),
         children: [
           // {
           //   icon: "messageHeartSquare",
@@ -207,11 +208,11 @@ All Rights Reserved
           //     ? "/hexassistant"
           //     : await call.getPage("client-dashboard", "hexassistant"),
           // },
-          {
-            icon: "messageSmileSquare",
-            name: "myBots",
-            href: isFrontend ? "/my_bots" : await call.getPage("client-dashboard", "my-bots"),
-          },
+          // {
+          //   icon: "messageSmileSquare",
+          //   name: "myBots",
+          //   href: isFrontend ? "/my_bots" : await call.getPage("client-dashboard", "my-bots"),
+          // },
           // {
           //   icon: "code01",
           //   name: "codingAssistant",
@@ -220,6 +221,15 @@ All Rights Reserved
           //     : await call.getPage("client-dashboard", "coding-assistant"),
           // },
         ],
+      },
+      {
+        icon: "code01",
+        name: "codingAssistant",
+        commingSoon: true,
+        children: [],
+        href: isFrontend
+          ? "/coding_assistant"
+          : await call.getPage("client-dashboard", "coding-assistant"),
       },
       {
         icon: "bookOpen",
@@ -255,91 +265,111 @@ All Rights Reserved
       //     },
       //   ],
       // },
+      // {
+      //   icon: "presentation",
+      //   name: "Analytics",
+      //   children: [
+      //     {
+      //       icon: "bookClosed",
+      //       name: "dataSources",
+      //       href: isFrontend
+      //         ? "/data_sources"
+      //         : await call.getPage("client-dashboard", "data-sources"),
+      //     },
+      //     {
+      //       icon: "lightbulb",
+      //       name: "insights",
+      //       href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+      //     },
+      //   ],
+      // },
       {
-        icon: "presentation",
-        name: "Analytics",
-        children: [
-          {
-            icon: "bookClosed",
-            name: "dataSources",
-            href: isFrontend
-              ? "/data_sources"
-              : await call.getPage("client-dashboard", "data-sources"),
-          },
-          {
-            icon: "lightbulb",
-            name: "insights",
-            href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-          },
-        ],
+        icon: "bookClosed",
+        name: "dataSources",
+        children: [],
+        href: isFrontend
+          ? "/data_sources"
+          : await call.getPage("client-dashboard", "data-sources"),
+      },
+      {
+        icon: "lightbulb",
+        name: "insights",
+        children: [],
+        href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
       },
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
-      //     {
-      //       icon: "penTool",
-      //       name: "handwriting",
-      //       href: isFrontend
-      //         ? "/handwriting"
-      //         : await call.getPage("client-dashboard", "handwriting"),
-      //     },
-      //     // {
-      //     //   icon: "image03",
-      //     //   name: "memories",
-      //     //   commingSoon: true,
-      //     //   href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
-      //     // },
-      //     // {
-      //     //   icon: "videoRecorder",
-      //     //   name: "vision",
-      //     //   commingSoon: true,
-      //     //   href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
-      //     // },
-      //     // {
-      //     //   icon: "recording02",
-      //     //   name: "voice",
-      //     //   commingSoon: true,
-      //     //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      //     // },
+      {
+        icon: "penTool",
+        name: "handwriting",
+        children: [],
+        href: isFrontend
+          ? "/handwriting"
+          : await call.getPage("client-dashboard", "handwriting"),
+      },
+      {
+        icon: "recording02",
+        name: "voice",
+        children: [],
+        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      },
+      {
+        icon: "image03",
+        name: "memories",
+        children: [],
+        commingSoon: true,
+        href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
+      },
+      {
+        icon: "videoRecorder",
+        name: "vision",
+        children: [],
+        commingSoon: true,
+        href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
+      },
       //   ],
       // },
       // {
       //   icon: "aiDocument",
       //   name: "smartDocument",
       //   children: [
-      //     {
-      //       icon: "fileLock",
-      //       name: "contractReviewer",
-      //       href: isFrontend ? "/contract_reviewer" : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-      //       children: []
-      //     },
+      {
+        icon: "fileLock",
+        name: "contractReviewer",
+        children: [],
+        commingSoon: true,
+        href: isFrontend ? "/contract_reviewer" : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+      },
       //     {
       //       icon: "fileLock",
       //       name: "sopCompliance",
       //       href: isFrontend ? "/sop_compliance" : await call.getPage("client-dashboard", "sop-compliance"),
       //       children: []
       //     },
-      //     {
-      //       icon: "fileCheck",
-      //       name: "docsGenerator",
-      //       commingSoon: true,
-      //       href: isFrontend
-      //         ? "/docs_generator"
-      //         : await call.getPage("client-dashboard", "docs-generator"),
-      //     }
+      {
+        icon: "fileCheck",
+        name: "docsGenerator",
+        children: [],
+        commingSoon: true,
+        href: isFrontend
+          ? "/docs_generator"
+          : await call.getPage("client-dashboard", "docs-generator"),
+      },
       //   ],
       // },
       {
         icon: "globe01",
         name: "llms",
+        href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
         children: [
-          {
-            icon: "dashboard01",
-            name: "overview",
-            href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
-            children: [],
-          },
+          // {
+          //   icon: "dashboard01",
+          //   name: "overview",
+          //   href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
+          //   children: [],
+          // },
           // {
           //   icon: "dataflow04",
           //   name: "lists",
@@ -648,7 +678,7 @@ All Rights Reserved
     });
 
     if (resp.status !== 200) {
-      console.log(resp);
+      // console.log(resp);
       triggerToast("error");
       return;
     }
@@ -661,7 +691,7 @@ All Rights Reserved
         await call.goToPage("client-login", "home-page");
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -696,7 +726,7 @@ All Rights Reserved
       Params: {},
       Headers: {},
     });
-    console.log(resp_setup);
+    // console.log(resp_setup);
     if (resp_setup.status === 200) {
       if (resp_setup.result.is_need_setup === true) {
         if (localStorage.getItem("token") !== null) localStorage.removeItem("token");
@@ -718,7 +748,7 @@ All Rights Reserved
 
       if (resp.status === 200) {
         if (resp.result.confirmed === true && resp.result.blocked === false) {
-          console.log("is token valid");
+          // console.log("is token valid");
           localStorage.setItem("user", JSON.stringify(resp.result));
           await getPermissions(resp.result.authority.toLowerCase().replace(/\s+/g, "_"));
           userData = resp.result;
@@ -736,7 +766,7 @@ All Rights Reserved
           email === null ||
           passwordTmp === null
         ) {
-          console.log("is token invalid");
+          // console.log("is token invalid");
           localStorage.setItem("redirect", globalThis.location.href);
           goto(await call.getPage("client-login", "home-page"));
           return;
@@ -800,19 +830,19 @@ All Rights Reserved
           //   return;
           // }
           else {
-            console.log("is token invalid");
+            // console.log("is token invalid");
             localStorage.setItem("redirect", globalThis.location.href);
             goto(await call.getPage("client-login", "home-page"));
             return;
           }
         } else {
-          console.log("is token invalid");
+          // console.log("is token invalid");
           localStorage.setItem("redirect", globalThis.location.href);
           goto(await call.getPage("client-login", "home-page"));
           return;
         }
       } else {
-        console.log("is token invalid");
+        // console.log("is token invalid");
         localStorage.setItem("redirect", globalThis.location.href);
         goto(await call.getPage("client-login", "home-page"));
         return;
@@ -842,7 +872,7 @@ All Rights Reserved
       }
 
       if (resp.status !== 200) {
-        console.log(resp);
+        // console.log(resp);
         return;
       }
 
@@ -854,12 +884,12 @@ All Rights Reserved
         }
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
   async function checkLibrariesIndustry(industryId) {
-    console.log("checkLibrariesIndustry", industryId);
+    // console.log("checkLibrariesIndustry", industryId);
     const industry = industryData.find((item) => item.id === parseInt(industryId));
     if (!industry) return;
 
@@ -890,7 +920,7 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          console.log(response);
+          // console.log(response);
           return;
         }
 
@@ -909,7 +939,7 @@ All Rights Reserved
       children: [...initIndustryLibrary],
     };
 
-    console.log("usecase", useCase);
+    // console.log("usecase", useCase);
 
     return useCase;
   }
@@ -930,11 +960,11 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
-        console.log("status not 200", response);
+        // console.log("status not 200", response);
         return;
       }
 
-      console.log("created bakrie library", response);
+      // console.log("created bakrie library", response);
 
       localStorage.setItem("libraryIdWebchatBakrie", response.result.id);
       setLibraryIds(response.result.id);
@@ -957,11 +987,11 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
-        console.log("status not 200", response);
+        // console.log("status not 200", response);
         return;
       }
 
-      console.log("created datasource library", response);
+      // console.log("created datasource library", response);
 
       localStorage.setItem("libraryIdDatasource", response.result.id);
       setDatasourceLibraryIds(response.result.id);
@@ -1022,7 +1052,7 @@ All Rights Reserved
           );
 
           if (response.status !== 200) {
-            console.log("status not 200", response);
+            // console.log("status not 200", response);
             return;
           }
 
@@ -1052,7 +1082,7 @@ All Rights Reserved
         }
       }
     } catch (error) {
-      console.log("checkCollectionsBakrie", error);
+      // console.log("checkCollectionsBakrie", error);
     }
 
     // setCollectionIds(libraryIds);
@@ -1073,10 +1103,10 @@ All Rights Reserved
         },
       });
 
-      console.log("------", resp);
+      // console.log("------", resp);
 
       if (resp.status !== 404) {
-        console.log("404", resp);
+        // console.log("404", resp);
         localStorage.setItem("botIdStrapi", resp.result.id);
         // gettingData = false;
         return;
@@ -1092,7 +1122,7 @@ All Rights Reserved
         need_auth: false,
       };
 
-      // console.log("dataSend", dataSend);
+      // // console.log("dataSend", dataSend);
 
       try {
         const response = await call.call("client-dashboard", "create-bot", {
@@ -1104,19 +1134,19 @@ All Rights Reserved
           },
         });
 
-        console.log("createBakrieBot", response);
+        // console.log("createBakrieBot", response);
 
         if (response.status !== 200) {
-          console.log(response);
+          // console.log(response);
           return;
         }
 
         localStorage.setItem("botIdStrapi", response.result.data.id);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     } else {
-      console.log("no token");
+      // console.log("no token");
       return;
     }
   }
@@ -1136,10 +1166,10 @@ All Rights Reserved
         },
       });
 
-      console.log("------", resp);
+      // console.log("------", resp);
 
       if (resp.status !== 404) {
-        console.log("bot already exists", resp);
+        // console.log("bot already exists", resp);
         // localStorage.setItem("botIdStrapi", resp.result.id);
         // gettingData = false;
         return;
@@ -1156,7 +1186,7 @@ All Rights Reserved
         module_type: "insights",
       };
 
-      // console.log("dataSend", dataSend);
+      // // console.log("dataSend", dataSend);
 
       try {
         const response = await call.call("client-dashboard", "create-bot", {
@@ -1168,20 +1198,120 @@ All Rights Reserved
           },
         });
 
-        console.log("createVoiceBot", response);
+        // console.log("createVoiceBot", response);
 
         if (response.status !== 200) {
-          console.log(response);
+          // console.log(response);
           return;
         }
 
         // localStorage.setItem("botIdStrapi", response.result.data.id);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     } else {
-      console.log("no token");
+      // console.log("no token");
       return;
+    }
+  }
+
+  let coreModule = [
+    {
+      "name_library": "Data Source List",
+      "bot_name": "CSV Insights Bots",
+      "module_type": "insights",
+    },
+    {
+      "name_library": "Voice Analyzer",
+      "bot_name": "Voice’s Assistant",
+      "module_type": "voice",
+    },
+    {
+      "name_library": "Handwriting Reader",
+      "bot_name": "Handwriting’s Assistant",
+      "module_type": "handwriting",
+    },
+  ]
+
+  async function createCoreModule(libraryName, botName, moduleType) {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const response = await call.call("client-dashboard", "find-create-library-by-name", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          library_name: libraryName,
+          description: "This is a library for " + libraryName,
+          module_type: moduleType,
+        },
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("------" + libraryName, response);
+
+      if (response.status !== 200) {
+        // console.log("status not 200", response);
+        // console.log("11111111");
+        return;
+      }
+
+      // console.log("checked library" + libraryName, response);
+      localStorage.setItem("libraryId" + moduleType, response.result.id);
+      // console.log("------");
+
+      const resp = await call.call("client-dashboard", "get-bot-by-name", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: botName,
+        },
+        Headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
+
+      // console.log("------" + botName, resp);
+
+      if (resp.status !== 404) {
+        // console.log("bot already exists" + botName, resp);
+        localStorage.setItem("botId" + moduleType, resp.result.id);
+        // gettingData = false;
+        return;
+      }
+
+      let dataSend = {
+        bot_name: botName,
+        description: "",
+        ai_engine: "llama3.1:8b",
+        library_id: response.result.id,
+        collection_id: "all",
+        additional_prompt: "",
+        need_auth: false,
+        module_type: moduleType,
+      };
+
+      try {
+        const response2 = await call.call("client-dashboard", "create-bot", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        // console.log("createCustomBot" + botName, response2);
+        localStorage.setItem("botId" + moduleType, response2.result.data.id);
+
+        if (response2.status !== 200) {
+          // console.log(response2);
+          return;
+        }
+      } catch (error) {
+        // console.log(error);
+      }
     }
   }
 
@@ -1201,7 +1331,7 @@ All Rights Reserved
       });
 
       if (resp.status !== 404) {
-        console.log(resp);
+        // console.log(resp);
         gettingData = false;
         return;
       }
@@ -1216,7 +1346,7 @@ All Rights Reserved
         need_auth: false,
       };
 
-      console.log("dataSend", dataSend);
+      // console.log("dataSend", dataSend);
 
       try {
         const response = await call.call("client-dashboard", "create-bot", {
@@ -1229,14 +1359,14 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          console.log(response);
+          // console.log(response);
           return;
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     } else {
-      console.log("no token");
+      // console.log("no token");
       return;
     }
   }
@@ -1254,7 +1384,7 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
-        console.log(response);
+        // console.log(response);
         return;
       }
 
@@ -1324,7 +1454,7 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
-        console.log(response);
+        // console.log(response);
         return;
       }
 
@@ -1379,7 +1509,7 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
-        console.log(response);
+        // console.log(response);
         return;
       }
 
@@ -1400,7 +1530,7 @@ All Rights Reserved
         // notifications.update((data) => [...response.result.data, ...data]);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
@@ -1431,7 +1561,7 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
-        console.log(response);
+        // console.log(response);
         return;
       }
 
@@ -1440,7 +1570,7 @@ All Rights Reserved
         notificationsNewCount.set(response.result.meta.pagination.total);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
@@ -1461,7 +1591,7 @@ All Rights Reserved
       });
 
       if (response.status !== 200) {
-        console.log(response);
+        // console.log(response);
         return;
       }
 
@@ -1469,7 +1599,7 @@ All Rights Reserved
         notificationsRead.update((data) => [...response.result.data, ...data]);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
@@ -1487,11 +1617,11 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          console.log(response);
+          // console.log(response);
           return;
         }
 
-        console.log("succes get library & colection:", response);
+        // console.log("succes get library & colection:", response);
 
         if (
           response.result?.collection_id !== undefined &&
@@ -1513,7 +1643,7 @@ All Rights Reserved
           });
 
           if (response2.status !== 200) {
-            console.log(response2);
+            // console.log(response2);
             return;
           }
 
@@ -1522,7 +1652,7 @@ All Rights Reserved
           }
         }
       } catch (error) {
-        console.log("bot llm err:", error);
+        // console.log("bot llm err:", error);
       }
     }
   }
@@ -1551,8 +1681,13 @@ All Rights Reserved
       locale.set(localStorage.getItem("lang"));
     }
 
-    await checkLibrariesDatasouce();
-    await createVoiceBot();
+    // await checkLibrariesDatasouce();
+    // await createVoiceBot();
+
+    coreModule.forEach(async (module) => {
+      // // console.log(1111);
+      await createCoreModule(module.name_library, module.bot_name, module.module_type);
+    });
 
     await getModelsTrocr();
     await getIndustryId();
@@ -1612,7 +1747,7 @@ All Rights Reserved
   }
 
   $effect(() => {
-    console.log(activeUrl);
+    // console.log(activeUrl);
     if (activeUrl !== $page.url.pathname) {
       activeUrl = $page.url.pathname;
       hideNavbar();

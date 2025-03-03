@@ -1254,7 +1254,7 @@
 
         deleteModal = false;
         const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-        let link = await $call.getPage("client-dashboard", "document-library");
+        let link = await $call.getPage("client-dashboard", "data-sources");
         goto(`${link}?libraryId=${libraryIdWebchatBakrie}`);
       } catch (error) {
         console.error("Error during collection deletion:", error);

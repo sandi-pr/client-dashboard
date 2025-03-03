@@ -100,6 +100,8 @@ All Rights Reserved
   let gettingBotData = $state(false);
   let dropdownOpenBot = $state([]);
 
+  let libraryId, botId;
+
   let bots = $state([
     {
       botsName: "Handwriting’s Assistant",
@@ -387,7 +389,7 @@ All Rights Reserved
   let gettingDatas = $state(false);
 
   async function viewAll() {
-    goto(await $call.getPage("client-dashboard", "document-library"));
+    goto(await $call.getPage("client-dashboard", "handwriting-collections"));
   }
 
   async function createCollection() {
@@ -464,12 +466,13 @@ All Rights Reserved
       gettingDatas = true;
       collections = [];
       documents = [];
-      let response = await $call.call("client-dashboard", "get-librarys", {
+      let response = await $call.call("client-dashboard", "get-library-collections", {
         URLQuery: {},
         URLParams: {},
         Params: {
           page: 1,
-          page_size: 4,
+          page_size: 8,
+          parent_id: parseInt(libraryId),
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -479,6 +482,19 @@ All Rights Reserved
       if (response.status !== 200) {
         console.log(response);
         gettingDatas = false;
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
         return;
       }
 
@@ -486,34 +502,7 @@ All Rights Reserved
         collections = collections.concat(response.result.data);
       }
 
-      // let page2 = 1;
-      // while (true) {
-      //   let response2 = await $call.call("client-dashboard", "get-documents", {
-      //     URLQuery: {},
-      //     URLParams: {},
-      //     Params: {
-      //       page: page2,
-      //       page_size: 25,
-      //     },
-      //     Headers: {
-      //       Authorization: "Bearer " + token,
-      //     },
-      //   });
-
-      //   if (response2.status !== 200) {
-      //     console.log(response2);
-      //     return;
-      //   }
-
-      //   if (response2.result.data.length > 0) {
-      //     documents = documents.concat(response2.result.data);
-      //     page2++;
-      //   } else {
-      //     break;
-      //   }
-      // }
-
-      let collectionList = await $call.getPage("client-dashboard", "document-library-collections");
+      let link = await $call.getPage("client-dashboard", "handwriting-documents");
 
       let promise = collections.map(async (collection) => {
         console.log("collection", collection);
@@ -535,18 +524,13 @@ All Rights Reserved
         }
 
         console.log("status", response4);
-        let collectionStatus = response4.result.status;
 
         return {
-          collectionId: collection.id,
-          activationTime: format(collection.attributes.createdAt, "dd-MM-yyyy HH:mm"),
+          id: collection.id,
           collectionName: collection.attributes.name,
           description: collection.attributes?.meta?.description || "",
-          // totalDocuments: totalDocuments,
-          // categories: categoriesCollection,
-          status: collectionStatus,
-          href: `${collectionList}?libraryId=${collection.id}`,
-          // webchat: collection.attributes.webchat_tmp === true ? true : false,
+          type: collection.attributes.type,
+          href: link + "?collectionId=" + collection.id + "&" + `libraryId=${libraryId}`,
         };
       });
 
@@ -805,6 +789,10 @@ All Rights Reserved
       window.history.back();
       return;
     }
+    libraryId = localStorage.getItem("libraryId" + "handwriting");
+    botId = localStorage.getItem("botId" + "handwriting");
+    bots.urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
+    bots.botsID = botId;
     getActionItems();
     getCountDocumentsPerMonth();
     getCollections();

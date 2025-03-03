@@ -46,7 +46,7 @@ All Rights Reserved
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
 
-  let documentId, collectionId;
+  let documentId, collectionId, libraryId;
 
   import { call } from "$lib";
 
@@ -59,6 +59,7 @@ All Rights Reserved
   let fileUrl = $state("null");
   let pdfReady = $state(false);
   let attributeNotUnique = $state(false);
+  let nameIsAvailable = $state(true);
 
   let tabDatas = $state({
     selected: "Documents",
@@ -77,7 +78,6 @@ All Rights Reserved
   let data = $state({});
   let tmpData = $state({});
   let uploadBy = $state("");
-  let nameIsAvailable = $state(true);
   let alltags = $state([]);
 
   // let categoriesTab = $state([
@@ -127,7 +127,8 @@ All Rights Reserved
             console.error("Unexpected status code:", response);
             triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
           }
-          goto(await $call.getPage("client-dashboard", "document-library"));
+          goto(await $call.getPage("client-dashboard", "voice-documents")) +
+          `?collectionId=${collectionId}&libraryId=${libraryId}`;
           return;
         }
 
@@ -329,6 +330,25 @@ All Rights Reserved
     }
   }
 
+  function truncateText(text, maxWords, maxFirstWordLength = 14) {
+    console.log("text", text);
+    const words = text.split(" ");
+
+    // Check if the first word is too long, or if the second word is long
+    if (words[0] && words[0].length > maxFirstWordLength) {
+      return words[0].slice(0, maxFirstWordLength) + "...";
+    } else if (words[1] && words[1].length > maxFirstWordLength) {
+      return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
+    }
+
+    // Limit to maxWords and append "..." if necessary
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(" ") + " ...";
+    }
+
+    return words.join(" ");
+  }
+
   async function getCategories(id) {
     let token = localStorage.getItem("token");
 
@@ -416,9 +436,8 @@ All Rights Reserved
         triggerToast("successDeleteDocument", true);
         // setTimeout(async () => {
         goto(
-          (await $call.getPage("client-dashboard", "document-library-documents")) +
-            "?collectionId=" +
-            collectionId,
+          (await $call.getPage("client-dashboard", "voice-documents")) +
+                    `?collectionId=${collectionId}&libraryId=${libraryId}`
         );
         // }, 3000);
         return;
@@ -661,25 +680,6 @@ All Rights Reserved
     }
   }
 
-  function truncateText(text, maxWords, maxFirstWordLength = 14) {
-    console.log("text", text);
-    const words = text.split(" ");
-
-    // Check if the first word is too long, or if the second word is long
-    if (words[0] && words[0].length > maxFirstWordLength) {
-      return words[0].slice(0, maxFirstWordLength) + "...";
-    } else if (words[1] && words[1].length > maxFirstWordLength) {
-      return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
-    }
-
-    // Limit to maxWords and append "..." if necessary
-    if (words.length > maxWords) {
-      return words.slice(0, maxWords).join(" ") + " ...";
-    }
-
-    return words.join(" ");
-  }
-
   let tags = $state([]); // Daftar tag yang sudah dimasukkan pengguna
   let newTag = $state(""); // Menyimpan input dari pengguna
   let inputRef;
@@ -789,9 +789,13 @@ All Rights Reserved
     }
     const unsubscribe = page.subscribe(async ($page) => {
       documentId = $page.url.searchParams.get("documentId");
-      if (documentId === null || documentId === undefined) {
+      libraryId = $page.url.searchParams.get("libraryId");
+      if (documentId === null || documentId === undefined || libraryId === null || libraryId === undefined) {
         triggerToast("error");
-        goto(await $call.getPage("client-dashboard", "document-library"));
+        goto(
+          (await $call.getPage("client-dashboard", "voice-documents")) +
+                    `?collectionId=${collectionId}&libraryId=${libraryId}`
+        );
         return;
       }
       base64 = null;
@@ -831,12 +835,6 @@ All Rights Reserved
               tag="h3"
               class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
               >{globalThis.innerWidth < 768 ? truncateText(tmpData.document_title || "", 2) : tmpData.document_title}
-              <!-- <Button
-                outline
-                color="red"
-                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
-              >
-              </Button> -->
             </Heading>
           </div>
           <P
@@ -879,8 +877,8 @@ All Rights Reserved
               onclick={async function () {
                 triggerLoading(false);
                 goto(
-                  (await $call.getPage("client-dashboard", "document-library-documents")) +
-                    `?collectionId=${collectionId}`,
+                  (await $call.getPage("client-dashboard", "voice-documents")) +
+                            `?collectionId=${collectionId}&libraryId=${libraryId}`
                 );
                 return;
               }}

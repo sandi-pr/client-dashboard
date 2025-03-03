@@ -61,6 +61,7 @@ All Rights Reserved
   // let { showAI = true } = $props();
   // let showAI = $state(false);
 
+  let libraryId, botId;
   let documents = $state([]);
   let collections = $state([]);
   let files = $state([]);
@@ -106,8 +107,8 @@ All Rights Reserved
     {
       botsName: "Voice’s Assistant",
       botDescription: "",
-      botsID: 12345,
-      urlBot: "#",
+      botsID: 1,
+      urlBot: "",
       deployStatus: "Ready",
       deployedPlatform: "",
       bot_profile: "",
@@ -389,7 +390,7 @@ All Rights Reserved
   let gettingDatas = $state(false);
 
   async function viewAll() {
-    goto(await $call.getPage("client-dashboard", "document-library"));
+    goto(await $call.getPage("client-dashboard", "voice-collections"));
   }
 
   async function checkLibrariesVoice() {
@@ -481,7 +482,7 @@ All Rights Reserved
         Params: {
           page: 1,
           page_size: 8,
-          parent_id: parseInt($voiceLibraryId),
+          parent_id: parseInt(libraryId),
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -511,7 +512,7 @@ All Rights Reserved
         collections = collections.concat(response.result.data);
       }
 
-      let link = await $call.getPage("client-dashboard", "document-library-documents");
+      let link = await $call.getPage("client-dashboard", "voice-documents");
 
       let promise = collections.map(async (collection) => {
         console.log("collection", collection);
@@ -539,7 +540,7 @@ All Rights Reserved
           collectionName: collection.attributes.name,
           description: collection.attributes?.meta?.description || "",
           type: collection.attributes.type,
-          href: link + "?collectionId=" + collection.id + "&" + `libraryId=${$voiceLibraryId}`,
+          href: link + "?collectionId=" + collection.id + "&" + `libraryId=${libraryId}`,
         };
       });
 
@@ -798,7 +799,11 @@ All Rights Reserved
       window.history.back();
       return;
     }
-    await checkLibrariesVoice();
+    // await checkLibrariesVoice();
+    libraryId = localStorage.getItem("libraryId" + "voice");
+    botId = localStorage.getItem("botId" + "voice");
+    bots.urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
+    bots.botsID = botId;
     getActionItems();
     getCountDocumentsPerMonth();
     getCollections();

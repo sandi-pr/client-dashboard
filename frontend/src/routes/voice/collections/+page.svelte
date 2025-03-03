@@ -145,7 +145,7 @@
         // type: "",
         // status: "reading",
 
-        let link = await $call.getPage("client-dashboard", "document-library-documents");
+        let link = await $call.getPage("client-dashboard", "voice-documents");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);

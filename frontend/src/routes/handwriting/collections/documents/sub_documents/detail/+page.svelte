@@ -46,7 +46,7 @@ All Rights Reserved
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
 
-  let documentId, collectionId;
+  let documentId, collectionId, libraryId;
 
   import { call } from "$lib";
 
@@ -127,7 +127,10 @@ All Rights Reserved
             console.error("Unexpected status code:", response);
             triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
           }
-          goto(await $call.getPage("client-dashboard", "document-library"));
+          goto(
+            (await $call.getPage("client-dashboard", "handwriting-sub-documents")) +
+                    `?collectionId=${collectionId}&libraryId=${libraryId}`
+          );
           return;
         }
 
@@ -416,9 +419,8 @@ All Rights Reserved
         triggerToast("successDeleteDocument", true);
         // setTimeout(async () => {
         goto(
-          (await $call.getPage("client-dashboard", "document-library-documents")) +
-            "?collectionId=" +
-            collectionId,
+          (await $call.getPage("client-dashboard", "handwriting-sub-documents")) +
+                  `?collectionId=${collectionId}&libraryId=${libraryId}`
         );
         // }, 3000);
         return;
@@ -789,9 +791,13 @@ All Rights Reserved
     }
     const unsubscribe = page.subscribe(async ($page) => {
       documentId = $page.url.searchParams.get("documentId");
-      if (documentId === null || documentId === undefined) {
+      libraryId = $page.url.searchParams.get("libraryId");
+      if (documentId === null || documentId === undefined || libraryId === null || libraryId === undefined) {
         triggerToast("error");
-        goto(await $call.getPage("client-dashboard", "document-library"));
+        goto(
+          (await $call.getPage("client-dashboard", "handwriting-sub-documents")) +
+                  `?collectionId=${collectionId}&libraryId=${libraryId}`
+        );
         return;
       }
       base64 = null;
@@ -879,8 +885,8 @@ All Rights Reserved
               onclick={async function () {
                 triggerLoading(false);
                 goto(
-                  (await $call.getPage("client-dashboard", "document-library-documents")) +
-                    `?collectionId=${collectionId}`,
+                  (await $call.getPage("client-dashboard", "handwriting-sub-documents")) +
+                          `?collectionId=${collectionId}&libraryId=${libraryId}`
                 );
                 return;
               }}

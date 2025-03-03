@@ -38,7 +38,7 @@
   let activeUrl2 = $derived($page.url.pathname);
 
   onMount(() => {
-    console.log(`cek comming soon ${icon}`, commingSoon);
+    // console.log(`cek comming soon ${icon}`, commingSoon);
   })
 </script>
 
