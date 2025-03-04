@@ -24,6 +24,7 @@
     LibraryCard,
     AddDocModal,
     isBakrie,
+    ModalObject,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
@@ -55,6 +56,7 @@
   let addDocumentsModal = $state(false);
   let addCollectionModal = $state(false);
   let addCategoriesModal = $state(false);
+  let modalObjectOpen = $state(false);
   let popupModal = $state(false);
   let updateModal = $state(false);
   let editModal = $state(false);
@@ -1533,7 +1535,8 @@
                 <button
                   class="flex p-2 w-full gap-1.5"
                   onclick={() => {
-                    addDocumentsModal = true;
+                    // addDocumentsModal = true;
+                    modalObjectOpen = true;
                     tags = [];
                     files = [];
                     tmpDocumentTitle = "";
@@ -1731,7 +1734,7 @@
   {alltags}
   {tags}
   {isProcess}
-  {handleFileUploadWrapper},
+  {handleFileUploadWrapper}
   {fileNotSupport}
   {hasDocOrDocx}
   {tmpDocumentTitle}
@@ -1739,6 +1742,10 @@
   {handleInput}
   {buttonDisabled}
   {addDocumentByCollection}
+/>
+
+<ModalObject
+  bind:modalObjectOpen
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

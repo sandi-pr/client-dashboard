@@ -53,6 +53,7 @@ export { default as BotCard } from "$lib/ui/cards/BotCard.svelte";
 export { default as Pagination } from "$lib/ui/pagination/Pagination.svelte";
 export { default as Divider } from "$lib/components/Divider.svelte";
 export { default as AddDocModal } from "$lib/ui/modal/AddDocModal.svelte";
+export { default as ModalObject } from "$lib/ui/modal/ModalObject.svelte";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {
   triggerSelectCollection,
