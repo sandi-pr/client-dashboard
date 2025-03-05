@@ -990,5 +990,7 @@
   "chooseCollectionAsDataSource": "Pilih koleksi sebagai sumber data",
   "chooseCsvfile": "Pilih file CSV",
   "selectDataSource": "Pilih Sumber Data",
-  "quickActions": "Tindakan Cepat"
+  "quickActions": "Tindakan Cepat",
+  "importLink": "Impor Link",
+  "checkLink": "Periksa Link"
 }

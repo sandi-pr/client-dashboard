@@ -990,5 +990,7 @@
   "chooseCollectionAsDataSource": "Choose collection as data source",
   "chooseCsvfile": "Choose CSV file",
   "selectDataSource": "Select Data Source",
-  "quickActions": "Quick Actions"
+  "quickActions": "Quick Actions",
+  "importLink": "Import Link",
+  "checkLink": "Check Link"
 }

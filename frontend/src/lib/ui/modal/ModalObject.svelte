@@ -1,12 +1,17 @@
 <script>
   import { Modal, Button } from "flowbite-svelte";
-  import { Typography, FeaturedIcon, getIcons } from "$lib";
+  import { Typography, FeaturedIcon, getIcons, InputRw as Input } from "$lib";
+  import MultiSelect from "svelte-multiselect";
   import TabBar from "$lib/components/TabBar.svelte";
   import { _ } from "svelte-i18n";
 
   let { modalObjectOpen = $bindable() } = $props();
 
-  let tabBarSelected = $state("Upload");
+  let tabBarSelected = $state("Link");
+  let linkImportLink = $state("");
+  let linkChecked = $state(false);
+  let allTags = $state([]);
+  let tags = $state([]);
 
   let mainContentUpload = [
     {
@@ -86,7 +91,7 @@
     },
     {
       text: {
-        text: "Home",
+        text: $_("documentType"),
         color: "primary",
         preset: "Text md/Semibold",
       },
@@ -95,13 +100,12 @@
       input: {
         type: "text",
         onEdit: false,
-        value: "",
-        oninput: () => {},
+        value: "Documents (TXT, PDF, DOC, DOCX)",
       },
     },
     {
       text: {
-        text: "Home",
+        text: $_("importLink"),
         color: "primary",
         preset: "Text md/Semibold",
       },
@@ -109,22 +113,58 @@
     {
       input: {
         type: "text",
-        onEdit: false,
-        value: "",
-        oninput: () => {},
+        onEdit: true,
+        placeholder: "Paste image link (e.g. http://drive.google.com/..)",
+        oninput: (e) => {
+          linkImportLink = e.target.value;
+          configModal.footer[0].button.buttonDisabled = e.target.value ? false : true;
+        },
       },
     },
     {
       text: {
-        text: "Label",
+        text: $_("labels"),
         color: "primary",
         preset: "Text md/Semibold",
       },
     },
     {
       multiSelect: {
-        alltags: [],
-        tags: [],
+        alltags: allTags,
+        tags: tags,
+        allowUserOptions: "append",
+        autoScroll: true,
+        noMatchingOptionsMsg: "",
+        createOptionMsg: null,
+        ulSelectedClass: "text-primary-light dark:text-primary-dark",
+        liSelectedClass: "border border-primary-light dark:border-primary-dark",
+        ulOptionsClass: "bg-secondary-light dark:bg-tertiary-dark",
+        outerDivClass:
+          "bg-primary-light dark:bg-secondary-dark border rounded-lg border-gray-300 dark:border-gray-600 focus:none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 py-2",
+      },
+    },
+  ];
+
+  let footerUpload = [
+    {
+      button: {
+        text: "addNewDocument",
+        onClick: () => {},
+        buttonDisabled: false,
+      },
+    },
+  ];
+
+  let footerLink = [
+    {
+      button: {
+        text: "checkLink",
+        onClick: () => {
+          // TODO: check link logic
+          linkChecked = true;
+          configModal.footer = footerUpload;
+        },
+        buttonDisabled: true,
       },
     },
   ];
@@ -151,20 +191,12 @@
         },
       ],
     },
-    mainContent: mainContentUpload,
-    footer: [
-      {
-        button: {
-          text: "addNewDocument",
-          onClick: () => {},
-          buttonDisabled: false,
-        },
-      },
-    ],
+    mainContent: mainContentLink,
+    footer: footerLink,
   });
 </script>
 
-<Modal bind:open={modalObjectOpen} size="xs">
+<Modal bind:open={modalObjectOpen}>
   <svelte:fragment slot="header">
     <div class="flex items-center gap-4">
       {#if configModal?.header}
@@ -191,7 +223,15 @@
               tabBarSelected === "Upload" ? mainContentUpload : mainContentLink;
           }}
         />
-        <!-- <p>{content.tabBar?.tabDatas.selected}</p> -->
+      {/if}
+      {#if content?.text}
+        <Typography {...content.text} />
+      {/if}
+      {#if content?.input}
+        <Input {...content.input} />
+      {/if}
+      {#if content?.multiSelect}
+        <MultiSelect {...content.multiSelect} />
       {/if}
     {/each}
   {/if}
