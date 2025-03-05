@@ -4,8 +4,132 @@
   import TabBar from "$lib/components/TabBar.svelte";
   import { _ } from "svelte-i18n";
 
-  let { modalObjectOpen = $bindable()} = $props();
-  let configModal = {
+  let { modalObjectOpen = $bindable() } = $props();
+
+  let tabBarSelected = $state("Upload");
+
+  let mainContentUpload = [
+    {
+      tabBar: {
+        tabDatas: {
+          selected: "Upload",
+          data: [
+            {
+              name: "Upload",
+            },
+            {
+              name: "Link",
+            },
+          ],
+        },
+      },
+    },
+    {
+      text: {
+        text: "Home",
+        color: "primary",
+        preset: "Text md/Semibold",
+      },
+    },
+    {
+      input: {
+        type: "text",
+        onEdit: false,
+        value: "",
+        oninput: () => {},
+      },
+    },
+    {
+      text: {
+        text: "Label",
+        color: "primary",
+        preset: "Text md/Semibold",
+      },
+    },
+    {
+      uploadFile: {
+        onUpload: () => {},
+        onDrop: () => {},
+        files: [],
+      },
+    },
+    {
+      text: {
+        text: "Label",
+        color: "primary",
+        preset: "Text md/Semibold",
+      },
+    },
+    {
+      multiSelect: {
+        alltags: [],
+        tags: [],
+      },
+    },
+  ];
+
+  let mainContentLink = [
+    {
+      tabBar: {
+        tabDatas: {
+          selected: "Link",
+          data: [
+            {
+              name: "Upload",
+            },
+            {
+              name: "Link",
+            },
+          ],
+        },
+      },
+    },
+    {
+      text: {
+        text: "Home",
+        color: "primary",
+        preset: "Text md/Semibold",
+      },
+    },
+    {
+      input: {
+        type: "text",
+        onEdit: false,
+        value: "",
+        oninput: () => {},
+      },
+    },
+    {
+      text: {
+        text: "Home",
+        color: "primary",
+        preset: "Text md/Semibold",
+      },
+    },
+    {
+      input: {
+        type: "text",
+        onEdit: false,
+        value: "",
+        oninput: () => {},
+      },
+    },
+    {
+      text: {
+        text: "Label",
+        color: "primary",
+        preset: "Text md/Semibold",
+      },
+    },
+    {
+      multiSelect: {
+        alltags: [],
+        tags: [],
+      },
+    },
+  ];
+
+  let configModal = $state({
     header: {
       iconLeft: {
         icon: "filePlus",
@@ -27,66 +151,7 @@
         },
       ],
     },
-    mainContent: [
-      {
-        tabBar: {
-          tabDatas: {
-            selected: "Upload",
-            data: [
-              {
-                name: "Upload",
-              },
-              {
-                name: "Link",
-              }
-            ],
-            changeTabbar: () => {}
-          }
-        }
-      },
-      {
-        text: {
-          text: "Home",
-          color: "primary",
-          preset: "Text md/Semibold",
-        },
-      },
-      {
-        input: {
-          type: "text",
-          onEdit: false,
-          value: "",
-          oninput: () => {}
-        }
-      },
-      {
-        text: {
-          text: "Label",
-          color: "primary",
-          preset: "Text md/Semibold",
-        }
-      },
-      {
-        uploadFile: {
-          onUpload: () => {},
-          onDrop: () => {},
-          files: [],
-        }
-      },
-      {
-        text: {
-          text: "Label",
-          color: "primary",
-          preset: "Text md/Semibold",
-        },
-      },
-      {
-        multiSelect: {
-          alltags: [],
-          tags: [],
-        }
-      },
-    ],
+    mainContent: mainContentUpload,
     footer: [
       {
         button: {
@@ -94,17 +159,9 @@
           onClick: () => {},
           buttonDisabled: false,
         },
-      }
-    ]
-  };
-
-  function changeTabbar(selected) {
-    configModal?.mainContent?.forEach((content) => {
-      if (content?.tabBar?.tabDatas?.selected) {
-        content.tabBar.tabDatas.selected = selected;
-      }
-    });
-  }
+      },
+    ],
+  });
 </script>
 
 <Modal bind:open={modalObjectOpen} size="xs">
@@ -116,7 +173,7 @@
         {/if}
         <div>
           {#each configModal.header?.contentCenter as config}
-            <Typography {...config.text}/>
+            <Typography {...config.text} />
           {/each}
         </div>
       {/if}
@@ -126,7 +183,14 @@
   {#if configModal?.mainContent}
     {#each configModal?.mainContent as content}
       {#if content?.tabBar}
-        <TabBar tabDatas={content.tabBar?.tabDatas} on:tabChange={(e) => {}} />
+        <TabBar
+          tabDatas={content.tabBar?.tabDatas}
+          on:tabChange={(e) => {
+            tabBarSelected = e.detail;
+            configModal.mainContent =
+              tabBarSelected === "Upload" ? mainContentUpload : mainContentLink;
+          }}
+        />
         <!-- <p>{content.tabBar?.tabDatas.selected}</p> -->
       {/if}
     {/each}
@@ -134,15 +198,15 @@
 
   <svelte:fragment slot="footer">
     {#if configModal?.footer}
-    {#each configModal?.footer as item}
-      {#if item?.button}
-        <Button
-          onclick={item.button?.onClick}
-          disabled={item.button?.buttonDisabled || false}
-          class="w-full">{$_(item.button?.text)}</Button
-        >
-      {/if}
-    {/each}
+      {#each configModal?.footer as item}
+        {#if item?.button}
+          <Button
+            onclick={item.button?.onClick}
+            disabled={item.button?.buttonDisabled || false}
+            class="w-full">{$_(item.button?.text)}</Button
+          >
+        {/if}
+      {/each}
     {/if}
   </svelte:fragment>
 </Modal>
