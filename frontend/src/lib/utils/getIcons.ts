@@ -71,6 +71,7 @@ import PenToolPlusIcon from "../icon/pen-tool-plus.svelte";
 import Code01Icon from "../icon/code-01.svelte";
 import CodeSquare01Icon from "../icon/code-square-01.svelte";
 import Image01 from "../icon/image-01.svelte";
+import InfoCircle from "../icon/info-circle.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -220,6 +221,8 @@ let getIcons = (presetIcon: String) => {
       return CodeSquare01Icon;
     case "image01":
       return Image01;
+    case "infoCircle":
+      return InfoCircle;
     default:
       return "";
   }

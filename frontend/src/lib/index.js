@@ -45,6 +45,7 @@ export { default as Toggle } from "$lib/ui/buttons/Toggle.svelte";
 export { default as ToastContainer } from "$lib/ui/toast/ToastContainer.svelte";
 export { default as CR3Call } from "$lib/utils/cr3call";
 export { default as getTextColors } from "$lib/utils/getTextColors";
+export { default as getBgColors } from "$lib/utils/getBgColors";
 export { default as getIcons } from "$lib/utils/getIcons";
 export { default as triggerToast } from "$lib/utils/toast";
 export { default as triggerLoading } from "$lib/utils/loading";
@@ -96,11 +97,5 @@ export {
   setLibraryIds,
   setCollectionIds,
 } from "$lib/utils/bakrieLibraryStore";
-export {
-  voiceLibraryId,
-  setVoiceLibraryIds,
-} from "$lib/utils/voiceLibraryStore";
-export {
-  datasourceLibraryId,
-  setDatasourceLibraryIds,
-} from "$lib/utils/datasourceLibraryStore";
+export { voiceLibraryId, setVoiceLibraryIds } from "$lib/utils/voiceLibraryStore";
+export { datasourceLibraryId, setDatasourceLibraryIds } from "$lib/utils/datasourceLibraryStore";

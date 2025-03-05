@@ -40,6 +40,50 @@ let getTextColor = (presetColor: String) => {
       return "text-warning-primary-light dark:text-warning-primary-dark";
     case "error-primary":
       return "text-error-primary-light dark:text-error-primary-dark";
+    case "fg-primary":
+      return "text-fg-primary-light dark:text-fg-primary-dark";
+    case "fg-secondary":
+      return "text-fg-secondary-light dark:text-fg-secondary-dark";
+    case "fg-secondary-hover":
+      return "text-fg-secondary-hover-light dark:text-fg-secondary-hover-dark";
+    case "fg-tertiary":
+      return "text-fg-tertiary-light dark:text-fg-tertiary-dark";
+    case "fg-tertiary-hover":
+      return "text-fg-tertiary-hover-light dark:text-fg-tertiary-hover-dark";
+    case "fg-quarterary":
+      return "text-fg-quarterary-light dark:text-fg-quarterary-dark";
+    case "fg-quarterary-hover":
+      return "text-fg-quarterary-hover-light dark:text-fg-quarterary-hover-dark";
+    case "fg-quinary":
+      return "text-fg-quinary-light dark:text-fg-quinary-dark";
+    case "fg-quinary-hover":
+      return "text-fg-quinary-hover-light dark:text-fg-quinary-hover-dark";
+    case "fg-senary":
+      return "text-fg-senary-light dark:text-fg-senary-dark";
+    case "fg-white":
+      return "text-fg-white";
+    case "fg-disabled":
+      return "text-fg-disabled-light dark:text-fg-disabled-dark";
+    case "fg-disabled-subtle":
+      return "text-fg-disabled-subtle-light dark:text-fg-disabled-subtle-dark";
+    case "fg-brand-primary":
+      return "text-fg-brand-primary-light dark:text-fg-brand-primary-dark";
+    case "fg-brand-primary-alt":
+      return "text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark";
+    case "fg-brand-secondary":
+      return "text-fg-brand-secondary-light dark:text-fg-brand-secondary-dark";
+    case "fg-error-primary":
+      return "text-fg-error-primary-light dark:text-fg-error-primary-dark";
+    case "fg-error-secondary":
+      return "text-fg-error-secondary-light dark:text-fg-error-secondary-dark";
+    case "fg-warning-primary":
+      return "text-fg-warning-primary-light dark:text-fg-warning-primary-dark";
+    case "fg-warning-secondary":
+      return "text-fg-warning-secondary-light dark:text-fg-warning-secondary-dark";
+    case "fg-success-primary":
+      return "text-fg-success-primary-light dark:text-fg-success-primary-dark";
+    case "fg-success-secondary":
+      return "text-fg-success-secondary-light dark:text-fg-success-secondary-dark";
     default:
       return "text-primary-light dark:text-primary-dark";
   }

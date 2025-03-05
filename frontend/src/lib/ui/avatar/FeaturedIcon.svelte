@@ -8,13 +8,28 @@
   All Rights Reserved.
 -->
 
-<script lang="ts">
+<script>
   import { Avatar } from "flowbite-svelte";
-  let { classesSvg }: { classesSvg: any } = $props();
+  import { getBgColors, getTextColors } from "$lib";
+  let { classesSvg, color = "brand" } = $props();
+
+  const colors = {
+    brand: getBgColors("brand-primary"),
+    primary: getBgColors(color),
+    error: getBgColors("error-secondary"),
+  };
+
+  const colorsIcon = {
+    brand: getTextColors("fg-brand-primary-alt"),
+    error: getTextColors("fg-error-primary"),
+  };
+
+  const classes = "!ring-0 !m-0 !p-2 !h-10 !w-10 " + colors[color];
+  const classesIcon = "w-5 h-5 " + colorsIcon[color];
 </script>
 
-<Avatar size="sm" border class="!ring-0 !m-0 bg-brand-secondary-light dark:bg-brand-secondary-dark !p-2 !h-10 !w-10">
-  <svelte:component this={classesSvg} svgClass="w-5 h-5 text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark" />
+<Avatar size="sm" border class={classes}>
+  <svelte:component this={classesSvg} svgClass={classesIcon} />
 </Avatar>
 
 <!--

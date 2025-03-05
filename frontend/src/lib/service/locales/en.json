@@ -992,5 +992,10 @@
   "selectDataSource": "Select Data Source",
   "quickActions": "Quick Actions",
   "importLink": "Import Link",
-  "checkLink": "Check Link"
+  "checkLink": "Check Link",
+  "fileNotSupported": "File not supported",
+  "fileNotFoundMakeSureTheLinkIsCorrect": "File not found. Make sure the link is correct.",
+  "accessRestrictedCheckSharingSettings": "Access restricted. Check sharing settings.",
+  "urlDoesNotContainAValidResource": "URL does not contain a valid resource.",
+  "networkResponseWasNotOk": "Network response was not OK."
 }

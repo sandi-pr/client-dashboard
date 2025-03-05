@@ -3,7 +3,7 @@
   import { Typography, FeaturedIcon, Button } from "$lib";
   import { getIcons } from "$lib";
 
-  let { cardData = {}, propClass = "" } = $props();
+  let { cardData = {}, propClass = "", propClassContent = "" } = $props();
 
   let baseStyle = [
     "flex",
@@ -31,13 +31,14 @@
   ].join(" ");
 
   let classes = twMerge(baseStyle, propClass);
+  let classesContent = twMerge(contentCenterClasses, propClassContent);
 </script>
 
 <div class={classes} onclick={cardData?.onClick}>
-  <div class={contentCenterClasses}>
+  <div class={classesContent}>
     {#if cardData?.iconData}
       <!-- <Icon {...cardData.iconData} /> -->
-      <FeaturedIcon classesSvg={getIcons(cardData.iconData.icon)} />
+      <FeaturedIcon classesSvg={getIcons(cardData.iconData.icon)} color={cardData.icon?.color} />
     {/if}
 
     {#if cardData?.contentCenter}
@@ -50,7 +51,10 @@
           >
             {#each Object.keys(content) as key}
               {#if key === "icon"}
-                <FeaturedIcon classesSvg={getIcons(content.icon.icon)} />
+                <FeaturedIcon
+                  classesSvg={getIcons(content.icon.icon)}
+                  color={content.icon?.color}
+                />
               {/if}
 
               {#if key === "text"}
