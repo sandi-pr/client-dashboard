@@ -997,5 +997,7 @@
   "fileNotFoundMakeSureTheLinkIsCorrect": "File not found. Make sure the link is correct.",
   "accessRestrictedCheckSharingSettings": "Access restricted. Check sharing settings.",
   "urlDoesNotContainAValidResource": "URL does not contain a valid resource.",
-  "networkResponseWasNotOk": "Network response was not OK."
+  "networkResponseWasNotOk": "Network response was not OK.",
+  "failedToFetchResource": "Failed to fetch resource.",
+  "preview": "Preview"
 }

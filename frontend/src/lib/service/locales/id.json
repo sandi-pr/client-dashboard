@@ -997,5 +997,7 @@
   "fileNotFoundMakeSureTheLinkIsCorrect": "File tidak ditemukan. Pastikan link benar",
   "accessRestrictedCheckSharingSettings": "Akses terbatas. Periksa pengaturan berbagi",
   "urlDoesNotContainAValidResource": "URL tidak berisi sumber daya yang valid",
-  "networkResponseWasNotOk": "Respon jaringan tidak baik"
+  "networkResponseWasNotOk": "Respon jaringan tidak baik",
+  "failedToFetchResource": "Gagal mengambil sumber daya",
+  "preview": "Pratinjau"
 }

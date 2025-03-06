@@ -1,6 +1,13 @@
 <script>
   import { Modal, Button } from "flowbite-svelte";
-  import { Typography, FeaturedIcon, getIcons, InputRw as Input, CardFeature as Card } from "$lib";
+  import {
+    Typography,
+    FeaturedIcon,
+    getIcons,
+    InputRw as Input,
+    CardFeature as Card,
+    UploadFile,
+  } from "$lib";
   import { getBgColors } from "$lib";
   import MultiSelect from "svelte-multiselect";
   import TabBar from "$lib/components/TabBar.svelte";
@@ -13,7 +20,8 @@
   let linkChecked = $state(false);
   let allTags = $state([]);
   let tags = $state([]);
-  let imageBlob = $state(null);
+  let isProcess = $state(false);
+  let files = $state([]);
 
   let mainContentUpload = [
     {
@@ -123,6 +131,7 @@
     },
     {
       input: {
+        id: "link",
         type: "text",
         onEdit: true,
         placeholder: "Paste image link (e.g. https://plus.unsplash.com/...)",
@@ -237,9 +246,22 @@
     footer: footerLink,
   });
 
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
+
   const urlChecker = async (url) => {
     try {
       let response;
+      console.log("url", url);
       if (url.includes("drive.google.com")) {
         const fileId = url.match(/[-\w]{25,}/);
         if (!fileId) {
@@ -251,8 +273,9 @@
         response = await fetch(url);
       }
 
+      console.log("response", response);
+
       if (!response.ok) {
-        // errorMessage = $_("networkResponseWasNotOk");
         configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
           $_("networkResponseWasNotOk");
         throw new Error("Network response was not ok");
@@ -260,19 +283,35 @@
 
       const contentType = response.headers.get("content-type");
       if (contentType.includes("image") || contentType.includes("application")) {
-        imageBlob = await response.blob();
-        // Save the resource to a variable
-        // For example: this.resource = resource;
-        console.log("Resource fetched successfully:", imageBlob);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          const base64data = reader.result;
+          const fileType = contentType.split("/")[1];
+          const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
+          files.push({
+            id: files.length < 1 ? 1 : files.length + 1,
+            name: fileName,
+            document_title: "Document Title", // Replace with actual title if available
+            description: "Document Description", // Replace with actual description if available
+            size: formatBytes(blob.size),
+            base64: base64data,
+            ext: `.${fileType}`,
+            type: contentType.includes("image") ? "image" : "document",
+          });
+          console.log("Resource fetched successfully:", base64data);
+        };
         return true;
       } else {
-        // errorMessage = $_("urlDoesNotContainAValidResource");
         configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
           "urlDoesNotContainAValidResource",
         );
         throw new Error("URL does not contain a valid resource");
       }
     } catch (error) {
+      configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
+        $_("failedToFetchResource");
       console.error("Error fetching the URL:", error);
       return false;
     }
@@ -312,7 +351,26 @@
       {#if content?.text}
         <Typography {...content.text} />
       {/if}
-      {#if content?.input}
+      {#if content?.input && content.input.id === "link" && linkChecked}
+        <UploadFile
+          title={`${$_("uploadDocuments")}*`}
+          handleFileUploadWrapper={() => {}}
+          file={files[0]}
+          {files}
+          bind:isProcess
+          multiple={false}
+          actionView={() => {
+            console.log("hello");
+          }}
+          actionButton={true}
+          actionDelete={() => {
+            files = [];
+            linkChecked = false;
+            linkImportLink = "";
+            configModal.footer = footerLink;
+          }}
+        />
+      {:else if content?.input}
         <Input {...content.input} />
       {/if}
       {#if content?.multiSelect}
