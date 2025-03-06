@@ -552,7 +552,8 @@
             files[i].name = newName + files[i].ext;
 
             dataSend = {
-              document_name: files.length > 1 ? newName : tmpDocumentTitle,
+              // document_name: files.length > 1 ? newName : tmpDocumentTitle,
+              document_name: newName,
               description: tmpDocumentDescription,
               parent_id: parseInt(collectionId),
               documents: JSON.stringify([files[i]]),
@@ -560,7 +561,7 @@
               category: tags.join(","),
             };
 
-            // console.log("data send", dataSend);
+            // console.log("cek data send", dataSend);
             await sendDocument();
           }
         }
@@ -1535,8 +1536,7 @@
                 <button
                   class="flex p-2 w-full gap-1.5"
                   onclick={() => {
-                    // addDocumentsModal = true;
-                    modalObjectOpen = true;
+                    addDocumentsModal = true;
                     tags = [];
                     files = [];
                     tmpDocumentTitle = "";
@@ -1727,10 +1727,11 @@
   <ToastContainer />
 </div>
 
-<AddDocModal 
+<!-- <AddDocModal 
   bind:addDocumentsModal
+  bind:nameIsAvailable
   {selectedTypeCollection}
-  {files}
+  bind:files
   {alltags}
   {tags}
   {isProcess}
@@ -1740,12 +1741,19 @@
   {tmpDocumentTitle}
   {tmpDocumentDescription}
   {handleInput}
-  {buttonDisabled}
+  bind:buttonDisabled
   {addDocumentByCollection}
-/>
+  actionDelete={() => (files = [])}
+/> -->
 
 <ModalObject
-  bind:modalObjectOpen
+  bind:modalObjectOpen={addDocumentsModal}
+  {handleFileUploadWrapper}
+  bind:isProcess
+  bind:files
+  {alltags}
+  bind:tags
+  {addDocumentByCollection}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

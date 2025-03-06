@@ -11,10 +11,6 @@
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import { goto } from "$app/navigation";
 
-  let tmpId = $state(null);
-
-  let popupModal = $state(false);
-
   let {
     bot,
     handleDropdownFocusLoss,
@@ -22,6 +18,8 @@
     dropdownOpen,
     config = null,
     startReading = () => {},
+    popupModal = $bindable(false),
+    tmpId = $bindable(null),
   } = $props();
 </script>
 

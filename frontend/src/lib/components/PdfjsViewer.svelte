@@ -18,6 +18,7 @@
 	import { onMount } from "svelte";
 
 	export let pdfFile;
+	export let pdfUrl;
 
 	let scale = 1;
 	let num = 1;
@@ -104,7 +105,7 @@
 	<div class="flex flex-col gap-6 justify-center items-center">
 		<div class="pdf-container">
 			<Document
-				file={base64toLink(pdfFile)}
+				file={pdfFile ? base64toLink(pdfFile) : pdfUrl}
 				on:loadsuccess={handleLoadSuccess}
 				on:loaderror={handleLoadError}
 			>
