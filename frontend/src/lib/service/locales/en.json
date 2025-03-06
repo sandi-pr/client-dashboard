@@ -990,5 +990,14 @@
   "chooseCollectionAsDataSource": "Choose collection as data source",
   "chooseCsvfile": "Choose CSV file",
   "selectDataSource": "Select Data Source",
-  "quickActions": "Quick Actions"
+  "quickActions": "Quick Actions",
+  "importLink": "Import Link",
+  "checkLink": "Check Link",
+  "fileNotSupported": "File not supported",
+  "fileNotFoundMakeSureTheLinkIsCorrectAndAccessible": "File not found. Make sure the link is correct and accessible.",
+  "accessRestrictedCheckSharingSettings": "Access restricted. Check sharing settings.",
+  "urlDoesNotContainAValidResource": "URL does not contain a valid resource.",
+  "networkResponseWasNotOk": "Network response was not OK.",
+  "failedToFetchResource": "Failed to fetch resource.",
+  "preview": "Preview"
 }

@@ -1,7 +1,7 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Sandi Permana <sandy@hexacode.org>
 Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
@@ -57,7 +57,7 @@ All Rights Reserved
   };
 
   function actionDeleteFile(fileToDelete) {
-    const index = files.findIndex(file => file === fileToDelete);
+    const index = files.findIndex((file) => file === fileToDelete);
     if (index !== -1) {
       files.splice(index, 1);
     }
@@ -89,8 +89,10 @@ All Rights Reserved
 
 <div class="relative flex flex-col gap-1.5">
   <Typography preset="Text sm/Medium" text={title} color="secondary" />
-  {#if file === null || isProcess && files.length < 1}
-    <div class={`flex gap-3 ${isPreview ? largePreview ? "flex-col md:flex-row" : "flex-row" : "flex-col"}`}>
+  {#if file === null || (isProcess && files.length < 1)}
+    <div
+      class={`flex gap-3 ${isPreview ? (largePreview ? "flex-col md:flex-row" : "flex-row") : "flex-col"}`}
+    >
       {#if isPreview}
         {#if largePreview}
           {#if srcAvatar}
@@ -111,7 +113,11 @@ All Rights Reserved
           <UploadIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
         </div>
         <div class="flex flex-col items-center gap-0.5">
-          <Typography preset="Text sm/Semibold" text={$_("clickToUpload")} color="brand-secondary" />
+          <Typography
+            preset="Text sm/Semibold"
+            text={$_("clickToUpload")}
+            color="brand-secondary"
+          />
           <!-- <Typography preset="Text xs/Regular" text={textFileType(type)} color="tertiary" /> -->
         </div>
       </Button>
@@ -133,14 +139,28 @@ All Rights Reserved
             <div class="flex w-full items-center justify-center gap-1">
               {#if actionView}
                 <Button class="w-full" color="light" on:click={actionView}>
-                  <Typography preset="Text sm/Semibold" text={$_("viewDocument")} color="secondary" />
+                  <Typography
+                    preset="Text sm/Semibold"
+                    text={$_("viewDocument")}
+                    color="secondary"
+                  />
                 </Button>
               {/if}
-              <Button class="w-max h-max gap-1.5 p-2" color="light" on:click={handleFileUploadWrapper}>
-                <UploadFileIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+              <Button
+                class="w-max h-max gap-1.5 p-2"
+                color="light"
+                on:click={handleFileUploadWrapper}
+              >
+                <UploadFileIcon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
                 {$_("uploadMore")}
               </Button>
-              <Button class="w-max h-max p-2" color="light" on:click={() => (modalAllDocuments = true)}>
+              <Button
+                class="w-max h-max p-2"
+                color="light"
+                on:click={() => (modalAllDocuments = true)}
+              >
                 {$_("viewAll")}
               </Button>
               <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
@@ -167,7 +187,12 @@ All Rights Reserved
             <img src={CSVIcon} alt="" />
           {/if}
           <div class="flex flex-col max-w-72 justify-center">
-            <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+            <Typography
+              preset="Text sm/Semibold"
+              propClass="truncate"
+              text={file.name}
+              color="secondary"
+            />
             <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
             {#if status !== ""}
               <Typography preset="Text sm/Regular" text={`status: ${status}`} color="secondary" />
@@ -178,11 +203,13 @@ All Rights Reserved
           <div class="flex items-end justify-end gap-3">
             {#if actionView}
               <Button class="w-full" color="light" on:click={actionView}>
-                <Typography preset="Text sm/Semibold" text={$_("viewDocument")} color="secondary" />
+                <Typography preset="Text sm/Semibold" text={$_("preview")} color="secondary" />
               </Button>
             {/if}
             {#if multiple}
-              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}>{$_("uploadMore")}</Button>
+              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}
+                >{$_("uploadMore")}</Button
+              >
             {/if}
             <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
               <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
@@ -190,13 +217,13 @@ All Rights Reserved
           </div>
         {/if}
       {:else}
-      <div class="grow"></div>
+        <div class="grow"></div>
       {/if}
     </div>
   {/if}
 </div>
 
-<Modal title={$_("selectedFileToUpload")} bind:open={modalAllDocuments}  size="xs" outsideclose>
+<Modal title={$_("selectedFileToUpload")} bind:open={modalAllDocuments} size="xs" outsideclose>
   {#if files.length > 1}
     {#each files as file}
       <div class="flex items-center justify-between">
@@ -215,7 +242,12 @@ All Rights Reserved
             <img src={PNGSolidIcon} alt="" />
           {/if}
           <div class="flex flex-col max-w-72 justify-center">
-            <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+            <Typography
+              preset="Text sm/Semibold"
+              propClass="truncate"
+              text={file.name}
+              color="secondary"
+            />
             <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
             {#if status !== ""}
               <Typography preset="Text sm/Regular" text={`status: ${status}`} color="secondary" />
@@ -223,10 +255,18 @@ All Rights Reserved
           </div>
         </div>
         <div class="flex items-center justify-end gap-1">
-          <Button class="w-max h-max p-2 !border-0" color="light" on:click={() => actionViewFile(file)}>
+          <Button
+            class="w-max h-max p-2 !border-0"
+            color="light"
+            on:click={() => actionViewFile(file)}
+          >
             <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
           </Button>
-          <Button class="w-max h-max p-2 !border-0" color="light" on:click={() => actionDeleteFile(file)}>
+          <Button
+            class="w-max h-max p-2 !border-0"
+            color="light"
+            on:click={() => actionDeleteFile(file)}
+          >
             <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
           </Button>
         </div>

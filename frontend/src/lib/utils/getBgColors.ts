@@ -48,6 +48,8 @@ let getBgColor = (presetColor: String) => {
       return "bg-warning-primary-light dark:bg-warning-primary-dark";
     case "error-primary":
       return "bg-error-primary-light dark:bg-error-primary-dark";
+    case "error-secondary":
+      return "bg-error-secondary-light dark:bg-error-secondary-dark";
     default:
       return "bg-primary-light dark:bg-primary-dark";
   }

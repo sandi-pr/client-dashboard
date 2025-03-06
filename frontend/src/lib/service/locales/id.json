@@ -990,5 +990,14 @@
   "chooseCollectionAsDataSource": "Pilih koleksi sebagai sumber data",
   "chooseCsvfile": "Pilih file CSV",
   "selectDataSource": "Pilih Sumber Data",
-  "quickActions": "Tindakan Cepat"
+  "quickActions": "Tindakan Cepat",
+  "importLink": "Impor Link",
+  "checkLink": "Periksa Link",
+  "fileNotSupported": "File tidak didukung",
+  "fileNotFoundMakeSureTheLinkIsCorrectAndAccessible": "File tidak ditemukan. Pastikan link benar dan dapat diakses",
+  "accessRestrictedCheckSharingSettings": "Akses terbatas. Periksa pengaturan berbagi",
+  "urlDoesNotContainAValidResource": "URL tidak berisi sumber daya yang valid",
+  "networkResponseWasNotOk": "Respon jaringan tidak baik",
+  "failedToFetchResource": "Gagal mengambil sumber daya",
+  "preview": "Pratinjau"
 }
