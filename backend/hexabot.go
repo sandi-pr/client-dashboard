@@ -1626,6 +1626,13 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, string, e
 					return "", "", err
 				}
 
+				knowledge_id, ok := attributes.GetString("bot_id")
+
+				if !ok {
+					fmt.Println("ayam 2: Gagal mendapatkan knowledge_id")
+					return "", "", err
+				}
+
 				if collection, ok := attributes.GetString("collection_id"); ok {
 					collection_id_array := strings.Split(string(collection), ",")
 					collection_id_int := make([]int, len(collection_id_array))
@@ -1681,16 +1688,33 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, string, e
 										// }
 
 										if attributes, ok := dict.GetDict("attributes"); ok {
-											if status, ok := attributes.GetString("status"); ok {
-												if status != "Ready" && status != "Error" {
-													// fmt.Println("not ready", collection_id_int[i], idDoc)
-													return string(status), string(bot_name), nil
+											if status_doc, ok := attributes.GetDict("status"); ok {
+												//old status
+
+												// if status != "Ready" && status != "Error" {
+												// 	// fmt.Println("not ready", collection_id_int[i], idDoc)
+												// 	return string(status), string(bot_name), nil
+												// } else {
+												// 	// fmt.Println("ready", collection_id_int[i], idDoc)
+												// 	page = page + 1
+												// 	continue
+												// }
+
+												if status_bot, ok := status_doc.GetString(string(knowledge_id)); ok {
+													if status_bot != "Ready" && status_bot != "Error" {
+														fmt.Println("not ready", collection_id_int[i], knowledge_id)
+														return string(status_bot), string(bot_name), nil
+													} else {
+														fmt.Println("ready", collection_id_int[i], knowledge_id)
+														page = page + 1
+														continue
+													}
 												} else {
-													// fmt.Println("ready", collection_id_int[i], idDoc)
-													page = page + 1
-													continue
+													fmt.Println("not ready 1", collection_id_int[i], knowledge_id)
+													return "Inactive", string(bot_name), nil
 												}
 											} else {
+												fmt.Println("not ready 2", collection_id_int[i], knowledge_id)
 												return "Inactive", string(bot_name), nil
 											}
 										} else {
@@ -1764,10 +1788,10 @@ func AddDocumentByBotID(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 		},
 	}, false)
 
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return ctx.Error(500, "Internal Server Error")
+	// }
 
 	go getStatusBotNew(int64(bot_id), Strapi, userIdStr)
 
