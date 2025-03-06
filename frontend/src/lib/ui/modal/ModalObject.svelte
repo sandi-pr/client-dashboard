@@ -259,6 +259,7 @@
   }
 
   const urlChecker = async (url) => {
+    let errorObject;
     try {
       let response;
       if (url.includes("drive.google.com")) {
@@ -275,6 +276,7 @@
       if (!response.ok) {
         configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
           $_("networkResponseWasNotOk");
+        errorObject = await response.json();
         throw new Error("Network response was not ok");
       }
 
@@ -312,14 +314,32 @@
         };
         return true;
       } else {
-        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
-          "urlDoesNotContainAValidResource",
-        );
+        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
+          $_("fileNotSupported");
+        errorObject = await response.json();
         throw new Error("URL does not contain a valid resource");
       }
     } catch (error) {
-      configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
-        $_("failedToFetchResource");
+      console.log("errorObject", errorObject);
+      // console.log("error", error);
+      if (errorObject && errorObject.error) {
+        if (errorObject.error.code === 403) {
+          configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
+            "accessRestrictedCheckSharingSettings",
+          );
+        } else if (errorObject.error.code === 404) {
+          configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
+            "fileNotFoundMakeSureTheLinkIsCorrectAndAccessible",
+          );
+        }
+      } else if (error instanceof TypeError && error.message === "Failed to fetch") {
+        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
+          "accessRestrictedCheckSharingSettings",
+        );
+      } else {
+        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
+          $_("failedToFetchResource");
+      }
       console.error("Error fetching the URL:", error);
       return false;
     }

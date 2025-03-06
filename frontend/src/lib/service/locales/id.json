@@ -994,7 +994,7 @@
   "importLink": "Impor Link",
   "checkLink": "Periksa Link",
   "fileNotSupported": "File tidak didukung",
-  "fileNotFoundMakeSureTheLinkIsCorrect": "File tidak ditemukan. Pastikan link benar",
+  "fileNotFoundMakeSureTheLinkIsCorrectAndAccessible": "File tidak ditemukan. Pastikan link benar dan dapat diakses",
   "accessRestrictedCheckSharingSettings": "Akses terbatas. Periksa pengaturan berbagi",
   "urlDoesNotContainAValidResource": "URL tidak berisi sumber daya yang valid",
   "networkResponseWasNotOk": "Respon jaringan tidak baik",

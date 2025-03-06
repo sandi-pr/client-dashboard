@@ -73,7 +73,7 @@ let getTextColor = (presetColor: String) => {
     case "fg-brand-secondary":
       return "text-fg-brand-secondary-light dark:text-fg-brand-secondary-dark";
     case "fg-error-primary":
-      return "text-fg-error-primary-light dark:text-fg-error-primary-dark";
+      return "text-fg-error-primary-light dark:text-white";
     case "fg-error-secondary":
       return "text-fg-error-secondary-light dark:text-fg-error-secondary-dark";
     case "fg-warning-primary":
