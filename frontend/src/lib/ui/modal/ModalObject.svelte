@@ -261,19 +261,16 @@
   const urlChecker = async (url) => {
     try {
       let response;
-      console.log("url", url);
       if (url.includes("drive.google.com")) {
         const fileId = url.match(/[-\w]{25,}/);
         if (!fileId) {
           throw new Error("Invalid Google Drive URL");
         }
-        const gdriveUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?alt=media&key=YOUR_API_KEY`;
+        const gdriveUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
         response = await fetch(gdriveUrl);
       } else {
         response = await fetch(url);
       }
-
-      console.log("response", response);
 
       if (!response.ok) {
         configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
@@ -282,7 +279,12 @@
       }
 
       const contentType = response.headers.get("content-type");
-      if (contentType.includes("image") || contentType.includes("application")) {
+      if (
+        contentType.includes("image") ||
+        contentType.includes("application") ||
+        contentType.includes("text/plain") ||
+        contentType.includes("application/pdf")
+      ) {
         const blob = await response.blob();
         const reader = new FileReader();
         reader.readAsDataURL(blob);
@@ -293,12 +295,18 @@
           files.push({
             id: files.length < 1 ? 1 : files.length + 1,
             name: fileName,
-            document_title: "Document Title", // Replace with actual title if available
-            description: "Document Description", // Replace with actual description if available
+            // document_title: "Document Title",
+            // description: "Document Description",
             size: formatBytes(blob.size),
             base64: base64data,
             ext: `.${fileType}`,
-            type: contentType.includes("image") ? "image" : "document",
+            type: contentType.includes("image")
+              ? "image"
+              : contentType.includes("text/plain")
+                ? "text"
+                : contentType.includes("application/pdf")
+                  ? "pdf"
+                  : "document",
           });
           console.log("Resource fetched successfully:", base64data);
         };
@@ -381,12 +389,6 @@
       {/if}
     {/each}
   {/if}
-
-  <!-- {#if imageBlob}
-    <div class="image-viewer">
-      <img src={URL.createObjectURL(imageBlob)} alt="Fetched Resource" />
-    </div>
-  {/if} -->
 
   <svelte:fragment slot="footer">
     {#if configModal?.footer}
