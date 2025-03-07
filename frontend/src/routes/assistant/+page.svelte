@@ -259,7 +259,7 @@
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Typography preset="Display sm/Semibold" text={$_("myBots")} color="secondary" />
+        <Typography preset="Display sm/Semibold" text={$_("assistant")} color="secondary" />
 
         <!-- Bots List Data -->
         <div>

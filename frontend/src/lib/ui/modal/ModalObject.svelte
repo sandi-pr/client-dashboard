@@ -1,5 +1,5 @@
 <script>
-  import { Modal, Button } from "flowbite-svelte";
+  import { Modal, Button, Helper, Alert } from "flowbite-svelte";
   import {
     Typography,
     FeaturedIcon,
@@ -7,11 +7,14 @@
     InputRw as Input,
     CardFeature as Card,
     UploadFile,
+    triggerLoading,
   } from "$lib";
   import { getBgColors } from "$lib";
   import MultiSelect from "svelte-multiselect";
   import TabBar from "$lib/components/TabBar.svelte";
+  import { InfoCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
+  import { onMount } from "svelte";
 
   let {
     modalObjectOpen = $bindable(false),
@@ -22,6 +25,11 @@
     alltags = [],
     tags = $bindable([]),
     handleInput,
+    nameIsAvailable = $bindable(true),
+    tmpDocumentTitle = $bindable(""),
+    usedFor = "Documents",
+    fileNotSupport = false,
+    hasDocOrDocx = false,
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -31,6 +39,13 @@
   // let tags = $state([]);
   // let isProcess = $state(false);
   // let files = $state([]);
+
+  let limitation = [
+    "application",
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
 
   let mainContentUpload = [
     {
@@ -108,21 +123,21 @@
               oninput: handleInput,
             },
           },
-          {
-            text: {
-              text: $_("description"),
-              color: "secondary",
-              preset: "Text sm/Medium",
-            },
-          },
-          {
-            input: {
-              id: "docDescription",
-              type: "text",
-              value: "",
-              onEdit: true,
-            },
-          },
+          // {
+          //   text: {
+          //     text: $_("description"),
+          //     color: "secondary",
+          //     preset: "Text sm/Medium",
+          //   },
+          // },
+          // {
+          //   input: {
+          //     id: "docDescription",
+          //     type: "text",
+          //     value: "",
+          //     onEdit: true,
+          //   },
+          // },
         ]
       }
     }
@@ -223,6 +238,43 @@
           "bg-primary-light dark:bg-secondary-dark border rounded-lg border-gray-300 dark:border-gray-600 focus:none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 py-2",
       },
     },
+    {
+      metaFile: {
+        content: [
+          {
+            text: {
+              text: `${$_("documentTitle")}*`,
+              color: "secondary",
+              preset: "Text sm/Medium",
+            },
+          },
+          {
+            input: {
+              id: "docTitle",
+              type: "text",
+              value: "file",
+              onEdit: true,
+              oninput: handleInput,
+            },
+          },
+          // {
+          //   text: {
+          //     text: $_("description"),
+          //     color: "secondary",
+          //     preset: "Text sm/Medium",
+          //   },
+          // },
+          // {
+          //   input: {
+          //     id: "docDescription",
+          //     type: "text",
+          //     value: "",
+          //     onEdit: true,
+          //   },
+          // },
+        ]
+      }
+    }
   ];
 
   let footerUpload = [
@@ -241,12 +293,7 @@
         text: "checkLink",
         onClick: async () => {
           // console.log(linkImportLink);
-          let urlValid = await urlChecker(linkImportLink, [
-            "application",
-            "application/pdf",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          ]);
+          let urlValid = await urlChecker(linkImportLink, limitation);
           if (urlValid) {
             linkChecked = true;
             configModal.footer = footerUpload;
@@ -313,9 +360,11 @@
     });
   }
 
-  const urlChecker = async (url, limitation = ["application", "application/pdf"]) => {
+  const urlChecker = async (url, limitation) => {
     let errorObject;
     try {
+      configModal.footer[0].button.buttonDisabled = true;
+      triggerLoading(true);
       let response;
       if (url.includes("drive.google.com")) {
         const fileId = url.match(/[-\w]{25,}/);
@@ -345,6 +394,7 @@
         const base64data = await readFileAsBase64(blob);
         const fileType = contentType.split("/")[1];
         const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
+        tmpDocumentTitle = `${url.split("/")[3].slice(0, 10)}`;
         files.push({
           id: files.length < 1 ? 1 : files.length + 1,
           name: fileName,
@@ -364,6 +414,9 @@
                   ? "document"
                   : "unknown",
         });
+        console.log("cek files", files);
+        configModal.footer[0].button.buttonDisabled = false;
+        triggerLoading(false);
         return true;
       } else {
         configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
@@ -392,9 +445,27 @@
           $_("failedToFetchResource");
       }
       console.error("Error fetching the URL:", error);
+      configModal.footer[0].button.buttonDisabled = false;
+      triggerLoading(false);
       return false;
     }
   };
+
+  onMount(async () => {
+    if (usedFor === "Documents") {
+      configModal.header.contentCenter[0].text.text = $_("addDocuments");
+    } else if (usedFor === "Handwriting") {
+      configModal.header.contentCenter[0].text.text = $_("addHandwriting");
+      mainContentUpload[2].input.value = "Handwriting (JPG, JPEG, PNG)";
+      mainContentLink[2].input.value = "Handwriting (JPG, JPEG, PNG)";
+      limitation = ["image/jpeg", "image/png", "image/jpg"];
+    } else if (usedFor === "Audio") {
+      configModal.header.contentCenter[0].text.text = $_("addAudio");
+      mainContentUpload[2].input.value = "Audio (MP3, WAV, OGG)";
+      mainContentLink[2].input.value = "Audio (MP3, WAV, OGG)";
+      limitation = ["audio/mpeg", "audio/wav", "audio/ogg"];
+    }
+  });
 
   $effect(() => {
     configModal.footer[0].button.buttonDisabled = files.length < 1 ? true : false;
@@ -476,6 +547,17 @@
             files = [];
           }}
         />
+        {#if fileNotSupport}
+          <Alert color="red">
+            <InfoCircleSolid slot="icon" class="w-5 h-5" />
+            {$_("fileNotSupport")}
+          </Alert>
+        {:else if hasDocOrDocx}
+          <Alert color="yellow">
+            <InfoCircleSolid slot="icon" class="w-5 h-5" />
+            {$_("docOrDocxWillConvertToPdf")}
+          </Alert>
+        {/if}
       {/if}
       {#if content?.multiSelect}
         <MultiSelect {...content.multiSelect} bind:selected={tags} options={alltags} />
@@ -490,7 +572,12 @@
                 <Typography {...content.text} />
               {/if}
               {#if content?.input}
-                <Input {...content.input} />
+                <Input {...content.input} bind:value={tmpDocumentTitle} />
+                {#if !nameIsAvailable}
+                  <Helper color="red">
+                    <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+                  </Helper>
+                {/if}
               {/if}
             {/each}
           {/if}

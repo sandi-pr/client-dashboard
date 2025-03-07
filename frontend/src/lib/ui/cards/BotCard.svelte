@@ -44,7 +44,7 @@
           <Typography preset="Text sm/Regular" color="secondary" text={bot.botDescription} />
         </div>
       </div>
-      {#if check("aiManagement.hexabots:delete") && config?.detail === true}
+      {#if check("aiManagement.hexabots:delete") && config?.detail === true || config?.startReading === true}
         <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
           <Button
             on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
@@ -75,17 +75,19 @@
                   {$_("startReading")}
                 </button>
               {/if}
-              <button
-                class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                onclick={() => {
-                  popupModal = true;
-                  tmpId = bot.botsID;
-                  dropdownOpen[index] = !dropdownOpen[index];
-                }}
-              >
-                <TrashIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-                {$_("delete")}
-              </button>
+              {#if config?.delete === true}
+                <button
+                  class="flex py-2 px-4 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                  onclick={() => {
+                    popupModal = true;
+                    tmpId = bot.botsID;
+                    dropdownOpen[index] = !dropdownOpen[index];
+                  }}
+                >
+                  <TrashIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+                  {$_("delete")}
+                </button>
+              {/if}
             </ul>
           </div>
         </div>

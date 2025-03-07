@@ -529,7 +529,7 @@
   $effect(() => {
     if ($onProgress) {
       console.log("notification", $notifications);
-      if ($notifications.length > 0 && $notifications[0].attributes.content.includes("100")) {
+      if ($notifications.length > 0 && $notifications[0].attributes.meta?.progress.includes("100")) {
         if (!gettingStatusBot) {
           startReading($notifications[0].attributes.meta.bot_id);
           console.log("start reading", $notifications[0].attributes.meta.bot_id);
@@ -614,7 +614,7 @@
                   {dropdownOpen}
                   bind:popupModal
                   bind:tmpId
-                  config={{ startReading: true, detail: true, detailView: true, configure: true }}
+                  config={{ startReading: true, delete: true, detail: true, detailView: true, configure: true }}
                   {handleDropdownFocusLoss}
                   {startReading}
                 />

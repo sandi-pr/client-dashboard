@@ -91,7 +91,7 @@ All Rights Reserved
   let addDocumentsModal = $state(false);
   let editModal = $state(false);
   let deleteModal = $state(false);
-  let dropdownOpen = $state(false);
+  let dropdownOpen = $state([false]);
   let acceptedFileTypes = $state(".txt, .pdf");
   let selectedTypeCollection = $state("Documents (TXT, PDF)");
   let timer;
@@ -391,9 +391,41 @@ All Rights Reserved
   let latestDocumentCollection = $state([]);
 
   let gettingDatas = $state(false);
+  let gettingStatusBot = $state(false);
 
   async function viewAll() {
     goto(await $call.getPage("client-dashboard", "handwriting-collections") + "?libraryId=" + libraryId);
+  }
+
+  async function startReading(botId) {
+    let token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        // gettingStatusBot = true;
+
+        const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
+          URLQuery: {},
+          URLParams: {
+            id: botId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        // setTimeout(getBots, 3000);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }
 
   async function createCollection() {
@@ -909,7 +941,7 @@ All Rights Reserved
         {:else}
           <div class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}>
             {#each bots as bot, index (bot.botsID)}
-              <BotCard {bot} {index} {dropdownOpen} config={{ openWebchat: true }} {handleDropdownFocusLoss} />
+              <BotCard {bot} {index} {dropdownOpen} {startReading} config={{ openWebchat: true, startReading: true }} {handleDropdownFocusLoss} />
             {/each}
           </div>
         {/if}

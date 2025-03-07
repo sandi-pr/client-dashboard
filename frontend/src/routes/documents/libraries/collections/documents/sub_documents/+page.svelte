@@ -454,8 +454,8 @@
             files[i].name = newName + files[i].ext;
 
             dataSend = {
-              // document_name: files.length > 1 ? newName : tmpDocumentTitle,
-              document_name: newName,
+              document_name: files.length > 1 ? newName : tmpDocumentTitle,
+              // document_name: newName,
               description: tmpDocumentDescription,
               parent_id: parseInt(subCollectionId),
               documents: JSON.stringify([files[i]]),
@@ -1282,6 +1282,8 @@
 
 <ModalObject
   bind:modalObjectOpen={addDocumentsModal}
+  bind:nameIsAvailable
+  bind:tmpDocumentTitle
   {handleFileUploadWrapper}
   bind:isProcess
   bind:files
@@ -1289,6 +1291,8 @@
   bind:tags
   {addDocumentByCollection}
   {handleInput}
+  {fileNotSupport}
+  {hasDocOrDocx}
 />
 
 <!-- <LoadingContainer /> -->

@@ -21,6 +21,7 @@
     Divider,
     SectionHeader,
     LibraryCard,
+    ModalObject,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import {
@@ -1275,133 +1276,20 @@
   <ToastContainer />
 </div>
 
-<Modal title={$_("addAudio")} bind:open={addDocumentsModal} size="xs">
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
-      <Button
-        color="light"
-        class="flex justify-between"
-      >
-        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
-      </Button>
-      <div
-        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-      >
-        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Documents");
-            }}>Documents (TXT, PDF, DOC, DOCX)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Images");
-            }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Document Images");
-            }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Handwriting");
-            }}>Handwriting (JPG, JPEG, PNG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Document Audio");
-            }}>Document Audio (MP3, WAV, OGG)</button
-          >
-          <!-- <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("CSV");
-            }}>CSV</button
-          > -->
-        </ul>
-      </div>
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
-      <MultiSelect
-        --sms-min-height="40px"
-        options={alltags}
-        allowUserOptions="append"
-        bind:selected={tags}
-        autoScroll={true}
-        noMatchingOptionsMsg=""
-        createOptionMsg={null}
-      />
-    </div>
-    <UploadFile
-      title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper()}
-      file={files[0]}
-      {files}
-      bind:isProcess
-      multiple={true}
-      actionButton={true}
-      actionDelete={() => (files = [])}
-    />
-    {#if fileNotSupport}
-      <Alert color="red">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("fileNotSupport")}
-      </Alert>
-    {:else if hasDocOrDocx}
-      <Alert color="yellow">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("docOrDocxWillConvertToPdf")}
-      </Alert>
-    {/if}
-    <!-- <label class="inline-flex items-center cursor-pointer">
-      <input type="checkbox" value="" class="hidden peer" bind:checked={bulk_upload} />
-      <div
-        class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
-      ></div>
-      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >{$_("bulkUpload")}</span
-      >
-    </label> -->
-    {#if files.length === 1 && !isProcess}
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        <InputRw
-          onEdit={true}
-          bind:value={tmpDocumentTitle}
-          placeholder={$_("enterDocumentTitle")}
-          oninput={handleInput}
-        />
-        {#if !nameIsAvailable}
-          <Helper color="red">
-            <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-          </Helper>
-        {/if}
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
-        <InputRw
-          onEdit={true}
-          bind:value={tmpDocumentDescription}
-          placeholder={$_("enterDocumentDescription")}
-        />
-      </div>
-    {/if}
-  </div>
-  <svelte:fragment slot="footer">
-    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-      >{$_("addNewDocument")}</Button
-    >
-  </svelte:fragment>
-</Modal>
+<ModalObject
+  bind:modalObjectOpen={addDocumentsModal}
+  bind:nameIsAvailable
+  bind:tmpDocumentTitle
+  {handleFileUploadWrapper}
+  bind:isProcess
+  bind:files
+  {alltags}
+  bind:tags
+  {addDocumentByCollection}
+  {handleInput}
+  {fileNotSupport}
+  usedFor="Audio"
+/>
 
 <!-- <LoadingContainer /> -->
 <Modal bind:open={popupModal} size="xs" autoclose>

@@ -23,6 +23,7 @@
     bakrieLibraryId,
     LibraryCard,
     isBakrie,
+    ModalObject,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
@@ -553,7 +554,7 @@
               category: tags.join(","),
             };
 
-            // console.log("data send", dataSend);
+            // console.log("cek data send", dataSend);
             await sendDocument();
           }
         }
@@ -1660,7 +1661,7 @@
   <ToastContainer />
 </div>
 
-<Modal title={$_("addHandwriting")} bind:open={addDocumentsModal} size="xs">
+<!-- <Modal title={$_("addHandwriting")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
@@ -1669,7 +1670,6 @@
         class="flex justify-between"
       >
         {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
       </Button>
       <div
         class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
@@ -1705,12 +1705,6 @@
               selectTypeCollection("Document Audio");
             }}>Document Audio (MP3, WAV, OGG)</button
           >
-          <!-- <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("CSV");
-            }}>CSV</button
-          > -->
         </ul>
       </div>
     </div>
@@ -1747,15 +1741,6 @@
         {$_("docOrDocxWillConvertToPdf")}
       </Alert>
     {/if}
-    <!-- <label class="inline-flex items-center cursor-pointer">
-      <input type="checkbox" value="" class="hidden peer" bind:checked={bulk_upload} />
-      <div
-        class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
-      ></div>
-      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >{$_("bulkUpload")}</span
-      >
-    </label> -->
     {#if files.length === 1 && !isProcess}
       <div class="flex flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
@@ -1786,7 +1771,22 @@
       >{$_("addNewDocument")}</Button
     >
   </svelte:fragment>
-</Modal>
+</Modal> -->
+
+<ModalObject
+  bind:modalObjectOpen={addDocumentsModal}
+  bind:nameIsAvailable
+  bind:tmpDocumentTitle
+  {handleFileUploadWrapper}
+  bind:isProcess
+  bind:files
+  {alltags}
+  bind:tags
+  {addDocumentByCollection}
+  {handleInput}
+  {fileNotSupport}
+  usedFor="Handwriting"
+/>
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>
   <div class="flex flex-col gap-4">
