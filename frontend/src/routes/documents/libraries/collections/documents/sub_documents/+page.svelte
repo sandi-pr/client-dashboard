@@ -21,6 +21,7 @@
     Divider,
     SectionHeader,
     LibraryCard,
+    ModalObject,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import {
@@ -453,7 +454,8 @@
             files[i].name = newName + files[i].ext;
 
             dataSend = {
-              document_name: files.length > 1 ? newName : tmpDocumentTitle,
+              // document_name: files.length > 1 ? newName : tmpDocumentTitle,
+              document_name: newName,
               description: tmpDocumentDescription,
               parent_id: parseInt(subCollectionId),
               documents: JSON.stringify([files[i]]),
@@ -1278,125 +1280,15 @@
   <ToastContainer />
 </div>
 
-<Modal title={$_("addDocuments")} bind:open={addDocumentsModal} size="xs">
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
-      <Button
-        color="light"
-        class="flex justify-between"
-        on:click={() => (dropdownOpen = !dropdownOpen)}
-      >
-        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
-      </Button>
-      <div
-        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-      >
-        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Documents");
-            }}>Documents (TXT, PDF, DOC, DOCX)</button
-          >
-          <!-- <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Images");
-            }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Document Images");
-            }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          > -->
-          <!-- <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Handwriting");
-            }}>Handwriting (JPG, JPEG, PNG)</button
-          > -->
-          <!-- <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Document Audio");
-            }}>Document Audio (MP3, WAV, OGG)</button
-          > -->
-          <!-- <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("CSV");
-            }}>CSV</button
-          > -->
-        </ul>
-      </div>
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
-      <MultiSelect
-        --sms-min-height="40px"
-        options={alltags}
-        allowUserOptions="append"
-        bind:selected={tags}
-        autoScroll={true}
-        noMatchingOptionsMsg=""
-        createOptionMsg={null}
-      />
-    </div>
-    <UploadFile
-      title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper()}
-      file={files[0]}
-      {files}
-      bind:isProcess
-      multiple={true}
-      actionButton={true}
-      actionDelete={() => (files = [])}
-    />
-    {#if fileNotSupport}
-      <Alert color="red">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("fileNotSupport")}
-      </Alert>
-    {:else if hasDocOrDocx}
-      <Alert color="yellow">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("docOrDocxWillConvertToPdf")}
-      </Alert>
-    {/if}
-    {#if files.length === 1 && !isProcess}
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        <InputRw
-          onEdit={true}
-          bind:value={tmpDocumentTitle}
-          placeholder={$_("enterDocumentTitle")}
-          oninput={handleInput}
-        />
-        {#if !nameIsAvailable}
-          <Helper color="red">
-            <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-          </Helper>
-        {/if}
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
-        <InputRw
-          onEdit={true}
-          bind:value={tmpDocumentDescription}
-          placeholder={$_("enterDocumentDescription")}
-        />
-      </div>
-    {/if}
-  </div>
-  <svelte:fragment slot="footer">
-    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-      >{$_("addNewDocument")}</Button
-    >
-  </svelte:fragment>
-</Modal>
+<ModalObject
+  bind:modalObjectOpen={addDocumentsModal}
+  {handleFileUploadWrapper}
+  bind:isProcess
+  bind:files
+  {alltags}
+  bind:tags
+  {addDocumentByCollection}
+/>
 
 <!-- <LoadingContainer /> -->
 <Modal bind:open={popupModal} size="xs" autoclose>

@@ -13,15 +13,23 @@
   import TabBar from "$lib/components/TabBar.svelte";
   import { _ } from "svelte-i18n";
 
-  let { modalObjectOpen = $bindable() } = $props();
+  let {
+    modalObjectOpen = $bindable(false),
+    handleFileUploadWrapper,
+    files = $bindable([]),
+    isProcess = $bindable(false),
+    addDocumentByCollection,
+    alltags = [],
+    tags = $bindable([]),
+  } = $props();
 
-  let tabBarSelected = $state("Link");
+  let tabBarSelected = $state("Upload");
   let linkImportLink = $state("");
   let linkChecked = $state(false);
-  let allTags = $state([]);
-  let tags = $state([]);
-  let isProcess = $state(false);
-  let files = $state([]);
+  // let alltags = $state([]);
+  // let tags = $state([]);
+  // let isProcess = $state(false);
+  // let files = $state([]);
 
   let mainContentUpload = [
     {
@@ -41,44 +49,34 @@
     },
     {
       text: {
-        text: "Home",
-        color: "primary",
-        preset: "Text md/Semibold",
+        text: $_("documentType"),
+        color: "secondary",
+        preset: "Text sm/Medium",
       },
     },
     {
       input: {
         type: "text",
         onEdit: false,
-        value: "",
-        oninput: () => {},
-      },
-    },
-    {
-      text: {
-        text: "Label",
-        color: "primary",
-        preset: "Text md/Semibold",
+        value: "Documents (TXT, PDF, DOC, DOCX)",
       },
     },
     {
       uploadFile: {
-        onUpload: () => {},
-        onDrop: () => {},
-        files: [],
+        title: $_("uploadDocuments"),
       },
     },
     {
       text: {
         text: "Label",
         color: "primary",
-        preset: "Text md/Semibold",
+        preset: "Text sm/Medium",
       },
     },
     {
       multiSelect: {
-        alltags: allTags,
-        tags: tags,
+        // selected: tags,
+        // options: alltags,
         allowUserOptions: "append",
         autoScroll: true,
         noMatchingOptionsMsg: "",
@@ -126,7 +124,7 @@
       text: {
         text: $_("importLink"),
         color: "primary",
-        preset: "Text md/Semibold",
+        preset: "Text sm/Medium",
       },
     },
     {
@@ -169,13 +167,13 @@
       text: {
         text: $_("labels"),
         color: "primary",
-        preset: "Text md/Semibold",
+        preset: "Text sm/Medium",
       },
     },
     {
       multiSelect: {
-        alltags: allTags,
-        tags: tags,
+        // selected: tags,
+        // options: alltags,
         allowUserOptions: "append",
         autoScroll: true,
         noMatchingOptionsMsg: "",
@@ -193,8 +191,8 @@
     {
       button: {
         text: "addNewDocument",
-        onClick: () => {},
-        buttonDisabled: false,
+        onClick: addDocumentByCollection,
+        buttonDisabled: true,
       },
     },
   ];
@@ -242,8 +240,8 @@
         },
       ],
     },
-    mainContent: mainContentLink,
-    footer: footerLink,
+    mainContent: mainContentUpload,
+    footer: footerUpload,
   });
 
   function formatBytes(bytes, decimals = 2) {
@@ -256,6 +254,20 @@
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
+
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
   }
 
   const urlChecker = async (url) => {
@@ -288,30 +300,23 @@
         contentType.includes("application/pdf")
       ) {
         const blob = await response.blob();
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = () => {
-          const base64data = reader.result;
-          const fileType = contentType.split("/")[1];
-          const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
-          files.push({
-            id: files.length < 1 ? 1 : files.length + 1,
-            name: fileName,
-            // document_title: "Document Title",
-            // description: "Document Description",
-            size: formatBytes(blob.size),
-            base64: base64data,
-            ext: `.${fileType}`,
-            type: contentType.includes("image")
-              ? "image"
-              : contentType.includes("text/plain")
-                ? "text"
-                : contentType.includes("application/pdf")
-                  ? "pdf"
-                  : "document",
-          });
-          console.log("Resource fetched successfully:", base64data);
-        };
+        const base64data = await readFileAsBase64(blob);
+        const fileType = contentType.split("/")[1];
+        const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
+        files.push({
+          id: files.length < 1 ? 1 : files.length + 1,
+          name: fileName,
+          size: formatBytes(blob.size),
+          base64: base64data,
+          ext: `.${fileType}`,
+          type: contentType.includes("image")
+            ? "image"
+            : contentType.includes("text/plain")
+            ? "text"
+            : contentType.includes("application/pdf")
+            ? "pdf"
+            : "document",
+        });
         return true;
       } else {
         configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
@@ -344,9 +349,14 @@
       return false;
     }
   };
+
+  $effect(() => {
+    configModal.footer[0].button.buttonDisabled = files.length < 1 ? true : false;
+  })
+
 </script>
 
-<Modal bind:open={modalObjectOpen}>
+<Modal bind:open={modalObjectOpen} bodyClass="p-4 md:p-5 !space-y-4 flex-1 overflow-y-auto overscroll-contain">
   <svelte:fragment slot="header">
     <div class="flex items-center gap-4">
       {#if configModal?.header}
@@ -369,6 +379,7 @@
           tabDatas={content.tabBar?.tabDatas}
           on:tabChange={(e) => {
             tabBarSelected = e.detail;
+            files = [];
             configModal.mainContent =
               tabBarSelected === "Upload" ? mainContentUpload : mainContentLink;
             configModal.footer =
@@ -401,8 +412,23 @@
       {:else if content?.input}
         <Input {...content.input} />
       {/if}
+      {#if content?.uploadFile}
+        <UploadFile
+          title={content.uploadFile?.title}
+          handleFileUploadWrapper={() => handleFileUploadWrapper()}
+          file={files[0]}
+          {files}
+          bind:isProcess
+          multiple={true}
+          actionButton={true}
+          actionView={true}
+          actionDelete={() => {
+            files = [];
+          }}
+        />
+      {/if}
       {#if content?.multiSelect}
-        <MultiSelect {...content.multiSelect} />
+        <MultiSelect {...content.multiSelect} bind:selected={tags} options={alltags} />
       {/if}
       {#if content?.card && content.card?.cardData.contentCenter[0][0].text.text}
         <Card {...content.card} />

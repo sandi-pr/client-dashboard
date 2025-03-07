@@ -13,6 +13,7 @@
     showNotif,
     Pagination,
     onProgress,
+    triggerLoading,
   } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -207,6 +208,7 @@
     let token = localStorage.getItem("token");
 
     if (token) {
+      triggerLoading(true);
       try {
         const response = await $call.call("client-dashboard", "delete-bot", {
           URLQuery: {},
@@ -220,6 +222,7 @@
         });
 
         if (response.status !== 200) {
+          triggerLoading(false);
           triggerToast("error");
           console.log(response);
           return;
@@ -227,6 +230,7 @@
 
         tmpId = null;
         popupModal = false;
+        triggerLoading(false);
         triggerToast("deleted");
         getBots();
       } catch (error) {
@@ -371,6 +375,8 @@
                   {bot}
                   {index}
                   {dropdownOpen}
+                  bind:popupModal
+                  bind:tmpId
                   config={{ startReading: true, detail: true, detailView: true, configure: true }}
                   {handleDropdownFocusLoss}
                   {startReading}

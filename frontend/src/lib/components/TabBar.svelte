@@ -16,6 +16,7 @@
   }
 </script>
 
+<div>
 <div
   class="flex whitespace-nowrap mt-2 mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden"
 >
@@ -30,3 +31,4 @@
 </div>
 
 <div class="mx-4 sm:mx-0 border-t-[1px] border-hc-graylight-300 dark:border-hc-graydark-700"></div>
+</div>

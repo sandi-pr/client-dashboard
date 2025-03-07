@@ -65,6 +65,8 @@ All Rights Reserved
   }
 
   function actionViewFile(fileToView) {
+    console.log("cek file", fileToView);
+    // return;
     previewModal = true;
     selectedFile = fileToView;
   }
@@ -137,7 +139,7 @@ All Rights Reserved
           </div>
           {#if actionButton}
             <div class="flex w-full items-center justify-center gap-1">
-              {#if actionView}
+              <!-- {#if actionView}
                 <Button class="w-full" color="light" on:click={actionView}>
                   <Typography
                     preset="Text sm/Semibold"
@@ -145,7 +147,7 @@ All Rights Reserved
                     color="secondary"
                   />
                 </Button>
-              {/if}
+              {/if} -->
               <Button
                 class="w-max h-max gap-1.5 p-2"
                 color="light"
@@ -201,15 +203,20 @@ All Rights Reserved
         </div>
         {#if actionButton}
           <div class="flex items-end justify-end gap-3">
-            {#if actionView}
-              <Button class="w-full" color="light" on:click={actionView}>
-                <Typography preset="Text sm/Semibold" text={$_("preview")} color="secondary" />
-              </Button>
-            {/if}
             {#if multiple}
-              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}
-                >{$_("uploadMore")}</Button
-              >
+              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}>{$_("uploadMore")}</Button>
+              {#if actionView}
+                <Button class="w-max h-max p-2" color="light" on:click={() => actionViewFile(file)}>
+                  <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                </Button>
+              {/if}
+            {:else}
+              {#if actionView}
+                <Button class="grow h-max gap-1 p-2" color="light" on:click={() => actionViewFile(file)}>
+                  <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                  <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
+                </Button>
+              {/if}
             {/if}
             <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
               <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
