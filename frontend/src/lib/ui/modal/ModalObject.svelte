@@ -203,7 +203,12 @@
         text: "checkLink",
         onClick: async () => {
           // console.log(linkImportLink);
-          let urlValid = await urlChecker(linkImportLink);
+          let urlValid = await urlChecker(linkImportLink, [
+            "application",
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          ]);
           if (urlValid) {
             linkChecked = true;
             configModal.footer = footerUpload;
@@ -270,7 +275,7 @@
     });
   }
 
-  const urlChecker = async (url) => {
+  const urlChecker = async (url, limitation = ["application", "application/pdf"]) => {
     let errorObject;
     try {
       let response;
@@ -286,19 +291,18 @@
       }
 
       if (!response.ok) {
-        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
-          $_("networkResponseWasNotOk");
-        errorObject = await response.json();
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          errorObject = await response.json();
+        } else {
+          errorObject = { error: { message: "Non-JSON response received" } };
+        }
         throw new Error("Network response was not ok");
       }
 
       const contentType = response.headers.get("content-type");
-      if (
-        contentType.includes("image") ||
-        contentType.includes("application") ||
-        contentType.includes("text/plain") ||
-        contentType.includes("application/pdf")
-      ) {
+      console.log("contentType", contentType);
+      if (limitation.some((type) => contentType.includes(type))) {
         const blob = await response.blob();
         const base64data = await readFileAsBase64(blob);
         const fileType = contentType.split("/")[1];
@@ -312,16 +316,20 @@
           type: contentType.includes("image")
             ? "image"
             : contentType.includes("text/plain")
-            ? "text"
-            : contentType.includes("application/pdf")
-            ? "pdf"
-            : "document",
+              ? "text"
+              : contentType.includes("application/pdf")
+                ? "pdf"
+                : contentType.includes("application/msword") ||
+                    contentType.includes(
+                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    )
+                  ? "document"
+                  : "unknown",
         });
         return true;
       } else {
         configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
           $_("fileNotSupported");
-        errorObject = await response.json();
         throw new Error("URL does not contain a valid resource");
       }
     } catch (error) {
@@ -352,11 +360,13 @@
 
   $effect(() => {
     configModal.footer[0].button.buttonDisabled = files.length < 1 ? true : false;
-  })
-
+  });
 </script>
 
-<Modal bind:open={modalObjectOpen} bodyClass="p-4 md:p-5 !space-y-4 flex-1 overflow-y-auto overscroll-contain">
+<Modal
+  bind:open={modalObjectOpen}
+  bodyClass="p-4 md:p-5 !space-y-4 flex-1 overflow-y-auto overscroll-contain"
+>
   <svelte:fragment slot="header">
     <div class="flex items-center gap-4">
       {#if configModal?.header}
