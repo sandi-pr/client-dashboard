@@ -130,7 +130,11 @@ All Rights Reserved
         desc: "desc Add New Voice Record",
       },
       {
-        href: await $call.getPage("hexabot", "home-page"),
+        onclick: async () => {
+          let urlBot = await $call.getPage("hexabot", "home-page") + "?id=" + botId
+          window.open(urlBot, "_blank");
+        },
+        // href: await $call.getPage("hexabot", "home-page") + "?id=" + botId,
         icon: "messageChatSquare",
         actionName: "Chat with Voice Assistant",
         desc: "desc Chat with Voice Assistant",

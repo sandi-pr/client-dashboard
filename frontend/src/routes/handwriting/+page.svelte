@@ -130,7 +130,10 @@ All Rights Reserved
         desc: "desc Add New Handwriting to Read",
       },
       {
-        href: await $call.getPage("hexabot", "home-page"),
+        onclick: async () => {
+          let urlBot = await $call.getPage("hexabot", "home-page") + "?id=" + botId
+          window.open(urlBot, "_blank");
+        },
         icon: "messageChatSquare",
         actionName: "Chat with Handwriting Assistant",
         desc: "desc Chat with Handwriting Assistant",

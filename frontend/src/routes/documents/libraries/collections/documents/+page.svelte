@@ -1755,6 +1755,7 @@
   {alltags}
   bind:tags
   {addDocumentByCollection}
+  {handleInput}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

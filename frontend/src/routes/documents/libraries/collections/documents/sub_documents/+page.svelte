@@ -1288,6 +1288,7 @@
   {alltags}
   bind:tags
   {addDocumentByCollection}
+  {handleInput}
 />
 
 <!-- <LoadingContainer /> -->

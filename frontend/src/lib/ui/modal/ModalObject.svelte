@@ -21,6 +21,7 @@
     addDocumentByCollection,
     alltags = [],
     tags = $bindable([]),
+    handleInput,
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -88,6 +89,43 @@
           "bg-primary-light dark:bg-secondary-dark border rounded-lg border-gray-300 dark:border-gray-600 focus:none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 py-2",
       },
     },
+    {
+      metaFile: {
+        content: [
+          {
+            text: {
+              text: `${$_("documentTitle")}*`,
+              color: "secondary",
+              preset: "Text sm/Medium",
+            },
+          },
+          {
+            input: {
+              id: "docTitle",
+              type: "text",
+              value: "",
+              onEdit: true,
+              oninput: handleInput,
+            },
+          },
+          {
+            text: {
+              text: $_("description"),
+              color: "secondary",
+              preset: "Text sm/Medium",
+            },
+          },
+          {
+            input: {
+              id: "docDescription",
+              type: "text",
+              value: "",
+              onEdit: true,
+            },
+          },
+        ]
+      }
+    }
   ];
 
   let mainContentLink = [
@@ -444,6 +482,18 @@
       {/if}
       {#if content?.card && content.card?.cardData.contentCenter[0][0].text.text}
         <Card {...content.card} />
+      {/if}
+      {#if files.length === 1}
+          {#if content?.metaFile}
+            {#each content.metaFile.content as content}
+              {#if content?.text}
+                <Typography {...content.text} />
+              {/if}
+              {#if content?.input}
+                <Input {...content.input} />
+              {/if}
+            {/each}
+          {/if}
       {/if}
     {/each}
   {/if}
