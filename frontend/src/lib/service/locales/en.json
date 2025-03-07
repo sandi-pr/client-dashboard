@@ -994,7 +994,7 @@
   "importLink": "Import Link",
   "checkLink": "Check Link",
   "fileNotSupported": "File not supported",
-  "fileNotFoundMakeSureTheLinkIsCorrect": "File not found. Make sure the link is correct.",
+  "fileNotFoundMakeSureTheLinkIsCorrectAndAccessible": "File not found. Make sure the link is correct and accessible.",
   "accessRestrictedCheckSharingSettings": "Access restricted. Check sharing settings.",
   "urlDoesNotContainAValidResource": "URL does not contain a valid resource.",
   "networkResponseWasNotOk": "Network response was not OK.",
