@@ -3340,6 +3340,7 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 
 	if status != 200 {
 		fmt.Println(status)
+		fmt.Println("error find library", library)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
@@ -3370,8 +3371,8 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 				"meta": U.Dict{
 					"description": description,
 				},
-				"library_industry": true,
-				"module_type":      module_type,
+				// "library_industry": true,
+				"module_type": module_type,
 			})
 
 			if err != nil {
@@ -3381,6 +3382,7 @@ func FindCreateLibraryByName(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 
 			if status != 200 {
 				fmt.Println(status)
+				fmt.Println("error create library", library2)
 				return ctx.Error(500, "Internal Server Error")
 			}
 
