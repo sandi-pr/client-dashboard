@@ -301,7 +301,7 @@
       }
 
       const contentType = response.headers.get("content-type");
-      console.log("contentType", contentType);
+      // console.log("contentType", contentType);
       if (limitation.some((type) => contentType.includes(type))) {
         const blob = await response.blob();
         const base64data = await readFileAsBase64(blob);
@@ -333,7 +333,7 @@
         throw new Error("URL does not contain a valid resource");
       }
     } catch (error) {
-      console.log("errorObject", errorObject);
+      // console.log("errorObject", errorObject);
       // console.log("error", error);
       if (errorObject && errorObject.error) {
         if (errorObject.error.code === 403) {

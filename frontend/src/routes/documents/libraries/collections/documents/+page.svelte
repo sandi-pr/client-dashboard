@@ -25,6 +25,7 @@
     AddDocModal,
     isBakrie,
     ModalObject,
+    ModalFilePreview,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
@@ -1727,7 +1728,7 @@
   <ToastContainer />
 </div>
 
-<!-- <AddDocModal 
+<!-- <AddDocModal
   bind:addDocumentsModal
   bind:nameIsAvailable
   {selectedTypeCollection}
@@ -2014,7 +2015,7 @@
   </div>
 </Modal>
 
-<Modal bind:open={previewModal} size="lg">
+<!-- <Modal bind:open={previewModal} size="lg">
   <svelte:fragment slot="header">
     <div class="flex justify-start items-center gap-4 py-4 px-6">
       <div class="w-8 h-7 p-2 bg-[#feefc6] rounded-full flex justify-center items-center">
@@ -2045,7 +2046,6 @@
         <AudioPlayer src={audioUrl} />
       {/if}
     </div>
-    <!-- detected handwriting -->
     {#if selectedFile.type === "Handwriting" || selectedFile.type === "Document Images"}
       <div class="flex w-full flex-col gap-3 px-4 pb-1">
         <Typography
@@ -2098,7 +2098,19 @@
       >
     </div>
   </svelte:fragment>
-</Modal>
+</Modal> -->
+
+<ModalFilePreview
+  bind:previewModal
+  bind:dataSend
+  cancelOnClick={() => {
+    previewModal = false;
+    addDocumentsModal = true;
+  }}
+  okOnClick={sendDocument(true)}
+  {selectedFile}
+  {audioUrl}
+/>
 
 <Modal title={$_("editCollectionName")} bind:open={editCollectionModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
