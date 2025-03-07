@@ -55,6 +55,7 @@ export { default as Pagination } from "$lib/ui/pagination/Pagination.svelte";
 export { default as Divider } from "$lib/components/Divider.svelte";
 export { default as AddDocModal } from "$lib/ui/modal/AddDocModal.svelte";
 export { default as ModalObject } from "$lib/ui/modal/ModalObject.svelte";
+export { default as ModalFilePreview } from "$lib/ui/modal/ModalFilePreview.svelte";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {
   triggerSelectCollection,
