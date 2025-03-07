@@ -394,6 +394,8 @@
               tabBarSelected === "Upload" ? mainContentUpload : mainContentLink;
             configModal.footer =
               tabBarSelected === "Upload" ? footerUpload : linkChecked ? footerUpload : footerLink;
+            linkChecked = false;
+            linkImportLink = "";
           }}
         />
       {/if}
