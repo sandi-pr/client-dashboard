@@ -2,6 +2,7 @@
   import { Toast, Progressbar } from "flowbite-svelte";
   import InfoCircleIcon from "$lib/icon/info-circle.svelte";
   import { notifications, Typography } from "$lib";
+  import StarsIcon from "$lib/icon/stars-01.svelte";
 
   // function truncateText(text, maxWords) {
   //   const words = text.split(" ");
@@ -28,6 +29,13 @@
 
     return words.join(" ");
   }
+
+  function truncateTextByChars(text, maxChars) {
+    if (text.length > maxChars) {
+      return text.slice(0, maxChars) + " ...";
+    }
+  return text;
+}
 </script>
 
 <div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
@@ -80,21 +88,26 @@
             divClass="w-full p-4 text-gray-500 bg-white shadow dark:text-gray-400 dark:bg-gray-800 gap-3"
           >
             <svelte:fragment slot="icon">
-              <InfoCircleIcon svgClass="w-6 h-6" />
+              {#if data.attributes.type === "progress" || data.attributes.type === "progress-update"}
+                <StarsIcon svgClass="w-5 h-5" />
+              {:else}
+                <InfoCircleIcon svgClass="w-5 h-5" />
+              {/if}
             </svelte:fragment>
 
-            <span class="font-semibold text-gray-900 dark:text-white">{truncateText(data.attributes.title, 3)}</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{truncateTextByChars(data.attributes.title, 25)}</span>
+            <div class="mb-2 text-sm font-normal">
+              {truncateTextByChars(data.attributes.content, 100)}
+            </div>
             <div class="mt-1 gap-2">
               {#if data.attributes.type.includes("progress")}
-                <Progressbar
-                  progress={data.attributes.content.replace("%", "")}
-                  size="h-4"
-                  labelInside
-                />
-              {:else}
-                <div class="mb-2 text-sm font-normal">
-                  {data.attributes.content}
-                </div>
+                {#if data.attributes.meta?.progress}
+                  <Progressbar
+                    progress={data.attributes.meta?.progress.replace("%", "")}
+                    size="h-4"
+                    labelInside
+                  />
+                {/if}
               {/if}
               <div class="flex gap-3 pt-2">
                 <!-- {#if !data.attributes.read}

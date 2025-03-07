@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -1519,15 +1519,15 @@ All Rights Reserved
       if (response.result.data.length > 0) {
         notifications.update((data) => {
           // Gabungkan data baru dengan data lama
-          const combined = [...response.result.data, ...data];
+          // const combined = [...response.result.data, ...data];
 
           // Hilangkan duplikat berdasarkan `id`
-          const unique = combined.filter(
-            (item, index, self) =>
-              index === self.findIndex((t) => t.attributes.title === item.attributes.title),
-          );
+          // const unique = combined.filter(
+          //   (item, index, self) =>
+          //     index === self.findIndex((t) => t.attributes.title === item.attributes.title),
+          // );
 
-          return unique;
+          return response.result.data;
         });
 
         // notifications.update((data) => [...response.result.data, ...data]);

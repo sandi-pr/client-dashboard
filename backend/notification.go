@@ -372,7 +372,7 @@ func ReadAllNotification(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 	return 200, U.Dict{}, nil
 }
 
-func UpdateContentProgressByName(title string, content string) error {
+func UpdateContentProgressByName(title string, content string, meta U.Dict) error {
 	strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
 
 	// Step 1: Fetch data from Strapi
@@ -380,6 +380,9 @@ func UpdateContentProgressByName(title string, content string) error {
 		"filters": U.Dict{
 			"title": U.Dict{
 				"$eq": title,
+			},
+			"content": U.Dict{
+				"$eq": content,
 			},
 		},
 	})
@@ -415,7 +418,7 @@ func UpdateContentProgressByName(title string, content string) error {
 
 	// Step 3: Update content in Strapi
 	status2, _, err := strapi.Update("notification-table", idNotif, U.Dict{
-		"content": content,
+		"meta": meta,
 	})
 
 	if err != nil {
@@ -429,4 +432,37 @@ func UpdateContentProgressByName(title string, content string) error {
 	}
 
 	return nil
+}
+
+func CheckNotification(title string, content string) (bool, error) {
+	strapi := strapi.NewStrapiWithToken(STRAPI_URL, STRAPI_TOKEN)
+
+	status, data, err := strapi.Find("notification-table", U.Dict{
+		"filters": U.Dict{
+			"title": U.Dict{
+				"$eq": title,
+			},
+			"content": U.Dict{
+				"$eq": content,
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println("Error during Strapi Find:", err)
+		return false, err
+	}
+
+	if status != 200 {
+		fmt.Printf("Error: Unexpected status code from Strapi Find: %d\n", status)
+		return false, fmt.Errorf("unexpected status code: %d", status)
+	}
+
+	if list, ok := data.GetList("data"); ok {
+		if len(list) > 0 {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

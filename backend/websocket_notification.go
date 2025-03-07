@@ -55,15 +55,34 @@ func (ws *NotificationWebSocket) RemoveClient(client *websocket.Conn) {
 func (ws *NotificationWebSocket) SendNotification(message NotificationMessage) {
 	if strings.Contains(message.Type, "progress") {
 		if message.Type == "progress" {
-			err := ws.SaveNotification(message)
+			already, check_err := CheckNotification(message.Title, message.Content)
+			if check_err != nil {
+				fmt.Println("Error checking notification:", check_err)
+			}
 
-			if err != nil {
-				fmt.Println("Error saving notification:", err)
+			if already {
+				err := UpdateContentProgressByName(message.Title, message.Content, message.Meta)
+				if err != nil {
+					fmt.Println("Error saving notification:", err)
+				}
+				return
+			} else {
+				err := ws.SaveNotification(message)
+
+				if err != nil {
+					fmt.Println("Error saving notification:", err)
+				}
 			}
 		} else {
-			err := UpdateContentProgressByName(message.Title, message.Content)
-			if err != nil {
-				fmt.Println("Error saving notification:", err)
+			if progress, ok := message.Meta.GetString("progress"); ok {
+				if strings.Contains(string(progress), "100") {
+					err := UpdateContentProgressByName(message.Title, message.Content, message.Meta)
+					if err != nil {
+						fmt.Println("Error saving notification:", err)
+					}
+				}
+			} else {
+				fmt.Println("Progress not found")
 			}
 		}
 	} else {
