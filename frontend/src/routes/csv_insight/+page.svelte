@@ -43,6 +43,7 @@
     },
   ]);
   let libraryId = $state(null);
+  let modeChat = $state("Code");
   let tmpDatasChecked = $state({});
   let configs = $state({ hideSearch: true });
   let searchTerm = $state("");
@@ -216,6 +217,7 @@
         role: "user",
         message: message,
       },
+      mode: modeChat,
     });
   };
 

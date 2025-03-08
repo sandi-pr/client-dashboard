@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.14")
+    ? new CR3Call("http://192.168.18.15")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -1232,7 +1232,7 @@ All Rights Reserved
       "name_library": "Handwriting Reader",
       "bot_name": "Handwriting’s Assistant",
       "module_type": "handwriting",
-      "additional_prompt": "You are bot assistant for Handwriting Reader. You will help me to analyze handwriting data.",
+      "additional_prompt": "Kamu adalah bot yang menjawab pertanyaan user sesuai dengan dokumen yang ada",
     },
   ]
 
@@ -1280,6 +1280,7 @@ All Rights Reserved
       if (resp.status !== 404) {
         // console.log("bot already exists" + botName, resp);
         localStorage.setItem("botId" + moduleType, resp.result.attributes.bot_id);
+        localStorage.setItem("botIdStrapi" + moduleType, resp.result.id);
         // gettingData = false;
         return;
       }

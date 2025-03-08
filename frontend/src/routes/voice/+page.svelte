@@ -61,7 +61,7 @@ All Rights Reserved
   // let { showAI = true } = $props();
   // let showAI = $state(false);
 
-  let libraryId, botId;
+  let libraryId, botId, botIdStrapi;
   let documents = $state([]);
   let collections = $state([]);
   let files = $state([]);
@@ -464,6 +464,7 @@ All Rights Reserved
           collection_name: tmpCollectionName,
           description: tmpDescription,
           parent_id: parseInt(libraryId),
+          bot_id: botIdStrapi,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -833,6 +834,7 @@ All Rights Reserved
     // await checkLibrariesVoice();
     libraryId = localStorage.getItem("libraryId" + "voice");
     botId = localStorage.getItem("botId" + "voice");
+    botIdStrapi = localStorage.getItem("botIdStrapi" + "voice");
     bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
     bots[0].botsID = botId;
 

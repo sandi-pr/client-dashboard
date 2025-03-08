@@ -101,7 +101,7 @@ All Rights Reserved
   let gettingBotData = $state(false);
   let dropdownOpenBot = $state([]);
 
-  let libraryId, botId;
+  let libraryId, botId, botIdStrapi;
 
   let bots = $state([
     {
@@ -439,6 +439,7 @@ All Rights Reserved
           collection_name: tmpCollectionName,
           description: tmpDescription,
           parent_id: parseInt(libraryId),
+          bot_id: botIdStrapi,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -809,6 +810,7 @@ All Rights Reserved
     }
     libraryId = localStorage.getItem("libraryId" + "handwriting");
     botId = localStorage.getItem("botId" + "handwriting");
+    botIdStrapi = localStorage.getItem("botIdStrapi" + "handwriting");
     bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
     bots[0].botsID = botId;
     getActionItems();

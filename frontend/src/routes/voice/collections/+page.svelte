@@ -42,6 +42,7 @@
   let tmpDescLibrary = $state("");
   let tmpCollectionId = $state("");
   let libraryId = $state("");
+  let botIdStrapi = $state(null);
   let dropdownOpen = $state(false);
   let nameIsAvailable = $state(true);
   let gettingDatas = $state(false);
@@ -198,6 +199,7 @@
             collection_name: tmpCollectionName,
             description: tmpDescription,
             parent_id: parseInt(libraryId),
+            bot_id: botIdStrapi,
           };
         }
 
@@ -531,6 +533,9 @@
       window.history.back();
       return;
     }
+
+    botIdStrapi = localStorage.getItem("botIdStrapi" + "voice");
+
     const unsubscribe = page.subscribe(async ($page) => {
       libraryId = $page.url.searchParams.get("libraryId");
       if (libraryId === null) {
