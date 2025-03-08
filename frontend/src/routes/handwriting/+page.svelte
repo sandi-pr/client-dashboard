@@ -812,7 +812,7 @@ All Rights Reserved
     botId = localStorage.getItem("botId" + "handwriting");
     botIdStrapi = localStorage.getItem("botIdStrapi" + "handwriting");
     bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
-    bots[0].botsID = botId;
+    bots[0].botsID = botIdStrapi;
     getActionItems();
     getCountDocumentsPerMonth();
     getCollections();

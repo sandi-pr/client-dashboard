@@ -836,7 +836,7 @@ All Rights Reserved
     botId = localStorage.getItem("botId" + "voice");
     botIdStrapi = localStorage.getItem("botIdStrapi" + "voice");
     bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
-    bots[0].botsID = botId;
+    bots[0].botsID = botIdStrapi;
 
     console.log("bots.urlBot", bots[0].urlBot);
     getActionItems();
