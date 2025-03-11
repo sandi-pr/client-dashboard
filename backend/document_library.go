@@ -3680,24 +3680,24 @@ func IsLibraryNameAvailable(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 		return ctx.Error(400, "Invalid parameter: type")
 	}
 
-	dataUdict := U.Dict{
-		"filters": U.Dict{
-			"name": U.Dict{"$eq": name},
-			"type": U.Dict{"$eq": dtype},
-		},
-	}
-
-	parent_id, ok_parent := ctx.Params.GetFloat64("parent_id")
-	if !ok_parent {
+	parent_id, ok := ctx.Params.GetFloat64("parent_id")
+	if !ok {
 		return ctx.Error(400, "Invalid parameter: parent_id")
 	}
 
-	if ok_parent {
+	dataUdict := U.Dict{
+		"filters": U.Dict{
+			"name":      U.Dict{"$eq": name},
+			"parent_id": U.Dict{"$eq": parent_id},
+			"type":      U.Dict{"$eq": dtype},
+		},
+	}
+
+	if parent_id == 0 {
 		dataUdict = U.Dict{
 			"filters": U.Dict{
-				"name":      U.Dict{"$eq": name},
-				"parent_id": U.Dict{"$eq": parent_id},
-				"type":      U.Dict{"$eq": dtype},
+				"name": U.Dict{"$eq": name},
+				"type": U.Dict{"$eq": dtype},
 			},
 		}
 	}
