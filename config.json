@@ -2942,6 +2942,15 @@
                     "name": "name",
                     "type": "text",
                     "required": true
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                },
+                {
+                    "name": "document_type",
+                    "type": "string",
+                    "required": true
                 }
             ]
         },
@@ -6202,7 +6211,6 @@
                     },
                     "name": {
                         "type": "string",
-                        "unique": true,
                         "required": true
                     },
                     "path": {
