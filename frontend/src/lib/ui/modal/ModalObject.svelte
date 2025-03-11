@@ -374,24 +374,7 @@
       }
 
       if (isGoogleDrive && url.includes("/drive/folders/")) {
-        // Fetch folder metadata
-        const folderMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
-        const folderMetadataResponse = await fetch(folderMetadataUrl);
-        if (!folderMetadataResponse.ok) {
-          throw new Error("Failed to fetch folder metadata");
-        }
-        const folderMetadata = await folderMetadataResponse.json();
-
-        // Handle Google Drive folder
-        const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${fileId}'+in+parents&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
-        const folderResponse = await fetch(folderUrl);
-        if (!folderResponse.ok) {
-          throw new Error("Failed to fetch folder contents");
-        }
-        const folderData = await folderResponse.json();
-        // console.log("folderData", folderData);
-        // console.log("folderMetadata", folderMetadata);
-        await processFolderContents(folderData.files, limitation, folderMetadata);
+        await getFolderContents(fileId);
         return true;
       } else {
         // Handle Google Drive file or other URL
@@ -420,6 +403,32 @@
     }
   };
 
+  const getFolderContents = async (fileId, fileMetadata = {}) => {
+    // Fetch folder metadata
+    let folderMetadata;
+    if (!Object.keys(fileMetadata).length > 0) {
+      const folderMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+      const folderMetadataResponse = await fetch(folderMetadataUrl);
+      if (!folderMetadataResponse.ok) {
+        throw new Error("Failed to fetch folder metadata");
+      }
+      folderMetadata = await folderMetadataResponse.json();
+    } else {
+      folderMetadata = fileMetadata;
+    }
+
+    // Handle Google Drive folder
+    const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${fileId}'+in+parents&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+    const folderResponse = await fetch(folderUrl);
+    if (!folderResponse.ok) {
+      throw new Error("Failed to fetch folder contents");
+    }
+    const folderData = await folderResponse.json();
+    // console.log("folderData", folderData);
+    // console.log("folderMetadata", folderMetadata);
+    await processFolderContents(folderData.files, limitation, folderMetadata);
+  };
+
   const processFolderContents = async (files, limitation, metadata) => {
     for (const file of files) {
       if (file.mimeType !== "application/vnd.google-apps.folder") {
@@ -430,13 +439,14 @@
           const contentType = fileResponse.headers.get("content-type");
           if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
             await processFile(fileResponse, contentType, fileResponse.url, {
-              id: metadata.id,
-              name: metadata.name,
+              id: metadata?.id || 1,
+              name: metadata?.name || "folder",
             });
           }
         }
       } else {
-        console.log("Folder found:", file);
+        // console.log("Folder found:", file);
+        await getFolderContents(file.id, file);
       }
     }
   };
@@ -461,7 +471,6 @@
       });
 
       files = tempFiles;
-      console.log(files);
     } else {
       files.push({
         id: files.length < 1 ? 1 : files.length + 1,
@@ -472,7 +481,7 @@
         type: getFileType(contentType),
       });
     }
-    console.log("files", files);
+    // console.log("files", files);
   };
 
   const getFileType = (contentType) => {
@@ -629,7 +638,7 @@
       {#if content?.card && content.card?.cardData.contentCenter[0][0].text.text}
         <Card {...content.card} />
       {/if}
-      {#if files.length === 1}
+      {#if files.length === 1 && !folderMode}
         {#if content?.metaFile}
           {#each content.metaFile.content as content}
             {#if content?.text}
