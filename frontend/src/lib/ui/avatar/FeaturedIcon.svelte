@@ -14,7 +14,7 @@
   let { classesSvg, color = "brand" } = $props();
 
   const colors = {
-    brand: getBgColors("brand-primary"),
+    brand: getBgColors("brand-secondary"),
     primary: getBgColors(color),
     error: getBgColors("error-secondary"),
   };

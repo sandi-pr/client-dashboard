@@ -72,6 +72,7 @@ import Code01Icon from "../icon/code-01.svelte";
 import CodeSquare01Icon from "../icon/code-square-01.svelte";
 import Image01 from "../icon/image-01.svelte";
 import InfoCircle from "../icon/info-circle.svelte";
+import FolderDownload from "../icon/folder-download.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -223,6 +224,8 @@ let getIcons = (presetIcon: String) => {
       return Image01;
     case "infoCircle":
       return InfoCircle;
+    case "folderDownload":
+      return FolderDownload;
     default:
       return "";
   }

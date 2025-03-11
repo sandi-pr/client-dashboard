@@ -999,5 +999,10 @@
   "urlDoesNotContainAValidResource": "URL does not contain a valid resource.",
   "networkResponseWasNotOk": "Network response was not OK.",
   "failedToFetchResource": "Failed to fetch resource.",
-  "preview": "Preview"
+  "preview": "Preview",
+  "enabled": "Enabled",
+  "enableInsights": "Enable Insights",
+  "enableInsightsDesc": "Turn on “Insights” feature and force other AI model to stop for optimalization.",
+  "uploadCollection": "Upload Collection",
+  "descUploadCollection": "Effortlessly Add Entire Collections of Documents"
 }
