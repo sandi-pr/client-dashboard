@@ -57,6 +57,7 @@
   let dropdownThemeOpen = false;
   let dropdownModelTrocrOpen = false;
   let show = false;
+  let enableInsights = false;
   let selectedTheme = "purple";
   let themes = [
     {
@@ -99,8 +100,11 @@
         name: "Theme",
       },
       {
-        name: "Backup Restore",
-      }
+        name: "Advanced",
+      },
+      // {
+      //   name: "Backup Restore",
+      // }
       // {
       //   name: "Configuration AI",
       // },
@@ -1096,6 +1100,28 @@
               <div class="col-span-3 flex flex-col gap-3">
                 <Button on:click={() => (modalRestore = true)} color="light" class="w-max">{$_("restoreData")}</Button>
                 <Typography preset="Text xs/Regular" text={$_("restoreDesc")} />
+              </div>
+            </div>
+          </div>
+        </div>
+      {:else if tabDatas.selected === "Advanced"}
+        <div class="mx-4 mt-4">
+          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+            <div class="grid grid-cols-4">
+              <div class="col-span-1">
+                <Typography preset="Text lg/Semibold" text={$_("enableInsights")} />
+              </div>
+              <div class="col-span-3 flex w-full">
+                <div class="col-span-4">
+                  <label class="inline-flex gap-3 items-center cursor-pointer">
+                    <input type="checkbox" value="" class="hidden peer" bind:checked={enableInsights} />
+                    <div
+                      class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
+                    ></div>
+                    <Typography preset="Text sm/Regular" text={$_("enabled")} />
+                  </label>
+                  <Typography preset="Text sm/Regular" text={$_("enableInsightsDesc")} />
+                </div>
               </div>
             </div>
           </div>

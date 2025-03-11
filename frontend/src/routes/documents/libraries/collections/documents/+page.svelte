@@ -1,30 +1,25 @@
 <script>
-  import { onMount, tick } from "svelte";
+  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, Alert, Select, P, Helper, Card } from "flowbite-svelte";
+  import { Button, Modal, Input, P, Helper, Card } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import { format, parse } from "date-fns";
+  import { format } from "date-fns";
 
   import {
     Typography,
     ToastContainer,
     StateCard,
     call,
-    InputRw,
-    TextareaRw,
     triggerToast,
     triggerLoading,
-    UploadFile,
     check,
-    onProgress,
     Divider,
-    SectionHeader,
     bakrieLibraryId,
     LibraryCard,
-    AddDocModal,
     isBakrie,
     ModalObject,
+    AddDocModal,
     ModalFilePreview,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
@@ -32,29 +27,24 @@
   import {
     SearchOutline,
     ExclamationCircleSolid,
-    ChevronDownOutline,
-    InfoCircleSolid,
     ArrowUpOutline,
   } from "flowbite-svelte-icons";
-  import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
-  import AlertCircleIcon from "$lib/icon/alert-circle.svg";
-  import MultiSelect from "svelte-multiselect";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  import { get } from "svelte/store";
-
+  import ModalFolder from "$lib/ui/modal/ModalFolder.svelte";
+  
   let collectionId;
   let libraryId = $state(null);
   let inputRef;
   let checkAllState = $state(false);
   let addDocumentsModal = $state(false);
+  let addFolderModal = $state(false);
   let addCollectionModal = $state(false);
   let addCategoriesModal = $state(false);
   let modalObjectOpen = $state(false);
@@ -89,6 +79,7 @@
   let tags = $state([]);
   let newTag = $state("");
   let files = $state([]);
+  let groupedFiles = $state({});
   let attributeNotUnique = $state(false);
   let checkboxDelete = $state(false);
   let checkboxUpdate = $state(false);
@@ -121,8 +112,6 @@
   let div = $state();
   let nameIsAvailable = $state(true);
   let isProcess = $state(false);
-  let selected = $state([]);
-  let dummyTags = $state(["general", "news", "article"]);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -206,44 +195,6 @@
           const params = new URLSearchParams(window.location.search);
 
           params.delete("documentId");
-
-          // let uploadBy = "";
-
-          // try {
-          //   let response = await $call.call("client-dashboard", "get-user", {
-          //     URLQuery: {},
-          //     URLParams: { id: collection.attributes.meta.upload_by.toString() },
-          //     Params: {},
-          //     Headers: {
-          //       Authorization: "Bearer " + token,
-          //     },
-          //   });
-
-          //   if (response.status !== 200) {
-          //     console.log(response);
-          //     gettingDocs = false;
-          //     if (response.status === 400) {
-          //       console.error("Invalid parameters:", response);
-          //       triggerToast($_("invalidParameters"), true, "error");
-          //     } else if (response.status === 401) {
-          //       console.error("Unauthorized access:", response);
-          //       triggerToast($_("unauthorized"), true, "error");
-          //     } else if (response.status === 500) {
-          //       console.error("Server error:", response);
-          //       triggerToast($_("serverError"), true, "error");
-          //     } else {
-          //       console.error("Unexpected status code:", response);
-          //       triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-          //     }
-          //     return;
-          //   }
-
-          //   uploadBy = response.result.user.username;
-          // } catch (error) {
-          //   console.error("Error during user get:", error);
-          //   gettingDocs = false;
-          //   triggerToast($_("failedGetUser"), true, "error");
-          // }
 
           const queryParams = {};
           for (const [key, value] of params.entries()) {
@@ -712,13 +663,57 @@
     }
   });
 
-  const handleFileUploadWrapper = () => {
+  function groupFilesByPath(files) {
+    const groupedFiles = {};
+
+    files.forEach(file => {
+      const pathLevels = file.path.split("/");
+      
+      // Maksimal 2 level path (Collection Dummy / Sub Dummy)
+      if (pathLevels.length <= 2) {
+        if (!groupedFiles[file.path]) {
+          groupedFiles[file.path] = [];
+        }
+        groupedFiles[file.path].push(file);
+      }
+    });
+
+    return groupedFiles;
+  }
+
+  const handleFileUploadWrapper = (isFolder = false) => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
+    inputElement.webkitdirectory = isFolder;
     inputElement.accept = acceptedFileTypes;
     inputElement.multiple = true;
 
     inputElement.addEventListener("change", async (event) => {
+      if (isFolder) {
+        const filesSelect = event.target.files;
+
+        for (const file of filesSelect) {
+          const base64Data = await readFileAsBase64(file);
+          files.push({
+            id: files.length < 1 ? 1 : files.length + 1,
+            name: file.name,
+            path: file.webkitRelativePath.split("/").slice(0, -1).join("/"),
+            document_title: file.name.split(".").slice(0, -1).join("."),
+            description: tmpDocumentDescription,
+            size: formatBytes(file.size),
+            // base64: base64Data,
+            ext: "." + file.name.split(".").pop(),
+            type: tmpDocumentType,
+          });
+        }
+
+        groupedFiles = groupFilesByPath(files);
+
+        console.log("cek files", groupedFiles);
+        return;
+      }
+
+
       const filesSelect = event.target.files;
 
       const fileTypeRegex = new RegExp(
@@ -1536,6 +1531,16 @@
                 >
                 <button
                   class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    addFolderModal = true;
+                  }}
+                  ><FolderPlusIcon
+                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                  />{$_("uploadCollection")}</button
+                >
+                <button
+                  class="flex p-2 w-full gap-1.5"
                   onclick={() => {
                     addDocumentsModal = true;
                     tags = [];
@@ -1747,6 +1752,25 @@
   actionDelete={() => (files = [])}
 /> -->
 
+<ModalFolder
+  bind:addDocumentsModal={addFolderModal}
+  bind:nameIsAvailable
+  {selectedTypeCollection}
+  bind:files
+  {alltags}
+  {tags}
+  {isProcess}
+  {handleFileUploadWrapper}
+  {fileNotSupport}
+  {hasDocOrDocx}
+  {tmpDocumentTitle}
+  {tmpDocumentDescription}
+  {handleInput}
+  bind:buttonDisabled
+  {addDocumentByCollection}
+  actionDelete={() => (files = [])}
+/>
+
 <ModalObject
   bind:modalObjectOpen={addDocumentsModal}
   bind:nameIsAvailable
@@ -1766,13 +1790,6 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("categories")}`} />
-      <!-- <MultiSelect items={categories} bind:value={tmpCategories}></MultiSelect> -->
-      <!-- <Select
-        class="mt-2"
-        items={tmpCategories}
-        placeholder={$_("selectCategory")}
-      /> -->
-      <!-- buat class disable -->
       <div class="flex">
         <button
           class="flex w-full flex-wrap gap-2 items-center border rounded-lg p-2"
@@ -1810,27 +1827,6 @@
           Add
         </button>
       </div>
-      <!-- <MultiSelect
-        class="no-pointer-events"
-        items={tmpCategories}
-        bind:value={tmpSelectedCategories}
-      />
-      <Input
-        placeholder={$_("enterNewCategory")}
-        bind:value={otherCategory}
-        onkeydown={(e) => {
-          if (
-            e.key === "Enter" &&
-            otherCategory !== "" &&
-            !tmpCategories.find((category) => category.value === otherCategory)
-          ) {
-            // Tambahkan otherCategory ke tmpCategories
-            tmpCategories = [...tmpCategories, { value: otherCategory, name: otherCategory }];
-            tmpSelectedCategories = [...tmpSelectedCategories, otherCategory];
-            otherCategory = "";
-          }
-        }}
-      /> -->
     </div>
   </div>
   <svelte:fragment slot="footer">
@@ -2019,91 +2015,6 @@
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>
-
-<!-- <Modal bind:open={previewModal} size="lg">
-  <svelte:fragment slot="header">
-    <div class="flex justify-start items-center gap-4 py-4 px-6">
-      <div class="w-8 h-7 p-2 bg-[#feefc6] rounded-full flex justify-center items-center">
-        <img src={AlertCircleIcon} alt="AlertCircleIcon" class="w-5 h-5" />
-      </div>
-      <div class="flex flex-col">
-        <Typography preset="Text lg/Semibold" text="Double-check" color="primary" />
-        <Typography
-          preset="Text sm/Regular"
-          text="Are you sure this is the correct document that you want to upload?"
-          color="tertiary"
-        />
-      </div>
-    </div>
-  </svelte:fragment>
-  <div class="flex">
-    <div
-      class="flex w-full justify-center items-center py-6 rounded-lg bg-secondary-light dark:bg-secondary-dark"
-    >
-      {#if selectedFile.ext.includes(".png") || selectedFile.ext.includes(".jpg") || selectedFile.ext.includes(".jpeg")}
-        <img
-          src={`data:${selectedFile.type};base64,${selectedFile.base64}`}
-          style="max-width: 80%; height: auto;"
-          alt="PNG Preview"
-        />
-      {/if}
-      {#if audioUrl}
-        <AudioPlayer src={audioUrl} />
-      {/if}
-    </div>
-    {#if selectedFile.type === "Handwriting" || selectedFile.type === "Document Images"}
-      <div class="flex w-full flex-col gap-3 px-4 pb-1">
-        <Typography
-          preset="Text md/Semibold"
-          text={selectedFile.type === "Handwriting"
-            ? "Handwriting Information"
-            : "Document Information"}
-          color="secondary"
-        />
-        <div class="flex flex-col gap-1.5">
-          <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
-          <textarea
-            bind:this={textarea}
-            bind:value={dataSend.detected_text}
-            id="chat"
-            rows="1"
-            class="block p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
-          ></textarea>
-        </div>
-      </div>
-    {/if}
-    {#if selectedFile.type === "Document Audio"}
-      <div class="flex w-full flex-col gap-3 px-4 pb-1">
-        <Typography preset="Text md/Semibold" text="Audio Information" color="secondary" />
-        <div class="flex flex-col gap-1.5">
-          <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
-          <textarea
-            bind:this={textarea}
-            bind:value={dataSend.detected_text}
-            id="chat"
-            rows="1"
-            class="block p-2.5 w-full text-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-lg border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
-          ></textarea>
-        </div>
-      </div>
-    {/if}
-  </div>
-  <svelte:fragment slot="footer">
-    <div class="flex w-full gap-2 justify-center items-center py-3 px-4">
-      <Button
-        color="light"
-        on:click={() => {
-          previewModal = false;
-          addDocumentsModal = true;
-        }}
-        class="w-full">Cancel</Button
-      >
-      <Button color="primary" on:click={sendDocument(true)} class="rounded-lg w-full"
-        >I’m sure</Button
-      >
-    </div>
-  </svelte:fragment>
-</Modal> -->
 
 <ModalFilePreview
   bind:previewModal

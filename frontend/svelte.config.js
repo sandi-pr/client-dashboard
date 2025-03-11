@@ -9,7 +9,10 @@
 
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
-import conf from "../config.json" assert { type: "json" };
+// import conf from "../config.json" assert { type: "json" };
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const conf = require("../config.json");
 
 /** @type {import('@sveltejs/kit').Config} */
 const config_production = {
