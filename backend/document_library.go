@@ -3680,9 +3680,9 @@ func IsLibraryNameAvailable(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 		return ctx.Error(400, "Invalid parameter: parent_id")
 	}
 
-	document_type, ok := ctx.Params.GetString("document_type")
+	dtype, ok := ctx.Params.GetString("type")
 	if !ok {
-		return ctx.Error(400, "Invalid parameter: document_type")
+		return ctx.Error(400, "Invalid parameter: type")
 	}
 
 	status, library, err := Strapi.Find("document-library-table", U.Dict{
@@ -3693,8 +3693,8 @@ func IsLibraryNameAvailable(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 			"parent_id": U.Dict{
 				"$eq": parent_id,
 			},
-			"document_type": U.Dict{
-				"$eq": document_type,
+			"type": U.Dict{
+				"$eq": dtype,
 			},
 		},
 	})
@@ -3705,7 +3705,9 @@ func IsLibraryNameAvailable(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 	}
 
 	if status != 200 {
-		fmt.Println("Error response from Strapi:", status)
+        fmt.Println("Error response")
+		fmt.Println("Error response from Strapi:", err)
+		fmt.Println("Error response from library:", library)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
