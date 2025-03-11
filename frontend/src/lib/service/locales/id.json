@@ -999,5 +999,6 @@
   "urlDoesNotContainAValidResource": "URL tidak berisi sumber daya yang valid",
   "networkResponseWasNotOk": "Respon jaringan tidak baik",
   "failedToFetchResource": "Gagal mengambil sumber daya",
-  "preview": "Pratinjau"
+  "preview": "Pratinjau",
+  "addFolder": "Tambahkan Folder"
 }

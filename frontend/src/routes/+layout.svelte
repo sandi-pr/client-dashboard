@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.15")
+    ? new CR3Call("https://tank.hexacode.ai")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -287,9 +287,7 @@ All Rights Reserved
         icon: "bookClosed",
         name: "dataSources",
         children: [],
-        href: isFrontend
-          ? "/data_sources"
-          : await call.getPage("client-dashboard", "data-sources"),
+        href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
       },
       {
         icon: "lightbulb",
@@ -305,9 +303,7 @@ All Rights Reserved
         icon: "penTool",
         name: "handwriting",
         children: [],
-        href: isFrontend
-          ? "/handwriting"
-          : await call.getPage("client-dashboard", "handwriting"),
+        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
       },
       {
         icon: "recording02",
@@ -340,7 +336,9 @@ All Rights Reserved
         name: "contractReviewer",
         children: [],
         commingSoon: true,
-        href: isFrontend ? "/contract_reviewer" : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+        href: isFrontend
+          ? "/contract_reviewer"
+          : await call.getPage("client-dashboard", "contract-reviewer-overview"),
       },
       //     {
       //       icon: "fileLock",
@@ -1217,24 +1215,26 @@ All Rights Reserved
 
   let coreModule = [
     {
-      "name_library": "Data Source List",
-      "bot_name": "CSV Insights Bots",
-      "module_type": "insights",
-      "additional_prompt": "",
+      name_library: "Data Source List",
+      bot_name: "CSV Insights Bots",
+      module_type: "insights",
+      additional_prompt: "",
     },
     {
-      "name_library": "Voice Analyzer",
-      "bot_name": "Voice’s Assistant",
-      "module_type": "voice",
-      "additional_prompt": "You are bot assistant for Voice Analyzer. You will help me to analyze voice data.",
+      name_library: "Voice Analyzer",
+      bot_name: "Voice’s Assistant",
+      module_type: "voice",
+      additional_prompt:
+        "You are bot assistant for Voice Analyzer. You will help me to analyze voice data.",
     },
     {
-      "name_library": "Handwriting Reader",
-      "bot_name": "Handwriting’s Assistant",
-      "module_type": "handwriting",
-      "additional_prompt": "Kamu adalah bot yang menjawab pertanyaan user sesuai dengan dokumen yang ada",
+      name_library: "Handwriting Reader",
+      bot_name: "Handwriting’s Assistant",
+      module_type: "handwriting",
+      additional_prompt:
+        "Kamu adalah bot yang menjawab pertanyaan user sesuai dengan dokumen yang ada",
     },
-  ]
+  ];
 
   async function createCoreModule(libraryName, botName, moduleType, additionalPrompt) {
     let token = localStorage.getItem("token");
@@ -1690,7 +1690,12 @@ All Rights Reserved
 
     coreModule.forEach(async (module) => {
       // // console.log(1111);
-      await createCoreModule(module.name_library, module.bot_name, module.module_type, module.additional_prompt);
+      await createCoreModule(
+        module.name_library,
+        module.bot_name,
+        module.module_type,
+        module.additional_prompt,
+      );
     });
 
     await getModelsTrocr();

@@ -22,6 +22,7 @@ All Rights Reserved
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import EyeIcon from "$lib/icon/eye.svelte";
   import UploadFileIcon from "$lib/icon/upload-01.svelte";
+  import GoogleDriveIcon from "$lib/icon/google-drive.svelte";
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
 
   let {
@@ -187,6 +188,8 @@ All Rights Reserved
             <img src={PNGSolidIcon} alt="" />
           {:else if file.name.includes(".csv") || file.name.includes(".CSV")}
             <img src={CSVIcon} alt="" />
+          {:else}
+            <img src={GoogleDriveIcon} alt="" />
           {/if}
           <div class="flex flex-col max-w-72 justify-center">
             <Typography
@@ -204,19 +207,23 @@ All Rights Reserved
         {#if actionButton}
           <div class="flex items-end justify-end gap-3">
             {#if multiple}
-              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}>{$_("uploadMore")}</Button>
+              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}
+                >{$_("uploadMore")}</Button
+              >
               {#if actionView}
                 <Button class="w-max h-max p-2" color="light" on:click={() => actionViewFile(file)}>
                   <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
                 </Button>
               {/if}
-            {:else}
-              {#if actionView}
-                <Button class="grow h-max gap-1 p-2" color="light" on:click={() => actionViewFile(file)}>
-                  <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-                  <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
-                </Button>
-              {/if}
+            {:else if actionView}
+              <Button
+                class="grow h-max gap-1 p-2"
+                color="light"
+                on:click={() => actionViewFile(file)}
+              >
+                <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
+              </Button>
             {/if}
             <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
               <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />

@@ -999,5 +999,6 @@
   "urlDoesNotContainAValidResource": "URL does not contain a valid resource.",
   "networkResponseWasNotOk": "Network response was not OK.",
   "failedToFetchResource": "Failed to fetch resource.",
-  "preview": "Preview"
+  "preview": "Preview",
+  "addFolder": "Add Folder"
 }

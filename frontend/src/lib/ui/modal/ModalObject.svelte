@@ -30,6 +30,7 @@
     usedFor = "Documents",
     fileNotSupport = false,
     hasDocOrDocx = false,
+    folderMode = false,
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -41,10 +42,10 @@
   // let files = $state([]);
 
   let limitation = [
-    "application",
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    // "application",
+    // "application/pdf",
+    // "application/msword",
+    // "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ];
 
   let mainContentUpload = [
@@ -138,9 +139,9 @@
           //     onEdit: true,
           //   },
           // },
-        ]
-      }
-    }
+        ],
+      },
+    },
   ];
 
   let mainContentLink = [
@@ -272,9 +273,9 @@
           //     onEdit: true,
           //   },
           // },
-        ]
-      }
-    }
+        ],
+      },
+    },
   ];
 
   let footerUpload = [
@@ -360,95 +361,128 @@
     });
   }
 
-  const urlChecker = async (url, limitation) => {
+  const urlChecker = async (url, limitation = []) => {
     let errorObject;
     try {
-      configModal.footer[0].button.buttonDisabled = true;
-      triggerLoading(true);
       let response;
-      if (url.includes("drive.google.com")) {
-        const fileId = url.match(/[-\w]{25,}/);
-        if (!fileId) {
-          throw new Error("Invalid Google Drive URL");
-        }
-        const gdriveUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
-        response = await fetch(gdriveUrl);
-      } else {
-        response = await fetch(url);
+      const isGoogleDrive = url.includes("drive.google.com");
+      const fileId = isGoogleDrive ? url.match(/[-\w]{25,}/) : null;
+
+      if (isGoogleDrive && !fileId) {
+        throw new Error("Invalid Google Drive URL");
       }
 
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          errorObject = await response.json();
-        } else {
-          errorObject = { error: { message: "Non-JSON response received" } };
+      if (isGoogleDrive && url.includes("/drive/folders/")) {
+        // Handle Google Drive folder
+        const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${fileId}'+in+parents&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        const folderResponse = await fetch(folderUrl);
+        if (!folderResponse.ok) {
+          throw new Error("Failed to fetch folder contents");
         }
-        throw new Error("Network response was not ok");
-      }
-
-      const contentType = response.headers.get("content-type");
-      // console.log("contentType", contentType);
-      if (limitation.some((type) => contentType.includes(type))) {
-        const blob = await response.blob();
-        const base64data = await readFileAsBase64(blob);
-        const fileType = contentType.split("/")[1];
-        const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
-        tmpDocumentTitle = `${url.split("/")[3].slice(0, 10)}`;
-        files.push({
-          id: files.length < 1 ? 1 : files.length + 1,
-          name: fileName,
-          size: formatBytes(blob.size),
-          base64: base64data,
-          ext: `.${fileType}`,
-          type: contentType.includes("image")
-            ? "image"
-            : contentType.includes("text/plain")
-              ? "text"
-              : contentType.includes("application/pdf")
-                ? "pdf"
-                : contentType.includes("application/msword") ||
-                    contentType.includes(
-                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    )
-                  ? "document"
-                  : "unknown",
-        });
-        console.log("cek files", files);
-        configModal.footer[0].button.buttonDisabled = false;
-        triggerLoading(false);
+        const folderData = await folderResponse.json();
+        console.log("folderData", folderData);
+        await processFolderContents(folderData.files, limitation);
         return true;
       } else {
-        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
-          $_("fileNotSupported");
-        throw new Error("URL does not contain a valid resource");
+        // Handle Google Drive file or other URL
+        const fetchUrl = isGoogleDrive
+          ? `https://www.googleapis.com/drive/v3/files/${fileId[0]}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`
+          : url;
+        response = await fetch(fetchUrl);
+
+        if (!response.ok) {
+          errorObject = await getErrorObject(response);
+          throw new Error("Network response was not ok");
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
+          await processFile(response, contentType, url);
+          return true;
+        } else {
+          setErrorText("fileNotSupported");
+          throw new Error("URL does not contain a valid resource");
+        }
       }
     } catch (error) {
-      // console.log("errorObject", errorObject);
-      // console.log("error", error);
-      if (errorObject && errorObject.error) {
-        if (errorObject.error.code === 403) {
-          configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
-            "accessRestrictedCheckSharingSettings",
-          );
-        } else if (errorObject.error.code === 404) {
-          configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
-            "fileNotFoundMakeSureTheLinkIsCorrectAndAccessible",
-          );
-        }
-      } else if (error instanceof TypeError && error.message === "Failed to fetch") {
-        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
-          "accessRestrictedCheckSharingSettings",
-        );
-      } else {
-        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
-          $_("failedToFetchResource");
-      }
-      console.error("Error fetching the URL:", error);
-      configModal.footer[0].button.buttonDisabled = false;
-      triggerLoading(false);
+      handleError(error, errorObject);
       return false;
     }
+  };
+
+  const processFolderContents = async (files, limitation) => {
+    for (const file of files) {
+      if (file.mimeType !== "application/vnd.google-apps.folder") {
+        const gdriveFileUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        const fileResponse = await fetch(gdriveFileUrl);
+        console.log("fileResponse", fileResponse);
+        if (fileResponse.ok) {
+          const contentType = fileResponse.headers.get("content-type");
+          if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
+            await processFile(fileResponse, contentType, fileResponse.url);
+          }
+        }
+      } else {
+        console.log("Folder found:", file.name);
+      }
+    }
+  };
+
+  const processFile = async (response, contentType, url) => {
+    const blob = await response.blob();
+    const base64data = await readFileAsBase64(blob);
+    const fileType = contentType.split("/")[1];
+    const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
+    files.push({
+      id: files.length < 1 ? 1 : files.length + 1,
+      name: fileName,
+      size: formatBytes(blob.size),
+      base64: base64data,
+      ext: `.${fileType}`,
+      type: getFileType(contentType),
+    });
+  };
+
+  const getFileType = (contentType) => {
+    if (contentType.includes("image")) return "image";
+    if (contentType.includes("text/plain")) return "text";
+    if (contentType.includes("application/pdf")) return "pdf";
+    if (
+      contentType.includes("application/msword") ||
+      contentType.includes(
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      )
+    )
+      return "document";
+    return "unknown";
+  };
+
+  const getErrorObject = async (response) => {
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await response.json();
+    } else {
+      return { error: { message: "Non-JSON response received" } };
+    }
+  };
+
+  const setErrorText = (key) => {
+    configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(key);
+  };
+
+  const handleError = (error, errorObject) => {
+    if (errorObject && errorObject.error) {
+      if (errorObject.error.code === 403) {
+        setErrorText("accessRestrictedCheckSharingSettings");
+      } else if (errorObject.error.code === 404) {
+        setErrorText("fileNotFoundMakeSureTheLinkIsCorrectAndAccessible");
+      }
+    } else if (error instanceof TypeError && error.message === "Failed to fetch") {
+      setErrorText("accessRestrictedCheckSharingSettings");
+    } else {
+      setErrorText("failedToFetchResource");
+    }
+    console.error("Error fetching the URL:", error);
   };
 
   onMount(async () => {
@@ -566,21 +600,21 @@
         <Card {...content.card} />
       {/if}
       {#if files.length === 1}
-          {#if content?.metaFile}
-            {#each content.metaFile.content as content}
-              {#if content?.text}
-                <Typography {...content.text} />
+        {#if content?.metaFile}
+          {#each content.metaFile.content as content}
+            {#if content?.text}
+              <Typography {...content.text} />
+            {/if}
+            {#if content?.input}
+              <Input {...content.input} bind:value={tmpDocumentTitle} />
+              {#if !nameIsAvailable}
+                <Helper color="red">
+                  <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+                </Helper>
               {/if}
-              {#if content?.input}
-                <Input {...content.input} bind:value={tmpDocumentTitle} />
-                {#if !nameIsAvailable}
-                  <Helper color="red">
-                    <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-                  </Helper>
-                {/if}
-              {/if}
-            {/each}
-          {/if}
+            {/if}
+          {/each}
+        {/if}
       {/if}
     {/each}
   {/if}
