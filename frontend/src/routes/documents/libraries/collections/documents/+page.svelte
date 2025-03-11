@@ -1791,6 +1791,7 @@
   {handleInput}
   {fileNotSupport}
   {hasDocOrDocx}
+  {folderMode}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

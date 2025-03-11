@@ -299,6 +299,7 @@
             linkChecked = true;
             configModal.footer = footerUpload;
             configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = "";
+            configModal.mainContent[3].text.text = $_("uploadDocuments");
           } else {
             linkChecked = false;
             linkImportLink = "";
@@ -331,8 +332,8 @@
         },
       ],
     },
-    mainContent: mainContentUpload,
-    footer: footerUpload,
+    mainContent: mainContentLink,
+    footer: footerLink,
   });
 
   function formatBytes(bytes, decimals = 2) {
@@ -373,6 +374,14 @@
       }
 
       if (isGoogleDrive && url.includes("/drive/folders/")) {
+        // Fetch folder metadata
+        const folderMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        const folderMetadataResponse = await fetch(folderMetadataUrl);
+        if (!folderMetadataResponse.ok) {
+          throw new Error("Failed to fetch folder metadata");
+        }
+        const folderMetadata = await folderMetadataResponse.json();
+
         // Handle Google Drive folder
         const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${fileId}'+in+parents&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
         const folderResponse = await fetch(folderUrl);
@@ -380,8 +389,9 @@
           throw new Error("Failed to fetch folder contents");
         }
         const folderData = await folderResponse.json();
-        console.log("folderData", folderData);
-        await processFolderContents(folderData.files, limitation);
+        // console.log("folderData", folderData);
+        // console.log("folderMetadata", folderMetadata);
+        await processFolderContents(folderData.files, limitation, folderMetadata);
         return true;
       } else {
         // Handle Google Drive file or other URL
@@ -410,37 +420,59 @@
     }
   };
 
-  const processFolderContents = async (files, limitation) => {
+  const processFolderContents = async (files, limitation, metadata) => {
     for (const file of files) {
       if (file.mimeType !== "application/vnd.google-apps.folder") {
         const gdriveFileUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
         const fileResponse = await fetch(gdriveFileUrl);
-        console.log("fileResponse", fileResponse);
+        // console.log("fileResponse", fileResponse);
         if (fileResponse.ok) {
           const contentType = fileResponse.headers.get("content-type");
           if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
-            await processFile(fileResponse, contentType, fileResponse.url);
+            await processFile(fileResponse, contentType, fileResponse.url, {
+              id: metadata.id,
+              name: metadata.name,
+            });
           }
         }
       } else {
-        console.log("Folder found:", file.name);
+        console.log("Folder found:", file);
       }
     }
   };
 
-  const processFile = async (response, contentType, url) => {
+  const processFile = async (response, contentType, url, isFolder = {}) => {
     const blob = await response.blob();
     const base64data = await readFileAsBase64(blob);
     const fileType = contentType.split("/")[1];
     const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
-    files.push({
-      id: files.length < 1 ? 1 : files.length + 1,
-      name: fileName,
-      size: formatBytes(blob.size),
-      base64: base64data,
-      ext: `.${fileType}`,
-      type: getFileType(contentType),
-    });
+    if (Object.keys(isFolder).length > 0) {
+      let tempFiles = [...files];
+      if (tempFiles.length < 1) {
+        tempFiles = [{ folderId: isFolder.id, folderName: isFolder.name, files: [] }];
+      }
+      tempFiles[0].files.push({
+        id: files.length < 1 ? 1 : files.length + 1,
+        name: fileName,
+        size: formatBytes(blob.size),
+        base64: base64data,
+        ext: `.${fileType}`,
+        type: getFileType(contentType),
+      });
+
+      files = tempFiles;
+      console.log(files);
+    } else {
+      files.push({
+        id: files.length < 1 ? 1 : files.length + 1,
+        name: fileName,
+        size: formatBytes(blob.size),
+        base64: base64data,
+        ext: `.${fileType}`,
+        type: getFileType(contentType),
+      });
+    }
+    console.log("files", files);
   };
 
   const getFileType = (contentType) => {
@@ -547,15 +579,12 @@
       {/if}
       {#if content?.input && content.input.id === "link" && linkChecked}
         <UploadFile
-          title={`${$_("uploadDocuments")}*`}
+          title=""
           handleFileUploadWrapper={() => {}}
           file={files[0]}
           {files}
           bind:isProcess
-          multiple={false}
-          actionView={() => {
-            console.log("hello");
-          }}
+          multiple={folderMode}
           actionButton={true}
           actionDelete={() => {
             files = [];
@@ -563,6 +592,7 @@
             linkImportLink = "";
             configModal.footer = footerLink;
           }}
+          {folderMode}
         />
       {:else if content?.input}
         <Input {...content.input} />
