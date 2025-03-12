@@ -1792,6 +1792,7 @@
   {fileNotSupport}
   {hasDocOrDocx}
   {folderMode}
+  maxDepth={1}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

@@ -31,6 +31,7 @@
     fileNotSupport = false,
     hasDocOrDocx = false,
     folderMode = false,
+    maxDepth = 3,
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -294,7 +295,7 @@
         text: "checkLink",
         onClick: async () => {
           // console.log(linkImportLink);
-          let urlValid = await urlChecker(linkImportLink, limitation);
+          let urlValid = await urlChecker(linkImportLink, limitation, maxDepth);
           if (urlValid) {
             linkChecked = true;
             configModal.footer = footerUpload;
