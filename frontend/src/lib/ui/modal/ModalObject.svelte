@@ -362,7 +362,7 @@
     });
   }
 
-  const urlChecker = async (url, limitation = []) => {
+  const urlChecker = async (url, limitation = [], maxDepth = 3) => {
     let errorObject;
     try {
       let response;
@@ -374,7 +374,7 @@
       }
 
       if (isGoogleDrive && url.includes("/drive/folders/")) {
-        await getFolderContents(fileId);
+        await getFolderContents(fileId, {}, 1, maxDepth);
         return true;
       } else {
         // Handle Google Drive file or other URL
@@ -403,7 +403,9 @@
     }
   };
 
-  const getFolderContents = async (fileId, fileMetadata = {}, depth = 1) => {
+  const getFolderContents = async (fileId, fileMetadata = {}, depth = 1, maxDepth = 3) => {
+    if (depth > maxDepth) return;
+
     // Fetch folder metadata
     let folderMetadata;
     if (!Object.keys(fileMetadata).length > 0) {
@@ -424,12 +426,12 @@
       throw new Error("Failed to fetch folder contents");
     }
     const folderData = await folderResponse.json();
-    // console.log("folderData", folderData);
-    // console.log("folderMetadata", folderMetadata);
-    await processFolderContents(folderData.files, limitation, folderMetadata, depth);
+    await processFolderContents(folderData.files, limitation, folderMetadata, depth, maxDepth);
   };
 
-  const processFolderContents = async (files, limitation, metadata, depth = 1) => {
+  const processFolderContents = async (files, limitation, metadata, depth = 1, maxDepth = 3) => {
+    if (depth > maxDepth) return;
+
     console.log("metadata", metadata);
     for (const file of files) {
       if (file.mimeType !== "application/vnd.google-apps.folder") {
@@ -451,7 +453,7 @@
           }
         }
       } else {
-        await getFolderContents(file.id, file, depth + 1);
+        await getFolderContents(file.id, file, depth + 1, maxDepth);
       }
     }
   };
