@@ -56,6 +56,7 @@ export { default as Divider } from "$lib/components/Divider.svelte";
 export { default as AddDocModal } from "$lib/ui/modal/AddDocModal.svelte";
 export { default as ModalObject } from "$lib/ui/modal/ModalObject.svelte";
 export { default as ModalFilePreview } from "$lib/ui/modal/ModalFilePreview.svelte";
+export { default as ModalFolder } from "$lib/ui/modal/ModalFolder.svelte";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {
   triggerSelectCollection,

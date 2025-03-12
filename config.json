@@ -2948,7 +2948,7 @@
                     "type": "number"
                 },
                 {
-                    "name": "document_type",
+                    "name": "type",
                     "type": "string",
                     "required": true
                 }

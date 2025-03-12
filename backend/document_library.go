@@ -3675,29 +3675,34 @@ func IsLibraryNameAvailable(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 		return ctx.Error(400, "Invalid parameter: name")
 	}
 
+	dtype, ok := ctx.Params.GetString("type")
+	if !ok {
+		return ctx.Error(400, "Invalid parameter: type")
+	}
+
 	parent_id, ok := ctx.Params.GetFloat64("parent_id")
 	if !ok {
 		return ctx.Error(400, "Invalid parameter: parent_id")
 	}
 
-	document_type, ok := ctx.Params.GetString("document_type")
-	if !ok {
-		return ctx.Error(400, "Invalid parameter: document_type")
+	dataUdict := U.Dict{
+		"filters": U.Dict{
+			"name":      U.Dict{"$eq": name},
+			"parent_id": U.Dict{"$eq": parent_id},
+			"type":      U.Dict{"$eq": dtype},
+		},
 	}
 
-	status, library, err := Strapi.Find("document-library-table", U.Dict{
-		"filters": U.Dict{
-			"name": U.Dict{
-				"$eq": name,
+	if parent_id == 0 {
+		dataUdict = U.Dict{
+			"filters": U.Dict{
+				"name": U.Dict{"$eq": name},
+				"type": U.Dict{"$eq": dtype},
 			},
-			"parent_id": U.Dict{
-				"$eq": parent_id,
-			},
-			"document_type": U.Dict{
-				"$eq": document_type,
-			},
-		},
-	})
+		}
+	}
+
+	status, library, err := Strapi.Find("document-library-table", dataUdict)
 
 	if err != nil {
 		fmt.Println(err)
@@ -3705,7 +3710,7 @@ func IsLibraryNameAvailable(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 	}
 
 	if status != 200 {
-		fmt.Println("Error response from Strapi:", status)
+		fmt.Println("Error response from library:", library)
 		return ctx.Error(500, "Internal Server Error")
 	}
 
