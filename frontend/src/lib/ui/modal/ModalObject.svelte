@@ -609,7 +609,11 @@
   });
 
   $effect(() => {
-    configModal.footer[0].button.buttonDisabled = files.length < 1 ? true : false;
+    if (files.length > 1) {
+      configModal.footer[0].button.buttonDisabled = false;
+    } else {
+      configModal.footer[0].button.buttonDisabled = tmpDocumentTitle === "" || !nameIsAvailable;
+    }
   });
 </script>
 
