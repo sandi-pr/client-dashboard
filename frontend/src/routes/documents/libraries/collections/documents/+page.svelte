@@ -414,7 +414,8 @@
 
   let audioUrl = $state(null);
 
-  async function addDocumentByCollection() {
+  async function addDocumentByCollection(folderFiles = null, parentId = null) {
+    let files = folderFiles || files;
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -507,9 +508,9 @@
               dataSend = {
                 document_name: files.length > 1 ? files[i].document_title : tmpDocumentTitle,
                 description: tmpDocumentDescription,
-                parent_id: parseInt(collectionId),
+                parent_id: !parentId ? parseInt(collectionId) : parseInt(parentId),
                 documents: JSON.stringify([files[i]]),
-                document_type: tmpDocumentType,
+                document_type: !folderFiles ? tmpDocumentType : files[i].type,
                 category: tags.join(","),
                 detected_text: response3.result.text,
                 result_trocr: JSON.stringify(response3.result),
@@ -560,9 +561,8 @@
 
             dataSend = {
               document_name: files.length > 1 ? newName : tmpDocumentTitle,
-              // document_name: newName,
               description: tmpDocumentDescription,
-              parent_id: parseInt(collectionId),
+              parent_id: !parentId ? parseInt(collectionId) : parseInt(parentId),
               documents: JSON.stringify([files[i]]),
               document_type: tmpDocumentType,
               category: tags.join(","),
@@ -1800,6 +1800,8 @@
   maxDepth={1}
   {createCollection}
   {collectionId}
+  {checkLibraryName}
+  {sendDocument}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>
