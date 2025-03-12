@@ -59,7 +59,7 @@
   let dropdownUpload = $state(false);
   let dropdownUploadEmpty = $state(false);
   let fileNotSupport = $state(false);
-  let buttonDisabled = $state(false);
+  let buttonDisabled = $state(true);
   let gettingDatas = $state(false);
   let gettingDocs = $state(false);
   let buttonDisabledCheckAction = $state(false);
@@ -79,21 +79,13 @@
   let tags = $state([]);
   let newTag = $state("");
   let files = $state([]);
-  let groupedFiles = $state({});
+  let groupedFiles = $state(null);
   let attributeNotUnique = $state(false);
   let checkboxDelete = $state(false);
   let checkboxUpdate = $state(false);
   let tmpId = $state(null);
   let isMobileView = $state(false);
   let hasDocOrDocx = $state(false);
-  let tabDatas = $state({
-    selected: "Collections",
-    data: [
-      {
-        name: "Collections",
-      },
-    ],
-  });
 
   let collectionDatas = $state({
     title: "",
@@ -127,8 +119,6 @@
           Authorization: "Bearer " + token,
         },
       });
-
-      console.log("collection", response);
 
       collectionDatas = {
         title: response.result.attributes.name,
@@ -167,7 +157,6 @@
         collectionListDatas = [];
 
         if (response.status !== 200) {
-          console.log(response);
           gettingDocs = false;
           if (response.status === 400) {
             console.error("Invalid parameters:", response);
@@ -184,8 +173,6 @@
           }
           return;
         }
-
-        // console.log("documets", response.result.data);
 
         pagination = response.result.meta.pagination;
 
@@ -363,6 +350,12 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+
+      if(groupedFiles != null) {
+        sendFolder();
+        return
+      }
+
       try {
         addDocumentsModal = false;
         triggerLoading(true);
@@ -534,7 +527,9 @@
           dataSend = null;
           previewModal = false;
           addDocumentsModal = false;
+          addFolderModal = false;
           getDocuments();
+          getCollections(true);
           triggerToast($_("succesfullyUploaded"), true);
         }
       } catch (error) {
@@ -663,56 +658,81 @@
     }
   });
 
-  function groupFilesByPath(files) {
-    const groupedFiles = {};
-
-    files.forEach(file => {
-      const pathLevels = file.path.split("/");
-      
-      // Maksimal 2 level path (Collection Dummy / Sub Dummy)
-      if (pathLevels.length <= 2) {
-        if (!groupedFiles[file.path]) {
-          groupedFiles[file.path] = [];
-        }
-        groupedFiles[file.path].push(file);
+  //#FUNCTION UNTUK TRIGGERTOAST DARI RESPONSE
+  //TODO: BISA DIJADIKAN UTIL
+  function triggerToastResponse (response) {
+    if (response.status !== 200) {
+      console.log(response);
+      if (response.status === 400) {
+        console.error("Invalid parameters:", response);
+        triggerToast($_("invalidParameters"), true, "error");
+      } else if (response.status === 401) {
+        console.error("Unauthorized access:", response);
+        triggerToast($_("unauthorized"), true, "error");
+      } else if (response.status === 500) {
+        console.error("Server error:", response);
+        triggerToast($_("serverError"), true, "error");
+      } else {
+        console.error("Unexpected status code:", response);
+        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
       }
-    });
+      return false;
+    }
+    return true
+  }
 
-    return groupedFiles;
+  async function groupFilesByPath(files) {
+    const structure = {};
+    console.log("masuk ke func group files")
+
+    for (const file of files) {
+      const parts = file.webkitRelativePath.split("/");
+      const fileName = parts.pop();
+      const base64Data = await readFileAsBase64(file);
+
+      // 0, 1 Sub Folder
+      let folderKey = parts.slice(0, 1).join("/");
+      if (!folderKey) folderKey = "root";
+
+      if (!structure[folderKey]) {
+        structure[folderKey] = {};
+      }
+
+      const fileObject = {
+        id: Object.keys(structure[folderKey]).length + 1,
+        name: file.name,
+        path: file.webkitRelativePath || file.name,
+        document_title: file.name,
+        description: tmpDocumentDescription,
+        size: formatBytes(file.size),
+        ext: "." + file.name.split(".").pop(),
+        base64: base64Data,
+        type: tmpDocumentType
+      };
+
+      structure[folderKey][fileName] = fileObject;
+    }
+
+    console.log('structure::::::::::::')
+    console.log(structure)
+    return structure
+
   }
 
   const handleFileUploadWrapper = (isFolder = false) => {
+
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.webkitdirectory = isFolder;
     inputElement.accept = acceptedFileTypes;
     inputElement.multiple = true;
+    inputElement.replaceWith(inputElement.cloneNode(true));
 
-    inputElement.addEventListener("change", async (event) => {
+    inputElement.addEventListener("change", async (event) => {  
       if (isFolder) {
-        const filesSelect = event.target.files;
-
-        for (const file of filesSelect) {
-          const base64Data = await readFileAsBase64(file);
-          files.push({
-            id: files.length < 1 ? 1 : files.length + 1,
-            name: file.name,
-            path: file.webkitRelativePath.split("/").slice(0, -1).join("/"),
-            document_title: file.name.split(".").slice(0, -1).join("."),
-            description: tmpDocumentDescription,
-            size: formatBytes(file.size),
-            // base64: base64Data,
-            ext: "." + file.name.split(".").pop(),
-            type: tmpDocumentType,
-          });
-        }
-
-        groupedFiles = groupFilesByPath(files);
-
-        console.log("cek files", groupedFiles);
+        groupedFiles = await groupFilesByPath(event.target.files);
         return;
       }
-
 
       const filesSelect = event.target.files;
 
@@ -767,6 +787,99 @@
     });
     inputElement.click();
   };
+
+  async function sendFolder() {
+    triggerLoading(true);
+    var currentFolder = []
+
+    // Buat Collection by Name Folder Dan Document
+    for (var folder in groupedFiles) {
+      var parent_id;
+      var sub_folder;
+      var main_folder;
+
+      if (folder.split('/').length > 1) {
+        main_folder = folder.split('/')[0].trim()
+        sub_folder = folder.split('/')[1].trim()
+
+        if (currentFolder.length) {
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          if (finded) {
+            parent_id = finded.id
+          }
+        }
+      }
+
+      dataSend = {
+        collection_name: folder,
+        description: '',
+        parent_id: parseInt(collectionId),
+      };
+
+      if (sub_folder && parent_id) {
+        dataSend["collection_name"] = sub_folder
+        dataSend["parent_id"] = parseInt(parent_id)
+      }
+    }
+
+    let token = localStorage.getItem("token");
+    let res = await $call.call(
+        "client-dashboard", "create-library-collection", {
+            URLQuery: {},
+            URLParams: {},
+            Params: dataSend,
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+        });
+
+    let statusRes = triggerToastResponse(res)
+    if (!statusRes) {
+      triggerLoading(false);
+      return
+    }
+
+    currentFolder.push(res.result.data)
+    files = groupedFiles[folder]
+
+    if (!parent_id && !sub_folder) {
+      parent_id = res.result.data.id
+    }
+
+    for (const doc in files) {
+      if (sub_folder && parent_id) {
+        files[doc].id = parent_id
+      }
+
+      dataSend = {
+        document_name: files[doc].name,
+        description: files[doc].description,
+        parent_id: parseInt(res.result.data.id),
+        document_type: files[doc].type,
+        documents: JSON.stringify(Array(files[doc])),
+        category: "",
+      };
+
+      let resdoc = await $call.call("client-dashboard", "create-library-document", {
+        URLQuery: {},
+        URLParams: {},
+        Params: dataSend,
+        Headers: {
+          Authorization: "Bearer " + token
+        },
+      });
+
+      let statusResDoc = triggerToastResponse(resdoc)
+      if (!statusResDoc) {
+        triggerLoading(false);
+        return
+      }
+    }
+
+    addFolderModal = false;
+    getCollections(true);
+    triggerLoading(false);
+  }
 
   async function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
@@ -1408,23 +1521,21 @@
   });
 
   $effect(() => {
-    hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
-  });
-
-  $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
+    if (files.length > 0) {
+      hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
+      buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
+      buttonDisabled =
+        files.length === 0 || files.length === 1
+          ? tmpDocumentTitle === "" || !nameIsAvailable
+          : false;
+    } else if (groupedFiles != null) {
+      buttonDisabled = false;
+    } else {
+      buttonDisabled = true;
+    }
   });
 
-  $effect(() => {
-    buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
-  });
-
-  $effect(() => {
-    buttonDisabled =
-      files.length === 0 || files.length === 1
-        ? tmpDocumentTitle === "" || !nameIsAvailable
-        : false;
-  });
 </script>
 
 <div class="top-element"></div>
@@ -1534,6 +1645,7 @@
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
                     addFolderModal = true;
+                    groupedFiles = null;
                   }}
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"

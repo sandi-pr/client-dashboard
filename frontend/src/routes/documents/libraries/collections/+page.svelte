@@ -63,7 +63,7 @@
   let hasDocOrDocx = $state(false);
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
-  let buttonDisabled = $state(false);
+  let buttonDisabled = $state(true);
   let isProcess = $state(false);
 
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
@@ -587,6 +587,100 @@
 
   }
 
+  async function sendFolder () {
+    triggerLoading(true);
+    var currentFolder = []
+
+    for (var folder in groupedFiles) {
+      var parent_id;
+      var sub_folder;
+      var main_folder;
+
+      if (folder.split('/').length > 1) {
+        main_folder = folder.split('/')[0].trim()
+        sub_folder = folder.split('/')[1].trim()
+
+        if (currentFolder.length) {
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          if (finded) {
+            parent_id = finded.id
+          }
+        }
+      }
+
+      dataSend = {
+        collection_name: folder,
+        description: '',
+        parent_id: parseInt(libraryId),
+      };
+
+      if (sub_folder && parent_id) {
+        dataSend["collection_name"] = sub_folder
+        dataSend["parent_id"] = parseInt(parent_id)
+      }
+
+      let token = localStorage.getItem("token");
+      let res = await $call.call(
+          "client-dashboard", "create-library-collection", {
+              URLQuery: {},
+              URLParams: {},
+              Params: dataSend,
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+          });
+
+      let statusRes = triggerToastResponse(res)
+      if (!statusRes) {
+        triggerLoading(false);
+        return
+      }
+
+      currentFolder.push(res.result.data)
+      files = groupedFiles[folder]
+
+      if (!parent_id && !sub_folder) {
+        parent_id = res.result.data.id
+      }
+
+      for (const doc in files) {
+        if (sub_folder && parent_id) {
+          files[doc].id = parent_id
+        }
+
+        dataSend = {
+          document_name: files[doc].name,
+          description: files[doc].description,
+          parent_id: parseInt(res.result.data.id),
+          document_type: files[doc].type,
+          documents: JSON.stringify(Array(files[doc])),
+          category: "",
+        };
+
+        let resdoc = await $call.call("client-dashboard", "create-library-document", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token
+          },
+        });
+
+        let statusResDoc = triggerToastResponse(resdoc)
+        if (!statusResDoc) {
+          triggerLoading(false);
+          return
+        }
+      }
+    }
+
+    addFolderModal = false;
+    getCollections();
+    triggerLoading(false);
+
+  }
+
+
   async function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -614,8 +708,6 @@
   }
 
   const handleFileUploadWrapper = (isFolder = false) => {
-    let token = localStorage.getItem("token");
-    console.log('handleFileUploadWraper starting.........')
 
     const inputElement = document.createElement("input");
     inputElement.type = "file";
@@ -624,80 +716,12 @@
     inputElement.multiple = true;
 
     inputElement.addEventListener("change", async (event) => {
-    console.log('handleFileUploadWraper starting event.........')
       if (isFolder) {
-        groupedFiles = await groupFilesByPath(event.target.files);
 
         // Buat Collection by Name Folder Dan Document
-        console.log('groupfiles: ', groupedFiles)
-        let currentFolder = {}
-        for (const folder in groupedFiles) {
-          console.log('folder:', folder)
-          dataSend = {
-            collection_name: folder,
-            description: '',
-            parent_id: parseInt(libraryId),
-          };
-          console.log('hit ke res')
-
-          let res = await $call.call(
-              "client-dashboard", "create-library-collection", {
-                  URLQuery: {},
-                  URLParams: {},
-                  Params: dataSend,
-                  Headers: {
-                    Authorization: "Bearer " + token,
-                  },
-              });
-
-          console.log('res: ')
-          console.log(res)
-          let statusRes = triggerToastResponse(res)
-          if (!statusRes) {
-            console.log('return status res false: ')
-            console.log(statusRes)
-            return
-          }
-
-          currentFolder = res.data
-          console.log('currentFolder: ')
-          console.log(currentFolder)
-          files = groupedFiles[folder]
-
-          for (const doc in files) {
-            dataSend = {
-              document_name: files[doc].name,
-              description: files[doc].description,
-              parent_id: parseInt(res.result.data.id),
-              document_type: files[doc].type,
-              documents: JSON.stringify(files[doc]),
-              category: ""
-            };
-
-            console.log('dataSend: ')
-            console.log(dataSend)
-
-            let resdoc = await $call.call("client-dashboard", "create-library-document", {
-              URLQuery: {},
-              URLParams: {},
-              Params: dataSend,
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
-
-            console.log("resdoc: ")
-            console.log(resdoc)
-
-            let statusResDoc = triggerToastResponse(resdoc)
-            if (!statusResDoc) {
-              return
-            }
-          }
-        }
+        groupedFiles = await groupFilesByPath(event.target.files);
         return;
       }
-
 
       const filesSelect = event.target.files;
 
@@ -781,6 +805,11 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      if(groupedFiles != null) {
+        sendFolder();
+        return
+      }
+
       try {
         addDocumentsModal = false;
         triggerLoading(true);
@@ -974,6 +1003,14 @@
     return () => unsubscribe();
   });
 
+  $effect(() => {
+    if (groupedFiles != null) {
+      buttonDisabled = false;
+    } else {
+      buttonDisabled = true;
+    }
+  });
+
   // $effect(() => {
   //   const unsubscribe = page.subscribe(async ($page) => {
   //     libraryId = $page.url.searchParams.get("libraryId");
@@ -1060,7 +1097,9 @@
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
+                    dropdownUpload = false;
                     addFolderModal = true;
+                    groupedFiles = null;
                   }}
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
