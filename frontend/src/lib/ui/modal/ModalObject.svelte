@@ -32,6 +32,8 @@
     hasDocOrDocx = false,
     folderMode = false,
     maxDepth = 3,
+    createCollection = () => {},
+    collectionId = 1,
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -436,6 +438,19 @@
     }
     const folderData = await folderResponse.json();
     await processFolderContents(folderData.files, limitation, folderMetadata, depth, maxDepth);
+    files.forEach(async (folder) => {
+      // console.log("folder", folder);
+      // console.log("collectionId", collectionId);
+      const createdCollectionId = await createCollection({
+        collection_name: folder.folderName,
+        description: "",
+        parent_id: parseInt(collectionId),
+      });
+      console.log(createdCollectionId);
+      // folder.files.forEach(file => {
+
+      // });
+    });
   };
 
   const processFolderContents = async (files, limitation, metadata, depth = 1, maxDepth = 3) => {

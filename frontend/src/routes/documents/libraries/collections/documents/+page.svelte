@@ -50,7 +50,7 @@
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import { get } from "svelte/store";
 
-  let collectionId;
+  let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
   let checkAllState = $state(false);
@@ -284,7 +284,7 @@
     }
   }
 
-  async function createCollection() {
+  async function createCollection(folderDataSend = null) {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -299,11 +299,13 @@
             bot_id: localStorage.getItem("botIdStrapi").toString(),
           };
         } else {
-          dataSend = {
-            collection_name: tmpCollectionName,
-            description: tmpDescription,
-            parent_id: parseInt(collectionId),
-          };
+          dataSend = !folderDataSend
+            ? {
+                collection_name: tmpCollectionName,
+                description: tmpDescription,
+                parent_id: parseInt(collectionId),
+              }
+            : folderDataSend;
         }
 
         let response = await $call.call("client-dashboard", "create-library-collection", {
@@ -342,6 +344,9 @@
 
         addCollectionModal = false;
         getCollections(true);
+        if (folderDataSend) {
+          return response?.result?.data?.id;
+        }
       } catch (error) {
         console.error("Error during sub collection creation:", error);
         triggerToast($_("failedCreateSubCollection"), true, "error");
@@ -1793,6 +1798,8 @@
   {hasDocOrDocx}
   {folderMode}
   maxDepth={1}
+  {createCollection}
+  {collectionId}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>
