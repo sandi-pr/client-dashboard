@@ -389,9 +389,17 @@
           throw new Error("Network response was not ok");
         }
 
+        // Fetch file metadata
+        const fileMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        const fileMetadataResponse = await fetch(fileMetadataUrl);
+        if (!fileMetadataResponse.ok) {
+          throw new Error("Failed to fetch file metadata");
+        }
+        const fileMetadata = await fileMetadataResponse.json();
+
         const contentType = response.headers.get("content-type");
         if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
-          await processFile(response, contentType, url);
+          await processFile(response, contentType, url, fileMetadata);
           return true;
         } else {
           setErrorText("fileNotSupported");
@@ -436,6 +444,14 @@
     console.log("metadata", metadata);
     for (const file of files) {
       if (file.mimeType !== "application/vnd.google-apps.folder") {
+        // Fetch file metadata
+        const fileMetadataUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        const fileMetadataResponse = await fetch(fileMetadataUrl);
+        if (!fileMetadataResponse.ok) {
+          throw new Error("Failed to fetch file metadata");
+        }
+        const fileMetadata = await fileMetadataResponse.json();
+
         const gdriveFileUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
         const fileResponse = await fetch(gdriveFileUrl);
         if (fileResponse.ok) {
@@ -445,6 +461,7 @@
               fileResponse,
               contentType,
               fileResponse.url,
+              fileMetadata,
               {
                 id: metadata?.id || 1,
                 name: metadata?.name || "folder",
@@ -459,22 +476,30 @@
     }
   };
 
-  const processFile = async (response, contentType, url, isFolder = {}, depth = 0) => {
+  const processFile = async (
+    response,
+    contentType,
+    url,
+    fileMetadata,
+    isFolder = {},
+    depth = 0,
+  ) => {
     const blob = await response.blob();
     const base64data = await readFileAsBase64(blob);
     const fileType = contentType.split("/")[1];
     const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
     const fileData = {
       id: files.length < 1 ? 1 : files.length + 1,
-      name: fileName,
+      name: fileMetadata.name || fileName,
       size: formatBytes(blob.size),
       base64: base64data,
       ext: `.${fileType}`,
       type: getFileType(contentType),
+      // metadata: fileMetadata || {},
     };
 
     if (Object.keys(isFolder).length > 0) {
-      console.log("isFolder", isFolder);
+      // console.log("isFolder", isFolder);
       let tempFiles = [...files];
       let currentLevel = tempFiles;
 
