@@ -73,6 +73,7 @@ import CodeSquare01Icon from "../icon/code-square-01.svelte";
 import Image01 from "../icon/image-01.svelte";
 import InfoCircle from "../icon/info-circle.svelte";
 import FolderDownload from "../icon/folder-download.svelte";
+import GoogleDriveIcon from "../icon/google-drive.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -226,6 +227,8 @@ let getIcons = (presetIcon: String) => {
       return InfoCircle;
     case "folderDownload":
       return FolderDownload;
+    case "googleDrive":
+      return GoogleDriveIcon;
     default:
       return "";
   }

@@ -30,6 +30,8 @@
     usedFor = "Documents",
     fileNotSupport = false,
     hasDocOrDocx = false,
+    folderMode = false,
+    maxDepth = 3,
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -41,10 +43,10 @@
   // let files = $state([]);
 
   let limitation = [
-    "application",
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    // "application",
+    // "application/pdf",
+    // "application/msword",
+    // "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ];
 
   let mainContentUpload = [
@@ -138,9 +140,9 @@
           //     onEdit: true,
           //   },
           // },
-        ]
-      }
-    }
+        ],
+      },
+    },
   ];
 
   let mainContentLink = [
@@ -272,9 +274,9 @@
           //     onEdit: true,
           //   },
           // },
-        ]
-      }
-    }
+        ],
+      },
+    },
   ];
 
   let footerUpload = [
@@ -293,11 +295,12 @@
         text: "checkLink",
         onClick: async () => {
           // console.log(linkImportLink);
-          let urlValid = await urlChecker(linkImportLink, limitation);
+          let urlValid = await urlChecker(linkImportLink, limitation, maxDepth);
           if (urlValid) {
             linkChecked = true;
             configModal.footer = footerUpload;
             configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = "";
+            configModal.mainContent[3].text.text = $_("uploadDocuments");
           } else {
             linkChecked = false;
             linkImportLink = "";
@@ -330,8 +333,8 @@
         },
       ],
     },
-    mainContent: mainContentUpload,
-    footer: footerUpload,
+    mainContent: mainContentLink,
+    footer: footerLink,
   });
 
   function formatBytes(bytes, decimals = 2) {
@@ -360,95 +363,202 @@
     });
   }
 
-  const urlChecker = async (url, limitation) => {
+  const urlChecker = async (url, limitation = [], maxDepth = 3) => {
     let errorObject;
     try {
-      configModal.footer[0].button.buttonDisabled = true;
-      triggerLoading(true);
       let response;
-      if (url.includes("drive.google.com")) {
-        const fileId = url.match(/[-\w]{25,}/);
-        if (!fileId) {
-          throw new Error("Invalid Google Drive URL");
-        }
-        const gdriveUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
-        response = await fetch(gdriveUrl);
-      } else {
-        response = await fetch(url);
+      const isGoogleDrive = url.includes("drive.google.com");
+      const fileId = isGoogleDrive ? url.match(/[-\w]{25,}/) : null;
+
+      if (isGoogleDrive && !fileId) {
+        throw new Error("Invalid Google Drive URL");
       }
 
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          errorObject = await response.json();
-        } else {
-          errorObject = { error: { message: "Non-JSON response received" } };
-        }
-        throw new Error("Network response was not ok");
-      }
-
-      const contentType = response.headers.get("content-type");
-      // console.log("contentType", contentType);
-      if (limitation.some((type) => contentType.includes(type))) {
-        const blob = await response.blob();
-        const base64data = await readFileAsBase64(blob);
-        const fileType = contentType.split("/")[1];
-        const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
-        tmpDocumentTitle = `${url.split("/")[3].slice(0, 10)}`;
-        files.push({
-          id: files.length < 1 ? 1 : files.length + 1,
-          name: fileName,
-          size: formatBytes(blob.size),
-          base64: base64data,
-          ext: `.${fileType}`,
-          type: contentType.includes("image")
-            ? "image"
-            : contentType.includes("text/plain")
-              ? "text"
-              : contentType.includes("application/pdf")
-                ? "pdf"
-                : contentType.includes("application/msword") ||
-                    contentType.includes(
-                      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    )
-                  ? "document"
-                  : "unknown",
-        });
-        console.log("cek files", files);
-        configModal.footer[0].button.buttonDisabled = false;
-        triggerLoading(false);
+      if (isGoogleDrive && url.includes("/drive/folders/")) {
+        await getFolderContents(fileId, {}, 1, maxDepth);
         return true;
       } else {
-        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
-          $_("fileNotSupported");
-        throw new Error("URL does not contain a valid resource");
+        // Handle Google Drive file or other URL
+        const fetchUrl = isGoogleDrive
+          ? `https://www.googleapis.com/drive/v3/files/${fileId[0]}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`
+          : url;
+        response = await fetch(fetchUrl);
+
+        if (!response.ok) {
+          errorObject = await getErrorObject(response);
+          throw new Error("Network response was not ok");
+        }
+
+        // Fetch file metadata
+        const fileMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        const fileMetadataResponse = await fetch(fileMetadataUrl);
+        if (!fileMetadataResponse.ok) {
+          throw new Error("Failed to fetch file metadata");
+        }
+        const fileMetadata = await fileMetadataResponse.json();
+
+        const contentType = response.headers.get("content-type");
+        if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
+          await processFile(response, contentType, url, fileMetadata);
+          return true;
+        } else {
+          setErrorText("fileNotSupported");
+          throw new Error("URL does not contain a valid resource");
+        }
       }
     } catch (error) {
-      // console.log("errorObject", errorObject);
-      // console.log("error", error);
-      if (errorObject && errorObject.error) {
-        if (errorObject.error.code === 403) {
-          configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
-            "accessRestrictedCheckSharingSettings",
-          );
-        } else if (errorObject.error.code === 404) {
-          configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
-            "fileNotFoundMakeSureTheLinkIsCorrectAndAccessible",
-          );
-        }
-      } else if (error instanceof TypeError && error.message === "Failed to fetch") {
-        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(
-          "accessRestrictedCheckSharingSettings",
-        );
-      } else {
-        configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text =
-          $_("failedToFetchResource");
-      }
-      console.error("Error fetching the URL:", error);
-      configModal.footer[0].button.buttonDisabled = false;
-      triggerLoading(false);
+      handleError(error, errorObject);
       return false;
     }
+  };
+
+  const getFolderContents = async (fileId, fileMetadata = {}, depth = 1, maxDepth = 3) => {
+    if (depth > maxDepth) return;
+
+    // Fetch folder metadata
+    let folderMetadata;
+    if (!Object.keys(fileMetadata).length > 0) {
+      const folderMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+      const folderMetadataResponse = await fetch(folderMetadataUrl);
+      if (!folderMetadataResponse.ok) {
+        throw new Error("Failed to fetch folder metadata");
+      }
+      folderMetadata = await folderMetadataResponse.json();
+    } else {
+      folderMetadata = fileMetadata;
+    }
+
+    // Handle Google Drive folder
+    const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${fileId}'+in+parents&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+    const folderResponse = await fetch(folderUrl);
+    if (!folderResponse.ok) {
+      throw new Error("Failed to fetch folder contents");
+    }
+    const folderData = await folderResponse.json();
+    await processFolderContents(folderData.files, limitation, folderMetadata, depth, maxDepth);
+  };
+
+  const processFolderContents = async (files, limitation, metadata, depth = 1, maxDepth = 3) => {
+    if (depth > maxDepth) return;
+
+    console.log("metadata", metadata);
+    for (const file of files) {
+      if (file.mimeType !== "application/vnd.google-apps.folder") {
+        // Fetch file metadata
+        const fileMetadataUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        const fileMetadataResponse = await fetch(fileMetadataUrl);
+        if (!fileMetadataResponse.ok) {
+          throw new Error("Failed to fetch file metadata");
+        }
+        const fileMetadata = await fileMetadataResponse.json();
+
+        const gdriveFileUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        const fileResponse = await fetch(gdriveFileUrl);
+        if (fileResponse.ok) {
+          const contentType = fileResponse.headers.get("content-type");
+          if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
+            await processFile(
+              fileResponse,
+              contentType,
+              fileResponse.url,
+              fileMetadata,
+              {
+                id: metadata?.id || 1,
+                name: metadata?.name || "folder",
+              },
+              depth,
+            );
+          }
+        }
+      } else {
+        await getFolderContents(file.id, file, depth + 1, maxDepth);
+      }
+    }
+  };
+
+  const processFile = async (
+    response,
+    contentType,
+    url,
+    fileMetadata,
+    isFolder = {},
+    depth = 0,
+  ) => {
+    const blob = await response.blob();
+    const base64data = await readFileAsBase64(blob);
+    const fileType = contentType.split("/")[1];
+    const fileName = `${url.split("/")[3].slice(0, 10)}.${fileType}`;
+    const fileData = {
+      id: files.length < 1 ? 1 : files.length + 1,
+      name: fileMetadata.name || fileName,
+      size: formatBytes(blob.size),
+      base64: base64data,
+      ext: `.${fileType}`,
+      type: getFileType(contentType),
+      // metadata: fileMetadata || {},
+    };
+
+    if (Object.keys(isFolder).length > 0) {
+      // console.log("isFolder", isFolder);
+      let tempFiles = [...files];
+      let currentLevel = tempFiles;
+
+      for (let i = 0; i < depth; i++) {
+        if (!currentLevel[0]?.files) {
+          currentLevel.push({ folderId: isFolder.id, folderName: isFolder.name, files: [] });
+        }
+        currentLevel = currentLevel[0].files;
+      }
+
+      currentLevel.push(fileData);
+      files = tempFiles;
+      // console.log("tempFiles", tempFiles);
+    } else {
+      files.push(fileData);
+    }
+    // console.log("files", files);
+  };
+
+  const getFileType = (contentType) => {
+    if (contentType.includes("image")) return "image";
+    if (contentType.includes("text/plain")) return "text";
+    if (contentType.includes("application/pdf")) return "pdf";
+    if (
+      contentType.includes("application/msword") ||
+      contentType.includes(
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      )
+    )
+      return "document";
+    return "unknown";
+  };
+
+  const getErrorObject = async (response) => {
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await response.json();
+    } else {
+      return { error: { message: "Non-JSON response received" } };
+    }
+  };
+
+  const setErrorText = (key) => {
+    configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(key);
+  };
+
+  const handleError = (error, errorObject) => {
+    if (errorObject && errorObject.error) {
+      if (errorObject.error.code === 403) {
+        setErrorText("accessRestrictedCheckSharingSettings");
+      } else if (errorObject.error.code === 404) {
+        setErrorText("fileNotFoundMakeSureTheLinkIsCorrectAndAccessible");
+      }
+    } else if (error instanceof TypeError && error.message === "Failed to fetch") {
+      setErrorText("accessRestrictedCheckSharingSettings");
+    } else {
+      setErrorText("failedToFetchResource");
+    }
+    console.error("Error fetching the URL:", error);
   };
 
   onMount(async () => {
@@ -513,15 +623,12 @@
       {/if}
       {#if content?.input && content.input.id === "link" && linkChecked}
         <UploadFile
-          title={`${$_("uploadDocuments")}*`}
+          title=""
           handleFileUploadWrapper={() => {}}
           file={files[0]}
           {files}
           bind:isProcess
-          multiple={false}
-          actionView={() => {
-            console.log("hello");
-          }}
+          multiple={folderMode}
           actionButton={true}
           actionDelete={() => {
             files = [];
@@ -529,6 +636,7 @@
             linkImportLink = "";
             configModal.footer = footerLink;
           }}
+          {folderMode}
         />
       {:else if content?.input}
         <Input {...content.input} />
@@ -565,22 +673,22 @@
       {#if content?.card && content.card?.cardData.contentCenter[0][0].text.text}
         <Card {...content.card} />
       {/if}
-      {#if files.length === 1}
-          {#if content?.metaFile}
-            {#each content.metaFile.content as content}
-              {#if content?.text}
-                <Typography {...content.text} />
+      {#if files.length === 1 && !folderMode}
+        {#if content?.metaFile}
+          {#each content.metaFile.content as content}
+            {#if content?.text}
+              <Typography {...content.text} />
+            {/if}
+            {#if content?.input}
+              <Input {...content.input} bind:value={tmpDocumentTitle} />
+              {#if !nameIsAvailable}
+                <Helper color="red">
+                  <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+                </Helper>
               {/if}
-              {#if content?.input}
-                <Input {...content.input} bind:value={tmpDocumentTitle} />
-                {#if !nameIsAvailable}
-                  <Helper color="red">
-                    <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-                  </Helper>
-                {/if}
-              {/if}
-            {/each}
-          {/if}
+            {/if}
+          {/each}
+        {/if}
       {/if}
     {/each}
   {/if}

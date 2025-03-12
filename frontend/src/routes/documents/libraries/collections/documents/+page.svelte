@@ -104,6 +104,9 @@
   let div = $state();
   let nameIsAvailable = $state(true);
   let isProcess = $state(false);
+  let selected = $state([]);
+  let dummyTags = $state(["general", "news", "article"]);
+  let folderMode = $state(false);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -1653,8 +1656,34 @@
                 >
                 <button
                   class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    addFolderModal = true;
+                    groupedFiles = null;
+                  }}
+                  ><FolderPlusIcon
+                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                  />{$_("uploadCollection")}</button
+                >
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
                     addDocumentsModal = true;
+                    folderMode = true;
+                    attributeNotUnique = false;
+                    dropdownUploadEmpty = false;
+                    nameIsAvailable = true;
+                  }}
+                >
+                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addFolder")}
+                </button>
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  onclick={() => {
+                    addDocumentsModal = true;
+                    folderMode = false;
                     tags = [];
                     files = [];
                     tmpDocumentTitle = "";
@@ -1821,8 +1850,23 @@
                 </button>
                 <button
                   class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
                     addDocumentsModal = true;
+                    folderMode = true;
+                    attributeNotUnique = false;
+                    dropdownUploadEmpty = false;
+                    nameIsAvailable = true;
+                  }}
+                >
+                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addFolder")}
+                </button>
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  onclick={() => {
+                    addDocumentsModal = true;
+                    folderMode = false;
                     tags = [];
                     files = [];
                     tmpDocumentTitle = "";
@@ -1896,6 +1940,8 @@
   {handleInput}
   {fileNotSupport}
   {hasDocOrDocx}
+  {folderMode}
+  maxDepth={1}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

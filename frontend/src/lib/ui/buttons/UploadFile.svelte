@@ -22,6 +22,7 @@ All Rights Reserved
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import EyeIcon from "$lib/icon/eye.svelte";
   import UploadFileIcon from "$lib/icon/upload-01.svelte";
+  import GoogleDriveIcon from "$lib/icon/google-drive.svelte";
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
 
   let {
@@ -41,6 +42,7 @@ All Rights Reserved
     largePreview = false,
     srcAvatar = null,
     disabled = false,
+    folderMode = false,
   } = $props();
 
   let textarea = $state();
@@ -129,37 +131,48 @@ All Rights Reserved
     <div
       class={`flex ${isFlex ? "flex-row items-center justify-between" : "flex-col"} gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark`}
     >
-      {#if files.length > 1}
+      {#if files.length > 1 || folderMode}
         <div class="flex flex-col gap-2 grow items-center justify-center">
-          <div class="relative">
-            <img src={FolderTypeIcon} alt="" class="w-16 h-16" />
-            <Indicator border size="xl" color="purple" placement="center-right">
-              <span class="text-white text-xs font-bold">{files.length}</span>
-            </Indicator>
-          </div>
+          {#if !folderMode}
+            <div class="relative">
+              <img src={FolderTypeIcon} alt="" class="w-16 h-16" />
+              <Indicator border size="xl" color="purple" placement="center-right">
+                <span class="text-white text-xs font-bold">{files.length}</span>
+              </Indicator>
+            </div>
+          {:else}
+            <div class="w-full flex justify-between items-center">
+              <div class="flex gap-4 items-center p-4">
+                <GoogleDriveIcon
+                  class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+                <Typography preset="Text sm/Medium" text={files[0].folderName} color="primary" />
+              </div>
+              <div>
+                <Typography
+                  preset="Text sm/Semibold"
+                  text={files[0].files.length + " files"}
+                  color="tertiary"
+                />
+              </div>
+            </div>
+          {/if}
           {#if actionButton}
             <div class="flex w-full items-center justify-center gap-1">
-              <!-- {#if actionView}
-                <Button class="w-full" color="light" on:click={actionView}>
-                  <Typography
-                    preset="Text sm/Semibold"
-                    text={$_("viewDocument")}
-                    color="secondary"
+              {#if !folderMode}
+                <Button
+                  class="w-max h-max gap-1.5 p-2"
+                  color="light"
+                  on:click={handleFileUploadWrapper}
+                >
+                  <UploadFileIcon
+                    svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
                   />
+                  {$_("uploadMore")}
                 </Button>
-              {/if} -->
+              {/if}
               <Button
-                class="w-max h-max gap-1.5 p-2"
-                color="light"
-                on:click={handleFileUploadWrapper}
-              >
-                <UploadFileIcon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
-                {$_("uploadMore")}
-              </Button>
-              <Button
-                class="w-max h-max p-2"
+                class="{folderMode ? 'w-full' : 'w-max'} h-max p-2"
                 color="light"
                 on:click={() => (modalAllDocuments = true)}
               >
@@ -187,6 +200,8 @@ All Rights Reserved
             <img src={PNGSolidIcon} alt="" />
           {:else if file.name.includes(".csv") || file.name.includes(".CSV")}
             <img src={CSVIcon} alt="" />
+          {:else}
+            <img src={GoogleDriveIcon} alt="" />
           {/if}
           <div class="flex flex-col max-w-72 justify-center">
             <Typography
@@ -204,19 +219,23 @@ All Rights Reserved
         {#if actionButton}
           <div class="flex items-end justify-end gap-3">
             {#if multiple}
-              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}>{$_("uploadMore")}</Button>
+              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}
+                >{$_("uploadMore")}</Button
+              >
               {#if actionView}
                 <Button class="w-max h-max p-2" color="light" on:click={() => actionViewFile(file)}>
                   <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
                 </Button>
               {/if}
-            {:else}
-              {#if actionView}
-                <Button class="grow h-max gap-1 p-2" color="light" on:click={() => actionViewFile(file)}>
-                  <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-                  <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
-                </Button>
-              {/if}
+            {:else if actionView}
+              <Button
+                class="grow h-max gap-1 p-2"
+                color="light"
+                on:click={() => actionViewFile(file)}
+              >
+                <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
+              </Button>
             {/if}
             <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
               <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />

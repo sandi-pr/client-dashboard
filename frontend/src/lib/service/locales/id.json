@@ -1000,6 +1000,7 @@
   "networkResponseWasNotOk": "Respon jaringan tidak baik",
   "failedToFetchResource": "Gagal mengambil sumber daya",
   "preview": "Pratinjau",
+  "addFolder": "Tambahkan Folder",
   "enabled": "Diaktifkan",
   "enableInsights": "Aktifkan Insights",
   "enableInsightsDesc": "Aktifkan “Insights” fitur dan memaksa model AI lain untuk berhenti untuk optimalisasi.",

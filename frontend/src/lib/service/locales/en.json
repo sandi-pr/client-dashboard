@@ -1000,6 +1000,7 @@
   "networkResponseWasNotOk": "Network response was not OK.",
   "failedToFetchResource": "Failed to fetch resource.",
   "preview": "Preview",
+  "addFolder": "Add Folder",
   "enabled": "Enabled",
   "enableInsights": "Enable Insights",
   "enableInsightsDesc": "Turn on “Insights” feature and force other AI model to stop for optimalization.",
