@@ -358,6 +358,7 @@
       }
       return data;
     });
+    console.log("cek single", collectionListDatas);
   };
 
   const checkAll = () => {
@@ -1475,7 +1476,7 @@
                   // id
                 }}
                 disabled={!check("documentAi.documentLibrary.document:delete")}
-                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
+                class="p-2 md:px-3 md:py-2 gap-2 text-error-primary-light dark:text-error-primary-dark hover:text-error-primary-light dark:hover:text-error-primary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark"
                 outline
               >
                 <Trash01Icon svgClass="w-5 h-5" />

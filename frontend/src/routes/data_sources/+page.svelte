@@ -152,7 +152,10 @@ All Rights Reserved
 
   const handleInput = async (event) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    console.log("name", name);
+    const status = await checkLibraryName(name.trim(), libraryId, "collection");
+
+    console.log("status", status);
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
@@ -163,11 +166,13 @@ All Rights Reserved
     }
   };
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
     }
+
+    console.log("cek param", name + " parentId " + parentId + " type " + type);
 
     try {
       let resp = await $call.call("client-dashboard", "is-library-name-available", {
@@ -175,6 +180,8 @@ All Rights Reserved
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          document_type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,

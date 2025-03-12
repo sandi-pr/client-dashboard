@@ -573,7 +573,7 @@
           let newName = originalName;
 
           for (let i = 0; i < index; i++) {
-            let statusAvailable = await checkLibraryName(newName.trim());
+            let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
 
             if (statusAvailable === true) {
               break;
@@ -771,7 +771,7 @@
           // console.log("cek files", files[0]);
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim());
+            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -1282,7 +1282,7 @@
     }
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -1294,6 +1294,8 @@
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          document_type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -1353,9 +1355,9 @@
     }
   }
 
-  const handleInput = async (event) => {
+  const handleInput = async (event, parentId, type) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), parentId, type);
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
@@ -1813,7 +1815,7 @@
           onEdit={true}
           bind:value={tmpDocumentTitle}
           placeholder={$_("enterDocumentTitle")}
-          oninput={handleInput}
+          oninput={(event) => handleInput(event, collectionId, 'document')}
         />
         {#if !nameIsAvailable}
           <Helper color="red">
@@ -2027,7 +2029,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, collectionId, 'collection')}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}

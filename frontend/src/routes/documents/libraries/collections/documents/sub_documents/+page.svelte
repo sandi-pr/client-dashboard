@@ -117,7 +117,7 @@
       let response = await $call.call("client-dashboard", "get-library-collection", {
         URLQuery: {},
         URLParams: {
-          id: collectionId,
+          id: subCollectionId,
         },
         Params: {},
         Headers: {
@@ -391,7 +391,7 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim());
+                let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
 
                 if (statusAvailable === true) {
                   break;
@@ -441,7 +441,7 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim());
+              let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
 
               if (statusAvailable === true) {
                 break;
@@ -647,7 +647,7 @@
           tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim());
+            const status = await checkLibraryName(tmpDocumentTitle.trim(), subCollectionId, "document");
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -1035,7 +1035,7 @@
     console.log("selected collection", tmpSelectedCollection);
   };
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -1047,6 +1047,8 @@
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -1108,7 +1110,7 @@
 
   const handleInput = async (event) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), subCollectionId, "document");
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
@@ -1209,7 +1211,7 @@
                   // id
                 }}
                 disabled={!check("documentAi.documentLibrary.document:delete")}
-                class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
+                class="p-2 md:px-3 md:py-2 gap-2 text-error-primary-light dark:text-error-primary-dark hover:text-error-primary-light dark:hover:text-error-primary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark"
                 outline
               >
                 <Trash01Icon svgClass="w-5 h-5" />

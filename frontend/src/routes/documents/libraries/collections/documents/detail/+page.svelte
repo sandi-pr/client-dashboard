@@ -735,7 +735,7 @@ All Rights Reserved
     });
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -747,6 +747,8 @@ All Rights Reserved
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -797,7 +799,7 @@ All Rights Reserved
       base64 = null;
       pdfReady = false;
       await getDocument();
-      getUser();
+      // getUser();
       getLabels();
     });
     return () => unsubscribe();

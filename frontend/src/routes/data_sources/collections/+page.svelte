@@ -319,7 +319,7 @@
     }
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -331,6 +331,8 @@
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          document_type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -357,7 +359,7 @@
 
   const handleInput = async (event) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), libraryId, "collection");
 
     if (tmpOldName === name) {
       nameIsAvailable = true;

@@ -37,9 +37,8 @@
       .flat() || [];
 
   function checkTitle(title) {
-    console.log(libraryId, $bakrieLibraryId);
+    // console.log(libraryId, $bakrieLibraryId);
     if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
-      console.log(title);
       return (
         title === "Documents" ||
         title === "Images" ||
@@ -47,7 +46,7 @@
         title === "Handwriting"
       );
     } else {
-      console.log("false");
+      // console.log("false");
       return false;
     }
   }
@@ -95,23 +94,25 @@
 </script>
 
 <Card
-  class={`gap-2.5 justify-between !p-0 ${usedFor === "libraries_collections" ? "max-w-full" : ""}`}
+  class={`gap-2.5 justify-between !p-0 h-min ${usedFor === "libraries_collections" ? "max-w-full" : ""}`}
 >
   <div
-    class="flex justify-between px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
+    class="flex justify-between w-full px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
     <button
       disabled={!check("documentAi.documentLibrary:view")}
       onclick={funcDetailCollection}
-      class="flex items-center gap-3 grow"
+      class="flex items-center gap-3 w-full relative"
     >
       {#if usedFor === "libraries"}
-        <BookClosedIcon svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-        <div class="flex flex-col gap-1">
+        <div class="absolute left-0">
+          <BookClosedIcon svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+        </div>
+        <div class="flex flex-col gap-1 w-full pl-8 pr-5">
           <Typography
             preset="Text md/Semibold"
             text={collectionName}
-            propClass="line-clamp-1 md:line-clamp-2 fluid-sm"
+            propClass="line-clamp-1 fluid-sm overflow-hidden truncate text-ellipsis"
           />
           <!-- <Badge
             icon={getIconButton(status)}
@@ -121,8 +122,12 @@
           /> -->
         </div>
       {:else if usedFor === "libraries_collections"}
-        <Folder svgClass="w-5 h-5 text-quarterary-light dark:text-quarterary-dark" />
-        <Typography preset="Text sm/Semibold" color="secondary" text={collectionName} />
+        <div class="absolute left-0">
+          <Folder svgClass="text-quarterary-light dark:text-quarterary-dark" />
+        </div>
+        <div class="pl-8 pr-5">
+          <Typography preset="Text sm/Semibold" color="secondary" text={collectionName} propClass="line-clamp-1 overflow-hidden text-ellipsis" />
+        </div>
       {:else}
         <BookClosedIcon svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
         <div class="flex flex-col gap-1">
@@ -145,7 +150,7 @@
         <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
           <Button
             on:click={() => (dropdownOpen = !dropdownOpen)}
-            class="focus-within:ring-0 !p-0"
+            class="focus-within:ring-0 !p-0 absolute right-0"
             color="none"
             size="xs"
             ><DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" /></Button

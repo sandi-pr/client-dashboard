@@ -12,6 +12,25 @@
     selectedFile,
     audioUrl,
   } = $props();
+
+  let textarea = $state();
+
+  // Function to adjust the height of the textarea
+    function autosize() {
+    textarea.style.height = "auto"; // Reset height
+    textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scroll height
+
+    textarea.addEventListener("input", (e) => {
+      e.target.style.height = "auto";
+      e.target.style.height = `${e.target.scrollHeight}px`;
+    });
+  }
+
+  $effect(() => {
+    if (textarea) {
+      autosize();
+    }
+  });
 </script>
 
 <Modal bind:open={previewModal} size="lg">

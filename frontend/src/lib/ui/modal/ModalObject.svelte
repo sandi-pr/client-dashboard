@@ -32,6 +32,8 @@
     hasDocOrDocx = false,
     folderMode = false,
     maxDepth = 3,
+    createCollection = () => {},
+    collectionId = 1,
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -289,6 +291,35 @@
     },
   ];
 
+  const createCollectionByLinkGD = async () => {
+    files.forEach(async (folder) => {
+      // console.log("folder", folder);
+      // console.log("collectionId", collectionId);
+      const createdCollectionId = await createCollection({
+        collection_name: folder.folderName,
+        description: "",
+        parent_id: parseInt(collectionId),
+      });
+      // console.log(createdCollectionId);
+
+      for (let i = 0; i < folder.files.length; i++) {
+        folder.files[i].document_title = folder.files[i].name;
+      }
+
+      await addDocumentByCollection(folder.files, createdCollectionId);
+    });
+  };
+
+  let footerUploadCollection = [
+    {
+      button: {
+        text: "addNewCollection",
+        onClick: createCollectionByLinkGD,
+        buttonDisabled: true,
+      },
+    },
+  ];
+
   let footerLink = [
     {
       button: {
@@ -298,7 +329,7 @@
           let urlValid = await urlChecker(linkImportLink, limitation, maxDepth);
           if (urlValid) {
             linkChecked = true;
-            configModal.footer = footerUpload;
+            configModal.footer = !folderMode ? footerUpload : footerUploadCollection;
             configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = "";
             configModal.mainContent[3].text.text = $_("uploadDocuments");
           } else {

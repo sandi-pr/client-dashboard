@@ -110,14 +110,14 @@
               <Checkbox
                 checked={collectionListData.checked}
                 on:click={() => {
-                  // checkSingle(index);
+                  checkSingle(index);
                 }}
               />
             {:else}
               <Checkbox
                 checked={collectionListData.checked}
                 on:click={() => {
-                  // checkSingle(index);
+                  checkSingle(index);
                 }}
               />
             {/if}

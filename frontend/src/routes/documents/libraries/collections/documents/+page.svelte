@@ -39,7 +39,7 @@
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ModalFolder from "$lib/ui/modal/ModalFolder.svelte";
   
-  let collectionId;
+  let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
   let checkAllState = $state(false);
@@ -224,7 +224,7 @@
     }
   }
 
-  async function createCollection() {
+  async function createCollection(folderDataSend = null) {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -239,11 +239,13 @@
             bot_id: localStorage.getItem("botIdStrapi").toString(),
           };
         } else {
-          dataSend = {
-            collection_name: tmpCollectionName,
-            description: tmpDescription,
-            parent_id: parseInt(collectionId),
-          };
+          dataSend = !folderDataSend
+            ? {
+                collection_name: tmpCollectionName,
+                description: tmpDescription,
+                parent_id: parseInt(collectionId),
+              }
+            : folderDataSend;
         }
 
         let response = await $call.call("client-dashboard", "create-library-collection", {
@@ -282,6 +284,9 @@
 
         addCollectionModal = false;
         getCollections(true);
+        if (folderDataSend) {
+          return response?.result?.data?.id;
+        }
       } catch (error) {
         console.error("Error during sub collection creation:", error);
         triggerToast($_("failedCreateSubCollection"), true, "error");
@@ -349,7 +354,8 @@
 
   let audioUrl = $state(null);
 
-  async function addDocumentByCollection() {
+  async function addDocumentByCollection(folderFiles = null, parentId = null) {
+    let files = folderFiles || files;
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -433,7 +439,7 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim());
+                let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
 
                 if (statusAvailable === true) {
                   break;
@@ -448,9 +454,9 @@
               dataSend = {
                 document_name: files.length > 1 ? files[i].document_title : tmpDocumentTitle,
                 description: tmpDocumentDescription,
-                parent_id: parseInt(collectionId),
+                parent_id: !parentId ? parseInt(collectionId) : parseInt(parentId),
                 documents: JSON.stringify([files[i]]),
-                document_type: tmpDocumentType,
+                document_type: !folderFiles ? tmpDocumentType : files[i].type,
                 category: tags.join(","),
                 detected_text: response3.result.text,
                 result_trocr: JSON.stringify(response3.result),
@@ -487,7 +493,7 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim());
+              let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
 
               if (statusAvailable === true) {
                 break;
@@ -501,9 +507,8 @@
 
             dataSend = {
               document_name: files.length > 1 ? newName : tmpDocumentTitle,
-              // document_name: newName,
               description: tmpDocumentDescription,
-              parent_id: parseInt(collectionId),
+              parent_id: !parentId ? parseInt(collectionId) : parseInt(parentId),
               documents: JSON.stringify([files[i]]),
               document_type: tmpDocumentType,
               category: tags.join(","),
@@ -770,7 +775,7 @@
           // console.log("cek files", files[0]);
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim());
+            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -1374,7 +1379,7 @@
     }
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -1386,6 +1391,8 @@
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -1445,9 +1452,9 @@
     }
   }
 
-  const handleInput = async (event) => {
+  const handleInput = async (event, parentId = collectionId, type = "document") => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), parentId, type);
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
@@ -1942,6 +1949,10 @@
   {hasDocOrDocx}
   {folderMode}
   maxDepth={1}
+  {createCollection}
+  {collectionId}
+  {checkLibraryName}
+  {sendDocument}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>
@@ -2105,7 +2116,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, collectionId, 'collection')}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2134,7 +2145,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, collectionId, 'collection')}
         placeholder={$_("whatIsYourSubCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2192,7 +2203,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, libraryId, 'collection')}
         placeholder={$_("whatIsYourLibraryTitle")}
       />
       {#if !nameIsAvailable}

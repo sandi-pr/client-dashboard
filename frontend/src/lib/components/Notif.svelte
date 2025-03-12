@@ -1,7 +1,7 @@
 <script>
   import { Toast, Progressbar } from "flowbite-svelte";
   import InfoCircleIcon from "$lib/icon/info-circle.svelte";
-  import { notifications, Typography } from "$lib";
+  import { notifications, Typography, FeaturedIcon } from "$lib";
   import StarsIcon from "$lib/icon/stars-01.svelte";
 
   // function truncateText(text, maxWords) {
@@ -32,10 +32,10 @@
 
   function truncateTextByChars(text, maxChars) {
     if (text.length > maxChars) {
-      return text.slice(0, maxChars) + " ...";
+      return text.slice(0, maxChars) + "...";
     }
-  return text;
-}
+    return text;
+  }
 </script>
 
 <div class="static h-screen w-full bg-primary-light dark:bg-primary-dark">
@@ -48,6 +48,30 @@
           color="secondary"
           class="w-full text-center"
         />
+        <!-- <Toast
+          align={false}
+          dismissable={false}
+          divClass="w-full p-4 text-gray-500 bg-white shadow dark:text-gray-400 dark:bg-gray-800 gap-3"
+        >
+          <div class="flex w-full relative">
+            <div class="absolute left-0">
+              <FeaturedIcon classesSvg={StarsIcon} />
+            </div>
+            <div class="flex flex-col w-full pl-12">
+              <span class="font-semibold text-gray-900 dark:text-white">{truncateTextByChars("Reading SOP Assistant", 25)}</span>
+              <div class="mb-2 text-sm font-normal overflow-hidden text-ellipsis">
+                SOP_Stream_Simpanan_ASRS_032771e73c_7fd66b044aASRS_032771e73c_7fd66b044a
+              </div>
+              <div class="mt-1 gap-2">
+                <Progressbar
+                  progress={80}
+                  size="h-4"
+                  labelInside
+                />
+              </div>
+            </div>
+          </div>
+        </Toast> -->
       {:else}
         <!-- {#if $notifications.length < 1 || $notifications[0].attributes.type.includes("progress")}
           {#if !$notifications[0].attributes.content.includes("100")}

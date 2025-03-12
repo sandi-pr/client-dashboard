@@ -492,7 +492,7 @@
     }
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -504,6 +504,8 @@
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -528,9 +530,9 @@
     }
   };
 
-  const handleInput = async (event) => {
+  const handleInput = async (event, parentId, type) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), parentId, type);
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
@@ -1162,7 +1164,7 @@
         {/if}
 
         {#if tabDatas.selected === "My Collections" && collectionListDatas.length > 0}
-          <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+          <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-center gap-4 mt-4">
             {#each collectionListDatas as collection}
               <LibraryCard
                 collectionName={collection.collectionName}
@@ -1269,7 +1271,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, libraryId, 'collection')}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -1298,7 +1300,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, libraryId, 'collection')}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -1327,7 +1329,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
       <Input
         bind:value={tmpLibraryName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, 0, 'collection')}
         placeholder={$_("whatIsYourLibraryTitle")}
       />
       {#if !nameIsAvailable}

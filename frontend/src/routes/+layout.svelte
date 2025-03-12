@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://192.168.18.20")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -1216,12 +1216,14 @@ All Rights Reserved
   let coreModule = [
     {
       name_library: "Data Source List",
+      name_collection: "My Data Source",
       bot_name: "CSV Insights Bots",
       module_type: "insights",
       additional_prompt: "",
     },
     {
       name_library: "Voice Analyzer",
+      name_collection: "My Voice",
       bot_name: "Voice’s Assistant",
       module_type: "voice",
       additional_prompt:
@@ -1229,6 +1231,7 @@ All Rights Reserved
     },
     {
       name_library: "Handwriting Reader",
+      name_collection: "My Handwriting",
       bot_name: "Handwriting’s Assistant",
       module_type: "handwriting",
       additional_prompt:
@@ -1236,7 +1239,7 @@ All Rights Reserved
     },
   ];
 
-  async function createCoreModule(libraryName, botName, moduleType, additionalPrompt) {
+  async function createCoreModule(libraryName, collectionName, botName, moduleType, additionalPrompt) {
     let token = localStorage.getItem("token");
     if (token) {
       const response = await call.call("client-dashboard", "find-create-library-by-name", {
@@ -1259,6 +1262,25 @@ All Rights Reserved
         // console.log("11111111");
         return;
       }
+
+      const responseCollection = await call.call(
+        "client-dashboard",
+        "find-create-library-collection-by-name",
+        {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            parent_id: response.result.id,
+            collection_name: collectionName,
+            description: "This is a collection for " + libraryName,
+          },
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      localStorage.setItem("collectionId" + moduleType, responseCollection.result.id);
 
       // console.log("checked library" + libraryName, response);
       localStorage.setItem("libraryId" + moduleType, response.result.id);
@@ -1692,6 +1714,7 @@ All Rights Reserved
       // // console.log(1111);
       await createCoreModule(
         module.name_library,
+        module.name_collection,
         module.bot_name,
         module.module_type,
         module.additional_prompt,

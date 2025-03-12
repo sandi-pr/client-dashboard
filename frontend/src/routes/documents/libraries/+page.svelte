@@ -366,7 +366,7 @@ All Rights Reserved
     }
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -378,6 +378,8 @@ All Rights Reserved
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parentId ? parseInt(parentId) : 0,
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -404,7 +406,7 @@ All Rights Reserved
 
   const handleInput = async (event) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), 0, "library");
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
@@ -551,7 +553,7 @@ All Rights Reserved
             {#if datas.length > 0}
               {#if !gettingDatas}
                 <div
-                  class={`${$showAI || $showNotif ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
+                  class={`${$showAI || $showNotif ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} items-center gap-4`}
                 >
                   {#each datas as document}
                     <LibraryCard
