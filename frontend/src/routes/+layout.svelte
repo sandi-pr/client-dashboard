@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.20")
+    ? new CR3Call("https://tank.hexacode.ai")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -1239,7 +1239,13 @@ All Rights Reserved
     },
   ];
 
-  async function createCoreModule(libraryName, collectionName, botName, moduleType, additionalPrompt) {
+  async function createCoreModule(
+    libraryName,
+    collectionName,
+    botName,
+    moduleType,
+    additionalPrompt,
+  ) {
     let token = localStorage.getItem("token");
     if (token) {
       const response = await call.call("client-dashboard", "find-create-library-by-name", {

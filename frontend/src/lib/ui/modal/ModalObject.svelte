@@ -407,6 +407,7 @@
 
       if (isGoogleDrive && url.includes("/drive/folders/")) {
         await getFolderContents(fileId, {}, 1, maxDepth);
+        console.log("files", files);
         return true;
       } else {
         // Handle Google Drive file or other URL
@@ -446,10 +447,10 @@
   const getFolderContents = async (fileId, fileMetadata = {}, depth = 1, maxDepth = 3) => {
     if (depth > maxDepth) return;
 
-    // Fetch folder metadata
+    // Fetch folder metadata (optimized)
     let folderMetadata;
     if (!Object.keys(fileMetadata).length > 0) {
-      const folderMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+      const folderMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?fields=id,name,mimeType&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
       const folderMetadataResponse = await fetch(folderMetadataUrl);
       if (!folderMetadataResponse.ok) {
         throw new Error("Failed to fetch folder metadata");
@@ -460,23 +461,42 @@
     }
 
     // Handle Google Drive folder
-    const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${fileId}'+in+parents&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+    const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${fileId}'+in+parents&fields=files(id,name,mimeType)&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
     const folderResponse = await fetch(folderUrl);
     if (!folderResponse.ok) {
       throw new Error("Failed to fetch folder contents");
     }
     const folderData = await folderResponse.json();
     await processFolderContents(folderData.files, limitation, folderMetadata, depth, maxDepth);
+
+    // Create folder data object after processFolderContents
+    if (depth > 1) {
+      const folderDataObject = {
+        folderId: fileId[0],
+        folderName: folderMetadata.name,
+        files: [],
+      };
+      insertFileIntoHierarchy(
+        files,
+        folderDataObject,
+        {
+          id: folderMetadata.id,
+          name: folderMetadata.name,
+        },
+        depth,
+      );
+    }
   };
 
   const processFolderContents = async (files, limitation, metadata, depth = 1, maxDepth = 3) => {
     if (depth > maxDepth) return;
 
-    console.log("metadata", metadata);
+    console.log("folderData.files", files);
+
     for (const file of files) {
       if (file.mimeType !== "application/vnd.google-apps.folder") {
-        // Fetch file metadata
-        const fileMetadataUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+        // Fetch file metadata (optimized)
+        const fileMetadataUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?fields=id,name,mimeType&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
         const fileMetadataResponse = await fetch(fileMetadataUrl);
         if (!fileMetadataResponse.ok) {
           throw new Error("Failed to fetch file metadata");
@@ -502,7 +522,8 @@
           }
         }
       } else {
-        await getFolderContents(file.id, file, depth + 1, maxDepth);
+        // This is a folder.
+        await getFolderContents([file.id], file, depth + 1, maxDepth);
       }
     }
   };
@@ -526,28 +547,92 @@
       base64: base64data,
       ext: `.${fileType}`,
       type: getFileType(contentType),
-      // metadata: fileMetadata || {},
     };
-
     if (Object.keys(isFolder).length > 0) {
-      // console.log("isFolder", isFolder);
-      let tempFiles = [...files];
-      let currentLevel = tempFiles;
-
-      for (let i = 0; i < depth; i++) {
-        if (!currentLevel[0]?.files) {
-          currentLevel.push({ folderId: isFolder.id, folderName: isFolder.name, files: [] });
-        }
-        currentLevel = currentLevel[0].files;
-      }
-
-      currentLevel.push(fileData);
-      files = tempFiles;
-      // console.log("tempFiles", tempFiles);
+      insertFileIntoHierarchy(files, fileData, isFolder, depth);
     } else {
       files.push(fileData);
     }
-    // console.log("files", files);
+  };
+
+  const insertFileIntoHierarchy = (fileArray, fileData, folderInfo, depth) => {
+    if (depth <= 1) {
+      // Top-level folder or file
+      if (folderInfo && folderInfo.id) {
+        // Processing items inside a top-level folder
+        let existingFolder = fileArray.find((item) => item.folderId === folderInfo.id);
+
+        if (fileData.base64) {
+          // It's a file
+          if (existingFolder) {
+            existingFolder.files.push(fileData);
+          } else {
+            fileArray.push({
+              folderId: folderInfo.id,
+              folderName: folderInfo.name,
+              files: [fileData],
+            });
+          }
+        } else if (fileData.files) {
+          // It's a folder
+          if (!existingFolder) {
+            fileArray.push(fileData);
+          }
+        }
+      } else {
+        // Processing top-level files
+        fileArray.push(fileData);
+      }
+    } else {
+      // Nested folder or file
+      const parentFolder = findParentFolder(fileArray, folderInfo, depth - 1);
+      if (parentFolder) {
+        let existingFolder = parentFolder.files.find((item) => item.folderId === folderInfo.id);
+
+        if (fileData.base64) {
+          // It's a file
+          if (existingFolder) {
+            existingFolder.files.push(fileData);
+          } else {
+            parentFolder.files.push(fileData);
+          }
+        } else if (fileData.files) {
+          // It's a folder
+          if (!existingFolder) {
+            parentFolder.files.push(fileData);
+          }
+        }
+      }
+    }
+  };
+
+  const findParentFolder = (fileArray, folderInfo, depth) => {
+    if (depth <= 0) {
+      return fileArray.find((item) => item.folderId === folderInfo.id);
+    }
+
+    let currentArray = fileArray;
+    let parentFolder = null;
+
+    for (let i = 0; i < depth; i++) {
+      let found = false;
+      for (const item of currentArray) {
+        if (item.files) {
+          const foundItem = item.files.find((file) => file.folderId === folderInfo.id);
+          if (foundItem) {
+            parentFolder = item;
+            currentArray = item.files;
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found) {
+        return null;
+      }
+    }
+
+    return parentFolder;
   };
 
   const getFileType = (contentType) => {

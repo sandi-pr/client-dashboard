@@ -24,11 +24,7 @@
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
-  import {
-    SearchOutline,
-    ExclamationCircleSolid,
-    ArrowUpOutline,
-  } from "flowbite-svelte-icons";
+  import { SearchOutline, ExclamationCircleSolid, ArrowUpOutline } from "flowbite-svelte-icons";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
@@ -38,7 +34,7 @@
   import TabDetail from "$lib/components/TabDetail.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ModalFolder from "$lib/ui/modal/ModalFolder.svelte";
-  
+
   let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
@@ -359,10 +355,9 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-
-      if(groupedFiles != null) {
+      if (groupedFiles != null) {
         sendFolder();
-        return
+        return;
       }
 
       try {
@@ -439,7 +434,11 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
+                let statusAvailable = await checkLibraryName(
+                  newName.trim(),
+                  collectionId,
+                  "document",
+                );
 
                 if (statusAvailable === true) {
                   break;
@@ -493,7 +492,11 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
+              let statusAvailable = await checkLibraryName(
+                newName.trim(),
+                collectionId,
+                "document",
+              );
 
               if (statusAvailable === true) {
                 break;
@@ -668,7 +671,7 @@
 
   //#FUNCTION UNTUK TRIGGERTOAST DARI RESPONSE
   //TODO: BISA DIJADIKAN UTIL
-  function triggerToastResponse (response) {
+  function triggerToastResponse(response) {
     if (response.status !== 200) {
       console.log(response);
       if (response.status === 400) {
@@ -686,12 +689,12 @@
       }
       return false;
     }
-    return true
+    return true;
   }
 
   async function groupFilesByPath(files) {
     const structure = {};
-    console.log("masuk ke func group files")
+    console.log("masuk ke func group files");
 
     for (const file of files) {
       const parts = file.webkitRelativePath.split("/");
@@ -715,20 +718,18 @@
         size: formatBytes(file.size),
         ext: "." + file.name.split(".").pop(),
         base64: base64Data,
-        type: tmpDocumentType
+        type: tmpDocumentType,
       };
 
       structure[folderKey][fileName] = fileObject;
     }
 
-    console.log('structure::::::::::::')
-    console.log(structure)
-    return structure
-
+    console.log("structure::::::::::::");
+    console.log(structure);
+    return structure;
   }
 
   const handleFileUploadWrapper = (isFolder = false) => {
-
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.webkitdirectory = isFolder;
@@ -736,7 +737,7 @@
     inputElement.multiple = true;
     inputElement.replaceWith(inputElement.cloneNode(true));
 
-    inputElement.addEventListener("change", async (event) => {  
+    inputElement.addEventListener("change", async (event) => {
       if (isFolder) {
         groupedFiles = await groupFilesByPath(event.target.files);
         return;
@@ -775,7 +776,11 @@
           // console.log("cek files", files[0]);
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              collectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -798,7 +803,7 @@
 
   async function sendFolder() {
     triggerLoading(true);
-    var currentFolder = []
+    var currentFolder = [];
 
     // Buat Collection by Name Folder Dan Document
     for (var folder in groupedFiles) {
@@ -806,57 +811,56 @@
       var sub_folder;
       var main_folder;
 
-      if (folder.split('/').length > 1) {
-        main_folder = folder.split('/')[0].trim()
-        sub_folder = folder.split('/')[1].trim()
+      if (folder.split("/").length > 1) {
+        main_folder = folder.split("/")[0].trim();
+        sub_folder = folder.split("/")[1].trim();
 
         if (currentFolder.length) {
-          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder);
           if (finded) {
-            parent_id = finded.id
+            parent_id = finded.id;
           }
         }
       }
 
       dataSend = {
         collection_name: folder,
-        description: '',
+        description: "",
         parent_id: parseInt(collectionId),
       };
 
       if (sub_folder && parent_id) {
-        dataSend["collection_name"] = sub_folder
-        dataSend["parent_id"] = parseInt(parent_id)
+        dataSend["collection_name"] = sub_folder;
+        dataSend["parent_id"] = parseInt(parent_id);
       }
     }
 
     let token = localStorage.getItem("token");
-    let res = await $call.call(
-        "client-dashboard", "create-library-collection", {
-            URLQuery: {},
-            URLParams: {},
-            Params: dataSend,
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-        });
+    let res = await $call.call("client-dashboard", "create-library-collection", {
+      URLQuery: {},
+      URLParams: {},
+      Params: dataSend,
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
 
-    let statusRes = triggerToastResponse(res)
+    let statusRes = triggerToastResponse(res);
     if (!statusRes) {
       triggerLoading(false);
-      return
+      return;
     }
 
-    currentFolder.push(res.result.data)
-    files = groupedFiles[folder]
+    currentFolder.push(res.result.data);
+    files = groupedFiles[folder];
 
     if (!parent_id && !sub_folder) {
-      parent_id = res.result.data.id
+      parent_id = res.result.data.id;
     }
 
     for (const doc in files) {
       if (sub_folder && parent_id) {
-        files[doc].id = parent_id
+        files[doc].id = parent_id;
       }
 
       dataSend = {
@@ -873,14 +877,14 @@
         URLParams: {},
         Params: dataSend,
         Headers: {
-          Authorization: "Bearer " + token
+          Authorization: "Bearer " + token,
         },
       });
 
-      let statusResDoc = triggerToastResponse(resdoc)
+      let statusResDoc = triggerToastResponse(resdoc);
       if (!statusResDoc) {
         triggerLoading(false);
-        return
+        return;
       }
     }
 
@@ -1545,7 +1549,6 @@
       buttonDisabled = true;
     }
   });
-
 </script>
 
 <div class="top-element"></div>
@@ -1646,10 +1649,10 @@
                     dropdownUpload = false;
                     nameIsAvailable = true;
                   }}
-                  ><FolderPlusIcon
-                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("addSubCollection")}</button
                 >
+                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addSubCollection")}
+                </button>
                 <button
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
@@ -1657,10 +1660,10 @@
                     addFolderModal = true;
                     groupedFiles = null;
                   }}
-                  ><FolderPlusIcon
-                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("uploadCollection")}</button
                 >
+                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("uploadCollection")}
+                </button>
                 <button
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
@@ -1668,10 +1671,9 @@
                     addFolderModal = true;
                     groupedFiles = null;
                   }}
-                  ><FolderPlusIcon
-                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("uploadCollection")}</button
-                >
+                  ><FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("uploadCollection")}
+                </button>
                 <button
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
@@ -1699,10 +1701,10 @@
                     dropdownUpload = false;
                     nameIsAvailable = true;
                   }}
-                  ><FilePlus02Icon
-                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("addDocument")}</button
                 >
+                  <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addDocument")}
+                </button>
               </ul>
             </div>
             {#if !checkTitle(collectionDatas.title)}
@@ -1948,7 +1950,7 @@
   {fileNotSupport}
   {hasDocOrDocx}
   {folderMode}
-  maxDepth={1}
+  maxDepth={2}
   {createCollection}
   {collectionId}
   {checkLibraryName}
@@ -2116,7 +2118,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, collectionId, 'collection')}
+        on:input={(event) => handleInput(event, collectionId, "collection")}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2145,7 +2147,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, collectionId, 'collection')}
+        on:input={(event) => handleInput(event, collectionId, "collection")}
         placeholder={$_("whatIsYourSubCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2203,7 +2205,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
         placeholder={$_("whatIsYourLibraryTitle")}
       />
       {#if !nameIsAvailable}
