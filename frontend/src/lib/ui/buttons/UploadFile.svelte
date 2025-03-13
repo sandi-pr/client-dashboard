@@ -146,7 +146,7 @@ All Rights Reserved
                 <GoogleDriveIcon
                   class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
                 />
-                <Typography preset="Text sm/Medium" text={files[0].folderName} color="primary" />
+                <Typography preset="Text sm/Medium" text={files[0].name} color="primary" />
               </div>
               <div>
                 <Typography
