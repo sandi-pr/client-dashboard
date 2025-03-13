@@ -298,14 +298,17 @@
       // console.log("folder", folder);
       // console.log("collectionId", collectionId);
       const createdCollectionId = await createCollection({
-        collection_name: folder.folderName,
+        collection_name: folder.name,
         description: "",
         parent_id: parseInt(collectionId),
       });
       // console.log(createdCollectionId);
 
+      let randomString = Math.random().toString(36).substring(7);
+
       for (let i = 0; i < folder.files.length; i++) {
-        folder.files[i].document_title = folder.files[i].name;
+        folder.files[i].name =
+          folder.files[i].name.split(".")[0] + "-" + randomString + folder.files[i].ext;
       }
 
       await addDocumentByCollection(folder.files, createdCollectionId);
