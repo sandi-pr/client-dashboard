@@ -1,7 +1,7 @@
 <script>
   import { _ } from "svelte-i18n";
   import MultiSelect from "svelte-multiselect";
-  import { Typography, UploadFile, InputRw, FeaturedIcon, getIcons } from "$lib";
+  import { Typography, UploadFile, InputRw, FeaturedIcon, getIcons, UploadFolder } from "$lib";
   import { Modal, Button, Alert, Helper } from "flowbite-svelte";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
   import TabDetail from "$lib/components/TabDetail.svelte";
@@ -10,7 +10,7 @@
     addDocumentsModal = $bindable(false),
     nameIsAvailable = $bindable(true),
     selectedTypeCollection,
-    files = $bindable([]),
+    files,
     alltags,
     tags,
     isProcess,
@@ -24,6 +24,8 @@
     buttonDisabled = $bindable(true),
     addDocumentByCollection,
     actionDelete,
+    isFolder,
+    groupedFiles,
   } = $props();
 
   let tabDatas = $state({
@@ -69,17 +71,18 @@
       <InputRw onEdit={false} value={selectedTypeCollection} />
     </div>
     {#if tabDatas.selected === "Upload"}
-      <UploadFile
-        title={$_("uploadDocuments")}
-        handleFileUploadWrapper={() => handleFileUploadWrapper(true)}
-        file={files[0]}
-        {files}
-        bind:isProcess
-        multiple={true}
-        actionButton={true}
-        actionView={true}
-        {actionDelete}
-      />
+      {#if isFolder}
+        <UploadFolder
+          title={$_("uploadDocuments")}
+          handleFileUploadWrapper={() => handleFileUploadWrapper(isFolder=true)}
+          files = {groupedFiles}
+          bind:isProcess
+          multiple={true}
+          actionButton={true}
+          actionView={true}
+          {actionDelete}
+        />
+      {/if}
       {#if fileNotSupport}
         <Alert color="red">
           <InfoCircleSolid slot="icon" class="w-5 h-5" />
