@@ -548,10 +548,6 @@
     dropdownOpen = false;
   };
 
-  async function buildLimitedNestedFolderStructure(filesSelect, tmpDocumentDescription, tmpDocumentType) {
-}
-
-
   async function groupFilesByPath(files) {
     const structure = {};
     console.log("masuk ke func group files")
@@ -722,7 +718,7 @@
 
         // Buat Collection by Name Folder Dan Document
         groupedFiles = await groupFilesByPath(event.target.files);
-        return;
+        return groupedFiles;
       }
 
       const filesSelect = event.target.files;
@@ -1383,8 +1379,11 @@
 <ModalFolder
   bind:addDocumentsModal={addFolderModal}
   bind:nameIsAvailable
-  {selectedTypeCollection}
   bind:files
+  bind:buttonDisabled
+  bind:groupedFiles
+
+  {selectedTypeCollection}
   {alltags}
   {tags}
   {isProcess}
@@ -1394,7 +1393,8 @@
   {tmpDocumentTitle}
   {tmpDocumentDescription}
   {handleInput}
-  bind:buttonDisabled
   {addDocumentByCollection}
+
+  isFolder = {true}
   actionDelete={() => (files = [])}
 />

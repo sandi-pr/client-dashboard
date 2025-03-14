@@ -14,6 +14,7 @@ export { default as TextareaRw } from "$lib/ui/inputs/TextareaRw.svelte";
 export { default as Button } from "$lib/ui/buttons/Button.svelte";
 export { default as TextButton } from "$lib/ui/buttons/TextButton.svelte";
 export { default as UploadFile } from "$lib/ui/buttons/UploadFile.svelte";
+export { default as UploadFolder } from "$lib/ui/buttons/UploadFolder.svelte";
 export { default as DocumentProject } from "$lib/ui/cards/DocumentProject.svelte";
 export { default as Dropdown } from "$lib/ui/buttons/Dropdown.svelte";
 export { default as Sidebar } from "$lib/ui/sidebar/Sidebar.svelte";

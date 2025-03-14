@@ -694,16 +694,22 @@
 
   async function groupFilesByPath(files) {
     const structure = {};
-    console.log("masuk ke func group files");
 
     for (const file of files) {
       const parts = file.webkitRelativePath.split("/");
+      if (parts.length > 2) {
+        continue
+      }
       const fileName = parts.pop();
       const base64Data = await readFileAsBase64(file);
 
       // 0, 1 Sub Folder
       let folderKey = parts.slice(0, 1).join("/");
       if (!folderKey) folderKey = "root";
+
+      if (parts.length > 2) {
+        continue
+      }
 
       if (!structure[folderKey]) {
         structure[folderKey] = {};
@@ -723,10 +729,8 @@
 
       structure[folderKey][fileName] = fileObject;
     }
+    return structure
 
-    console.log("structure::::::::::::");
-    console.log(structure);
-    return structure;
   }
 
   const handleFileUploadWrapper = (isFolder = false) => {
@@ -1920,8 +1924,11 @@
 <ModalFolder
   bind:addDocumentsModal={addFolderModal}
   bind:nameIsAvailable
-  {selectedTypeCollection}
   bind:files
+  bind:buttonDisabled
+  bind:groupedFiles
+
+  {selectedTypeCollection}
   {alltags}
   {tags}
   {isProcess}
@@ -1931,8 +1938,9 @@
   {tmpDocumentTitle}
   {tmpDocumentDescription}
   {handleInput}
-  bind:buttonDisabled
   {addDocumentByCollection}
+
+  isFolder={true}
   actionDelete={() => (files = [])}
 />
 
