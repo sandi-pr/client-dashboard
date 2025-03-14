@@ -115,7 +115,7 @@
       console.log("Received WebSocket message:", event.data);
       const data = JSON.parse(event.data);
 
-      if (data?.file_detail) {
+      if (data?.file_detail && data.file_detail.name !== "" && data.file_detail.local_path !== "") {
         fileDetail = data.file_detail;
         // console.log("fileDetail", fileDetail);
       }
