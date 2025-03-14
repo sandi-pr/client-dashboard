@@ -294,25 +294,43 @@
   ];
 
   const createCollectionByLinkGD = async () => {
-    files.forEach(async (folder) => {
-      // console.log("folder", folder);
-      // console.log("collectionId", collectionId);
-      const createdCollectionId = await createCollection({
-        collection_name: folder.name,
-        description: "",
-        parent_id: parseInt(collectionId),
-      });
-      // console.log(createdCollectionId);
+    const processFolder = async (folder, parentId) => {
+      try {
+        const createdCollectionId = await createCollection({
+          collection_name: folder.name,
+          description: "",
+          parent_id: parseInt(parentId),
+        });
 
-      let randomString = Math.random().toString(36).substring(7);
+        let randomString = Math.random().toString(36).substring(7);
 
-      for (let i = 0; i < folder.files.length; i++) {
-        folder.files[i].name =
-          folder.files[i].name.split(".")[0] + "-" + randomString + folder.files[i].ext;
+        for (let i = 0; i < folder.files.length; i++) {
+          if (folder.files[i].files) {
+            await processFolder(folder.files[i], createdCollectionId);
+          } else {
+            folder.files[i].name =
+              folder.files[i].name.split(".")[0] + "-" + randomString + folder.files[i].ext;
+          }
+        }
+
+        const filesToUpload = folder.files.filter((file) => !file.files);
+        if (filesToUpload.length > 0) {
+          await addDocumentByCollection(filesToUpload, createdCollectionId);
+        }
+      } catch (error) {
+        console.error(`Error processing folder ${folder.name}:`, error);
+        // Handle the error appropriately, e.g., show an alert or notification
       }
+    };
 
-      await addDocumentByCollection(folder.files, createdCollectionId);
-    });
+    try {
+      for (const folder of files) {
+        await processFolder(folder, collectionId);
+      }
+    } catch (error) {
+      console.error("Error creating collections by link:", error);
+      // Handle the error appropriately, e.g., show an alert or notification
+    }
   };
 
   let footerUploadCollection = [
