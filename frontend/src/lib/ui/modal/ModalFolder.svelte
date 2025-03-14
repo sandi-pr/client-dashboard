@@ -10,7 +10,7 @@
     addDocumentsModal = $bindable(false),
     nameIsAvailable = $bindable(true),
     selectedTypeCollection,
-    files,
+    files = $bindable([]),
     alltags,
     tags,
     isProcess,
@@ -25,7 +25,7 @@
     addDocumentByCollection,
     actionDelete,
     isFolder,
-    groupedFiles,
+    groupedFiles = $bindable(null),
   } = $props();
 
   let tabDatas = $state({

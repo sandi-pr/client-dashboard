@@ -58,7 +58,7 @@
   let buttonDisabled = $state(true);
   let gettingDatas = $state(false);
   let gettingDocs = $state(false);
-  let buttonDisabledCheckAction = $state(false);
+  let buttonDisabledCheckAction = $state(true);
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let tmpDocumentTitle = $state("");
@@ -702,42 +702,71 @@
   async function groupFilesByPath(files) {
     const structure = {};
 
+    const fileTypeRegex = new RegExp(
+      acceptedFileTypes
+        .split(",")
+        .map((type) => type.trim().replace(".", "\\."))
+        .join("|") + "$",
+      "i",
+    );
+
     for (const file of files) {
-      const parts = file.webkitRelativePath.split("/");
-      if (parts.length > 2) {
-        continue
+      if (file && fileTypeRegex.test(file.name)) {
+        const parts = file.webkitRelativePath.split("/");
+        if (parts.length > 2) {
+          continue
+        }
+        const fileName = parts.pop();
+        const base64Data = await readFileAsBase64(file);
+
+        // 0, 1 Sub Folder
+        let folderKey = parts.slice(0, 1).join("/");
+        if (!folderKey) folderKey = "root";
+
+        if (parts.length > 2) {
+          continue
+        }
+
+        if (!structure[folderKey]) {
+          structure[folderKey] = {};
+        }
+
+        const fileObject = {
+          id: Object.keys(structure[folderKey]).length + 1,
+          name: file.name,
+          path: file.webkitRelativePath || file.name,
+          document_title: file.name,
+          description: tmpDocumentDescription,
+          size: formatBytes(file.size),
+          ext: "." + file.name.split(".").pop(),
+          base64: base64Data,
+          type: tmpDocumentType,
+        };
+
+        structure[folderKey][fileName] = fileObject;
       }
-      const fileName = parts.pop();
-      const base64Data = await readFileAsBase64(file);
-
-      // 0, 1 Sub Folder
-      let folderKey = parts.slice(0, 1).join("/");
-      if (!folderKey) folderKey = "root";
-
-      if (parts.length > 2) {
-        continue
-      }
-
-      if (!structure[folderKey]) {
-        structure[folderKey] = {};
-      }
-
-      const fileObject = {
-        id: Object.keys(structure[folderKey]).length + 1,
-        name: file.name,
-        path: file.webkitRelativePath || file.name,
-        document_title: file.name,
-        description: tmpDocumentDescription,
-        size: formatBytes(file.size),
-        ext: "." + file.name.split(".").pop(),
-        base64: base64Data,
-        type: tmpDocumentType,
-      };
-
-      structure[folderKey][fileName] = fileObject;
     }
     return structure
 
+  }
+
+  const checkNewName = async (name, parentId, type) => {
+    let index = 1;
+    let originalName = name;
+    let newName = originalName;
+
+    for (let i = 0; i < index; i++) {
+      let statusAvailable = await checkLibraryName(newName.trim(), parentId, type);
+
+      if (statusAvailable === true) {
+        break;
+      } else {
+        newName = `${originalName}(${index})`;
+        index++;
+      }
+    }
+    
+    return newName;
   }
 
   const handleFileUploadWrapper = (isFolder = false) => {
@@ -834,8 +863,10 @@
         }
       }
 
+      let newName = await checkNewName(folder, collectionId, "collection");
+
       dataSend = {
-        collection_name: folder,
+        collection_name: newName,
         description: "",
         parent_id: parseInt(collectionId),
       };
@@ -902,6 +933,8 @@
     addFolderModal = false;
     getCollections(true);
     triggerLoading(false);
+
+    triggerToast($_("succesfullyUploaded"), true);
   }
 
   async function readFileAsBase64(file) {
@@ -1547,9 +1580,9 @@
 
   $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
+    buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
     if (files.length > 0) {
       hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
-      buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
       buttonDisabled =
         files.length === 0 || files.length === 1
           ? tmpDocumentTitle === "" || !nameIsAvailable

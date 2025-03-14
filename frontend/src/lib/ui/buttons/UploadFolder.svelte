@@ -11,18 +11,20 @@ All Rights Reserved
   import { Button, Avatar, Indicator, Modal } from "flowbite-svelte";
   import { Typography } from "$lib";
   import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
-  import FolderTypeIcon from "$lib/icon/folder-type.svg";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
-  import FolderSolidIcon from "$lib/icon/folder.svg";
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
   import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import MP3SolidIcon from "$lib/icon/MP3Solid.svg";
+  import CSVSolidIcon from "$lib/icon/CSVSolid.svg";
   import CSVIcon from "$lib/icon/csv.svg";
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import EyeIcon from "$lib/icon/eye.svelte";
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
+  import FolderSolidIcon from "$lib/icon/folder-solid.svelte";
+  import FolderSolid from "$lib/icon/folder-solid.svelte";
 
   let {
     title,
@@ -46,6 +48,7 @@ All Rights Reserved
   let modalAllDocuments = $state(false);
   let previewModal = $state(false);
   let selectedFile = $state(null);
+  let folderName = $state("");
 
   const textFileType = (type) => {
     if (type === "document") {
@@ -87,6 +90,8 @@ All Rights Reserved
     }
 
     for (const folder in files) {
+      const parts = folder.split("/");
+      folderName = parts[0];
       let _folder = files[folder]
       for (const f in _folder) {
         tmpFiles.push(_folder[f])
@@ -153,22 +158,23 @@ All Rights Reserved
     <div
       class={`flex ${isFlex ? "flex-row items-center justify-between" : "flex-col"} gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark`}
     >
-      {#if tmpFiles.length > 1}
+      {#if tmpFiles}
         <div class="flex flex-col gap-2 grow items-center justify-center">
-          <div class="relative">
-            <img src={FolderTypeIcon} alt="" class="w-16 h-16" />
-            <Indicator border size="xl" color="purple" placement="center-right">
-              <span class="text-white text-xs font-bold">{tmpFiles.length}</span>
-            </Indicator>
+          <div class="flex items-center justify-between w-full relative">
+            <div class="flex items-center gap-3">
+              <FolderSolid svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+              <Typography preset="Text md/Medium" text={folderName} color="primary" />
+            </div>
+            <Typography preset="Text sm/Semibold" text={`${tmpFiles.length} ${$_("files")}`} color="primary" />
           </div>
           {#if actionButton}
             <div class="flex w-full items-center justify-center gap-1">
               <Button
-                class="w-max h-max p-2"
+                class="w-full h-max p-2"
                 color="light"
                 on:click={() => (modalAllDocuments = true)}
               >
-                {$_("viewAll")}
+                {$_("previewCollection")}
               </Button>
               <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
                 <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
@@ -177,35 +183,6 @@ All Rights Reserved
           {/if}
         </div>
       {:else if !isProcess}
-        <div class="flex items-center justify-start gap-3">
-          {#if file.name.includes(".pdf") || file.name.includes(".PDF")}
-            <img src={PDFSolidIcon} alt="" />
-          {:else if file.name.includes(".docx") || file.name.includes(".DOCX")}
-            <img src={DOCXSolidIcon} alt="" />
-          {:else if file.name.includes(".doc") || file.name.includes(".DOC")}
-            <img src={DOCSolidIcon} alt="" />
-          {:else if file.name.includes(".jpg") || file.name.includes(".JPG")}
-            <img src={JPGSolidIcon} alt="" />
-          {:else if file.name.includes(".jpeg") || file.name.includes(".JPEG")}
-            <img src={JPEGSolidIcon} alt="" />
-          {:else if file.name.includes(".png") || file.name.includes(".PNG")}
-            <img src={PNGSolidIcon} alt="" />
-          {:else if file.name.includes(".csv") || file.name.includes(".CSV")}
-            <img src={CSVIcon} alt="" />
-          {/if}
-          <div class="flex flex-col max-w-72 justify-center">
-            <Typography
-              preset="Text sm/Semibold"
-              propClass="truncate"
-              text={file.name}
-              color="secondary"
-            />
-            <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
-            {#if status !== ""}
-              <Typography preset="Text sm/Regular" text={`status: ${status}`} color="secondary" />
-            {/if}
-          </div>
-        </div>
         {#if actionButton}
           <div class="flex items-end justify-end gap-3">
             {#if multiple}
@@ -240,7 +217,7 @@ All Rights Reserved
     {#each Object.entries(files) as [pathFolder, folder]}
       {#if pathFolder.split('/').length > 1}
         <div class="flex items-center justify-start gap-3">
-          <img src={FolderSolidIcon} alt="" class="w-10"/>
+          <FolderSolid svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
           <div class="flex flex-col max-w-72 justify-center">
             <Typography
               preset="Text sm/Semibold"
@@ -266,6 +243,10 @@ All Rights Reserved
               <img src={JPEGSolidIcon} alt="" />
             {:else if file.name.includes(".png") || file.name.includes(".PNG")}
               <img src={PNGSolidIcon} alt="" />
+            {:else if file.name.includes(".mp3") || file.name.includes(".MP3")}
+              <img src={MP3SolidIcon} alt="" />
+            {:else if file.name.includes(".csv") || file.name.includes(".CSV")}
+              <img src={CSVIcon} alt="" />
             {/if}
             <div class="flex flex-col max-w-72 justify-center">
               <Typography

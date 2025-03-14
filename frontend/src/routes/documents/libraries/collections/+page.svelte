@@ -543,6 +543,25 @@
     }
   };
 
+  const checkNewName = async (name, parentId, type) => {
+    let index = 1;
+    let originalName = name;
+    let newName = originalName;
+
+    for (let i = 0; i < index; i++) {
+      let statusAvailable = await checkLibraryName(newName.trim(), parentId, type);
+
+      if (statusAvailable === true) {
+        break;
+      } else {
+        newName = `${originalName}(${index})`;
+        index++;
+      }
+    }
+    
+    return newName;
+  }
+
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
     dropdownOpen = false;
@@ -550,37 +569,44 @@
 
   async function groupFilesByPath(files) {
     const structure = {};
-    console.log("masuk ke func group files")
+
+    const fileTypeRegex = new RegExp(
+      acceptedFileTypes
+        .split(",")
+        .map((type) => type.trim().replace(".", "\\."))
+        .join("|") + "$",
+      "i",
+    );
 
     for (const file of files) {
-      const parts = file.webkitRelativePath.split("/");
-      const fileName = parts.pop();
-      const base64Data = await readFileAsBase64(file);
+      if (file && fileTypeRegex.test(file.name)) {
+        const parts = file.webkitRelativePath.split("/");
+        const fileName = parts.pop();
+        const base64Data = await readFileAsBase64(file);
 
-      let folderKey = parts.slice(0, 2).join("/");
-      if (!folderKey) folderKey = "root";
+        let folderKey = parts.slice(0, 2).join("/");
+        if (!folderKey) folderKey = "root";
 
-      if (!structure[folderKey]) {
-        structure[folderKey] = {};
+        if (!structure[folderKey]) {
+          structure[folderKey] = {};
+        }
+
+        const fileObject = {
+          id: Object.keys(structure[folderKey]).length + 1,
+          name: file.name,
+          path: file.webkitRelativePath || file.name,
+          document_title: file.name,
+          description: tmpDocumentDescription,
+          size: formatBytes(file.size),
+          ext: "." + file.name.split(".").pop(),
+          base64: base64Data,
+          type: tmpDocumentType
+        };
+
+        structure[folderKey][fileName] = fileObject;
       }
-
-      const fileObject = {
-        id: Object.keys(structure[folderKey]).length + 1,
-        name: file.name,
-        path: file.webkitRelativePath || file.name,
-        document_title: file.name,
-        description: tmpDocumentDescription,
-        size: formatBytes(file.size),
-        ext: "." + file.name.split(".").pop(),
-        base64: base64Data,
-        type: tmpDocumentType
-      };
-
-      structure[folderKey][fileName] = fileObject;
     }
 
-    console.log('structure::::::::::::')
-    console.log(structure)
     return structure
 
   }
@@ -606,8 +632,10 @@
         }
       }
 
+      let newName = await checkNewName(folder, libraryId, "collection");
+
       dataSend = {
-        collection_name: folder,
+        collection_name: newName,
         description: '',
         parent_id: parseInt(libraryId),
       };
@@ -675,6 +703,8 @@
     addFolderModal = false;
     getCollections();
     triggerLoading(false);
+
+    triggerToast($_("succesfullyUploaded"), true);
 
   }
 
@@ -1081,6 +1111,7 @@
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
+                    dropdownUpload = false;
                     addCollectionModal = true;
                     nameIsAvailable = true;
                     tmpCollectionName = "";

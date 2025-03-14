@@ -1005,5 +1005,6 @@
   "enableInsights": "Enable Insights",
   "enableInsightsDesc": "Turn on “Insights” feature and force other AI model to stop for optimalization.",
   "uploadCollection": "Upload Collection",
-  "descUploadCollection": "Effortlessly Add Entire Collections of Documents"
+  "descUploadCollection": "Effortlessly Add Entire Collections of Documents",
+  "previewCollection": "Preview Collection"
 }

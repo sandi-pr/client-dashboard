@@ -1,55 +1,45 @@
 <script>
-  import { onMount, tick } from "svelte";
+  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, Alert, Select, P, Helper, Card } from "flowbite-svelte";
+  import { Button, Modal, Input, P, Helper, Card } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import { format, parse } from "date-fns";
+  import { format } from "date-fns";
 
   import {
     Typography,
     ToastContainer,
     StateCard,
     call,
-    InputRw,
-    TextareaRw,
     triggerToast,
     triggerLoading,
-    UploadFile,
     check,
-    onProgress,
     Divider,
-    SectionHeader,
     bakrieLibraryId,
     LibraryCard,
     isBakrie,
     ModalObject,
+    ModalFolder,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
   import {
     SearchOutline,
     ExclamationCircleSolid,
-    ChevronDownOutline,
-    InfoCircleSolid,
     ArrowUpOutline,
   } from "flowbite-svelte-icons";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
-  import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import PenToolPlusIcon from "$lib/icon/pen-tool-plus.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
-  import MultiSelect from "svelte-multiselect";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  import { get } from "svelte/store";
-
-  let collectionId;
+  
+  let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
   let checkAllState = $state(false);
@@ -69,7 +59,7 @@
   let buttonDisabled = $state(false);
   let gettingDatas = $state(false);
   let gettingDocs = $state(false);
-  let buttonDisabledCheckAction = $state(false);
+  let buttonDisabledCheckAction = $state(true);
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let tmpDocumentTitle = $state("");
@@ -100,6 +90,9 @@
       },
     ],
   });
+
+  let groupedFiles = $state({});
+  let addFolderModal = $state(false);
 
   let collectionDatas = $state({
     title: "",
@@ -410,6 +403,11 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      if(groupedFiles != null) {
+        sendFolder();
+        return
+      }
+
       try {
         addDocumentsModal = false;
         triggerLoading(true);
@@ -484,7 +482,7 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim());
+                let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
 
                 if (statusAvailable === true) {
                   break;
@@ -534,7 +532,7 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim());
+              let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
 
               if (statusAvailable === true) {
                 break;
@@ -705,13 +703,29 @@
     }
   });
 
-  const handleFileUploadWrapper = () => {
+  $effect(() => {
+    if (groupedFiles != null) {
+      buttonDisabled = false;
+    } else {
+      buttonDisabled = true;
+    }
+  });
+
+  const handleFileUploadWrapper = (isFolder = false) => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
+    inputElement.webkitdirectory = isFolder;
     inputElement.accept = acceptedFileTypes;
     inputElement.multiple = true;
 
     inputElement.addEventListener("change", async (event) => {
+      if (isFolder) {
+
+        // Buat Collection by Name Folder Dan Document
+        groupedFiles = await groupFilesByPath(event.target.files);
+        return;
+      }
+
       const filesSelect = event.target.files;
 
       const fileTypeRegex = new RegExp(
@@ -745,7 +759,7 @@
           // console.log("cek files", files[0]);
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim());
+            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -765,6 +779,28 @@
     });
     inputElement.click();
   };
+
+  //#FUNCTION UNTUK TRIGGERTOAST DARI RESPONSE
+  function triggerToastResponse (response) {
+    if (response.status !== 200) {
+      console.log(response);
+      if (response.status === 400) {
+        console.error("Invalid parameters:", response);
+        triggerToast($_("invalidParameters"), true, "error");
+      } else if (response.status === 401) {
+        console.error("Unauthorized access:", response);
+        triggerToast($_("unauthorized"), true, "error");
+      } else if (response.status === 500) {
+        console.error("Server error:", response);
+        triggerToast($_("serverError"), true, "error");
+      } else {
+        console.error("Unexpected status code:", response);
+        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+      }
+      return false;
+    }
+    return true
+  }
 
   async function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
@@ -1256,7 +1292,7 @@
     }
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -1268,6 +1304,8 @@
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -1327,9 +1365,9 @@
     }
   }
 
-  const handleInput = async (event) => {
+  const handleInput = async (event, parentId = collectionId, type = "document") => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), parentId, type);
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
@@ -1372,6 +1410,220 @@
     dropdownMore = false;
   };
 
+  async function groupFilesByPath(files) {
+    const structure = {};
+
+    const fileTypeRegex = new RegExp(
+      acceptedFileTypes
+        .split(",")
+        .map((type) => type.trim().replace(".", "\\."))
+        .join("|") + "$",
+      "i",
+    );
+
+    for (const file of files) {
+      if (file && fileTypeRegex.test(file.name)) {
+        const parts = file.webkitRelativePath.split("/");
+        if (parts.length > 2) {
+          continue
+        }
+        const fileName = parts.pop();
+        const base64Data = await readFileAsBase64(file);
+
+        let folderKey = parts.slice(0, 1).join("/");
+        if (!folderKey) folderKey = "root";
+        
+        if (parts.length > 2) {
+          continue
+        }
+
+        if (!structure[folderKey]) {
+          structure[folderKey] = {};
+        }
+
+        const fileObject = {
+          id: Object.keys(structure[folderKey]).length + 1,
+          name: file.name,
+          path: file.webkitRelativePath || file.name,
+          document_title: file.name,
+          description: tmpDocumentDescription,
+          size: formatBytes(file.size),
+          ext: "." + file.name.split(".").pop(),
+          base64: base64Data,
+          type: tmpDocumentType
+        };
+
+        structure[folderKey][fileName] = fileObject;
+      }
+    }
+
+    return structure
+
+  }
+
+  const checkNewName = async (name, parentId, type) => {
+    let index = 1;
+    let originalName = name;
+    let newName = originalName;
+
+    for (let i = 0; i < index; i++) {
+      let statusAvailable = await checkLibraryName(newName.trim(), parentId, type);
+
+      if (statusAvailable === true) {
+        break;
+      } else {
+        newName = `${originalName}(${index})`;
+        index++;
+      }
+    }
+    
+    return newName;
+  }
+
+  async function sendFolder () {
+    triggerLoading(true);
+    var currentFolder = []
+
+    for (var folder in groupedFiles) {
+      var parent_id;
+      var sub_folder;
+      var main_folder;
+
+      if (folder.split('/').length > 1) {
+        main_folder = folder.split('/')[0].trim()
+        sub_folder = folder.split('/')[1].trim()
+
+        if (currentFolder.length) {
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          if (finded) {
+            parent_id = finded.id
+          }
+        }
+      }
+
+      let newName = await checkNewName(folder, collectionId, "collection");
+
+      dataSend = {
+        collection_name: newName,
+        description: '',
+        parent_id: parseInt(collectionId),
+      };
+
+      if (sub_folder && parent_id) {
+        dataSend["collection_name"] = sub_folder
+        dataSend["parent_id"] = parseInt(parent_id)
+      }
+
+      let token = localStorage.getItem("token");
+      let res = await $call.call(
+          "client-dashboard", "create-library-collection", {
+              URLQuery: {},
+              URLParams: {},
+              Params: dataSend,
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+          });
+
+      let statusRes = triggerToastResponse(res)
+      if (!statusRes) {
+        triggerLoading(false);
+        return
+      }
+
+      currentFolder.push(res.result.data)
+      files = groupedFiles[folder]
+
+      if (!parent_id && !sub_folder) {
+        parent_id = res.result.data.id
+      }
+
+      for (const doc in files) {
+        if (sub_folder && parent_id) {
+          files[doc].id = parent_id
+        }
+
+        let response3;
+        response3 = await $call.call("hexa-ai-rag", "trocr-predict", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            image: files[doc].base64,
+            model:
+              tmpDocumentType === "Document Images"
+                ? "trocr:base"
+                : sessionStorage.getItem("model_trocr"),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        let statusDetectedDoc = triggerToastResponse(response3);
+        if (!statusDetectedDoc) {
+          // triggerLoading(false);
+          return
+        }
+
+        if (response3?.result?.text !== null) {
+          let index = 1;
+          let originalName = files[doc].name.split(".").slice(0, -1).join(".");
+          let newName = originalName;
+
+          for (let i = 0; i < index; i++) {
+            let statusAvailable = await checkLibraryName(newName.trim(), res.result.data.id, "document");
+
+            if (statusAvailable === true) {
+              break;
+            } else {
+              newName = `${originalName}(${index})`;
+              index++;
+            }
+          }
+
+          files[doc].name = newName + files[doc].ext;
+
+          dataSend = {
+            document_name: newName,
+            description: files[doc].description,
+            parent_id: parseInt(res.result.data.id),
+            document_type: files[doc].type,
+            documents: JSON.stringify(Array(files[doc])),
+            category: "",
+            detected_text: response3.result.text,
+            result_trocr: JSON.stringify(response3.result),
+            edited: false,
+          };
+          // triggerLoading(false);
+        }
+
+        let resdoc = await $call.call("client-dashboard", "create-library-document", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token
+          },
+        });
+
+        let statusResDoc = triggerToastResponse(resdoc)
+        if (!statusResDoc) {
+          // triggerLoading(false);
+          // addFolderModal = false;
+          return
+        }
+      }
+    }
+
+    groupedFiles = null;
+    addFolderModal = false;
+    getCollections(true);
+    triggerLoading(false);
+
+    triggerToast($_("succesfullyUploaded"), true);
+
+  }
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -1405,22 +1657,19 @@
   });
 
   $effect(() => {
-    hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
-  })
-
-  $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
-  });
-
-  $effect(() => {
     buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
-  });
-
-  $effect(() => {
-    buttonDisabled =
-      files.length === 0 || files.length === 1
-        ? tmpDocumentTitle === "" || !nameIsAvailable
-        : false;
+    if (files.length > 0) {
+      hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
+      buttonDisabled =
+        files.length === 0 || files.length === 1
+          ? tmpDocumentTitle === "" || !nameIsAvailable
+          : false;
+    } else if (groupedFiles != null) {
+      buttonDisabled = false;
+    } else {
+      buttonDisabled = true;
+    }
   });
 </script>
 
@@ -1524,6 +1773,17 @@
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
                   />{$_("addSubCollection")}</button
+                >
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    addFolderModal = true;
+                    groupedFiles = null;
+                  }}
+                  ><FolderPlusIcon
+                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                  />{$_("uploadCollection")}</button
                 >
                 <button
                   class="flex p-2 w-full gap-1.5"
@@ -1774,6 +2034,29 @@
   </svelte:fragment>
 </Modal> -->
 
+<ModalFolder
+  bind:addDocumentsModal={addFolderModal}
+  bind:nameIsAvailable
+  bind:files
+  bind:buttonDisabled
+  bind:groupedFiles
+
+  {selectedTypeCollection}
+  {alltags}
+  {tags}
+  {isProcess}
+  {handleFileUploadWrapper}
+  {fileNotSupport}
+  {hasDocOrDocx}
+  {tmpDocumentTitle}
+  {tmpDocumentDescription}
+  {handleInput}
+  {addDocumentByCollection}
+
+  isFolder = {true}
+  actionDelete={() => (files = [])}
+/>
+
 <ModalObject
   bind:modalObjectOpen={addDocumentsModal}
   bind:nameIsAvailable
@@ -1978,7 +2261,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, collectionId, 'collection')}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2007,7 +2290,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, collectionId, 'collection')}
         placeholder={$_("whatIsYourSubCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2143,7 +2426,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, libraryId, 'collection')}
         placeholder={$_("whatIsYourLibraryTitle")}
       />
       {#if !nameIsAvailable}

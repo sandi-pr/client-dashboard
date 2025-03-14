@@ -1,10 +1,10 @@
 <script>
-  import { onMount, tick } from "svelte";
+  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, Alert, Select, P, Helper, Card } from "flowbite-svelte";
+  import { Button, Modal, Input, Alert, P, Helper, Card } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import { format, parse } from "date-fns";
+  import { format } from "date-fns";
 
   import {
     Typography,
@@ -12,44 +12,37 @@
     StateCard,
     call,
     InputRw,
-    TextareaRw,
     triggerToast,
     triggerLoading,
     UploadFile,
     check,
-    onProgress,
     Divider,
-    SectionHeader,
     bakrieLibraryId,
-    LibraryCard,
     isBakrie,
+    ModalObject,
+    ModalFolder,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import DataSourcesCard from "$lib/ui/cards/DataSourcesCard.svelte";
-  import DataTableCsv from "$lib/components/DataTableCsv.svelte";
   import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
   import {
     SearchOutline,
     ExclamationCircleSolid,
-    ChevronDownOutline,
     InfoCircleSolid,
     ArrowUpOutline,
   } from "flowbite-svelte-icons";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
-  import MoveIcon from "$lib/icon/move.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from "svelte-multiselect";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  import { get } from "svelte/store";
-
-  let collectionId;
+  
+  let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
   let checkAllState = $state(false);
@@ -69,7 +62,7 @@
   let buttonDisabled = $state(false);
   let gettingDatas = $state(false);
   let gettingDocs = $state(false);
-  let buttonDisabledCheckAction = $state(false);
+  let buttonDisabledCheckAction = $state(true);
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
   let tmpDocumentTitle = $state("");
@@ -100,6 +93,9 @@
       },
     ],
   });
+
+  let groupedFiles = $state({});
+  let addFolderModal = $state(false);
 
   let csvListDatas = $state([
     {
@@ -562,6 +558,11 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
+      if(groupedFiles != null) {
+        sendFolder();
+        return
+      }
+
       try {
         addDocumentsModal = false;
         triggerLoading(true);
@@ -731,13 +732,29 @@
     }
   });
 
-  const handleFileUploadWrapper = () => {
+  $effect(() => {
+    if (groupedFiles != null) {
+      buttonDisabled = false;
+    } else {
+      buttonDisabled = true;
+    }
+  });
+
+  const handleFileUploadWrapper = (isFolder = false) => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
+    inputElement.webkitdirectory = isFolder;
     inputElement.accept = acceptedFileTypes;
     inputElement.multiple = true;
 
     inputElement.addEventListener("change", async (event) => {
+      if (isFolder) {
+
+        // Buat Collection by Name Folder Dan Document
+        groupedFiles = await groupFilesByPath(event.target.files);
+        return;
+      }
+
       const filesSelect = event.target.files;
 
       const fileTypeRegex = new RegExp(
@@ -791,6 +808,28 @@
     });
     inputElement.click();
   };
+
+  //#FUNCTION UNTUK TRIGGERTOAST DARI RESPONSE
+  function triggerToastResponse (response) {
+    if (response.status !== 200) {
+      console.log(response);
+      if (response.status === 400) {
+        console.error("Invalid parameters:", response);
+        triggerToast($_("invalidParameters"), true, "error");
+      } else if (response.status === 401) {
+        console.error("Unauthorized access:", response);
+        triggerToast($_("unauthorized"), true, "error");
+      } else if (response.status === 500) {
+        console.error("Server error:", response);
+        triggerToast($_("serverError"), true, "error");
+      } else {
+        console.error("Unexpected status code:", response);
+        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+      }
+      return false;
+    }
+    return true
+  }
 
   async function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
@@ -1056,9 +1095,9 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "document-library-sub-documents");
+        link = await $call.getPage("client-dashboard", "data-sources-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "document-library-documents");
+        link = await $call.getPage("client-dashboard", "data-sources-documents");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1295,7 +1334,7 @@
         Params: {
           name: name,
           parent_id: parseInt(parentId),
-          document_type: type,
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -1355,7 +1394,7 @@
     }
   }
 
-  const handleInput = async (event, parentId, type) => {
+  const handleInput = async (event, parentId = collectionId, type = "document") => {
     const name = event.target.value;
     const status = await checkLibraryName(name.trim(), parentId, type);
 
@@ -1400,6 +1439,194 @@
     dropdownMore = false;
   };
 
+  async function groupFilesByPath(files) {
+    const structure = {};
+
+    const fileTypeRegex = new RegExp(
+      acceptedFileTypes
+        .split(",")
+        .map((type) => type.trim().replace(".", "\\."))
+        .join("|") + "$",
+      "i",
+    );
+
+    for (const file of files) {
+      if (file && fileTypeRegex.test(file.name)) {
+        const parts = file.webkitRelativePath.split("/");
+        if (parts.length > 2) {
+          continue
+        }
+        const fileName = parts.pop();
+        const base64Data = await readFileAsBase64(file);
+
+        let folderKey = parts.slice(0, 1).join("/");
+        if (!folderKey) folderKey = "root";
+        
+        if (parts.length > 2) {
+          continue
+        }
+
+        if (!structure[folderKey]) {
+          structure[folderKey] = {};
+        }
+
+        const fileObject = {
+          id: Object.keys(structure[folderKey]).length + 1,
+          name: file.name,
+          path: file.webkitRelativePath || file.name,
+          document_title: file.name,
+          description: tmpDocumentDescription,
+          size: formatBytes(file.size),
+          ext: "." + file.name.split(".").pop(),
+          base64: base64Data,
+          type: tmpDocumentType
+        };
+
+        structure[folderKey][fileName] = fileObject;
+      }
+    }
+
+    return structure
+
+  }
+
+  const checkNewName = async (name, parentId, type) => {
+    let index = 1;
+    let originalName = name;
+    let newName = originalName;
+
+    for (let i = 0; i < index; i++) {
+      let statusAvailable = await checkLibraryName(newName.trim(), parentId, type);
+
+      if (statusAvailable === true) {
+        break;
+      } else {
+        newName = `${originalName}(${index})`;
+        index++;
+      }
+    }
+    
+    return newName;
+  }
+
+  async function sendFolder () {
+    triggerLoading(true);
+    var currentFolder = []
+
+    for (var folder in groupedFiles) {
+      var parent_id;
+      var sub_folder;
+      var main_folder;
+
+      if (folder.split('/').length > 1) {
+        main_folder = folder.split('/')[0].trim()
+        sub_folder = folder.split('/')[1].trim()
+
+        if (currentFolder.length) {
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          if (finded) {
+            parent_id = finded.id
+          }
+        }
+      }
+
+      let newName = await checkNewName(folder, collectionId, "collection");
+
+      dataSend = {
+        collection_name: newName,
+        description: '',
+        parent_id: parseInt(collectionId),
+      };
+
+      if (sub_folder && parent_id) {
+        dataSend["collection_name"] = sub_folder
+        dataSend["parent_id"] = parseInt(parent_id)
+      }
+
+      let token = localStorage.getItem("token");
+      let res = await $call.call(
+          "client-dashboard", "create-library-collection", {
+              URLQuery: {},
+              URLParams: {},
+              Params: dataSend,
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+          });
+
+      let statusRes = triggerToastResponse(res)
+      if (!statusRes) {
+        triggerLoading(false);
+        return
+      }
+
+      currentFolder.push(res.result.data)
+      files = groupedFiles[folder]
+
+      if (!parent_id && !sub_folder) {
+        parent_id = res.result.data.id
+      }
+
+      for (const doc in files) {
+        if (sub_folder && parent_id) {
+          files[doc].id = parent_id
+        }
+
+        let index = 1;
+        let originalName = files[doc].name.split(".").slice(0, -1).join(".");
+        let newName = originalName;
+
+        for (let i = 0; i < index; i++) {
+          let statusAvailable = await checkLibraryName(newName.trim(), res.result.data.id, "document");
+
+          if (statusAvailable === true) {
+            break;
+          } else {
+            newName = `${originalName}(${index})`;
+            index++;
+          }
+        }
+
+        files[doc].name = newName + files[doc].ext;
+
+        dataSend = {
+          document_name: newName,
+          description: files[doc].description,
+          parent_id: parseInt(res.result.data.id),
+          document_type: files[doc].type,
+          documents: JSON.stringify(Array(files[doc])),
+          category: "",
+          edited: false,
+        };
+        // triggerLoading(false);
+
+        let resdoc = await $call.call("client-dashboard", "create-library-document", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token
+          },
+        });
+
+        let statusResDoc = triggerToastResponse(resdoc)
+        if (!statusResDoc) {
+          // triggerLoading(false);
+          // addFolderModal = false;
+          return
+        }
+      }
+    }
+
+    groupedFiles = null;
+    addFolderModal = false;
+    getCollections(true);
+    triggerLoading(false);
+
+    triggerToast($_("succesfullyUploaded"), true);
+
+  }
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -1438,40 +1665,19 @@
   });
 
   $effect(() => {
-    hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
-  })
-
-  $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
-  });
-
-  $effect(() => {
     buttonDisabledCheckAction = !collectionListDatas.some((data) => data.checked === true);
-  });
-
-  // $effect(() => {
-  //   pagination.total = csvListDatas.length;
-  //   pagination.pageCount = Math.ceil(pagination.total / pagination.pageSize);
-
-  //   let start = (pagination.page - 1) * pagination.pageSize;
-  //   let end = start + pagination.pageSize;
-
-  //   csvListData = csvListDatas.slice(start, end);
-  // });
-
-  // $effect(() => {
-  //   checkAllState = csvListDatas.every((data) => data.checked === true);
-  // });
-
-  // $effect(() => {
-  //   buttonDisabledCheckAction = !csvListDatas.some((data) => data.checked === true);
-  // });
-
-  $effect(() => {
-    buttonDisabled =
-      files.length === 0 || files.length === 1
-        ? tmpDocumentTitle === "" || !nameIsAvailable
-        : false;
+    if (files.length > 0) {
+      hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
+      buttonDisabled =
+        files.length === 0 || files.length === 1
+          ? tmpDocumentTitle === "" || !nameIsAvailable
+          : false;
+    } else if (groupedFiles != null) {
+      buttonDisabled = false;
+    } else {
+      buttonDisabled = true;
+    }
   });
 </script>
 
@@ -1575,6 +1781,17 @@
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
                   />{$_("addSubCollection")}</button
+                >
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    addFolderModal = true;
+                    groupedFiles = null;
+                  }}
+                  ><FolderPlusIcon
+                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                  />{$_("uploadCollection")}</button
                 >
                 <button
                   class="flex p-2 w-full gap-1.5"
@@ -1712,133 +1929,43 @@
   <ToastContainer />
 </div>
 
-<Modal title={$_("addCsv")} bind:open={addDocumentsModal} size="xs">
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
-      <Button
-        color="light"
-        class="flex justify-between"
-      >
-        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-        <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
-      </Button>
-      <div
-        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-      >
-        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Documents");
-            }}>Documents (TXT, PDF, DOC, DOCX)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Images");
-            }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Document Images");
-            }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Handwriting");
-            }}>Handwriting (JPG, JPEG, PNG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Document Audio");
-            }}>Document Audio (MP3, WAV, OGG)</button
-          >
-          <!-- <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("CSV");
-            }}>CSV</button
-          > -->
-        </ul>
-      </div>
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
-      <MultiSelect
-        --sms-min-height="40px"
-        options={alltags}
-        allowUserOptions="append"
-        bind:selected={tags}
-        autoScroll={true}
-        noMatchingOptionsMsg=""
-        createOptionMsg={null}
-      />
-    </div>
-    <UploadFile
-      title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper()}
-      file={files[0]}
-      {files}
-      bind:isProcess
-      multiple={true}
-      actionButton={true}
-      actionDelete={() => (files = [])}
-    />
-    {#if fileNotSupport}
-      <Alert color="red">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("fileNotSupport")}
-      </Alert>
-    {:else if hasDocOrDocx}
-      <Alert color="yellow">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("docOrDocxWillConvertToPdf")}
-      </Alert>
-    {/if}
-    <!-- <label class="inline-flex items-center cursor-pointer">
-      <input type="checkbox" value="" class="hidden peer" bind:checked={bulk_upload} />
-      <div
-        class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
-      ></div>
-      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >{$_("bulkUpload")}</span
-      >
-    </label> -->
-    {#if files.length === 1 && !isProcess}
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        <InputRw
-          onEdit={true}
-          bind:value={tmpDocumentTitle}
-          placeholder={$_("enterDocumentTitle")}
-          oninput={(event) => handleInput(event, collectionId, 'document')}
-        />
-        {#if !nameIsAvailable}
-          <Helper color="red">
-            <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-          </Helper>
-        {/if}
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
-        <InputRw
-          onEdit={true}
-          bind:value={tmpDocumentDescription}
-          placeholder={$_("enterDocumentDescription")}
-        />
-      </div>
-    {/if}
-  </div>
-  <svelte:fragment slot="footer">
-    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-      >{$_("add")}</Button
-    >
-  </svelte:fragment>
-</Modal>
+<ModalFolder
+  bind:addDocumentsModal={addFolderModal}
+  bind:nameIsAvailable
+  bind:files
+  bind:buttonDisabled
+  bind:groupedFiles
+
+  {selectedTypeCollection}
+  {alltags}
+  {tags}
+  {isProcess}
+  {handleFileUploadWrapper}
+  {fileNotSupport}
+  {hasDocOrDocx}
+  {tmpDocumentTitle}
+  {tmpDocumentDescription}
+  {handleInput}
+  {addDocumentByCollection}
+
+  isFolder = {true}
+  actionDelete={() => (files = [])}
+/>
+
+<ModalObject
+  bind:modalObjectOpen={addDocumentsModal}
+  bind:nameIsAvailable
+  bind:tmpDocumentTitle
+  {handleFileUploadWrapper}
+  bind:isProcess
+  bind:files
+  {alltags}
+  bind:tags
+  {addDocumentByCollection}
+  {handleInput}
+  {fileNotSupport}
+  usedFor="Data"
+/>
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>
   <div class="flex flex-col gap-4">

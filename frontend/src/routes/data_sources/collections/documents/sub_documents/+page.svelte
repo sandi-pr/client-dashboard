@@ -147,7 +147,7 @@
       let response = await $call.call("client-dashboard", "get-library-collection", {
         URLQuery: {},
         URLParams: {
-          id: collectionId,
+          id: subCollectionId,
         },
         Params: {},
         Headers: {

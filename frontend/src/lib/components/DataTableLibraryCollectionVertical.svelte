@@ -26,6 +26,7 @@
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import MP3SolidIcon from "$lib/icon/MP3Solid.svg";
   import CSVIcon from "$lib/icon/csv.svg";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import { onMount } from "svelte";
@@ -121,6 +122,8 @@
                 <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {:else if collectionListData.fileext === "csv" || collectionListData.fileext === ".csv"}
                 <img src={CSVIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+              {:else if collectionListData.fileext === "mp3"}
+                <img src={MP3SolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10"/>
               {/if}
               <P class="line-clamp-2 w-full truncate fluid-sm font-semibold">{truncateText(collectionListData.filename, 3)}</P>
             </div>

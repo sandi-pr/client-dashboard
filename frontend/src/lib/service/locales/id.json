@@ -1005,5 +1005,6 @@
   "enableInsights": "Aktifkan Insights",
   "enableInsightsDesc": "Aktifkan “Insights” fitur dan memaksa model AI lain untuk berhenti untuk optimalisasi.",
   "uploadCollection": "Unggah Koleksi",
-  "descUploadCollection": "Mudah Menambahkan Seluruh Koleksi Dokumen"
+  "descUploadCollection": "Mudah Menambahkan Seluruh Koleksi Dokumen",
+  "previewCollection": "Pratinjau Koleksi"
 }
