@@ -39,6 +39,8 @@
   let tabBarSelected = $state("Upload");
   let linkImportLink = $state("");
   let linkChecked = $state(false);
+  let firstLayer = $state([]);
+  let secondLayer = $state([]);
   // let alltags = $state([]);
   // let tags = $state([]);
   // let isProcess = $state(false);
@@ -296,14 +298,17 @@
       // console.log("folder", folder);
       // console.log("collectionId", collectionId);
       const createdCollectionId = await createCollection({
-        collection_name: folder.folderName,
+        collection_name: folder.name,
         description: "",
         parent_id: parseInt(collectionId),
       });
       // console.log(createdCollectionId);
 
+      let randomString = Math.random().toString(36).substring(7);
+
       for (let i = 0; i < folder.files.length; i++) {
-        folder.files[i].document_title = folder.files[i].name;
+        folder.files[i].name =
+          folder.files[i].name.split(".")[0] + "-" + randomString + folder.files[i].ext;
       }
 
       await addDocumentByCollection(folder.files, createdCollectionId);
@@ -467,75 +472,109 @@
       throw new Error("Failed to fetch folder contents");
     }
     const folderData = await folderResponse.json();
-    await processFolderContents(folderData.files, limitation, folderMetadata, depth, maxDepth);
 
-    // Create folder data object after processFolderContents
-    if (depth > 1) {
-      const folderDataObject = {
-        folderId: fileId[0],
-        folderName: folderMetadata.name,
-        files: [],
-      };
-      insertFileIntoHierarchy(
-        files,
-        folderDataObject,
-        {
-          id: folderMetadata.id,
-          name: folderMetadata.name,
-        },
-        depth,
-      );
+    await insertLayer(folderMetadata, folderData, depth);
+
+    if (depth >= maxDepth) {
+      await processLayer();
+      return;
+    }
+
+    if (folderData?.files?.length > 0) {
+      folderData.files.forEach((file) => {
+        if (file.mimeType === "application/vnd.google-apps.folder") {
+          getFolderContents([file.id], file, depth + 1, maxDepth);
+        }
+      });
     }
   };
 
-  const processFolderContents = async (files, limitation, metadata, depth = 1, maxDepth = 3) => {
-    if (depth > maxDepth) return;
-
-    console.log("folderData.files", files);
-
-    for (const file of files) {
-      if (file.mimeType !== "application/vnd.google-apps.folder") {
-        // Fetch file metadata (optimized)
-        const fileMetadataUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?fields=id,name,mimeType&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
-        const fileMetadataResponse = await fetch(fileMetadataUrl);
-        if (!fileMetadataResponse.ok) {
-          throw new Error("Failed to fetch file metadata");
-        }
-        const fileMetadata = await fileMetadataResponse.json();
-
-        const gdriveFileUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
-        const fileResponse = await fetch(gdriveFileUrl);
-        if (fileResponse.ok) {
-          const contentType = fileResponse.headers.get("content-type");
-          if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
-            await processFile(
-              fileResponse,
-              contentType,
-              fileResponse.url,
-              fileMetadata,
-              {
-                id: metadata?.id || 1,
-                name: metadata?.name || "folder",
-              },
-              depth,
-            );
-          }
-        }
-      } else {
-        // This is a folder.
-        await getFolderContents([file.id], file, depth + 1, maxDepth);
+  const processLayer = async () => {
+    for (let i = 0; i <= maxDepth; i++) {
+      if (i === 1) {
+        firstLayer = await removeFolderObject(firstLayer);
+        firstLayer = await hydrateContent(firstLayer);
+      } else if (i === 2) {
+        secondLayer = await removeFolderObject(secondLayer);
+        secondLayer = await hydrateContent(secondLayer);
       }
     }
+
+    files = firstLayer.map((folder) => {
+      return {
+        ...folder,
+        files: [...folder.files, ...secondLayer],
+      };
+    });
   };
 
-  const processFile = async (
-    response,
-    contentType,
-    url,
-    fileMetadata,
-    isFolder = {},
-    depth = 0,
-  ) => {
+  const insertLayer = async (folderMetadata, folderData, depth) => {
+    if (depth === 1) {
+      firstLayer.push({
+        folderId: folderMetadata.id,
+        folderName: folderMetadata.name,
+        files: folderData.files,
+      });
+    } else if (depth === 2) {
+      secondLayer.push({
+        folderId: folderMetadata.id,
+        folderName: folderMetadata.name,
+        files: folderData.files,
+      });
+    }
+  };
+
+  const removeFolderObject = (layer) => {
+    for (let i = 0; i < layer.length; i++) {
+      layer[i].files = layer[i].files.filter((file) => {
+        return file.mimeType !== "application/vnd.google-apps.folder";
+      });
+    }
+    return layer;
+  };
+
+  const hydrateContent = async (layer) => {
+    const hydratedLayer = await Promise.all(
+      layer.map(async (folder, index) => {
+        const filesPromise = await Promise.all(
+          folder.files.map(async (file) => {
+            if (file?.mimeType) {
+              const fileUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+              const response = await fetch(fileUrl);
+
+              if (!response.ok) {
+                throw new Error("Failed to fetch file content");
+              }
+
+              const blob = await response.blob();
+              const base64data = await readFileAsBase64(blob);
+              const fileType = response.headers.get("content-type").split("/")[1];
+              const fileName = `${file.name.slice(0, 10)}.${fileType}`;
+              const fileData = {
+                id: files.length < 1 ? 1 : files.length + 1,
+                name: file.name || fileName,
+                size: formatBytes(blob.size),
+                base64: base64data,
+                ext: `.${fileType}`,
+                type: getFileType(response.headers.get("content-type")),
+              };
+              return fileData;
+            }
+          }),
+        );
+
+        return {
+          id: folder.files[index]?.mimetype ? index + 1 : folder.files[index].id,
+          name: folder.folderName,
+          files: filesPromise,
+        };
+      }),
+    );
+
+    return hydratedLayer;
+  };
+
+  const processFile = async (response, contentType, url, fileMetadata) => {
     const blob = await response.blob();
     const base64data = await readFileAsBase64(blob);
     const fileType = contentType.split("/")[1];
@@ -548,91 +587,7 @@
       ext: `.${fileType}`,
       type: getFileType(contentType),
     };
-    if (Object.keys(isFolder).length > 0) {
-      insertFileIntoHierarchy(files, fileData, isFolder, depth);
-    } else {
-      files.push(fileData);
-    }
-  };
-
-  const insertFileIntoHierarchy = (fileArray, fileData, folderInfo, depth) => {
-    if (depth <= 1) {
-      // Top-level folder or file
-      if (folderInfo && folderInfo.id) {
-        // Processing items inside a top-level folder
-        let existingFolder = fileArray.find((item) => item.folderId === folderInfo.id);
-
-        if (fileData.base64) {
-          // It's a file
-          if (existingFolder) {
-            existingFolder.files.push(fileData);
-          } else {
-            fileArray.push({
-              folderId: folderInfo.id,
-              folderName: folderInfo.name,
-              files: [fileData],
-            });
-          }
-        } else if (fileData.files) {
-          // It's a folder
-          if (!existingFolder) {
-            fileArray.push(fileData);
-          }
-        }
-      } else {
-        // Processing top-level files
-        fileArray.push(fileData);
-      }
-    } else {
-      // Nested folder or file
-      const parentFolder = findParentFolder(fileArray, folderInfo, depth - 1);
-      if (parentFolder) {
-        let existingFolder = parentFolder.files.find((item) => item.folderId === folderInfo.id);
-
-        if (fileData.base64) {
-          // It's a file
-          if (existingFolder) {
-            existingFolder.files.push(fileData);
-          } else {
-            parentFolder.files.push(fileData);
-          }
-        } else if (fileData.files) {
-          // It's a folder
-          if (!existingFolder) {
-            parentFolder.files.push(fileData);
-          }
-        }
-      }
-    }
-  };
-
-  const findParentFolder = (fileArray, folderInfo, depth) => {
-    if (depth <= 0) {
-      return fileArray.find((item) => item.folderId === folderInfo.id);
-    }
-
-    let currentArray = fileArray;
-    let parentFolder = null;
-
-    for (let i = 0; i < depth; i++) {
-      let found = false;
-      for (const item of currentArray) {
-        if (item.files) {
-          const foundItem = item.files.find((file) => file.folderId === folderInfo.id);
-          if (foundItem) {
-            parentFolder = item;
-            currentArray = item.files;
-            found = true;
-            break;
-          }
-        }
-      }
-      if (!found) {
-        return null;
-      }
-    }
-
-    return parentFolder;
+    files.push(fileData);
   };
 
   const getFileType = (contentType) => {
@@ -694,7 +649,7 @@
   });
 
   $effect(() => {
-    if (files.length > 1) {
+    if (files.length > 0) {
       configModal.footer[0].button.buttonDisabled = false;
     } else {
       configModal.footer[0].button.buttonDisabled = tmpDocumentTitle === "" || !nameIsAvailable;

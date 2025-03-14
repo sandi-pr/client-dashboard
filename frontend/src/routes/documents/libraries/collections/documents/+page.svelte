@@ -509,7 +509,14 @@
             files[i].name = newName + files[i].ext;
 
             dataSend = {
-              document_name: files.length > 1 ? newName : tmpDocumentTitle,
+              document_name:
+                files.length > 1
+                  ? newName
+                    ? newName
+                    : files[i].name
+                  : !parentId
+                    ? tmpDocumentTitle
+                    : files[i].name,
               description: tmpDocumentDescription,
               parent_id: !parentId ? parseInt(collectionId) : parseInt(parentId),
               documents: JSON.stringify([files[i]]),
@@ -517,7 +524,7 @@
               category: tags.join(","),
             };
 
-            // console.log("cek data send", dataSend);
+            console.log("cek data send", dataSend);
             await sendDocument();
           }
         }
@@ -1958,7 +1965,7 @@
   {fileNotSupport}
   {hasDocOrDocx}
   {folderMode}
-  maxDepth={2}
+  maxDepth={1}
   {createCollection}
   {collectionId}
   {checkLibraryName}
