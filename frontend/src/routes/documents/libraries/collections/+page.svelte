@@ -14,6 +14,7 @@
     check,
     isBakrie,
     ModalFolder,
+    ModalObject,
     triggerLoading,
   } from "$lib";
   import { onMount } from "svelte";
@@ -65,6 +66,7 @@
   let tmpDocumentDescription = $state("");
   let buttonDisabled = $state(true);
   let isProcess = $state(false);
+  let folderMode = $state(false);
 
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
 
@@ -919,7 +921,7 @@
               dataSend = {
                 document_name: files.length > 1 ? files[i].document_title : tmpDocumentTitle,
                 description: tmpDocumentDescription,
-                parent_id: parseInt(collectionId),
+                parent_id: parseInt(libraryId),
                 documents: JSON.stringify([files[i]]),
                 document_type: tmpDocumentType,
                 category: tags.join(","),
@@ -974,7 +976,7 @@
               document_name: files.length > 1 ? newName : tmpDocumentTitle,
               // document_name: newName,
               description: tmpDocumentDescription,
-              parent_id: parseInt(collectionId),
+              parent_id: parseInt(libraryId),
               documents: JSON.stringify([files[i]]),
               document_type: tmpDocumentType,
               category: tags.join(","),
@@ -1013,6 +1015,54 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
+  }
+
+  async function sendDocument(single = false) {
+    let token = localStorage.getItem("token");
+
+    if (token === null) {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+    triggerLoading(true);
+    let response = await $call.call("client-dashboard", "create-library-document", {
+      URLQuery: {},
+      URLParams: {},
+      Params: dataSend,
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    if (response.status !== 200) {
+      addDocumentsModal = true;
+      triggerLoading(false);
+      if (response.status === 400) {
+        console.error("Invalid parameters:", response);
+        triggerToast($_("invalidParameters"), true, "error");
+      } else if (response.status === 401) {
+        console.error("Unauthorized access:", response);
+        triggerToast($_("unauthorized"), true, "error");
+      } else if (response.status === 500) {
+        console.error("Server error:", response);
+        triggerToast($_("serverError"), true, "error");
+      } else {
+        console.error("Unexpected status code:", response);
+        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+      }
+
+      return;
+    }
+
+    if (single) {
+      dataSend = null;
+      previewModal = false;
+      addDocumentsModal = false;
+      // getDocuments();
+      triggerLoading(false);
+      triggerToast($_("succesfullyUploaded"), true);
+    }
+    return;
   }
 
   onMount(() => {
@@ -1122,7 +1172,7 @@
                   {$_("addCollection")}
                 </button>
 
-                <button
+                <!-- <button
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
@@ -1133,6 +1183,23 @@
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
                   />{$_("uploadCollection")}
+                </button> -->
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    dropdownUpload = false;
+                    addDocumentsModal = true;
+                    folderMode = true;
+                    files = [];
+                    groupedFiles = null;
+                    // attributeNotUnique = false;
+                    // dropdownUploadEmpty = false;
+                    nameIsAvailable = true;
+                  }}
+                >
+                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addFolder")}
                 </button>
               </ul>
             </div>
@@ -1407,7 +1474,7 @@
   </div>
 </Modal>
 
-<ModalFolder
+<!-- <ModalFolder
   bind:addDocumentsModal={addFolderModal}
   bind:nameIsAvailable
   bind:files
@@ -1428,4 +1495,26 @@
 
   isFolder = {true}
   actionDelete={() => (files = [])}
+/> -->
+
+<ModalObject
+  bind:modalObjectOpen={addDocumentsModal}
+  bind:nameIsAvailable
+  bind:tmpDocumentTitle
+  bind:groupedFiles
+  bind:isProcess
+  bind:files
+  bind:tags
+  {handleFileUploadWrapper}
+  {alltags}
+  {addDocumentByCollection}
+  {handleInput}
+  {fileNotSupport}
+  {hasDocOrDocx}
+  {folderMode}
+  maxDepth={1}
+  {createCollection}
+  collectionId={libraryId}
+  {checkLibraryName}
+  {sendDocument}
 />

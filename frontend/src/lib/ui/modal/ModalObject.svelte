@@ -683,7 +683,7 @@
     if (files.length > 1) {
       configModal.footer[0].button.buttonDisabled = false;
       console.log("masuk files.length > 1");
-    } else if (files.length === 1) {
+    } else if (files.length === 1 && tabBarSelected === "Upload") {
       configModal.footer[0].button.buttonDisabled = tmpDocumentTitle === "" || !nameIsAvailable;
       console.log("masuk files.length === 1");
     }
