@@ -714,7 +714,7 @@
       if (file && fileTypeRegex.test(file.name)) {
         const parts = file.webkitRelativePath.split("/");
         if (parts.length > 2) {
-          continue
+          continue;
         }
         const fileName = parts.pop();
         const base64Data = await readFileAsBase64(file);
@@ -724,7 +724,7 @@
         if (!folderKey) folderKey = "root";
 
         if (parts.length > 2) {
-          continue
+          continue;
         }
 
         if (!structure[folderKey]) {
@@ -746,8 +746,7 @@
         structure[folderKey][fileName] = fileObject;
       }
     }
-    return structure
-
+    return structure;
   }
 
   const checkNewName = async (name, parentId, type) => {
@@ -765,9 +764,9 @@
         index++;
       }
     }
-    
+
     return newName;
-  }
+  };
 
   const handleFileUploadWrapper = (isFolder = false) => {
     const inputElement = document.createElement("input");
@@ -1997,6 +1996,13 @@
   {collectionId}
   {checkLibraryName}
   {sendDocument}
+  limitation={[
+    // "application",
+    // "application/pdf",
+    // "application/msword",
+    // "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    // "application/vnd.google-apps.folder",
+  ]}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

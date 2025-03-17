@@ -175,7 +175,7 @@ All Rights Reserved
                 class="{folderMode ? 'w-full' : 'w-max'} h-max p-2"
                 color="light"
                 on:click={() => {
-                  modalAllDocuments = true; 
+                  modalAllDocuments = true;
                   if (folderMode) {
                     files = files;
                   }
@@ -242,7 +242,6 @@ All Rights Reserved
                 <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
                 <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
               </Button>
-              {:else}
             {/if}
             <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
               <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
@@ -321,7 +320,32 @@ All Rights Reserved
         />
       {:else if selectedFile.ext.includes(".pdf")}
         <PdfjsViewer pdfFile={selectedFile.base64} />
+      {:else if selectedFile.ext.includes(".mp3") || selectedFile.ext.includes(".wav") || selectedFile.ext.includes(".ogg")}
+        <audio controls class="w-full max-w-md mx-auto">
+          <source
+            src={`data:${selectedFile.type};base64,${selectedFile.base64}`}
+            type="audio/mpeg"
+          />
+          Your browser does not support the audio element.
+        </audio>
       {/if}
     </div>
   </div>
 </Modal>
+
+<!-- <style>
+  audio {
+    border: none; /* Remove border from audio element */
+  }
+  audio::-webkit-media-controls-panel {
+    background-color: #1f2937; /* Example color */
+    border: none; /* Remove border from controls panel */
+  }
+  audio::-webkit-media-controls-play-button,
+  audio::-webkit-media-controls-volume-slider,
+  audio::-webkit-media-controls-current-time-display,
+  audio::-webkit-media-controls-time-remaining-display {
+    color: #f9fafb; /* Example color */
+    border: none; /* Remove border from individual controls */
+  }
+</style> -->

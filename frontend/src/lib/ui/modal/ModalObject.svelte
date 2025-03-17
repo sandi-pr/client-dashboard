@@ -36,6 +36,7 @@
     maxDepth = 3,
     createCollection = () => {},
     collectionId = 1,
+    limitation = [],
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -44,17 +45,6 @@
   let urlCheckerRunning = $state(false);
   let firstLayer = $state([]);
   let secondLayer = $state([]);
-  // let alltags = $state([]);
-  // let tags = $state([]);
-  // let isProcess = $state(false);
-  // let files = $state([]);
-
-  let limitation = [
-    // "application",
-    // "application/pdf",
-    // "application/msword",
-    // "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ];
 
   let mainContentUpload = [
     {
