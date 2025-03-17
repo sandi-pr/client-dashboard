@@ -174,7 +174,13 @@ All Rights Reserved
               <Button
                 class="{folderMode ? 'w-full' : 'w-max'} h-max p-2"
                 color="light"
-                on:click={() => (modalAllDocuments = true)}
+                on:click={() => {
+                  modalAllDocuments = true; 
+                  if (folderMode) {
+                    files = files;
+                  }
+                  console.log("modalAllDocuments", files);
+                }}
               >
                 {$_("viewAll")}
               </Button>

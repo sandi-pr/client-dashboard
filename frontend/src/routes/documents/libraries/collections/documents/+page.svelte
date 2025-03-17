@@ -1954,7 +1954,7 @@
   actionDelete={() => (files = [])}
 /> -->
 
-<ModalFolder
+<!-- <ModalFolder
   bind:addDocumentsModal={addFolderModal}
   bind:nameIsAvailable
   bind:files
@@ -1975,7 +1975,7 @@
 
   isFolder={true}
   actionDelete={() => (files = [])}
-/>
+/> -->
 
 <ModalObject
   bind:modalObjectOpen={addDocumentsModal}
