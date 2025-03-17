@@ -4,7 +4,7 @@
   import { Button, Modal, Input, P, Helper, Card } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import { format } from "date-fns";
+  import { add, format } from "date-fns";
 
   import {
     Typography,
@@ -931,6 +931,7 @@
     }
 
     addFolderModal = false;
+    addDocumentsModal = false;
     getCollections(true);
     triggerLoading(false);
 
@@ -1697,7 +1698,7 @@
                   <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
                   {$_("addSubCollection")}
                 </button>
-                <button
+                <!-- <button
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
@@ -1707,23 +1708,15 @@
                 >
                   <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
                   {$_("uploadCollection")}
-                </button>
-                <button
-                  class="flex p-2 w-full gap-1.5"
-                  disabled={!check("documentAi.documentLibrary.document:create")}
-                  onclick={() => {
-                    addFolderModal = true;
-                    groupedFiles = null;
-                  }}
-                  ><FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                  {$_("uploadCollection")}
-                </button>
+                </button> -->
                 <button
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
                     addDocumentsModal = true;
                     folderMode = true;
+                    files = [];
+                    groupedFiles = null;
                     attributeNotUnique = false;
                     dropdownUploadEmpty = false;
                     nameIsAvailable = true;
@@ -1988,11 +1981,12 @@
   bind:modalObjectOpen={addDocumentsModal}
   bind:nameIsAvailable
   bind:tmpDocumentTitle
-  {handleFileUploadWrapper}
+  bind:groupedFiles
   bind:isProcess
   bind:files
-  {alltags}
   bind:tags
+  {handleFileUploadWrapper}
+  {alltags}
   {addDocumentByCollection}
   {handleInput}
   {fileNotSupport}

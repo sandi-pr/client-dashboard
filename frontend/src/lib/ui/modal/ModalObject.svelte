@@ -7,6 +7,7 @@
     InputRw as Input,
     CardFeature as Card,
     UploadFile,
+    UploadFolder,
     triggerLoading,
   } from "$lib";
   import { getBgColors } from "$lib";
@@ -20,6 +21,7 @@
     modalObjectOpen = $bindable(false),
     handleFileUploadWrapper,
     files = $bindable([]),
+    groupedFiles = $bindable(null),
     isProcess = $bindable(false),
     addDocumentByCollection,
     alltags = [],
@@ -387,8 +389,8 @@
         },
       ],
     },
-    mainContent: mainContentLink,
-    footer: footerLink,
+    mainContent: mainContentUpload,
+    footer: footerUpload,
   });
 
   function formatBytes(bytes, decimals = 2) {
@@ -672,10 +674,18 @@
   });
 
   $effect(() => {
-    if (files.length > 0) {
+    if (groupedFiles) {
+      configModal.footer[0].button.buttonDisabled = groupedFiles === null;
+    }
+  });
+
+  $effect(() => {
+    if (files.length > 1) {
       configModal.footer[0].button.buttonDisabled = false;
-    } else {
+      console.log("masuk files.length > 1");
+    } else if (files.length === 1) {
       configModal.footer[0].button.buttonDisabled = tmpDocumentTitle === "" || !nameIsAvailable;
+      console.log("masuk files.length === 1");
     }
   });
 </script>
@@ -740,19 +750,36 @@
         <Input {...content.input} />
       {/if}
       {#if content?.uploadFile}
-        <UploadFile
-          title={content.uploadFile?.title}
-          handleFileUploadWrapper={() => handleFileUploadWrapper()}
-          file={files[0]}
-          {files}
-          bind:isProcess
-          multiple={true}
-          actionButton={true}
-          actionView={true}
-          actionDelete={() => {
-            files = [];
-          }}
-        />
+        {#if folderMode}
+          <UploadFolder
+            title={content.uploadFile?.title}
+            handleFileUploadWrapper={() => handleFileUploadWrapper(true)}
+            files = {groupedFiles}
+            bind:isProcess
+            multiple={true}
+            actionButton={true}
+            actionView={true}
+            actionDelete={() => {
+              groupedFiles = null;
+              console.log("cek groupedFiles", groupedFiles);
+              console.log("cek configModal.footer[0].button.buttonDisabled", configModal.footer[0].button.buttonDisabled);
+            }}
+          />
+        {:else}
+          <UploadFile
+            title={content.uploadFile?.title}
+            handleFileUploadWrapper={() => handleFileUploadWrapper()}
+            file={files[0]}
+            {files}
+            bind:isProcess
+            multiple={true}
+            actionButton={true}
+            actionView={true}
+            actionDelete={() => {
+              files = [];
+            }}
+          />
+        {/if}
         {#if fileNotSupport}
           <Alert color="red">
             <InfoCircleSolid slot="icon" class="w-5 h-5" />

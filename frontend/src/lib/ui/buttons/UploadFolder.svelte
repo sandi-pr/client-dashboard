@@ -35,6 +35,7 @@ All Rights Reserved
     files = [],
     tmpFiles = [],
     isProcess = $bindable(false),
+    actionDelete,
     actionButton = false,
     actionView = null,
     isFlex = false,
@@ -102,11 +103,11 @@ All Rights Reserved
     return tmpFiles
   }
 
-  function actionDelete () {
-    files = {}
-    tmpFiles = []
-    file = null
-  }
+  // function actionDelete () {
+  //   files = {}
+  //   tmpFiles = []
+  //   file = null
+  // }
 
   $effect(() => {
     if (textarea) {
