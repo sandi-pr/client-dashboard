@@ -749,6 +749,7 @@
             linkImportLink = "";
             configModal.footer = footerLink;
           }}
+          actionView={true}
           {folderMode}
         />
       {:else if content?.input}

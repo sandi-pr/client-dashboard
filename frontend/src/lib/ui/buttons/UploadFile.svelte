@@ -242,6 +242,7 @@ All Rights Reserved
                 <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
                 <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
               </Button>
+              {:else}
             {/if}
             <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
               <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
