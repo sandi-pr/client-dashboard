@@ -41,6 +41,7 @@
   let tabBarSelected = $state("Upload");
   let linkImportLink = $state("");
   let linkChecked = $state(false);
+  let urlCheckerRunning = $state(false);
   let firstLayer = $state([]);
   let secondLayer = $state([]);
   // let alltags = $state([]);
@@ -361,6 +362,7 @@
             linkChecked = false;
             linkImportLink = "";
           }
+          urlCheckerRunning = false;
         },
         buttonDisabled: true,
       },
@@ -420,6 +422,7 @@
   }
 
   const urlChecker = async (url, limitation = [], maxDepth = 3) => {
+    urlCheckerRunning = true;
     let errorObject;
     try {
       let response;
@@ -500,12 +503,20 @@
       return;
     }
 
+    // console.log("folderData", folderData);
+
+    let counterFolder = 0;
     if (folderData?.files?.length > 0) {
-      folderData.files.forEach((file) => {
+      folderData.files.forEach(async (file) => {
         if (file.mimeType === "application/vnd.google-apps.folder") {
-          getFolderContents([file.id], file, depth + 1, maxDepth);
+          counterFolder++;
+          await getFolderContents([file.id], file, depth + 1, maxDepth);
         }
       });
+    }
+
+    if (counterFolder === 0) {
+      await processLayer();
     }
   };
 
@@ -693,6 +704,14 @@
       console.log("masuk files.length === 1");
     }
   });
+
+  $effect(() => {
+    if (urlCheckerRunning) {
+      configModal.footer[0].button.buttonDisabled = true;
+    } else {
+      configModal.footer[0].button.buttonDisabled = linkImportLink ? false : true;
+    }
+  });
 </script>
 
 <Modal
@@ -760,7 +779,7 @@
           <UploadFolder
             title={content.uploadFile?.title}
             handleFileUploadWrapper={() => handleFileUploadWrapper(true)}
-            files = {groupedFiles}
+            files={groupedFiles}
             bind:isProcess
             multiple={true}
             actionButton={true}
@@ -768,7 +787,10 @@
             actionDelete={() => {
               groupedFiles = null;
               console.log("cek groupedFiles", groupedFiles);
-              console.log("cek configModal.footer[0].button.buttonDisabled", configModal.footer[0].button.buttonDisabled);
+              console.log(
+                "cek configModal.footer[0].button.buttonDisabled",
+                configModal.footer[0].button.buttonDisabled,
+              );
             }}
           />
         {:else}
