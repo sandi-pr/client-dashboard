@@ -414,7 +414,7 @@ All Rights Reserved
           return;
         }
 
-        triggerToast("successDeleteDocument", true);
+        triggerToast($_("successDeleteDocument"), true);
         // setTimeout(async () => {
         goto(
           (await $call.getPage("client-dashboard", "voice-sub-documents")) +

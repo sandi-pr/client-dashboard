@@ -761,7 +761,7 @@
           return;
         }
 
-        triggerToast("successDeleteDocument", true);
+        triggerToast($_("successDeleteDocument"), true);
       } catch (error) {
         console.error("Error during document deletion:", error);
         triggerToast($_("failedDeleteDocument"), true, "error");
@@ -817,7 +817,7 @@
       tmpId = null;
 
       triggerLoading(false);
-      triggerToast("successDeleteDocument", true);
+      triggerToast($_("successDeleteDocument"), true);
       getDocuments();
     } catch (error) {
       console.error("Error during document deletion:", error);

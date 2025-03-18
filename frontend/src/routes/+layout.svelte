@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://192.168.18.15")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -410,7 +410,7 @@ All Rights Reserved
           {
             icon: "data",
             name: "finetuning",
-            href: isFrontend ? "/finetuning" : await call.getPage("client-dashboard", "datasets"),
+            href: isFrontend ? "/finetunings" : await call.getPage("client-dashboard", "datasets"),
           },
         ],
       },

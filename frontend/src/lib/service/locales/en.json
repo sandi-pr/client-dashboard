@@ -1006,5 +1006,13 @@
   "enableInsightsDesc": "Turn on “Insights” feature and force other AI model to stop for optimalization.",
   "uploadCollection": "Upload Collection",
   "descUploadCollection": "Effortlessly Add Entire Collections of Documents",
-  "previewCollection": "Preview Collection"
+  "previewCollection": "Preview Collection",
+  "finetuneForHandwriting": "Finetune for Handwriting",
+  "descFinetuneForHandwriting": "Scan and decode handwritten text instantly.",
+  "finetuneForConversation": "Finetune for Conversation",
+  "descFinetuneForConversation": "Understand, convert, and interact with our assistant.",
+  "conversationFinetuneHistory": "Conversation Finetune History",
+  "handwritingFinetuneHistory": "Handwriting Finetune History",
+  "handwritingDatasetHistory": "Handwriting Dataset History",
+  "addNewDataset": "Add New Dataset"
 }

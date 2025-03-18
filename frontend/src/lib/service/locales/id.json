@@ -1006,5 +1006,13 @@
   "enableInsightsDesc": "Aktifkan “Insights” fitur dan memaksa model AI lain untuk berhenti untuk optimalisasi.",
   "uploadCollection": "Unggah Koleksi",
   "descUploadCollection": "Mudah Menambahkan Seluruh Koleksi Dokumen",
-  "previewCollection": "Pratinjau Koleksi"
+  "previewCollection": "Pratinjau Koleksi",
+  "finetuneForHandwriting": "Finetune untuk Tulisan Tangan",
+  "descFinetuneForHandwriting": "Scan dan dekripsi tulisan tangan secara langsung.",
+  "finetuneForConversation": "Finetune untuk Percakapan",
+  "descFinetuneForConversation": "Mengerti, mengonversi, dan berinteraksi dengan asisten kami.",
+  "conversationFinetuneHistory": "Riwayat Finetune Percakapan",
+  "handwritingFinetuneHistory": "Riwayat Finetune Tulisan Tangan",
+  "handwritingDatasetHistory": "Riwayat Dataset Tulisan Tangan",
+  "addNewDataset": "Tambah Dataset Baru"
 }

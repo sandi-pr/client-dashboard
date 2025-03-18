@@ -100,4 +100,25 @@ function timeout(toastId, isCustom = false) {
   }, 5000); // 5 detik waktu untuk timeout, bisa disesuaikan sesuai kebutuhan
 }
 
+export function triggerToastResponse(response) {
+  if (response.status !== 200) {
+    console.log(response);
+    if (response.status === 400) {
+      console.error("Invalid parameters:", response);
+      triggerToast($_("invalidParameters"), true, "error");
+    } else if (response.status === 401) {
+      console.error("Unauthorized access:", response);
+      triggerToast($_("unauthorized"), true, "error");
+    } else if (response.status === 500) {
+      console.error("Server error:", response);
+      triggerToast($_("serverError"), true, "error");
+    } else {
+      console.error("Unexpected status code:", response);
+      triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+    }
+    return false;
+  }
+  return true;
+}
+
 export default triggerToast;

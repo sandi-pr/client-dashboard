@@ -70,6 +70,7 @@ export {
 } from "$lib/utils/selectCollection";
 export { triggerShowAI, showAI } from "$lib/utils/showAI";
 export { triggerShowNotif, showNotif } from "$lib/utils/showNotif";
+export { triggerToastResponse } from "$lib/utils/toast";
 export { call, setCall, callReady } from "$lib/utils/call";
 export { toCamelCase } from "$lib/utils/toCamelCase";
 export { getIndustryPoints, industryData } from "$lib/utils/getIndustry";

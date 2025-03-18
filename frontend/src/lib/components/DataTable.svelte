@@ -25,6 +25,7 @@
     TableHead,
     TableHeadCell,
   } from "flowbite-svelte";
+  import { Typography, getIcons } from "$lib";
   import * as Icon from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
   import RefreshIcon from "../icon/refresh.svelte";
@@ -34,6 +35,11 @@
   import XIcon from "../icon/x.svg";
   import CheckWhiteIcon from "../icon/check-white.svg";
   import ID from "../icon/ID.svg";
+  import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
+  import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
+  import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
+  import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
   import { _ } from "svelte-i18n";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   // import { toCamelCase } from "../utils/toCamelCase.js";
@@ -75,7 +81,8 @@
       key !== "category" &&
       key !== "authority" &&
       key !== "attendance" &&
-      key !== "result"
+      key !== "result" &&
+      key !== "fileName"
     );
   };
 
@@ -246,6 +253,8 @@
         {#each Object.keys(datas[0]) as key}
           {#if normalContent(key)}
             <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
+          {:else if key === "fileName"}
+            <TableHeadCell>{$_("fileName")}</TableHeadCell>
           {/if}
         {/each}
         {#each Object.keys(datas[0]) as key}
@@ -279,6 +288,19 @@
             {#if normalContent(key)}
               <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                 {data[key]}
+              </TableBodyCell>
+            {:else if key === "fileName"}
+              <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                <div class="flex items-center gap-2">
+                  {#if data[key].split('.').pop() === "jpg"}
+                    <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                  {:else if data[key].split('.').pop() === "jpeg"}
+                    <img src={JPEGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                  {:else if data[key].split('.').pop() === "png"}
+                    <img src={PNGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                  {/if}
+                  <Typography preset="Text sm/Medium" text={data[key].split('.').slice(0, -1).join('.')} color="primary" />
+                </div>
               </TableBodyCell>
             {/if}
           {/each}
@@ -543,15 +565,35 @@
                           </Button>
                         {/if}
                       {:else if action?.onclick}
-                        <div
-                          on:click={action?.onclick}
-                          class="hover:no-underline text-hc-brand-600 font-semibold cursor-pointer"
-                        >
+                        {#if action?.name === "Delete"}
+                          <button
+                            on:click={action?.onclick}
+                            class="flex items-center gap-1 hover:no-underline text-fg-error-primary-light dark:text-fg-error-primary-dark leading-tight text-sm font-semibold cursor-pointer"
+                          >
+                            {#if action?.icon}
+                              <svelte:component this={getIcons(action.icon)} svgClass="w-5 h-5 text-fg-error-primary-light dark:text-fg-error-primary-dark" />
+                            {/if}
+                            <!-- {$_(toCamelCase(action.name))} -->
+                          </button>
+                        {:else}
+                          <button
+                            on:click={action?.onclick}
+                            class="flex items-center gap-1 hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold cursor-pointer"
+                          >
+                            {#if action?.icon}
+                              <svelte:component this={getIcons(action.icon)} svgClass="w-5 h-5 text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark" />
+                            {/if}
+                            {$_(toCamelCase(action.name))}
+                          </button>
+                        {/if}
+                      {:else if action?.icon}
+                        <a href={action.href} class="flex items-center gap-1 hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold">
+                          <svelte:component this={getIcons(action.icon)} svgClass="w-5 h-5 text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark" />
                           {$_(toCamelCase(action.name))}
-                        </div>
+                        </a>
                       {:else}
                         <a
-                          class="hover:no-underline text-hc-brand-600 font-semibold"
+                          class="hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold"
                           href={action.href}>{$_(toCamelCase(action.name))}</a
                         >
                       {/if}
@@ -567,7 +609,7 @@
   </Table>
 </div>
 
-{#if configs?.pagination && Object.keys(configs.pagination).length > 0}
+<!-- {#if configs?.pagination && Object.keys(configs.pagination).length > 0}
   <div class="flex justify-between">
     <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
       {$_("showing")}
@@ -596,6 +638,68 @@
         <span slot="prev">{$_("previous")}</span>
         <span slot="next">{$_("next")}</span>
       </Pagination>
+    </div>
+  </div>
+{/if} -->
+
+{#if configs?.pagination && Object.keys(configs.pagination).length > 0}
+  <div class="flex justify-between !border-t-0 !rounded-t-none rounded-b-lg">
+    <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+      {$_("showing")}
+      <span>
+        {configs.pagination.page === 1
+          ? configs.pagination.total === 0
+            ? 0
+            : 1
+          : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
+      >
+      -
+      <!-- {$_("to")} -->
+      <span>
+        {configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
+          ? configs.pagination.total
+          : configs.pagination.page * configs.pagination.pageSize}</span
+      >
+      {$_("of")}
+      <span>{configs.pagination.total}</span>
+      <!-- {$_("entries")} -->
+    </div>
+    <div class="flex">
+      {#if configs.pagination.total > configs.pagination.pageSize}
+        <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+          {$_("page")}
+          <span>{configs.pagination.page}</span>
+          {$_("of")}
+          <span>{configs.pagination.pageCount}</span>
+        </div>
+      {/if}
+      {#if configs.pagination.total > configs.pagination.pageSize}
+        <div class="flex justify-end">
+          <Button
+            disabled={configs.pagination.page === 1}
+            on:click={previous}
+            color="light"
+            class="fluid-sm gap-1 md:gap-2 rounded-l-lg border-0 rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
+          >
+            <ArrowLeftIcon
+              svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+            />
+            {$_("previous")}
+          </Button>
+          <Button
+            disabled={configs.pagination.page * configs.pagination.pageSize >=
+              configs.pagination.total}
+            on:click={next}
+            color="light"
+            class="fluid-sm gap-1 md:gap-2 rounded-r-lg border-0 rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
+          >
+            {$_("next")}
+            <ArrowRightIcon
+              svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
+            />
+          </Button>
+        </div>
+      {/if}
     </div>
   </div>
 {/if}

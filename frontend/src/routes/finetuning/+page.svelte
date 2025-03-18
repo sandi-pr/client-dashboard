@@ -1144,7 +1144,7 @@
       tmpId = null;
 
       triggerLoading(false);
-      triggerToast("successDeleteDocument", true);
+      triggerToast($_("successDeleteDocument"), true);
       getDatasetsHandwriting();
     } catch (error) {
       console.error("Error during document deletion:", error);
