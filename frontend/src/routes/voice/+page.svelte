@@ -1454,6 +1454,7 @@ All Rights Reserved
                 funcDetailCollection={() => {
                   goto(collection.href);
                 }}
+                {libraryId}
               />
               {/each}
             </div>

@@ -23,8 +23,10 @@ All Rights Reserved
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import EyeIcon from "$lib/icon/eye.svelte";
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
-  import FolderSolidIcon from "$lib/icon/folder-solid.svelte";
   import FolderSolid from "$lib/icon/folder-solid.svelte";
+  import ChevronUp from "$lib/icon/chevron-up.svelte";
+  import ChevronDown from "$lib/icon/chevron-down.svelte";
+  import { onMount } from "svelte";
 
   let {
     title,
@@ -50,6 +52,7 @@ All Rights Reserved
   let previewModal = $state(false);
   let selectedFile = $state(null);
   let folderName = $state("");
+  let expanded = $state({});
 
   const textFileType = (type) => {
     if (type === "document") {
@@ -108,6 +111,33 @@ All Rights Reserved
   //   tmpFiles = []
   //   file = null
   // }
+
+  function getFileIcon(filename) {
+    if (filename.includes(".pdf")) return PDFSolidIcon;
+    if (filename.includes(".docx")) return DOCXSolidIcon;
+    if (filename.includes(".doc")) return DOCSolidIcon;
+    if (filename.includes(".jpg")) return JPGSolidIcon;
+    if (filename.includes(".jpeg")) return JPEGSolidIcon;
+    if (filename.includes(".png")) return PNGSolidIcon;
+    if (filename.includes(".mp3")) return MP3SolidIcon;
+    if (filename.includes(".csv")) return CSVIcon;
+    return PDFSolidIcon; // Default icon
+  }
+
+  // Toggle Expand/Collapse Folder
+  function toggleFolder(path) {
+    expanded[path] = !expanded[path];
+  }
+
+  $effect(() => {
+    if (files) {
+      Object.keys(files).forEach((pathFolder) => {
+        if (pathFolder.includes("/")) {
+          expanded[pathFolder] = false; // Default collapsed
+        }
+      });
+    }
+  });
 
   $effect(() => {
     if (textarea) {
@@ -213,59 +243,52 @@ All Rights Reserved
   {/if}
 </div>
 
-<Modal title={$_("selectedFileToUpload")} bind:open={modalAllDocuments} size="xs" outsideclose>
-  {#if tmpFiles.length > 0}
-    {#each Object.entries(files) as [pathFolder, folder]}
-      {#if pathFolder.split('/').length > 1}
-        <div class="flex items-center justify-start gap-3">
+<Modal title={$_("selectedFileToUpload")} bind:open={modalAllDocuments} size="sm" outsideclose bodyClass="p-4 md:p-5 space-y-4 flex-1 max-h-[60vh] overflow-y-auto overscroll-contain">
+  {#each Object.entries(files) as [pathFolder, folder]}
+    {#if pathFolder.includes("/")} 
+      <!-- Tampilkan FOLDER terlebih dahulu -->
+      <button class="flex items-center w-full justify-between cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-800" onclick={() => toggleFolder(pathFolder)}>
+        <div class="flex items-center gap-3">
           <FolderSolid svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-          <div class="flex flex-col max-w-72 justify-center">
-            <Typography
-              preset="Text sm/Semibold"
-              propClass="truncate"
-              text={pathFolder.split('/')[1].trim()}
-              color="secondary"
-            />
-          </div>
+          <Typography preset="Text sm/Semibold" propClass="truncate" text={pathFolder.split("/").slice(-1)[0]} color="secondary" />
         </div>
-      {/if}
-      {#each Object.entries(folder) as [_, file]}
-        <div class="flex items-center justify-between">
-          <div class={`flex items-center justify-start gap-3 $  ${pathFolder.split('/').length > 1 ? 'ml-3' : ''}`}>
-            {#if file.name.includes(".pdf") || file.name.includes(".PDF")}
-              <img src={PDFSolidIcon} alt="" />
-            {:else if file.name.includes(".docx") || file.name.includes(".DOCX")}
-              <img src={DOCXSolidIcon} alt="" />
-            {:else if file.name.includes(".doc") || file.name.includes(".DOC")}
-              <img src={DOCSolidIcon} alt="" />
-            {:else if file.name.includes(".jpg") || file.name.includes(".JPG")}
-              <img src={JPGSolidIcon} alt="" />
-            {:else if file.name.includes(".jpeg") || file.name.includes(".JPEG")}
-              <img src={JPEGSolidIcon} alt="" />
-            {:else if file.name.includes(".png") || file.name.includes(".PNG")}
-              <img src={PNGSolidIcon} alt="" />
-            {:else if file.name.includes(".mp3") || file.name.includes(".MP3")}
-              <img src={MP3SolidIcon} alt="" />
-            {:else if file.name.includes(".csv") || file.name.includes(".CSV")}
-              <img src={CSVIcon} alt="" />
-            {/if}
+        {#if expanded[pathFolder]}
+          <ChevronUp svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+        {:else}
+          <ChevronDown svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+        {/if}
+        <!-- <span class="text-gray-500">{expanded[pathFolder] ? "▼" : "▶"}</span> -->
+      </button>
+
+      <!-- Jika folder di-expand, tampilkan isinya -->
+      {#if expanded[pathFolder]}
+        {#each Object.entries(folder) as [_, file]}
+          <div class="flex items-center justify-start gap-3 ml-6">
+            <img src={getFileIcon(file.name)} alt="" />
             <div class="flex flex-col max-w-72 justify-center">
-              <Typography
-                preset="Text sm/Semibold"
-                propClass="truncate"
-                text={file.name}
-                color="secondary"
-              />
+              <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
               <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
-              {#if status !== ""}
-                <Typography preset="Text sm/Regular" text={`status: ${status}`} color="secondary" />
-              {/if}
             </div>
+          </div>
+        {/each}
+      {/if}
+    {/if}
+  {/each}
+  
+  <!-- Sekarang tampilkan file yang bukan di dalam folder -->
+  {#each Object.entries(files) as [pathFolder, folder]}
+    {#if !pathFolder.includes("/")}
+      {#each Object.entries(folder) as [_, file]}
+        <div class="flex items-center justify-start gap-3">
+          <img src={getFileIcon(file.name)} alt="" />
+          <div class="flex flex-col max-w-72 justify-center">
+            <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+            <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
           </div>
         </div>
       {/each}
-    {/each}
-  {/if}
+    {/if}
+  {/each}
 </Modal>
 
 <Modal title={$_("preview")} bind:open={previewModal} size="lg" outsideclose>

@@ -285,7 +285,7 @@
     {
       button: {
         text: "addNewDocument",
-        onClick: addDocumentByCollection,
+        onClick: () => addDocumentByCollection(),
         buttonDisabled: true,
       },
     },
@@ -417,6 +417,7 @@
   }
 
   const urlChecker = async (url, limitation = [], maxDepth = 3) => {
+    triggerLoading(true);
     urlCheckerRunning = true;
     let errorObject;
     try {
@@ -455,6 +456,7 @@
         const contentType = response.headers.get("content-type");
         if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
           await processFile(response, contentType, url, fileMetadata);
+          triggerLoading(false);
           return true;
         } else {
           setErrorText("fileNotSupported");
@@ -474,7 +476,9 @@
     let folderMetadata;
     if (!Object.keys(fileMetadata).length > 0) {
       const folderMetadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId[0]}?fields=id,name,mimeType&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+      console.log("mulai fetch folder metadata");
       const folderMetadataResponse = await fetch(folderMetadataUrl);
+      console.log("selesai fetch folder metadata");
       if (!folderMetadataResponse.ok) {
         throw new Error("Failed to fetch folder metadata");
       }
@@ -485,7 +489,9 @@
 
     // Handle Google Drive folder
     const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${fileId}'+in+parents&fields=files(id,name,mimeType)&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+    console.log("mulai fetch folder contents");
     const folderResponse = await fetch(folderUrl);
+    console.log("selesai fetch folder contents");
     if (!folderResponse.ok) {
       throw new Error("Failed to fetch folder contents");
     }
@@ -568,7 +574,9 @@
           folder.files.map(async (file) => {
             if (file?.mimeType) {
               const fileUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=AIzaSyDi62RQsNNjA-_IfGyaDfWc7L11dVm75YI`;
+              console.log("mulai fetch file content");
               const response = await fetch(fileUrl);
+              console.log("selesai fetch file content");
 
               if (!response.ok) {
                 throw new Error("Failed to fetch file content");
@@ -579,12 +587,13 @@
               const fileType = response.headers.get("content-type").split("/")[1];
               const fileName = `${file.name.slice(0, 10)}.${fileType}`;
               const fileData = {
-                id: files.length < 1 ? 1 : files.length + 1,
+                id: index,
                 name: file.name || fileName,
                 size: formatBytes(blob.size),
                 base64: base64data,
                 ext: `.${fileType}`,
-                type: getFileType(response.headers.get("content-type")),
+                // type: getFileType(response.headers.get("content-type")),
+                type: usedFor,
               };
               return fileData;
             }
@@ -658,6 +667,7 @@
       setErrorText("failedToFetchResource");
     }
     console.error("Error fetching the URL:", error);
+    triggerLoading(false);
   };
 
   // Drag and Drop functionality
@@ -825,6 +835,7 @@
   onMount(async () => {
     if (usedFor === "Documents") {
       configModal.header.contentCenter[0].text.text = $_("addDocuments");
+      limitation = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
     } else if (usedFor === "Handwriting") {
       configModal.header.contentCenter[0].text.text = $_("addHandwriting");
       mainContentUpload[2].input.value = "Handwriting (JPG, JPEG, PNG)";

@@ -51,6 +51,7 @@
   let dropdownMore = $state(false);
   let editCollectionModal = $state(false);
   let dropdownUpload = $state(false);
+  let dropdownUploadEmpty = $state(false);
   let fileNotSupport = $state(false);
   let buttonDisabled = $state(false);
   let gettingDatas = $state(false);
@@ -107,8 +108,8 @@
   let div = $state();
   let nameIsAvailable = $state(true);
   let isProcess = $state(false);
+  let folderMode = $state(false);
   let selected = $state([]);
-  let dummyTags = $state(["general", "news", "article"]);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -1287,17 +1288,22 @@
   }
 
   function checkTitle(title) {
-    console.log(libraryId, $bakrieLibraryId);
     if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
-      console.log("check title", true);
       return (
         title === "Documents" ||
         title === "Images" ||
         title === "Document Images" ||
         title === "Handwriting"
       );
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
+      return (
+        title === "My Handwriting"
+      );
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
+      return (
+        title === "My Voice"
+      )
     } else {
-      console.log("check title", false);
       return false;
     }
   }
@@ -1417,6 +1423,7 @@
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
     dropdownOpen = false;
     dropdownUpload = false;
+    dropdownUploadEmpty = false;
     dropdownMore = false;
   };
 
@@ -1628,7 +1635,7 @@
     }
 
     groupedFiles = null;
-    addFolderModal = false;
+    addDocumentsModal = false;
     getCollections(true);
     triggerLoading(false);
 
@@ -1789,17 +1796,23 @@
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
-                    addFolderModal = true;
+                    addDocumentsModal = true;
+                    folderMode = true;
+                    files = [];
                     groupedFiles = null;
+                    attributeNotUnique = false;
+                    dropdownUpload = false;
+                    nameIsAvailable = true;
                   }}
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("uploadCollection")}</button
+                  />{$_("addFolder")}</button
                 >
                 <button
                   class="flex p-2 w-full gap-1.5"
                   onclick={() => {
                     addDocumentsModal = true;
+                    folderMode = false;
                     tags = [];
                     files = [];
                     tmpDocumentTitle = "";
@@ -1930,6 +1943,74 @@
           />
         {:else}
           <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          <div
+            class="relative w-full justify-center flex mb-40"
+            onfocusout={handleDropdownFocusLoss}
+          >
+            <Button
+              color="primary"
+              class="w-fit gap-1.5 mt-4"
+              disabled={!check("documentAi.documentLibrary.document:create")}
+              on:click={() => (dropdownUploadEmpty = !dropdownUploadEmpty)}
+            >
+              <Recording02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+              <div class="hidden md:block">{$_("addNew")}</div>
+            </Button>
+            <div
+              class={`z-50 ${dropdownUploadEmpty ? "absolute top-32 left-1/2 transform -translate-x-1/2 -translate-y-1/2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+            >
+              <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    addCollectionModal = true;
+                    tmpCollectionName = "";
+                    tmpDescription = "";
+                    attributeNotUnique = false;
+                    dropdownUploadEmpty = false;
+                    nameIsAvailable = true;
+                  }}
+                >
+                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addSubCollection")}
+                </button>
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  disabled={!check("documentAi.documentLibrary.document:create")}
+                  onclick={() => {
+                    addDocumentsModal = true;
+                    folderMode = true;
+                    files = [];
+                    groupedFiles = null;
+                    attributeNotUnique = false;
+                    dropdownUploadEmpty = false;
+                    nameIsAvailable = true;
+                  }}
+                >
+                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addFolder")}
+                </button>
+                <button
+                  class="flex p-2 w-full gap-1.5"
+                  onclick={() => {
+                    addDocumentsModal = true;
+                    folderMode = false;
+                    tags = [];
+                    files = [];
+                    tmpDocumentTitle = "";
+                    tmpDocumentDescription = "";
+                    attributeNotUnique = false;
+                    dropdownUploadEmpty = false;
+                    nameIsAvailable = true;
+                  }}
+                >
+                  <Recording02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                  {$_("addNewAudio")}
+                </button>
+              </ul>
+            </div>
+          </div>
         {/if}
       </div>
     </div>

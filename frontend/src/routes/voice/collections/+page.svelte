@@ -14,6 +14,7 @@
     check,
     isBakrie,
     ModalFolder,
+    ModalObject,
     triggerLoading,
   } from "$lib";
   import { onMount } from "svelte";
@@ -65,6 +66,7 @@
   let tmpDocumentDescription = $state("");
   let buttonDisabled = $state(true);
   let isProcess = $state(false);
+  let folderMode = $state(false);
 
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
 
@@ -1172,13 +1174,14 @@
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
+                    folderMode = true;
                     dropdownUpload = false;
                     addFolderModal = true;
                     groupedFiles = null;
                   }}
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("uploadCollection")}
+                  />{$_("addFolder")}
                 </button>
               </ul>
             </div>
@@ -1392,7 +1395,7 @@
   </div>
 </Modal>
 
-<ModalFolder
+<!-- <ModalFolder
   bind:addDocumentsModal={addFolderModal}
   bind:nameIsAvailable
   bind:files
@@ -1413,4 +1416,26 @@
 
   isFolder = {true}
   actionDelete={() => (files = [])}
+/> -->
+
+<ModalObject
+  bind:modalObjectOpen={addFolderModal}
+  bind:nameIsAvailable
+  bind:tmpDocumentTitle
+  bind:groupedFiles
+  bind:isProcess
+  bind:files
+  bind:tags
+  {handleFileUploadWrapper}
+  {alltags}
+  {addDocumentByCollection}
+  {handleInput}
+  {fileNotSupport}
+  {hasDocOrDocx}
+  {folderMode}
+  maxDepth={2}
+  {createCollection}
+  collectionId={libraryId}
+  {checkLibraryName}
+  usedFor="Audio"
 />
