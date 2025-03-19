@@ -37,7 +37,6 @@
       .flat() || [];
 
   function checkTitle(title) {
-    // console.log(libraryId, $bakrieLibraryId);
     if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
       return (
         title === "Documents" ||
@@ -45,8 +44,15 @@
         title === "Document Images" ||
         title === "Handwriting"
       );
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
+      return (
+        title === "My Handwriting"
+      );
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
+      return (
+        title === "My Voice"
+      )
     } else {
-      // console.log("false");
       return false;
     }
   }

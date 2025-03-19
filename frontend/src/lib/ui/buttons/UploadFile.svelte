@@ -24,6 +24,11 @@ All Rights Reserved
   import UploadFileIcon from "$lib/icon/upload-01.svelte";
   import GoogleDriveIcon from "$lib/icon/google-drive.svelte";
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
+  import FolderSolid from "$lib/icon/folder-solid.svelte";
+  import MP3SolidIcon from "$lib/icon/MP3Solid.svg";
+  import ChevronUp from "$lib/icon/chevron-up.svelte";
+  import ChevronDown from "$lib/icon/chevron-down.svelte";
+  import { onMount } from "svelte";
 
   let {
     title,
@@ -47,8 +52,10 @@ All Rights Reserved
 
   let textarea = $state();
   let modalAllDocuments = $state(false);
+  let modalAllFolderDocuments = $state(false);
   let previewModal = $state(false);
   let selectedFile = $state(null);
+  let expanded = $state({});
 
   const textFileType = (type) => {
     if (type === "document") {
@@ -83,6 +90,54 @@ All Rights Reserved
       e.target.style.height = `${e.target.scrollHeight}px`;
     });
   }
+
+  function transformData(input, parentPath = "") {
+    let result = {};
+
+    input.forEach(folder => {
+      const currentPath = parentPath ? `${parentPath}/${folder.name}` : folder.name;
+      result[currentPath] = {};
+
+      folder.files.forEach(file => {
+        if (file.files) {
+          // Jika ada nested folder, panggil rekursif
+          Object.assign(result, transformData([file], currentPath));
+        } else {
+          // Jika itu file, masukkan ke dalam folder saat ini
+          result[currentPath][file.name] = file;
+        }
+      });
+    });
+
+    return result;
+  }
+
+  function getFileIcon(filename) {
+    if (filename.includes(".pdf")) return PDFSolidIcon;
+    if (filename.includes(".docx")) return DOCXSolidIcon;
+    if (filename.includes(".doc")) return DOCSolidIcon;
+    if (filename.includes(".jpg")) return JPGSolidIcon;
+    if (filename.includes(".jpeg")) return JPEGSolidIcon;
+    if (filename.includes(".png")) return PNGSolidIcon;
+    if (filename.includes(".mp3")) return MP3SolidIcon;
+    if (filename.includes(".csv")) return CSVIcon;
+    return PDFSolidIcon; // Default icon
+  }
+
+  // Toggle Expand/Collapse Folder
+  function toggleFolder(path) {
+    expanded[path] = !expanded[path];
+  }
+
+  $effect(() => {
+    if (files) {
+      Object.keys(files).forEach((pathFolder) => {
+        if (pathFolder.includes("/")) {
+          expanded[pathFolder] = false; // Default collapsed
+        }
+      });
+    }
+  });
 
   $effect(() => {
     if (textarea) {
@@ -175,11 +230,12 @@ All Rights Reserved
                 class="{folderMode ? 'w-full' : 'w-max'} h-max p-2"
                 color="light"
                 on:click={() => {
-                  modalAllDocuments = true;
                   if (folderMode) {
-                    files = files;
+                    files = transformData(files);
+                    modalAllFolderDocuments = true;
+                  } else {
+                    modalAllDocuments = true;
                   }
-                  console.log("modalAllDocuments", files);
                 }}
               >
                 {$_("viewAll")}
@@ -255,7 +311,7 @@ All Rights Reserved
   {/if}
 </div>
 
-<Modal title={$_("selectedFileToUpload")} bind:open={modalAllDocuments} size="xs" outsideclose>
+<Modal title={$_("selectedFileToUpload")} bind:open={modalAllDocuments} size="sm" outsideclose>
   {#if files.length > 1}
     {#each files as file}
       <div class="flex items-center justify-between">
@@ -305,6 +361,54 @@ All Rights Reserved
       </div>
     {/each}
   {/if}
+</Modal>
+
+<Modal title={$_("selectedFileToUpload")} bind:open={modalAllFolderDocuments} size="sm" outsideclose bodyClass="p-4 md:p-5 space-y-4 flex-1 max-h-[60vh] overflow-y-auto overscroll-contain">
+  {#each Object.entries(files) as [pathFolder, folder]}
+    {#if pathFolder.includes("/")} 
+      <!-- Tampilkan FOLDER terlebih dahulu -->
+      <button class="flex items-center w-full justify-between cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-800" onclick={() => toggleFolder(pathFolder)}>
+        <div class="flex items-center gap-3">
+          <FolderSolid svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+          <Typography preset="Text sm/Semibold" propClass="truncate" text={pathFolder.split("/").slice(-1)[0]} color="secondary" />
+        </div>
+        {#if expanded[pathFolder]}
+          <ChevronUp svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+        {:else}
+          <ChevronDown svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+        {/if}
+        <!-- <span class="text-gray-500">{expanded[pathFolder] ? "▼" : "▶"}</span> -->
+      </button>
+
+      <!-- Jika folder di-expand, tampilkan isinya -->
+      {#if expanded[pathFolder]}
+        {#each Object.entries(folder) as [_, file]}
+          <div class="flex items-center justify-start gap-3 ml-6">
+            <img src={getFileIcon(file.name)} alt="" />
+            <div class="flex flex-col max-w-72 justify-center">
+              <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+              <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
+            </div>
+          </div>
+        {/each}
+      {/if}
+    {/if}
+  {/each}
+  
+  <!-- Sekarang tampilkan file yang bukan di dalam folder -->
+  {#each Object.entries(files) as [pathFolder, folder]}
+    {#if !pathFolder.includes("/")}
+      {#each Object.entries(folder) as [_, file]}
+        <div class="flex items-center justify-start gap-3">
+          <img src={getFileIcon(file.name)} alt="" />
+          <div class="flex flex-col max-w-72 justify-center">
+            <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+            <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
+          </div>
+        </div>
+      {/each}
+    {/if}
+  {/each}
 </Modal>
 
 <Modal title={$_("preview")} bind:open={previewModal} size="lg" outsideclose>

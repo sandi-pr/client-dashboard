@@ -1697,17 +1697,6 @@
                   <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
                   {$_("addSubCollection")}
                 </button>
-                <!-- <button
-                  class="flex p-2 w-full gap-1.5"
-                  disabled={!check("documentAi.documentLibrary.document:create")}
-                  onclick={() => {
-                    addFolderModal = true;
-                    groupedFiles = null;
-                  }}
-                >
-                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                  {$_("uploadCollection")}
-                </button> -->
                 <button
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
@@ -1717,7 +1706,7 @@
                     files = [];
                     groupedFiles = null;
                     attributeNotUnique = false;
-                    dropdownUploadEmpty = false;
+                    dropdownUpload = false;
                     nameIsAvailable = true;
                   }}
                 >
@@ -1875,7 +1864,7 @@
               <div class="hidden md:block">{$_("addNew")}</div>
             </Button>
             <div
-              class={`z-50 ${dropdownUploadEmpty ? "absolute top-[190%] left-1/2 transform -translate-x-1/2 -translate-y-1/2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+              class={`z-50 ${dropdownUploadEmpty ? "absolute top-32 left-1/2 transform -translate-x-1/2 -translate-y-1/2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
             >
               <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
                 <button
@@ -1899,6 +1888,8 @@
                   onclick={() => {
                     addDocumentsModal = true;
                     folderMode = true;
+                    files = [];
+                    groupedFiles = null;
                     attributeNotUnique = false;
                     dropdownUploadEmpty = false;
                     nameIsAvailable = true;
