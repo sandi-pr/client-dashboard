@@ -96,11 +96,11 @@ All Rights Reserved
   function transformData(input, parentPath = "") {
     let result = {};
 
-    input.forEach(folder => {
+    input.forEach((folder) => {
       const currentPath = parentPath ? `${parentPath}/${folder.name}` : folder.name;
       result[currentPath] = {};
 
-      folder.files.forEach(file => {
+      folder.files.forEach((file) => {
         if (file.files) {
           // Jika ada nested folder, panggil rekursif
           Object.assign(result, transformData([file], currentPath));
@@ -153,8 +153,8 @@ All Rights Reserved
   {#if file === null || (isProcess && files.length < 1)}
     <div
       class={`flex gap-3 ${isPreview ? (largePreview ? "flex-col md:flex-row" : "flex-row") : "flex-col"}`}
-      on:dragover={handleDragOver}
-      on:drop={handleDrop}
+      ondragover={handleDragOver}
+      ondrop={handleDrop}
     >
       {#if isPreview}
         {#if largePreview}
@@ -367,14 +367,28 @@ All Rights Reserved
   {/if}
 </Modal>
 
-<Modal title={$_("selectedFileToUpload")} bind:open={modalAllFolderDocuments} size="sm" outsideclose bodyClass="p-4 md:p-5 space-y-4 flex-1 max-h-[60vh] overflow-y-auto overscroll-contain">
+<Modal
+  title={$_("selectedFileToUpload")}
+  bind:open={modalAllFolderDocuments}
+  size="sm"
+  outsideclose
+  bodyClass="p-4 md:p-5 space-y-4 flex-1 max-h-[60vh] overflow-y-auto overscroll-contain"
+>
   {#each Object.entries(files) as [pathFolder, folder]}
-    {#if pathFolder.includes("/")} 
+    {#if pathFolder.includes("/")}
       <!-- Tampilkan FOLDER terlebih dahulu -->
-      <button class="flex items-center w-full justify-between cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-800" onclick={() => toggleFolder(pathFolder)}>
+      <button
+        class="flex items-center w-full justify-between cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+        onclick={() => toggleFolder(pathFolder)}
+      >
         <div class="flex items-center gap-3">
           <FolderSolid svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-          <Typography preset="Text sm/Semibold" propClass="truncate" text={pathFolder.split("/").slice(-1)[0]} color="secondary" />
+          <Typography
+            preset="Text sm/Semibold"
+            propClass="truncate"
+            text={pathFolder.split("/").slice(-1)[0]}
+            color="secondary"
+          />
         </div>
         {#if expanded[pathFolder]}
           <ChevronUp svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
@@ -390,7 +404,12 @@ All Rights Reserved
           <div class="flex items-center justify-start gap-3 ml-6">
             <img src={getFileIcon(file.name)} alt="" />
             <div class="flex flex-col max-w-72 justify-center">
-              <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+              <Typography
+                preset="Text sm/Semibold"
+                propClass="truncate"
+                text={file.name}
+                color="secondary"
+              />
               <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
             </div>
           </div>
@@ -398,7 +417,7 @@ All Rights Reserved
       {/if}
     {/if}
   {/each}
-  
+
   <!-- Sekarang tampilkan file yang bukan di dalam folder -->
   {#each Object.entries(files) as [pathFolder, folder]}
     {#if !pathFolder.includes("/")}
@@ -406,7 +425,12 @@ All Rights Reserved
         <div class="flex items-center justify-start gap-3">
           <img src={getFileIcon(file.name)} alt="" />
           <div class="flex flex-col max-w-72 justify-center">
-            <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+            <Typography
+              preset="Text sm/Semibold"
+              propClass="truncate"
+              text={file.name}
+              color="secondary"
+            />
             <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
           </div>
         </div>

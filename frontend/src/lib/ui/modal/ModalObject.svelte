@@ -36,7 +36,6 @@
     maxDepth = 3,
     createCollection = () => {},
     collectionId = 1,
-    checkLibraryName = () => {},
     limitation = [],
     allowedFileTypesDragAndDrop = [],
   } = $props();
@@ -748,22 +747,11 @@
           }
         }
 
-        let nameIsAvailable = await checkLibraryName(
-          file.name.split(".")[0],
-          collectionId,
-          "document",
-        );
-        let newFileName = "";
-        if (!nameIsAvailable) {
-          let randomString = Math.random().toString(36).substring(7);
-          newFileName =
-            file.name.split(".")[0] + "-" + randomString + "." + file.name.split(".")[1];
-        }
-        tmpDocumentTitle = newFileName || file.name.split(".")[0];
+        tmpDocumentTitle = file.name.split(".")[0];
 
         const fileData = {
           id: files.length < 1 ? 1 : files.length + 1,
-          name: newFileName || file.name,
+          name: file.name,
           documentTitle: file.name.split(".")[0],
           description: "",
           size: formatBytes(file.size),
@@ -835,7 +823,11 @@
   onMount(async () => {
     if (usedFor === "Documents") {
       configModal.header.contentCenter[0].text.text = $_("addDocuments");
-      limitation = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+      limitation = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ];
     } else if (usedFor === "Handwriting") {
       configModal.header.contentCenter[0].text.text = $_("addHandwriting");
       mainContentUpload[2].input.value = "Handwriting (JPG, JPEG, PNG)";
