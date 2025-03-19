@@ -1106,6 +1106,7 @@ All Rights Reserved
               console.log("bebek");
               previewModal = true;
               selectedFile = files[0];
+              return;
             }
           } else {
             console.log("cacing");
@@ -1214,6 +1215,7 @@ All Rights Reserved
 
     if (single) {
       dataSend = null;
+      files = [];
       previewModal = false;
       addDocumentsModal = false;
       triggerLoading(false);
@@ -1486,6 +1488,7 @@ All Rights Reserved
   bind:modalObjectOpen={addDocumentsModal}
   bind:nameIsAvailable
   bind:tmpDocumentTitle
+  bind:groupedFiles
   {handleFileUploadWrapper}
   bind:isProcess
   bind:files

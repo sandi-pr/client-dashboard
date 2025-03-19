@@ -392,7 +392,7 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim());
+                let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
 
                 if (statusAvailable === true) {
                   break;
@@ -438,7 +438,7 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim());
+              let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
 
               if (statusAvailable === true) {
                 break;
@@ -643,7 +643,7 @@
           tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim());
+            const status = await checkLibraryName(tmpDocumentTitle.trim(), subCollectionId, "document");
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -1031,7 +1031,7 @@
     console.log("selected collection", tmpSelectedCollection);
   };
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -1043,6 +1043,8 @@
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -1104,7 +1106,7 @@
 
   const handleInput = async (event) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), subCollectionId, "document");
 
     if (tmpOldName === name) {
       nameIsAvailable = true;

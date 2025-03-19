@@ -1,6 +1,7 @@
 <script>
   import { Button, Modal } from "flowbite-svelte";
   import { Typography } from "$lib";
+  import AudioPlayer from "$lib/components/AudioPlayer.svelte";
 
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
 

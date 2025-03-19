@@ -395,7 +395,10 @@
 
   let audioUrl = $state(null);
 
-  async function addDocumentByCollection() {
+  async function addDocumentByCollection(folderFiles = null, parentId = null) {
+    if (folderFiles != null) {
+      files = folderFiles;
+    }
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -2018,31 +2021,11 @@
   <ToastContainer />
 </div>
 
-<ModalFolder
-  bind:addDocumentsModal={addFolderModal}
-  bind:nameIsAvailable
-  bind:files
-  bind:buttonDisabled
-  bind:groupedFiles
-  {selectedTypeCollection}
-  {alltags}
-  {tags}
-  {isProcess}
-  {handleFileUploadWrapper}
-  {fileNotSupport}
-  {hasDocOrDocx}
-  {tmpDocumentTitle}
-  {tmpDocumentDescription}
-  {handleInput}
-  {addDocumentByCollection}
-  isFolder={true}
-  actionDelete={() => (files = [])}
-/>
-
 <ModalObject
   bind:modalObjectOpen={addDocumentsModal}
   bind:nameIsAvailable
   bind:tmpDocumentTitle
+  bind:groupedFiles
   {handleFileUploadWrapper}
   bind:isProcess
   bind:files
@@ -2051,7 +2034,9 @@
   {addDocumentByCollection}
   {handleInput}
   {fileNotSupport}
+  {folderMode}
   usedFor="Audio"
+  maxDepth={1}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

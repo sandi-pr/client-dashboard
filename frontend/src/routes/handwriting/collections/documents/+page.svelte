@@ -92,7 +92,7 @@
     ],
   });
 
-  let groupedFiles = $state({});
+  let groupedFiles = $state(null);
   let addFolderModal = $state(false);
 
   let collectionDatas = $state({
@@ -400,7 +400,12 @@
 
   let audioUrl = $state(null);
 
-  async function addDocumentByCollection() {
+  async function addDocumentByCollection(folderFiles = null, parentId = null) {
+    if (folderFiles != null) {
+      files = folderFiles;
+    }
+
+    console.log("cekkkkk files", files);
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -496,7 +501,7 @@
               files[i].name = newName + files[i].ext;
 
               dataSend = {
-                document_name: files.length > 1 ? files[i].document_title : tmpDocumentTitle,
+                document_name: files.length > 1 ? newName : tmpDocumentTitle,
                 description: tmpDocumentDescription,
                 parent_id: parseInt(collectionId),
                 documents: JSON.stringify([files[i]]),
@@ -507,12 +512,14 @@
                 edited: false,
               };
 
+              console.log("cekk dataSend", dataSend);
+
               // convert base64 to url
               if (tmpDocumentType === "Document Audio") {
                 let file = base64toBlob(files[i].base64, "audio/mpeg");
                 audioUrl = URL.createObjectURL(new Blob([file], { type: "audio/mp3" }));
               }
-              triggerLoading(false);
+              // triggerLoading(false);
             }
           }
 
@@ -548,11 +555,13 @@
             dataSend = {
               document_name: files.length > 1 ? newName : tmpDocumentTitle,
               description: tmpDocumentDescription,
-              parent_id: parseInt(collectionId),
+              parent_id: !parentId ? parseInt(collectionId) : parseInt(parentId),
               documents: JSON.stringify([files[i]]),
               document_type: tmpDocumentType,
               category: tags.join(","),
             };
+
+            console.log("cekkkk dataSend", dataSend);
 
             // console.log("cek data send", dataSend);
             await sendDocument();
@@ -565,7 +574,10 @@
         tmpDocumentDescription = "";
         tags = [];
         attributeNotUnique = false;
+        dataSend = null;
         triggerLoading(false);
+        getDocuments();
+        triggerToast($_("succesfullyUploaded"), true);
 
         if (
           tmpDocumentType !== "Handwriting" &&

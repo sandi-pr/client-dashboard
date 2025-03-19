@@ -266,6 +266,8 @@ All Rights Reserved
             <img src={PNGSolidIcon} alt="" />
           {:else if file.name.includes(".csv") || file.name.includes(".CSV")}
             <img src={CSVIcon} alt="" />
+          {:else if file.name.includes(".mp3") || file.name.includes(".MP3")}
+            <img src={MP3SolidIcon} alt="" />
           {:else}
             <img src={GoogleDriveIcon} alt="" />
           {/if}

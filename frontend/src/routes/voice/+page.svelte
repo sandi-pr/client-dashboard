@@ -80,9 +80,9 @@ All Rights Reserved
   let editModal = $state(false);
   let deleteModal = $state(false);
   let dropdownOpen = $state([false]);
-  let tmpDocumentType = $state("Handwriting");
-  let selectedTypeCollection = $state("Handwriting (JPG, JPEG, PNG)");
-  let acceptedFileTypes = $state(".jpg, .jpeg, .png");
+  let tmpDocumentType = $state("Document Audio");
+  let selectedTypeCollection = $state("Document Audio (MP3, WAV, OGG)");
+  let acceptedFileTypes = $state(".mp3, .wav, .ogg");
   let timer;
   let fileNotSupport = $state(false);
   let attributeNotUnique = $state(false);
@@ -881,7 +881,7 @@ All Rights Reserved
           tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
 
           // console.log("cek files", files[0]);
-          const collectionId = localStorage.getItem("collectionIdhandwriting");
+          const collectionId = localStorage.getItem("collectionIdvoice");
 
           if (files.length === 1) {
             const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
@@ -998,7 +998,10 @@ All Rights Reserved
     triggerLoading(false);
   }
 
-  async function addDocumentByCollection() {
+  async function addDocumentByCollection(folderFiles = null, parentId = null) {
+    if (folderFiles != null) {
+      files = folderFiles;
+    }
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -1128,6 +1131,7 @@ All Rights Reserved
               console.log("bebek");
               previewModal = true;
               selectedFile = files[0];
+              return;
             }
           } else {
             console.log("cacing");
@@ -1195,6 +1199,26 @@ All Rights Reserved
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
+  }
+
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
   }
 
   async function sendDocument(single = false) {
@@ -1508,7 +1532,7 @@ All Rights Reserved
   {handleInput}
   {fileNotSupport}
   {folderMode}
-  usedFor={"Handwriting"}
+  usedFor={"Audio"}
   maxDepth={1}
 />
 
