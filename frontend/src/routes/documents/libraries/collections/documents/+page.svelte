@@ -442,12 +442,21 @@
                   "document",
                 );
 
-                if (statusAvailable === true) {
+                if (statusAvailable === true || index >= 5) {
+                  if (index >= 5) {
+                    newName = "failed";
+                  }
                   break;
                 } else {
                   newName = `${originalName}(${index})`;
                   index++;
                 }
+              }
+
+              if (newName === "failed") {
+                triggerToast($_("failedUploadDocument"), true, "error");
+                triggerLoading(false);
+                throw new Error("Failed to upload document");
               }
 
               files[i].name = newName + files[i].ext;
@@ -500,12 +509,21 @@
                 "document",
               );
 
-              if (statusAvailable === true) {
+              if (statusAvailable === true || index >= 5) {
+                if (index >= 5) {
+                  newName = "failed";
+                }
                 break;
               } else {
                 newName = `${originalName}(${index})`;
                 index++;
               }
+            }
+
+            if (newName === "failed") {
+              triggerToast($_("failedUploadDocument"), true, "error");
+              triggerLoading(false);
+              throw new Error("Failed to upload document");
             }
 
             files[i].name = newName + files[i].ext;
@@ -759,7 +777,10 @@
     for (let i = 0; i < index; i++) {
       let statusAvailable = await checkLibraryName(newName.trim(), parentId, type);
 
-      if (statusAvailable === true) {
+      if (statusAvailable === true || index >= 5) {
+        if (index >= 5) {
+          newName = "failed";
+        }
         break;
       } else {
         newName = `${originalName}(${index})`;

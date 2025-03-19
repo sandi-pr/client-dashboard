@@ -1,5 +1,6 @@
 <script>
   import { Modal, Button, Helper, Alert } from "flowbite-svelte";
+  import { v4 as uuidv4 } from "uuid";
   import {
     Typography,
     FeaturedIcon,
@@ -46,9 +47,10 @@
   let urlCheckerRunning = $state(false);
   let firstLayer = $state([]);
   let secondLayer = $state([]);
-  let isProcessing = $state(false);
   let droppedItemType = $state("");
+  let isDND = $state(false);
   let delayTimeout;
+  let effectRunCount = 0;
 
   let mainContentUpload = [
     {
@@ -678,7 +680,6 @@
   function handleDrop(event) {
     event.preventDefault();
     event.stopPropagation();
-    isProcessing = true;
     const items = event.dataTransfer.items;
     let hasFile = false;
     let hasFolder = false;
@@ -799,7 +800,6 @@
 
   function processFolders(folders) {
     if (folders.length <= 1) {
-      isProcessing = false;
       return;
     }
 
@@ -857,7 +857,11 @@
       configModal.footer[0].button.buttonDisabled = false;
       console.log("masuk files.length > 1");
     } else if (files.length === 1 && tabBarSelected === "Upload") {
-      configModal.footer[0].button.buttonDisabled = tmpDocumentTitle === "" || !nameIsAvailable;
+      if (effectRunCount > 0) {
+        configModal.footer[0].button.buttonDisabled = false;
+      } else {
+        configModal.footer[0].button.buttonDisabled = tmpDocumentTitle === "" || !nameIsAvailable;
+      }
       console.log("masuk Upload files.length === 1");
     } else if (files.length === 1 && tabBarSelected === "Link") {
       configModal.footer[0].button.buttonDisabled = false;
@@ -874,17 +878,19 @@
   });
 
   $effect(() => {
-    if (files.length > 0 && droppedItemType === "folder") {
+    if (files.length > 0 && droppedItemType === "folder" && effectRunCount < 2) {
       if (delayTimeout) {
         clearTimeout(delayTimeout);
       }
       delayTimeout = setTimeout(() => {
         processFolders(files);
-        files = files[0];
-        console.log("Folders", files);
+        files = [files[0]];
+        // console.log("Folders", files);
+
+        configModal.footer = footerUploadCollection;
+        isDND = true;
+        ++effectRunCount;
       }, 1000);
-    } else if (droppedItemType === "file") {
-      console.log(files);
     }
   });
 </script>
@@ -952,7 +958,7 @@
         <Input {...content.input} />
       {/if}
       {#if content?.uploadFile}
-        {#if folderMode}
+        {#if folderMode && !isDND}
           <UploadFolder
             title={content.uploadFile?.title}
             handleFileUploadWrapper={() => handleFileUploadWrapper(true)}
@@ -969,6 +975,8 @@
                 configModal.footer[0].button.buttonDisabled,
               );
             }}
+            {handleDragOver}
+            {handleDrop}
           />
         {:else}
           <UploadFile

@@ -45,6 +45,8 @@ All Rights Reserved
     largePreview = false,
     srcAvatar = null,
     disabled = false,
+    handleDragOver = () => {},
+    handleDrop = () => {},
   } = $props();
 
   let textarea = $state();
@@ -86,24 +88,24 @@ All Rights Reserved
     });
   }
 
-  function getFiles () {
-    var tmpFiles = []
+  function getFiles() {
+    var tmpFiles = [];
 
     if (!files) {
-      return tmpFiles
+      return tmpFiles;
     }
 
     for (const folder in files) {
       const parts = folder.split("/");
       folderName = parts[0];
-      let _folder = files[folder]
+      let _folder = files[folder];
       for (const f in _folder) {
-        tmpFiles.push(_folder[f])
+        tmpFiles.push(_folder[f]);
       }
     }
 
-    file = tmpFiles[0]
-    return tmpFiles
+    file = tmpFiles[0];
+    return tmpFiles;
   }
 
   // function actionDelete () {
@@ -143,18 +145,20 @@ All Rights Reserved
     if (textarea) {
       autosize();
     }
-    tmpFiles = getFiles()
+    tmpFiles = getFiles();
     if (tmpFiles.length > 0) {
-      file = tmpFiles[0]
+      file = tmpFiles[0];
     }
   });
-
 </script>
+
 <div class="relative flex flex-col gap-1.5">
   <Typography preset="Text sm/Medium" text={title} color="secondary" />
   {#if file === null || tmpFiles.length < 1}
     <div
       class={`flex gap-3 ${isPreview ? (largePreview ? "flex-col md:flex-row" : "flex-row") : "flex-col"}`}
+      ondragover={handleDragOver}
+      ondrop={handleDrop}
     >
       {#if isPreview}
         {#if largePreview}
@@ -196,14 +200,21 @@ All Rights Reserved
               <FolderSolid svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
               <Typography preset="Text md/Medium" text={folderName} color="primary" />
             </div>
-            <Typography preset="Text sm/Semibold" text={`${tmpFiles.length} ${$_("files")}`} color="primary" />
+            <Typography
+              preset="Text sm/Semibold"
+              text={`${tmpFiles.length} ${$_("files")}`}
+              color="primary"
+            />
           </div>
           {#if actionButton}
             <div class="flex w-full items-center justify-center gap-1">
               <Button
                 class="w-full h-max p-2"
                 color="light"
-                on:click={() => {modalAllDocuments = true; console.log("modalAllDocuments cek files", files);}}
+                on:click={() => {
+                  modalAllDocuments = true;
+                  console.log("modalAllDocuments cek files", files);
+                }}
               >
                 {$_("previewCollection")}
               </Button>
@@ -217,19 +228,23 @@ All Rights Reserved
         {#if actionButton}
           <div class="flex items-end justify-end gap-3">
             {#if multiple}
-              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}>{$_("uploadMore")}</Button>
+              <Button class="grow h-max p-2" color="light" on:click={handleFileUploadWrapper}
+                >{$_("uploadMore")}</Button
+              >
               {#if actionView}
                 <Button class="w-max h-max p-2" color="light" on:click={() => actionViewFile(file)}>
                   <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
                 </Button>
               {/if}
-            {:else}
-              {#if actionView}
-                <Button class="grow h-max gap-1 p-2" color="light" on:click={() => actionViewFile(file)}>
-                  <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-                  <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
-                </Button>
-              {/if}
+            {:else if actionView}
+              <Button
+                class="grow h-max gap-1 p-2"
+                color="light"
+                on:click={() => actionViewFile(file)}
+              >
+                <EyeIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+                <Typography preset="Text sm/Regular" text={$_("preview")} color="secondary" />
+              </Button>
             {/if}
             <Button class="w-max h-max p-2" color="light" on:click={actionDelete}>
               <TrashIcon svgClass="w-5 h-5 text-hc-error-600 dark:text-hc-error-500" />
@@ -243,14 +258,28 @@ All Rights Reserved
   {/if}
 </div>
 
-<Modal title={$_("selectedFileToUpload")} bind:open={modalAllDocuments} size="sm" outsideclose bodyClass="p-4 md:p-5 space-y-4 flex-1 max-h-[60vh] overflow-y-auto overscroll-contain">
+<Modal
+  title={$_("selectedFileToUpload")}
+  bind:open={modalAllDocuments}
+  size="sm"
+  outsideclose
+  bodyClass="p-4 md:p-5 space-y-4 flex-1 max-h-[60vh] overflow-y-auto overscroll-contain"
+>
   {#each Object.entries(files) as [pathFolder, folder]}
-    {#if pathFolder.includes("/")} 
+    {#if pathFolder.includes("/")}
       <!-- Tampilkan FOLDER terlebih dahulu -->
-      <button class="flex items-center w-full justify-between cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-800" onclick={() => toggleFolder(pathFolder)}>
+      <button
+        class="flex items-center w-full justify-between cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+        onclick={() => toggleFolder(pathFolder)}
+      >
         <div class="flex items-center gap-3">
           <FolderSolid svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-          <Typography preset="Text sm/Semibold" propClass="truncate" text={pathFolder.split("/").slice(-1)[0]} color="secondary" />
+          <Typography
+            preset="Text sm/Semibold"
+            propClass="truncate"
+            text={pathFolder.split("/").slice(-1)[0]}
+            color="secondary"
+          />
         </div>
         {#if expanded[pathFolder]}
           <ChevronUp svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
@@ -266,7 +295,12 @@ All Rights Reserved
           <div class="flex items-center justify-start gap-3 ml-6">
             <img src={getFileIcon(file.name)} alt="" />
             <div class="flex flex-col max-w-72 justify-center">
-              <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+              <Typography
+                preset="Text sm/Semibold"
+                propClass="truncate"
+                text={file.name}
+                color="secondary"
+              />
               <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
             </div>
           </div>
@@ -274,7 +308,7 @@ All Rights Reserved
       {/if}
     {/if}
   {/each}
-  
+
   <!-- Sekarang tampilkan file yang bukan di dalam folder -->
   {#each Object.entries(files) as [pathFolder, folder]}
     {#if !pathFolder.includes("/")}
@@ -282,7 +316,12 @@ All Rights Reserved
         <div class="flex items-center justify-start gap-3">
           <img src={getFileIcon(file.name)} alt="" />
           <div class="flex flex-col max-w-72 justify-center">
-            <Typography preset="Text sm/Semibold" propClass="truncate" text={file.name} color="secondary" />
+            <Typography
+              preset="Text sm/Semibold"
+              propClass="truncate"
+              text={file.name}
+              color="secondary"
+            />
             <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
           </div>
         </div>

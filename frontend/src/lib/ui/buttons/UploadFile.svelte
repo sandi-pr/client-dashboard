@@ -186,7 +186,7 @@ All Rights Reserved
       </Button>
     </div>
   {:else if files.length > 0}
-    {console.log("cek file", file)}
+    <!-- {console.log("cek file", file)} -->
     <div
       class={`flex ${isFlex ? "flex-row items-center justify-between" : "flex-col"} gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark`}
     >
