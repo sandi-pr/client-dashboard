@@ -2003,6 +2003,11 @@
     // "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     // "application/vnd.google-apps.folder",
   ]}
+  allowedFileTypesDragAndDrop={[
+    // "application/pdf",
+    // "application/msword",
+    // "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ]}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>

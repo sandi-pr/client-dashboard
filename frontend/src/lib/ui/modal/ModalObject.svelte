@@ -36,7 +36,9 @@
     maxDepth = 3,
     createCollection = () => {},
     collectionId = 1,
+    checkLibraryName = () => {},
     limitation = [],
+    allowedFileTypesDragAndDrop = [],
   } = $props();
 
   let tabBarSelected = $state("Upload");
@@ -45,6 +47,9 @@
   let urlCheckerRunning = $state(false);
   let firstLayer = $state([]);
   let secondLayer = $state([]);
+  let isProcessing = $state(false);
+  let droppedItemType = $state("");
+  let delayTimeout;
 
   let mainContentUpload = [
     {
@@ -655,6 +660,168 @@
     console.error("Error fetching the URL:", error);
   };
 
+  // Drag and Drop functionality
+  function handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    isProcessing = true;
+    const items = event.dataTransfer.items;
+    let hasFile = false;
+    let hasFolder = false;
+    let fileCount = 0;
+    let folderCount = 0;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i].webkitGetAsEntry();
+      if (item) {
+        if (item.isFile) {
+          hasFile = true;
+          fileCount++;
+        } else if (item.isDirectory) {
+          hasFolder = true;
+          folderCount++;
+        }
+      }
+    }
+
+    if (folderCount > 1 || (hasFile && hasFolder)) {
+      alert("Please drop either a single file, multiple files, or a single folder.");
+      return;
+    }
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i].webkitGetAsEntry();
+      if (item) {
+        traverseFileTree(item);
+      }
+    }
+
+    // console.log(files);
+
+    if (hasFile) {
+      droppedItemType = fileCount > 1 ? "multiple files" : "file";
+    } else if (hasFolder) {
+      droppedItemType = "folder";
+    }
+  }
+
+  function traverseFileTree(item, path = "", parentFolder = null) {
+    if (item.isFile) {
+      item.file(async (file) => {
+        if (
+          !allowedFileTypesDragAndDrop.includes(file.type) &&
+          allowedFileTypesDragAndDrop.length !== 0
+        ) {
+          console.log(`File type ${file.type} is not allowed.`);
+          return;
+        }
+        let base64 = await toBase64(file);
+        // remove the prefix (pdf, image, anything) if it exists
+        if (base64.startsWith("data:application/pdf;base64,")) {
+          let prefix = [
+            "data:application/pdf;base64,",
+            "data:image/jpeg;base64,",
+            "data:image/png;base64,",
+            "data:image/jpg;base64,",
+            "data:audio/mpeg;base64,",
+            "data:audio/wav;base64,",
+            "data:audio/ogg;base64,",
+            "data:text/csv;base64,",
+          ];
+          for (let i = 0; i < prefix.length; i++) {
+            base64 = base64.replace(prefix[i], "");
+          }
+        }
+
+        let nameIsAvailable = await checkLibraryName(
+          file.name.split(".")[0],
+          collectionId,
+          "document",
+        );
+        let newFileName = "";
+        if (!nameIsAvailable) {
+          let randomString = Math.random().toString(36).substring(7);
+          newFileName =
+            file.name.split(".")[0] + "-" + randomString + "." + file.name.split(".")[1];
+        }
+        tmpDocumentTitle = newFileName || file.name.split(".")[0];
+
+        const fileData = {
+          id: files.length < 1 ? 1 : files.length + 1,
+          name: newFileName || file.name,
+          documentTitle: file.name.split(".")[0],
+          description: "",
+          size: formatBytes(file.size),
+          base64: base64,
+          ext: "." + file.type.split("/")[file.type.split("/").length - 1],
+          type: getFileType(file.type),
+        };
+        if (parentFolder) {
+          parentFolder.files = [...parentFolder.files, fileData];
+          // console.log("parentFolder", parentFolder);
+        } else {
+          files = [...files, fileData];
+        }
+        // console.log("File added:", fileData);
+      });
+    } else if (item.isDirectory) {
+      const existingFolder = files.find((folder) => folder.name === item.name);
+      const folderData = existingFolder || {
+        id: uuidv4(),
+        name: item.name,
+        files: [],
+        parentId: parentFolder ? parentFolder.id : null,
+      };
+      if (!existingFolder) {
+        files = [...files, folderData];
+      }
+      const dirReader = item.createReader();
+      dirReader.readEntries((entries) => {
+        // console.log("Folder entries:", entries);
+        for (let i = 0; i < entries.length; i++) {
+          traverseFileTree(entries[i], path + item.name + "/", folderData);
+        }
+      });
+    }
+  }
+
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  }
+
+  function processFolders(folders) {
+    if (folders.length <= 1) {
+      isProcessing = false;
+      return;
+    }
+
+    const folderMap = new Map();
+    folders.forEach((folder) => {
+      folderMap.set(folder.id, folder);
+    });
+
+    folders.forEach((folder) => {
+      if (folder.parentId) {
+        const parentFolder = folderMap.get(folder.parentId);
+        if (parentFolder) {
+          parentFolder.files = [...parentFolder.files, folder];
+        }
+      }
+    });
+
+    folders = folders.filter((folder) => !folder.parentId);
+  }
+
   onMount(async () => {
     if (usedFor === "Documents") {
       configModal.header.contentCenter[0].text.text = $_("addDocuments");
@@ -688,10 +855,10 @@
       console.log("masuk files.length > 1");
     } else if (files.length === 1 && tabBarSelected === "Upload") {
       configModal.footer[0].button.buttonDisabled = tmpDocumentTitle === "" || !nameIsAvailable;
-      console.log("masuk files.length === 1");
+      console.log("masuk Upload files.length === 1");
     } else if (files.length === 1 && tabBarSelected === "Link") {
       configModal.footer[0].button.buttonDisabled = false;
-      console.log("masuk files.length === 1");
+      console.log("masuk Link files.length === 1");
     }
   });
 
@@ -700,6 +867,21 @@
       configModal.footer[0].button.buttonDisabled = true;
     } else {
       configModal.footer[0].button.buttonDisabled = linkImportLink ? false : true;
+    }
+  });
+
+  $effect(() => {
+    if (files.length > 0 && droppedItemType === "folder") {
+      if (delayTimeout) {
+        clearTimeout(delayTimeout);
+      }
+      delayTimeout = setTimeout(() => {
+        processFolders(files);
+        files = files[0];
+        console.log("Folders", files);
+      }, 1000);
+    } else if (droppedItemType === "file") {
+      console.log(files);
     }
   });
 </script>
@@ -760,6 +942,8 @@
           }}
           actionView={true}
           {folderMode}
+          {handleDragOver}
+          {handleDrop}
         />
       {:else if content?.input}
         <Input {...content.input} />
@@ -796,6 +980,8 @@
             actionDelete={() => {
               files = [];
             }}
+            {handleDragOver}
+            {handleDrop}
           />
         {/if}
         {#if fileNotSupport}

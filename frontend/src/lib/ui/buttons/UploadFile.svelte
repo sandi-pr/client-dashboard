@@ -43,6 +43,8 @@ All Rights Reserved
     srcAvatar = null,
     disabled = false,
     folderMode = false,
+    handleDragOver = () => {},
+    handleDrop = () => {},
   } = $props();
 
   let textarea = $state();
@@ -96,6 +98,8 @@ All Rights Reserved
   {#if file === null || (isProcess && files.length < 1)}
     <div
       class={`flex gap-3 ${isPreview ? (largePreview ? "flex-col md:flex-row" : "flex-row") : "flex-col"}`}
+      on:dragover={handleDragOver}
+      on:drop={handleDrop}
     >
       {#if isPreview}
         {#if largePreview}
