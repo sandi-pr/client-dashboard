@@ -280,7 +280,7 @@
     {
       button: {
         text: "addNewDocument",
-        onClick: addDocumentByCollection,
+        onClick: () => addDocumentByCollection(),
         buttonDisabled: true,
       },
     },

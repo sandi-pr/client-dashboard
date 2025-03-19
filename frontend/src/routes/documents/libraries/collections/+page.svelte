@@ -1388,7 +1388,7 @@
   </div>
   <svelte:fragment slot="footer">
     <Button
-      onclick={createCollection}
+      onclick={() => createCollection()}
       disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewCollection")}</Button
     >
