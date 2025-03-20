@@ -431,9 +431,14 @@
       }
 
       if (isGoogleDrive && url.includes("/drive/folders/")) {
-        await getFolderContents(fileId, {}, 1, maxDepth);
-        console.log("files", files);
-        return true;
+        if (folderMode) {
+          await getFolderContents(fileId, {}, 1, maxDepth);
+          // console.log("files", files);
+          triggerLoading(false);
+          return true;
+        } else {
+          throw new Error("URL must be a file, not a folder");
+        }
       } else {
         // Handle Google Drive file or other URL
         const fetchUrl = isGoogleDrive
@@ -456,9 +461,14 @@
 
         const contentType = response.headers.get("content-type");
         if (limitation.length === 0 || limitation.some((type) => contentType.includes(type))) {
-          await processFile(response, contentType, url, fileMetadata);
-          triggerLoading(false);
-          return true;
+          if (!folderMode) {
+            await processFile(response, contentType, url, fileMetadata);
+            // console.log("files", files);
+            triggerLoading(false);
+            return true;
+          } else {
+            throw new Error("URL must be a folder, not a file");
+          }
         } else {
           setErrorText("fileNotSupported");
           throw new Error("URL does not contain a valid resource");
@@ -539,8 +549,6 @@
         files: [...folder.files, ...secondLayer],
       };
     });
-
-    console.log("cek files processLayer", files);
   };
 
   const insertLayer = async (folderMetadata, folderData, depth) => {
@@ -656,14 +664,21 @@
   };
 
   const handleError = (error, errorObject) => {
+    console.log("error", error);
     if (errorObject && errorObject.error) {
       if (errorObject.error.code === 403) {
         setErrorText("accessRestrictedCheckSharingSettings");
       } else if (errorObject.error.code === 404) {
         setErrorText("fileNotFoundMakeSureTheLinkIsCorrectAndAccessible");
       }
-    } else if (error instanceof TypeError && error.message === "Failed to fetch") {
+    } else if (error.message === "Failed to fetch") {
       setErrorText("accessRestrictedCheckSharingSettings");
+    } else if (error.message === "Invalid Google Drive URL") {
+      setErrorText("invalidGoogleDriveURL");
+    } else if (error.message === "URL must be a file, not a folder") {
+      setErrorText("urlMustBeAFileNotAFolder");
+    } else if (error.message === "URL must be a folder, not a file") {
+      setErrorText("urlMustBeAFolderNotAFile");
     } else {
       setErrorText("failedToFetchResource");
     }

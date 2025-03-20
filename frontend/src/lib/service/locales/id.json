@@ -1014,5 +1014,8 @@
   "conversationFinetuneHistory": "Riwayat Finetune Percakapan",
   "handwritingFinetuneHistory": "Riwayat Finetune Tulisan Tangan",
   "handwritingDatasetHistory": "Riwayat Dataset Tulisan Tangan",
-  "addNewDataset": "Tambah Dataset Baru"
+  "addNewDataset": "Tambah Dataset Baru",
+  "invalidGoogleDriveURL": "URL Google Drive tidak valid",
+  "urlMustBeAFileNotAFolder": "URL harus berupa file, bukan folder",
+  "urlMustBeAFolderNotAFile": "URL harus berupa folder, bukan file"
 }

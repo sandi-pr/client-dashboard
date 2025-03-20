@@ -1014,5 +1014,8 @@
   "conversationFinetuneHistory": "Conversation Finetune History",
   "handwritingFinetuneHistory": "Handwriting Finetune History",
   "handwritingDatasetHistory": "Handwriting Dataset History",
-  "addNewDataset": "Add New Dataset"
+  "addNewDataset": "Add New Dataset",
+  "invalidGoogleDriveURL": "Invalid Google Drive URL",
+  "urlMustBeAFileNotAFolder": "URL must be a file, not a folder.",
+  "urlMustBeAFolderNotAFile": "URL must be a folder, not a file."
 }
