@@ -46,7 +46,7 @@ All Rights Reserved
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
 
-  let documentId, collectionId, libraryId;
+  let documentId, collectionId, libraryId, subCollectionId;
 
   import { call } from "$lib";
 
@@ -737,7 +737,7 @@ All Rights Reserved
     });
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -749,6 +749,8 @@ All Rights Reserved
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -775,7 +777,7 @@ All Rights Reserved
 
   const handleInput = async (event) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), subCollectionId, "document");
 
     if (status === true) {
       nameIsAvailable = true;
@@ -792,6 +794,7 @@ All Rights Reserved
     const unsubscribe = page.subscribe(async ($page) => {
       documentId = $page.url.searchParams.get("documentId");
       libraryId = $page.url.searchParams.get("libraryId");
+      subCollectionId = $page.url.searchParams.get("subCollectionId");
       if (documentId === null || documentId === undefined || libraryId === null || libraryId === undefined) {
         triggerToast("error");
         goto(

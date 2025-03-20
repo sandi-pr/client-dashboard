@@ -42,17 +42,26 @@
       .flat() || [];
 
   function checkTitle(title) {
-    console.log(libraryId, $bakrieLibraryId);
     if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
-      console.log(title);
       return (
         title === "Documents" ||
         title === "Images" ||
         title === "Document Images" ||
         title === "Handwriting"
       );
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
+      return (
+        title === "My Handwriting"
+      );
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
+      return (
+        title === "My Voice"
+      )
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "insights"))) {
+      return (
+        title === "My Data Source"
+      )
     } else {
-      console.log("false");
       return false;
     }
   }

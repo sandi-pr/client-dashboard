@@ -52,6 +52,10 @@
       return (
         title === "My Voice"
       )
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "insights"))) {
+      return (
+        title === "My Data Source"
+      )
     } else {
       return false;
     }

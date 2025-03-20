@@ -187,8 +187,6 @@ All Rights Reserved
       return null;
     }
 
-    console.log("cek param", name + " parentId " + parentId + " type " + type);
-
     try {
       let resp = await $call.call("client-dashboard", "is-library-name-available", {
         URLQuery: {},
@@ -196,7 +194,7 @@ All Rights Reserved
         Params: {
           name: name,
           parent_id: parseInt(parentId),
-          document_type: type,
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -977,6 +975,7 @@ All Rights Reserved
                 funcDetailCollection={() => {
                   goto(document.href);
                 }}
+                {libraryId}
               />
             {/each}
           </div>

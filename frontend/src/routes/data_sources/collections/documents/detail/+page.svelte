@@ -10,6 +10,7 @@
     TableHead,
     TableHeadCell,
     Modal,
+    Helper,
   } from "flowbite-svelte";
   // import Datatable from "$lib/components/Datatable.svelte";
   import { _ } from "svelte-i18n";
@@ -30,6 +31,7 @@
   let alltags = $state([]);
   let tags = $state([]);
   let gettingDatas = $state(false);
+  let nameIsAvailable = $state(true);
 
   let data = $state({});
   let tmpData = $state({});
@@ -363,6 +365,55 @@
     }
   }
 
+  const handleInput = async (event) => {
+    const name = event.target.value;
+    const status = await checkLibraryName(name.trim(), collectionId, "document");
+
+    if (status === true) {
+      nameIsAvailable = true;
+    } else if (status === false) {
+      nameIsAvailable = false;
+    }
+  };
+
+  const checkLibraryName = async (name, parentId, type) => {
+    let token = localStorage.getItem("token");
+    if (!name || !token) {
+      return null;
+    }
+
+    try {
+      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: name,
+          parent_id: parseInt(parentId),
+          type: type,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      console.log("cek resp", resp);
+
+      if (resp === null) {
+        throw new Error("Server sibuk");
+      }
+
+      if (resp.status === 200) {
+        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
+      } else {
+        console.error("Error memeriksa name:", resp);
+        return null;
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return null;
+    }
+  };
+
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -385,13 +436,13 @@
 
 <div class="m-4">
   <div class="flex justify-between items-center">
-    <Typography text={data.document_title} preset="Display sm/Semibold" />
+    <Typography text={tmpData.document_title} preset="Display sm/Semibold" />
     <div class="flex gap-2">
       {#if canEdit}
-        <Button color="alternative" on:click={() => (canEdit = false)}>
+        <Button color="alternative" on:click={() => {canEdit = false; data.document_title = tmpData.document_title}}>
           <Typography text="Cancel" preset="Text sm/Semibold" color="tertiary" />
         </Button>
-        <Button color="primary" on:click={() => updateDocument()}>
+        <Button color="primary" disabled={data.document_title === "" || !nameIsAvailable} on:click={() => updateDocument()}>
           <Typography text="Save" preset="Text sm/Semibold" color="primary-onbrand" />
         </Button>
       {:else}
@@ -420,9 +471,15 @@
           <Typography preset="Text sm/Semibold" color="secondary" text={$_("documentTitle")} />
           <Input
             readonly={!canEdit}
+            oninput={handleInput}
             bind:value={data.document_title}
             class="bg-primary-light dark:bg-secondary-dark focus:none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
           />
+          {#if !nameIsAvailable}
+            <Helper color="red">
+              <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+            </Helper>
+          {/if}
         </div>
       </div>
       <div class="grid grid-cols-1">

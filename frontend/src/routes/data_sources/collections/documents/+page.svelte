@@ -85,6 +85,7 @@
   let tmpId = $state(null);
   let isMobileView = $state(false);
   let hasDocOrDocx = $state(false);
+  let folderMode = $state(false);
   let tabDatas = $state({
     selected: "Collections",
     data: [
@@ -1306,17 +1307,26 @@
   }
 
   function checkTitle(title) {
-    console.log(libraryId, $bakrieLibraryId);
     if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
-      console.log("check title", true);
       return (
         title === "Documents" ||
         title === "Images" ||
         title === "Document Images" ||
         title === "Handwriting"
       );
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
+      return (
+        title === "My Handwriting"
+      );
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
+      return (
+        title === "My Voice"
+      )
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "insights"))) {
+      return (
+        title === "My Data Source"
+      )
     } else {
-      console.log("check title", false);
       return false;
     }
   }
@@ -1619,7 +1629,7 @@
     }
 
     groupedFiles = null;
-    addFolderModal = false;
+    addDocumentsModal = false;
     getCollections(true);
     triggerLoading(false);
 
@@ -1786,17 +1796,23 @@
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
-                    addFolderModal = true;
+                    addDocumentsModal = true;
+                    folderMode = true;
+                    files = [];
                     groupedFiles = null;
+                    attributeNotUnique = false;
+                    dropdownUpload = false;
+                    nameIsAvailable = true;
                   }}
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("uploadCollection")}</button
+                  />{$_("addFolder")}</button
                 >
                 <button
                   class="flex p-2 w-full gap-1.5"
                   onclick={() => {
                     addDocumentsModal = true;
+                    folderMode = false;
                     tags = [];
                     files = [];
                     tmpDocumentTitle = "";
@@ -1929,7 +1945,7 @@
   <ToastContainer />
 </div>
 
-<ModalFolder
+<!-- <ModalFolder
   bind:addDocumentsModal={addFolderModal}
   bind:nameIsAvailable
   bind:files
@@ -1950,12 +1966,13 @@
 
   isFolder = {true}
   actionDelete={() => (files = [])}
-/>
+/> -->
 
 <ModalObject
   bind:modalObjectOpen={addDocumentsModal}
   bind:nameIsAvailable
   bind:tmpDocumentTitle
+  bind:groupedFiles
   {handleFileUploadWrapper}
   bind:isProcess
   bind:files
@@ -1964,7 +1981,9 @@
   {addDocumentByCollection}
   {handleInput}
   {fileNotSupport}
+  {folderMode}
   usedFor="Data"
+  maxDepth={1}
 />
 
 <Modal title={$_("createNewCategories")} bind:open={addCategoriesModal}>
@@ -2157,7 +2176,7 @@
       <Input
         bind:value={tmpCollectionName}
         on:input={(event) => handleInput(event, collectionId, 'collection')}
-        placeholder={$_("whatIsYourCollectionTitle")}
+        placeholder={$_("whatIsYourSubCollectionTitle")}
       />
       {#if !nameIsAvailable}
         <Helper color="red">
@@ -2185,7 +2204,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
+        on:input={(event) => handleInput(event, collectionId, 'collection')}
         placeholder={$_("whatIsYourSubCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2318,11 +2337,11 @@
 <Modal title={$_("editCollectionName")} bind:open={editCollectionModal} size="xs" autoclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={handleInput}
-        placeholder={$_("whatIsYourLibraryTitle")}
+        on:input={(event) => handleInput(event, libraryId, 'collection')}
+        placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
         <Helper color="red">

@@ -631,6 +631,7 @@ All Rights Reserved
 
         console.log(response);
         attributeNotUnique = false;
+        nameIsAvailable = true;
         triggerToast("successUpdateDocument", true);
         triggerLoading(false);
         getDocument();
@@ -735,7 +736,7 @@ All Rights Reserved
     });
   }
 
-  const checkLibraryName = async (name) => {
+  const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
     if (!name || !token) {
       return null;
@@ -747,6 +748,8 @@ All Rights Reserved
         URLParams: {},
         Params: {
           name: name,
+          parent_id: parseInt(parentId),
+          type: type,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -773,7 +776,7 @@ All Rights Reserved
 
   const handleInput = async (event) => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim());
+    const status = await checkLibraryName(name.trim(), collectionId, "document");
 
     if (status === true) {
       nameIsAvailable = true;

@@ -558,7 +558,10 @@
     for (let i = 0; i < index; i++) {
       let statusAvailable = await checkLibraryName(newName.trim(), parentId, type);
 
-      if (statusAvailable === true) {
+      if (statusAvailable === true || index >= 5) {
+        if (index >= 5) {
+          newName = "failed";
+        }
         break;
       } else {
         newName = `${originalName}(${index})`;
@@ -829,7 +832,9 @@
   }
 
   async function addDocumentByCollection(folderFiles = null, parentId = null) {
-    let files = folderFiles || files;
+    if (folderFiles != null) {
+      files = folderFiles;
+    }
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -906,12 +911,21 @@
               for (let i = 0; i < index; i++) {
                 let statusAvailable = await checkLibraryName(newName.trim());
 
-                if (statusAvailable === true) {
+                if (statusAvailable === true || index >= 5) {
+                  if (index >= 5) {
+                    newName = "failed";
+                  }
                   break;
                 } else {
                   newName = `${originalName}(${index})`;
                   index++;
                 }
+              }
+
+              if (newName === "failed") {
+                triggerToast($_("failedUploadDocument"), true, "error");
+                triggerLoading(false);
+                throw new Error("Failed to upload document");
               }
 
               files[i].name = newName + files[i].ext;
@@ -958,14 +972,23 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim());
+              let statusAvailable = await checkLibraryName(newName.trim(), parentId, "document");
 
-              if (statusAvailable === true) {
+              if (statusAvailable === true || index >= 5) {
+                if (index >= 5) {
+                  newName = "failed";
+                }
                 break;
               } else {
                 newName = `${originalName}(${index})`;
                 index++;
               }
+            }
+
+            if (newName === "failed") {
+              triggerToast($_("failedUploadDocument"), true, "error");
+              triggerLoading(false);
+              throw new Error("Failed to upload document");
             }
 
             files[i].name = newName + files[i].ext;

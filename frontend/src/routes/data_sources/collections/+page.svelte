@@ -12,6 +12,7 @@
     TextareaRw,
     check,
     ModalFolder,
+    ModalObject,
     triggerLoading,
   } from "$lib";
   import { onMount } from "svelte";
@@ -40,6 +41,7 @@
   let dropdownOpen = $state(false);
   let nameIsAvailable = $state(true);
   let gettingDatas = $state(false);
+  let folderMode = $state(false);
 
   //Ketbutuhan Untuk Modal DropDown
   let tmpDocumentType = $state("Data");
@@ -957,13 +959,14 @@
                   class="flex p-2 w-full gap-1.5"
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
+                    folderMode = true;
                     dropdownUpload = false;
                     addFolderModal = true;
                     groupedFiles = null;
                   }}
                   ><FolderPlusIcon
                     svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("uploadCollection")}
+                  />{$_("addFolder")}
                 </button>
               </ul>
             </div>
@@ -1119,25 +1122,24 @@
   </div>
 </Modal>
 
-<ModalFolder
-  bind:addDocumentsModal={addFolderModal}
+<ModalObject
+  bind:modalObjectOpen={addFolderModal}
   bind:nameIsAvailable
-  bind:files
-  bind:buttonDisabled
+  bind:tmpDocumentTitle
   bind:groupedFiles
-
-  {selectedTypeCollection}
-  {alltags}
-  {tags}
-  {isProcess}
+  bind:isProcess
+  bind:files
+  bind:tags
   {handleFileUploadWrapper}
+  {alltags}
+  {addDocumentByCollection}
+  {handleInput}
   {fileNotSupport}
   {hasDocOrDocx}
-  {tmpDocumentTitle}
-  {tmpDocumentDescription}
-  {handleInput}
-  {addDocumentByCollection}
-
-  isFolder = {true}
-  actionDelete={() => (files = [])}
+  {folderMode}
+  maxDepth={2}
+  {createCollection}
+  collectionId={libraryId}
+  {checkLibraryName}
+  usedFor="Data"
 />
