@@ -915,22 +915,18 @@
   $effect(() => {
     if (files.length > 1) {
       configModal.footer[0].button.buttonDisabled = false;
-      console.log("masuk files.length > 1");
+      // console.log("masuk files.length > 1");
     } else if (files.length === 1 && tabBarSelected === "Upload") {
       if (effectRunCount > 0) {
         configModal.footer[0].button.buttonDisabled = false;
       } else {
         configModal.footer[0].button.buttonDisabled = tmpDocumentTitle === "" || !nameIsAvailable;
       }
-      console.log("masuk Upload files.length === 1");
+      // console.log("masuk Upload files.length === 1");
     } else if (files.length === 1 && tabBarSelected === "Link") {
       configModal.footer[0].button.buttonDisabled = false;
-      console.log("masuk Link files.length === 1");
-    }
-  });
-
-  $effect(() => {
-    if (urlCheckerRunning) {
+      // console.log("masuk Link files.length === 1");
+    } else if (urlCheckerRunning) {
       configModal.footer[0].button.buttonDisabled = true;
     } else {
       configModal.footer[0].button.buttonDisabled = linkImportLink ? false : true;
@@ -951,6 +947,16 @@
         isDND = true;
         ++effectRunCount;
       }, 1000);
+    }
+  });
+
+  $effect(() => {
+    if (folderMode) {
+      configModal.header.contentCenter[0].text.text = $_("addCollection");
+      configModal.footer[0].button.text = $_("addNewCollection");
+    } else {
+      configModal.header.contentCenter[0].text.text = $_("addDocuments");
+      configModal.footer[0].button.text = $_("addNewDocument");
     }
   });
 </script>
