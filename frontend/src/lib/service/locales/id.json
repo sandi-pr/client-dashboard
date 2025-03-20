@@ -1017,5 +1017,8 @@
   "addNewDataset": "Tambah Dataset Baru",
   "invalidGoogleDriveURL": "URL Google Drive tidak valid",
   "urlMustBeAFileNotAFolder": "URL harus berupa file, bukan folder",
-  "urlMustBeAFolderNotAFile": "URL harus berupa folder, bukan file"
+  "urlMustBeAFolderNotAFile": "URL harus berupa folder, bukan file",
+  "pleaseDropAFolder": "Silakan seret dan lepaskan folder",
+  "pleaseDropAFile": "Silakan seret dan lepaskan file",
+  "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Silakan seret dan lepaskan satu file, beberapa file, atau satu folder"
 }

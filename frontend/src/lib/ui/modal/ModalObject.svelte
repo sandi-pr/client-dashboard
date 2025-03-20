@@ -88,6 +88,30 @@
       },
     },
     {
+      card: {
+        cardData: {
+          // iconData: { icon: "filePlus" },
+          contentCenter: [
+            [
+              {
+                icon: {
+                  icon: "infoCircle",
+                  color: "error",
+                },
+                text: {
+                  text: "",
+                  color: "fg-error-primary",
+                  preset: "Text sm/Regular",
+                },
+                justify: "justify-start",
+              },
+            ],
+          ],
+        },
+        propClass: getBgColors("error-primary") + " border-0 rounded-xl",
+      },
+    },
+    {
       text: {
         text: "Label",
         color: "primary",
@@ -470,7 +494,6 @@
             throw new Error("URL must be a folder, not a file");
           }
         } else {
-          setErrorText("fileNotSupported");
           throw new Error("URL does not contain a valid resource");
         }
       }
@@ -660,7 +683,11 @@
   };
 
   const setErrorText = (key) => {
-    configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(key);
+    if (tabBarSelected === "Upload") {
+      configModal.mainContent[4].card.cardData.contentCenter[0][0].text.text = $_(key);
+    } else {
+      configModal.mainContent[5].card.cardData.contentCenter[0][0].text.text = $_(key);
+    }
   };
 
   const handleError = (error, errorObject) => {
@@ -679,6 +706,14 @@
       setErrorText("urlMustBeAFileNotAFolder");
     } else if (error.message === "URL must be a folder, not a file") {
       setErrorText("urlMustBeAFolderNotAFile");
+    } else if (error.message === "Please drop a folder.") {
+      setErrorText("pleaseDropAFolder");
+    } else if (error.message === "Please drop a file.") {
+      setErrorText("pleaseDropAFile");
+    } else if (
+      error.message === "Please drop either a single file, multiple files, or a single folder."
+    ) {
+      setErrorText("pleaseDropEitherASingleFileMultipleFilesOrASingleFolder");
     } else {
       setErrorText("failedToFetchResource");
     }
@@ -693,45 +728,55 @@
   }
 
   function handleDrop(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const items = event.dataTransfer.items;
-    let hasFile = false;
-    let hasFolder = false;
-    let fileCount = 0;
-    let folderCount = 0;
+    try {
+      event.preventDefault();
+      event.stopPropagation();
+      triggerLoading(true);
+      const items = event.dataTransfer.items;
+      let hasFile = false;
+      let hasFolder = false;
+      let fileCount = 0;
+      let folderCount = 0;
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i].webkitGetAsEntry();
-      if (item) {
-        if (item.isFile) {
-          hasFile = true;
-          fileCount++;
-        } else if (item.isDirectory) {
-          hasFolder = true;
-          folderCount++;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i].webkitGetAsEntry();
+        if (item) {
+          if (item.isFile) {
+            hasFile = true;
+            fileCount++;
+          } else if (item.isDirectory) {
+            hasFolder = true;
+            folderCount++;
+          }
         }
       }
-    }
 
-    if (folderCount > 1 || (hasFile && hasFolder)) {
-      alert("Please drop either a single file, multiple files, or a single folder.");
-      return;
-    }
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i].webkitGetAsEntry();
-      if (item) {
-        traverseFileTree(item);
+      if (folderMode && !hasFolder) {
+        throw new Error("Please drop a folder.");
+      } else if (!folderMode && !hasFile) {
+        throw new Error("Please drop a file.");
+      } else if (folderCount > 1 || (hasFile && hasFolder)) {
+        throw new Error("Please drop either a single file, multiple files, or a single folder.");
       }
-    }
 
-    // console.log(files);
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i].webkitGetAsEntry();
+        if (item) {
+          traverseFileTree(item);
+        }
+      }
 
-    if (hasFile) {
-      droppedItemType = fileCount > 1 ? "multiple files" : "file";
-    } else if (hasFolder) {
-      droppedItemType = "folder";
+      // console.log(files);
+
+      if (hasFile) {
+        droppedItemType = fileCount > 1 ? "multiple files" : "file";
+      } else if (hasFolder) {
+        droppedItemType = "folder";
+      }
+
+      triggerLoading(false);
+    } catch (error) {
+      handleError(error);
     }
   }
 

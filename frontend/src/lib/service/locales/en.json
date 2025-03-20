@@ -1017,5 +1017,8 @@
   "addNewDataset": "Add New Dataset",
   "invalidGoogleDriveURL": "Invalid Google Drive URL",
   "urlMustBeAFileNotAFolder": "URL must be a file, not a folder.",
-  "urlMustBeAFolderNotAFile": "URL must be a folder, not a file."
+  "urlMustBeAFolderNotAFile": "URL must be a folder, not a file.",
+  "pleaseDropAFolder": "Please drop a folder",
+  "pleaseDropAFile": "Please drop a file",
+  "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Please drop either a single file, multiple files, or a single folder."
 }
