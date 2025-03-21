@@ -15,7 +15,7 @@
   let actionItems = [
     {
       // href: await $call.getPage("client-dashboard", "bots-create"),
-      href: "/llms",
+      href: "/llms/my_models/create",
       icon: "uploadCloud02",
       actionName: "deploy your model",
       desc: "desc deploy your model",
@@ -453,12 +453,42 @@
 
         if (response.status === 200) {
           if (response?.result && response.result.models.length > 0) {
-            let llama31 = ["Expanded Model Sizes", "Multilingual Processing", "Extended Context Length", "Open-Source Accessibility", "Enhanced Performance"];
-            let llama32 = ["Multimodal Capabilities", "Cost Efficiency", "High Performance", "Edge Deployment Suitability", "Broad Flexibility"];
-            let gemma = ["Real-Time Multilingual Support", "High Contextual Understanding", "Efficient Processing", "Scalability", "User-Friendly Integration"];
-            let deepseek = ["Modular Design", "Cost-Effective Reasoning", "Efficient Resource Utilization", "Open-Source Accessibility", "Competitive Performance"];
-            let qurani = ["Finds hidden problems in data.", "Understands images and text.", "Predicts machine failures.", "Personalizes user experiences.", "Discovers new scientific insights."];
-           
+            let llama31 = [
+              "Expanded Model Sizes",
+              "Multilingual Processing",
+              "Extended Context Length",
+              "Open-Source Accessibility",
+              "Enhanced Performance",
+            ];
+            let llama32 = [
+              "Multimodal Capabilities",
+              "Cost Efficiency",
+              "High Performance",
+              "Edge Deployment Suitability",
+              "Broad Flexibility",
+            ];
+            let gemma = [
+              "Real-Time Multilingual Support",
+              "High Contextual Understanding",
+              "Efficient Processing",
+              "Scalability",
+              "User-Friendly Integration",
+            ];
+            let deepseek = [
+              "Modular Design",
+              "Cost-Effective Reasoning",
+              "Efficient Resource Utilization",
+              "Open-Source Accessibility",
+              "Competitive Performance",
+            ];
+            let qurani = [
+              "Finds hidden problems in data.",
+              "Understands images and text.",
+              "Predicts machine failures.",
+              "Personalizes user experiences.",
+              "Discovers new scientific insights.",
+            ];
+
             let models = response.result.models;
 
             for (let i = 0; i < models.length; i++) {
@@ -476,7 +506,7 @@
                       },
                       justify: "justify-start",
                     },
-                  ]
+                  ];
                 });
               } else if (models[i].name === "Llama3.2") {
                 models[i].points = llama32.map((point) => {
@@ -492,7 +522,7 @@
                       },
                       justify: "justify-start",
                     },
-                  ]
+                  ];
                 });
               } else if (models[i].name === "DeepSeek R1") {
                 models[i].points = deepseek.map((point) => {
@@ -508,7 +538,7 @@
                       },
                       justify: "justify-start",
                     },
-                  ]
+                  ];
                 });
               } else if (models[i].name === "Gemma 2") {
                 models[i].points = gemma.map((point) => {
@@ -524,7 +554,7 @@
                       },
                       justify: "justify-start",
                     },
-                  ]
+                  ];
                 });
               } else if (models[i].name.includes("Qurani")) {
                 models[i].points = qurani.map((point) => {
@@ -540,11 +570,11 @@
                       },
                       justify: "justify-start",
                     },
-                  ]
+                  ];
                 });
               }
             }
-            console.log("masukkkkkkkkk", models)
+            // console.log("masukkkkkkkkk", models);
 
             cardDataArray = response.result.models.map((model, index) => {
               return {
@@ -598,7 +628,14 @@
                       svgClassReplace: "w-5 h-5 text-white",
                       funcButton: async () => {
                         let resultPage = await $call.getPage("hexabot", "home-page");
-                        window.open(resultPage + "?model=" + model.model + "&id=" + localStorage.getItem("botLlmId"), "_blank");
+                        window.open(
+                          resultPage +
+                            "?model=" +
+                            model.model +
+                            "&id=" +
+                            localStorage.getItem("botLlmId"),
+                          "_blank",
+                        );
                         // goto(resultPage + "?model=" + model.model + "&id=" + localStorage.getItem("botLlmId"));
                       },
                     },
@@ -636,16 +673,16 @@
 </script>
 
 <div class="flex flex-col m-4 gap-4 pb-4 md:pb-12">
-  <!-- <Typography text="Large Language Models Overview" preset="Display sm/Semibold" />
+  <Typography text="Large Language Models Overview" preset="Display sm/Semibold" />
   <Typography text="Quick Actions" preset="Text lg/Semibold" propClass="my-4" />
   <Divider />
-  <ActionCard {actionItems} /> -->
+  <ActionCard {actionItems} />
   <div class="flex justify-between items-center mt-4">
     <Typography text="Large Language Models Lists" preset="Text lg/Semibold" propClass="md:my-4" />
     <Button
       spaceY="m-0 max-h-min"
       text="View All"
-      funcButton={ async() => {
+      funcButton={async () => {
         let link = await $call.getPage("client-dashboard", "llms-list");
         goto(link);
       }}
@@ -658,19 +695,14 @@
       <CardFeature {cardData} />
     {/each}
   </div>
-  <!-- <CardFeature {cardData} /> -->
-  <!-- <div class="flex justify-between mt-4">
+  <div class="flex justify-between mt-4">
     <Typography text="Recently Deployed Models" preset="Text lg/Semibold" propClass="my-4" />
-    <Button
-      text="View All"
-      funcButton={() => (window.location.href = "/llms/list")}
-      color="alternative"
-    />
+    <Button text="View All" funcButton={() => goto("/llms/my_models")} color="alternative" />
   </div>
   <Divider />
   <div class="grid grid-cols-3 gap-4">
     {#each recentItems as item}
       <Card type={item.type} href={item.href} icon={item.icon} title={item.title} />
     {/each}
-  </div> -->
+  </div>
 </div>
