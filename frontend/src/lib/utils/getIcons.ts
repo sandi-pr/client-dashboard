@@ -75,6 +75,7 @@ import InfoCircle from "../icon/info-circle.svelte";
 import FolderDownload from "../icon/folder-download.svelte";
 import GoogleDriveIcon from "../icon/google-drive.svelte";
 import TrashIcon from "../icon/trash-01.svelte";
+import UploadCloud01 from "../icon/upload-cloud-01.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -232,6 +233,8 @@ let getIcons = (presetIcon: String) => {
       return GoogleDriveIcon;
     case "trash":
       return TrashIcon;
+    case "uploadCloud01":
+      return UploadCloud01;
     default:
       return "";
   }

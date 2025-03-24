@@ -1021,5 +1021,7 @@
   "pleaseDropAFolder": "Please drop a folder",
   "pleaseDropAFile": "Please drop a file",
   "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Please drop either a single file, multiple files, or a single folder.",
-  "conversationDatasetHistory": "Conversation Dataset History"
+  "conversationDatasetHistory": "Conversation Dataset History",
+  "deployNewModel": "Deploy New Model",
+  "tryThisModel": "Try This Model"
 }

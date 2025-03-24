@@ -9,15 +9,15 @@
 -->
 
 <script>
-  import { getIcons, getTextColors } from '$lib';
+  import { twMerge } from "tailwind-merge";
+  import { getIcons, getTextColors } from "$lib";
 
-  let { name, size = "w-5 h-5", color = "secondary" } = $props();
+  let { name, size = "w-5 h-5", color = "secondary", propClass = "" } = $props();
+
+  let classes = twMerge(size, getTextColors(color), propClass);
 </script>
 
-<svelte:component
-  this={getIcons(name)}
-  svgClass={`${size} ${getTextColors(color)}`}
-/>
+<svelte:component this={getIcons(name)} svgClass={classes} />
 
 <!--
 @component

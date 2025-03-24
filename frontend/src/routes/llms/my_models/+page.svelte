@@ -3,29 +3,27 @@
   import { _ } from "svelte-i18n";
   import { Search, Button as ButtonFlowbite } from "flowbite-svelte";
 
-  import {
-    Typography,
-    CardFeature,
-    Button,
-    FeaturedIcon,
-    Icon,
-    call,
-    triggerToast,
-    StateCard,
-  } from "$lib";
-  import { getIcons } from "$lib";
+  import { Typography, Icon, call, triggerToast, StateCard, BotCard } from "$lib";
 
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
 
   let idModel = "";
 
-  let cardDataArray = [];
+  let cardDataArray = $state([]);
 
-  let cardDataSelected = {};
+  let cardDataSelected = $state({});
 
   let detailDataArray = [];
 
   let hiddenContent = [];
+
+  let botsList = [
+    { botsID: 6969, botsName: "LLaMA 3.2", botDescription: "lorem ipsum dolor sit amet" },
+    { botsID: 6970, botsName: "DeepSeek", botDescription: "lorem ipsum dolor sit amet" },
+    { botsID: 6971, botsName: "ChatGPT", botDescription: "lorem ipsum dolor sit amet" },
+  ];
+
+  let dropdownOpen = $state(new Array(botsList.length).fill(false));
 
   const findIconFromModelName = (modelName) => {
     let icon = "gemini";
@@ -670,6 +668,13 @@
     }
   };
 
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    for (let i = 0; i < dropdownOpen.length; i++) {
+      dropdownOpen[i] = false;
+    }
+  };
+
   onMount(async () => {
     await getModels();
 
@@ -689,90 +694,36 @@
       text={cardDataSelected?.raw?.model?.name || "Large Language Models Lists"}
       preset="Display sm/Semibold"
     />
-    {#if idModel}
-      <Button
-        text="Back"
-        funcButton={() => {
-          cardDataSelected = {};
-          idModel = "";
-        }}
-      />
-    {:else}
-      <div>
-        <Search class="bg-white dark:bg-hc-graydark-950" />
-      </div>
-    {/if}
-  </div>
-  {#if idModel}
-    <div class="flex items-center gap-4">
-      <FeaturedIcon classesSvg={getIcons(cardDataSelected?.iconData?.icon || "gemini")} />
-      <div>
-        <Typography
-          text={cardDataSelected?.raw?.model?.name}
-          preset="Text lg/Semibold"
-          color="secondary"
-        />
-        <Typography
-          text={cardDataSelected?.raw?.model?.description}
-          preset="Text sm/Regular"
-          color="tertiary"
-        />
-      </div>
-    </div>
-    {#each detailDataArray as detailData, index}
+    <div class="flex gap-4">
+      <Search class="bg-white dark:bg-hc-graydark-950" />
       <ButtonFlowbite
-        class="mt-8 justify-between border border-secondary-light dark:border-secondary-dark focus:outline-none focus:ring-0"
-        color="none"
+        color="primary"
         outline
-        on:click={() => (hiddenContent[index] = !hiddenContent[index])}
+        class="flex items-center gap-2 whitespace-nowrap [&>svg]:hover:!text-white"
       >
-        {#if detailData?.headerText}
-          <Typography {...detailData.headerText} />
-        {:else}
-          <div></div>
-        {/if}
-        {#if hiddenContent[index]}
-          <Icon name="chevronUp" />
-        {:else}
-          <Icon name="chevronDown" />
-        {/if}
+        <Icon name="uploadCloud01" color="fg-brand-primary" />
+        {$_("deployNewModel")}
       </ButtonFlowbite>
-      <div class={`mx-4 ${hiddenContent[index] ? "block" : "hidden"}`}>
-        {#each detailData.content as content}
-          {#if content?.text}
-            <Typography {...content.text} />
-          {/if}
-
-          {#if content?.list}
-            <ul class="flex flex-col gap-2 list-disc mx-4">
-              {#each content.list as list}
-                <div class="flex items-center">
-                  <li class="mr-2" />
-                  {#each list.textGroup as textGroup, index}
-                    <Typography {...textGroup} />
-                    {#if list.textGroup.length > 1 && index < list.textGroup.length - 1}
-                      <span>&nbsp;</span>
-                    {/if}
-                  {/each}
-                </div>
-              {/each}
-            </ul>
-          {/if}
-
-          {#if content?.button}
-            <ButtonFlowbite {...content.button}>
-              <Typography {...content.button.text} />
-            </ButtonFlowbite>
-          {/if}
-        {/each}
-      </div>
-    {/each}
-  {:else if cardDataArray.length === 0}
+    </div>
+  </div>
+  {#if cardDataArray.length === 0}
     <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
   {:else}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {#each cardDataArray as cardData}
-        <CardFeature {cardData} />
+      {#each botsList as bot, index}
+        <BotCard
+          {bot}
+          {index}
+          {dropdownOpen}
+          config={{
+            delete: true,
+            detail: true,
+            detailView: true,
+            detailTry: true,
+            cardFullLength: true,
+          }}
+          {handleDropdownFocusLoss}
+        />
       {/each}
     </div>
   {/if}

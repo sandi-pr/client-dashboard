@@ -1,7 +1,7 @@
 <script>
   import { Card, Button, Avatar } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import { Typography, call, triggerToast, check, Badge } from "$lib";
+  import { Typography, call, triggerToast, check, Badge, Icon } from "$lib";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Settings03Icon from "$lib/icon/settings-03.svelte";
@@ -23,7 +23,10 @@
   } = $props();
 </script>
 
-<Card padding="none" class="relative shadow-none grow w-full">
+<Card
+  padding="none"
+  class="relative shadow-none grow w-full {config?.cardFullLength ? 'max-w-none' : ''}"
+>
   {#if bot.deployStatus === "Reading"}
     <div class="absolute top-2 right-2">
       <Badge type="warning" text={bot.deployStatus} />
@@ -44,7 +47,7 @@
           <Typography preset="Text sm/Regular" color="secondary" text={bot.botDescription} />
         </div>
       </div>
-      {#if check("aiManagement.hexabots:delete") && config?.detail === true || config?.startReading === true}
+      {#if (check("aiManagement.hexabots:delete") && config?.detail === true) || config?.startReading === true}
         <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
           <Button
             on:click={() => (dropdownOpen[index] = !dropdownOpen[index])}
@@ -84,7 +87,9 @@
                     dropdownOpen[index] = !dropdownOpen[index];
                   }}
                 >
-                  <TrashIcon svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+                  <TrashIcon
+                    svgClass="mr-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                  />
                   {$_("delete")}
                 </button>
               {/if}
@@ -97,20 +102,48 @@
   <div class="flex gap-3 px-4 pt-4 pb-6">
     <div class="flex w-full gap-3">
       {#if config?.detail === true}
-        <Button
-          disabled={!check("aiManagement.hexabots:view")}
-          on:click={async () => {
-            goto((await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + bot.botsID);
-          }}
-          outline
-          class="!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg"
-        >
-          <Typography
-            preset="Text sm/Semibold"
-            text={config?.detailView ? $_("view") : $_("detail")}
-            color="brand-secondary"
-          />
-        </Button>
+        {#if config?.detailView === true}
+          <Button
+            disabled={!check("aiManagement.hexabots:view")}
+            on:click={async () => {
+              goto(
+                (await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + bot.botsID,
+              );
+            }}
+            outline
+            class="!flex grow rounded-lg *:hover:text-white dark:*:hover:text-white"
+          >
+            <Typography
+              preset="Text sm/Semibold"
+              text={config?.detailView ? $_("view") : $_("detail")}
+              color="brand-secondary"
+            />
+          </Button>
+        {/if}
+        {#if config?.detailTry === true}
+          <Button
+            on:click={async () => {
+              goto(
+                (await $call.getPage("client-dashboard", "bots-detail")) +
+                  "?botId=" +
+                  bot.botsID +
+                  "&try=true",
+              );
+            }}
+            outline
+            class="!flex grow rounded-lg *:hover:text-white dark:*:hover:text-white"
+          >
+            <Typography
+              preset="Text sm/Semibold"
+              text={$_("tryThisModel")}
+              color="brand-secondary"
+            />
+            <Icon
+              name="arrowUpRight"
+              propClass="text-brand-secondary-light dark:text-brand-secondary-dark"
+            />
+          </Button>
+        {/if}
       {/if}
       {#if config?.configure === true}
         <Button
