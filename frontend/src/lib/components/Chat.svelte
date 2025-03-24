@@ -13,6 +13,7 @@
   export let onclickSend;
   export let selectedRole;
   export let hideSidebar;
+  export let spaceSidebar = true;
   let dropdownOpen = false;
 
   let dropdownItem = [
@@ -58,7 +59,7 @@
 </script>
 
 <div
-  class={`-z-0 bg-gradient-to-t from-white dark:from-utility-bg-primary-dark from-80% fixed flex items-center bottom-0 left-0 right-0 ${!$sidebarLargeClosed ? (hideSidebar ? "pl-0 lg:pl-[670px]" : "pl-[350px] lg:pl-[670px]") : hideSidebar ? "pl-0 lg:pl-[430px]" : "pl-[350px] lg:pl-[430px]"} py-12 md:px-8`}
+  class={`-z-0 bg-gradient-to-t from-white dark:from-utility-bg-primary-dark from-80% fixed flex items-center bottom-0 left-0 right-0 ${!$sidebarLargeClosed ? !spaceSidebar ? "Pl-0 lg:pl-[350px]" : (hideSidebar ? "pl-0 lg:pl-[670px]" : "pl-[350px] lg:pl-[670px]") : !spaceSidebar ? "pl-0 lg:pl-[110px]" : hideSidebar ? "pl-0 lg:pl-[430px]" : "pl-[350px] lg:pl-[430px]"} py-12 md:px-8`}
 >
   <div
     class="border-2 border-brand-solid-light dark:border-brand-solid-dark w-full py-3 mx-4 md:mx-0 px-6 rounded-3xl flex"

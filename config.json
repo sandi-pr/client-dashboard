@@ -310,6 +310,26 @@
             "file_path": "template/finetuning/detail.html"
         },
         {
+            "name": "finetunings",
+            "path": "/finetunings",
+            "file_path": "template/finetunings.html"
+        },
+        {
+            "name": "finetunings-handwriting",
+            "path": "/finetunings/handwriting",
+            "file_path": "template/finetunings/handwriting.html"
+        },
+        {
+            "name": "finetunings-conversation",
+            "path": "/finetunings/conversation",
+            "file_path": "template/finetunings/conversation.html"
+        },
+        {
+            "name": "finetunings-conversation-chat",
+            "path": "/finetunings/conversation/chat",
+            "file_path": "template/finetunings/conversation/chat.html"
+        },
+        {
             "name": "hexabot",
             "path": "/hexabots",
             "file_path": "template/hexabots.html"

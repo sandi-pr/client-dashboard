@@ -1020,5 +1020,6 @@
   "urlMustBeAFolderNotAFile": "URL must be a folder, not a file.",
   "pleaseDropAFolder": "Please drop a folder",
   "pleaseDropAFile": "Please drop a file",
-  "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Please drop either a single file, multiple files, or a single folder."
+  "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Please drop either a single file, multiple files, or a single folder.",
+  "conversationDatasetHistory": "Conversation Dataset History"
 }

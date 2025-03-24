@@ -12,7 +12,7 @@
     ModalObject,
   } from "$lib";
   import { Button, Modal } from "flowbite-svelte";
-  import { add, format } from "date-fns";
+  import { format } from "date-fns";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   
@@ -63,7 +63,7 @@
   //   }
   // ]);
 
-  function getActionItems() {
+  async function getActionItems() {
     actionItems = [
       {
         onclick: () => {
@@ -74,9 +74,7 @@
         desc: "desc Finetune for Handwriting",
       },
       {
-        onclick: () => {
-          // TODO
-        },
+        href: await $call.getPage("client-dashboard", "finetunings-conversation"),
         icon: "messageChatSquare",
         actionName: "Finetune for Conversation",
         desc: "desc Finetune for Conversation",
@@ -174,6 +172,7 @@
         return {
           id: id,
           conversation_name: title,
+          updateAt: format(new Date(conversation.attributes.updatedAt), "MMM d, yyyy"),
           actions: {
             objects: [
               {
@@ -466,6 +465,14 @@
     }
   }
 
+  const getHrefAction = async (href) => {
+    if (href === "handwriting") {
+      return await $call.getPage("client-dashboard", "finetunings-handwriting");
+    } else if (href === "conversation") {
+      return await $call.getPage("client-dashboard", "finetunings-conversation");
+    }
+  }
+
   onMount(() => {
     getActionItems();
     getDatasetsHandwriting();
@@ -480,8 +487,8 @@
     <ActionCard {actionItems} />
   </div>
   <!-- Handwriting Finetune -->
-  <div class="flex flex-col gap-4">
-    <SectionHeader title={$_("handwritingFinetuneHistory")} hrefAction="/finetunings/handwriting" />
+  <div class="flex flex-col">
+    <SectionHeader title={$_("handwritingFinetuneHistory")} hrefAction={getHrefAction("handwriting")} />
     {#if datas.length > 0}
       <DataTable
         bind:datas={datas}
@@ -500,8 +507,8 @@
     {/if}
   </div>
   <!-- Conversation Finetune -->
-  <div class="flex flex-col gap-4">
-    <SectionHeader title={$_("conversationFinetuneHistory")} hrefAction="/finetunings/conversation" />
+  <div class="flex flex-col">
+    <SectionHeader title={$_("conversationFinetuneHistory")} hrefAction={getHrefAction("conversation")} />
     {#if datas.length > 0}
       <DataTable bind:datas={datasConversation} bind:configs />
     {:else if gettingDatas}

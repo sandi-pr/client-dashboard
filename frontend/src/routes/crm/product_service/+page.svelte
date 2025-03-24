@@ -49,7 +49,7 @@ All Rights Reserved
 
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 1, total: 0 });
 
-  async function getActionItems() {
+  async function ionItems() {
     actionItems = [
       {
         disabled: !check("businessManagement.products_services:create"),
@@ -432,7 +432,7 @@ All Rights Reserved
       return;
     }
     getCountPersonsPerMonth();
-    getActionItems();
+    ionItems();
     getProducts(pagination.page);
     getCategories(pagination.page);
   });

@@ -1020,5 +1020,6 @@
   "urlMustBeAFolderNotAFile": "URL harus berupa folder, bukan file",
   "pleaseDropAFolder": "Silakan seret dan lepaskan folder",
   "pleaseDropAFile": "Silakan seret dan lepaskan file",
-  "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Silakan seret dan lepaskan satu file, beberapa file, atau satu folder"
+  "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Silakan seret dan lepaskan satu file, beberapa file, atau satu folder",
+  "conversationDatasetHistory": "Riwayat Dataset Percakapan"
 }

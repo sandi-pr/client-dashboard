@@ -459,7 +459,7 @@
 
 <div class="relative h-full flex flex-col gap-8 px-4 pt-4 pb-24">
   <div class="flex items-center justify-between">
-    <Typography preset="Display sm/Semibold" text={$_("handwritingDatasetHistory")} color="primary" propClass="grow" />
+    <Typography preset="Display sm/Semibold" text={$_("handwritingDatasetHistory")} color="primary" propClass="grow fluid-lg md:fluid-xl" />
     <div class="max-w-64">
       <Input
         id="search"
@@ -506,7 +506,7 @@
     {/if}
   </div>
 
-  <!-- <div class="fixed bottom-4"> -->
+  {#if datas.length > 0}
     <Button
       disabled={statusRequest === "process" ||
         !check("aiManagement.datasets:process") ||
@@ -523,7 +523,7 @@
       &nbsp; &nbsp;
       <Typography preset="Text md/Semibold" text={$_("process")} color="brand-secondary" />
     </Button>
-  <!-- </div> -->
+  {/if}
 </div>
 
 <ModalObject
