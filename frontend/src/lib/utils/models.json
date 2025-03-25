@@ -1,0 +1,175 @@
+[
+  {
+    "id": 1,
+    "name": "Llama3.1",
+    "model": "llama3.1:8b",
+    "description": "Llama3.1 Develop by Meta",
+    "create_at": "2024-07-23",
+    "features": [
+      "Expanded Model Sizes",
+      "Multilingual Processing",
+      "Extended Context Length",
+      "Open-Source Accessibility",
+      "Enhanced Performance"
+    ],
+    "overview": "LLaMA 3.1 is a powerful large language model developed by Meta, serving as a strong successor in the LLaMA series. It is designed for natural language processing (NLP) tasks such as text generation, summarization, code assistance, and conversational AI. The model balances efficiency and accuracy, making it a reliable tool for a wide range of applications.",
+    "advantages": [
+      "Optimized Performance – Improved inference speed and lower computational costs compared to previous versions.",
+      "Stronger Context Retention – Enhanced ability to maintain coherence in long-form conversations and documents.",
+      "Multilingual Capabilities – Supports multiple languages for diverse applications.",
+      "Open-Source Potential – If released under an open-access model, it allows for customization and community-driven improvements.",
+      "Improved Safety & Alignment – Better mechanisms to mitigate biases and reduce harmful outputs."
+    ],
+    "base_use_cases": [
+      "Chatbots & Virtual Assistants – Delivers more natural and context-aware interactions.",
+      "Content Generation – Produces high-quality text for blogs, articles, and creative writing.",
+      "Code Assistance – Aids developers with code suggestions, debugging, and explanations.",
+      "Summarization & Information Extraction – Condenses large documents into concise insights.",
+      "Education & Tutoring – Supports personalized learning and automated tutoring systems."
+    ],
+    "disadvantages": [
+      "Hardware Requirements – Running and fine-tuning the model locally demands substantial computing power.",
+      "Ethical Considerations – Risks related to misinformation or biases remain a challenge.",
+      "Limited Real-Time Awareness – Requires external tools for up-to-date knowledge retrieval.",
+      "Customization Complexity – Fine-tuning requires expertise in machine learning and model optimization."
+    ],
+    "requirements": "To run LLaMA 3.1 locally, your system should meet the following specifications:\n\n**Hardware Requirements:**\n- GPU: An NVIDIA GPU with CUDA support is recommended, with at least 12GB of VRAM for inference and 24GB+ for fine-tuning.\n- RAM: A minimum of 16GB is required, with 32GB recommended for handling larger models.\n- Storage: At least 40GB of free disk space for model files and dependencies.\n\n**Software Requirements:**\n- Operating System: Linux is preferred for optimal performance, but macOS and Windows are also supported.\n- Python: Version 3.8 or higher is required.\n- CUDA Toolkit: Version 11.3 or newer for GPU acceleration."
+  },
+  {
+    "id": 2,
+    "name": "Llama3.2",
+    "model": "llama3.2:3b",
+    "description": "Llama3.2 Develop by Meta",
+    "create_at": "2024-09-25",
+    "features": [
+      "Multimodal Capabilities",
+      "Cost Efficiency",
+      "High Performance",
+      "Edge Deployment Suitability",
+      "Broad Flexibility"
+    ],
+    "overview": "LLaMA 3.2 is an advanced large language model developed by Meta, building upon its predecessors in the LLaMA series. It is designed for high-performance natural language processing (NLP) tasks, including text generation, summarization, code assistance, and conversational AI. The model is optimized for efficiency, scalability, and improved contextual understanding, making it a strong competitor in the AI space.",
+    "advantages": [
+      "Improved Efficiency – Optimized architecture for faster inference and lower computational costs.",
+      "Enhanced Contextual Understanding – Better ability to maintain context across longer conversations or documents.",
+      "Multilingual Support – Supports multiple languages, making it versatile for global applications.",
+      "Open-Source Flexibility – If released with open access, it allows for greater customization and community contributions.",
+      "Stronger Alignment & Safety – Improved guardrails to reduce biases and prevent harmful outputs."
+    ],
+    "base_use_cases": [
+      "Chatbots & Virtual Assistants – Enhances user interactions with more human-like responses.",
+      "Content Creation – Generates high-quality text for articles, blogs, and creative writing.",
+      "Code Assistance – Helps developers with coding suggestions, debugging, and explanations.",
+      "Summarization & Data Extraction – Condenses long documents into concise summaries.",
+      "Education & Tutoring – Provides personalized learning support for students."
+    ],
+    "disadvantages": [
+      "Computational Demand – May require significant hardware resources for deployment and fine-tuning.",
+      "Potential Ethical Risks – Despite safety improvements, there may still be risks of misinformation or bias.",
+      "Limited Real-Time Awareness – Like other LLMs, it may not have real-time or up-to-date knowledge without external integrations.",
+      "Fine-Tuning Complexity – Customizing the model for specific use cases can be challenging without expertise."
+    ],
+    "requirements": "To run LLaMA 3.2 locally, your system should meet the following specifications:\n\n**Hardware Requirements:**\n- GPU: An NVIDIA GPU with CUDA support is recommended, with at least 16GB of VRAM. This is essential for efficient model training and inference.\n- RAM: A minimum of 32GB is required, with 64GB recommended for handling larger models and datasets.\n- Storage: At least 50GB of free disk space to accommodate the model files and dependencies.\n\n**Software Requirements:**\n- Operating System: Linux is preferred for optimal performance, but macOS and Windows are also supported.\n- Python: Version 3.8 or higher is necessary to run the required scripts and libraries.\n- CUDA Toolkit: Version 11.6 or newer is required for GPU acceleration."
+  },
+  {
+    "id": 3,
+    "name": "Qurani0.1-Llama3.1",
+    "model": "qurani-test-llama3.1:q4_K_M",
+    "description": "Fine-Tuned model from Llama3.1 model by Hexa",
+    "create_at": "2024-09-10",
+    "features": [
+      "Finds hidden problems in data.",
+      "Understands images and text.",
+      "Predicts machine failures.",
+      "Personalizes user experiences.",
+      "Discovers new scientific insights."
+    ],
+    "overview": "LLaMA 3.1 is a powerful large language model developed by Meta, serving as a strong successor in the LLaMA series. It is designed for natural language processing (NLP) tasks such as text generation, summarization, code assistance, and conversational AI. The model balances efficiency and accuracy, making it a reliable tool for a wide range of applications.",
+    "advantages": [
+      "Optimized Performance – Improved inference speed and lower computational costs compared to previous versions.",
+      "Stronger Context Retention – Enhanced ability to maintain coherence in long-form conversations and documents.",
+      "Multilingual Capabilities – Supports multiple languages for diverse applications.",
+      "Open-Source Potential – If released under an open-access model, it allows for customization and community-driven improvements.",
+      "Improved Safety & Alignment – Better mechanisms to mitigate biases and reduce harmful outputs."
+    ],
+    "base_use_cases": [
+      "Chatbots & Virtual Assistants – Delivers more natural and context-aware interactions.",
+      "Content Generation – Produces high-quality text for blogs, articles, and creative writing.",
+      "Code Assistance – Aids developers with code suggestions, debugging, and explanations.",
+      "Summarization & Information Extraction – Condenses large documents into concise insights.",
+      "Education & Tutoring – Supports personalized learning and automated tutoring systems."
+    ],
+    "disadvantages": [
+      "Hardware Requirements – Running and fine-tuning the model locally demands substantial computing power.",
+      "Ethical Considerations – Risks related to misinformation or biases remain a challenge.",
+      "Limited Real-Time Awareness – Requires external tools for up-to-date knowledge retrieval.",
+      "Customization Complexity – Fine-tuning requires expertise in machine learning and model optimization."
+    ],
+    "requirements": "To run LLaMA 3.1 locally, your system should meet the following specifications:\n\n**Hardware Requirements:**\n- GPU: An NVIDIA GPU with CUDA support is recommended, with at least 12GB of VRAM for inference and 24GB+ for fine-tuning.\n- RAM: A minimum of 16GB is required, with 32GB recommended for handling larger models.\n- Storage: At least 40GB of free disk space for model files and dependencies.\n\n**Software Requirements:**\n- Operating System: Linux is preferred for optimal performance, but macOS and Windows are also supported.\n- Python: Version 3.8 or higher is required.\n- CUDA Toolkit: Version 11.3 or newer for GPU acceleration."
+  },
+  {
+    "id": 4,
+    "name": "Gemma 2",
+    "model": "gemma2:latest",
+    "description": "Gemma 2 Develop by Google",
+    "create_at": "2024-10-17",
+    "features": [
+      "Real-Time Multilingual Support",
+      "High Contextual Understanding",
+      "Efficient Processing",
+      "Scalability",
+      "User-Friendly Integration"
+    ],
+    "overview": "Gemma 2 is Google's latest iteration of open Large Language Models (LLMs), available in 9 billion and 27 billion parameter sizes. It includes both base (pre-trained) and instruction-tuned versions, optimized for efficient deployment on various hardware platforms.",
+    "advantages": [
+      "Enhanced Performance – Excels in tasks such as question answering, commonsense reasoning, mathematics, science, and coding.",
+      "Efficiency and Accessibility – Optimized to run efficiently on NVIDIA GPUs and TPUs, lowering deployment costs and increasing accessibility.",
+      "Open-Source Availability – Provides open weights for both pre-trained and instruction-tuned variants, facilitating customization and research."
+    ],
+    "base_use_cases": [
+      "Question Answering Systems – Developing chatbots and virtual assistants capable of providing accurate information.",
+      "Educational Tools – Assisting in teaching complex subjects like mathematics and science.",
+      "Code Generation and Debugging – Aiding developers in writing and troubleshooting code.",
+      "Summarization and Content Generation – Creating concise summaries and generating content across various domains."
+    ],
+    "disadvantages": [
+      "Hardware Dependency – While optimized for efficiency, running larger models may still require significant computational resources.",
+      "Limited Multimodal Capabilities – Primarily designed for text-based tasks; may not perform as well with non-textual data.",
+      "Potential Licensing Constraints – Users must adhere to licensing agreements, which may affect commercial use."
+    ],
+    "requirements": "Gemma 2 is a family of lightweight, open-source large language models developed by Google, available in 9 billion and 27 billion parameter sizes. These models are optimized for efficient deployment across various hardware configurations.\n\n**Hardware Requirements:**\n\nGemma 2 9B Model:\n- GPU: A single GPU with at least 16 GB of VRAM is recommended for efficient performance.\n- RAM: A minimum of 32 GB of system RAM is advisable to handle model weights and processing tasks effectively.\n- Operating System: Linux-based systems, such as Ubuntu 22.04, are commonly used for deploying DeepSeek R1 models. Ensure that the appropriate NVIDIA drivers and CUDA are installed for optimal GPU performance."
+  },
+  {
+    "id": 5,
+    "name": "DeepSeek R1",
+    "model": "deepseek-r1:14b",
+    "description": "DeepSeek R1 Develop by DeepSeek",
+    "create_at": "2025-01-22",
+    "features": [
+      "Modular Design",
+      "Cost-Effective Reasoning",
+      "Efficient Resource Utilization",
+      "Open-Source Accessibility",
+      "Competitive Performance"
+    ],
+    "overview": "DeepSeek R1 is an open-source AI model developed by the Chinese company DeepSeek. It emphasizes efficiency by utilizing less sophisticated hardware while maintaining competitive performance. This is achieved through reinforcement learning and a 'mixture of experts' approach, activating only a fraction of its 671 billion parameters during operation.",
+    "advantages": [
+      "Cost-Effective Development: Developed at a fraction of the cost compared to models like OpenAI's o1.",
+      "Open-Source Accessibility: Fully open-sourced, allowing for widespread use and potential commercial adaptation.",
+      "Efficient Resource Utilization: Operates on less sophisticated hardware due to its parameter activation strategy.",
+      "Competitive Performance: Demonstrates advanced reasoning capabilities comparable to leading models."
+    ],
+    "base_use_cases": [
+      "Mathematical Problem Solving: Excels in tasks requiring logical inference and mathematical computations.",
+      "Coding Assistance: Provides support in programming and code generation.",
+      "Cost-Sensitive Applications: Ideal for scenarios where budget constraints are significant, offering competitive performance at a lower cost."
+    ],
+    "disadvantages": [
+      "Limited Real-World Testing: Compared to established models, R1 has less extensive real-world application data.",
+      "Potential Security Risks: The open-source nature might lead to misuse or security vulnerabilities if not properly managed.",
+      "Regulatory Challenges: As a Chinese company, DeepSeek may face scrutiny and restrictions in certain markets.",
+      "Data Privacy Concerns: Users should be cautious about data handling and potential exposure."
+    ],
+    "requirements": "DeepSeek R1 is a large language model with 671 billion parameters. Due to its size, running the full model requires substantial hardware resources. However, optimized and distilled versions are available for deployment on less powerful systems.\n\n**Hardware Requirements:**\n\nFull Model Deployment:\n- GPU: A multi-GPU setup is necessary, as a single GPU cannot accommodate the extensive VRAM requirements of the full 671B parameter model.\n- RAM: A minimum of 64 GB is advisable for running larger models efficiently, especially when using high parameter counts that demand significant memory overhead.\n- Operating System: Ubuntu 22.04 is a commonly recommended operating system for running Gemma 2 models. Ensure that the system has the latest NVIDIA drivers and CUDA toolkit installed to leverage GPU acceleration effectively."
+  }
+]

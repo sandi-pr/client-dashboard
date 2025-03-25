@@ -256,8 +256,8 @@ const config = {
                   light: "var(--primary-700)",
                   dark: "#FFFFFF",
                 },
-              }
-            }
+              },
+            },
           },
           button: {
             primary: {
@@ -298,7 +298,7 @@ const config = {
                   light: "#912018",
                   dark: "#FEE4E2",
                 },
-              }
+              },
             },
             tertiary: {
               light: "#475467",
@@ -750,8 +750,8 @@ const config = {
               hover: {
                 light: "#B42318",
                 dark: "#B42318",
-              }
-            }
+              },
+            },
           },
           secondary: {
             light: "#D0D5DD",
@@ -939,7 +939,7 @@ const config = {
                 light: "#B42318",
                 dark: "#B42318",
               },
-            }
+            },
           },
           secondary: {
             light: "#FFFFFF",
@@ -979,6 +979,70 @@ const config = {
           },
         },
       },
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            color: theme("colors.gray.800"),
+            // Customize other default styles if needed
+          },
+        },
+        dark: {
+          css: {
+            color: theme("colors.gray.400"),
+            '[class~="lead"]': {
+              color: theme("colors.gray.500"),
+            },
+            a: {
+              color: theme("colors.blue.400"),
+            },
+            strong: {
+              color: theme("colors.gray.100"),
+            },
+            "ol > li::before": {
+              color: theme("colors.gray.400"),
+            },
+            "ul > li::before": {
+              backgroundColor: theme("colors.gray.600"),
+            },
+            hr: {
+              borderColor: theme("colors.gray.700"),
+            },
+            blockquote: {
+              color: theme("colors.gray.100"),
+              borderLeftColor: theme("colors.gray.700"),
+            },
+            h1: {
+              color: theme("colors.gray.100"),
+            },
+            h2: {
+              color: theme("colors.gray.100"),
+            },
+            h3: {
+              color: theme("colors.gray.100"),
+            },
+            h4: {
+              color: theme("colors.gray.100"),
+            },
+            code: {
+              color: theme("colors.gray.100"),
+            },
+            "a code": {
+              color: theme("colors.blue.400"),
+            },
+            pre: {
+              color: theme("colors.gray.200"),
+              backgroundColor: theme("colors.gray.800"),
+            },
+            thead: {
+              color: theme("colors.gray.100"),
+              borderBottomColor: theme("colors.gray.600"),
+            },
+            "tbody tr": {
+              borderBottomColor: theme("colors.gray.700"),
+            },
+          },
+        },
+      }),
     },
   },
 };
