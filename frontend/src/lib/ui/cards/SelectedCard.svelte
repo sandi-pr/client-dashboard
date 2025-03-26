@@ -1,6 +1,7 @@
 <script lang="ts">
   import { _ } from "svelte-i18n";
-  import { Typography } from "$lib";
+  import { Typography, FeaturedIcon, Icon } from "$lib";
+  import { getIcons } from "$lib";
   import { Card, Radio } from "flowbite-svelte";
 
   let {
@@ -48,20 +49,26 @@
     >
       <div class="flex items-center gap-4">
         {#if data.icon}
-          <data.icon
+          <!-- <data.icon
             svgClass={`w-7 h-7 ${selectedData === data.id ? "text-fg-brand-primary-light dark:text-fg-brand-primary-dark" : "text-utility-gray-500-light dark:text-utility-gray-500-dark"}`}
-          />
+          /> -->
+          <FeaturedIcon classesSvg={getIcons(data.icon)} />
         {/if}
         {#if widgetIndicator}
           <widgetIndicator color={data.value} size="lg"> </widgetIndicator>
         {/if}
         <div class="flex-col">
           <div class="flex flex-col gap-[2px]">
-            <Typography
-              preset="Text md/Semibold"
-              text={$_(data.name)}
-              color={`${selectedData === data.id ? "brand-primary" : "primary"}`}
-            />
+            <div class="flex gap-2">
+              <Typography
+                preset="Text md/Semibold"
+                text={$_(data.name)}
+                color={`${selectedData === data.id ? "brand-primary" : "primary"}`}
+              />
+              {#if data.recommended}
+                <Icon name="verifiedTick" />
+              {/if}
+            </div>
             {#if data.description}
               <Typography
                 preset="Text xs/Regular"

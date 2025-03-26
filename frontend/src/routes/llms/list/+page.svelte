@@ -17,7 +17,7 @@
     triggerToast,
     StateCard,
   } from "$lib";
-  import { getIcons } from "$lib";
+  import { getIcons, findIconFromModelName } from "$lib";
 
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
 
@@ -30,21 +30,6 @@
   let detailDataArray = [];
 
   let hiddenContent = [];
-
-  const findIconFromModelName = (modelName) => {
-    let icon = "gemini";
-    const lowerCaseModelName = modelName.toLowerCase();
-
-    if (lowerCaseModelName.includes("llama")) {
-      icon = "meta";
-    } else if (lowerCaseModelName.includes("deepseek")) {
-      icon = "gemini";
-    } else if (lowerCaseModelName.includes("chatgpt")) {
-      icon = "openai";
-    }
-
-    return icon;
-  };
 
   const getModels = async () => {
     let token = localStorage.getItem("token");

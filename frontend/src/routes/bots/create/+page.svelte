@@ -27,6 +27,7 @@
     StateCard,
     Dropdown,
   } from "$lib";
+  import { findIconFromModelName } from "$lib";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { goto } from "$app/navigation";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
@@ -565,6 +566,8 @@
               model: model.model,
               description: model.description,
               create_at: model.create_at,
+              icon: findIconFromModelName(model.name),
+              recommended: model.name === "Llama3.2",
             };
           });
 
