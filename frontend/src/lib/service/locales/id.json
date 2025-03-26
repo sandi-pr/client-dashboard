@@ -1029,5 +1029,6 @@
   "modelSourceFile": "File Sumber Model",
   "deployMyModel": "Deploy Model Saya",
   "modelName": "Nama Model",
-  "modelDescription": "Deskripsi Model"
+  "modelDescription": "Deskripsi Model",
+  "addNewFolder": "Tambahkan Folder Baru"
 }

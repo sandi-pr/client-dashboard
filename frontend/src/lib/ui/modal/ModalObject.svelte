@@ -952,8 +952,8 @@
 
   $effect(() => {
     if (folderMode) {
-      configModal.header.contentCenter[0].text.text = $_("addCollection");
-      configModal.footer[0].button.text = $_("addNewCollection");
+      configModal.header.contentCenter[0].text.text = $_("addFolder");
+      configModal.footer[0].button.text = $_("addNewFolder");
     } else {
       configModal.header.contentCenter[0].text.text = $_("addDocuments");
       configModal.footer[0].button.text = $_("addNewDocument");

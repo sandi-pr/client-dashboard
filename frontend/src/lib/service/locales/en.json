@@ -1029,5 +1029,6 @@
   "modelSourceFile": "Model Source File",
   "deployMyModel": "Deploy My Model",
   "modelName": "Model Name",
-  "modelDescription": "Model Description"
+  "modelDescription": "Model Description",
+  "addNewFolder": "Add New Folder"
 }
