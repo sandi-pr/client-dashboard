@@ -35,10 +35,8 @@
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let dropdownCollectionOpen = false;
   let collections = $state([]);
   let initCollections = $state([]);
-  let documents = $state([]);
 
   let botName = $state("");
   let description = $state("");
@@ -55,154 +53,15 @@
   let allData = $state([]);
   let searchTerm = $state("");
   let search = $state(false);
-  // let page = $state(1);
   let checkAll = $state(false);
-  let stateCheckAll = $state("");
   let datasChecked = $state([]);
   let tmpDatasChecked = $state({});
   let configs = $state({});
   let gettingDatas = $state(false);
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
-  let dropdownUsecaseOpen = $state(false);
-  let usecase = $state([
-    { name: "My Bots (Default)", value: "myBots" },
-    { name: "Hexassistant", value: "hexassistant" },
-    { name: "Coding Assistant", value: "codingAssistant" },
-  ]);
-  let usecaseSelected = $state("myBots");
-
   let platforms = $state([]);
-
-  let selectedDays = [
-    {
-      name: "Monday",
-      label: "M",
-      selected: false,
-    },
-    {
-      name: "Tuesday",
-      label: "T",
-      selected: false,
-    },
-    {
-      name: "Wednesday",
-      label: "W",
-      selected: true,
-    },
-    {
-      name: "Thursday",
-      label: "T",
-      selected: true,
-    },
-    {
-      name: "Friday",
-      label: "F",
-      selected: true,
-    },
-    {
-      name: "Saturday",
-      label: "S",
-      selected: false,
-    },
-    {
-      name: "Sunday",
-      label: "S",
-      selected: false,
-    },
-  ];
-
   let screenWidth = $state(0);
-  let params = [];
-  let products_and_services = [];
-
-  let templates = [
-    {
-      id: 1,
-      attributes: {
-        name: "Template 1",
-        parameters: [
-          {
-            children: [
-              {
-                label: "Parameter 1",
-                required: true,
-                type: "text",
-                placeholder: "Enter Parameter 1",
-                enum: ["Option 1", "Option 2", "Option 3"],
-                description: "Description for Parameter 1",
-              },
-            ],
-          },
-          {
-            label: "Label 1",
-            children: [
-              {
-                list_dict_format: [
-                  {
-                    label: "Field 1",
-                    required: true,
-                    type: "text",
-                    placeholder: "Enter Field 1",
-                    name: "field1",
-                  },
-                  {
-                    label: "Field 2",
-                    required: false,
-                    type: "number",
-                    placeholder: "Enter Field 2",
-                    min: 0,
-                    max: 100,
-                    name: "field2",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    },
-    {
-      id: 2,
-      attributes: {
-        name: "Template 2",
-        parameters: [
-          {
-            children: [
-              {
-                label: "Parameter 2",
-                required: false,
-                type: "number",
-                placeholder: "Enter Parameter 2",
-                enum: ["Option A", "Option B", "Option C"],
-                description: "Description for Parameter 2",
-              },
-            ],
-          },
-        ],
-      },
-    },
-    {
-      id: 3,
-      attributes: {
-        name: "Template 3",
-        parameters: [
-          {
-            children: [
-              {
-                label: "Parameter 3",
-                required: true,
-                type: "text",
-                placeholder: "Enter Parameter 3",
-                enum: ["Option X", "Option Y", "Option Z"],
-                description: "Description for Parameter 3",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ];
 
   async function getCollectionSub(id) {
     let token = localStorage.getItem("token");
@@ -437,15 +296,19 @@
     await getCollectionSub(selectedCollection);
   };
 
-  const handleInputFile = () => {
+  const handleInputFile = (type = "image") => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
-    inputElement.accept = "image/jpeg, image/png";
+    if (type === "image") {
+      inputElement.accept = "image/jpeg, image/png";
+    } else {
+      inputElement.accept = "image/jpeg, image/png";
+    }
 
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
 
-      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+      if (file && ["image/jpeg", "image/png"].includes(file.type)) {
         fileImageResult = await new Promise((resolve, reject) => {
           const reader = new FileReader();
 
@@ -854,7 +717,7 @@
 
 <div class="m-4 pb-12">
   <div class="flex justify-between">
-    <Typography preset="Display sm/Semibold" text={$_("createNewBots")} />
+    <Typography preset="Display sm/Semibold" text={$_("deployMyModel")} />
     <div class="flex text-sm gap-3">
       <Button
         on:click={async () => {
@@ -868,7 +731,7 @@
           createBot();
         }}
         class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
-        >{$_("create")}</Button
+        >{$_("deploy")}</Button
       >
     </div>
   </div>
@@ -878,21 +741,27 @@
     <div class="md:flex">
       <Typography
         preset="Text md/Semibold"
-        text={$_("botsInformation")}
+        text={$_("generalInformation")}
         propClass="w-full md:w-1/4"
       />
       <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div class="flex flex-col gap-1.5 col-span-4">
-          <Typography preset="Text sm/Medium" text={$_("botsName")} color="secondary" />
+          <Typography preset="Text sm/Medium" text={$_("modelName")} color="secondary" />
           <InputRw bind:value={botName} onEdit />
         </div>
         <div class="flex flex-col gap-1.5 col-span-4">
-          <Typography preset="Text sm/Medium" text={$_("descriptionOptional")} color="secondary" />
+          <Typography preset="Text sm/Medium" text={$_("modelDescription")} color="secondary" />
           <TextareaRw bind:value={description} onEdit />
         </div>
+      </div>
+    </div>
+    <Divider />
+    <div class="md:flex">
+      <Typography preset="Text md/Semibold" text={$_("logo")} propClass="w-full md:w-1/4" />
+      <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div class="col-span-4">
           <UploadFile
-            title={$_("botsProfilePicture")}
+            title={$_("logo")}
             handleFileUploadWrapper={() => handleInputFile()}
             isPreview
             srcAvatar={fileImageName ? fileImageResult : ""}
@@ -902,99 +771,13 @@
     </div>
     <Divider />
     <div class="md:flex">
-      <Typography
-        preset="Text md/Semibold"
-        text={$_("aiEngines")}
-        color="secondary"
-        propClass="w-full md:w-1/4"
-      />
-      <div class="w-full md:w-3/4">
-        <SelectedCard
-          selectionData={platforms}
-          bind:selectedData={selectedplatforms}
-          numGrid={3}
-          isRadio
-        />
-      </div>
-    </div>
-    <!-- <Divider />
-    <div class="md:flex">
-      <Typography
-        preset="Text md/Semibold"
-        text={$_("useCase")}
-        color="secondary"
-        propClass="w-full md:w-1/4"
-      />
-      <div class="w-full md:w-auto">
-        <Dropdown
-          dropdownOpen={dropdownUsecaseOpen}
-          bind:selectedItem={usecaseSelected}
-          items={usecase}
-          isOverlay={true}
-        />
-      </div>
-    </div> -->
-    <Divider />
-    <div class="md:flex">
-      <Typography
-        preset="Text md/Semibold"
-        text={$_("knowledgeSource")}
-        color="secondary"
-        propClass="w-full md:w-1/4"
-      />
-      <div class="w-full md:w-3/4">
-        <div class="flex items-center gap-4">
-          <Button
-            on:click={() => (modalOpen = true)}
-            color="light"
-            class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
-          >
-            <Typography
-              preset="Text md/Semibold"
-              text={selectedCollection
-                ? collections.find((item) => item.value === selectedCollection)?.name
-                : $_("configure")}
-              color="secondary"
-            />
-            <ChevronDownOutline
-              class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-            />
-          </Button>
-        </div>
-      </div>
-    </div>
-    <Divider />
-    <div class="md:flex">
-      <Typography
-        preset="Text md/Semibold"
-        text={$_("additionalPrompts")}
-        color="secondary"
-        propClass="w-full md:w-1/4"
-      />
-      <div class="w-full md:w-3/4 flex flex-col gap-1.5">
-        <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
-        <TextareaRw bind:value={additionalPrompt} onEdit />
-      </div>
-    </div>
-    <Divider />
-    <div class="md:flex">
-      <Typography
-        preset="Text md/Semibold"
-        text={$_("additionalSettings")}
-        color="secondary"
-        propClass="w-full md:w-1/4"
-      />
-      <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <Typography preset="Text md/Semibold" text={$_("sourceFile")} propClass="w-full md:w-1/4" />
+      <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div class="col-span-4">
-          <label class="inline-flex items-center cursor-pointer">
-            <input type="checkbox" value="" class="hidden peer" bind:checked={needAuth} />
-            <div
-              class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
-            ></div>
-            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >{$_("requiresLogin")}</span
-            >
-          </label>
+          <UploadFile
+            title={$_("modelSourceFile")}
+            handleFileUploadWrapper={() => handleInputFile()}
+          />
         </div>
       </div>
     </div>

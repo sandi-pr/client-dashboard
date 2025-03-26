@@ -1023,5 +1023,11 @@
   "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Silakan seret dan lepaskan satu file, beberapa file, atau satu folder",
   "conversationDatasetHistory": "Riwayat Dataset Percakapan",
   "deployNewModel": "Deploy Model Baru",
-  "tryThisModel": "Coba Model Ini"
+  "tryThisModel": "Coba Model Ini",
+  "deploy": "Deploy",
+  "sourceFile": "File Sumber",
+  "modelSourceFile": "File Sumber Model",
+  "deployMyModel": "Deploy Model Saya",
+  "modelName": "Nama Model",
+  "modelDescription": "Deskripsi Model"
 }

@@ -1023,5 +1023,11 @@
   "pleaseDropEitherASingleFileMultipleFilesOrASingleFolder": "Please drop either a single file, multiple files, or a single folder.",
   "conversationDatasetHistory": "Conversation Dataset History",
   "deployNewModel": "Deploy New Model",
-  "tryThisModel": "Try This Model"
+  "tryThisModel": "Try This Model",
+  "deploy": "Deploy",
+  "sourceFile": "Source File",
+  "modelSourceFile": "Model Source File",
+  "deployMyModel": "Deploy My Model",
+  "modelName": "Model Name",
+  "modelDescription": "Model Description"
 }
