@@ -567,7 +567,7 @@
               description: model.description,
               create_at: model.create_at,
               icon: findIconFromModelName(model.name),
-              recommended: model.name === "Llama3.2",
+              recommended: model.name === "Llama3.1" ? true : false,
             };
           });
 
