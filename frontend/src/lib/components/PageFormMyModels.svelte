@@ -33,7 +33,7 @@
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let { modelId = null, editable = true } = $props();
+  let { botId = null, editable = null } = $props();
 
   let collections = $state([]);
   let initCollections = $state([]);
@@ -62,6 +62,8 @@
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
   let platforms = $state([]);
   let screenWidth = $state(0);
+  let ready = $state(false);
+  let modalDelete = $state(false);
 
   async function getCollectionSub(id) {
     let token = localStorage.getItem("token");
@@ -542,6 +544,186 @@
     }
   }
 
+  async function getBot() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        let response = await $call.call("client-dashboard", "get-bot", {
+          URLQuery: {},
+          URLParams: {
+            id: botId,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          triggerLoading(false);
+          triggerToast("error");
+          goto(await $call.getPage("client-dashboard", "bots-list"));
+          return;
+        }
+
+        const bot = response.result;
+        const attributes = bot.attributes;
+
+        // await getDocuments();
+
+        // users = {
+        //   botName: attributes.bot_name,
+        //   logoName: attributes.logo_name,
+        //   logoOnly: attributes.logo_only,
+        //   deployedPlatform: attributes?.deployed_platform || "Web",
+        //   description: attributes.description,
+        //   additionalPrompts: attributes.additional_prompt,
+        //   welcomeMessage: attributes.greeting_text,
+        //   username: attributes?.username || "User",
+        //   primaryBrandColor:
+        //     attributes.color_theme !== null
+        //       ? themeColors.find((color) => color.value === attributes.color_theme).id
+        //       : 1,
+        //   overlayColor:
+        //     attributes.overlay_color !== null
+        //       ? themeColors.find((color) => color.value === attributes.overlay_color).id
+        //       : 1,
+        //   platform: platforms.find((platform) => platform.model === attributes.ai_engine).id,
+        //   layout:
+        //     attributes.layout !== null
+        //       ? layouts.find((layout) => layout.name === attributes.layout).id
+        //       : 1,
+        //   background_align:
+        //     attributes.background_align !== null ? attributes.background_align : "center",
+        //   embedCode: `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="${urlBot}"></iframe>`,
+        //   needAuth: attributes.need_auth,
+        //   documentOptions: attributes.manage_document,
+        // };
+
+        botName = attributes.bot_name;
+        description = attributes.description;
+
+        // if (attributes.background.data !== null) {
+        //   backgroundFile = getFile(
+        //     bot.background,
+        //     attributes.background.data.attributes.ext,
+        //     attributes.background.data.attributes.name,
+        //   );
+        // }
+
+        // if (attributes.bot_logo.data !== null) {
+        //   logoFile = getFile(
+        //     bot.bot_logo,
+        //     attributes.bot_logo.data.attributes.ext,
+        //     attributes.bot_logo.data.attributes.name,
+        //   );
+        // }
+
+        // if (attributes.user_profile.data !== null) {
+        //   userFile = getFile(
+        //     bot.user_profile,
+        //     attributes.user_profile.data.attributes.ext,
+        //     attributes.user_profile.data.attributes.name,
+        //   );
+        // }
+
+        if (attributes.bot_profile.data !== null) {
+          let botFile = getFile(
+            bot.bot_profile,
+            attributes.bot_profile.data.attributes.ext,
+            attributes.bot_profile.data.attributes.name,
+          );
+          fileImageName = botFile.name;
+          fileImageResult = botFile.imageResult;
+        }
+
+        ready = true;
+        triggerLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function deleteBot(id) {
+    let token = localStorage.getItem("token");
+
+    if (token) {
+      triggerLoading(true);
+      try {
+        const response = await $call.call("client-dashboard", "delete-bot", {
+          URLQuery: {},
+          URLParams: {
+            id: id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        // popupModal = false;
+        triggerLoading(false);
+        triggerToast("deleted");
+        goto(await $call.getPage("client-dashboard", "bots-list"));
+      } catch (error) {
+        triggerLoading(false);
+        console.log(error);
+      }
+    }
+  }
+
+  function getFile(base64, ext, name) {
+    let fileType;
+    if (ext === ".png") {
+      fileType = "image/png";
+    } else if (ext === ".jpg") {
+      fileType = "image/jpg";
+    } else if (ext === ".jpeg") {
+      fileType = "image/jpeg";
+    } else if (ext === ".svg") {
+      fileType = "image/svg+xml";
+    } else {
+      fileType = "image/png";
+    }
+
+    let blob = base64toBlob(base64, fileType);
+    let fileImageResult = URL.createObjectURL(blob);
+    return {
+      imageResult: fileImageResult,
+      name: name,
+      base64: base64,
+    };
+  }
+
+  function base64toBlob(base64Data, fileType) {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  }
+
   async function handleCheckAll(allChecked) {
     datasChecked = datasChecked.map((data) => ({
       id: data.id,
@@ -633,25 +815,6 @@
     // console.log("datasChecked setelah pembaruan:", datasChecked);
   }
 
-  async function handleCheckSubCollection(parentId, subId) {
-    datasChecked = datasChecked.map((data) => {
-      if (data.id === parentId) {
-        return {
-          ...data,
-          sub_collection: data.sub_collection.map((sub) => {
-            if (sub.id === subId) {
-              return { ...sub, checked: !sub.checked };
-            }
-            return sub;
-          }),
-        };
-      }
-      return data;
-    });
-
-    // console.log("Updated datasChecked (handleCheckSubCollection):", datasChecked);
-  }
-
   function areAllUnchecked() {
     // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
     const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
@@ -700,7 +863,12 @@
   onMount(() => {
     getCollections();
     getModels();
-    // getCollectionSub();
+    if (botId !== null) {
+      getBot();
+    }
+    if (editable === null || editable === "false") {
+      editable = false;
+    }
   });
 
   $effect(() => {
@@ -719,20 +887,68 @@
   <div class="flex justify-between">
     <Typography preset="Display sm/Semibold" text={$_("deployMyModel")} />
     <div class="flex text-sm gap-3">
-      <Button
-        on:click={async () => {
-          goto(await $call.getPage("client-dashboard", "bots"));
-        }}
-        color="light">{$_("cancel")}</Button
-      >
-      <Button
-        disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
-        on:click={() => {
-          createBot();
-        }}
-        class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
-        >{$_("deploy")}</Button
-      >
+      {#if botId !== null}
+        {#if editable}
+          <Button
+            onclick={() => {
+              editable = false;
+              getBot();
+            }}
+            color="light"
+            class="px-3 focus-within:!ring-1"
+          >
+            {$_("cancel")}
+          </Button>
+          <Button on:click={() => updateBot()} class="px-3 focus-within:!ring-1">
+            {$_("save")}
+          </Button>
+        {:else}
+          <Button
+            onclick={async function () {
+              goto(await $call.getPage("client-dashboard", "my_models"));
+              return;
+            }}
+            color="light"
+            class="px-3 focus-within:!ring-1"
+          >
+            {$_("back")}
+          </Button>
+          <Button
+            onclick={() => (modalDelete = true)}
+            outline
+            color="red"
+            class="px-3 focus-within:!ring-1"
+          >
+            {$_("delete")}
+          </Button>
+          <Button
+            onclick={() => {
+              editable = true;
+            }}
+            class="px-3 focus-within:!ring-1"
+          >
+            {$_("edit")}
+          </Button>
+        {/if}
+      {:else}
+        <Button
+          on:click={async () => {
+            goto(await $call.getPage("client-dashboard", "bots"));
+          }}
+          color="light"
+        >
+          {$_("cancel")}
+        </Button>
+        <Button
+          disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
+          on:click={() => {
+            createBot();
+          }}
+          class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
+        >
+          {$_("deploy")}
+        </Button>
+      {/if}
     </div>
   </div>
 
@@ -747,11 +963,11 @@
       <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div class="flex flex-col gap-1.5 col-span-4">
           <Typography preset="Text sm/Medium" text={$_("modelName")} color="secondary" />
-          <InputRw bind:value={botName} onEdit />
+          <InputRw bind:value={botName} onEdit={editable} />
         </div>
         <div class="flex flex-col gap-1.5 col-span-4">
           <Typography preset="Text sm/Medium" text={$_("modelDescription")} color="secondary" />
-          <TextareaRw bind:value={description} onEdit />
+          <TextareaRw bind:value={description} onEdit={editable} />
         </div>
       </div>
     </div>
@@ -765,6 +981,7 @@
             handleFileUploadWrapper={() => handleInputFile()}
             isPreview
             srcAvatar={fileImageName ? fileImageResult : ""}
+            disabled={!editable}
           />
         </div>
       </div>
@@ -777,6 +994,7 @@
           <UploadFile
             title={$_("modelSourceFile")}
             handleFileUploadWrapper={() => handleInputFile()}
+            disabled={!editable}
           />
         </div>
       </div>
@@ -876,4 +1094,15 @@
       </div>
     {/if}
   </svelte:fragment>
+</Modal>
+
+<Modal bind:open={modalDelete} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToDelete")}
+    </h3>
+    <Button onclick={() => deleteBot(botId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button color="alternative">{$_("noCancel")}</Button>
+  </div>
 </Modal>
