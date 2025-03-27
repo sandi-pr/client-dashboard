@@ -37,16 +37,6 @@
   } from "$lib";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
-  import { da } from "date-fns/locale";
-  // import Highlight from "svelte-highlight";
-  // import typescript from "svelte-highlight/languages/typescript";
-  // import github from "svelte-highlight/styles/github";
-
-  // const API_URL = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
-  // const STRAPI_URL =
-  //   process.env.NODE_ENV === "development"
-  //     ? PUBLIC_STRAPI_MOTHERSHIP_DEV
-  //     : PUBLIC_STRAPI_MOTHERSHIP_PROD;
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -67,7 +57,6 @@
   let modalOverlayColor = $state(false);
   let dropdownBgAlignOpen = $state(false);
   let modalDelete = $state(false);
-  let background_align = $state("center");
   let bgAlign = $state([
     { name: "Center", value: "center" },
     { name: "Left", value: "left" },
@@ -77,12 +66,10 @@
   let users = $state({});
 
   let collectionId = $state(null);
-  let collection = $state({});
   let datas = $state([]);
   let gettingDatas = $state(false);
   let datasChecked = $state([]);
   let tmpDatasChecked = $state([]);
-  let configs = $state({});
   let configsChecked = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
@@ -99,11 +86,9 @@
   let allData = $state([]);
   let search = $state(false);
   let searchCategory = $state({});
-  let pages = $state(1);
   let disabledButton = $state(false);
   let collectionsChecked = $state([]);
   let checkAll = $state(false);
-  let selectCategories = $state(null);
   let datasCategoriesChecked = $state({});
   let configsCategories = $state({});
   let searchTermCategory = $state({});
@@ -160,14 +145,6 @@
     },
   ]);
 
-  let dropdownUsecaseOpen = $state(false);
-  let usecase = $state([
-    { name: "My Bots (Default)", value: "myBots" },
-    { name: "Hexassistant", value: "hexassistant" },
-    { name: "Coding Assistant", value: "codingAssistant" },
-  ]);
-  let usecaseSelected = $state("myBots");
-
   function getBrandColorName(selectedId, value) {
     const selectedColor = themeColors.find((color) => color.id === selectedId);
     return selectedColor
@@ -177,75 +154,12 @@
       : "Unknown Color";
   }
 
-  let timeoutId;
-  // old
-  // const handleSearch = async (value) => {
-  //   pagination.page = 1;
-  //   searchTerm = value;
-
-  //   await getDocuments(1);
-  // };
   const handleSearch = async (value) => {
     search = true;
     pagination.page = 1;
     searchTerm = value;
 
     await getCollectionSub(selectedCollection);
-  };
-
-  let conversationDatas = [
-    {
-      id: 1,
-      timestamp: "03/19/2024 22:57",
-      customerName: "Elias Hoppe IV",
-      conversationId: "4c64986428240cn948929284",
-      actions: {
-        objects: [
-          {
-            name: "View",
-            href: "/conversation_logs",
-          },
-        ],
-      },
-    },
-    {
-      id: 2,
-      timestamp: "03/20/2024 09:15",
-      customerName: "Amelia Jones",
-      conversationId: "8d74683756ds33l90928f",
-      actions: {
-        objects: [
-          {
-            name: "View",
-            href: "/conversation_logs",
-          },
-        ],
-      },
-    },
-    {
-      id: 3,
-      timestamp: "03/21/2024 13:45",
-      customerName: "Mikhail Petrov",
-      conversationId: "5f739dks76402dk23kj4",
-      actions: {
-        objects: [
-          {
-            name: "View",
-            href: "/conversation_logs",
-          },
-        ],
-      },
-    },
-  ];
-
-  let conversationConfigs = {
-    search: handleSearch,
-    pagination: {
-      page: 1,
-      pageSize: 5,
-      pageCount: 1,
-      total: 5,
-    },
   };
 
   async function getCollections() {
@@ -766,8 +680,6 @@
 
   let formattedDate = "Created on 2021-08-12 14:00 PM";
 
-  let code = `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="http://webchat.hexacode.org/19ca7b92-4bfd-4c20-b6ab-048207e66258"></iframe>`;
-
   async function getModels() {
     let token = localStorage.getItem("token");
     if (token) {
@@ -817,41 +729,6 @@
           platforms = await Promise.all(promise);
         }
       } catch (error) {
-        console.log(error);
-      }
-    }
-  }
-
-  async function getCollection() {
-    // search collection using params collectionId here
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      try {
-        let response = await $call.call("client-dashboard", "get-collection-by-id", {
-          URLQuery: {},
-          URLParams: {
-            id: collectionId.toString(),
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-        if (response.status !== 200) {
-          console.log(response);
-          triggerToast("error");
-          goto(await $call.getPage("client-dashboard", "document-collection"));
-          return;
-        }
-
-        collection = {
-          id: response.result.data.id,
-          name: response.result.data.attributes.collection_name,
-          createdAt: response.result.data.attributes.createdAt,
-          description: response.result.data.attributes.description,
-        };
-      } catch (error) {
-        triggerToast("error");
         console.log(error);
       }
     }
@@ -1340,8 +1217,6 @@
     }
   }
 
-  async function getDocumentsByCategory() {}
-
   const handleSearchCategory = async (value, category) => {
     searchCategory[category] = true;
     configsCategories[category].pagination.page = 1;
@@ -1445,8 +1320,6 @@
     }
   });
 
-  // $: disabledButton = users.botName === "" || users.username === "";
-
   $effect(() => {
     if (disabledButton) {
       disabledButton = users.botName === "" || users.username === "";
@@ -1454,13 +1327,6 @@
   });
 </script>
 
-<!-- <svelte:head>
-  {@html github}
-</svelte:head> -->
-
-<!-- <svelte:window bind:innerWidth={screenWidth} /> -->
-
-<!-- <LoadingSpinner {isLoading} /> -->
 {#if ready}
   <div class="m-4 pb-12">
     <div class="sticky top-0 bg-primary-light dark:bg-primary-dark z-10">
