@@ -17,19 +17,19 @@
   import Divider from "$lib/components/Divider.svelte";
   import {
     call,
-    SelectedCard,
+    // SelectedCard,
     UploadFile,
     triggerToast,
     triggerLoading,
     Typography,
     InputRw,
     TextareaRw,
-    StateCard,
+    // StateCard,
   } from "$lib";
-  import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
+  // import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { goto } from "$app/navigation";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  // import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+  // import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -44,259 +44,259 @@
   let fileImageName = $state(null);
   let fileImageResult = $state(null);
   let selectedplatforms = $state(null);
-  let selectedCollection = $state("");
-  let oldSelectedCollection = $state("");
+  // let selectedCollection = $state("");
+  // let oldSelectedCollection = $state("");
   let additionalPrompt = $state("");
   let needAuth = $state(false);
-  let modalOpen = $state(false);
-  let isSelectedLibrary = $state(false);
-  let allData = $state([]);
-  let searchTerm = $state("");
-  let search = $state(false);
+  // let modalOpen = $state(false);
+  // let isSelectedLibrary = $state(false);
+  // let allData = $state([]);
+  // let searchTerm = $state("");
+  // let search = $state(false);
   let checkAll = $state(false);
   let datasChecked = $state([]);
   let tmpDatasChecked = $state({});
-  let configs = $state({});
-  let gettingDatas = $state(false);
+  // let configs = $state({});
+  // let gettingDatas = $state(false);
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
-  let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
+  // let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
   let platforms = $state([]);
   let screenWidth = $state(0);
   let ready = $state(false);
   let modalDelete = $state(false);
 
-  async function getCollectionSub(id) {
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      if (!search) {
-        gettingDatas = true;
-      }
-      let response = await $call.call("client-dashboard", "get-library-collections", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: pagination.page,
-          page_size: pagination.pageSize,
-          parent_id: id,
-          search: searchTerm,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+  // async function getCollectionSub(id) {
+  //   let token = localStorage.getItem("token");
+  //   if (token !== null) {
+  //     if (!search) {
+  //       gettingDatas = true;
+  //     }
+  //     let response = await $call.call("client-dashboard", "get-library-collections", {
+  //       URLQuery: {},
+  //       URLParams: {},
+  //       Params: {
+  //         page: pagination.page,
+  //         page_size: pagination.pageSize,
+  //         parent_id: id,
+  //         search: searchTerm,
+  //       },
+  //       Headers: {
+  //         Authorization: "Bearer " + token,
+  //       },
+  //     });
 
-      if (response.status !== 200) {
-        console.log(response);
-        gettingDatas = false;
-        return;
-      }
+  //     if (response.status !== 200) {
+  //       console.log(response);
+  //       gettingDatas = false;
+  //       return;
+  //     }
 
-      console.log("collections", response);
+  //     console.log("collections", response);
 
-      if (response.result.data.length > 0) {
-        pagination = response.result.meta.pagination;
-        configs = {
-          search: true,
-          searchHandler: handleSearch,
-          pagination: response.result.meta.pagination,
-          space: "p-4",
-          actionInLeft: true,
-          actions: [
-            {
-              id: "deselect_all",
-              name: "Deselect All",
-              onclick: () => {
-                handleCheckAllCollection(false);
-              },
-            },
-            {
-              id: "select_all",
-              name: "Select All",
-              type: "brand-inverse",
-              onclick: () => {
-                handleCheckAllCollection(true);
-              },
-            },
-          ],
-        };
-        let promises = response.result.data.map(async (document) => {
-          const sub_collections = await getSubCollections(document.id);
-          return {
-            id: document.id,
-            collection_name: document.attributes.name,
-            sub_collections,
-          };
-        });
-        allData = await Promise.all(promises);
-        // console.log("all data with subcollections", allData);
+  //     if (response.result.data.length > 0) {
+  //       pagination = response.result.meta.pagination;
+  //       configs = {
+  //         search: true,
+  //         searchHandler: handleSearch,
+  //         pagination: response.result.meta.pagination,
+  //         space: "p-4",
+  //         actionInLeft: true,
+  //         actions: [
+  //           {
+  //             id: "deselect_all",
+  //             name: "Deselect All",
+  //             onclick: () => {
+  //               handleCheckAllCollection(false);
+  //             },
+  //           },
+  //           {
+  //             id: "select_all",
+  //             name: "Select All",
+  //             type: "brand-inverse",
+  //             onclick: () => {
+  //               handleCheckAllCollection(true);
+  //             },
+  //           },
+  //         ],
+  //       };
+  //       let promises = response.result.data.map(async (document) => {
+  //         const sub_collections = await getSubCollections(document.id);
+  //         return {
+  //           id: document.id,
+  //           collection_name: document.attributes.name,
+  //           sub_collections,
+  //         };
+  //       });
+  //       allData = await Promise.all(promises);
+  //       // console.log("all data with subcollections", allData);
 
-        if (checkAll) {
-          datasChecked = allData.map((data) => {
-            return {
-              id: data.id,
-              checked: true,
-              sub_collection: data.sub_collections.map((sub) => ({
-                id: sub.id,
-                checked: true,
-              })),
-            };
-          });
-          // console.log("datasChecked all", datasChecked);
-        } else {
-          if (tmpDatasChecked[pagination.page] === undefined) {
-            datasChecked = allData.map((data) => {
-              return {
-                id: data.id,
-                checked: false,
-                sub_collection: data.sub_collections.map((sub) => ({
-                  id: sub.id,
-                  checked: false,
-                })),
-              };
-            });
-          } else {
-            datasChecked = tmpDatasChecked[pagination.page];
-          }
-          // console.log("datasChecked", datasChecked);
-        }
+  //       if (checkAll) {
+  //         datasChecked = allData.map((data) => {
+  //           return {
+  //             id: data.id,
+  //             checked: true,
+  //             sub_collection: data.sub_collections.map((sub) => ({
+  //               id: sub.id,
+  //               checked: true,
+  //             })),
+  //           };
+  //         });
+  //         // console.log("datasChecked all", datasChecked);
+  //       } else {
+  //         if (tmpDatasChecked[pagination.page] === undefined) {
+  //           datasChecked = allData.map((data) => {
+  //             return {
+  //               id: data.id,
+  //               checked: false,
+  //               sub_collection: data.sub_collections.map((sub) => ({
+  //                 id: sub.id,
+  //                 checked: false,
+  //               })),
+  //             };
+  //           });
+  //         } else {
+  //           datasChecked = tmpDatasChecked[pagination.page];
+  //         }
+  //         // console.log("datasChecked", datasChecked);
+  //       }
 
-        // if (checkAll) {
-        //   datasChecked = datasChecked.map((data) => {
-        //     return { id: data.id, checked: true };
-        //   });
-        // }
-      } else {
-        pagination = response.result.meta.pagination;
-        allData = [];
-        datasChecked = [];
-        configs = {
-          search: true,
-          searchHandler: handleSearch,
-          pagination: response.result.meta.pagination,
-          space: "p-4",
-          actionInLeft: true,
-          actions: [
-            {
-              id: "deselect_all",
-              name: "Deselect All",
-              onclick: () => {
-                handleCheckAllCollection(false);
-              },
-            },
-            {
-              id: "select_all",
-              name: "Select All",
-              type: "brand-inverse",
-              onclick: () => {
-                handleCheckAllCollection(true);
-              },
-            },
-          ],
-          // actions: [
-          //   {
-          //     id: "delete",
-          //     name: "Delete",
-          //     icon: "trash",
-          //     type: "error",
-          //     disabled: datasChecked.find((data) => data.checked) ? false : true,
-          //     onclick: () => {
-          //       if (datasChecked.find((data) => data.checked)) {
-          //         popupModal = true;
-          //       }
-          //     },
-          //   },
-          //   {
-          //     id: "add_new",
-          //     name: "Add New",
-          //     icon: "plus",
-          //     type: "brand-inverse",
-          //     onclick: () => {
-          //       selectTypeCollection("Documents");
-          //       addDocumentsModal = true;
-          //       addOtherCategory = false;
-          //     },
-          //   },
-          // ],
-        };
-      }
+  //       // if (checkAll) {
+  //       //   datasChecked = datasChecked.map((data) => {
+  //       //     return { id: data.id, checked: true };
+  //       //   });
+  //       // }
+  //     } else {
+  //       pagination = response.result.meta.pagination;
+  //       allData = [];
+  //       datasChecked = [];
+  //       configs = {
+  //         search: true,
+  //         searchHandler: handleSearch,
+  //         pagination: response.result.meta.pagination,
+  //         space: "p-4",
+  //         actionInLeft: true,
+  //         actions: [
+  //           {
+  //             id: "deselect_all",
+  //             name: "Deselect All",
+  //             onclick: () => {
+  //               handleCheckAllCollection(false);
+  //             },
+  //           },
+  //           {
+  //             id: "select_all",
+  //             name: "Select All",
+  //             type: "brand-inverse",
+  //             onclick: () => {
+  //               handleCheckAllCollection(true);
+  //             },
+  //           },
+  //         ],
+  //         // actions: [
+  //         //   {
+  //         //     id: "delete",
+  //         //     name: "Delete",
+  //         //     icon: "trash",
+  //         //     type: "error",
+  //         //     disabled: datasChecked.find((data) => data.checked) ? false : true,
+  //         //     onclick: () => {
+  //         //       if (datasChecked.find((data) => data.checked)) {
+  //         //         popupModal = true;
+  //         //       }
+  //         //     },
+  //         //   },
+  //         //   {
+  //         //     id: "add_new",
+  //         //     name: "Add New",
+  //         //     icon: "plus",
+  //         //     type: "brand-inverse",
+  //         //     onclick: () => {
+  //         //       selectTypeCollection("Documents");
+  //         //       addDocumentsModal = true;
+  //         //       addOtherCategory = false;
+  //         //     },
+  //         //   },
+  //         // ],
+  //       };
+  //     }
 
-      gettingDatas = false;
-      search = false;
-    }
-  }
+  //     gettingDatas = false;
+  //     search = false;
+  //   }
+  // }
 
-  async function getSubCollections(id) {
-    let token = localStorage.getItem("token");
+  // async function getSubCollections(id) {
+  //   let token = localStorage.getItem("token");
 
-    if (token !== null) {
-      gettingDatas = true;
-      const aggregatedData = [];
+  //   if (token !== null) {
+  //     gettingDatas = true;
+  //     const aggregatedData = [];
 
-      paginationCollection.page = 1;
+  //     paginationCollection.page = 1;
 
-      do {
-        let response = await $call.call("client-dashboard", "get-library-collections", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: paginationCollection.page,
-            page_size: paginationCollection.pageSize,
-            parent_id: parseInt(id),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+  //     do {
+  //       let response = await $call.call("client-dashboard", "get-library-collections", {
+  //         URLQuery: {},
+  //         URLParams: {},
+  //         Params: {
+  //           page: paginationCollection.page,
+  //           page_size: paginationCollection.pageSize,
+  //           parent_id: parseInt(id),
+  //         },
+  //         Headers: {
+  //           Authorization: "Bearer " + token,
+  //         },
+  //       });
 
-        if (response.status !== 200) {
-          console.log(response);
-          gettingDatas = false;
-          if (response.status === 400) {
-            console.error("Invalid parameters:", response);
-            triggerToast($_("invalidParameters"), true, "error");
-          } else if (response.status === 401) {
-            console.error("Unauthorized access:", response);
-            triggerToast($_("unauthorized"), true, "error");
-          } else if (response.status === 500) {
-            console.error("Server error:", response);
-            triggerToast($_("serverError"), true, "error");
-          } else {
-            console.error("Unexpected status code:", response);
-            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-          }
-          return;
-        }
+  //       if (response.status !== 200) {
+  //         console.log(response);
+  //         gettingDatas = false;
+  //         if (response.status === 400) {
+  //           console.error("Invalid parameters:", response);
+  //           triggerToast($_("invalidParameters"), true, "error");
+  //         } else if (response.status === 401) {
+  //           console.error("Unauthorized access:", response);
+  //           triggerToast($_("unauthorized"), true, "error");
+  //         } else if (response.status === 500) {
+  //           console.error("Server error:", response);
+  //           triggerToast($_("serverError"), true, "error");
+  //         } else {
+  //           console.error("Unexpected status code:", response);
+  //           triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+  //         }
+  //         return;
+  //       }
 
-        aggregatedData.push(...response.result.data);
+  //       aggregatedData.push(...response.result.data);
 
-        paginationCollection = response.result.meta.pagination;
+  //       paginationCollection = response.result.meta.pagination;
 
-        paginationCollection.page++;
-      } while (paginationCollection.page <= paginationCollection.pageCount);
+  //       paginationCollection.page++;
+  //     } while (paginationCollection.page <= paginationCollection.pageCount);
 
-      const promise = aggregatedData.map(async (collection) => ({
-        id: collection.id,
-        collection_name: collection.attributes.name,
-      }));
+  //     const promise = aggregatedData.map(async (collection) => ({
+  //       id: collection.id,
+  //       collection_name: collection.attributes.name,
+  //     }));
 
-      const subCollectionList = await Promise.all(promise);
-      console.log("subCollectionList", subCollectionList);
-      gettingDatas = false;
-      return subCollectionList;
-    } else {
-      triggerToast($_("unauthorized"), true, "error");
-      gettingDatas = false;
-      return;
-    }
-  }
+  //     const subCollectionList = await Promise.all(promise);
+  //     console.log("subCollectionList", subCollectionList);
+  //     gettingDatas = false;
+  //     return subCollectionList;
+  //   } else {
+  //     triggerToast($_("unauthorized"), true, "error");
+  //     gettingDatas = false;
+  //     return;
+  //   }
+  // }
 
-  const handleSearch = async (value) => {
-    search = true;
-    pagination.page = 1;
-    searchTerm = value;
+  // const handleSearch = async (value) => {
+  //   search = true;
+  //   pagination.page = 1;
+  //   searchTerm = value;
 
-    await getCollectionSub(selectedCollection);
-  };
+  //   await getCollectionSub(selectedCollection);
+  // };
 
   const handleInputFile = (type = "image") => {
     const inputElement = document.createElement("input");
@@ -502,7 +502,7 @@
         bot_name: botName,
         description: description,
         ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
-        library_id: selectedCollection,
+        library_id: 404, // TODO : Change this to the actual library ID
         collection_id: checkAll ? "all" : allCollection,
         additional_prompt: additionalPrompt,
         need_auth: needAuth,
@@ -724,141 +724,141 @@
     return blob;
   }
 
-  async function handleCheckAll(allChecked) {
-    datasChecked = datasChecked.map((data) => ({
-      id: data.id,
-      checked: allChecked ? false : true,
-      sub_collection: data.sub_collection.map((sub) => ({
-        id: sub.id,
-        checked: allChecked ? false : true,
-      })),
-    }));
+  // async function handleCheckAll(allChecked) {
+  //   datasChecked = datasChecked.map((data) => ({
+  //     id: data.id,
+  //     checked: allChecked ? false : true,
+  //     sub_collection: data.sub_collection.map((sub) => ({
+  //       id: sub.id,
+  //       checked: allChecked ? false : true,
+  //     })),
+  //   }));
 
-    // console.log("Updated datasChecked (handleCheckAll):", datasChecked);
-  }
+  //   // console.log("Updated datasChecked (handleCheckAll):", datasChecked);
+  // }
 
-  async function handleCheckAllCollection(allChecked) {
-    checkAll = allChecked;
+  // async function handleCheckAllCollection(allChecked) {
+  //   checkAll = allChecked;
 
-    datasChecked = datasChecked.map((data) => ({
-      id: data.id,
-      checked: allChecked,
-      sub_collection: data.sub_collection.map((sub) => ({
-        id: sub.id,
-        checked: allChecked,
-      })),
-    }));
+  //   datasChecked = datasChecked.map((data) => ({
+  //     id: data.id,
+  //     checked: allChecked,
+  //     sub_collection: data.sub_collection.map((sub) => ({
+  //       id: sub.id,
+  //       checked: allChecked,
+  //     })),
+  //   }));
 
-    if (!allChecked) {
-      // Jika allChecked adalah false, update tmpDatasChecked
-      Object.keys(tmpDatasChecked).forEach((page) => {
-        tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
-          id: data.id,
-          checked: false,
-          sub_collection: data.sub_collection.map((sub) => ({
-            id: sub.id,
-            checked: false,
-          })),
-        }));
-      });
-    }
+  //   if (!allChecked) {
+  //     // Jika allChecked adalah false, update tmpDatasChecked
+  //     Object.keys(tmpDatasChecked).forEach((page) => {
+  //       tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
+  //         id: data.id,
+  //         checked: false,
+  //         sub_collection: data.sub_collection.map((sub) => ({
+  //           id: sub.id,
+  //           checked: false,
+  //         })),
+  //       }));
+  //     });
+  //   }
 
-    // console.log("Updated datasChecked (handleCheckAllCollection):", datasChecked);
-  }
+  //   // console.log("Updated datasChecked (handleCheckAllCollection):", datasChecked);
+  // }
 
-  async function handleCheck(id, isSubCollection = false, parentId = null) {
-    if (!Array.isArray(datasChecked)) {
-      datasChecked = [];
-    }
+  // async function handleCheck(id, isSubCollection = false, parentId = null) {
+  //   if (!Array.isArray(datasChecked)) {
+  //     datasChecked = [];
+  //   }
 
-    datasChecked = datasChecked.map((data) => {
-      // Jika parentId tidak ada, kita memproses level utama
-      if (!isSubCollection && data.id === id) {
-        if (data.checked) {
-          checkAll = false;
-        }
-        return {
-          ...data,
-          checked: !data.checked,
-        };
-      }
+  //   datasChecked = datasChecked.map((data) => {
+  //     // Jika parentId tidak ada, kita memproses level utama
+  //     if (!isSubCollection && data.id === id) {
+  //       if (data.checked) {
+  //         checkAll = false;
+  //       }
+  //       return {
+  //         ...data,
+  //         checked: !data.checked,
+  //       };
+  //     }
 
-      // console.log("checkAll", checkAll);
+  //     // console.log("checkAll", checkAll);
 
-      // Jika parentId cocok, kita memproses sub_collection
-      if (isSubCollection && data.id === parentId) {
-        const updatedSubCollection = data.sub_collection.map((sub) => {
-          if (sub.id === id) {
-            return { ...sub, checked: !sub.checked };
-          }
-          return sub;
-        });
+  //     // Jika parentId cocok, kita memproses sub_collection
+  //     if (isSubCollection && data.id === parentId) {
+  //       const updatedSubCollection = data.sub_collection.map((sub) => {
+  //         if (sub.id === id) {
+  //           return { ...sub, checked: !sub.checked };
+  //         }
+  //         return sub;
+  //       });
 
-        return {
-          ...data,
-          sub_collection: updatedSubCollection,
-        };
-      }
+  //       return {
+  //         ...data,
+  //         sub_collection: updatedSubCollection,
+  //       };
+  //     }
 
-      return data;
-    });
+  //     return data;
+  //   });
 
-    let pageNow = pagination.page;
-    if (tmpDatasChecked[pageNow] === undefined) {
-      tmpDatasChecked = {
-        ...tmpDatasChecked,
-        [pageNow]: datasChecked,
-      };
-    } else {
-      tmpDatasChecked[pageNow] = datasChecked;
-    }
-    // console.log("datasChecked setelah pembaruan:", datasChecked);
-  }
+  //   let pageNow = pagination.page;
+  //   if (tmpDatasChecked[pageNow] === undefined) {
+  //     tmpDatasChecked = {
+  //       ...tmpDatasChecked,
+  //       [pageNow]: datasChecked,
+  //     };
+  //   } else {
+  //     tmpDatasChecked[pageNow] = datasChecked;
+  //   }
+  //   // console.log("datasChecked setelah pembaruan:", datasChecked);
+  // }
 
-  function areAllUnchecked() {
-    // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
-    const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
+  // function areAllUnchecked() {
+  //   // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
+  //   const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
 
-    // Cek apakah semua data tidak ada yang checked
-    return allData.every((item) => item.checked === false);
-  }
+  //   // Cek apakah semua data tidak ada yang checked
+  //   return allData.every((item) => item.checked === false);
+  // }
 
-  async function next() {
-    if (pagination.page >= pagination.pageCount) return;
+  // async function next() {
+  //   if (pagination.page >= pagination.pageCount) return;
 
-    let pageNow = pagination.page;
-    if (tmpDatasChecked[pageNow] === undefined) {
-      tmpDatasChecked = {
-        ...tmpDatasChecked,
-        [pageNow]: datasChecked,
-      };
-    } else {
-      tmpDatasChecked[pageNow] = datasChecked;
-    }
+  //   let pageNow = pagination.page;
+  //   if (tmpDatasChecked[pageNow] === undefined) {
+  //     tmpDatasChecked = {
+  //       ...tmpDatasChecked,
+  //       [pageNow]: datasChecked,
+  //     };
+  //   } else {
+  //     tmpDatasChecked[pageNow] = datasChecked;
+  //   }
 
-    pagination.page = pagination.page + 1;
-    // console.log("cek tmpDatasChecked", tmpDatasChecked);
-    // getDocuments();
-    getCollectionSub(selectedCollection);
-  }
+  //   pagination.page = pagination.page + 1;
+  //   // console.log("cek tmpDatasChecked", tmpDatasChecked);
+  //   // getDocuments();
+  //   getCollectionSub(selectedCollection);
+  // }
 
-  async function previous() {
-    if (pagination.page <= 1) return;
+  // async function previous() {
+  //   if (pagination.page <= 1) return;
 
-    let pageNow = pagination.page;
-    if (tmpDatasChecked[pageNow] === undefined) {
-      tmpDatasChecked = {
-        ...tmpDatasChecked,
-        [pageNow]: datasChecked,
-      };
-    } else {
-      tmpDatasChecked[pageNow] = datasChecked;
-    }
+  //   let pageNow = pagination.page;
+  //   if (tmpDatasChecked[pageNow] === undefined) {
+  //     tmpDatasChecked = {
+  //       ...tmpDatasChecked,
+  //       [pageNow]: datasChecked,
+  //     };
+  //   } else {
+  //     tmpDatasChecked[pageNow] = datasChecked;
+  //   }
 
-    pagination.page = pagination.page - 1;
-    // getDocuments();
-    getCollectionSub(selectedCollection);
-  }
+  //   pagination.page = pagination.page - 1;
+  //   // getDocuments();
+  //   getCollectionSub(selectedCollection);
+  // }
 
   onMount(() => {
     getCollections();
@@ -871,14 +871,14 @@
     }
   });
 
-  $effect(() => {
-    if (selectedCollection) {
-      if (typeof selectedCollection === "number" && selectedCollection !== oldSelectedCollection) {
-        oldSelectedCollection = selectedCollection;
-        getCollectionSub(selectedCollection);
-      }
-    }
-  });
+  // $effect(() => {
+  //   if (selectedCollection) {
+  //     if (typeof selectedCollection === "number" && selectedCollection !== oldSelectedCollection) {
+  //       oldSelectedCollection = selectedCollection;
+  //       getCollectionSub(selectedCollection);
+  //     }
+  //   }
+  // });
 </script>
 
 <svelte:window bind:innerWidth={screenWidth} />
@@ -933,16 +933,17 @@
       {:else}
         <Button
           on:click={async () => {
-            goto(await $call.getPage("client-dashboard", "bots"));
+            goto(await $call.getPage("client-dashboard", "my_models"));
           }}
           color="light"
         >
           {$_("cancel")}
         </Button>
         <Button
-          disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
-          on:click={() => {
-            createBot();
+          disabled={botName === "" || selectedplatforms === ""}
+          on:click={async () => {
+            await createBot();
+            goto(await $call.getPage("client-dashboard", "my_models"));
           }}
           class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
         >
@@ -1002,7 +1003,7 @@
   </div>
 </div>
 
-<Modal bind:open={modalOpen} outsideclose>
+<!-- <Modal bind:open={modalOpen} outsideclose>
   <svelte:fragment slot="header">
     <div class="flex gap-4 me-6 grow w-full">
       <div
@@ -1094,7 +1095,7 @@
       </div>
     {/if}
   </svelte:fragment>
-</Modal>
+</Modal> -->
 
 <Modal bind:open={modalDelete} size="xs" autoclose>
   <div class="text-center">
