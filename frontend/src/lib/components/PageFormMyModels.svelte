@@ -33,7 +33,7 @@
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let { botId = null, editable = null } = $props();
+  let { botId = null, editable = true } = $props();
 
   let collections = $state([]);
   let initCollections = $state([]);
