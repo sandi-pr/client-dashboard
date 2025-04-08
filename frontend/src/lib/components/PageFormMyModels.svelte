@@ -916,6 +916,13 @@
             }}
             color="light"
             class="px-3 focus-within:!ring-1"
+            on:click={async () => {
+              if (isFrontend) {
+                goto("/llms/my_models");
+              } else {
+                goto(await $call.getPage("client-dashboard", "my_models"));
+              }
+            }}
           >
             {$_("back")}
           </Button>
@@ -939,7 +946,11 @@
       {:else}
         <Button
           on:click={async () => {
-            goto(await $call.getPage("client-dashboard", "my_models"));
+            if (isFrontend) {
+              goto("/llms/my_models");
+            } else {
+              goto(await $call.getPage("client-dashboard", "my_models"));
+            }
           }}
           color="light"
         >

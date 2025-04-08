@@ -2,10 +2,13 @@
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { Search, Button as ButtonFlowbite } from "flowbite-svelte";
+  import { goto } from "$app/navigation";
 
   import { Typography, Icon, call, triggerToast, StateCard, BotCard } from "$lib";
 
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let idModel = "";
 
@@ -700,6 +703,13 @@
         color="primary"
         outline
         class="flex items-center gap-2 whitespace-nowrap [&>svg]:hover:!text-white"
+        onclick={async () => {
+          if (isFrontend) {
+            goto("/llms/my_models/create");
+          } else {
+            goto(await $call.getPage("client-dashboard", "my_models_create"));
+          }
+        }}
       >
         <Icon name="uploadCloud01" color="fg-brand-primary" />
         {$_("deployNewModel")}
