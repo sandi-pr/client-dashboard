@@ -77,6 +77,8 @@ import GoogleDriveIcon from "../icon/google-drive.svelte";
 import TrashIcon from "../icon/trash-01.svelte";
 import UploadCloud01 from "../icon/upload-cloud-01.svelte";
 import VerifiedTickIcon from "../icon/verified-tick.svelte";
+import OnedriveIcon from "../icon/onedrive.svelte";
+import Trash03Icon from "../icon/trash-03.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -238,6 +240,10 @@ let getIcons = (presetIcon: String) => {
       return UploadCloud01;
     case "verifiedTick":
       return VerifiedTickIcon;
+    case "onedrive":
+      return OnedriveIcon;
+    case "trash03":
+      return Trash03Icon;
     default:
       return "";
   }

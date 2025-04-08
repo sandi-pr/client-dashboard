@@ -1030,5 +1030,7 @@
   "deployMyModel": "Deploy My Model",
   "modelName": "Model Name",
   "modelDescription": "Model Description",
-  "addNewFolder": "Add New Folder"
+  "addNewFolder": "Add New Folder",
+  "areYouSureYouWantToDeleteLlm": "Are you sure you want to delete LLM?",
+  "areYouSureYouWantToDeleteBot": "Are you sure you want to delete bot?"
 }

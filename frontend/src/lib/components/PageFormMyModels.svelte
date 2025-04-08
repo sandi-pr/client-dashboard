@@ -11,7 +11,7 @@
 -->
 
 <script>
-  import { Button, Modal } from "flowbite-svelte";
+  import { Button, Modal, Progressbar } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import Divider from "$lib/components/Divider.svelte";
@@ -24,12 +24,14 @@
     Typography,
     InputRw,
     TextareaRw,
+    Icon,
     // StateCard,
   } from "$lib";
   // import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import { goto } from "$app/navigation";
   // import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   // import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -64,6 +66,10 @@
   let screenWidth = $state(0);
   let ready = $state(false);
   let modalDelete = $state(false);
+  let llmExists = $state(true);
+  let llmStatus = $state("");
+  let deleteTarget = $state("");
+  let llmId = $state("");
 
   // async function getCollectionSub(id) {
   //   let token = localStorage.getItem("token");
@@ -997,6 +1003,42 @@
             handleFileUploadWrapper={() => handleInputFile()}
             disabled={!editable}
           />
+          {#if llmExists}
+            <div
+              class="flex justify-between mt-4 p-6 w-full gap-4 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-secondary-dark dark:hover:border-gray-600"
+            >
+              {#if llmStatus === "loading"}
+                <div class="flex flex-col justify-center gap-2 w-full">
+                  <Typography preset="Text sm/Medium" text={"Uploading File"} color="primary" />
+                  <Progressbar progress={60} size="h-4" labelInside />
+                </div>
+              {:else}
+                <div class="flex items-center gap-2">
+                  <Icon name="onedrive" size="w-8 h-8" />
+                  <Typography
+                    preset="Text sm/Medium"
+                    text={"AI Document Archive"}
+                    color="primary"
+                  />
+                </div>
+                <div class="flex items-center gap-2">
+                  <Typography preset="Text sm/Medium" text={"2.13 GB"} color="secondary" />
+                  <div
+                    class={editable ? "cursor-pointer" : ""}
+                    onclick={() => {
+                      if (editable) {
+                        deleteTarget = "llm";
+                        llmId = 1;
+                        modalDelete = true;
+                      }
+                    }}
+                  >
+                    <Icon name="trash03" color="error-primary" />
+                  </div>
+                </div>
+              {/if}
+            </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -1101,9 +1143,22 @@
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      {$_("areYouSureYouWantToDelete")}
+      {deleteTarget === "llm"
+        ? $_("areYouSureYouWantToDeleteLlm")
+        : $_("areYouSureYouWantToDeleteBot")}
     </h3>
-    <Button onclick={() => deleteBot(botId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button
+      onclick={() => {
+        if (deleteTarget === "llm") {
+          // deleteAiDocument(llmId)
+          console.log("hapus llm");
+        } else {
+          deleteBot(botId);
+        }
+      }}
+      color="red"
+      class="me-2">{$_("yesImSure")}</Button
+    >
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

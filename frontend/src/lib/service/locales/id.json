@@ -1030,5 +1030,7 @@
   "deployMyModel": "Deploy Model Saya",
   "modelName": "Nama Model",
   "modelDescription": "Deskripsi Model",
-  "addNewFolder": "Tambahkan Folder Baru"
+  "addNewFolder": "Tambahkan Folder Baru",
+  "areYouSureYouWantToDeleteLlm": "Apakah Anda yakin ingin menghapus LLM ini?",
+  "areYouSureYouWantToDeleteBot": "Apakah Anda yakin ingin menghapus bot ini?"
 }
