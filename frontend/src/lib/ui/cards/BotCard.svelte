@@ -106,9 +106,13 @@
           <Button
             disabled={!check("aiManagement.hexabots:view")}
             on:click={async () => {
-              goto(
-                (await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + bot.botsID,
-              );
+              if (config?.isLlm) {
+                goto((await $call.getPage("client-dashboard", "llms-list")) + "?id=" + bot.botsID);
+              } else {
+                goto(
+                  (await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + bot.botsID,
+                );
+              }
             }}
             outline
             class="!flex grow rounded-lg *:hover:text-white dark:*:hover:text-white"

@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
 export const notifications = writable([]); // Menyimpan daftar notifikasi
 export const notificationsUnread = writable([]); // Menyimpan daftar notifikasi yang belum dibaca
@@ -39,18 +39,23 @@ export function connectWebSocket(token, isFrontend) {
     return;
   }
 
-  var base_url = (location.protocol == 'https:' ? "wss:" : "ws:") + "//" + location.hostname + (location.port == "" ? "" : ":" + location.port);
+  let reconnectAttempts = 0; // Track the number of reconnection attempts
+  const maxReconnectAttempts = 5; // Maximum allowed reconnection attempts
+
+  const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+  const host = location.hostname;
+  const port = location.port ? `:${location.port}` : "";
+  const base_url = `${protocol}//${host}${port}`;
 
   if (isFrontend) {
     socket = new WebSocket(
-      `ws://192.168.18.15/client-dashboard/notification/${encodeURIComponent(token)}`,
-    )
+      `ws://tank.hexacode.ai/client-dashboard/notification/${encodeURIComponent(token)}`,
+    );
   } else {
     socket = new WebSocket(
       `${base_url}/client-dashboard/notification/${encodeURIComponent(token)}`,
     );
   }
-
 
   socket.onopen = () => {
     console.log("WebSocket connected.");
@@ -68,18 +73,18 @@ export function connectWebSocket(token, isFrontend) {
           n.map((notif) =>
             notif.attributes.meta?.document_id === docId
               ? {
-                ...notif,
-                attributes: {
-                  ...notif.attributes,
-                  content: message.content,
-                  meta: {
-                    ...notif.attributes.meta,
-                    ...message.meta,
+                  ...notif,
+                  attributes: {
+                    ...notif.attributes,
+                    content: message.content,
+                    meta: {
+                      ...notif.attributes.meta,
+                      ...message.meta,
+                    },
                   },
-                },
-              }
-              : notif
-          )
+                }
+              : notif,
+          ),
         );
 
         onProgress.set(true);
@@ -99,7 +104,9 @@ export function connectWebSocket(token, isFrontend) {
           onProgress.set(false);
         }
 
-        timeout = setTimeout(() => { onProgress.set(false) }, 10000);
+        timeout = setTimeout(() => {
+          onProgress.set(false);
+        }, 10000);
         newNotification.update((data) => true);
       }
     } catch (error) {
@@ -113,10 +120,16 @@ export function connectWebSocket(token, isFrontend) {
 
   socket.onclose = () => {
     console.log("WebSocket disconnected.");
-    // Opsi: coba reconnect otomatis jika diperlukan
-    setTimeout(() => {
-      connectWebSocket(token, isFrontend);
-    }, 3000);
+
+    if (reconnectAttempts < maxReconnectAttempts) {
+      reconnectAttempts++;
+      console.log(`Reconnection attempt ${reconnectAttempts}...`);
+      setTimeout(() => {
+        connectWebSocket(token, isFrontend);
+      }, 3000);
+    } else {
+      console.log("Maximum reconnection attempts reached. Stopping further attempts.");
+    }
   };
 }
 

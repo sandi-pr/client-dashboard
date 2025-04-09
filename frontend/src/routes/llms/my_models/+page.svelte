@@ -28,6 +28,10 @@
 
   let dropdownOpen = $state(new Array(botsList.length).fill(false));
 
+  let token = $state(null);
+
+  let searchTimeout;
+
   const findIconFromModelName = (modelName) => {
     let icon = "gemini";
     const lowerCaseModelName = modelName.toLowerCase();
@@ -43,14 +47,16 @@
     return icon;
   };
 
-  const getModels = async () => {
-    let token = localStorage.getItem("token");
+  const getModels = async (search) => {
+    // console.log("search", search);
     if (token) {
       try {
         let response = await $call.call("hexa-ai-rag", "get-models", {
           URLQuery: {},
           URLParams: {},
-          Params: {},
+          Params: {
+            modelName: search || "",
+          },
           Headers: {
             Authorization: "Bearer " + token,
           },
@@ -60,156 +66,17 @@
 
         if (response.status === 200) {
           if (response?.result && response.result.models.length > 0) {
-            cardDataArray = response.result.models.map((model, index) => {
+            cardDataArray = response.result.models.map((model) => {
               return {
-                id: index++,
-                iconData: {
-                  icon: findIconFromModelName(model.name),
-                },
-                contentCenter: [
-                  // Product Name
-                  [
-                    {
-                      text: {
-                        text: "LLM",
-                        color: "brand-secondary",
-                        preset: "Text xl/Semibold",
-                      },
-                    },
-                  ],
-                  // Title
-                  [
-                    {
-                      text: {
-                        text: model.name,
-                        color: "primary",
-                        preset: "Display md/Semibold",
-                      },
-                    },
-                  ],
-                  // Subtitle
-                  [
-                    {
-                      text: {
-                        text: "Our most used models.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    },
-                  ],
-                  // Point of Interest
-                  // model.pointsOfInterest.map((point) => {
-                  //   return [
-                  //     {
-                  //       icon: {
-                  //         icon: "check2",
-                  //       },
-                  //       text: {
-                  //         text: point,
-                  //         color: "tertiary",
-                  //         preset: "Text md/Regular",
-                  //       },
-                  //       justify: "justify-start",
-                  //     },
-                  //   ];
-                  // }),
-                  [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: "Finds hidden problems in data.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ],
-                  [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: "Understands images and text.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ],
-                  [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: "Predicts machine failures.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ],
-                  [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: "Personalizes user experiences.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ],
-                  [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: "Discovers new scientific insights.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ],
-                ],
-                actionFooter: [
-                  {
-                    button: {
-                      text: "Try this model",
-                      spaceY: "",
-                      width: "w-full",
-                      rightIcon: "true",
-                      classesSvg: "arrowUpRight",
-                      svgClassReplace: "w-5 h-5 text-white",
-                      funcButton: () => (window.location.href = "/llms"),
-                    },
-                  },
-                  {
-                    button: {
-                      text: "Learn More",
-                      spaceY: "",
-                      width: "w-full",
-                      color: "alternative",
-                      funcButton: async () => {
-                        idModel = index;
-                        await getDetailData();
-                      },
-                    },
-                  },
-                ],
+                botsID: model.id,
+                botsName: model.name,
+                botDescription: model.description,
                 raw: {
                   model,
                 },
               };
             });
-            console.log(cardDataArray);
+            // console.log(cardDataArray);
           }
         } else {
           triggerToast("error");
@@ -221,455 +88,466 @@
     }
   };
 
-  const getDetailData = async () => {
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        cardDataSelected = cardDataArray[idModel - 1];
-        // masih dummy dibawah
-        detailDataArray = [
-          {
-            headerText: {
-              text: "Overview",
-              color: "secondary",
-              preset: "Text md/Semibold",
-            },
-            content: [
-              {
-                text: {
-                  text: "LLaMA 3.2 is an advanced large language model developed by Meta, building upon its predecessors in the LLaMA series. It is designed for high-performance natural language processing (NLP) tasks, including text generation, summarization, code assistance, and conversational AI. The model is optimized for efficiency, scalability, and improved contextual understanding, making it a strong competitor in the AI space.",
-                  color: "secondary",
-                  preset: "Text md/Regular",
-                },
-              },
-              {
-                button: {
-                  class: "m-4",
-                  color: "none",
-                  onClick: () => {},
-                  text: {
-                    text: "Read More",
-                    color: "brand-secondary",
-                    preset: "Text md/Semibold",
-                  },
-                },
-              },
-            ],
-          },
-          {
-            headerText: {
-              text: "Advantages",
-              color: "secondary",
-              preset: "Text md/Semibold",
-            },
-            content: [
-              {
-                list: [
-                  {
-                    textGroup: [
-                      {
-                        text: "Improved Efficiency -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Optimized architecture for faster inference and lower computational costs",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Enhanced Contextual Understanding -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Better ability to maintain context across longer conversations or documents.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Multilingual Support -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Supports multiple languages, making it versatile for global applications.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Open-Source Flexibility -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "If released with open access, it allows for greater customization and community contributions.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Stronger Alignment & Safety -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Improved guardrails to reduce biases and prevent harmful outputs.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                button: {
-                  class: "m-4",
-                  color: "none",
-                  onClick: () => {},
-                  text: {
-                    text: "Read More",
-                    color: "brand-secondary",
-                    preset: "Text md/Semibold",
-                  },
-                },
-              },
-            ],
-          },
-          {
-            headerText: {
-              text: "Best Use Case",
-              color: "secondary",
-              preset: "Text md/Semibold",
-            },
-            content: [
-              {
-                list: [
-                  {
-                    textGroup: [
-                      {
-                        text: "Chatbots & Virtual Assistants -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Enhances user interactions with more human-like responses.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Content Creation -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Generates high-quality text for articles, blogs, and creative writing.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Code Assistance -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Helps developers with coding suggestions, debugging, and explanations.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Summarization & Data Extraction -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Condenses long documents into concise summaries.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Education & Tutoring -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Provides personalized learning support for students.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                button: {
-                  class: "m-4",
-                  color: "none",
-                  onClick: () => {},
-                  text: {
-                    text: "Read More",
-                    color: "brand-secondary",
-                    preset: "Text md/Semibold",
-                  },
-                },
-              },
-            ],
-          },
-          {
-            headerText: {
-              text: "Disadvantages",
-              color: "secondary",
-              preset: "Text md/Semibold",
-            },
-            content: [
-              {
-                list: [
-                  {
-                    textGroup: [
-                      {
-                        text: "Computational Demand -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "May require significant hardware resources for deployment and fine-tuning.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Potential Ethical Risks -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Despite safety improvements, there may still be risks of misinformation or bias.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Limited Real-Time Awareness -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Like other LLMs, it may not have real-time or up-to-date knowledge without external integrations.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Fine-Tuning Complexity -",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Customizing the model for specific use cases can be challenging without expertise.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                button: {
-                  class: "m-4",
-                  color: "none",
-                  onClick: () => {},
-                  text: {
-                    text: "Read More",
-                    color: "brand-secondary",
-                    preset: "Text md/Semibold",
-                  },
-                },
-              },
-            ],
-          },
-          {
-            headerText: {
-              text: "Specifications",
-              color: "secondary",
-              preset: "Text md/Semibold",
-            },
-            content: [
-              {
-                text: {
-                  text: "To run LLaMA 3.2 locally, your system should meet the following specifications:",
-                  color: "secondary",
-                  preset: "Text md/Regular",
-                },
-              },
-              {
-                text: {
-                  text: "Hardware Requirements:",
-                  color: "secondary",
-                  preset: "Text md/Semibold",
-                  propClass: "my-4",
-                },
-              },
-              {
-                list: [
-                  {
-                    textGroup: [
-                      {
-                        text: "GPU:",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "An NVIDIA GPU with CUDA support is recommended, with at least 16GB of VRAM. This is essential for efficient model training and inference.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "RAM:",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "A minimum of 32GB is required, with 64GB recommended for handling larger models and datasets.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Storage:",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "At least 50GB of free disk space to accommodate the model files and dependencies.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                text: {
-                  text: "Software Requirements:",
-                  color: "secondary",
-                  preset: "Text md/Semibold",
-                  propClass: "my-4",
-                },
-              },
-              {
-                list: [
-                  {
-                    textGroup: [
-                      {
-                        text: "Operating System:",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Linux is preferred for optimal performance, but macOS and Windows are also supported.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "Python:",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Version 3.8 or higher is necessary to run the required scripts and libraries.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                  {
-                    textGroup: [
-                      {
-                        text: "CUDA Toolkit:",
-                        color: "tertiary",
-                        preset: "Text md/Semibold",
-                      },
-                      {
-                        text: "Version 11.6 or newer is required for GPU acceleration.",
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                button: {
-                  class: "m-4",
-                  color: "none",
-                  onClick: () => {},
-                  text: {
-                    text: "Read More",
-                    color: "brand-secondary",
-                    preset: "Text md/Semibold",
-                  },
-                },
-              },
-            ],
-          },
-        ];
-        hiddenContent = new Array(detailDataArray.length).fill(true);
-      } catch (error) {
-        console.log(error);
-      }
+  const delayedSearchModel = (value) => {
+    // Clear the previous timeout if it exists
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
     }
+
+    // Set a new timeout to call getModels after 500ms
+    searchTimeout = setTimeout(() => {
+      getModels(value);
+    }, 500);
   };
+
+  // const getDetailData = async () => {
+  //   if (token) {
+  //     try {
+  //       cardDataSelected = cardDataArray[idModel - 1];
+  //       // masih dummy dibawah
+  //       detailDataArray = [
+  //         {
+  //           headerText: {
+  //             text: "Overview",
+  //             color: "secondary",
+  //             preset: "Text md/Semibold",
+  //           },
+  //           content: [
+  //             {
+  //               text: {
+  //                 text: "LLaMA 3.2 is an advanced large language model developed by Meta, building upon its predecessors in the LLaMA series. It is designed for high-performance natural language processing (NLP) tasks, including text generation, summarization, code assistance, and conversational AI. The model is optimized for efficiency, scalability, and improved contextual understanding, making it a strong competitor in the AI space.",
+  //                 color: "secondary",
+  //                 preset: "Text md/Regular",
+  //               },
+  //             },
+  //             {
+  //               button: {
+  //                 class: "m-4",
+  //                 color: "none",
+  //                 onClick: () => {},
+  //                 text: {
+  //                   text: "Read More",
+  //                   color: "brand-secondary",
+  //                   preset: "Text md/Semibold",
+  //                 },
+  //               },
+  //             },
+  //           ],
+  //         },
+  //         {
+  //           headerText: {
+  //             text: "Advantages",
+  //             color: "secondary",
+  //             preset: "Text md/Semibold",
+  //           },
+  //           content: [
+  //             {
+  //               list: [
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Improved Efficiency -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Optimized architecture for faster inference and lower computational costs",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Enhanced Contextual Understanding -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Better ability to maintain context across longer conversations or documents.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Multilingual Support -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Supports multiple languages, making it versatile for global applications.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Open-Source Flexibility -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "If released with open access, it allows for greater customization and community contributions.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Stronger Alignment & Safety -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Improved guardrails to reduce biases and prevent harmful outputs.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //               ],
+  //             },
+  //             {
+  //               button: {
+  //                 class: "m-4",
+  //                 color: "none",
+  //                 onClick: () => {},
+  //                 text: {
+  //                   text: "Read More",
+  //                   color: "brand-secondary",
+  //                   preset: "Text md/Semibold",
+  //                 },
+  //               },
+  //             },
+  //           ],
+  //         },
+  //         {
+  //           headerText: {
+  //             text: "Best Use Case",
+  //             color: "secondary",
+  //             preset: "Text md/Semibold",
+  //           },
+  //           content: [
+  //             {
+  //               list: [
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Chatbots & Virtual Assistants -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Enhances user interactions with more human-like responses.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Content Creation -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Generates high-quality text for articles, blogs, and creative writing.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Code Assistance -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Helps developers with coding suggestions, debugging, and explanations.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Summarization & Data Extraction -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Condenses long documents into concise summaries.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Education & Tutoring -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Provides personalized learning support for students.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //               ],
+  //             },
+  //             {
+  //               button: {
+  //                 class: "m-4",
+  //                 color: "none",
+  //                 onClick: () => {},
+  //                 text: {
+  //                   text: "Read More",
+  //                   color: "brand-secondary",
+  //                   preset: "Text md/Semibold",
+  //                 },
+  //               },
+  //             },
+  //           ],
+  //         },
+  //         {
+  //           headerText: {
+  //             text: "Disadvantages",
+  //             color: "secondary",
+  //             preset: "Text md/Semibold",
+  //           },
+  //           content: [
+  //             {
+  //               list: [
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Computational Demand -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "May require significant hardware resources for deployment and fine-tuning.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Potential Ethical Risks -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Despite safety improvements, there may still be risks of misinformation or bias.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Limited Real-Time Awareness -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Like other LLMs, it may not have real-time or up-to-date knowledge without external integrations.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Fine-Tuning Complexity -",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Customizing the model for specific use cases can be challenging without expertise.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //               ],
+  //             },
+  //             {
+  //               button: {
+  //                 class: "m-4",
+  //                 color: "none",
+  //                 onClick: () => {},
+  //                 text: {
+  //                   text: "Read More",
+  //                   color: "brand-secondary",
+  //                   preset: "Text md/Semibold",
+  //                 },
+  //               },
+  //             },
+  //           ],
+  //         },
+  //         {
+  //           headerText: {
+  //             text: "Specifications",
+  //             color: "secondary",
+  //             preset: "Text md/Semibold",
+  //           },
+  //           content: [
+  //             {
+  //               text: {
+  //                 text: "To run LLaMA 3.2 locally, your system should meet the following specifications:",
+  //                 color: "secondary",
+  //                 preset: "Text md/Regular",
+  //               },
+  //             },
+  //             {
+  //               text: {
+  //                 text: "Hardware Requirements:",
+  //                 color: "secondary",
+  //                 preset: "Text md/Semibold",
+  //                 propClass: "my-4",
+  //               },
+  //             },
+  //             {
+  //               list: [
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "GPU:",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "An NVIDIA GPU with CUDA support is recommended, with at least 16GB of VRAM. This is essential for efficient model training and inference.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "RAM:",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "A minimum of 32GB is required, with 64GB recommended for handling larger models and datasets.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Storage:",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "At least 50GB of free disk space to accommodate the model files and dependencies.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //               ],
+  //             },
+  //             {
+  //               text: {
+  //                 text: "Software Requirements:",
+  //                 color: "secondary",
+  //                 preset: "Text md/Semibold",
+  //                 propClass: "my-4",
+  //               },
+  //             },
+  //             {
+  //               list: [
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Operating System:",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Linux is preferred for optimal performance, but macOS and Windows are also supported.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "Python:",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Version 3.8 or higher is necessary to run the required scripts and libraries.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //                 {
+  //                   textGroup: [
+  //                     {
+  //                       text: "CUDA Toolkit:",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Semibold",
+  //                     },
+  //                     {
+  //                       text: "Version 11.6 or newer is required for GPU acceleration.",
+  //                       color: "tertiary",
+  //                       preset: "Text md/Regular",
+  //                     },
+  //                   ],
+  //                 },
+  //               ],
+  //             },
+  //             {
+  //               button: {
+  //                 class: "m-4",
+  //                 color: "none",
+  //                 onClick: () => {},
+  //                 text: {
+  //                   text: "Read More",
+  //                   color: "brand-secondary",
+  //                   preset: "Text md/Semibold",
+  //                 },
+  //               },
+  //             },
+  //           ],
+  //         },
+  //       ];
+  //       hiddenContent = new Array(detailDataArray.length).fill(true);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // };
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
@@ -679,15 +557,17 @@
   };
 
   onMount(async () => {
+    token = localStorage.getItem("token");
+
     await getModels();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has("id")) {
-      idModel = idModel ? idModel : urlParams.get("id");
-      await getDetailData();
-      // then remove the query string
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
+    // const urlParams = new URLSearchParams(window.location.search);
+    // if (urlParams.has("id")) {
+    //   idModel = idModel ? idModel : urlParams.get("id");
+    //   await getDetailData();
+    //   // then remove the query string
+    //   window.history.replaceState({}, document.title, window.location.pathname);
+    // }
   });
 </script>
 
@@ -698,7 +578,12 @@
       preset="Display sm/Semibold"
     />
     <div class="flex gap-4">
-      <Search class="bg-white dark:bg-hc-graydark-950" />
+      <Search
+        class="bg-white dark:bg-hc-graydark-950"
+        on:input={(evt) => {
+          delayedSearchModel(evt.target.value);
+        }}
+      />
       <ButtonFlowbite
         color="primary"
         outline
@@ -720,7 +605,7 @@
     <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
   {:else}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {#each botsList as bot, index}
+      {#each cardDataArray as bot, index}
         <BotCard
           {bot}
           {index}
@@ -731,6 +616,7 @@
             detailView: true,
             detailTry: true,
             cardFullLength: true,
+            isLlm: true,
           }}
           {handleDropdownFocusLoss}
         />
