@@ -37,7 +37,7 @@
   } from "$lib";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
-  import { da } from "date-fns/locale";
+  import { findIconFromModelName } from "$lib";
   // import Highlight from "svelte-highlight";
   // import typescript from "svelte-highlight/languages/typescript";
   // import github from "svelte-highlight/styles/github";
@@ -811,6 +811,8 @@
               model: model.model,
               description: model.description,
               create_at: model.create_at,
+              icon: findIconFromModelName(model.name),
+              recommended: model.name === "Llama3.1" ? true : false,
             };
           });
 
