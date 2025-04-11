@@ -465,15 +465,23 @@
     }
   }
 
-  const getHrefAction = async (href) => {
+  let hrefHandwriting = $state("");
+  let hrefConversation = $state("");
+
+  async function getHrefAction(href) {
+    let link = "";
     if (href === "handwriting") {
-      return await $call.getPage("client-dashboard", "finetunings-handwriting");
+      link = await $call.getPage("client-dashboard", "finetunings-handwriting");
+      return link;
     } else if (href === "conversation") {
-      return await $call.getPage("client-dashboard", "finetunings-conversation");
+      link = await $call.getPage("client-dashboard", "finetunings-conversation");
+      return link;
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
+    hrefHandwriting = await getHrefAction("handwriting");
+    hrefConversation = await getHrefAction("conversation");
     getActionItems();
     getDatasetsHandwriting();
     getListConversations();
@@ -488,7 +496,7 @@
   </div>
   <!-- Handwriting Finetune -->
   <div class="flex flex-col">
-    <SectionHeader title={$_("handwritingFinetuneHistory")} hrefAction={getHrefAction("handwriting")} />
+    <SectionHeader title={$_("handwritingFinetuneHistory")} hrefAction={hrefHandwriting} />
     {#if datas.length > 0}
       <DataTable
         bind:datas={datas}
@@ -508,7 +516,7 @@
   </div>
   <!-- Conversation Finetune -->
   <div class="flex flex-col">
-    <SectionHeader title={$_("conversationFinetuneHistory")} hrefAction={getHrefAction("conversation")} />
+    <SectionHeader title={$_("conversationFinetuneHistory")} hrefAction={hrefConversation} />
     {#if datas.length > 0}
       <DataTable bind:datas={datasConversation} bind:configs />
     {:else if gettingDatas}

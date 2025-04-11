@@ -13,6 +13,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { format } from "date-fns";
   import { Button } from "flowbite-svelte";
+  import { goto } from "$app/navigation";
 
   import DataTable from "$lib/components/DataTable.svelte";
   import { Typography, triggerToast, StateCard } from "$lib";
@@ -177,21 +178,23 @@ All Rights Reserved
     getListConversations();
   };
 
-  const getHrefAction = async (href) => {
-    if (href === "handwriting") {
-      return await $call.getPage("client-dashboard", "finetunings-handwriting");
-    } else if (href === "conversation") {
-      return await $call.getPage("client-dashboard", "finetunings-conversation");
-    } else if (href === "conversation-chat") {
-      return await $call.getPage("client-dashboard", "finetunings-conversation-chat");
+  let hrefConversationChat = $state("");
+
+  async function getHrefAction(href) {
+    let link = "";
+    if (href === "conversation-chat") {
+      link = await $call.getPage("client-dashboard", "finetunings-conversation-chat");
+      return link;
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     if (check("aiManagement.datasets:view") === false) {
       window.history.back();
       return;
     }
+    hrefConversationChat = await getHrefAction("conversation-chat");
+    getHrefAction("conversation-chat");
     getListConversations();
     getStatusRequest();
   });
@@ -207,7 +210,7 @@ All Rights Reserved
         <div class="flex items-center justify-between">
           <Typography preset="Display sm/Semibold" text={$_("conversationDatasetHistory")} propClass="fluid-lg md:fluid-xl" />
           <Button on:click={() => {
-            goto(getHrefAction("conversation-chat"));
+            goto(hrefConversationChat);
           }}>
             <MessagePlusSquareIcon svgClass="w-5 h-5 md:me-1 text-white" />
             <div class="hidden md:block">{$_("addNewDataset")}</div>
