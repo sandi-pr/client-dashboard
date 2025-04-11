@@ -222,15 +222,15 @@ All Rights Reserved
           // },
         ],
       },
-      // {
-      //   icon: "code01",
-      //   name: "codingAssistant",
-      //   commingSoon: true,
-      //   children: [],
-      //   href: isFrontend
-      //     ? "/coding_assistant"
-      //     : await call.getPage("client-dashboard", "coding-assistant"),
-      // },
+      {
+        icon: "code01",
+        name: "codingAssistant",
+        commingSoon: true,
+        children: [],
+        href: isFrontend
+          ? "/coding_assistant"
+          : await call.getPage("client-dashboard", "coding-assistant"),
+      },
       {
         icon: "bookOpen",
         name: "documents",
@@ -299,62 +299,62 @@ All Rights Reserved
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
-      // {
-      //   icon: "penTool",
-      //   name: "handwriting",
-      //   children: [],
-      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      // },
-      // {
-      //   icon: "recording02",
-      //   name: "voice",
-      //   children: [],
-      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      // },
-      // {
-      //   icon: "image03",
-      //   name: "memories",
-      //   children: [],
-      //   commingSoon: true,
-      //   href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
-      // },
-      // {
-      //   icon: "videoRecorder",
-      //   name: "vision",
-      //   children: [],
-      //   commingSoon: true,
-      //   href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
-      // },
+      {
+        icon: "penTool",
+        name: "handwriting",
+        children: [],
+        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      },
+      {
+        icon: "recording02",
+        name: "voice",
+        children: [],
+        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      },
+      {
+        icon: "image03",
+        name: "memories",
+        children: [],
+        commingSoon: true,
+        href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
+      },
+      {
+        icon: "videoRecorder",
+        name: "vision",
+        children: [],
+        commingSoon: true,
+        href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
+      },
       //   ],
       // },
       // {
       //   icon: "aiDocument",
       //   name: "smartDocument",
       //   children: [
-      // {
-      //   icon: "fileLock",
-      //   name: "contractReviewer",
-      //   children: [],
-      //   commingSoon: true,
-      //   href: isFrontend
-      //     ? "/contract_reviewer"
-      //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-      // },
+      {
+        icon: "fileLock",
+        name: "contractReviewer",
+        children: [],
+        commingSoon: true,
+        href: isFrontend
+          ? "/contract_reviewer"
+          : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+      },
       //     {
       //       icon: "fileLock",
       //       name: "sopCompliance",
       //       href: isFrontend ? "/sop_compliance" : await call.getPage("client-dashboard", "sop-compliance"),
       //       children: []
       //     },
-      // {
-      //   icon: "fileCheck",
-      //   name: "docsGenerator",
-      //   children: [],
-      //   commingSoon: true,
-      //   href: isFrontend
-      //     ? "/docs_generator"
-      //     : await call.getPage("client-dashboard", "docs-generator"),
-      // },
+      {
+        icon: "fileCheck",
+        name: "docsGenerator",
+        children: [],
+        commingSoon: true,
+        href: isFrontend
+          ? "/docs_generator"
+          : await call.getPage("client-dashboard", "docs-generator"),
+      },
       //   ],
       // },
       {
