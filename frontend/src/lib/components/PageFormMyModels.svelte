@@ -35,12 +35,12 @@
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let { botId = null, editable = true } = $props();
+  let { botId = null, modelId = null, editable = true } = $props();
 
   let collections = $state([]);
   let initCollections = $state([]);
 
-  let botName = $state("");
+  let modelName = $state("");
   let description = $state("");
   let fileImage = $state(null);
   let fileImageName = $state(null);
@@ -66,10 +66,14 @@
   let screenWidth = $state(0);
   let ready = $state(false);
   let modalDelete = $state(false);
-  let llmExists = $state(true);
   let llmStatus = $state("");
   let deleteTarget = $state("");
   let llmId = $state("");
+
+  let selectedFile = $state(null);
+  let fileName = $state("");
+  let fileSizeMB = $state("");
+  let uploadProgress = $state(0);
 
   // async function getCollectionSub(id) {
   //   let token = localStorage.getItem("token");
@@ -296,40 +300,52 @@
   //   }
   // }
 
-  // const handleSearch = async (value) => {
-  //   search = true;
-  //   pagination.page = 1;
-  //   searchTerm = value;
-
-  //   await getCollectionSub(selectedCollection);
-  // };
-
-  const handleInputFile = (type = "image") => {
+  const handleFileInput = (type = "image") => {
     const inputElement = document.createElement("input");
     inputElement.type = "file";
+
     if (type === "image") {
       inputElement.accept = "image/jpeg, image/png";
+    } else if (type === "gguf") {
+      inputElement.accept = ".gguf";
     } else {
-      inputElement.accept = "image/jpeg, image/png";
+      inputElement.accept = "image/jpeg, image/png, .gguf";
     }
 
     inputElement.addEventListener("change", async (event) => {
       const file = event.target.files[0];
 
-      if (file && ["image/jpeg", "image/png"].includes(file.type)) {
-        fileImageResult = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
+      if (file) {
+        if (["image/jpeg", "image/png"].includes(file.type)) {
+          // Handle image files
+          fileImageResult = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
 
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
 
-          reader.readAsDataURL(file);
-        });
+            reader.readAsDataURL(file);
+          });
 
-        fileImage = await readFileAsBase64(file);
-        fileImageName = file.name;
+          fileImage = await readFileAsBase64(file);
+          fileImageName = file.name;
+        } else if (file.name.endsWith(".gguf")) {
+          // Handle .gguf files
+          selectedFile = file;
+          fileName = file.name;
+          fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          uploadProgress = 0;
+        } else {
+          if (type === "image") {
+            alert("Invalid file. Please select a valid .jpg or .png file.");
+          } else if (type === "gguf") {
+            alert("Invalid file. Please select a valid .gguf file.");
+          } else {
+            alert("Invalid file. Please select a valid .jpg, .png, or .gguf file.");
+          }
+        }
       } else {
-        alert("Invalid file. Please select a valid .jpg or .png file.");
+        alert("No file selected.");
       }
     });
 
@@ -399,9 +415,12 @@
     let token = localStorage.getItem("token");
     if (token) {
       try {
-        let response = await $call.call("hexa-ai-rag", "get-models", {
+        console.log("modelId", modelId);
+        let response = await $call.call("hexa-ai-rag", "get-model-by-id", {
           URLQuery: {},
-          URLParams: {},
+          URLParams: {
+            id: modelId,
+          },
           Params: {},
           Headers: {
             Authorization: "Bearer " + token,
@@ -429,17 +448,20 @@
 
         if (response.status === 200) {
           let i = 0;
-          let promise = response.result.models.map((model) => {
-            return {
-              id: i++,
-              name: model.name,
-              model: model.model,
-              description: model.description,
-              create_at: model.create_at,
-            };
-          });
+          // let promise = response.result.models.map((model) => {
+          //   return {
+          //     id: i++,
+          //     name: model.name,
+          //     model: model.model,
+          //     description: model.description,
+          //     create_at: model.create_at,
+          //   };
+          // });
 
-          platforms = await Promise.all(promise);
+          // platforms = await Promise.all(promise);
+
+          modelName = response.result.name;
+          description = response.result.description;
         } else {
           triggerToast("error");
           console.log(response);
@@ -505,7 +527,7 @@
       // let collections2 = collections.split(",").map(Number);
 
       let dataSend = {
-        bot_name: botName,
+        bot_name: modelName,
         description: description,
         ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
         library_id: 404, // TODO : Change this to the actual library ID
@@ -550,6 +572,97 @@
     }
   }
 
+  async function createModel() {
+    if (!selectedFile) {
+      triggerToast("please select file");
+      return;
+    } else if (fileImage === "" || fileImage === null || fileImage === undefined) {
+      triggerToast("please select logo");
+      return;
+    }
+
+    let token = localStorage.getItem("token");
+
+    const logoData = JSON.stringify({ name: fileImageName, base64Data: fileImage });
+    const extension = fileName.split(".").pop() || "";
+    const chunkSize = 1024 * 1024; // 1MB chunks
+    const totalChunks = Math.ceil(selectedFile.size / chunkSize);
+    let offset = 0;
+    let chunkIndex = 0;
+    let limitError = 5;
+
+    uploadProgress = 0;
+
+    if (token !== null) {
+      triggerLoading(true);
+
+      while (offset < selectedFile.size) {
+        chunkIndex++;
+        const chunk = selectedFile.slice(offset, offset + 1024 * 1024);
+        // const formData = new FormData();
+
+        formData.append("chunkIndex", chunkIndex.toString());
+        formData.append("totalChunks", totalChunks.toString());
+        formData.append("modelName", modelName);
+        formData.append("extension", extension);
+        formData.append("chunk", chunk, selectedFile.name);
+        formData.append("description", description);
+        formData.append("logo", logoData);
+
+        const payload = {
+          chunkIndex: chunkIndex.toString(),
+          totalChunks: totalChunks.toString(),
+          modelName: fileName,
+          extension: extension,
+          chunk: await chunk.arrayBuffer(), // Convert the chunk to a buffer
+          description: description,
+          logo: logoData,
+        };
+
+        // console.log("payload", payload);
+        // triggerLoading(false);
+        // return;
+
+        try {
+          const response = await $call.call("hexa-ai-rag", "upload-my-model", {
+            URLQuery: {},
+            URLParams: {},
+            Params: payload,
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response.status !== 200) {
+            console.log(response);
+            triggerLoading(false);
+            return;
+          }
+
+          offset += 1024 * 1024;
+          uploadProgress = (offset / selectedFile.size) * 100;
+
+          console.log(uploadProgress);
+        } catch (error) {
+          console.log("error", error);
+          limitError--;
+          if (limitError === 0) {
+            triggerLoading(false);
+            triggerToast("error");
+            return;
+          }
+        }
+      }
+
+      // goto(await $call.getPage("client-dashboard", "bots"));
+      triggerLoading(false);
+      triggerToast("created");
+    } else {
+      console.log("no token");
+      return;
+    }
+  }
+
   async function getBot() {
     let token = localStorage.getItem("token");
     if (token) {
@@ -579,7 +692,7 @@
         // await getDocuments();
 
         // users = {
-        //   botName: attributes.bot_name,
+        //   modelName: attributes.bot_name,
         //   logoName: attributes.logo_name,
         //   logoOnly: attributes.logo_only,
         //   deployedPlatform: attributes?.deployed_platform || "Web",
@@ -607,8 +720,8 @@
         //   documentOptions: attributes.manage_document,
         // };
 
-        botName = attributes.bot_name;
-        description = attributes.description;
+        // modelName = attributes.bot_name;
+        // description = attributes.description;
 
         // if (attributes.background.data !== null) {
         //   backgroundFile = getFile(
@@ -687,6 +800,41 @@
     }
   }
 
+  async function deleteModel(id) {
+    let token = localStorage.getItem("token");
+
+    if (token) {
+      triggerLoading(true);
+      try {
+        const response = await $call.call("client-dashboard", "delete-model", {
+          URLQuery: {},
+          URLParams: {
+            id: id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        // popupModal = false;
+        triggerLoading(false);
+        triggerToast("deleted");
+        goto(await $call.getPage("client-dashboard", "bots-list"));
+      } catch (error) {
+        triggerLoading(false);
+        console.log(error);
+      }
+    }
+  }
+
   function getFile(base64, ext, name) {
     let fileType;
     if (ext === ".png") {
@@ -730,145 +878,23 @@
     return blob;
   }
 
-  // async function handleCheckAll(allChecked) {
-  //   datasChecked = datasChecked.map((data) => ({
-  //     id: data.id,
-  //     checked: allChecked ? false : true,
-  //     sub_collection: data.sub_collection.map((sub) => ({
-  //       id: sub.id,
-  //       checked: allChecked ? false : true,
-  //     })),
-  //   }));
-
-  //   // console.log("Updated datasChecked (handleCheckAll):", datasChecked);
-  // }
-
-  // async function handleCheckAllCollection(allChecked) {
-  //   checkAll = allChecked;
-
-  //   datasChecked = datasChecked.map((data) => ({
-  //     id: data.id,
-  //     checked: allChecked,
-  //     sub_collection: data.sub_collection.map((sub) => ({
-  //       id: sub.id,
-  //       checked: allChecked,
-  //     })),
-  //   }));
-
-  //   if (!allChecked) {
-  //     // Jika allChecked adalah false, update tmpDatasChecked
-  //     Object.keys(tmpDatasChecked).forEach((page) => {
-  //       tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
-  //         id: data.id,
-  //         checked: false,
-  //         sub_collection: data.sub_collection.map((sub) => ({
-  //           id: sub.id,
-  //           checked: false,
-  //         })),
-  //       }));
-  //     });
-  //   }
-
-  //   // console.log("Updated datasChecked (handleCheckAllCollection):", datasChecked);
-  // }
-
-  // async function handleCheck(id, isSubCollection = false, parentId = null) {
-  //   if (!Array.isArray(datasChecked)) {
-  //     datasChecked = [];
-  //   }
-
-  //   datasChecked = datasChecked.map((data) => {
-  //     // Jika parentId tidak ada, kita memproses level utama
-  //     if (!isSubCollection && data.id === id) {
-  //       if (data.checked) {
-  //         checkAll = false;
-  //       }
-  //       return {
-  //         ...data,
-  //         checked: !data.checked,
-  //       };
-  //     }
-
-  //     // console.log("checkAll", checkAll);
-
-  //     // Jika parentId cocok, kita memproses sub_collection
-  //     if (isSubCollection && data.id === parentId) {
-  //       const updatedSubCollection = data.sub_collection.map((sub) => {
-  //         if (sub.id === id) {
-  //           return { ...sub, checked: !sub.checked };
-  //         }
-  //         return sub;
-  //       });
-
-  //       return {
-  //         ...data,
-  //         sub_collection: updatedSubCollection,
-  //       };
-  //     }
-
-  //     return data;
-  //   });
-
-  //   let pageNow = pagination.page;
-  //   if (tmpDatasChecked[pageNow] === undefined) {
-  //     tmpDatasChecked = {
-  //       ...tmpDatasChecked,
-  //       [pageNow]: datasChecked,
-  //     };
-  //   } else {
-  //     tmpDatasChecked[pageNow] = datasChecked;
-  //   }
-  //   // console.log("datasChecked setelah pembaruan:", datasChecked);
-  // }
-
-  // function areAllUnchecked() {
-  //   // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
-  //   const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
-
-  //   // Cek apakah semua data tidak ada yang checked
-  //   return allData.every((item) => item.checked === false);
-  // }
-
-  // async function next() {
-  //   if (pagination.page >= pagination.pageCount) return;
-
-  //   let pageNow = pagination.page;
-  //   if (tmpDatasChecked[pageNow] === undefined) {
-  //     tmpDatasChecked = {
-  //       ...tmpDatasChecked,
-  //       [pageNow]: datasChecked,
-  //     };
-  //   } else {
-  //     tmpDatasChecked[pageNow] = datasChecked;
-  //   }
-
-  //   pagination.page = pagination.page + 1;
-  //   // console.log("cek tmpDatasChecked", tmpDatasChecked);
-  //   // getDocuments();
-  //   getCollectionSub(selectedCollection);
-  // }
-
-  // async function previous() {
-  //   if (pagination.page <= 1) return;
-
-  //   let pageNow = pagination.page;
-  //   if (tmpDatasChecked[pageNow] === undefined) {
-  //     tmpDatasChecked = {
-  //       ...tmpDatasChecked,
-  //       [pageNow]: datasChecked,
-  //     };
-  //   } else {
-  //     tmpDatasChecked[pageNow] = datasChecked;
-  //   }
-
-  //   pagination.page = pagination.page - 1;
-  //   // getDocuments();
-  //   getCollectionSub(selectedCollection);
-  // }
+  function getFileSize(fileSize) {
+    if (!fileSize) {
+      return "undefined";
+    }
+    if (fileSize >= 1024) {
+      return fileSize / 1024 + " GB";
+    } else {
+      return fileSize + " MB";
+    }
+  }
 
   onMount(() => {
     getCollections();
-    getModels();
+    if (modelId !== null) {
+      // console.log("modelId", modelId);
+      getModels();
+    }
     if (botId !== null) {
       getBot();
     }
@@ -893,12 +919,13 @@
   <div class="flex justify-between">
     <Typography preset="Display sm/Semibold" text={$_("deployMyModel")} />
     <div class="flex text-sm gap-3">
-      {#if botId !== null}
+      {#if botId !== null || modelId !== null}
         {#if editable}
           <Button
             onclick={() => {
               editable = false;
-              getBot();
+              // getBot();
+              getModels();
             }}
             color="light"
             class="px-3 focus-within:!ring-1"
@@ -957,10 +984,11 @@
           {$_("cancel")}
         </Button>
         <Button
-          disabled={botName === "" || selectedplatforms === ""}
+          disabled={modelName === "" || !fileImageResult || !selectedFile}
           on:click={async () => {
-            await createBot();
-            goto(await $call.getPage("client-dashboard", "my_models"));
+            // await createBot();
+            await createModel();
+            // goto(await $call.getPage("client-dashboard", "my_models"));
           }}
           class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
         >
@@ -981,7 +1009,7 @@
       <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div class="flex flex-col gap-1.5 col-span-4">
           <Typography preset="Text sm/Medium" text={$_("modelName")} color="secondary" />
-          <InputRw bind:value={botName} onEdit={editable} />
+          <InputRw bind:value={modelName} onEdit={editable} />
         </div>
         <div class="flex flex-col gap-1.5 col-span-4">
           <Typography preset="Text sm/Medium" text={$_("modelDescription")} color="secondary" />
@@ -996,7 +1024,7 @@
         <div class="col-span-4">
           <UploadFile
             title={$_("logo")}
-            handleFileUploadWrapper={() => handleInputFile()}
+            handleFileUploadWrapper={() => handleFileInput()}
             isPreview
             srcAvatar={fileImageName ? fileImageResult : ""}
             disabled={!editable}
@@ -1011,10 +1039,10 @@
         <div class="col-span-4">
           <UploadFile
             title={$_("modelSourceFile")}
-            handleFileUploadWrapper={() => handleInputFile()}
+            handleFileUploadWrapper={() => handleFileInput("gguf")}
             disabled={!editable}
           />
-          {#if llmExists}
+          {#if modelName}
             <div
               class="flex justify-between mt-4 p-6 w-full gap-4 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-secondary-dark dark:hover:border-gray-600"
             >
@@ -1028,19 +1056,28 @@
                   <Icon name="onedrive" size="w-8 h-8" />
                   <Typography
                     preset="Text sm/Medium"
-                    text={"AI Document Archive"}
+                    text={fileName || modelName}
                     color="primary"
                   />
                 </div>
                 <div class="flex items-center gap-2">
-                  <Typography preset="Text sm/Medium" text={"2.13 GB"} color="secondary" />
+                  <Typography
+                    preset="Text sm/Medium"
+                    text={getFileSize(fileSizeMB)}
+                    color="secondary"
+                  />
                   <div
                     class={editable ? "cursor-pointer" : ""}
                     onclick={() => {
-                      if (editable) {
+                      if (editable && (botId !== null || modelId !== null)) {
                         deleteTarget = "llm";
                         llmId = 1;
                         modalDelete = true;
+                      } else {
+                        selectedFile = null;
+                        fileName = "";
+                        fileSizeMB = "";
+                        uploadProgress = 0;
                       }
                     }}
                   >
@@ -1055,100 +1092,6 @@
     </div>
   </div>
 </div>
-
-<!-- <Modal bind:open={modalOpen} outsideclose>
-  <svelte:fragment slot="header">
-    <div class="flex gap-4 me-6 grow w-full">
-      <div
-        class="grow pt-2 border-t-4 border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark"
-      >
-        <Typography
-          preset="Text md/Bold"
-          text={$_("chooseDocumentsLibrary")}
-          color={!isSelectedLibrary ? "brand-secondary" : "secondary"}
-        />
-        <Typography
-          preset="Text sm/Regular"
-          text={$_("documentLibraryAsThePrimarySource")}
-          color={!isSelectedLibrary ? "brand-tertiary" : "tertiary"}
-        />
-      </div>
-
-      <div
-        class={`grow pt-2 border-t-4 ${isSelectedLibrary ? "border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark" : "border-utility-gray-200-light dark:border-utility-gray-200-dark"}`}
-      >
-        <Typography
-          preset="Text md/Bold"
-          text={$_("chooseWhichCollections")}
-          color={isSelectedLibrary ? "brand-secondary" : "secondary"}
-        />
-        <Typography
-          preset="Text sm/Regular"
-          text={$_("chooseTheOneYouWantToInclude")}
-          color={isSelectedLibrary ? "brand-tertiary" : "tertiary"}
-        />
-      </div>
-    </div>
-  </svelte:fragment>
-  {#if !isSelectedLibrary}
-    <div class="flex flex-col justify-center gap-4">
-      <Typography preset="Text sm/Medium" text={$_("latestDocumentLibrary")} color="quaterary" />
-
-      <SelectedCard
-        selectionData={collections}
-        bind:selectedData={selectedCollection}
-        numGrid={2}
-        isRadio
-      />
-    </div>
-  {:else if allData.length > 0 || searchTerm !== ""}
-    {#if !gettingDatas}
-      <DataTableListCollection
-        bind:datas={allData}
-        bind:datasChecked
-        bind:configs
-        bind:gettingDatas
-        bind:next
-        bind:previous
-        bind:handleCheckAll
-        bind:handleCheck
-      />
-    {:else}
-      <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
-    {/if}
-  {:else if gettingDatas}
-    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
-  {:else}
-    <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-  {/if}
-  <svelte:fragment slot="footer">
-    {#if !isSelectedLibrary}
-      <Button
-        on:click={() => {
-          isSelectedLibrary = true;
-        }}
-        class="w-full"
-        disabled={!selectedCollection}>{$_("next")}</Button
-      >
-    {:else}
-      <div class="flex gap-4 w-full">
-        <button
-          onclick={() => {
-            isSelectedLibrary = false;
-          }}
-          class="px-5">{$_("goBack")}</button
-        >
-        <Button
-          on:click={() => {
-            modalOpen = false;
-          }}
-          class="grow"
-          disabled={areAllUnchecked()}>{$_("finish")}</Button
-        >
-      </div>
-    {/if}
-  </svelte:fragment>
-</Modal> -->
 
 <Modal bind:open={modalDelete} size="xs" autoclose>
   <div class="text-center">

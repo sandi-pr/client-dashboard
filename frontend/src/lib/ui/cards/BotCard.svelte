@@ -107,7 +107,11 @@
             disabled={!check("aiManagement.hexabots:view")}
             on:click={async () => {
               if (config?.isLlm) {
-                goto((await $call.getPage("client-dashboard", "llms-list")) + "?id=" + bot.botsID);
+                goto(
+                  (await $call.getPage("client-dashboard", "llms-mymodel-detail")) +
+                    "?modelId=" +
+                    bot.botsID,
+                );
               } else {
                 goto(
                   (await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + bot.botsID,
