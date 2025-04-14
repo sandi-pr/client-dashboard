@@ -289,12 +289,12 @@ All Rights Reserved
         children: [],
         href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
       },
-      {
-        icon: "lightbulb",
-        name: "insights",
-        children: [],
-        href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      },
+      // { // BRI ADJUSTMENT
+      //   icon: "lightbulb",
+      //   name: "insights",
+      //   children: [],
+      //   href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+      // },
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",

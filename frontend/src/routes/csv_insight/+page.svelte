@@ -1,5 +1,14 @@
 <script>
-  import { Divider, Typography, StateCard, Icon, call, SelectedCard, datasourceLibraryId, Pagination } from "$lib";
+  import {
+    Divider,
+    Typography,
+    StateCard,
+    Icon,
+    call,
+    SelectedCard,
+    datasourceLibraryId,
+    Pagination,
+  } from "$lib";
   import { _ } from "svelte-i18n";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
@@ -22,6 +31,7 @@
   } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { id } from "date-fns/locale";
+  import { goto } from "$app/navigation";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -144,10 +154,9 @@
               message: message,
               role: data.content.role,
               image: image,
-            }
-          ]
+            },
+          ];
         }
-
 
         console.log("masuk berapa");
 
@@ -517,21 +526,21 @@
           actionInLeft: false,
           // actionInLeft: true,
           // actions: [
-            // {
-            //   id: "deselect_all",
-            //   name: "Deselect All",
-            //   onclick: () => {
-            //     handleCheckAllCollection(false);
-            //   },
-            // },
-            // {
-            //   id: "select_all",
-            //   name: "Select All",
-            //   type: "brand-inverse",
-            //   onclick: () => {
-            //     handleCheckAllCollection(true);
-            //   },
-            // },
+          // {
+          //   id: "deselect_all",
+          //   name: "Deselect All",
+          //   onclick: () => {
+          //     handleCheckAllCollection(false);
+          //   },
+          // },
+          // {
+          //   id: "select_all",
+          //   name: "Select All",
+          //   type: "brand-inverse",
+          //   onclick: () => {
+          //     handleCheckAllCollection(true);
+          //   },
+          // },
           // ],
           // actions: [
           //   {
@@ -791,7 +800,10 @@
     }
   });
 
-  onMount(() => {
+  onMount(async () => {
+    // BRI ADJUSTMENT
+    goto(isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page"));
+
     // if (allDataMeta) {
     //   currentArrayData = allData.slice(
     //     (allDataMeta.page - 1) * allDataMeta.pageSize,
@@ -839,7 +851,9 @@
       }}
     >
       <File06Icon svgClass="w-5 h-5 text-fg-brand-primary-light dark:text-fg-brand-primary-dark" />
-      <div class="font-semibold hidden md:block text-fg-brand-primary-light dark:text-fg-brand-primary-dark">
+      <div
+        class="font-semibold hidden md:block text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
+      >
         {$_("changeDataSource")}
       </div>
       <ChevronDownIcon
@@ -856,7 +870,12 @@
   <div class={`w-full md:w-1/2 pt-8 px-4 flex flex-col gap-6`}>
     <Typography preset="Text md/Semibold" text={$_("providedTable")} />
     {#if currentArrayData.length === 0}
-      <StateCard illustration={IllustrationEmpty} description={$_("noDataAvailable")} funcButton={() => (modalOpen = true)} actionText={$_("selectDataSource")} />
+      <StateCard
+        illustration={IllustrationEmpty}
+        description={$_("noDataAvailable")}
+        funcButton={() => (modalOpen = true)}
+        actionText={$_("selectDataSource")}
+      />
     {:else}
       <div
         class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl pt-4"
@@ -924,7 +943,9 @@
           </div>
         {/if}
         <div class="w-5/6">
-          <div class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark">
+          <div
+            class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
+          >
             {#if chat.role === "assistant"}
               <pre class="whitespace-pre-wrap break-words overflow-auto p-2">{chat.message}</pre>
             {:else}
@@ -939,16 +960,18 @@
     {/each}
 
     {#if isTyping}
-    <div class="flex gap-4 p-4">
-      <div
-        class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
-      >
-        <Icon name="lightbulb04" color="primary-onbrand" />
+      <div class="flex gap-4 p-4">
+        <div
+          class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
+        >
+          <Icon name="lightbulb04" color="primary-onbrand" />
+        </div>
+        <div
+          class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
+        >
+          <pre class="whitespace-pre-wrap break-words overflow-auto p-2">Typing...</pre>
+        </div>
       </div>
-      <div class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark">
-        <pre class="whitespace-pre-wrap break-words overflow-auto p-2">Typing...</pre>
-      </div>
-    </div>
     {/if}
 
     <form onsubmit={messageInput !== "" ? sendMessageInput : () => {}} class="w-full p-6">

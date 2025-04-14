@@ -12,28 +12,19 @@ All Rights Reserved
 <script>
   import { onMount, onDestroy } from "svelte";
   import { Modal, Button, Input, Card, Avatar } from "flowbite-svelte";
-  import {
-    StateCard,
-    Typography,
-    triggerToast,
-    call,
-    BotCard,
-  } from "$lib";
+  import { StateCard, Typography, triggerToast, call, BotCard } from "$lib";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import LightbulbIcon from "$lib/icon/lightbulb-04.svg";
   import Star04Icon from "$lib/icon/star-04.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
   import { _ } from "svelte-i18n";
-  import {
-    ExclamationCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { goto } from "$app/navigation";
-  import {
-    showAI,
-    showNotif,
-  } from "$lib";
+  import { showAI, showNotif } from "$lib";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let files = $state([]);
   let tmpCollectionName = $state("");
@@ -46,7 +37,7 @@ All Rights Reserved
   let timer;
 
   let latestDataSources = $state([]);
-  
+
   let bots = $state([]);
 
   let gettingDatas = $state(false);
@@ -75,9 +66,7 @@ All Rights Reserved
   }
 
   function deleteDataSources(id) {
-    latestDataSources = latestDataSources.filter(
-      (item) => item.collectionId !== id,
-    );
+    latestDataSources = latestDataSources.filter((item) => item.collectionId !== id);
     localStorage.setItem("latestDataSources", JSON.stringify(latestDataSources));
     deleteModal = false;
   }
@@ -204,6 +193,9 @@ All Rights Reserved
   }
 
   onMount(async () => {
+    // BRI ADJUSTMENT
+    goto(isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page"));
+
     // latestDataSources = JSON.parse(localStorage.getItem("latestDataSources")) || [];
     getBots();
   });
@@ -224,11 +216,7 @@ All Rights Reserved
 <div class="flex dark:bg-primary-dark">
   <div class="flex flex-col w-full pb-20 m-4 gap-3 md:gap-8">
     <!-- User Information -->
-    <Typography
-      preset="Display sm/Semibold"
-      text={$_("csvInsights")}
-      propClass="fluid-xl"
-    />
+    <Typography preset="Display sm/Semibold" text={$_("csvInsights")} propClass="fluid-xl" />
 
     <div class="flex flex-col gap-4">
       <div
@@ -240,9 +228,17 @@ All Rights Reserved
 
       <div>
         {#if bots.length > 0}
-          <div class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}>
+          <div
+            class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}
+          >
             {#each bots as bot, index (bot.botsID)}
-              <BotCard {bot} {index} {dropdownOpen} config={{ insights: true }} {handleDropdownFocusLoss} />
+              <BotCard
+                {bot}
+                {index}
+                {dropdownOpen}
+                config={{ insights: true }}
+                {handleDropdownFocusLoss}
+              />
             {/each}
           </div>
         {:else if gettingDatas}
@@ -262,7 +258,11 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("dataSourcesName")}*`} />
-      <Input bind:value={tmpCollectionName} on:input={handleInput} placeholder={$_("whatIsYourDataSourcesTitle")} />
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={handleInput}
+        placeholder={$_("whatIsYourDataSourcesTitle")}
+      />
     </div>
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
@@ -270,10 +270,8 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button
-      onclick={createDataSources}
-      disabled={!tmpCollectionName}
-      class="w-full">{$_("addNewDataSources")}</Button
+    <Button onclick={createDataSources} disabled={!tmpCollectionName} class="w-full"
+      >{$_("addNewDataSources")}</Button
     >
   </svelte:fragment>
 </Modal>
@@ -290,10 +288,8 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button
-      onclick={editDataSourcesName}
-      disabled={!tmpCollectionName}
-      class="me-2 w-full">{$_("save")}</Button
+    <Button onclick={editDataSourcesName} disabled={!tmpCollectionName} class="me-2 w-full"
+      >{$_("save")}</Button
     >
   </svelte:fragment>
 </Modal>
@@ -306,7 +302,9 @@ All Rights Reserved
       {$_("library")}
       {tmpCollectionName}?
     </h3>
-    <Button onclick={() => deleteDataSources(tmpCollectionId)} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={() => deleteDataSources(tmpCollectionId)} color="red" class="me-2"
+      >{$_("yesImSure")}</Button
+    >
     <Button color="alternative" onclick={() => (deleteModal = false)}>{$_("noCancel")}</Button>
   </div>
 </Modal>

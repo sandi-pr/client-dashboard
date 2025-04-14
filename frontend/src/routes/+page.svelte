@@ -102,12 +102,12 @@ All Rights Reserved
       description: "descDataSources",
       page: "data-sources",
     },
-    {
-      icon: "lightbulb",
-      title: "insights",
-      description: "descInsights",
-      page: "csv-insight",
-    },
+    // { // BRI ADJUSTMENT
+    //   icon: "lightbulb",
+    //   title: "insights",
+    //   description: "descInsights",
+    //   page: "csv-insight",
+    // },
     {
       icon: "penTool",
       title: "handwriting",
