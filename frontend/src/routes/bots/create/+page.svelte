@@ -976,7 +976,7 @@
       />
       <div class="w-full md:w-3/4 flex flex-col gap-1.5">
         <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
-        <TextareaRw bind:value={additionalPrompt} onEdit />
+        <TextareaRw bind:value={additionalPrompt} onEdit rows={8} />
       </div>
     </div>
     <Divider />
