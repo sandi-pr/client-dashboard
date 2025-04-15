@@ -66,6 +66,11 @@
 
         if (response.status === 200) {
           if (response?.result && response.result.models.length > 0) {
+            // BRI ADJUSTMENT
+            response.result.models = response.result.models.filter(
+              (model) => !model.name.includes("Qurani"),
+            );
+
             cardDataArray = response.result.models.map((model) => {
               return {
                 botsID: model.id,

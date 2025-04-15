@@ -489,6 +489,11 @@
               "Discovers new scientific insights.",
             ];
 
+            // BRI ADJUSTMENT
+            response.result.models = response.result.models.filter(
+              (model) => !model.name.includes("Qurani"),
+            );
+
             let models = response.result.models;
 
             for (let i = 0; i < models.length; i++) {

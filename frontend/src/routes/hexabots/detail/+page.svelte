@@ -795,6 +795,11 @@
         }
 
         if (response.status === 200) {
+          // BRI ADJUSTMENT
+          response.result.models = response.result.models.filter(
+            (model) => !model.name.includes("Qurani"),
+          );
+
           let i = 0;
           let promise = response.result.models.map((model) => {
             return {

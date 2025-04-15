@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { Search, Button as ButtonFlowbite } from "flowbite-svelte";
-  import models from "$lib/utils/models.json";
+  // import models from "$lib/utils/models.json";
   import ExMarkdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   const plugins = [gfmPlugin()];
@@ -47,7 +47,12 @@
         // console.log("models", response);
         if (response.status === 200) {
           if (response?.result && response.result.models.length > 0) {
-            cardDataArray = models.map((model, index) => {
+            // BRI ADJUSTMENT
+            response.result.models = response.result.models.filter(
+              (model) => !model.name.includes("Qurani"),
+            );
+
+            cardDataArray = response.result.models.map((model, index) => {
               return {
                 id: index++,
                 iconData: {

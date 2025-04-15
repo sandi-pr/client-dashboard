@@ -273,8 +273,8 @@
 
         if (checkAll) {
           datasChecked = allData.map((data) => {
-            return { 
-              id: data.id, 
+            return {
+              id: data.id,
               checked: true,
               sub_collection: data.sub_collections.map((sub) => ({
                 id: sub.id,
@@ -286,8 +286,8 @@
         } else {
           if (tmpDatasChecked[pagination.page] === undefined) {
             datasChecked = allData.map((data) => {
-              return { 
-                id: data.id, 
+              return {
+                id: data.id,
                 checked: false,
                 sub_collection: data.sub_collections.map((sub) => ({
                   id: sub.id,
@@ -591,6 +591,11 @@
         }
 
         if (response.status === 200) {
+          // BRI ADJUSTMENT
+          response.result.models = response.result.models.filter(
+            (model) => !model.name.includes("Qurani"),
+          );
+
           let i = 0;
           let promise = response.result.models.map((model) => {
             return {
@@ -640,16 +645,15 @@
         const collections = pageData
           .flatMap((item) => {
             // Ambil ID dari sub_collection jika checked = true
-            const subCollectionIds = item.sub_collection
-              ?.filter((sub) => sub.checked)
-              .map((sub) => sub.id) || [];
+            const subCollectionIds =
+              item.sub_collection?.filter((sub) => sub.checked).map((sub) => sub.id) || [];
 
             // Tambahkan item.id jika checked = true
             return item.checked ? [item.id, ...subCollectionIds] : subCollectionIds;
           })
           .join(","); // Gabungkan ID dengan koma
 
-          console.log("collections check", collections);
+        console.log("collections check", collections);
 
         if (collections) {
           allCollection += collections + ",";
@@ -819,10 +823,7 @@
 
   function areAllUnchecked() {
     // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
-    const allData = [
-      ...datasChecked,
-      ...Object.values(tmpDatasChecked).flat(),
-    ];
+    const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
 
     // Cek apakah semua data tidak ada yang checked
     return allData.every((item) => item.checked === false);
