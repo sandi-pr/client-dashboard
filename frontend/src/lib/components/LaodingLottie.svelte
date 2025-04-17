@@ -3,6 +3,7 @@
   import LottieHexa from "$lib/components/hexa_lottie.json";
 
   export let animationData = LottieHexa;
+  export let width = 57; // Default width in pixels
   let container;
 
   onMount(async () => {
@@ -19,4 +20,4 @@
   });
 </script>
 
-<div bind:this={container} style="width: 57px;"></div>
+<div bind:this={container} style="width: {width}px;"></div>

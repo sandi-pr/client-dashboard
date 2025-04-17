@@ -17,7 +17,6 @@
   import Divider from "$lib/components/Divider.svelte";
   import {
     call,
-    // SelectedCard,
     UploadFile,
     triggerToast,
     triggerLoading,
@@ -25,12 +24,9 @@
     InputRw,
     TextareaRw,
     Icon,
-    // StateCard,
   } from "$lib";
-  // import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
+  import LaodingLottie from "$lib/components/LaodingLottie.svelte";
   import { goto } from "$app/navigation";
-  // import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  // import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
 
   const isFrontend = process.env.NODE_ENV === "development";
@@ -45,260 +41,18 @@
   let fileImage = $state(null);
   let fileImageName = $state(null);
   let fileImageResult = $state(null);
-  let selectedplatforms = $state(null);
-  // let selectedCollection = $state("");
-  // let oldSelectedCollection = $state("");
-  let additionalPrompt = $state("");
-  let needAuth = $state(false);
-  // let modalOpen = $state(false);
-  // let isSelectedLibrary = $state(false);
-  // let allData = $state([]);
-  // let searchTerm = $state("");
-  // let search = $state(false);
-  let checkAll = $state(false);
-  let datasChecked = $state([]);
-  let tmpDatasChecked = $state({});
-  // let configs = $state({});
-  // let gettingDatas = $state(false);
-  let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
-  // let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
   let platforms = $state([]);
   let screenWidth = $state(0);
   let ready = $state(false);
   let modalDelete = $state(false);
-  let llmStatus = $state("");
   let deleteTarget = $state("");
   let llmId = $state("");
 
   let selectedFile = $state(null);
-  let fileName = $state("");
   let fileSizeMB = $state("");
   let uploadProgress = $state(0);
-
-  // async function getCollectionSub(id) {
-  //   let token = localStorage.getItem("token");
-  //   if (token !== null) {
-  //     if (!search) {
-  //       gettingDatas = true;
-  //     }
-  //     let response = await $call.call("client-dashboard", "get-library-collections", {
-  //       URLQuery: {},
-  //       URLParams: {},
-  //       Params: {
-  //         page: pagination.page,
-  //         page_size: pagination.pageSize,
-  //         parent_id: id,
-  //         search: searchTerm,
-  //       },
-  //       Headers: {
-  //         Authorization: "Bearer " + token,
-  //       },
-  //     });
-
-  //     if (response.status !== 200) {
-  //       console.log(response);
-  //       gettingDatas = false;
-  //       return;
-  //     }
-
-  //     console.log("collections", response);
-
-  //     if (response.result.data.length > 0) {
-  //       pagination = response.result.meta.pagination;
-  //       configs = {
-  //         search: true,
-  //         searchHandler: handleSearch,
-  //         pagination: response.result.meta.pagination,
-  //         space: "p-4",
-  //         actionInLeft: true,
-  //         actions: [
-  //           {
-  //             id: "deselect_all",
-  //             name: "Deselect All",
-  //             onclick: () => {
-  //               handleCheckAllCollection(false);
-  //             },
-  //           },
-  //           {
-  //             id: "select_all",
-  //             name: "Select All",
-  //             type: "brand-inverse",
-  //             onclick: () => {
-  //               handleCheckAllCollection(true);
-  //             },
-  //           },
-  //         ],
-  //       };
-  //       let promises = response.result.data.map(async (document) => {
-  //         const sub_collections = await getSubCollections(document.id);
-  //         return {
-  //           id: document.id,
-  //           collection_name: document.attributes.name,
-  //           sub_collections,
-  //         };
-  //       });
-  //       allData = await Promise.all(promises);
-  //       // console.log("all data with subcollections", allData);
-
-  //       if (checkAll) {
-  //         datasChecked = allData.map((data) => {
-  //           return {
-  //             id: data.id,
-  //             checked: true,
-  //             sub_collection: data.sub_collections.map((sub) => ({
-  //               id: sub.id,
-  //               checked: true,
-  //             })),
-  //           };
-  //         });
-  //         // console.log("datasChecked all", datasChecked);
-  //       } else {
-  //         if (tmpDatasChecked[pagination.page] === undefined) {
-  //           datasChecked = allData.map((data) => {
-  //             return {
-  //               id: data.id,
-  //               checked: false,
-  //               sub_collection: data.sub_collections.map((sub) => ({
-  //                 id: sub.id,
-  //                 checked: false,
-  //               })),
-  //             };
-  //           });
-  //         } else {
-  //           datasChecked = tmpDatasChecked[pagination.page];
-  //         }
-  //         // console.log("datasChecked", datasChecked);
-  //       }
-
-  //       // if (checkAll) {
-  //       //   datasChecked = datasChecked.map((data) => {
-  //       //     return { id: data.id, checked: true };
-  //       //   });
-  //       // }
-  //     } else {
-  //       pagination = response.result.meta.pagination;
-  //       allData = [];
-  //       datasChecked = [];
-  //       configs = {
-  //         search: true,
-  //         searchHandler: handleSearch,
-  //         pagination: response.result.meta.pagination,
-  //         space: "p-4",
-  //         actionInLeft: true,
-  //         actions: [
-  //           {
-  //             id: "deselect_all",
-  //             name: "Deselect All",
-  //             onclick: () => {
-  //               handleCheckAllCollection(false);
-  //             },
-  //           },
-  //           {
-  //             id: "select_all",
-  //             name: "Select All",
-  //             type: "brand-inverse",
-  //             onclick: () => {
-  //               handleCheckAllCollection(true);
-  //             },
-  //           },
-  //         ],
-  //         // actions: [
-  //         //   {
-  //         //     id: "delete",
-  //         //     name: "Delete",
-  //         //     icon: "trash",
-  //         //     type: "error",
-  //         //     disabled: datasChecked.find((data) => data.checked) ? false : true,
-  //         //     onclick: () => {
-  //         //       if (datasChecked.find((data) => data.checked)) {
-  //         //         popupModal = true;
-  //         //       }
-  //         //     },
-  //         //   },
-  //         //   {
-  //         //     id: "add_new",
-  //         //     name: "Add New",
-  //         //     icon: "plus",
-  //         //     type: "brand-inverse",
-  //         //     onclick: () => {
-  //         //       selectTypeCollection("Documents");
-  //         //       addDocumentsModal = true;
-  //         //       addOtherCategory = false;
-  //         //     },
-  //         //   },
-  //         // ],
-  //       };
-  //     }
-
-  //     gettingDatas = false;
-  //     search = false;
-  //   }
-  // }
-
-  // async function getSubCollections(id) {
-  //   let token = localStorage.getItem("token");
-
-  //   if (token !== null) {
-  //     gettingDatas = true;
-  //     const aggregatedData = [];
-
-  //     paginationCollection.page = 1;
-
-  //     do {
-  //       let response = await $call.call("client-dashboard", "get-library-collections", {
-  //         URLQuery: {},
-  //         URLParams: {},
-  //         Params: {
-  //           page: paginationCollection.page,
-  //           page_size: paginationCollection.pageSize,
-  //           parent_id: parseInt(id),
-  //         },
-  //         Headers: {
-  //           Authorization: "Bearer " + token,
-  //         },
-  //       });
-
-  //       if (response.status !== 200) {
-  //         console.log(response);
-  //         gettingDatas = false;
-  //         if (response.status === 400) {
-  //           console.error("Invalid parameters:", response);
-  //           triggerToast($_("invalidParameters"), true, "error");
-  //         } else if (response.status === 401) {
-  //           console.error("Unauthorized access:", response);
-  //           triggerToast($_("unauthorized"), true, "error");
-  //         } else if (response.status === 500) {
-  //           console.error("Server error:", response);
-  //           triggerToast($_("serverError"), true, "error");
-  //         } else {
-  //           console.error("Unexpected status code:", response);
-  //           triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-  //         }
-  //         return;
-  //       }
-
-  //       aggregatedData.push(...response.result.data);
-
-  //       paginationCollection = response.result.meta.pagination;
-
-  //       paginationCollection.page++;
-  //     } while (paginationCollection.page <= paginationCollection.pageCount);
-
-  //     const promise = aggregatedData.map(async (collection) => ({
-  //       id: collection.id,
-  //       collection_name: collection.attributes.name,
-  //     }));
-
-  //     const subCollectionList = await Promise.all(promise);
-  //     console.log("subCollectionList", subCollectionList);
-  //     gettingDatas = false;
-  //     return subCollectionList;
-  //   } else {
-  //     triggerToast($_("unauthorized"), true, "error");
-  //     gettingDatas = false;
-  //     return;
-  //   }
-  // }
+  let isLoading = $state(false);
+  let modalUpload = $state(false);
 
   const handleFileInput = (type = "image") => {
     const inputElement = document.createElement("input");
@@ -332,7 +86,7 @@
         } else if (file.name.endsWith(".gguf")) {
           // Handle .gguf files
           selectedFile = file;
-          fileName = file.name;
+          modelName = file.name;
           fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
           uploadProgress = 0;
         } else {
@@ -472,106 +226,6 @@
     }
   }
 
-  async function createBot() {
-    let token = localStorage.getItem("token");
-
-    if (token !== null) {
-      triggerLoading(true);
-      let allCollection = "";
-
-      // console.log("tmpDatasChecked", tmpDatasChecked);
-
-      let pageNow = pagination.page;
-      if (tmpDatasChecked[pageNow] === undefined) {
-        tmpDatasChecked = {
-          ...tmpDatasChecked,
-          [pageNow]: datasChecked,
-        };
-      } else {
-        tmpDatasChecked[pageNow] = datasChecked;
-      }
-
-      // Iterasi key dalam tmpDatasChecked
-      Object.values(tmpDatasChecked).forEach((pageData) => {
-        if (!pageData) {
-          triggerLoading(false);
-          return;
-        } // Skip jika pageData undefined/null
-
-        console.log("pageData", pageData);
-
-        const collections = pageData
-          .flatMap((item) => {
-            // Ambil ID dari sub_collection jika checked = true
-            const subCollectionIds =
-              item.sub_collection?.filter((sub) => sub.checked).map((sub) => sub.id) || [];
-
-            // Tambahkan item.id jika checked = true
-            return item.checked ? [item.id, ...subCollectionIds] : subCollectionIds;
-          })
-          .join(","); // Gabungkan ID dengan koma
-
-        console.log("collections check", collections);
-
-        if (collections) {
-          allCollection += collections + ",";
-        }
-      });
-
-      // Hapus koma terakhir jika ada
-      allCollection = allCollection.replace(/,$/, "");
-
-      // console.log("All Collection IDs (checked = true):", allCollection);
-      // return;
-
-      // let collections2 = collections.split(",").map(Number);
-
-      let dataSend = {
-        bot_name: modelName,
-        description: description,
-        ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
-        library_id: 404, // TODO : Change this to the actual library ID
-        collection_id: checkAll ? "all" : allCollection,
-        additional_prompt: additionalPrompt,
-        need_auth: needAuth,
-      };
-      if (fileImage !== "" && fileImage !== null && fileImage !== undefined) {
-        dataSend.bot_logo = JSON.stringify({ name: fileImageName, base64Data: fileImage });
-      }
-
-      // console.log("dataSend", dataSend);
-
-      try {
-        const response = await $call.call("client-dashboard", "create-bot", {
-          URLQuery: {},
-          URLParams: {},
-          Params: dataSend,
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        console.log(response);
-
-        if (response.status !== 200) {
-          console.log(response);
-          triggerLoading(false);
-          return;
-        }
-
-        goto(await $call.getPage("client-dashboard", "bots"));
-        triggerLoading(false);
-        triggerToast("created");
-      } catch (error) {
-        triggerLoading(false);
-        console.log(error);
-      }
-    } else {
-      console.log("no token");
-      return;
-    }
-  }
-
   async function createModel() {
     if (!selectedFile) {
       triggerToast("please select file");
@@ -584,7 +238,7 @@
     let token = localStorage.getItem("token");
 
     const logoData = JSON.stringify({ name: fileImageName, base64Data: fileImage });
-    const extension = fileName.split(".").pop() || "";
+    const extension = modelName.split(".").pop() || "";
     const chunkSize = 1024 * 1024; // 1MB chunks
     const totalChunks = Math.ceil(selectedFile.size / chunkSize);
     let offset = 0;
@@ -594,7 +248,8 @@
     uploadProgress = 0;
 
     if (token !== null) {
-      triggerLoading(true);
+      // triggerLoading(true);
+      isLoading = true;
 
       while (offset < selectedFile.size) {
         chunkIndex++;
@@ -612,7 +267,7 @@
         const payload = {
           chunkIndex: chunkIndex.toString(),
           totalChunks: totalChunks.toString(),
-          modelName: fileName,
+          modelName: modelName,
           extension: extension,
           chunk: await chunk.arrayBuffer(), // Convert the chunk to a buffer
           description: description,
@@ -647,15 +302,16 @@
           console.log("error", error);
           limitError--;
           if (limitError === 0) {
-            triggerLoading(false);
+            // triggerLoading(false);
+            isLoading = false;
             triggerToast("error");
             return;
           }
         }
       }
 
-      // goto(await $call.getPage("client-dashboard", "bots"));
-      triggerLoading(false);
+      // triggerLoading(false);
+      isLoading = false;
       triggerToast("created");
     } else {
       console.log("no token");
@@ -902,15 +558,6 @@
       editable = false;
     }
   });
-
-  // $effect(() => {
-  //   if (selectedCollection) {
-  //     if (typeof selectedCollection === "number" && selectedCollection !== oldSelectedCollection) {
-  //       oldSelectedCollection = selectedCollection;
-  //       getCollectionSub(selectedCollection);
-  //     }
-  //   }
-  // });
 </script>
 
 <svelte:window bind:innerWidth={screenWidth} />
@@ -986,9 +633,8 @@
         <Button
           disabled={modelName === "" || !fileImageResult || !selectedFile}
           on:click={async () => {
-            // await createBot();
-            await createModel();
-            // goto(await $call.getPage("client-dashboard", "my_models"));
+            // await createModel();
+            modalUpload = true;
           }}
           class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
         >
@@ -1046,45 +692,34 @@
             <div
               class="flex justify-between mt-4 p-6 w-full gap-4 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-secondary-dark dark:hover:border-gray-600"
             >
-              {#if llmStatus === "loading"}
-                <div class="flex flex-col justify-center gap-2 w-full">
-                  <Typography preset="Text sm/Medium" text={"Uploading File"} color="primary" />
-                  <Progressbar progress={60} size="h-4" labelInside />
+              <div class="flex items-center gap-2">
+                <Icon name="onedrive" size="w-8 h-8" />
+                <Typography preset="Text sm/Medium" text={modelName} color="primary" />
+              </div>
+              <div class="flex items-center gap-2">
+                <Typography
+                  preset="Text sm/Medium"
+                  text={getFileSize(fileSizeMB)}
+                  color="secondary"
+                />
+                <div
+                  class={editable ? "cursor-pointer" : ""}
+                  onclick={() => {
+                    if (editable && (botId !== null || modelId !== null)) {
+                      deleteTarget = "llm";
+                      llmId = 1;
+                      modalDelete = true;
+                    } else {
+                      selectedFile = null;
+                      modelName = "";
+                      fileSizeMB = "";
+                      uploadProgress = 0;
+                    }
+                  }}
+                >
+                  <Icon name="trash03" color="error-primary" />
                 </div>
-              {:else}
-                <div class="flex items-center gap-2">
-                  <Icon name="onedrive" size="w-8 h-8" />
-                  <Typography
-                    preset="Text sm/Medium"
-                    text={fileName || modelName}
-                    color="primary"
-                  />
-                </div>
-                <div class="flex items-center gap-2">
-                  <Typography
-                    preset="Text sm/Medium"
-                    text={getFileSize(fileSizeMB)}
-                    color="secondary"
-                  />
-                  <div
-                    class={editable ? "cursor-pointer" : ""}
-                    onclick={() => {
-                      if (editable && (botId !== null || modelId !== null)) {
-                        deleteTarget = "llm";
-                        llmId = 1;
-                        modalDelete = true;
-                      } else {
-                        selectedFile = null;
-                        fileName = "";
-                        fileSizeMB = "";
-                        uploadProgress = 0;
-                      }
-                    }}
-                  >
-                    <Icon name="trash03" color="error-primary" />
-                  </div>
-                </div>
-              {/if}
+              </div>
             </div>
           {/if}
         </div>
@@ -1116,3 +751,59 @@
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
+
+<Modal bind:open={modalUpload} size="xs" autoclose>
+  <div class="text-center justify-center">
+    <ExclamationCircleSolid
+      class="mx-auto mb-4 text-warning-primary-light dark:text-warning-primary-dark w-12 h-12"
+    />
+    <Typography
+      preset="Text lg/Semibold"
+      text={$_("warningLargeFileUpload")}
+      propClass="text-center"
+    />
+    <Typography
+      preset="Text sm/Regular"
+      text={$_(
+        "PleaseEnsureYouHaveAStableInternetConnectionDoNotCloseThisTabOrNavigateAwayDuringTheUploadProcess",
+      )}
+      propClass="text-center mt-2 mb-8"
+    />
+    <div class="flex gap-2 w-full">
+      <Button color="alternative" class="flex-grow">{$_("noCancel")}</Button>
+      <Button
+        onclick={() => {
+          createModel();
+        }}
+        class="flex-grow">{$_("yesImSure")}</Button
+      >
+    </div>
+  </div>
+</Modal>
+
+{#if isLoading}
+  <div
+    class="fixed top-0 left-0 w-full h-full flex flex-col gap-3 z-50 bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark"
+  >
+    <div class="flex flex-col gap-2 items-center justify-center h-full">
+      <LaodingLottie width={200} />
+      <div class="flex flex-col gap-2 w-full items-center">
+        <Typography
+          preset="Text xl/Medium"
+          color="primary-onbrand"
+          text={`${$_("uploadingFilePleaseWait")}`}
+          propClass="text-center"
+        />
+        <div class="w-1/2">
+          <Progressbar progress={uploadProgress} size="h-4" labelInside />
+        </div>
+        <Typography
+          preset="Text xl/Medium"
+          color="primary-onbrand"
+          text={`${$_("pleaseDontCloseTheSystemWhileUploading")}`}
+          propClass="text-center"
+        />
+      </div>
+    </div>
+  </div>
+{/if}

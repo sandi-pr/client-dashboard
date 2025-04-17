@@ -1033,5 +1033,9 @@
   "addNewFolder": "Add New Folder",
   "areYouSureYouWantToDeleteLlm": "Are you sure you want to delete LLM?",
   "areYouSureYouWantToDeleteBot": "Are you sure you want to delete bot?",
-  "usage": "Usage"
+  "usage": "Usage",
+  "uploadingFilePleaseWait": "Uploading file, please wait...",
+  "pleaseDontCloseTheSystemWhileUploading": "Please don't close the system while uploading.",
+  "warningLargeFileUpload": "Warning: Large file upload may take time.",
+  "PleaseEnsureYouHaveAStableInternetConnectionDoNotCloseThisTabOrNavigateAwayDuringTheUploadProcess": "Please ensure you have a stable internet connection. Do not close this tab or navigate away during the upload process."
 }
