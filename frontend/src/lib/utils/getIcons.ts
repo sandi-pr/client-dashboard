@@ -79,6 +79,7 @@ import UploadCloud01 from "../icon/upload-cloud-01.svelte";
 import VerifiedTickIcon from "../icon/verified-tick.svelte";
 import OnedriveIcon from "../icon/onedrive.svelte";
 import Trash03Icon from "../icon/trash-03.svelte";
+import LineChartUp01 from "../icon/line-chart-up-01.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -244,6 +245,8 @@ let getIcons = (presetIcon: String) => {
       return OnedriveIcon;
     case "trash03":
       return Trash03Icon;
+    case "lineChartUp01":
+      return LineChartUp01;
     default:
       return "";
   }

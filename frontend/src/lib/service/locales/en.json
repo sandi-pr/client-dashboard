@@ -1032,5 +1032,6 @@
   "modelDescription": "Model Description",
   "addNewFolder": "Add New Folder",
   "areYouSureYouWantToDeleteLlm": "Are you sure you want to delete LLM?",
-  "areYouSureYouWantToDeleteBot": "Are you sure you want to delete bot?"
+  "areYouSureYouWantToDeleteBot": "Are you sure you want to delete bot?",
+  "usage": "Usage"
 }

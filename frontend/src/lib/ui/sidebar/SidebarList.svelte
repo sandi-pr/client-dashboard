@@ -16,6 +16,7 @@
     SidebarNavItem,
     Typography,
     getIcons,
+    Icon,
     LanguageSelector,
     toCamelCase,
   } from "$lib";
@@ -196,7 +197,10 @@
           <LanguageSelector isMobileScreen />
         </div>
         <div class="hidden md:flex pb-4">
-          <Search placeholder={$_("search")} class={`bg-white dark:bg-primary-dark ${sidebarLargeClosed ? "px-0" : ""}`} />
+          <Search
+            placeholder={$_("search")}
+            class={`bg-white dark:bg-primary-dark ${sidebarLargeClosed ? "px-0" : ""}`}
+          />
         </div>
       </div>
       {#if !$sidebarLargeClosed}
@@ -321,6 +325,22 @@
                 preset="Text md/Regular"
                 propClass="text-base font-normal"
                 text={$_("settings")}
+                color="primary"
+              />
+            </button>
+            <button
+              onclick={async () => {
+                dropdownUser = !dropdownUser;
+                let url = await $call.getPage("client-dashboard", "usage");
+                goto(isFrontend ? "/usage" : url);
+              }}
+              class="flex px-3 py-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
+            >
+              <Icon name="lineChartUp01" propClass="w-5 h-5" />
+              <Typography
+                preset="Text md/Regular"
+                propClass="text-base font-normal ml-4"
+                text={$_("usage")}
                 color="primary"
               />
             </button>

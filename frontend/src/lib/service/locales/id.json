@@ -1032,5 +1032,6 @@
   "modelDescription": "Deskripsi Model",
   "addNewFolder": "Tambahkan Folder Baru",
   "areYouSureYouWantToDeleteLlm": "Apakah Anda yakin ingin menghapus LLM ini?",
-  "areYouSureYouWantToDeleteBot": "Apakah Anda yakin ingin menghapus bot ini?"
+  "areYouSureYouWantToDeleteBot": "Apakah Anda yakin ingin menghapus bot ini?",
+  "usage": "Penggunaan"
 }
