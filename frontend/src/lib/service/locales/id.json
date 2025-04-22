@@ -1037,5 +1037,8 @@
   "uploadingFilePleaseWait": "Mengunggah file, harap tunggu...",
   "pleaseDontCloseTheSystemWhileUploading": "Harap jangan tutup sistem saat mengunggah",
   "warningLargeFileUpload": "Peringatan: Mengunggah file besar dapat memakan waktu lebih lama dari biasanya. Harap bersabar.",
-  "PleaseEnsureYouHaveAStableInternetConnectionDoNotCloseThisTabOrNavigateAwayDuringTheUploadProcess": "Harap pastikan Anda memiliki koneksi internet yang stabil. Jangan tutup tab ini atau navigasi pergi selama proses unggah."
+  "PleaseEnsureYouHaveAStableInternetConnectionDoNotCloseThisTabOrNavigateAwayDuringTheUploadProcess": "Harap pastikan Anda memiliki koneksi internet yang stabil. Jangan tutup tab ini atau navigasi pergi selama proses unggah.",
+  "appsPermissions": "Perizinan Aplikasi",
+  "configurationBots": "Konfigurasi: Bot",
+  "configurationDatasources": "Konfigurasi: Sumber Data"
 }

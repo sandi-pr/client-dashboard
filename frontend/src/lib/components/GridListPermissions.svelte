@@ -3,6 +3,8 @@
   import { getIcons, toCamelCase } from "$lib";
   import { _ } from "svelte-i18n";
 
+  import { ChevronDownOutline, ChevronUpOutline } from "flowbite-svelte-icons";
+
   import BookOpen2Icon from "$lib/icon/book-open-02.svelte";
   import Stars01Icon from "$lib/icon/stars-01.svelte";
   import MessageChatCircleIcon from "$lib/icon/message-chat-circle.svelte";
@@ -12,6 +14,16 @@
   export let change;
 
   let mainColSpan = 12 - permissionListDatas[0].data.length * 2;
+
+  const handleHideContent = (id) => {
+    // console.log("id", id);
+    permissionListDatas.map((permission) => {
+      if (permission.parentId === id || permission.id === id) {
+        permission.hide = !permission.hide;
+      }
+      return permission;
+    });
+  };
 
   const borderInsideGrid = (index) => {
     let borderClass = "border-secondary-light dark:border-secondary-dark ";
@@ -30,7 +42,6 @@
     else if (level === 1) return "pl-4";
     else if (level === 2) return "pl-8";
   };
-  // console.log(userListDatas);
 </script>
 
 <div class="w-full rounded-lg border-2 border-secondary-light dark:border-secondary-dark">
@@ -60,30 +71,47 @@
                 svgClass="w-5 h-5 text-hc-graylight-500 dark:text-hc-graydark-400"
               />
             {/if}
-            <P class="text-lg font-bold text-tertiary-light dark:text-tertiary-dark"
+            <div class="w-full flex items-center justify-between">
+              <P class="text-lg font-bold text-tertiary-light dark:text-tertiary-dark"
+                >{$_(toCamelCase(permission.title))}</P
+              >
+              {#if permission.hide}
+                <div on:click={() => handleHideContent(permission.id)}>
+                  <ChevronDownOutline
+                    class="w-8 h-8 text-tertiary-light dark:text-tertiary-dark cursor-pointer"
+                  />
+                </div>
+              {:else}
+                <div on:click={() => handleHideContent(permission.id)}>
+                  <ChevronUpOutline
+                    class="w-8 h-8 text-tertiary-light dark:text-tertiary-dark cursor-pointer"
+                  />
+                </div>
+              {/if}
+            </div>
+          </div>
+        </div>
+      {:else if permission.type === "content" && !permission.hide}
+        <div class="w-full flex items-center justify-between">
+          <div class={`py-6 self-center grow`}>
+            <P class="text-tertiary-light dark:text-tertiary-dark"
               >{$_(toCamelCase(permission.title))}</P
             >
           </div>
+          {#each permission.data as data (data.name)}
+            <div class="py-6 flex justify-center w-20">
+              <Checkbox
+                disabled={!edit}
+                checked={data.granted}
+                on:click={() => {
+                  data.granted = !data.granted;
+                  console.log(data.granted);
+                  change();
+                }}
+              />
+            </div>
+          {/each}
         </div>
-      {:else if permission.type === "content"}
-        <div class={`py-6 self-center grow`}>
-          <P class="text-tertiary-light dark:text-tertiary-dark"
-            >{$_(toCamelCase(permission.title))}</P
-          >
-        </div>
-        {#each permission.data as data (data.name)}
-          <div class="py-6 flex justify-center w-20">
-            <Checkbox
-              disabled={!edit}
-              checked={data.granted}
-              on:click={() => {
-                data.granted = !data.granted;
-                console.log(data.granted);
-                change();
-              }}
-            />
-          </div>
-        {/each}
       {:else}
         <!-- else content here -->
       {/if}

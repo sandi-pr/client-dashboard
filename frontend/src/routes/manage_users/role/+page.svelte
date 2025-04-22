@@ -62,6 +62,17 @@ All Rights Reserved
     },
   ]);
 
+  let permissionAll = $state([
+    {
+      id: 1,
+      type: "header",
+      icon: "",
+      level: 0,
+      title: "Actions",
+      data: [{ name: "allow" }],
+    },
+  ]);
+
   let permissionDocumentAi = $state([
     {
       id: 1,
@@ -104,14 +115,17 @@ All Rights Reserved
       {
         name: "General",
       },
+      // {
+      //   name: "Documents Ai",
+      // },
+      // {
+      //   name: "Ai Management",
+      // },
+      // {
+      //   name: "Business Management",
+      // },
       {
-        name: "Documents Ai",
-      },
-      {
-        name: "Ai Management",
-      },
-      {
-        name: "Business Management",
+        name: "Apps Permissions",
       },
     ],
   });
@@ -221,9 +235,11 @@ All Rights Reserved
         }
 
         permissionGeneral = [];
-        permissionDocumentAi = [];
-        permissionAiManagement = [];
-        permissionBusinessManagement = [];
+        permissionAll = [];
+        let parentId = 0;
+        // permissionDocumentAi = [];
+        // permissionAiManagement = [];
+        // permissionBusinessManagement = [];
 
         for (let i = 0; i < response2.result.permissions.length; i++) {
           if (response2.result.permissions[i].key.includes("general")) {
@@ -237,8 +253,10 @@ All Rights Reserved
                   level: 0,
                   title: response2.result.permissions[i].name,
                   data: [],
+                  hide: false,
                 },
               ];
+              parentId = permissionGeneral.length;
             } else {
               permissionGeneral = [
                 ...permissionGeneral,
@@ -260,27 +278,149 @@ All Rights Reserved
                     },
                   ],
                   key: response2.result.permissions[i].key,
+                  parentId: parentId,
+                  hide: false,
                 },
               ];
             }
-          } else if (response2.result.permissions[i].key.includes("documentAi")) {
+          }
+          // else if (response2.result.permissions[i].key.includes("documentAi")) {
+          //   if (response2.result.permissions[i]?.icon) {
+          //     permissionDocumentAi = [
+          //       ...permissionDocumentAi,
+          //       {
+          //         id: permissionDocumentAi.length + 1,
+          //         type: "section",
+          //         icon: "",
+          //         level: 0,
+          //         title: response2.result.permissions[i].name,
+          //         data: [],
+          //       },
+          //     ];
+          //   } else {
+          //     permissionDocumentAi = [
+          //       ...permissionDocumentAi,
+          //       {
+          //         id: permissionDocumentAi.length + 1,
+          //         type: "content",
+          //         icon: "",
+          //         level: 0,
+          //         title: response2.result.permissions[i].name,
+          //         data: [
+          //           {
+          //             name: "allow",
+          //             granted:
+          //               response.result.role.role === "admin"
+          //                 ? true
+          //                 : response.result.role.permissions.some(
+          //                     (permission) => permission === response2.result.permissions[i].key,
+          //                   ),
+          //           },
+          //         ],
+          //         key: response2.result.permissions[i].key,
+          //       },
+          //     ];
+          //   }
+          // } else if (response2.result.permissions[i].key.includes("aiManagement")) {
+          //   if (response2.result.permissions[i]?.icon) {
+          //     permissionAiManagement = [
+          //       ...permissionAiManagement,
+          //       {
+          //         id: permissionAiManagement.length + 1,
+          //         type: "section",
+          //         icon: "",
+          //         level: 0,
+          //         title: response2.result.permissions[i].name,
+          //         data: [],
+          //       },
+          //     ];
+          //   } else {
+          //     permissionAiManagement = [
+          //       ...permissionAiManagement,
+          //       {
+          //         id: permissionAiManagement.length + 1,
+          //         type: "content",
+          //         icon: "",
+          //         level: 0,
+          //         title: response2.result.permissions[i].name,
+          //         data: [
+          //           {
+          //             name: "allow",
+          //             granted:
+          //               response.result.role.role === "admin"
+          //                 ? true
+          //                 : response.result.role.permissions.some(
+          //                     (permission) => permission === response2.result.permissions[i].key,
+          //                   ),
+          //           },
+          //         ],
+          //         key: response2.result.permissions[i].key,
+          //       },
+          //     ];
+          //   }
+          // } else if (response2.result.permissions[i].key.includes("businessManagement")) {
+          //   if (response2.result.permissions[i]?.icon) {
+          //     permissionBusinessManagement = [
+          //       ...permissionBusinessManagement,
+          //       {
+          //         id: permissionBusinessManagement.length + 1,
+          //         type: "section",
+          //         icon: "",
+          //         level: 0,
+          //         title: response2.result.permissions[i].name,
+          //         data: [],
+          //       },
+          //     ];
+          //   } else {
+          //     permissionBusinessManagement = [
+          //       ...permissionBusinessManagement,
+          //       {
+          //         id: permissionBusinessManagement.length + 1,
+          //         type: "content",
+          //         icon: "",
+          //         level: 0,
+          //         title: response2.result.permissions[i].name,
+          //         data: [
+          //           {
+          //             name: "allow",
+          //             granted:
+          //               response.result.role.role === "admin"
+          //                 ? true
+          //                 : response.result.role.permissions.some(
+          //                     (permission) => permission === response2.result.permissions[i].key,
+          //                   ),
+          //           },
+          //         ],
+          //         key: response2.result.permissions[i].key,
+          //       },
+          //     ];
+          //   }
+          // }
+          else {
             if (response2.result.permissions[i]?.icon) {
-              permissionDocumentAi = [
-                ...permissionDocumentAi,
+              permissionAll = [
+                ...permissionAll,
                 {
-                  id: permissionDocumentAi.length + 1,
+                  id: permissionAll.length + 1,
                   type: "section",
                   icon: "",
                   level: 0,
-                  title: response2.result.permissions[i].name,
+                  title:
+                    response2.result.permissions[i].name === "Hexa Bots"
+                      ? "Configuration Bots"
+                      : response2.result.permissions[i].name === "Datasets"
+                        ? "Configuration Datasources"
+                        : response2.result.permissions[i].name,
                   data: [],
+                  hide: false,
                 },
               ];
+              parentId = permissionAll.length;
             } else {
-              permissionDocumentAi = [
-                ...permissionDocumentAi,
+              permissionAll = [
+                ...permissionAll,
                 {
-                  id: permissionDocumentAi.length + 1,
+                  id: permissionAll.length + 1,
                   type: "content",
                   icon: "",
                   level: 0,
@@ -297,80 +437,8 @@ All Rights Reserved
                     },
                   ],
                   key: response2.result.permissions[i].key,
-                },
-              ];
-            }
-          } else if (response2.result.permissions[i].key.includes("aiManagement")) {
-            if (response2.result.permissions[i]?.icon) {
-              permissionAiManagement = [
-                ...permissionAiManagement,
-                {
-                  id: permissionAiManagement.length + 1,
-                  type: "section",
-                  icon: "",
-                  level: 0,
-                  title: response2.result.permissions[i].name,
-                  data: [],
-                },
-              ];
-            } else {
-              permissionAiManagement = [
-                ...permissionAiManagement,
-                {
-                  id: permissionAiManagement.length + 1,
-                  type: "content",
-                  icon: "",
-                  level: 0,
-                  title: response2.result.permissions[i].name,
-                  data: [
-                    {
-                      name: "allow",
-                      granted:
-                        response.result.role.role === "admin"
-                          ? true
-                          : response.result.role.permissions.some(
-                              (permission) => permission === response2.result.permissions[i].key,
-                            ),
-                    },
-                  ],
-                  key: response2.result.permissions[i].key,
-                },
-              ];
-            }
-          } else if (response2.result.permissions[i].key.includes("businessManagement")) {
-            if (response2.result.permissions[i]?.icon) {
-              permissionBusinessManagement = [
-                ...permissionBusinessManagement,
-                {
-                  id: permissionBusinessManagement.length + 1,
-                  type: "section",
-                  icon: "",
-                  level: 0,
-                  title: response2.result.permissions[i].name,
-                  data: [],
-                },
-              ];
-            } else {
-              permissionBusinessManagement = [
-                ...permissionBusinessManagement,
-                {
-                  id: permissionBusinessManagement.length + 1,
-                  type: "content",
-                  icon: "",
-                  level: 0,
-                  title: response2.result.permissions[i].name,
-                  data: [
-                    {
-                      name: "allow",
-                      granted:
-                        response.result.role.role === "admin"
-                          ? true
-                          : response.result.role.permissions.some(
-                              (permission) => permission === response2.result.permissions[i].key,
-                            ),
-                    },
-                  ],
-                  key: response2.result.permissions[i].key,
+                  parentId: parentId,
+                  hide: false,
                 },
               ];
             }
@@ -380,9 +448,10 @@ All Rights Reserved
         tmpPermissions = JSON.parse(
           JSON.stringify([
             ...permissionGeneral,
-            ...permissionDocumentAi,
-            ...permissionAiManagement,
-            ...permissionBusinessManagement,
+            ...permissionAll,
+            // ...permissionDocumentAi,
+            // ...permissionAiManagement,
+            // ...permissionBusinessManagement,
           ]),
         );
 
@@ -527,9 +596,10 @@ All Rights Reserved
 
     let allData = [
       ...permissionGeneral,
-      ...permissionDocumentAi,
-      ...permissionAiManagement,
-      ...permissionBusinessManagement,
+      ...permissionAll,
+      // ...permissionDocumentAi,
+      // ...permissionAiManagement,
+      // ...permissionBusinessManagement,
     ];
 
     dataSend = allData
@@ -565,9 +635,10 @@ All Rights Reserved
   function change() {
     let allData = [
       ...permissionGeneral,
-      ...permissionDocumentAi,
-      ...permissionAiManagement,
-      ...permissionBusinessManagement,
+      ...permissionAll,
+      // ...permissionDocumentAi,
+      // ...permissionAiManagement,
+      // ...permissionBusinessManagement,
     ];
     disabledButton = JSON.stringify(tmpPermissions) === JSON.stringify(allData);
     console.log(JSON.stringify(tmpPermissions) === JSON.stringify(allData));
@@ -712,25 +783,12 @@ All Rights Reserved
               bind:edit={editRoles}
               bind:change
             />
-          {:else if tabDatas.selected === "Documents Ai"}
-            <GridListPermissions
-              bind:permissionListDatas={permissionDocumentAi}
-              bind:edit={editRoles}
-              bind:change
-            />
-          {:else if tabDatas.selected === "Ai Management"}
-            <GridListPermissions
-              bind:permissionListDatas={permissionAiManagement}
-              bind:edit={editRoles}
-              bind:change
-            />
-          {:else if tabDatas.selected === "Business Management"}
-            <GridListPermissions
-              bind:permissionListDatas={permissionBusinessManagement}
-              bind:edit={editRoles}
-              bind:change
-            />
           {:else}
+            <GridListPermissions
+              bind:permissionListDatas={permissionAll}
+              bind:edit={editRoles}
+              bind:change
+            />
             <!-- else content here -->
           {/if}
         {:else if gettingDatas}
