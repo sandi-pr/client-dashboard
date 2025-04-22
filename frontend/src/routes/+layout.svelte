@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://192.168.18.18")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -289,12 +289,12 @@ All Rights Reserved
         children: [],
         href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
       },
-      // { // BRI ADJUSTMENT
-      //   icon: "lightbulb",
-      //   name: "insights",
-      //   children: [],
-      //   href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      // },
+      { // BRI ADJUSTMENT
+        icon: "lightbulb",
+        name: "insights",
+        children: [],
+        href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+      },
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",
@@ -724,7 +724,8 @@ All Rights Reserved
       Params: {},
       Headers: {},
     });
-    // console.log(resp_setup);
+    console.log("===============================");
+    console.log(resp_setup);
     if (resp_setup.status === 200) {
       if (resp_setup.result.is_need_setup === true) {
         if (localStorage.getItem("token") !== null) localStorage.removeItem("token");

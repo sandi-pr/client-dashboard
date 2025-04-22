@@ -679,11 +679,11 @@
 
 <div class="flex flex-col m-4 gap-4 pb-4 md:pb-12">
   <Typography text="Large Language Models Overview" preset="Display sm/Semibold" />
-  <Typography text="Quick Actions" preset="Text lg/Semibold" propClass="my-4" />
+  <!-- <Typography text="Quick Actions" preset="Text lg/Semibold" propClass="my-4" />
   <Divider />
-  <ActionCard {actionItems} />
+  <ActionCard {actionItems} /> -->
   <div class="flex justify-between items-center mt-4">
-    <Typography text="Large Language Models Lists" preset="Text lg/Semibold" propClass="md:my-4" />
+    <!-- <Typography text="Large Language Models Lists" preset="Text lg/Semibold" propClass="md:my-4" />
     <Button
       spaceY="m-0 max-h-min"
       text="View All"
@@ -692,7 +692,7 @@
         goto(link);
       }}
       color="alternative"
-    />
+    /> -->
   </div>
   <!-- <Divider /> -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -700,14 +700,14 @@
       <CardFeature {cardData} />
     {/each}
   </div>
-  <div class="flex justify-between mt-4">
+  <!-- <div class="flex justify-between mt-4">
     <Typography text="Recently Deployed Models" preset="Text lg/Semibold" propClass="my-4" />
     <Button text="View All" funcButton={() => goto("/llms/my_models")} color="alternative" />
-  </div>
-  <Divider />
+  </div> -->
+  <!-- <Divider />
   <div class="grid grid-cols-3 gap-4">
     {#each recentItems as item}
       <Card type={item.type} href={item.href} icon={item.icon} title={item.title} />
     {/each}
-  </div>
+  </div> -->
 </div>
