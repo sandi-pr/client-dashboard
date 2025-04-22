@@ -25,7 +25,9 @@
     });
   };
 
-  const borderInsideGrid = (index) => {
+  const borderInsideGrid = (index, permission) => {
+    if (permission.type === "content" && permission.hide) return " ";
+
     let borderClass = "border-secondary-light dark:border-secondary-dark ";
     if (index % 2 !== 0) return borderClass + "border-y-2 ";
     return " ";
@@ -47,7 +49,9 @@
 <div class="w-full rounded-lg border-2 border-secondary-light dark:border-secondary-dark">
   {#each permissionListDatas as permission, index (permission.id)}
     <div
-      class={"flex px-8 w-full " + borderInsideGrid(index) + backgroundFromType(permission.type)}
+      class={"flex px-8 w-full " +
+        borderInsideGrid(index, permission) +
+        backgroundFromType(permission.type)}
     >
       {#if permission.type === "header"}
         <div class={`py-4 self-center grow`}>

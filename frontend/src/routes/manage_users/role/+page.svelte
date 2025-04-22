@@ -410,7 +410,9 @@ All Rights Reserved
                       ? "Configuration Bots"
                       : response2.result.permissions[i].name === "Datasets"
                         ? "Configuration Datasources"
-                        : response2.result.permissions[i].name,
+                        : response2.result.permissions[i].name === "Document Library"
+                          ? "Documents"
+                          : response2.result.permissions[i].name,
                   data: [],
                   hide: false,
                 },
