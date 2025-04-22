@@ -194,7 +194,7 @@ All Rights Reserved
 
   onMount(async () => {
     // BRI ADJUSTMENT
-    goto(isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page"));
+    // goto(isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page"));
 
     // latestDataSources = JSON.parse(localStorage.getItem("latestDataSources")) || [];
     getBots();

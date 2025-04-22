@@ -101,7 +101,7 @@
     // if (need_auth) {
     if (isFrontend) {
       ws = new WebSocket(
-        `http://192.168.18.15/insight/c/${encodeURIComponent(localStorage.getItem("token"))}`,
+        `http://192.168.18.18/insight/c/${encodeURIComponent(localStorage.getItem("token"))}`,
       );
     } else {
       ws = new WebSocket(
@@ -802,7 +802,7 @@
 
   onMount(async () => {
     // BRI ADJUSTMENT
-    goto(isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page"));
+    // goto(isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page"));
 
     // if (allDataMeta) {
     //   currentArrayData = allData.slice(
