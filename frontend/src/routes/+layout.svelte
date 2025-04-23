@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("http://192.168.18.18")
+    ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -299,18 +299,18 @@ All Rights Reserved
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
-      {
-        icon: "penTool",
-        name: "handwriting",
-        children: [],
-        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      },
-      {
-        icon: "recording02",
-        name: "voice",
-        children: [],
-        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      },
+      // {
+      //   icon: "penTool",
+      //   name: "handwriting",
+      //   children: [],
+      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      // },
+      // {
+      //   icon: "recording02",
+      //   name: "voice",
+      //   children: [],
+      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      // },
       {
         icon: "image03",
         name: "memories",

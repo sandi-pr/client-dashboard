@@ -108,18 +108,18 @@ All Rights Reserved
     //   description: "descInsights",
     //   page: "csv-insight",
     // },
-    {
-      icon: "penTool",
-      title: "handwriting",
-      description: "descHandwriting",
-      page: "handwriting",
-    },
-    {
-      icon: "recording02",
-      title: "voice",
-      description: "descVoice",
-      page: "voice",
-    },
+    // {
+    //   icon: "penTool",
+    //   title: "handwriting",
+    //   description: "descHandwriting",
+    //   page: "handwriting",
+    // },
+    // {
+    //   icon: "recording02",
+    //   title: "voice",
+    //   description: "descVoice",
+    //   page: "voice",
+    // },
     {
       icon: "messagePlusSquare",
       title: "createBots",
