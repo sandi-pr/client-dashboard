@@ -25,6 +25,8 @@ All Rights Reserved
     ModalObject,
     triggerLoading,
     ModalFilePreview,
+    notifications,
+    onProgress,
   } from "$lib";
   import { _ } from "svelte-i18n";
   import {
@@ -106,7 +108,7 @@ All Rights Reserved
       botDescription: "",
       botsID: 12345,
       urlBot: "#",
-      deployStatus: "Ready",
+      deployStatus: "Inactive",
       deployedPlatform: "",
       bot_profile: "",
     }
@@ -394,12 +396,56 @@ All Rights Reserved
     goto(await $call.getPage("client-dashboard", "handwriting-collections") + "?libraryId=" + libraryId);
   }
 
+  async function getBot() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        let response = await $call.call("client-dashboard", "get-bot", {
+          URLQuery: {},
+          URLParams: {
+            id: botIdStrapi.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          triggerLoading(false);
+          triggerToast("error");
+          goto(await $call.getPage("client-dashboard", "hexabot-list"));
+          return;
+        }
+
+        const bot = response.result;
+
+        console.log("cek response get bot", response);
+        
+        bots[0].deployStatus = bot.status;
+        // datasChecked = collections.map((data) => {
+        //   return { id: data, checked: true };
+        // });
+
+        // await getCollection();
+        // await getDocuments();
+
+        triggerLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   async function startReading(botId) {
     let token = localStorage.getItem("token");
 
     if (token) {
       try {
-        // gettingStatusBot = true;
+        gettingStatusBot = true;
+
+        console.log("botId", botId);
 
         const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
           URLQuery: {},
@@ -412,13 +458,15 @@ All Rights Reserved
           },
         });
 
+        console.log("cek response start reading", response);
+
         if (response.status !== 200) {
           triggerToast("error");
           console.log(response);
           return;
         }
 
-        // setTimeout(getBots, 3000);
+        setTimeout(getBot, 3000);
       } catch (error) {
         console.log(error);
       }
@@ -1321,6 +1369,26 @@ All Rights Reserved
       nameIsAvailable = true;
     }
   };
+
+  $effect(() => {
+    if ($onProgress) {
+      console.log("notification", $notifications);
+      if ($notifications.length > 0 && $notifications[0].attributes.meta?.progress.includes("100")) {
+        if (!gettingStatusBot) {
+          startReading($notifications[0].attributes.meta.bot_id);
+          console.log("start reading", $notifications[0].attributes.meta.bot_id);
+        } else {
+          if (timerGetStatusBot) {
+            clearTimeout(timerGetStatusBot);
+          }
+          timerGetStatusBot = setTimeout(() => {
+            startReading($notifications[0].attributes.meta.bot_id);
+            console.log("start reading", $notifications[0].attributes.meta.bot_id);
+          }, 10000);
+        }
+      }
+    }
+  });
 
   onMount(async () => {
     if (
