@@ -20,6 +20,13 @@
       actionName: "deploy your model",
       desc: "desc deploy your model",
     },
+    {
+      // href: await $call.getPage("client-dashboard", "bots-create"),
+      href: "/llms/my_models",
+      icon: "dataflow04",
+      actionName: "view your model",
+      desc: "desc view your model",
+    },
   ];
 
   let recentItems = [
@@ -679,9 +686,9 @@
 
 <div class="flex flex-col m-4 gap-4 pb-4 md:pb-12">
   <Typography text="Large Language Models Overview" preset="Display sm/Semibold" />
-  <!-- <Typography text="Quick Actions" preset="Text lg/Semibold" propClass="my-4" />
+  <Typography text="Quick Actions" preset="Text lg/Semibold" propClass="my-4" />
   <Divider />
-  <ActionCard {actionItems} /> -->
+  <ActionCard {actionItems} />
   <div class="flex justify-between items-center mt-4">
     <!-- <Typography text="Large Language Models Lists" preset="Text lg/Semibold" propClass="md:my-4" />
     <Button

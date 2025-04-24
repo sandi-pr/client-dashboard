@@ -1040,5 +1040,7 @@
   "PleaseEnsureYouHaveAStableInternetConnectionDoNotCloseThisTabOrNavigateAwayDuringTheUploadProcess": "Please ensure you have a stable internet connection. Do not close this tab or navigate away during the upload process.",
   "appsPermissions": "Apps Permissions",
   "configurationBots": "Configuration: Bots",
-  "configurationDatasources": "Configuration: Datasources"
+  "configurationDatasources": "Configuration: Datasources",
+  "viewYourModel": "View Your Model",
+  "descViewYourModel": "View and manage your deployed models"
 }
