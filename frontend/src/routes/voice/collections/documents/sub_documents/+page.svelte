@@ -430,7 +430,9 @@
               await sendDocument();
             } else {
               previewModal = true;
+              triggerLoading(false);
               selectedFile = files[0];
+              return;
             }
           } else {
             let index = 1;

@@ -79,7 +79,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://192.168.18.14")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -222,15 +222,15 @@ All Rights Reserved
           // },
         ],
       },
-      {
-        icon: "code01",
-        name: "codingAssistant",
-        commingSoon: true,
-        children: [],
-        href: isFrontend
-          ? "/coding_assistant"
-          : await call.getPage("client-dashboard", "coding-assistant"),
-      },
+      // {
+      //   icon: "code01",
+      //   name: "codingAssistant",
+      //   commingSoon: true,
+      //   children: [],
+      //   href: isFrontend
+      //     ? "/coding_assistant"
+      //     : await call.getPage("client-dashboard", "coding-assistant"),
+      // },
       {
         icon: "bookOpen",
         name: "documents",
@@ -312,50 +312,50 @@ All Rights Reserved
         children: [],
         href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
       },
-      {
-        icon: "image03",
-        name: "memories",
-        children: [],
-        commingSoon: true,
-        href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
-      },
-      {
-        icon: "videoRecorder",
-        name: "vision",
-        children: [],
-        commingSoon: true,
-        href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
-      },
+      // {
+      //   icon: "image03",
+      //   name: "memories",
+      //   children: [],
+      //   commingSoon: true,
+      //   href: isFrontend ? "/memories" : await call.getPage("client-dashboard", "memories"),
+      // },
+      // {
+      //   icon: "videoRecorder",
+      //   name: "vision",
+      //   children: [],
+      //   commingSoon: true,
+      //   href: isFrontend ? "/vision" : await call.getPage("client-dashboard", "vision"),
+      // },
       //   ],
       // },
       // {
       //   icon: "aiDocument",
       //   name: "smartDocument",
       //   children: [
-      {
-        icon: "fileLock",
-        name: "contractReviewer",
-        children: [],
-        commingSoon: true,
-        href: isFrontend
-          ? "/contract_reviewer"
-          : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-      },
+      // {
+      //   icon: "fileLock",
+      //   name: "contractReviewer",
+      //   children: [],
+      //   commingSoon: true,
+      //   href: isFrontend
+      //     ? "/contract_reviewer"
+      //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+      // },
       //     {
       //       icon: "fileLock",
       //       name: "sopCompliance",
       //       href: isFrontend ? "/sop_compliance" : await call.getPage("client-dashboard", "sop-compliance"),
       //       children: []
       //     },
-      {
-        icon: "fileCheck",
-        name: "docsGenerator",
-        children: [],
-        commingSoon: true,
-        href: isFrontend
-          ? "/docs_generator"
-          : await call.getPage("client-dashboard", "docs-generator"),
-      },
+      // {
+      //   icon: "fileCheck",
+      //   name: "docsGenerator",
+      //   children: [],
+      //   commingSoon: true,
+      //   href: isFrontend
+      //     ? "/docs_generator"
+      //     : await call.getPage("client-dashboard", "docs-generator"),
+      // },
       //   ],
       // },
       {

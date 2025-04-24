@@ -10,6 +10,7 @@
   import EyeIcon from "$lib/icon/eye.svelte";
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
 
   let {
     bot,
@@ -21,6 +22,10 @@
     popupModal = $bindable(false),
     tmpId = $bindable(null),
   } = $props();
+
+  onMount(() => {
+    console.log("bot", bot);
+  })
 </script>
 
 <Card

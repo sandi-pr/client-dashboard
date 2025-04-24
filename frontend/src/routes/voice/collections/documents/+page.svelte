@@ -529,7 +529,9 @@
             } else {
               console.log("bebek");
               previewModal = true;
+              triggerLoading(false);
               selectedFile = files[0];
+              return;
             }
           } else {
             console.log("cacing");
