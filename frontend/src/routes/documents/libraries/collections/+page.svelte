@@ -1156,8 +1156,11 @@
                       console.error("Failed to copy: ", err);
                     });
                 }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
               >
-                <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
               </button>
             </div>
             <P

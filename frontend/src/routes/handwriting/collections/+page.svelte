@@ -46,7 +46,7 @@
   let dropdownOpen = $state(false);
   let nameIsAvailable = $state(true);
   let gettingDatas = $state(false);
-  
+
   //Ketbutuhan Untuk Modal DropDown
   let tmpDocumentType = $state("Handwriting");
   let selectedTypeCollection = $state("Handwriting (JPG, JPEG, PNG)");
@@ -560,9 +560,9 @@
         index++;
       }
     }
-    
+
     return newName;
-  }
+  };
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
@@ -603,34 +603,33 @@
           size: formatBytes(file.size),
           ext: "." + file.name.split(".").pop(),
           base64: base64Data,
-          type: tmpDocumentType
+          type: tmpDocumentType,
         };
 
         structure[folderKey][fileName] = fileObject;
       }
     }
 
-    return structure
-
+    return structure;
   }
 
-  async function sendFolder () {
+  async function sendFolder() {
     triggerLoading(true);
-    var currentFolder = []
+    var currentFolder = [];
 
     for (var folder in groupedFiles) {
       var parent_id;
       var sub_folder;
       var main_folder;
 
-      if (folder.split('/').length > 1) {
-        main_folder = folder.split('/')[0].trim()
-        sub_folder = folder.split('/')[1].trim()
+      if (folder.split("/").length > 1) {
+        main_folder = folder.split("/")[0].trim();
+        sub_folder = folder.split("/")[1].trim();
 
         if (currentFolder.length) {
-          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder);
           if (finded) {
-            parent_id = finded.id
+            parent_id = finded.id;
           }
         }
       }
@@ -639,42 +638,41 @@
 
       dataSend = {
         collection_name: newName,
-        description: '',
+        description: "",
         parent_id: parseInt(libraryId),
       };
 
       if (sub_folder && parent_id) {
-        dataSend["collection_name"] = sub_folder
-        dataSend["parent_id"] = parseInt(parent_id)
+        dataSend["collection_name"] = sub_folder;
+        dataSend["parent_id"] = parseInt(parent_id);
       }
 
       let token = localStorage.getItem("token");
-      let res = await $call.call(
-          "client-dashboard", "create-library-collection", {
-              URLQuery: {},
-              URLParams: {},
-              Params: dataSend,
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-          });
+      let res = await $call.call("client-dashboard", "create-library-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: dataSend,
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-      let statusRes = triggerToastResponse(res)
+      let statusRes = triggerToastResponse(res);
       if (!statusRes) {
         triggerLoading(false);
-        return
+        return;
       }
 
-      currentFolder.push(res.result.data)
-      files = groupedFiles[folder]
+      currentFolder.push(res.result.data);
+      files = groupedFiles[folder];
 
       if (!parent_id && !sub_folder) {
-        parent_id = res.result.data.id
+        parent_id = res.result.data.id;
       }
 
       for (const doc in files) {
         if (sub_folder && parent_id) {
-          files[doc].id = parent_id
+          files[doc].id = parent_id;
         }
 
         let response3;
@@ -696,12 +694,15 @@
         let statusDetectedDoc = triggerToastResponse(response3);
         if (!statusDetectedDoc) {
           // triggerLoading(false);
-          return
+          return;
         }
 
         if (response3?.result?.text !== null) {
-
-          let newName = await checkNewName(files[doc].name.split(".").slice(0, -1).join("."), res.result.data.id, "document");
+          let newName = await checkNewName(
+            files[doc].name.split(".").slice(0, -1).join("."),
+            res.result.data.id,
+            "document",
+          );
 
           files[doc].name = newName + files[doc].ext;
 
@@ -724,15 +725,15 @@
           URLParams: {},
           Params: dataSend,
           Headers: {
-            Authorization: "Bearer " + token
+            Authorization: "Bearer " + token,
           },
         });
 
-        let statusResDoc = triggerToastResponse(resdoc)
+        let statusResDoc = triggerToastResponse(resdoc);
         if (!statusResDoc) {
           // triggerLoading(false);
           // addFolderModal = false;
-          return
+          return;
         }
       }
     }
@@ -743,9 +744,7 @@
     triggerLoading(false);
 
     triggerToast($_("succesfullyUploaded"), true);
-
   }
-
 
   async function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
@@ -759,7 +758,7 @@
 
       reader.readAsDataURL(file);
     });
-  } 
+  }
 
   function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return "0 Bytes";
@@ -774,7 +773,6 @@
   }
 
   const handleFileUploadWrapper = (isFolder = false) => {
-
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.webkitdirectory = isFolder;
@@ -783,7 +781,6 @@
 
     inputElement.addEventListener("change", async (event) => {
       if (isFolder) {
-
         // Buat Collection by Name Folder Dan Document
         groupedFiles = await groupFilesByPath(event.target.files);
         return;
@@ -823,7 +820,11 @@
           const collectionId = localStorage.getItem("collectionIdvoice");
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              collectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -844,9 +845,8 @@
     inputElement.click();
   };
 
-
   //#FUNCTION UNTUK TRIGGERTOAST DARI RESPONSE
-  function triggerToastResponse (response) {
+  function triggerToastResponse(response) {
     if (response.status !== 200) {
       console.log(response);
       if (response.status === 400) {
@@ -864,17 +864,16 @@
       }
       return false;
     }
-    return true
+    return true;
   }
-
 
   async function addDocumentByCollection() {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      if(groupedFiles != null) {
+      if (groupedFiles != null) {
         sendFolder();
-        return
+        return;
       }
 
       try {
@@ -921,7 +920,7 @@
             let statusDetectedDoc = triggerToastResponse(response3);
             if (!statusDetectedDoc) {
               triggerLoading(false);
-              return
+              return;
             }
 
             if (response3?.result?.text !== null) {
@@ -1021,10 +1020,10 @@
           tmpDocumentType !== "Handwriting" &&
           tmpDocumentType !== "Document Images" &&
           tmpDocumentType !== "Document Audio"
-        ) { 
+        ) {
           dataSend = null;
           previewModal = false;
-          addDocumentsModal = false;  
+          addDocumentsModal = false;
           triggerToast($_("succesfullyUploaded"), true);
         }
       } catch (error) {
@@ -1106,8 +1105,11 @@
                       console.error("Failed to copy: ", err);
                     });
                 }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
               >
-                <Copy01Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
               </button>
             </div>
             <P
@@ -1248,10 +1250,7 @@
             description={$_("fetchingDataPleaseWait")}
           />
         {:else}
-          <StateCard
-            illustration={IllustrationEmpty}
-            description={$_("youDontHaveAnyDataYet")}
-          />
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>
@@ -1265,7 +1264,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -1294,7 +1293,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -1323,7 +1322,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
       <Input
         bind:value={tmpLibraryName}
-        on:input={(event) => handleInput(event, 0, 'collection')}
+        on:input={(event) => handleInput(event, 0, "collection")}
         placeholder={$_("whatIsYourLibraryTitle")}
       />
       {#if !nameIsAvailable}
