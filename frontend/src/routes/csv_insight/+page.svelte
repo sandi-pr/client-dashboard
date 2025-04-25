@@ -986,7 +986,7 @@
             id="chat"
             rows="1"
             class="block resize-none p-2.5 w-full fluid-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-3xl border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:border-utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
-            placeholder="Send a message..."
+            placeholder={$_("sendAMessage")}
           ></textarea>
           <Button
             disabled={!messageInput || isTyping || currentArrayData.length === 0}

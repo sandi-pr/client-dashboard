@@ -1046,5 +1046,8 @@
   "notifications": "Notifications",
   "noNotifications": "No notifications",
   "markAsRead": "Mark as read",
-  "viewDetail": "View detail"
+  "viewDetail": "View detail",
+  "page": "Page",
+  "totalDocument": "Total Document",
+  "sendAMessage": "Send a message..."
 }

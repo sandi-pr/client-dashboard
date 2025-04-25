@@ -344,7 +344,7 @@ All Rights Reserved
       // },
       {
         href: await $call.getPage("client-dashboard", "document-collection"),
-        dataName: "Total Document",
+        dataName: $_("totalDocument"),
         value: dataCollecting.total,
         change: dataCollecting.change,
         changeType: dataCollecting.changeType,

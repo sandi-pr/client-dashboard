@@ -1046,5 +1046,8 @@
   "notifications": "Notifikasi",
   "noNotifications": "Tidak ada notifikasi",
   "markAsRead": "Tandai sebagai dibaca",
-  "viewDetail": "Lihat Detail"
+  "viewDetail": "Lihat Detail",
+  "page": "Halaman",
+  "totalDocument": "Total Dokumen",
+  "sendAMessage": "Kirim Pesan..."
 }
