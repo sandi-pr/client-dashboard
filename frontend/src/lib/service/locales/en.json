@@ -1042,5 +1042,9 @@
   "configurationBots": "Configuration: Bots",
   "configurationDatasources": "Configuration: Datasources",
   "viewYourModel": "View Your Model",
-  "descViewYourModel": "View and manage your deployed models"
+  "descViewYourModel": "View and manage your deployed models",
+  "notifications": "Notifications",
+  "noNotifications": "No notifications",
+  "markAsRead": "Mark as read",
+  "viewDetail": "View detail"
 }

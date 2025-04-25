@@ -190,7 +190,7 @@ All Rights Reserved
         >
           <div class="flex flex-col grow">
             <div class="flex grow justify-between pb-4">
-              <Typography preset="Text xl/Semibold" text="Notifications" color="primary" />
+              <Typography preset="Text xl/Semibold" text={$_("notifications")} color="primary" />
               <CloseButton
                 on:click={changeShowNotif}
                 class="mb-4 absolute right-0 top-1 dark:text-white"
@@ -209,7 +209,7 @@ All Rights Reserved
           {#if $notificationsUnread.length === 0}
             <Typography
               preset="Text sm/Medium"
-              text="No Notification"
+              text={$_("noNotifications")}
               color="secondary"
               class="w-full text-center"
             />
@@ -233,8 +233,9 @@ All Rights Reserved
                   <div class="flex gap-3">
                     <button
                       class="text-sm font-semibold text-fg-button-tertiary-light dark:text-fg-button-tertiary-dark"
-                      >Mark as read</button
                     >
+                      {$_("markAsRead")}
+                    </button>
                     {#if data.attributes.type === "hexabot" && data.attributes.meta && "bot_id" in data.attributes.meta}
                       <button
                         onclick={async () => {
@@ -245,8 +246,9 @@ All Rights Reserved
                           );
                         }}
                         class="text-sm font-semibold text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark"
-                        >View detail</button
                       >
+                        {$_("viewDetail")}
+                      </button>
                     {/if}
                   </div>
                 </div>
@@ -259,7 +261,7 @@ All Rights Reserved
           {#if $notificationsRead.length === 0}
             <Typography
               preset="Text sm/Medium"
-              text="No Notification"
+              text={$_("noNotifications")}
               color="secondary"
               class="w-full text-center"
             />
@@ -286,8 +288,9 @@ All Rights Reserved
                         await markAsRead(data.id);
                       }}
                       class="text-sm font-semibold text-fg-button-tertiary-light dark:text-fg-button-tertiary-dark"
-                      >Mark as read</button
                     >
+                      {$_("markAsRead")}
+                    </button>
                     {#if data.attributes.type === "hexabot" && data.attributes.meta && "bot_id" in data.attributes.meta}
                       <button
                         onclick={async () => {
@@ -298,8 +301,9 @@ All Rights Reserved
                           );
                         }}
                         class="text-sm font-semibold text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark"
-                        >View detail</button
                       >
+                        {$_("viewDetail")}
+                      </button>
                     {/if}
                   </div>
                 </div>

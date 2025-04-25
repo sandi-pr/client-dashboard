@@ -1042,5 +1042,9 @@
   "configurationBots": "Konfigurasi: Bot",
   "configurationDatasources": "Konfigurasi: Sumber Data",
   "viewYourModel": "Lihat Model Anda",
-  "descViewYourModel": "Lihat model Anda dan semua detailnya"
+  "descViewYourModel": "Lihat model Anda dan semua detailnya",
+  "notifications": "Notifikasi",
+  "noNotifications": "Tidak ada notifikasi",
+  "markAsRead": "Tandai sebagai dibaca",
+  "viewDetail": "Lihat Detail"
 }

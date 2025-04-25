@@ -2,6 +2,7 @@
   import { Toast, Progressbar } from "flowbite-svelte";
   import InfoCircleIcon from "$lib/icon/info-circle.svelte";
   import { notifications, Typography, FeaturedIcon } from "$lib";
+  import { _ } from "svelte-i18n";
   import StarsIcon from "$lib/icon/stars-01.svelte";
 
   // function truncateText(text, maxWords) {
@@ -44,7 +45,7 @@
       {#if $notifications.length === 0}
         <Typography
           preset="Text sm/Medium"
-          text="No Notification"
+          text={$_("noNotifications")}
           color="secondary"
           class="w-full text-center"
         />
@@ -119,7 +120,9 @@
               {/if}
             </svelte:fragment>
 
-            <span class="font-semibold text-gray-900 dark:text-white">{truncateTextByChars(data.attributes.title, 25)}</span>
+            <span class="font-semibold text-gray-900 dark:text-white"
+              >{truncateTextByChars(data.attributes.title, 25)}</span
+            >
             <div class="mb-2 text-sm font-normal">
               {truncateTextByChars(data.attributes.content, 100)}
             </div>
