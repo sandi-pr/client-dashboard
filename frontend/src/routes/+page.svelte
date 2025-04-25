@@ -1057,16 +1057,11 @@ All Rights Reserved
   {#each cardsArrays as cardArray, index}
     {#if cardArray.array.length > 0}
       <div class="flex flex-col gap-4">
-        <!-- <ButtonFlowbite
-          class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
-          color="none"
-          outline
-          on:click={() => (hiddenContent[index] = !hiddenContent[index])}
-        > -->
         <ButtonFlowbite
           class="p-0 pr-4 justify-between border-none focus:outline-none focus:ring-0"
           color="none"
           outline
+          on:click={() => (hiddenContent[index] = !hiddenContent[index])}
         >
           <Typography text={$_(cardArray.name)} preset="Text lg/Semibold" />
           {#if hiddenContent[index]}
@@ -1075,8 +1070,8 @@ All Rights Reserved
             <Icon name="chevronDown" />
           {/if}
         </ButtonFlowbite>
+        <Divider />
         {#if hiddenContent[index]}
-          <Divider />
           {#if cardArray.name === "aiAnalyzer"}
             {#if chartActionAi.length > 0}
               <ChartCard isLibrary chartAction={chartActionAi} chartList={dataChartAllAi} />
