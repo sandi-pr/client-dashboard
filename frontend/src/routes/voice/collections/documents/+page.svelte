@@ -1300,14 +1300,12 @@
         title === "Document Images" ||
         title === "Handwriting"
       );
-    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
-      return (
-        title === "My Handwriting"
-      );
+    } else if (
+      parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))
+    ) {
+      return title === "My Handwriting";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
-      return (
-        title === "My Voice"
-      )
+      return title === "My Voice";
     } else {
       return false;
     }
@@ -1710,7 +1708,7 @@
       <ArrowUpOutline class="w-6 h-6" />
     </button>
   {/if}
-  <div class="w-full pb-10">
+  <div class="w-full pb-10 min-h-[20rem]">
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->

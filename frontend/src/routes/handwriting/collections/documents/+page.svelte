@@ -23,11 +23,7 @@
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
-  import {
-    SearchOutline,
-    ExclamationCircleSolid,
-    ArrowUpOutline,
-  } from "flowbite-svelte-icons";
+  import { SearchOutline, ExclamationCircleSolid, ArrowUpOutline } from "flowbite-svelte-icons";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
@@ -38,7 +34,7 @@
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  
+
   let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
@@ -409,9 +405,9 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      if(groupedFiles != null) {
+      if (groupedFiles != null) {
         sendFolder();
-        return
+        return;
       }
 
       try {
@@ -488,7 +484,11 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
+                let statusAvailable = await checkLibraryName(
+                  newName.trim(),
+                  collectionId,
+                  "document",
+                );
 
                 if (statusAvailable === true) {
                   break;
@@ -523,7 +523,11 @@
             }
           }
 
-          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images" || tmpDocumentType === "Document Audio") {
+          if (
+            tmpDocumentType === "Handwriting" ||
+            tmpDocumentType === "Document Images" ||
+            tmpDocumentType === "Document Audio"
+          ) {
             console.log("ayam");
             if (files.length > 1) {
               await sendDocument();
@@ -542,7 +546,11 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
+              let statusAvailable = await checkLibraryName(
+                newName.trim(),
+                collectionId,
+                "document",
+              );
 
               if (statusAvailable === true) {
                 break;
@@ -735,7 +743,6 @@
 
     inputElement.addEventListener("change", async (event) => {
       if (isFolder) {
-
         // Buat Collection by Name Folder Dan Document
         groupedFiles = await groupFilesByPath(event.target.files);
         return;
@@ -774,7 +781,11 @@
           // console.log("cek files", files[0]);
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              collectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -796,7 +807,7 @@
   };
 
   //#FUNCTION UNTUK TRIGGERTOAST DARI RESPONSE
-  function triggerToastResponse (response) {
+  function triggerToastResponse(response) {
     if (response.status !== 200) {
       console.log(response);
       if (response.status === 400) {
@@ -814,7 +825,7 @@
       }
       return false;
     }
-    return true
+    return true;
   }
 
   async function readFileAsBase64(file) {
@@ -1299,14 +1310,12 @@
         title === "Document Images" ||
         title === "Handwriting"
       );
-    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
-      return (
-        title === "My Handwriting"
-      );
+    } else if (
+      parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))
+    ) {
+      return title === "My Handwriting";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
-      return (
-        title === "My Voice"
-      )
+      return title === "My Voice";
     } else {
       return false;
     }
@@ -1446,16 +1455,16 @@
       if (file && fileTypeRegex.test(file.name)) {
         const parts = file.webkitRelativePath.split("/");
         if (parts.length > 2) {
-          continue
+          continue;
         }
         const fileName = parts.pop();
         const base64Data = await readFileAsBase64(file);
 
         let folderKey = parts.slice(0, 1).join("/");
         if (!folderKey) folderKey = "root";
-        
+
         if (parts.length > 2) {
-          continue
+          continue;
         }
 
         if (!structure[folderKey]) {
@@ -1471,15 +1480,14 @@
           size: formatBytes(file.size),
           ext: "." + file.name.split(".").pop(),
           base64: base64Data,
-          type: tmpDocumentType
+          type: tmpDocumentType,
         };
 
         structure[folderKey][fileName] = fileObject;
       }
     }
 
-    return structure
-
+    return structure;
   }
 
   const checkNewName = async (name, parentId, type) => {
@@ -1497,27 +1505,27 @@
         index++;
       }
     }
-    
-    return newName;
-  }
 
-  async function sendFolder () {
+    return newName;
+  };
+
+  async function sendFolder() {
     triggerLoading(true);
-    var currentFolder = []
+    var currentFolder = [];
 
     for (var folder in groupedFiles) {
       var parent_id;
       var sub_folder;
       var main_folder;
 
-      if (folder.split('/').length > 1) {
-        main_folder = folder.split('/')[0].trim()
-        sub_folder = folder.split('/')[1].trim()
+      if (folder.split("/").length > 1) {
+        main_folder = folder.split("/")[0].trim();
+        sub_folder = folder.split("/")[1].trim();
 
         if (currentFolder.length) {
-          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder);
           if (finded) {
-            parent_id = finded.id
+            parent_id = finded.id;
           }
         }
       }
@@ -1526,42 +1534,41 @@
 
       dataSend = {
         collection_name: newName,
-        description: '',
+        description: "",
         parent_id: parseInt(collectionId),
       };
 
       if (sub_folder && parent_id) {
-        dataSend["collection_name"] = sub_folder
-        dataSend["parent_id"] = parseInt(parent_id)
+        dataSend["collection_name"] = sub_folder;
+        dataSend["parent_id"] = parseInt(parent_id);
       }
 
       let token = localStorage.getItem("token");
-      let res = await $call.call(
-          "client-dashboard", "create-library-collection", {
-              URLQuery: {},
-              URLParams: {},
-              Params: dataSend,
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-          });
+      let res = await $call.call("client-dashboard", "create-library-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: dataSend,
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-      let statusRes = triggerToastResponse(res)
+      let statusRes = triggerToastResponse(res);
       if (!statusRes) {
         triggerLoading(false);
-        return
+        return;
       }
 
-      currentFolder.push(res.result.data)
-      files = groupedFiles[folder]
+      currentFolder.push(res.result.data);
+      files = groupedFiles[folder];
 
       if (!parent_id && !sub_folder) {
-        parent_id = res.result.data.id
+        parent_id = res.result.data.id;
       }
 
       for (const doc in files) {
         if (sub_folder && parent_id) {
-          files[doc].id = parent_id
+          files[doc].id = parent_id;
         }
 
         let response3;
@@ -1583,7 +1590,7 @@
         let statusDetectedDoc = triggerToastResponse(response3);
         if (!statusDetectedDoc) {
           // triggerLoading(false);
-          return
+          return;
         }
 
         if (response3?.result?.text !== null) {
@@ -1592,7 +1599,11 @@
           let newName = originalName;
 
           for (let i = 0; i < index; i++) {
-            let statusAvailable = await checkLibraryName(newName.trim(), res.result.data.id, "document");
+            let statusAvailable = await checkLibraryName(
+              newName.trim(),
+              res.result.data.id,
+              "document",
+            );
 
             if (statusAvailable === true) {
               break;
@@ -1623,15 +1634,15 @@
           URLParams: {},
           Params: dataSend,
           Headers: {
-            Authorization: "Bearer " + token
+            Authorization: "Bearer " + token,
           },
         });
 
-        let statusResDoc = triggerToastResponse(resdoc)
+        let statusResDoc = triggerToastResponse(resdoc);
         if (!statusResDoc) {
           // triggerLoading(false);
           // addFolderModal = false;
-          return
+          return;
         }
       }
     }
@@ -1642,7 +1653,6 @@
     triggerLoading(false);
 
     triggerToast($_("succesfullyUploaded"), true);
-
   }
 
   onMount(() => {
@@ -1708,7 +1718,7 @@
       <ArrowUpOutline class="w-6 h-6" />
     </button>
   {/if}
-  <div class="w-full pb-10">
+  <div class="w-full pb-10 min-h-[20rem]">
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->
@@ -1833,7 +1843,11 @@
             {#if !checkTitle(collectionDatas.title)}
               {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
                 <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                  <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2.5">
+                  <Button
+                    on:click={() => (dropdownMore = !dropdownMore)}
+                    color="light"
+                    class="p-2.5"
+                  >
                     <DotsVerticalIcon
                       svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
                     />
@@ -2135,7 +2149,6 @@
   bind:files
   bind:buttonDisabled
   bind:groupedFiles
-
   {selectedTypeCollection}
   {alltags}
   {tags}
@@ -2147,8 +2160,7 @@
   {tmpDocumentDescription}
   {handleInput}
   {addDocumentByCollection}
-
-  isFolder = {true}
+  isFolder={true}
   actionDelete={() => (files = [])}
 />
 
@@ -2364,7 +2376,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, collectionId, 'collection')}
+        on:input={(event) => handleInput(event, collectionId, "collection")}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2393,7 +2405,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, collectionId, 'collection')}
+        on:input={(event) => handleInput(event, collectionId, "collection")}
         placeholder={$_("whatIsYourSubCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2488,11 +2500,7 @@
     {/if}
     {#if selectedFile.type === "Document Audio"}
       <div class="flex w-full flex-col gap-3 px-4 pb-1">
-        <Typography
-          preset="Text md/Semibold"
-          text="Audio Information"
-          color="secondary"
-        />
+        <Typography preset="Text md/Semibold" text="Audio Information" color="secondary" />
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
           <textarea
@@ -2529,7 +2537,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("libraryName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
         placeholder={$_("whatIsYourLibraryTitle")}
       />
       {#if !nameIsAvailable}

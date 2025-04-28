@@ -41,7 +41,7 @@
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from "svelte-multiselect";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  
+
   let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
@@ -101,30 +101,30 @@
   let csvListDatas = $state([
     {
       id: 1,
-      filename: 'user_1.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
-      type: 'CSV',
+      filename: "user_1.csv",
+      filesize: "200 KB",
+      fileext: "csv",
+      type: "CSV",
       checked: false,
-      createdAt: 'Jan 4, 2022',
+      createdAt: "Jan 4, 2022",
     },
     {
       id: 2,
-      filename: 'user_2.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
-      type: 'CSV',
+      filename: "user_2.csv",
+      filesize: "200 KB",
+      fileext: "csv",
+      type: "CSV",
       checked: false,
-      createdAt: 'Jan 4, 2022',
+      createdAt: "Jan 4, 2022",
     },
     {
       id: 3,
-      filename: 'user_3.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
-      type: 'CSV',
+      filename: "user_3.csv",
+      filesize: "200 KB",
+      fileext: "csv",
+      type: "CSV",
       checked: false,
-      createdAt: 'Jan 4, 2022',
+      createdAt: "Jan 4, 2022",
     },
   ]);
 
@@ -402,9 +402,7 @@
   }
 
   function deleteDataSources(id) {
-    subDataSources = subDataSources.filter(
-      (item) => item.collectionId !== id,
-    );
+    subDataSources = subDataSources.filter((item) => item.collectionId !== id);
     localStorage.setItem("subDataSources", JSON.stringify(subDataSources));
     deleteModal = false;
 
@@ -435,11 +433,11 @@
         filename: file.name,
         filesize: file.size,
         fileext: file.ext,
-        type: 'CSV',
+        type: "CSV",
         checked: false,
         createdAt: format(new Date(), "MMM d, yyyy"),
       })),
-    ]
+    ];
 
     localStorage.setItem("csvListDatas", JSON.stringify(csvListDatas));
 
@@ -559,9 +557,9 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      if(groupedFiles != null) {
+      if (groupedFiles != null) {
         sendFolder();
-        return
+        return;
       }
 
       try {
@@ -569,7 +567,6 @@
         triggerLoading(true);
 
         for (let i = 0; i < files.length; i++) {
-
           let index = 1;
           let originalName = files[i].name.split(".").slice(0, -1).join(".");
           let newName = originalName;
@@ -750,7 +747,6 @@
 
     inputElement.addEventListener("change", async (event) => {
       if (isFolder) {
-
         // Buat Collection by Name Folder Dan Document
         groupedFiles = await groupFilesByPath(event.target.files);
         return;
@@ -789,7 +785,11 @@
           // console.log("cek files", files[0]);
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              collectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -811,7 +811,7 @@
   };
 
   //#FUNCTION UNTUK TRIGGERTOAST DARI RESPONSE
-  function triggerToastResponse (response) {
+  function triggerToastResponse(response) {
     if (response.status !== 200) {
       console.log(response);
       if (response.status === 400) {
@@ -829,7 +829,7 @@
       }
       return false;
     }
-    return true
+    return true;
   }
 
   async function readFileAsBase64(file) {
@@ -1314,18 +1314,14 @@
         title === "Document Images" ||
         title === "Handwriting"
       );
-    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
-      return (
-        title === "My Handwriting"
-      );
+    } else if (
+      parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))
+    ) {
+      return title === "My Handwriting";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
-      return (
-        title === "My Voice"
-      )
+      return title === "My Voice";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "insights"))) {
-      return (
-        title === "My Data Source"
-      )
+      return title === "My Data Source";
     } else {
       return false;
     }
@@ -1464,16 +1460,16 @@
       if (file && fileTypeRegex.test(file.name)) {
         const parts = file.webkitRelativePath.split("/");
         if (parts.length > 2) {
-          continue
+          continue;
         }
         const fileName = parts.pop();
         const base64Data = await readFileAsBase64(file);
 
         let folderKey = parts.slice(0, 1).join("/");
         if (!folderKey) folderKey = "root";
-        
+
         if (parts.length > 2) {
-          continue
+          continue;
         }
 
         if (!structure[folderKey]) {
@@ -1489,15 +1485,14 @@
           size: formatBytes(file.size),
           ext: "." + file.name.split(".").pop(),
           base64: base64Data,
-          type: tmpDocumentType
+          type: tmpDocumentType,
         };
 
         structure[folderKey][fileName] = fileObject;
       }
     }
 
-    return structure
-
+    return structure;
   }
 
   const checkNewName = async (name, parentId, type) => {
@@ -1515,27 +1510,27 @@
         index++;
       }
     }
-    
-    return newName;
-  }
 
-  async function sendFolder () {
+    return newName;
+  };
+
+  async function sendFolder() {
     triggerLoading(true);
-    var currentFolder = []
+    var currentFolder = [];
 
     for (var folder in groupedFiles) {
       var parent_id;
       var sub_folder;
       var main_folder;
 
-      if (folder.split('/').length > 1) {
-        main_folder = folder.split('/')[0].trim()
-        sub_folder = folder.split('/')[1].trim()
+      if (folder.split("/").length > 1) {
+        main_folder = folder.split("/")[0].trim();
+        sub_folder = folder.split("/")[1].trim();
 
         if (currentFolder.length) {
-          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder);
           if (finded) {
-            parent_id = finded.id
+            parent_id = finded.id;
           }
         }
       }
@@ -1544,42 +1539,41 @@
 
       dataSend = {
         collection_name: newName,
-        description: '',
+        description: "",
         parent_id: parseInt(collectionId),
       };
 
       if (sub_folder && parent_id) {
-        dataSend["collection_name"] = sub_folder
-        dataSend["parent_id"] = parseInt(parent_id)
+        dataSend["collection_name"] = sub_folder;
+        dataSend["parent_id"] = parseInt(parent_id);
       }
 
       let token = localStorage.getItem("token");
-      let res = await $call.call(
-          "client-dashboard", "create-library-collection", {
-              URLQuery: {},
-              URLParams: {},
-              Params: dataSend,
-              Headers: {
-                Authorization: "Bearer " + token,
-              },
-          });
+      let res = await $call.call("client-dashboard", "create-library-collection", {
+        URLQuery: {},
+        URLParams: {},
+        Params: dataSend,
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-      let statusRes = triggerToastResponse(res)
+      let statusRes = triggerToastResponse(res);
       if (!statusRes) {
         triggerLoading(false);
-        return
+        return;
       }
 
-      currentFolder.push(res.result.data)
-      files = groupedFiles[folder]
+      currentFolder.push(res.result.data);
+      files = groupedFiles[folder];
 
       if (!parent_id && !sub_folder) {
-        parent_id = res.result.data.id
+        parent_id = res.result.data.id;
       }
 
       for (const doc in files) {
         if (sub_folder && parent_id) {
-          files[doc].id = parent_id
+          files[doc].id = parent_id;
         }
 
         let index = 1;
@@ -1587,7 +1581,11 @@
         let newName = originalName;
 
         for (let i = 0; i < index; i++) {
-          let statusAvailable = await checkLibraryName(newName.trim(), res.result.data.id, "document");
+          let statusAvailable = await checkLibraryName(
+            newName.trim(),
+            res.result.data.id,
+            "document",
+          );
 
           if (statusAvailable === true) {
             break;
@@ -1615,15 +1613,15 @@
           URLParams: {},
           Params: dataSend,
           Headers: {
-            Authorization: "Bearer " + token
+            Authorization: "Bearer " + token,
           },
         });
 
-        let statusResDoc = triggerToastResponse(resdoc)
+        let statusResDoc = triggerToastResponse(resdoc);
         if (!statusResDoc) {
           // triggerLoading(false);
           // addFolderModal = false;
-          return
+          return;
         }
       }
     }
@@ -1634,7 +1632,6 @@
     triggerLoading(false);
 
     triggerToast($_("succesfullyUploaded"), true);
-
   }
 
   onMount(() => {
@@ -1662,7 +1659,7 @@
 
     // subDataSources = JSON.parse(localStorage.getItem("subDataSources")) || [];
     // csvListDatas = JSON.parse(localStorage.getItem("csvListDatas")) || [];
-    
+
     // collectionDatas.title = $page.url.searchParams.get("collectionName");
 
     checkMobileView();
@@ -1705,7 +1702,7 @@
       <ArrowUpOutline class="w-6 h-6" />
     </button>
   {/if}
-  <div class="w-full pb-10">
+  <div class="w-full pb-10 min-h-[20rem]">
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->
@@ -1746,7 +1743,9 @@
                 class="p-2 md:px-3 md:py-2 gap-2 text-error-primary-light dark:text-error-primary-dark border-button-secondary-light dark:border-button-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
                 outline
               >
-                <Trash01Icon svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark" />
+                <Trash01Icon
+                  svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark"
+                />
                 <div class="hidden md:block">{$_("delete")}</div>
               </Button>
               <!-- <Button
@@ -1830,7 +1829,11 @@
             {#if !checkTitle(collectionDatas.title)}
               {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
                 <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                  <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2.5">
+                  <Button
+                    on:click={() => (dropdownMore = !dropdownMore)}
+                    color="light"
+                    class="p-2.5"
+                  >
                     <DotsVerticalIcon
                       svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
                     />
@@ -2175,7 +2178,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, collectionId, 'collection')}
+        on:input={(event) => handleInput(event, collectionId, "collection")}
         placeholder={$_("whatIsYourSubCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2204,7 +2207,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("subCollectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, collectionId, 'collection')}
+        on:input={(event) => handleInput(event, collectionId, "collection")}
         placeholder={$_("whatIsYourSubCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -2299,11 +2302,7 @@
     {/if}
     {#if selectedFile.type === "Document Audio"}
       <div class="flex w-full flex-col gap-3 px-4 pb-1">
-        <Typography
-          preset="Text md/Semibold"
-          text="Audio Information"
-          color="secondary"
-        />
+        <Typography preset="Text md/Semibold" text="Audio Information" color="secondary" />
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
           <textarea
@@ -2340,7 +2339,7 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}

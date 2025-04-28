@@ -1632,7 +1632,7 @@
       <ArrowUpOutline class="w-6 h-6" />
     </button>
   {/if}
-  <div class="w-full pb-10">
+  <div class="w-full pb-10 min-h-[20rem]">
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->
