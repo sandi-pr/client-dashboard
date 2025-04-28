@@ -21,7 +21,7 @@
     toCamelCase,
   } from "$lib";
   import { goto } from "$app/navigation";
-  import { CR3Call } from "hexacomponents-svelte";
+  // import { CR3Call } from "hexacomponents-svelte";
   import {
     Search,
     Button,
@@ -32,7 +32,7 @@
     SidebarDropdownWrapper,
     SidebarDropdownItem,
     DarkMode,
-    SidebarItem,
+    // SidebarItem,
   } from "flowbite-svelte";
   import {
     CogOutline,
@@ -47,8 +47,9 @@
   import SidebarOpenIcon from "$lib/icon/sidebar-open.svelte";
   import { onMount } from "svelte";
   import Divider from "$lib/components/Divider.svelte";
-  import Me from "$lib/utils/me";
+  // import Me from "$lib/utils/me";
   import { _ } from "svelte-i18n";
+  import { call } from "$lib";
 
   let {
     getModule,
@@ -58,21 +59,20 @@
     logoUrl = $bindable(""),
     isHidden = true,
     isFrontend = $bindable(false),
-    funcButton,
+    // funcButton,
     logout,
     innerWidth = 0,
   } = $props();
 
   let sidebarItems = $state([]);
   let dropdownUser = $state(false);
-  let dropdownManage = $state(false);
+  // let dropdownManage = $state(false);
   let isOpen = $state({});
   let isOpenOld = $state({});
-
   let hrefUser = $state("");
   let hrefJobLevels = $state("");
 
-  import { call } from "$lib";
+  let activeUrl = $derived($page.url.pathname);
 
   const sidebarBuilder = async () => {
     let moduleClient = await getModule();
@@ -92,15 +92,13 @@
     return sidebarHalf;
   };
 
-  let activeUrl = $derived($page.url.pathname);
-
   const handleLogout = () => {
     logout();
   };
 
-  const changeSidbar = () => {
+  const changeSidebar = () => {
     toggleSidebarLargeClosed(!$sidebarLargeClosed);
-    console.log($sidebarLargeClosed);
+    // console.log($sidebarLargeClosed);
     localStorage.setItem("sidebarLargeClosed", $sidebarLargeClosed ? "true" : "false");
   };
 
@@ -158,7 +156,7 @@
             {#if !(innerWidth < 1024)}
               <button
                 onclick={() => {
-                  changeSidbar();
+                  changeSidebar();
                 }}
               >
                 <SidebarCloseIcon
@@ -176,7 +174,7 @@
             {#if !(innerWidth < 1024)}
               <button
                 onclick={() => {
-                  changeSidbar();
+                  changeSidebar();
                 }}
                 class="fixed left-16 z-50 overflow-visible"
               >
@@ -198,8 +196,13 @@
         </div>
         <div class="hidden md:flex pb-4">
           <Search
+            on:click={() => {
+              if ($sidebarLargeClosed) {
+                changeSidebar();
+              }
+            }}
             placeholder={$_("search")}
-            class={`bg-white dark:bg-primary-dark ${sidebarLargeClosed ? "px-0" : ""}`}
+            class={`bg-white dark:bg-primary-dark ${$sidebarLargeClosed ? "px-0" : ""}`}
           />
         </div>
       </div>
