@@ -1,7 +1,7 @@
-<!-- 
+<!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
   - Taqie Fadlillah <taqief@hexacode.org>
@@ -41,7 +41,7 @@ All Rights Reserved
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import ExampleAudio from "$lib/components/strauss.mp3";
-  import MultiSelect from 'svelte-multiselect';
+  import MultiSelect from "svelte-multiselect";
 
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
@@ -129,7 +129,7 @@ All Rights Reserved
           }
           goto(
             (await $call.getPage("client-dashboard", "handwriting-sub-documents")) +
-                    `?collectionId=${collectionId}&libraryId=${libraryId}`
+              `?collectionId=${collectionId}&libraryId=${libraryId}`,
           );
           return;
         }
@@ -420,7 +420,7 @@ All Rights Reserved
         // setTimeout(async () => {
         goto(
           (await $call.getPage("client-dashboard", "handwriting-sub-documents")) +
-                  `?collectionId=${collectionId}&libraryId=${libraryId}`
+            `?collectionId=${collectionId}&libraryId=${libraryId}`,
         );
         // }, 3000);
         return;
@@ -795,11 +795,16 @@ All Rights Reserved
       documentId = $page.url.searchParams.get("documentId");
       libraryId = $page.url.searchParams.get("libraryId");
       subCollectionId = $page.url.searchParams.get("subCollectionId");
-      if (documentId === null || documentId === undefined || libraryId === null || libraryId === undefined) {
+      if (
+        documentId === null ||
+        documentId === undefined ||
+        libraryId === null ||
+        libraryId === undefined
+      ) {
         triggerToast("error");
         goto(
           (await $call.getPage("client-dashboard", "handwriting-sub-documents")) +
-                  `?collectionId=${collectionId}&libraryId=${libraryId}`
+            `?collectionId=${collectionId}&libraryId=${libraryId}`,
         );
         return;
       }
@@ -839,7 +844,9 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{globalThis.innerWidth < 768 ? truncateText(tmpData.document_title || "", 2) : tmpData.document_title}
+              >{globalThis.innerWidth < 768
+                ? truncateText(tmpData.document_title || "", 2)
+                : tmpData.document_title}
               <!-- <Button
                 outline
                 color="red"
@@ -889,7 +896,7 @@ All Rights Reserved
                 triggerLoading(false);
                 goto(
                   (await $call.getPage("client-dashboard", "handwriting-sub-documents")) +
-                          `?collectionId=${collectionId}&libraryId=${libraryId}`
+                    `?collectionId=${collectionId}&libraryId=${libraryId}`,
                 );
                 return;
               }}
@@ -955,21 +962,20 @@ All Rights Reserved
                 <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
                 <MultiSelect
                   --sms-min-height="40px"
-                  options={alltags || []} 
+                  options={alltags || []}
                   disabled={!onEdit}
                   allowUserOptions="append"
                   bind:selected={tags}
                   autoScroll={true}
                   noMatchingOptionsMsg=""
                   createOptionMsg={null}
+                  outerDivClass="bg-primary-light dark:bg-secondary-dark border-primary-light dark:border-primary-dark text-primary-light dark:text-primary-dark rounded-lg"
+                  liOptionClass="bg-primary-light dark:bg-secondary-dark hover:bg-secondary-light hover:dark:bg-primary-dark text-primary-light dark:text-primary-dark"
+                  liSelectedClass="bg-tertiary-light dark:bg-primary-dark"
                 />
               </div>
               <div class="flex flex-col gap-1.5">
-                <Typography
-                  preset="Text sm/medium"
-                  color="secondary"
-                  text={$_("uploadBy")}
-                />
+                <Typography preset="Text sm/medium" color="secondary" text={$_("uploadBy")} />
                 <InputRw onEdit={false} bind:value={uploadBy} />
               </div>
             </div>
