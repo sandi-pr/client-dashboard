@@ -30,7 +30,7 @@
   import MP3SolidIcon from "$lib/icon/MP3Solid.svg";
   import CSVIcon from "$lib/icon/csv.svg";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   export let collectionListDatas;
   export let pagination;
@@ -56,30 +56,36 @@
     dropdownActionOpen = dropdownActionOpen.map((item) => false);
   };
 
-  // const filesizePostprocessing = (filesize) => {
-  //   let size = filesize;
-  //   let unit = "B";
-  //   if (size >= 1024) {
-  //     size = size / 1024;
-  //     unit = "KB";
-  //   }
-  //   if (size >= 1024) {
-  //     size = size / 1024;
-  //     unit = "MB";
-  //   }
-  //   if (size >= 1024) {
-  //     size = size / 1024;
-  //     unit = "GB";
-  //   }
-  //   return `${size.toFixed(2)} ${unit}`;
-  // };
+  const handleDocumentClick = (event) => {
+    const dropdownElements = document.querySelectorAll(".dropdown-container");
+    let clickedInside = false;
 
-  // console.log(collectionListDatas);
+    dropdownElements.forEach((dropdown) => {
+      if (dropdown.contains(event.target)) {
+        clickedInside = true;
+      }
+    });
+
+    if (!clickedInside) {
+      dropdownActionOpen = dropdownActionOpen.map(() => false);
+    }
+  };
+
+  const toggleDropdown = (index) => {
+    dropdownActionOpen = dropdownActionOpen.map((_, i) =>
+      i === index ? !dropdownActionOpen[i] : false,
+    );
+  };
 
   onMount(() => {
     for (const data of collectionListDatas) {
       dropdownActionOpen.push(false);
     }
+    document.addEventListener("click", handleDocumentClick);
+  });
+
+  onDestroy(() => {
+    document.removeEventListener("click", handleDocumentClick);
   });
 </script>
 
@@ -140,7 +146,7 @@
               {:else if collectionListData.fileext === "csv" || collectionListData.fileext === ".csv"}
                 <img src={CSVIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {:else if collectionListData.fileext === "mp3"}
-                <img src={MP3SolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10"/>
+                <img src={MP3SolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {/if}
               <P class="line-clamp-2 fluid-sm font-semibold">{collectionListData.filename}</P>
             </div>
@@ -206,16 +212,20 @@
             {#if check("documentAi.documentLibrary.document:delete")}
               <div class=" flex items-center relative">
                 <Button
-                  on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
+                  on:click={(event) => {
+                    event.stopPropagation(); // Prevent the click from propagating to the document
+                    toggleDropdown(index); // Toggle the dropdown for the current row
+                  }}
                   class="focus-within:ring-0 !p-0"
                   color="none"
                   size="xs"
-                  ><DotsVerticalIcon
-                    class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                  /></Button
                 >
+                  <DotsVerticalIcon class="text-fg-quinary-light dark:text-fg-quinary-dark" />
+                </Button>
                 <div
-                  class={`z-10 ${dropdownActionOpen[index] ? "absolute -top-4 right-12" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+                  class={`z-10 ${dropdownActionOpen[index] ? "absolute -top-4 right-12" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700 dropdown-container`}
+                  tabindex="0"
+                  on:focusout={handleDropdownFocusLoss}
                 >
                   <ul class="py-2 grow text-sm">
                     <button
