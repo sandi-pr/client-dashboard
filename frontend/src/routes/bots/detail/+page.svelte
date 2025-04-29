@@ -1470,7 +1470,7 @@
 <!-- <LoadingSpinner {isLoading} /> -->
 {#if ready}
   <div class="m-4 pb-12">
-    <div class="sticky top-0 bg-primary-light dark:bg-primary-dark z-10">
+    <div class="sticky top-0 bg-primary-light dark:bg-primary-dark">
       <div class="flex justify-between items-center">
         <div class="flex items-center ms-4">
           <Avatar
