@@ -572,15 +572,15 @@ const config = {
           blue: {
             50: {
               light: "#F0F9FF",
-              dark: "#F0F9FF",
+              dark: "#0A223D", // Updated dark version
             },
             200: {
               light: "#B9E6FE",
-              dark: "#B9E6FE",
+              dark: "#084C75", // Updated dark version
             },
             700: {
               light: "#026AA2",
-              dark: "#026AA2",
+              dark: "#B9E6FE", // Updated dark version
             },
           },
           orange: {
