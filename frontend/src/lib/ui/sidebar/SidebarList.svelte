@@ -102,6 +102,12 @@
     localStorage.setItem("sidebarLargeClosed", $sidebarLargeClosed ? "true" : "false");
   };
 
+  const handleDropdownFocusLoss = (event) => {
+    if (!event.target.closest(".dropdown-container")) {
+      dropdownUser = false;
+    }
+  };
+
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
 
@@ -121,6 +127,11 @@
       }
       sessionStorage.setItem("isOpen", JSON.stringify(isOpen));
     }
+
+    document.addEventListener("click", handleDropdownFocusLoss);
+    return () => {
+      document.removeEventListener("click", handleDropdownFocusLoss);
+    };
   });
 
   $effect(() => {
@@ -275,7 +286,7 @@
       {/if}
     </SidebarGroup>
     <div class="fixed bottom-0 pb-8 bg-primary-light dark:bg-primary-dark">
-      <div class="relative">
+      <div class="relative dropdown-container">
         <div
           class={`z-10 ${dropdownUser ? "fixed" : "hidden"} bottom-16 p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
         >
@@ -291,7 +302,7 @@
               <Button
                 on:click={handleLogout}
                 color="light"
-                class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-secondary-light dark:hover:bg-secondary-dark"
+                class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-secondary-light dark:hover:bg-gray-700"
               >
                 <ArrowRightToBracketOutline
                   class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -368,7 +379,7 @@
                 </div>
                 <Button
                   color="light"
-                  class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-primary-light dark:hover:bg-primary-dark"
+                  class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-primary-light dark:hover:bg-secondary-dark"
                 >
                   {#if dropdownUser}
                     <ChevronUpOutline
