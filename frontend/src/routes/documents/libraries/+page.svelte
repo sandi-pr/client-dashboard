@@ -37,6 +37,7 @@ All Rights Reserved
   import upload from "$lib/icon/upload-cloud-02.svg";
   import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
+  import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
 
   import {
     triggerSelectCollection,
@@ -527,6 +528,8 @@ All Rights Reserved
               propClass="fluid-xl"
             />
             <Button
+              outline
+              class="min-w-max gap-1.5"
               disabled={!check("documentAi.documentLibrary:create")}
               on:click={() => {
                 addLibraryModal = true;
@@ -535,9 +538,8 @@ All Rights Reserved
                 tmpCollectionName = "";
                 tmpDescription = "";
               }}
-              class="p-2 md:px-3 md:py-2"
             >
-              <img class="w-4 h-4 md:me-1" src={PlusIcon} alt="plus-icon" />
+              <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("addNew")}</div>
             </Button>
           </div>

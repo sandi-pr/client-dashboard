@@ -1764,7 +1764,7 @@
               </Button> -->
             {/if}
             <Button
-              color="light"
+              outline
               class="min-w-max gap-1.5"
               disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={() => (dropdownUpload = !dropdownUpload)}

@@ -931,8 +931,8 @@
 
           <div class="flex relative gap-3" onfocusout={handleDropdownFocusLoss}>
             <Button
-              color="primary"
-              class="w-fit gap-1.5 ms-14"
+              outline
+              class="min-w-max gap-1.5"
               disabled={!check("documentAi.documentLibrary.collection:create")}
               on:click={() => (dropdownUpload = !dropdownUpload)}
             >
