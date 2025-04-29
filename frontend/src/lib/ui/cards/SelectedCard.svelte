@@ -14,7 +14,7 @@
     spacing = "",
     widgetIndicator,
     disabled = false,
-    flexWrap = false,
+    iconIsComponent = false,
   }: {
     selectionData: any;
     selectedData?: any;
@@ -25,7 +25,7 @@
     spacing?: any;
     widgetIndicator?: any;
     disabled?: any;
-    flexWrap?: any;
+    iconIsComponent?: any;
   } = $props();
   const selectData = (id: any) => {
     selectedData = id;
@@ -49,10 +49,13 @@
     >
       <div class="flex items-center gap-4">
         {#if data.icon}
-          <!-- <data.icon
-            svgClass={`w-7 h-7 ${selectedData === data.id ? "text-fg-brand-primary-light dark:text-fg-brand-primary-dark" : "text-utility-gray-500-light dark:text-utility-gray-500-dark"}`}
-          /> -->
-          <FeaturedIcon classesSvg={getIcons(data.icon)} />
+          {#if iconIsComponent}
+            <data.icon
+              svgClass={`w-7 h-7 ${selectedData === data.id ? "text-fg-brand-primary-light dark:text-fg-brand-primary-dark" : "text-utility-gray-500-light dark:text-utility-gray-500-dark"}`}
+            />
+          {:else}
+            <FeaturedIcon classesSvg={getIcons(data.icon)} />
+          {/if}
         {/if}
         {#if widgetIndicator}
           <widgetIndicator color={data.value} size="lg"> </widgetIndicator>

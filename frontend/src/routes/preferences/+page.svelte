@@ -13,7 +13,15 @@
 <script>
   import { onMount } from "svelte";
   import { P, Input, Avatar, Button, Select, Indicator, Modal } from "flowbite-svelte";
-  import { SelectedCard, StateCard, InformationForm, Typography, triggerToast, InputRw, Dropdown } from "$lib";
+  import {
+    SelectedCard,
+    StateCard,
+    InformationForm,
+    Typography,
+    triggerToast,
+    InputRw,
+    Dropdown,
+  } from "$lib";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
   import { SearchOutline } from "flowbite-svelte-icons";
@@ -123,17 +131,17 @@
     {
       id: 1,
       title: "chooseBackupMethod",
-      desc: "externalSourcesToConnect"
+      desc: "externalSourcesToConnect",
     },
     {
       id: 2,
       title: "chooseSources",
-      desc: "chooseExternalDrive"
+      desc: "chooseExternalDrive",
     },
     {
       id: 3,
       title: "startBackUp",
-      desc: "insertLinkOrUploadFile"
+      desc: "insertLinkOrUploadFile",
     },
   ];
 
@@ -141,17 +149,17 @@
     {
       id: 1,
       title: "chooseRestoreMethod",
-      desc: "externalSourcesToConnect"
+      desc: "externalSourcesToConnect",
     },
     {
       id: 2,
       title: "chooseSources",
-      desc: "chooseExternalDrive"
+      desc: "chooseExternalDrive",
     },
     {
       id: 3,
       title: "startRestore",
-      desc: "insertLinkOrUploadFile"
+      desc: "insertLinkOrUploadFile",
     },
   ];
 
@@ -276,7 +284,7 @@
   };
 
   function getNameById(sources, id) {
-    return sources.find(source => source.id === id).name;
+    return sources.find((source) => source.id === id).name;
   }
 
   function handleDragOver(event) {
@@ -915,6 +923,7 @@
               bind:selectedData={selectedCompanyType}
               numGrid={2}
               isRadio
+              iconIsComponent={true}
             />
             <div class="pt-4 pb-4 border-b border-secondary-light dark:border-secondary-dark">
               <Typography preset="Text lg/Semibold" text={$_("industryType")} />
@@ -927,6 +936,7 @@
               isFlex
               isRadio
               widthFlex="w-max"
+              iconIsComponent={true}
             />
           </div>
           <div class="flex w-full justify-end">
@@ -1081,13 +1091,18 @@
               <div class="col-span-3 flex flex-col gap-3">
                 <div class="flex flex-col gap-1">
                   <Typography preset="Text sm/Semibold" text={$_("lastBackup")} />
-                  <Typography preset="Text sm/Reguler" text="Wednesday, January 3, 2025, at 2:37 PM" />
+                  <Typography
+                    preset="Text sm/Reguler"
+                    text="Wednesday, January 3, 2025, at 2:37 PM"
+                  />
                 </div>
                 <div class="flex flex-col gap-1">
                   <Typography preset="Text sm/Semibold" text={$_("lastBackupSize")} />
                   <Typography preset="Text sm/Reguler" text="3,4 GB" />
                 </div>
-                <Button on:click={() => (modalBackup = true)} color="light" class="w-max">{$_("backUp")}</Button>
+                <Button on:click={() => (modalBackup = true)} color="light" class="w-max"
+                  >{$_("backUp")}</Button
+                >
                 <Typography preset="Text xs/Regular" text={$_("backupDesc")} />
               </div>
             </div>
@@ -1098,7 +1113,9 @@
                 <Typography preset="Text lg/Semibold" text={$_("restore")} />
               </div>
               <div class="col-span-3 flex flex-col gap-3">
-                <Button on:click={() => (modalRestore = true)} color="light" class="w-max">{$_("restoreData")}</Button>
+                <Button on:click={() => (modalRestore = true)} color="light" class="w-max"
+                  >{$_("restoreData")}</Button
+                >
                 <Typography preset="Text xs/Regular" text={$_("restoreDesc")} />
               </div>
             </div>
@@ -1114,7 +1131,12 @@
               <div class="col-span-3 flex w-full">
                 <div class="col-span-4">
                   <label class="inline-flex gap-3 items-center cursor-pointer">
-                    <input type="checkbox" value="" class="hidden peer" bind:checked={enableInsights} />
+                    <input
+                      type="checkbox"
+                      value=""
+                      class="hidden peer"
+                      bind:checked={enableInsights}
+                    />
                     <div
                       class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
                     ></div>
@@ -1433,13 +1455,19 @@
 <Modal bind:open={popupModal} size="xs" autoclose>
   <svelte:fragment slot="header">
     <div class="flex gap-3 items-center">
-      <Avatar size="sm" border class="!ring-0 !m-0 bg-hc-success-100 dark:bg-hc-success-600 !p-2 !h-10 !w-10">
-        <CheckCircle svgClass="w-5 h-5 text-fg-success-primary-light dark:text-fg-success-alt-dark" />
+      <Avatar
+        size="sm"
+        border
+        class="!ring-0 !m-0 bg-hc-success-100 dark:bg-hc-success-600 !p-2 !h-10 !w-10"
+      >
+        <CheckCircle
+          svgClass="w-5 h-5 text-fg-success-primary-light dark:text-fg-success-alt-dark"
+        />
       </Avatar>
       {#if isBackup}
-      <Typography preset="Text lg/Semibold" text={$_("backupInProgress")} />
-      {:else} 
-      <Typography preset="Text lg/Semibold" text={$_("restoreInProgress")} />
+        <Typography preset="Text lg/Semibold" text={$_("backupInProgress")} />
+      {:else}
+        <Typography preset="Text lg/Semibold" text={$_("restoreInProgress")} />
       {/if}
     </div>
   </svelte:fragment>
