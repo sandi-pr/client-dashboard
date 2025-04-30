@@ -25,13 +25,10 @@
 
   onMount(() => {
     console.log("bot", bot);
-  })
+  });
 </script>
 
-<Card
-  padding="none"
-  class="relative shadow-none grow w-full {config?.cardFullLength ? 'max-w-none' : ''}"
->
+<Card padding="none" class="relative shadow-none grow w-full max-w-none">
   {#if bot.deployStatus === "Reading"}
     <div class="absolute top-2 right-2">
       <Badge type="warning" text={bot.deployStatus} />

@@ -620,7 +620,6 @@
             detail: true,
             detailView: true,
             detailTry: true,
-            cardFullLength: true,
             isLlm: true,
           }}
           {handleDropdownFocusLoss}
