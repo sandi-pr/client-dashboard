@@ -136,7 +136,7 @@ All Rights Reserved
       icon: "data",
       title: "finetunings",
       description: "descFinetunings",
-      page: "datasets",
+      page: "finetunings",
     },
   ];
 
@@ -219,7 +219,7 @@ All Rights Reserved
           icon: "data",
           title: "finetunings",
           description: "descFinetunings",
-          page: "datasets",
+          page: "finetunings",
         }
       : false,
   ].filter(Boolean);

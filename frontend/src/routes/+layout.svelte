@@ -411,7 +411,9 @@ All Rights Reserved
           {
             icon: "data",
             name: "finetuning",
-            href: isFrontend ? "/finetunings" : await call.getPage("client-dashboard", "datasets"),
+            href: isFrontend
+              ? "/finetunings"
+              : await call.getPage("client-dashboard", "finetunings"),
           },
         ],
       },
