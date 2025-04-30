@@ -311,6 +311,7 @@
             </div>
             <SidebarDropdownWrapper
               spanClass="flex-1 ms-0 text-left whitespace-nowrap"
+              class="hover:bg-secondary-light dark:hover:bg-secondary-dark mt-2"
               label={$_("manage")}
             >
               <svelte:fragment slot="icon">
@@ -321,7 +322,7 @@
                   dropdownUser = !dropdownUser;
                 }}
                 href={hrefUser}
-                class="!ps-14"
+                class="!ps-14 hover:bg-secondary-light dark:hover:bg-secondary-dark"
                 label={$_("users")}
               />
             </SidebarDropdownWrapper>
