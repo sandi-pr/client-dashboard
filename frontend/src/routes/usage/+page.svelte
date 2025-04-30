@@ -1,7 +1,9 @@
 <script>
   import { Chart, Search } from "flowbite-svelte";
+  import { _ } from "svelte-i18n";
   import TabBar from "$lib/components/TabBar.svelte";
   import { Typography } from "$lib";
+  import { toCamelCase } from "$lib";
 
   let tabDatas = $state({
     selected: "CPU",
@@ -20,6 +22,25 @@
       },
     ],
   });
+
+  let titleList = [
+    {
+      name: "CPU",
+      value: "CPU Intel Core i7-12700K @ 3.60GHz",
+    },
+    {
+      name: "Memory",
+      value: "Memory DDR4 16GB",
+    },
+    {
+      name: "Disk",
+      value: "Disk SSD 500GB",
+    },
+    {
+      name: "GPU",
+      value: "GPU NVIDIA GeForce RTX 3060 Ti",
+    },
+  ];
 
   let realTimeDatasCPU = [
     {
@@ -290,14 +311,14 @@
     },
     series: [
       {
-        name: "Utilization",
+        name: $_(toCamelCase("Utilization")),
         data: optionData,
         color: optionColor,
       },
     ],
     xaxis: {
       title: {
-        text: "Real Time (m)",
+        text: $_(toCamelCase("Real Time")) + " (m)",
       },
       categories: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
       labels: {
@@ -313,7 +334,7 @@
     yaxis: {
       show: true,
       title: {
-        text: "Utilization (%)",
+        text: $_(toCamelCase("Utilization")) + " (%)",
       },
     },
   });
@@ -356,39 +377,63 @@
   {#if tabDatas.selected}
     <Typography
       preset="Text sm/Semibold"
-      text="CPU Intel Core i7-12700K @ 3.60GHz"
+      text={titleList.find((item) => item.name === tabDatas.selected).value}
       propClass="mt-8 mb-4"
     />
     <div class="md:max-w-[75%]">
       <Chart {options} />
     </div>
-    <Typography preset="Text xs/Medium" text="Real Time Information" propClass="mt-8 mb-4" />
+    <Typography
+      preset="Text xs/Medium"
+      text={$_(toCamelCase("Real Time Information"))}
+      propClass="mt-8 mb-4"
+    />
     <div class="flex flex-wrap gap-6">
       {#if realTimeDatas.length === 0}
         <div class="flex flex-col">
-          <Typography preset="Text sm/Medium" text="No data available" color="quarterary" />
-          <Typography preset="Text lg/Semibold" text="Try again later" />
+          <Typography
+            preset="Text sm/Medium"
+            text={$_(toCamelCase("No data available"))}
+            color="quarterary"
+          />
+          <Typography preset="Text lg/Semibold" text={$_(toCamelCase("Try again later"))} />
         </div>
       {:else}
         {#each realTimeDatas as data}
           <div class="flex flex-col">
-            <Typography preset="Text sm/Medium" text={data.name} color="quarterary" />
+            <Typography
+              preset="Text sm/Medium"
+              text={$_(toCamelCase(data.name))}
+              color="quarterary"
+            />
             <Typography preset="Text lg/Semibold" text={data.value} />
           </div>
         {/each}
       {/if}
     </div>
-    <Typography preset="Text xs/Medium" text="General Information" propClass="mt-8 mb-4" />
+    <Typography
+      preset="Text xs/Medium"
+      text={$_(toCamelCase("General Information"))}
+      propClass="mt-8 mb-4"
+    />
     <div class="md:max-w-[50%]">
       {#if generalDatas.length === 0}
         <div class="flex flex-col">
-          <Typography preset="Text sm/Medium" text="No data available" color="quarterary" />
-          <Typography preset="Text lg/Semibold" text="Try again later" />
+          <Typography
+            preset="Text sm/Medium"
+            text={$_(toCamelCase("No data available"))}
+            color="quarterary"
+          />
+          <Typography preset="Text lg/Semibold" text={$_(toCamelCase("Try again later"))} />
         </div>
       {:else}
         {#each generalDatas as data}
           <div class="w-full flex justify-between">
-            <Typography preset="Text sm/Medium" text={data.name} color="quarterary" />
+            <Typography
+              preset="Text sm/Medium"
+              text={$_(toCamelCase(data.name))}
+              color="quarterary"
+            />
             <Typography preset="Text sm/Semibold" text={data.value} color="secondary" />
           </div>
         {/each}
