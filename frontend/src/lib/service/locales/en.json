@@ -1091,5 +1091,10 @@
   "driverDate": "Driver Date",
   "directXVersion": "DirectX Version",
   "physicalAllocation": "Physical Allocation",
-  "hardwareReservedMemory": "Hardware Reserved Memory"
+  "hardwareReservedMemory": "Hardware Reserved Memory",
+  "createNewFinetunings": "Create New Finetunings",
+  "viewFinetunings": "View Finetunings",
+  "editFinetuningsInformation": "Edit Finetunings Information",
+  "deleteFinetunings": "Delete Finetunings",
+  "processFinetunings": "Process Finetunings"
 }

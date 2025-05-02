@@ -1091,5 +1091,10 @@
   "driverDate": "Tanggal Driver",
   "directXVersion": "Versi DirectX",
   "physicalAllocation": "Alokasi Fisik",
-  "hardwareReservedMemory": "Memori Cadangan Perangkat Keras"
+  "hardwareReservedMemory": "Memori Cadangan Perangkat Keras",
+  "createNewFinetunings": "Buat Finetuning Baru",
+  "viewFinetunings": "Lihat Finetuning",
+  "editFinetuningsInformation": "Rubah Informasi Finetuning",
+  "deleteFinetunings": "Hapus Finetuning",
+  "processFinetunings": "Proses Finetuning"
 }
