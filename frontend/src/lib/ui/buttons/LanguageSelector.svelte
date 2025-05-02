@@ -18,9 +18,9 @@
   };
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return 
-    dropdownOpen = false
-  }
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
 
   // const handleChangeLanguage = (evt: any, lang: string) => {
   //   evt.preventDefault();
@@ -31,7 +31,12 @@
 </script>
 
 <div onfocusout={handleDropdownFocusLoss} class="relative">
-  <Button color="light" on:click={() => (dropdownOpen = !dropdownOpen)} id="dropdownDefaultButton" class={`py-2 w-full justify-between gap-1 px-2.5 md:px-3`}>
+  <Button
+    color="light"
+    on:click={() => (dropdownOpen = !dropdownOpen)}
+    id="dropdownDefaultButton"
+    class={`py-2 w-full justify-between gap-1 px-2.5 md:px-3`}
+  >
     {#if $locale === "id"}
       <Avatar src={ID} alt="id" size="xs" />
     {:else}
@@ -42,16 +47,18 @@
   </Button>
 
   <!-- Dropdown menu -->
-  <div id="dropdown" class={`z-10 ${dropdownOpen ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}>
-    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-      <button
-        class="flex p-2"
-        onclick={() => changeLanguage("id")}>
+  <div
+    id="dropdown"
+    class={`z-[10] ${dropdownOpen ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+  >
+    <ul
+      class="py-2 text-sm text-gray-700 dark:text-gray-200"
+      aria-labelledby="dropdownDefaultButton"
+    >
+      <button class="flex p-2" onclick={() => changeLanguage("id")}>
         <Avatar src={ID} alt="id" size="xs" class="mr-2" /> Indonesia
       </button>
-      <button
-        class="flex p-2"
-        onclick={() => changeLanguage("en")}>
+      <button class="flex p-2" onclick={() => changeLanguage("en")}>
         <Avatar src={EN} alt="us" size="xs" class="mr-2" /> English
       </button>
     </ul>
