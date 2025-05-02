@@ -11,23 +11,11 @@
     triggerToast,
   } from "$lib";
   import { goto } from "$app/navigation";
+  import { _ } from "svelte-i18n";
 
-  let actionItems = [
-    {
-      // href: await $call.getPage("client-dashboard", "bots-create"),
-      href: "/llms/my_models/create",
-      icon: "uploadCloud02",
-      actionName: "deploy your model",
-      desc: "desc deploy your model",
-    },
-    {
-      // href: await $call.getPage("client-dashboard", "bots-create"),
-      href: "/llms/my_models",
-      icon: "dataflow04",
-      actionName: "view your model",
-      desc: "desc view your model",
-    },
-  ];
+  const isFrontend = process.env.NODE_ENV === "development";
+
+  let actionItems = [];
 
   let recentItems = [
     {
@@ -461,39 +449,39 @@
         if (response.status === 200) {
           if (response?.result && response.result.models.length > 0) {
             let llama31 = [
-              "Expanded Model Sizes",
-              "Multilingual Processing",
-              "Extended Context Length",
-              "Open-Source Accessibility",
-              "Enhanced Performance",
+              "expandedModelSizes",
+              "multilingualProcessing",
+              "extendedContextLength",
+              "openSourceAccessibility",
+              "enhancedPerformance",
             ];
             let llama32 = [
-              "Multimodal Capabilities",
-              "Cost Efficiency",
-              "High Performance",
-              "Edge Deployment Suitability",
-              "Broad Flexibility",
+              "multimodalCapabilities",
+              "costEfficiency",
+              "highPerformance",
+              "edgeDeploymentSuitability",
+              "broadFlexibility",
             ];
             let gemma = [
-              "Real-Time Multilingual Support",
-              "High Contextual Understanding",
-              "Efficient Processing",
-              "Scalability",
-              "User-Friendly Integration",
+              "realtimeMultilingualSupport",
+              "highContextualUnderstanding",
+              "efficientProcessing",
+              "scalability",
+              "userfriendlyIntegration",
             ];
             let deepseek = [
-              "Modular Design",
-              "Cost-Effective Reasoning",
-              "Efficient Resource Utilization",
-              "Open-Source Accessibility",
-              "Competitive Performance",
+              "modularDesign",
+              "costEffectiveReasoning",
+              "efficientResourceUtilization",
+              "openSourceAccessibility",
+              "competitivePerformance",
             ];
             let qurani = [
-              "Finds hidden problems in data.",
-              "Understands images and text.",
-              "Predicts machine failures.",
-              "Personalizes user experiences.",
-              "Discovers new scientific insights.",
+              "findsHiddenProblemsInData",
+              "understandsImagesAndText",
+              "predictsMachineFailures",
+              "personalizesUserExperiences",
+              "discoversNewScientificInsights",
             ];
 
             // BRI ADJUSTMENT
@@ -619,7 +607,7 @@
                   [
                     {
                       text: {
-                        text: "Our most used models.",
+                        text: "ourMostUsedModels",
                         color: "tertiary",
                         preset: "Text md/Regular",
                       },
@@ -681,27 +669,51 @@
 
   onMount(async () => {
     await getModels();
+    actionItems = [
+      {
+        href: isFrontend
+          ? "/llms/my_models/create"
+          : await $call.getPage("client-dashboard", "llms-mymodels-create"),
+        icon: "uploadCloud02",
+        actionName: "deploy your model",
+        desc: "desc deploy your model",
+      },
+      {
+        href: isFrontend
+          ? "/llms/my_models"
+          : await $call.getPage("client-dashboard", "llms-mymodels"),
+        icon: "dataflow04",
+        actionName: "view your model",
+        desc: "desc view your model",
+      },
+    ];
   });
 </script>
 
 <div class="flex flex-col m-4 gap-4 pb-4 md:pb-12">
-  <Typography text="Large Language Models Overview" preset="Display sm/Semibold" />
-  <Typography text="Quick Actions" preset="Text lg/Semibold" propClass="my-4" />
+  <Typography text={$_("largeLanguageModelsOverview")} preset="Display sm/Semibold" />
+  <Typography text={$_("quickActions")} preset="Text lg/Semibold" propClass="mt-4" />
   <Divider />
-  <ActionCard {actionItems} />
+  {#if actionItems.length > 0}
+    <ActionCard {actionItems} />
+  {/if}
   <div class="flex justify-between items-center mt-4">
-    <!-- <Typography text="Large Language Models Lists" preset="Text lg/Semibold" propClass="md:my-4" />
-    <Button
+    <Typography
+      text={$_("largeLanguageModelsLists")}
+      preset="Text lg/Semibold"
+      propClass="md:mt-4"
+    />
+    <!-- <Button
       spaceY="m-0 max-h-min"
       text="View All"
       funcButton={async () => {
-        let link = await $call.getPage("client-dashboard", "llms-list");
+        let link = isFrontend ? "/llms/list" : await $call.getPage("client-dashboard", "llms-list");
         goto(link);
       }}
       color="alternative"
     /> -->
   </div>
-  <!-- <Divider /> -->
+  <Divider />
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     {#each cardDataArray as cardData}
       <CardFeature {cardData} />
