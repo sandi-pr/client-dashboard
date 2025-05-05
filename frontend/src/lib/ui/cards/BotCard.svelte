@@ -24,7 +24,7 @@
   } = $props();
 
   onMount(() => {
-    console.log("bot", bot);
+    // console.log("bot", bot);
   });
 </script>
 
@@ -110,9 +110,11 @@
             on:click={async () => {
               if (config?.isLlm) {
                 goto(
-                  (await $call.getPage("client-dashboard", "llms-mymodel-detail")) +
-                    "?modelId=" +
-                    bot.botsID,
+                  config?.isFrontend
+                    ? "/llms/my_models/detail?modelId=" + bot.botsID
+                    : (await $call.getPage("client-dashboard", "llms-my-model-detail")) +
+                        "?modelId=" +
+                        bot.botsID,
                 );
               } else {
                 goto(

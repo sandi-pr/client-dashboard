@@ -141,7 +141,7 @@
         }
 
         gettingDatas = false;
-        console.log(bots);
+        // console.log(bots);
       } catch (error) {
         gettingDatas = false;
         console.log(error);

@@ -727,8 +727,8 @@ All Rights Reserved
       Params: {},
       Headers: {},
     });
-    console.log("===============================");
-    console.log(resp_setup);
+    // console.log("===============================");
+    // console.log(resp_setup);
     if (resp_setup.status === 200) {
       if (resp_setup.result.is_need_setup === true) {
         if (localStorage.getItem("token") !== null) localStorage.removeItem("token");
@@ -1265,7 +1265,7 @@ All Rights Reserved
         },
       });
 
-      console.log("------" + libraryName, response);
+      // console.log("------" + libraryName, response);
 
       if (response.status !== 200) {
         // console.log("status not 200", response);

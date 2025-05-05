@@ -46,12 +46,12 @@
 
   const isDetailPage = (url) => {
     if (url.split("/").pop() === "detail") {
-      console.log("detail");
+      // console.log("detail");
       detail = true;
       const params = new URLSearchParams(window.location.search);
       title = params.get("title");
     } else {
-      console.log("not detail");
+      // console.log("not detail");
       detail = false;
     }
   };
@@ -95,7 +95,6 @@
         }
 
         return response.result.data.name;
-
       } catch (error) {
         console.error("Error during document get:", error);
       }
@@ -123,66 +122,67 @@
   });
 
   async function getActiveUrl() {
-    console.log(activeUrl);
+    // console.log(activeUrl);
     isDetailPage(activeUrl);
     const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
     copyActiveUrl = activeUrl;
     let cleanActiveUrl = activeUrl;
     activeUrlModified = cleanActiveUrl.replace(new RegExp(`^/${cleanAppUrl}`), "");
-    activeUrlArray = await Promise.all(activeUrlModified
-      .split("/")
-      .filter((url) => url !== "client-dashboard")
-      .filter(Boolean)
-      .map(async (url, index, array) => {
-        let accumulatedPath = "";
-        for (let i = 0; i <= index; i++) {
-          accumulatedPath += `/${array[i]}`;
-        }
-        let href = accumulatedPath;
-        if (index === array.length - 1) {
-          href += queryString;
-        }
-        if (url === "collections") {
-          const params = new URLSearchParams(window.location.search);
-          const libraryId = params.get("libraryId");
-          if (libraryId !== null) {
-            const customName = await getLibraryCollectionName(libraryId);
-            return { name: customName, href: href, isCustomName: true };
+    activeUrlArray = await Promise.all(
+      activeUrlModified
+        .split("/")
+        .filter((url) => url !== "client-dashboard")
+        .filter(Boolean)
+        .map(async (url, index, array) => {
+          let accumulatedPath = "";
+          for (let i = 0; i <= index; i++) {
+            accumulatedPath += `/${array[i]}`;
           }
-        } else if (url === "documents" && index > 1) {
-          const params = new URLSearchParams(window.location.search);
-          const collectionId = params.get("collectionId");
-          if (collectionId !== null) {
-            const customName = await getLibraryCollectionName(collectionId);
-            return { name: customName, href: href, isCustomName: true };
+          let href = accumulatedPath;
+          if (index === array.length - 1) {
+            href += queryString;
           }
-        } else if (url === "sub_documents") {
-          const params = new URLSearchParams(window.location.search);
-          const subCollectionId = params.get("subCollectionId");
-          if (subCollectionId !== null) {
-            const customName = await getLibraryCollectionName(subCollectionId);
-            return { name: customName, href: href, isCustomName: true };
-          }
-        } else if (url === "detail" && index > 0) {
-          const prevSegment = array[index - 1];
-          if (prevSegment === "documents" || prevSegment === "sub_documents") {
+          if (url === "collections") {
             const params = new URLSearchParams(window.location.search);
-            const documentId = params.get("documentId");
-            if (documentId !== null) {
-              const title = await getDocumentName(documentId);
-              return { name: title, href: href, isCustomName: true };
+            const libraryId = params.get("libraryId");
+            if (libraryId !== null) {
+              const customName = await getLibraryCollectionName(libraryId);
+              return { name: customName, href: href, isCustomName: true };
+            }
+          } else if (url === "documents" && index > 1) {
+            const params = new URLSearchParams(window.location.search);
+            const collectionId = params.get("collectionId");
+            if (collectionId !== null) {
+              const customName = await getLibraryCollectionName(collectionId);
+              return { name: customName, href: href, isCustomName: true };
+            }
+          } else if (url === "sub_documents") {
+            const params = new URLSearchParams(window.location.search);
+            const subCollectionId = params.get("subCollectionId");
+            if (subCollectionId !== null) {
+              const customName = await getLibraryCollectionName(subCollectionId);
+              return { name: customName, href: href, isCustomName: true };
+            }
+          } else if (url === "detail" && index > 0) {
+            const prevSegment = array[index - 1];
+            if (prevSegment === "documents" || prevSegment === "sub_documents") {
+              const params = new URLSearchParams(window.location.search);
+              const documentId = params.get("documentId");
+              if (documentId !== null) {
+                const title = await getDocumentName(documentId);
+                return { name: title, href: href, isCustomName: true };
+              }
             }
           }
-        }
-        return { name: url, href: href, isCustomName: false };
-      })
+          return { name: url, href: href, isCustomName: false };
+        }),
     );
 
-    console.log("activeUrlArray", activeUrlArray);
+    // console.log("activeUrlArray", activeUrlArray);
   }
 
   function truncateText(text, maxWords, maxFirstWordLength = 20) {
-    console.log("text", text);
+    // console.log("text", text);
     const words = text.split(" ");
 
     // Check if the first word is too long, or if the second word is long
@@ -247,12 +247,16 @@
               {#if detail && title !== null && index === activeUrlArray.length - 1}
                 {title}
               {:else}
-                {item.isCustomName ? truncateText(item.name, 2) : $_(toCamelCase(postProcessName(item.name)))}
+                {item.isCustomName
+                  ? truncateText(item.name, 2)
+                  : $_(toCamelCase(postProcessName(item.name)))}
               {/if}
             </button>
           {:else}
             <span class={spanClass}>
-              {item.isCustomName ? truncateText(item.name, 2) : $_(toCamelCase(postProcessName(item.name)))}
+              {item.isCustomName
+                ? truncateText(item.name, 2)
+                : $_(toCamelCase(postProcessName(item.name)))}
             </span>
           {/if}
         </li>

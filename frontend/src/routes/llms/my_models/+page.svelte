@@ -81,7 +81,7 @@
                 },
               };
             });
-            // console.log(cardDataArray);
+            // console.log("cardDataArray", cardDataArray);
           }
         } else {
           triggerToast("error");
@@ -621,6 +621,7 @@
             detailView: true,
             detailTry: true,
             isLlm: true,
+            isFrontend,
           }}
           {handleDropdownFocusLoss}
         />

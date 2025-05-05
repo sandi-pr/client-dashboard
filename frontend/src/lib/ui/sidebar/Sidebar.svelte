@@ -52,16 +52,16 @@
   let currentUrl = $state($page.url.pathname);
 
   $effect(() => {
-    console.log(currentUrl);
+    // console.log(currentUrl);
     if (currentUrl !== $page.url.pathname) {
       currentUrl = $page.url.pathname;
-      console.log("current url", currentUrl);
+      // console.log("current url", currentUrl);
     }
   });
   onMount(() => {
     url = globalThis.location.pathname;
-    console.log("initial url", currentUrl);
-  })
+    // console.log("initial url", currentUrl);
+  });
 </script>
 
 <!-- Sidebar for small screen -->
@@ -108,7 +108,9 @@
 
 <!-- Appbar for Drawer -->
 {#if innerWidth < 1024 && !$showAI}
-  <div class="lg:hidden fixed top-0 w-full z-40 px-2 py-1 md:py-3 justify-between items-center flex">
+  <div
+    class="lg:hidden fixed top-0 w-full z-40 px-2 py-1 md:py-3 justify-between items-center flex"
+  >
     <!-- {#if currentUrl.startsWith('/client-dashboard/') && currentUrl.split('/').length > 3}
       <div class="p-2 rounded-lg justify-center items-center flex">
         <Button on:click={() => history.back()} color="light" class="p-2">

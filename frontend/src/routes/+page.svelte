@@ -892,12 +892,12 @@ All Rights Reserved
   function getIsFirstTime() {
     if (typeof localStorage !== "undefined") {
       isFirstTime = localStorage.getItem("isFirstTime") === "false" ? false : true;
-      console.log("isFirstTime", isFirstTime);
+      // console.log("isFirstTime", isFirstTime);
 
       if (isFirstTime) {
         isFirstTimeTimeoutId = setTimeout(() => {
           isFirstTime = false;
-          localStorage.setItem("isFirstTime", isFirstTime);
+          // localStorage.setItem("isFirstTime", isFirstTime);
         }, 6000);
       }
     } else {
