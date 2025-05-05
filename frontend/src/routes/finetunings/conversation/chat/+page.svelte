@@ -663,7 +663,7 @@
       }
 
       let promise = response.result.data.map(async (data) => {
-        let link = await $call.getPage("client-dashboard", "datasets-detail");
+        let link = await $call.getPage("client-dashboard", "finetunings-detail");
 
         return {
           id: data.id,
