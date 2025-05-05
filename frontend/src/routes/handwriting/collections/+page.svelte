@@ -30,6 +30,8 @@
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import TabBar from "$lib/components/TabBar.svelte";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let addCollectionModal = $state(false);
   let editModal = $state(false);
   let editLibraryModal = $state(false);
@@ -166,7 +168,9 @@
         // type: "",
         // status: "reading",
 
-        let link = await $call.getPage("client-dashboard", "handwriting-documents");
+        let link = isFrontend
+          ? "/handwriting/collections/documents"
+          : await $call.getPage("client-dashboard", "handwriting-documents");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);

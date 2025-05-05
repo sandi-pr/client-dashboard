@@ -34,6 +34,9 @@
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let collectionId = $state(null);
   let libraryId = $state(null);
@@ -187,7 +190,9 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "handwriting-detail");
+        let link = isFrontend
+          ? "/handwriting/collections/documents/detail"
+          : await $call.getPage("client-dashboard", "handwriting-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -1092,9 +1097,13 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "handwriting-sub-documents");
+        link = isFrontend
+          ? "/handwriting/collections/documents/sub_documents"
+          : await $call.getPage("client-dashboard", "handwriting-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "handwriting-documents");
+        link = isFrontend
+          ? "/handwriting/collections/documents"
+          : await $call.getPage("client-dashboard", "handwriting-documents");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1290,7 +1299,9 @@
 
         deleteModal = false;
         const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-        let link = await $call.getPage("client-dashboard", "handwriting");
+        let link = isFrontend
+          ? "/handwriting"
+          : await $call.getPage("client-dashboard", "handwriting");
         goto(`${link}?libraryId=${libraryIdWebchatBakrie}`);
       } catch (error) {
         console.error("Error during collection deletion:", error);
@@ -1731,6 +1742,24 @@
                 text={collectionDatas.title}
                 propClass="fluid-xl line-clamp-2"
               />
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(collectionDatas.title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+              >
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </div>
           </div>
 
