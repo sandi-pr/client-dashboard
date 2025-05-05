@@ -315,6 +315,11 @@
             "file_path": "template/finetunings.html"
         },
         {
+            "name": "finetunings-detail",
+            "path": "/finetunings/detail",
+            "file_path": "template/finetunings/detail.html"
+        },
+        {
             "name": "finetunings-handwriting",
             "path": "/finetunings/handwriting",
             "file_path": "template/finetunings/handwriting.html"
@@ -385,8 +390,8 @@
             "file_path": "template/data_sources/collections.html"
         },
         {
-            "name": "data-sources-documents", 
-            "path": "/data_sources/collections/documents", 
+            "name": "data-sources-documents",
+            "path": "/data_sources/collections/documents",
             "file_path": "template/data_sources/collections/documents.html"
         },
         {
@@ -455,8 +460,8 @@
             "file_path": "template/voice/collections.html"
         },
         {
-            "name": "voice-documents", 
-            "path": "/voice/collections/documents", 
+            "name": "voice-documents",
+            "path": "/voice/collections/documents",
             "file_path": "template/voice/collections/documents.html"
         },
         {
@@ -485,8 +490,8 @@
             "file_path": "template/handwriting/collections.html"
         },
         {
-            "name": "handwriting-documents", 
-            "path": "/handwriting/collections/documents", 
+            "name": "handwriting-documents",
+            "path": "/handwriting/collections/documents",
             "file_path": "template/handwriting/collections/documents.html"
         },
         {

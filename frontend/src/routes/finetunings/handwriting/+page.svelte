@@ -23,6 +23,8 @@
   import DataFlow from "$lib/icon/dataflow-03.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let datas = $state([]);
   let files = $state([]);
   let configs = $state({});
@@ -89,7 +91,9 @@
       };
 
       let promise = response.result.data.map(async (data) => {
-        let link = await $call.getPage("client-dashboard", "datasets-detail");
+        let link = isFrontend
+          ? "/finetunings/detail"
+          : await $call.getPage("client-dashboard", "finetunings-detail");
 
         return {
           id: data.id,
