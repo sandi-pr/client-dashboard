@@ -26,6 +26,8 @@
 
   import { call } from "$lib";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   const postProcessName = (name) => {
     let newName = name.replace(/-/g, " ");
     newName = newName.replace(/_/g, " ");
@@ -286,7 +288,10 @@
                 }
                 const queryString = new URLSearchParams(queryParams).toString();
                 // console.log(`check url: ${baseUrl}${item.href}?${queryString}`);
-                goto(`${baseUrl}${item.href}?${queryString}`);
+                const newLink = isFrontend
+                  ? `${item.href}?${queryString}`
+                  : `${baseUrl}${item.href}?${queryString}`;
+                goto(newLink);
               }}
             >
               {#if detail && title !== null && index === activeUrlArray.length - 1}
