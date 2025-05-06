@@ -12,7 +12,7 @@
 
 <script>
   import { onMount } from "svelte";
-  import { P, Input, Avatar, Button, Select, Indicator, Modal } from "flowbite-svelte";
+  import { P, Avatar, Button, Indicator, Modal } from "flowbite-svelte";
   import {
     SelectedCard,
     StateCard,
@@ -24,15 +24,12 @@
   } from "$lib";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
-  import { SearchOutline } from "flowbite-svelte-icons";
-  import DataTable from "$lib/components/DataTable.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import MarketIcon from "$lib/icon/building-02.svelte";
   import OfficeIcon from "$lib/icon/building-06.svelte";
   import BankIcon from "$lib/icon/bank.svelte";
   import BanksIcon from "$lib/icon/banks.svelte";
   import UserIcon from "$lib/icon/user-03.svelte";
-  import SignalIcon from "$lib/icon/signal-01.svelte";
   import UsbFlashDrive from "$lib/icon/usb-flash-drive.svelte";
   import OilGas from "$lib/icon/oil-gas.svelte";
   import BoxesIcon from "$lib/icon/boxes.svelte";
@@ -47,15 +44,11 @@
   import TechIcon from "$lib/icon/tech.svelte";
   import CheckCircle from "$lib/icon/check-circle.svelte";
   import TelecomIcon from "$lib/icon/telecom.svelte";
-  import SlidersIcon from "$lib/icon/sliders-04.svelte";
-  import { datas, informationFormDatas, configs } from "./dummy";
-  import { setPrimaryColor } from "$lib/utils/colorTheme";
-  import { purpleColors, greenColors, blueColors } from "$lib/utils/presetColors";
-  import { CR3Call } from "hexacomponents-svelte";
+  import { informationFormDatas } from "./dummy";
   import { _ } from "svelte-i18n";
+  import { ChevronDownOutline } from "flowbite-svelte-icons";
 
   import { call } from "$lib";
-  import { on } from "svelte/events";
 
   let screenWidth;
   let user = informationFormDatas;
@@ -67,20 +60,6 @@
   let show = false;
   let enableInsights = false;
   let selectedTheme = "purple";
-  let themes = [
-    {
-      name: "Purple",
-      value: "purple",
-    },
-    {
-      name: "Green",
-      value: "green",
-    },
-    {
-      name: "Blue",
-      value: "blue",
-    },
-  ];
   let fileImage = null;
   let fileImageName = null;
   let fileImageResult = null;
@@ -126,6 +105,8 @@
   let popupModal = false;
   let isBackup = true;
   let currentStep = 1;
+  let modalThemeColor = false;
+  let tmpThemeColor = "";
 
   let backupSteps = [
     {
@@ -282,6 +263,24 @@
     newPassword: "",
     confirmPassword: "",
   };
+
+  let themeColors = [
+    {
+      id: 1,
+      name: "purple",
+      value: "purple",
+    },
+    {
+      id: 2,
+      name: "blue",
+      value: "blue",
+    },
+    {
+      id: 3,
+      name: "green",
+      value: "green",
+    },
+  ];
 
   function getNameById(sources, id) {
     return sources.find((source) => source.id === id).name;
@@ -737,6 +736,15 @@
     }
   }
 
+  function getBrandColorName(selectedColor, value) {
+    const newSelectedColor = themeColors.find((color) => color.name === selectedColor);
+    return newSelectedColor
+      ? value === "name"
+        ? newSelectedColor.name
+        : newSelectedColor.value
+      : "Unknown Color";
+  }
+
   onMount(() => {
     getUser();
     getCompanyType();
@@ -1020,14 +1028,34 @@
                 <Typography preset="Text lg/Semibold" text={$_("themeColors")} />
               </div>
               <div class="col-span-3 flex w-1/3">
-                <Dropdown
+                <!-- <Dropdown
                   dropdownOpen={dropdownThemeOpen}
                   bind:selectedItem={selectedTheme}
                   items={themes}
                   isOverlay={true}
                   widget={Indicator}
                   disabled={!onEditTheme}
-                />
+                /> -->
+                <Button
+                  on:click={!onEditTheme
+                    ? () => {}
+                    : () => {
+                        tmpThemeColor = themeColors.find(
+                          (color) => color.name === selectedTheme,
+                        ).id;
+                        modalThemeColor = true;
+                      }}
+                  class={`flex justify-between ${!onEditTheme ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
+                  color="light"
+                >
+                  <div class="flex items-center gap-2">
+                    <Indicator color={getBrandColorName(selectedTheme)} />
+                    {$_(getBrandColorName(selectedTheme, "name"))}
+                  </div>
+                  <ChevronDownOutline
+                    class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                  />
+                </Button>
               </div>
             </div>
           </div>
@@ -1475,4 +1503,23 @@
     <Typography preset="Text sm/Reguler" text={$_("backupInProgressDesc")} />
     <Button class="w-full mt-8">{$_("close")}</Button>
   </div>
+</Modal>
+
+<Modal title={$_("chooseYourPreferedColor")} bind:open={modalThemeColor} autoclose outsideclose>
+  <SelectedCard
+    selectionData={themeColors}
+    bind:selectedData={tmpThemeColor}
+    numGrid="2"
+    isRadio
+    widthFlex="w-full"
+    spacing="!p-4"
+    widgetIndicator={true}
+  />
+  <svelte:fragment slot="footer">
+    <Button
+      on:click={() =>
+        (selectedTheme = themeColors.find((color) => color.id === tmpThemeColor).name)}
+      class="px-3 w-full focus-within:!ring-1">{$_("save")}</Button
+    >
+  </svelte:fragment>
 </Modal>
