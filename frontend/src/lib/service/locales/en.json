@@ -1128,5 +1128,11 @@
   "understandsImagesAndText": "Understands images and text",
   "predictsMachineFailures": "Predicts machine failures",
   "personalizesUserExperiences": "Personalizes user experiences",
-  "discoversNewScientificInsights": "Discovers new scientific insights"
+  "discoversNewScientificInsights": "Discovers new scientific insights",
+  "blue": "Blue",
+  "green": "Green",
+  "purple": "Purple",
+  "chooseYourPreferedColor": "Choose your preferred color",
+  "embedCodes": "Embed Codes",
+  "copyToClipboard": "Copy to clipboard"
 }

@@ -1128,5 +1128,11 @@
   "understandsImagesAndText": "memahami gambar dan teks",
   "predictsMachineFailures": "memperkirakan kegagalan mesin",
   "personalizesUserExperiences": "memperibadikan pengalaman pengguna",
-  "discoversNewScientificInsights": "menemukan wawasan ilmiah baru"
+  "discoversNewScientificInsights": "menemukan wawasan ilmiah baru",
+  "blue": "Biru",
+  "green": "Hijau",
+  "purple": "Ungu",
+  "chooseYourPreferedColor": "Pilih Warna Favorit Anda",
+  "embedCodes": "Tanamkan Kode",
+  "copyToClipboard": "Salin ke Papan Klip"
 }

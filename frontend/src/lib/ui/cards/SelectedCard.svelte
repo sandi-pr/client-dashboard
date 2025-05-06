@@ -2,7 +2,7 @@
   import { _ } from "svelte-i18n";
   import { Typography, FeaturedIcon, Icon } from "$lib";
   import { getIcons } from "$lib";
-  import { Card, Radio } from "flowbite-svelte";
+  import { Card, Radio, Indicator } from "flowbite-svelte";
 
   let {
     selectionData,
@@ -58,7 +58,7 @@
           {/if}
         {/if}
         {#if widgetIndicator}
-          <widgetIndicator color={data.value} size="lg"> </widgetIndicator>
+          <Indicator color={data.value} size="xl" />
         {/if}
         <div class="flex-col">
           <div class="flex flex-col gap-[2px]">
