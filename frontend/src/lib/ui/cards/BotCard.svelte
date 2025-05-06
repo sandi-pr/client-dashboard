@@ -118,7 +118,11 @@
                 );
               } else {
                 goto(
-                  (await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + bot.botsID,
+                  config?.isFrontend
+                    ? "/bots/detail?botId=" + bot.botsID
+                    : (await $call.getPage("client-dashboard", "bots-detail")) +
+                        "?botId=" +
+                        bot.botsID,
                 );
               }
             }}
@@ -136,10 +140,12 @@
           <Button
             on:click={async () => {
               goto(
-                (await $call.getPage("client-dashboard", "bots-detail")) +
-                  "?botId=" +
-                  bot.botsID +
-                  "&try=true",
+                config?.isFrontend
+                  ? "/bots/detail?botId=" + bot.botsID + "&try=true"
+                  : (await $call.getPage("client-dashboard", "bots-detail")) +
+                      "?botId=" +
+                      bot.botsID +
+                      "&try=true",
               );
             }}
             outline
@@ -162,10 +168,12 @@
           disabled={!check("aiManagement.hexabots:view")}
           on:click={async () => {
             goto(
-              (await $call.getPage("client-dashboard", "bots-detail")) +
-                "?botId=" +
-                bot.botsID +
-                "&edit=true",
+              config?.isFrontend
+                ? "/bots/detail?botId=" + bot.botsID + "&edit=true"
+                : (await $call.getPage("client-dashboard", "bots-detail")) +
+                    "?botId=" +
+                    bot.botsID +
+                    "&edit=true",
             );
           }}
           outline

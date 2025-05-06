@@ -34,16 +34,8 @@
   import Stars03Icon from "$lib/icon/stars-03.svelte";
   import { goto } from "$app/navigation";
   import { format } from "date-fns";
-  // import { PUBLIC_STRAPI_URL_DEV, PUBLIC_STRAPI_URL_PROD } from "$env/static/public";
 
-  // const isDev = process.env.NODE_ENV === "development";
-
-  // const strapiUrl = isDev ? PUBLIC_STRAPI_URL_DEV : PUBLIC_STRAPI_URL_PROD;
-
-  // export let data;
-  let data = {
-    admin: false,
-  };
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let actionItems = $state([]);
 
@@ -68,7 +60,13 @@
     actionItems = [
       {
         disabled: !check("aiManagement.hexabots:create"),
-        href: await $call.getPage("client-dashboard", "bots-create"),
+        onclick: async () => {
+          if (isFrontend) {
+            goto("bots/create");
+          } else {
+            goto(await $call.getPage("client-dashboard", "bots-create"));
+          }
+        },
         icon: "messagePlus",
         actionName: "Create New Bots",
         desc: "desc Create New Bots",
@@ -529,7 +527,10 @@
   $effect(() => {
     if ($onProgress) {
       console.log("notification", $notifications);
-      if ($notifications.length > 0 && $notifications[0].attributes.meta?.progress.includes("100")) {
+      if (
+        $notifications.length > 0 &&
+        $notifications[0].attributes.meta?.progress.includes("100")
+      ) {
         if (!gettingStatusBot) {
           startReading($notifications[0].attributes.meta.bot_id);
           console.log("start reading", $notifications[0].attributes.meta.bot_id);
@@ -587,7 +588,11 @@
             </Heading>
             <Button
               on:click={async () => {
-                goto(await $call.getPage("client-dashboard", "bots-list"));
+                if (isFrontend) {
+                  goto("bots/list");
+                } else {
+                  goto(await $call.getPage("client-dashboard", "bots-list"));
+                }
               }}
               color="light"
               class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-200 dark:border-hc-graydark-800 hover:bg-hc-graylight-100 hover:dark:bg-hc-graydark-800 focus-within:ring-0"
@@ -614,7 +619,14 @@
                   {dropdownOpen}
                   bind:popupModal
                   bind:tmpId
-                  config={{ startReading: true, delete: true, detail: true, detailView: true, configure: true }}
+                  config={{
+                    startReading: true,
+                    delete: true,
+                    detail: true,
+                    detailView: true,
+                    configure: true,
+                    isFrontend: isFrontend,
+                  }}
                   {handleDropdownFocusLoss}
                   {startReading}
                 />

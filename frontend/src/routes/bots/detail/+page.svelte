@@ -1513,8 +1513,11 @@
             <div class="hidden md:flex gap-2">
               <Button
                 onclick={async function () {
-                  goto(await $call.getPage("client-dashboard", "bots"));
-                  return;
+                  if (isFrontend) {
+                    goto("/bots");
+                  } else {
+                    goto(await $call.getPage("client-dashboard", "bots"));
+                  }
                 }}
                 color="light"
                 class="px-3 focus-within:!ring-1">{$_("back")}</Button

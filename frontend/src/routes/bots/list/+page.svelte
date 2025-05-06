@@ -20,6 +20,8 @@
   import { onMount } from "svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let searchTerm = $state("");
   let serachPagination = $state(false);
   let gettingDatas = $state(true);
@@ -377,7 +379,13 @@
                   {dropdownOpen}
                   bind:popupModal
                   bind:tmpId
-                  config={{ startReading: true, detail: true, detailView: true, configure: true }}
+                  config={{
+                    startReading: true,
+                    detail: true,
+                    detailView: true,
+                    configure: true,
+                    isFrontend: isFrontend,
+                  }}
                   {handleDropdownFocusLoss}
                   {startReading}
                 />
