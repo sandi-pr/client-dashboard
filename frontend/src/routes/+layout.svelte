@@ -283,34 +283,34 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      {
-        icon: "bookClosed",
-        name: "dataSources",
-        children: [],
-        href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
-      },
-      { // BRI ADJUSTMENT
-        icon: "lightbulb",
-        name: "insights",
-        children: [],
-        href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      },
+      // {
+      //   icon: "bookClosed",
+      //   name: "dataSources",
+      //   children: [],
+      //   href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
+      // },
+      // { // BRI ADJUSTMENT
+      //   icon: "lightbulb",
+      //   name: "insights",
+      //   children: [],
+      //   href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+      // },
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
-      {
-        icon: "penTool",
-        name: "handwriting",
-        children: [],
-        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      },
-      {
-        icon: "recording02",
-        name: "voice",
-        children: [],
-        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      },
+      // {
+      //   icon: "penTool",
+      //   name: "handwriting",
+      //   children: [],
+      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      // },
+      // {
+      //   icon: "recording02",
+      //   name: "voice",
+      //   children: [],
+      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      // },
       // {
       //   icon: "image03",
       //   name: "memories",

@@ -49,7 +49,7 @@ export function connectWebSocket(token, isFrontend) {
 
   if (isFrontend) {
     socket = new WebSocket(
-      `ws://tank.hexacode.ai/client-dashboard/notification/${encodeURIComponent(token)}`,
+      `ws://192.168.18.14/client-dashboard/notification/${encodeURIComponent(token)}`,
     );
   } else {
     socket = new WebSocket(

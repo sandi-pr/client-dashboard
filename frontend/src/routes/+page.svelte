@@ -96,30 +96,30 @@ All Rights Reserved
       description: "descDocumentLibrary",
       page: "document-collection-overview",
     },
-    {
-      icon: "bookClosed",
-      title: "dataSources",
-      description: "descDataSources",
-      page: "data-sources",
-    },
+    // {
+    //   icon: "bookClosed",
+    //   title: "dataSources",
+    //   description: "descDataSources",
+    //   page: "data-sources",
+    // },
     // { // BRI ADJUSTMENT
     //   icon: "lightbulb",
     //   title: "insights",
     //   description: "descInsights",
     //   page: "csv-insight",
     // },
-    {
-      icon: "penTool",
-      title: "handwriting",
-      description: "descHandwriting",
-      page: "handwriting",
-    },
-    {
-      icon: "recording02",
-      title: "voice",
-      description: "descVoice",
-      page: "voice",
-    },
+    // {
+    //   icon: "penTool",
+    //   title: "handwriting",
+    //   description: "descHandwriting",
+    //   page: "handwriting",
+    // },
+    // {
+    //   icon: "recording02",
+    //   title: "voice",
+    //   description: "descVoice",
+    //   page: "voice",
+    // },
     {
       icon: "messagePlusSquare",
       title: "createBots",
