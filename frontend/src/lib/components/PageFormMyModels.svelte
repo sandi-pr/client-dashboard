@@ -584,10 +584,6 @@
           </Button>
         {:else}
           <Button
-            onclick={async function () {
-              goto(await $call.getPage("client-dashboard", "my_models"));
-              return;
-            }}
             color="light"
             class="px-3 focus-within:!ring-1"
             on:click={async () => {
