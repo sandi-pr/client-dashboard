@@ -330,7 +330,7 @@
               onclick={async () => {
                 dropdownUser = !dropdownUser;
                 let url = isFrontend
-                  ? "preferences"
+                  ? "/preferences"
                   : await $call.getPage("client-dashboard", "settings");
                 goto(url);
               }}
