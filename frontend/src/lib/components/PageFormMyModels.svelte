@@ -338,7 +338,7 @@
           console.log(response);
           triggerLoading(false);
           triggerToast("error");
-          goto(await $call.getPage("client-dashboard", "bots-list"));
+          goto(await $call.getPage("client-dashboard", "llms-my-models"));
           return;
         }
 
@@ -448,7 +448,7 @@
         // popupModal = false;
         triggerLoading(false);
         triggerToast("deleted");
-        goto(await $call.getPage("client-dashboard", "bots-list"));
+        goto(await $call.getPage("client-dashboard", "llms-my-models"));
       } catch (error) {
         triggerLoading(false);
         console.log(error);
@@ -483,7 +483,7 @@
         // popupModal = false;
         triggerLoading(false);
         triggerToast("deleted");
-        goto(await $call.getPage("client-dashboard", "bots-list"));
+        goto(await $call.getPage("client-dashboard", "llms-my-models"));
       } catch (error) {
         triggerLoading(false);
         console.log(error);
@@ -590,7 +590,7 @@
               if (isFrontend) {
                 goto("/llms/my_models");
               } else {
-                goto(await $call.getPage("client-dashboard", "my_models"));
+                goto(await $call.getPage("client-dashboard", "llms-my-models"));
               }
             }}
           >
@@ -619,7 +619,7 @@
             if (isFrontend) {
               goto("/llms/my_models");
             } else {
-              goto(await $call.getPage("client-dashboard", "my_models"));
+              goto(await $call.getPage("client-dashboard", "llms-my-models"));
             }
           }}
           color="light"

@@ -450,6 +450,21 @@
             "file_path": "template/llms/list.html"
         },
         {
+            "name": "llms-my-models",
+            "path": "/llms/my_models",
+            "file_path": "template/llms/my_models.html"
+        },
+        {
+            "name": "llms-my-models-create",
+            "path": "/llms/my_models/create",
+            "file_path": "template/llms/my_models/create.html"
+        },
+        {
+            "name": "llms-my-models-detail",
+            "path": "/llms/my_models/detail",
+            "file_path": "template/llms/my_models/detail.html"
+        },
+        {
             "name": "voice",
             "path": "/voice",
             "file_path": "template/voice.html"

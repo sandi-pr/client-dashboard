@@ -597,7 +597,7 @@
           if (isFrontend) {
             goto("/llms/my_models/create");
           } else {
-            goto(await $call.getPage("client-dashboard", "my_models_create"));
+            goto(await $call.getPage("client-dashboard", "llms-my-models-create"));
           }
         }}
       >

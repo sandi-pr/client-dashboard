@@ -673,7 +673,7 @@
       {
         href: isFrontend
           ? "/llms/my_models/create"
-          : await $call.getPage("client-dashboard", "llms-mymodels-create"),
+          : await $call.getPage("client-dashboard", "llms-my-models-create"),
         icon: "uploadCloud02",
         actionName: "deploy your model",
         desc: "desc deploy your model",
@@ -681,7 +681,7 @@
       {
         href: isFrontend
           ? "/llms/my_models"
-          : await $call.getPage("client-dashboard", "llms-mymodels"),
+          : await $call.getPage("client-dashboard", "llms-my-models"),
         icon: "dataflow04",
         actionName: "view your model",
         desc: "desc view your model",
