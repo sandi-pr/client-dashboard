@@ -8,7 +8,9 @@ export const findIconFromModelName = (modelName) => {
   } else if (/deepseek/.test(lowerCaseModelName)) {
     icon = "deepseek";
   } else if (/chatgpt/.test(lowerCaseModelName)) {
-    icon = "openai";
+    icon = "openAi";
+  } else if (/openai/.test(lowerCaseModelName)) {
+    icon = "openAi";
   }
 
   return icon;

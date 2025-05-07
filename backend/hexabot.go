@@ -202,6 +202,11 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 
 	bot_id := uuid.New().String()
 
+	statusBot := "Inactive"
+	if ai_engine == "openai" {
+		statusBot = "Ready"
+	}
+
 	data = U.Dict{
 		"bot_id":           bot_id,
 		"bot_name":         bot_name,
@@ -213,7 +218,7 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"overlay_color":    "purple",
 		"username":         "User",
 		"need_auth":        need_auth,
-		"status":           "Inactive",
+		"status":           statusBot,
 		"manage_document":  false,
 		"assistant_item":   assistant_item,
 		"system_item":      system_item,

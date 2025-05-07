@@ -480,6 +480,8 @@
     });
   }
 
+  let platformsReady = $state(false);
+
   async function getCollections() {
     let token = localStorage.getItem("token");
 
@@ -551,6 +553,7 @@
                 create_at: "2024-07-23",
               },
             ];
+            platformsReady = true;
           } else {
             triggerToast("error");
           }
@@ -577,6 +580,8 @@
           });
 
           platforms = await Promise.all(promise);
+
+          platformsReady = true;
         } else {
           triggerToast("error");
           console.log(response);
@@ -592,6 +597,8 @@
 
     if (token !== null) {
       triggerLoading(true);
+
+      if (platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai") {
       let allCollection = "";
 
       // console.log("tmpDatasChecked", tmpDatasChecked);
@@ -681,6 +688,67 @@
         triggerLoading(false);
         console.log(error);
       }
+    } else {
+
+      const response = await $call.call("client-dashboard", "find-create-library-llm", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          // console.log(response);
+          return;
+        }
+
+        let collectionId = response.result.collection_id;
+        let libraryId = response.result.library_id;
+
+      let dataSend = {
+        bot_name: botName,
+        description: description,
+        ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
+        library_id: parseInt(libraryId),
+        collection_id: collectionId.toString(),
+        additional_prompt: additionalPrompt,
+        need_auth: needAuth,
+      };
+
+      if (fileImage !== "" && fileImage !== null && fileImage !== undefined) {
+        dataSend.bot_logo = JSON.stringify({ name: fileImageName, base64Data: fileImage });
+      }
+
+      // console.log("dataSend", dataSend);
+
+      try {
+        const response = await $call.call("client-dashboard", "create-bot", {
+          URLQuery: {},
+          URLParams: {},
+          Params: dataSend,
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log(response);
+
+        if (response.status !== 200) {
+          console.log(response);
+          triggerLoading(false);
+          return;
+        }
+
+        goto(await $call.getPage("client-dashboard", "bots"));
+        triggerLoading(false);
+        triggerToast("created");
+      } catch (error) {
+        triggerLoading(false);
+        console.log(error);
+      }
+    }
     } else {
       console.log("no token");
       return;
@@ -877,7 +945,7 @@
         {$_("cancel")}
       </Button>
       <Button
-        disabled={botName === "" || selectedplatforms === "" || selectedCollection === ""}
+        disabled={botName === "" || selectedplatforms === "" || platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai" ? selectedCollection === "" : false}
         on:click={() => {
           createBot();
         }}
@@ -949,6 +1017,8 @@
         />
       </div>
     </div> -->
+    {#if platformsReady}
+    {#if platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai"}
     <Divider />
     <div class="md:flex">
       <Typography
@@ -978,6 +1048,9 @@
         </div>
       </div>
     </div>
+    {/if}
+    {/if}
+    
     <Divider />
     <div class="md:flex">
       <Typography
