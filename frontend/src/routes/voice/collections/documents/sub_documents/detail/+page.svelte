@@ -42,6 +42,7 @@ All Rights Reserved
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import ExampleAudio from "$lib/components/strauss.mp3";
   import MultiSelect from "svelte-multiselect";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
 
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
@@ -843,12 +844,25 @@ All Rights Reserved
               >{globalThis.innerWidth < 768
                 ? truncateText(tmpData.document_title || "", 2)
                 : tmpData.document_title}
-              <!-- <Button
-                outline
-                color="red"
-                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
+              &nbsp;
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(tmpData.document_title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
               >
-              </Button> -->
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </Heading>
           </div>
           <P
