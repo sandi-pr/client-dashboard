@@ -417,14 +417,12 @@ All Rights Reserved
           },
         ],
       },
-      // {
-      //   icon: "phoneCall",
-      //   name: "support",
-      //   href: isFrontend
-      //     ? "/support"
-      //     : await call.getPage("client-dashboard", "support"),
-      //     children: []
-      // },
+      {
+        icon: "phoneCall",
+        name: "support",
+        href: isFrontend ? "/support" : await call.getPage("client-dashboard", "support"),
+        children: [],
+      },
       // End of new sidebar
 
       // {

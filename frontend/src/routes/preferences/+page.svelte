@@ -953,8 +953,11 @@
                 class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
                 on:click={() => {
                   onEditCompanyType = false;
-                }}>{$_("cancel")}</Button
+                  getCompanyType();
+                }}
               >
+                {$_("cancel")}
+              </Button>
               <Button
                 class="bg-hc-brand-600 hover:bg-hc-brand-700"
                 on:click={() => {
