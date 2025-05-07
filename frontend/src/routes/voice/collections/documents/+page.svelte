@@ -35,6 +35,8 @@
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
@@ -126,7 +128,7 @@
         },
       });
 
-      console.log("collection", response);
+      // console.log("collection", response);
 
       collectionDatas = {
         title: response.result.attributes.name,
@@ -187,7 +189,9 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "voice-detail");
+        let link = isFrontend
+          ? "/voice/collections/documents/detail"
+          : await $call.getPage("client-dashboard", "voice-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -256,7 +260,7 @@
 
         collectionListDatas = await Promise.all(promise);
 
-        console.log("collectionListDatas", collectionListDatas);
+        // console.log("collectionListDatas", collectionListDatas);
       } catch (error) {
         console.error("Error during documents get:", error);
         gettingDocs = false;
@@ -1082,9 +1086,13 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "voice-sub-documents");
+        link = isFrontend
+          ? "/voice/collections/documents/sub_documents"
+          : await $call.getPage("client-dashboard", "voice-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "voice-documents");
+        link = isFrontend
+          ? "/voice/collections/documents"
+          : await $call.getPage("client-dashboard", "voice-documents");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1114,10 +1122,10 @@
 
       if (isChild) {
         childCollectionList = await Promise.all(promise);
-        console.log("ischild", childCollectionList);
+        // console.log("ischild", childCollectionList);
       } else if (subCollections) {
         childCollectionListDatas = await Promise.all(promise);
-        console.log("subcollection", childCollectionListDatas);
+        // console.log("subcollection", childCollectionListDatas);
         if (childCollectionListDatas.length > 0) {
           if (tabDatas.data.length < 2) {
             tabDatas.data = [
@@ -1131,7 +1139,7 @@
           tabDatas.data = tabDatas.data.filter((item) => item.name !== "Sub Collections");
         }
       } else {
-        console.log("collections", collectionList);
+        // console.log("collections", collectionList);
         collectionList = await Promise.all(promise);
       }
       gettingDatas = false;
@@ -1280,7 +1288,7 @@
 
         deleteModal = false;
         const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-        let link = await $call.getPage("client-dashboard", "voice");
+        let link = isFrontend ? "/voice" : await $call.getPage("client-dashboard", "voice");
         goto(`${link}?libraryId=${libraryIdWebchatBakrie}`);
       } catch (error) {
         console.error("Error during collection deletion:", error);
