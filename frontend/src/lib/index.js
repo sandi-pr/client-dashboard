@@ -58,6 +58,7 @@ export { default as AddDocModal } from "$lib/ui/modal/AddDocModal.svelte";
 export { default as ModalObject } from "$lib/ui/modal/ModalObject.svelte";
 export { default as ModalFilePreview } from "$lib/ui/modal/ModalFilePreview.svelte";
 export { default as ModalFolder } from "$lib/ui/modal/ModalFolder.svelte";
+export { default as PageComingSoon } from "$lib/components/PageComingSoon.svelte";
 export { checkLibraryName } from "$lib/utils/checkLibraryName";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {

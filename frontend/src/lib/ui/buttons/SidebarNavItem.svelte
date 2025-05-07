@@ -39,7 +39,7 @@
 
   onMount(() => {
     // console.log(`cek comming soon ${icon}`, commingSoon);
-  })
+  });
 </script>
 
 <button
@@ -48,10 +48,9 @@
       ? classesActive
       : classes
     : "flex w-full py-2 m-0 !my-4 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 justify-center"}
-  disabled={commingSoon}
   onclick={() => {
     // console.log(href);
-     goto(href);
+    goto(href);
   }}
 >
   <div class="flex gap-3">

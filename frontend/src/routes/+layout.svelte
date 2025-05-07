@@ -48,6 +48,7 @@ All Rights Reserved
     onProgress,
     isBakrie,
     check,
+    PageComingSoon,
   } from "$lib";
   import { onDestroy, onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -93,6 +94,9 @@ All Rights Reserved
   const hideScrollList = $state(["/document/document_collection/chat"]);
 
   const hideNavbarList = $state(["/client-dashboard/datasets", "/datasets"]);
+
+  const pageComingSoon = $state(["/support"]);
+  let isComingSoon = $state(false);
 
   const hideScroll = () => {
     return !hideScrollList.some((path) => {
@@ -421,6 +425,7 @@ All Rights Reserved
         icon: "phoneCall",
         name: "support",
         href: isFrontend ? "/support" : await call.getPage("client-dashboard", "support"),
+        commingSoon: true,
         children: [],
       },
       // End of new sidebar
@@ -1691,6 +1696,10 @@ All Rights Reserved
     }
   }
 
+  const checkPageComingSoon = () => {
+    return pageComingSoon.some((path) => path === globalThis.location.pathname);
+  };
+
   onMount(async () => {
     if (localStorage.getItem("token") === null && isFrontend) {
       const token = prompt("Please insert your token:", "");
@@ -1701,6 +1710,8 @@ All Rights Reserved
         return;
       }
     }
+
+    isComingSoon = checkPageComingSoon();
 
     setCall(call);
 
@@ -1790,6 +1801,7 @@ All Rights Reserved
     // console.log(activeUrl);
     if (activeUrl !== $page.url.pathname) {
       activeUrl = $page.url.pathname;
+      isComingSoon = checkPageComingSoon();
       hideNavbar();
     }
   });
@@ -1869,18 +1881,22 @@ All Rights Reserved
                   />
                 </div>
               {/if}
-              <div class={`h-screen ${!hideNav ? "pt-12 lg:pt-20 pb-12 lg:pb-0" : ""}`}>
-                {#if hideScroll()}
-                  <div class="h-full overflow-y-auto">
-                    <slot />
-                  </div>
-                {:else}
-                  <div class="h-full">
-                    <slot />
-                  </div>
-                {/if}
-                <ToastContainer />
-              </div>
+              {#if isComingSoon}
+                <PageComingSoon />
+              {:else}
+                <div class={`h-screen ${!hideNav ? "pt-12 lg:pt-20 pb-12 lg:pb-0" : ""}`}>
+                  {#if hideScroll()}
+                    <div class="h-full overflow-y-auto">
+                      <slot />
+                    </div>
+                  {:else}
+                    <div class="h-full">
+                      <slot />
+                    </div>
+                  {/if}
+                  <ToastContainer />
+                </div>
+              {/if}
               <LoadingContainer />
             </div>
           </Pane>
