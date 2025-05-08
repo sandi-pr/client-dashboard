@@ -112,7 +112,7 @@
   let tmpOverlayColor = $state("");
 
   let tabDatas = $state({
-    selected: "Customization",
+    selected: "Information",
     data: [
       {
         name: "Information",
