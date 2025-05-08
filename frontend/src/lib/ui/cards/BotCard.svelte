@@ -39,7 +39,7 @@
     </div>
   {/if}
   <div
-    class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
+    class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6 rounded-t-lg"
   >
     <div class="flex justify-between items-center">
       <div class="flex items-center gap-3">
