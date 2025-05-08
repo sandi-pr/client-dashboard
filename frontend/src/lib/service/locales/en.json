@@ -1134,5 +1134,6 @@
   "purple": "Purple",
   "chooseYourPreferedColor": "Choose your preferred color",
   "embedCodes": "Embed Codes",
-  "copyToClipboard": "Copy to clipboard"
+  "copyToClipboard": "Copy to clipboard",
+  "clearConversations": "Clear Conversations"
 }
