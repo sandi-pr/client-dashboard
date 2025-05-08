@@ -17,10 +17,19 @@
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import { Typography, Divider, StateCard, call, triggerLoading, triggerToast, check, Pagination } from "$lib";
-  import { onMount, onDestroy  } from "svelte";
-  import MultiSelect from 'svelte-multiselect';
-  
+  import {
+    Typography,
+    Divider,
+    StateCard,
+    call,
+    triggerLoading,
+    triggerToast,
+    check,
+    Pagination,
+  } from "$lib";
+  import { onMount, onDestroy } from "svelte";
+  import MultiSelect from "svelte-multiselect";
+
   import { page } from "$app/stores";
   // import { lib } from "crypto-js/core";
 
@@ -41,7 +50,7 @@
   const underscoreToSpace = (text) => {
     return text.replace(/_/g, " ");
   };
-  
+
   let currentArrayData = $state([]);
 
   async function getDocument() {
@@ -440,19 +449,29 @@
     <Typography text={tmpData.document_title} preset="Display sm/Semibold" />
     <div class="flex gap-2">
       {#if canEdit}
-        <Button color="alternative" on:click={() => {canEdit = false; data.document_title = tmpData.document_title}}>
-          <Typography text="Cancel" preset="Text sm/Semibold" color="tertiary" />
+        <Button
+          color="alternative"
+          on:click={() => {
+            canEdit = false;
+            data.document_title = tmpData.document_title;
+          }}
+        >
+          <Typography text={$_("cancel")} preset="Text sm/Semibold" color="tertiary" />
         </Button>
-        <Button color="primary" disabled={data.document_title === "" || !nameIsAvailable} on:click={() => updateDocument()}>
-          <Typography text="Save" preset="Text sm/Semibold" color="primary-onbrand" />
+        <Button
+          color="primary"
+          disabled={data.document_title === "" || !nameIsAvailable}
+          on:click={() => updateDocument()}
+        >
+          <Typography text={$_("save")} preset="Text sm/Semibold" color="primary-onbrand" />
         </Button>
       {:else}
         <Button color="alternative" on:click={() => (deleteModal = true)}>
-          <Typography text="Delete" preset="Text sm/Semibold" color="error-primary" />
+          <Typography text={$_("delete")} preset="Text sm/Semibold" color="error-primary" />
         </Button>
         <Button color="alternative" on:click={() => (canEdit = true)}>
           <Typography
-            text="edit"
+            text={$_("edit")}
             preset="Text sm/Semibold"
             propClass="text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
           />
@@ -498,7 +517,7 @@
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
         <MultiSelect
           --sms-min-height="40px"
-          options={alltags || []} 
+          options={alltags || []}
           disabled={!canEdit}
           allowUserOptions="append"
           bind:selected={tags}
@@ -507,8 +526,8 @@
           ulSelectedClass="text-primary-light dark:text-primary-dark"
           liSelectedClass="border border-primary-light dark:border-primary-dark"
           outerDivClass="bg-primary-light dark:bg-secondary-dark border border-gray-300 dark:border-gray-600 focus:none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
-          createOptionMsg={null}
-        ><span slot="disabled-icon"></span></MultiSelect>
+          createOptionMsg={null}><span slot="disabled-icon"></span></MultiSelect
+        >
       </div>
     </div>
   </div>

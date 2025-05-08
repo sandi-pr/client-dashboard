@@ -42,6 +42,8 @@
   import MultiSelect from "svelte-multiselect";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let collectionId = $state(null);
   let libraryId = $state(null);
   let inputRef;
@@ -225,7 +227,9 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "data-sources-detail");
+        let link = isFrontend
+          ? "/data_sources/collections/documents/detail"
+          : await $call.getPage("client-dashboard", "data-sources-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -1096,9 +1100,13 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "data-sources-sub-documents");
+        link = isFrontend
+          ? "/data_sources/collections/documents/sub_documents"
+          : await $call.getPage("client-dashboard", "data-sources-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "data-sources-documents");
+        link = isFrontend
+          ? "/data_sources/collections/documents"
+          : await $call.getPage("client-dashboard", "data-sources-documents");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1294,7 +1302,9 @@
 
         deleteModal = false;
         const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-        let link = await $call.getPage("client-dashboard", "data-sources");
+        let link = isFrontend
+          ? "/data_sources"
+          : await $call.getPage("client-dashboard", "data-sources");
         goto(`${link}?libraryId=${libraryIdWebchatBakrie}`);
       } catch (error) {
         console.error("Error during collection deletion:", error);
