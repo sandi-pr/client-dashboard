@@ -29,6 +29,7 @@
   } from "$lib";
   import { onMount, onDestroy } from "svelte";
   import MultiSelect from "svelte-multiselect";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
 
   import { page } from "$app/stores";
   // import { lib } from "crypto-js/core";
@@ -445,7 +446,26 @@
 
 <div class="m-4">
   <div class="flex justify-between items-center">
-    <Typography text={tmpData.document_title} preset="Display sm/Semibold" />
+    <div class="flex gap-2">
+      <Typography text={tmpData.document_title} preset="Display sm/Semibold" />
+      &nbsp;
+      <button
+        onclick={() => {
+          navigator.clipboard
+            .writeText(tmpData.document_title)
+            .then(() => {
+              console.log("Text copied to clipboard");
+              triggerToast("copyToClipboard");
+            })
+            .catch((err) => {
+              console.error("Failed to copy: ", err);
+            });
+        }}
+        class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+      >
+        <Copy01Icon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+      </button>
+    </div>
     <div class="flex gap-2">
       {#if canEdit}
         <Button

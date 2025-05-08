@@ -23,6 +23,7 @@
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -1085,6 +1086,24 @@
                 text={collectionDatas.title}
                 propClass="fluid-xl"
               />
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(collectionDatas.title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+              >
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </div>
           </div>
 
