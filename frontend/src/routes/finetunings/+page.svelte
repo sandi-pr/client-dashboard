@@ -76,7 +76,9 @@
         desc: "desc Finetune for Handwriting",
       },
       {
-        href: await $call.getPage("client-dashboard", "finetunings-conversation-chat"),
+        href: isFrontend
+          ? "finetunings/conversation/chat"
+          : await $call.getPage("client-dashboard", "finetunings-conversation-chat"),
         icon: "messageChatSquare",
         actionName: "Finetune for Conversation",
         desc: "desc Finetune for Conversation",

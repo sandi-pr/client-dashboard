@@ -88,6 +88,8 @@
 
       configs = {
         pagination: response.result.meta.pagination,
+        search: true,
+        searchHandler: handleSearch,
       };
 
       let promise = response.result.data.map(async (data) => {
@@ -128,9 +130,12 @@
     }
   };
 
-  const handleSearch = (evt) => {
-    console.log("clicked");
-    getDatasetsHandwriting();
+  const handleSearch = async (value) => {
+    searchTerm = value;
+    paginationHandwriting.page = 1;
+
+    // console.log(searchTerm);
+    await getDatasetsHandwriting();
   };
 
   const handleFileUploadWrapper = () => {
@@ -468,7 +473,7 @@
   });
 </script>
 
-<div class="relative h-full flex flex-col gap-8 px-4 pt-4 pb-24">
+<div class="relative h-full flex flex-col px-4 pt-4 pb-24">
   <div class="flex items-center justify-between">
     <Typography
       preset="Display sm/Semibold"
@@ -476,7 +481,7 @@
       color="primary"
       propClass="grow fluid-lg md:fluid-xl"
     />
-    <div class="max-w-64">
+    <!-- <div class="max-w-64">
       <Input
         id="search"
         type="search"
@@ -486,7 +491,7 @@
       >
         <SearchOutline slot="left" class="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
       </Input>
-    </div>
+    </div> -->
     <Button
       outline
       on:click={() => {
@@ -500,7 +505,7 @@
   </div>
   <!-- Handwriting Finetune -->
   <div class="flex flex-col gap-4">
-    {#if datas.length > 0}
+    {#if datas.length > 0 || searchTerm !== ""}
       <DataTable bind:datas bind:configs bind:next={nextPage} bind:previous={prevPage} />
     {:else if gettingDatas}
       <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
@@ -518,7 +523,7 @@
         processDatasetHandwriting();
       }}
       outline
-      class="!flex hover:bg-primary-light dark:hover:bg-primary-dark sticky bottom-0 w-full h-12 rounded-2xl"
+      class="!flex hover:bg-primary-light dark:hover:bg-primary-dark sticky bottom-0 w-full h-12 rounded-2xl mt-8"
     >
       <DataFlow svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark" />
       &nbsp; &nbsp;
