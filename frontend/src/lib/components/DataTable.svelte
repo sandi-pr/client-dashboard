@@ -229,9 +229,9 @@
     </div>
   {/if}
 
-  <Table shadow class="font-jakarta border dark:border-primary-dark">
+  <Table shadow class="font-jakarta">
     {#if configs?.doubleHeader}
-      <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
+      <TableHead class="bg-hc-graylight-100 dark:bg-hc-graydark-800">
         <TableHeadCell class="flex items-center">
           <img
             alt="Home Icon"
@@ -248,7 +248,7 @@
         {/if}
       </TableHead>
     {/if}
-    <TableHead class="bg-hc-graylight-50 dark:bg-hc-graydark-900">
+    <TableHead class="bg-hc-graylight-100 dark:bg-hc-graydark-800">
       {#if datas.length > 0}
         {#each Object.keys(datas[0]) as key}
           {#if normalContent(key)}
@@ -282,7 +282,7 @@
     <TableBody>
       {#each datas as data, index (data.id)}
         <TableBodyRow
-          class="dark:bg-hc-graydark-950 border-hc-graylight-200 dark:border-hc-graydark-800"
+          class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-300 dark:border-hc-graydark-700"
         >
           {#each Object.keys(datas[0]) as key}
             {#if normalContent(key)}
@@ -292,14 +292,18 @@
             {:else if key === "fileName"}
               <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                 <div class="flex items-center gap-2">
-                  {#if data[key].split('.').pop() === "jpg"}
+                  {#if data[key].split(".").pop() === "jpg"}
                     <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                  {:else if data[key].split('.').pop() === "jpeg"}
+                  {:else if data[key].split(".").pop() === "jpeg"}
                     <img src={JPEGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                  {:else if data[key].split('.').pop() === "png"}
+                  {:else if data[key].split(".").pop() === "png"}
                     <img src={PNGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
                   {/if}
-                  <Typography preset="Text sm/Medium" text={data[key].split('.').slice(0, -1).join('.')} color="primary" />
+                  <Typography
+                    preset="Text sm/Medium"
+                    text={data[key].split(".").slice(0, -1).join(".")}
+                    color="primary"
+                  />
                 </div>
               </TableBodyCell>
             {/if}
@@ -328,7 +332,8 @@
           {#if datas[0]?.status && Object.keys(datas[0].status).length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key === "status"}
-                <TableBodyCell class={`text-hc-graylight-600 dark:text-hc-graydark-400 ${configs?.widthStatus} `}
+                <TableBodyCell
+                  class={`text-hc-graylight-600 dark:text-hc-graydark-400 ${configs?.widthStatus} `}
                   ><p
                     class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
                       data.status.type,
@@ -476,7 +481,9 @@
           {#if datas[0]?.actions && Object.keys(datas[0].actions).length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key === "actions"}
-                <TableBodyCell class={`text-hc-graylight-600 dark:text-hc-graydark-400 ${configs?.widthActions} `}>
+                <TableBodyCell
+                  class={`text-hc-graylight-600 dark:text-hc-graydark-400 ${configs?.widthActions} `}
+                >
                   <div class="flex justify-end gap-8">
                     {#each datas[index].actions.objects as action (action.name)}
                       {#if action?.iconOnly && action.iconOnly === true}
@@ -571,7 +578,10 @@
                             class="flex items-center gap-1 hover:no-underline text-fg-error-primary-light dark:text-fg-error-primary-dark leading-tight text-sm font-semibold cursor-pointer"
                           >
                             {#if action?.icon}
-                              <svelte:component this={getIcons(action.icon)} svgClass="w-5 h-5 text-fg-error-primary-light dark:text-fg-error-primary-dark" />
+                              <svelte:component
+                                this={getIcons(action.icon)}
+                                svgClass="w-5 h-5 text-fg-error-primary-light dark:text-fg-error-primary-dark"
+                              />
                             {/if}
                             <!-- {$_(toCamelCase(action.name))} -->
                           </button>
@@ -581,14 +591,23 @@
                             class="flex items-center gap-1 hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold cursor-pointer"
                           >
                             {#if action?.icon}
-                              <svelte:component this={getIcons(action.icon)} svgClass="w-5 h-5 text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark" />
+                              <svelte:component
+                                this={getIcons(action.icon)}
+                                svgClass="w-5 h-5 text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark"
+                              />
                             {/if}
                             {$_(toCamelCase(action.name))}
                           </button>
                         {/if}
                       {:else if action?.icon}
-                        <a href={action.href} class="flex items-center gap-1 hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold">
-                          <svelte:component this={getIcons(action.icon)} svgClass="w-5 h-5 text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark" />
+                        <a
+                          href={action.href}
+                          class="flex items-center gap-1 hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold"
+                        >
+                          <svelte:component
+                            this={getIcons(action.icon)}
+                            svgClass="w-5 h-5 text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark"
+                          />
                           {$_(toCamelCase(action.name))}
                         </a>
                       {:else}
