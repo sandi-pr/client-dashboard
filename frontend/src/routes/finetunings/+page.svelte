@@ -477,10 +477,14 @@
   async function getHrefAction(href) {
     let link = "";
     if (href === "handwriting") {
-      link = await $call.getPage("client-dashboard", "finetunings-handwriting");
+      link = isFrontend
+        ? "finetunings/handwriting"
+        : await $call.getPage("client-dashboard", "finetunings-handwriting");
       return link;
     } else if (href === "conversation") {
-      link = await $call.getPage("client-dashboard", "finetunings-conversation");
+      link = isFrontend
+        ? "finetunings/conversation"
+        : await $call.getPage("client-dashboard", "finetunings-conversation");
       return link;
     }
   }
