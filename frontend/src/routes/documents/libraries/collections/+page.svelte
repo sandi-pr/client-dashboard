@@ -31,6 +31,8 @@
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import TabBar from "$lib/components/TabBar.svelte";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let addCollectionModal = $state(false);
   let addDocumentsModal = $state(false);
   let editModal = $state(false);
@@ -111,7 +113,7 @@
         },
       });
 
-      console.log("library", response);
+      // console.log("library", response);
 
       collectionDatas = {
         title: response.result.attributes.name,
@@ -167,7 +169,9 @@
         // type: "",
         // status: "reading",
 
-        let link = await $call.getPage("client-dashboard", "document-library-documents");
+        let link = isFrontend
+          ? "/documents/libraries/collections/documents"
+          : await $call.getPage("client-dashboard", "document-library-documents");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);

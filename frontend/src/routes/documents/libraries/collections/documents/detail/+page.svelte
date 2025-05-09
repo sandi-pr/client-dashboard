@@ -43,6 +43,8 @@ All Rights Reserved
   import ExampleAudio from "$lib/components/strauss.mp3";
   import MultiSelect from "svelte-multiselect";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
 
@@ -153,7 +155,7 @@ All Rights Reserved
 
         const blob = base64toBlob(base64, fileType);
         fileUrl = URL.createObjectURL(blob);
-        console.log(fileUrl);
+        // console.log(fileUrl);
 
         // let response2;
         // if (documentData.attributes.document_type === "Handwriting") {
@@ -330,7 +332,7 @@ All Rights Reserved
   }
 
   function truncateText(text, maxWords, maxFirstWordLength = 14) {
-    console.log("text", text);
+    // console.log("text", text);
     const words = text.split(" ");
 
     // Check if the first word is too long, or if the second word is long
@@ -629,7 +631,7 @@ All Rights Reserved
           return;
         }
 
-        console.log(response);
+        // console.log(response);
         attributeNotUnique = false;
         triggerToast("successUpdateDocument", true);
         triggerLoading(false);
@@ -670,7 +672,7 @@ All Rights Reserved
         }
 
         triggerLoading(false);
-        console.log(response);
+        // console.log(response);
         triggerToast("successUpdateDocument", true);
         getDocument();
       }
@@ -719,7 +721,7 @@ All Rights Reserved
       // Membuat URL blob untuk diputar di audio player
       audioUrl = URL.createObjectURL(new Blob([file], { type: "audio/mp3" }));
 
-      console.log("audioUrl: ", audioUrl);
+      // console.log("audioUrl: ", audioUrl);
     } else {
       alert("Please upload a valid MP3 file.");
     }
@@ -755,7 +757,7 @@ All Rights Reserved
         },
       });
 
-      console.log("cek resp", resp);
+      // console.log("cek resp", resp);
 
       if (resp === null) {
         throw new Error("Server sibuk");
@@ -860,7 +862,7 @@ All Rights Reserved
                 data = { ...tmpData };
                 attributeNotUnique = false;
                 nameIsAvailable = true;
-                console.log(tmpData);
+                // console.log(tmpData);
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -876,9 +878,13 @@ All Rights Reserved
             <Button
               onclick={async function () {
                 triggerLoading(false);
+                let collectionId = $page.url.searchParams.get("collectionId");
+                let libraryId = $page.url.searchParams.get("libraryId");
                 goto(
-                  (await $call.getPage("client-dashboard", "document-library-documents")) +
-                    `?collectionId=${collectionId}`,
+                  (isFrontend
+                    ? "/documents/libraries/collections/documents"
+                    : await $call.getPage("client-dashboard", "document-library-documents")) +
+                    `?collectionId=${collectionId}&libraryId=${libraryId}`,
                 );
                 return;
               }}

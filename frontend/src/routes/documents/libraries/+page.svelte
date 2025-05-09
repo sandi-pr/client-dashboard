@@ -55,6 +55,8 @@ All Rights Reserved
 
   import { call } from "$lib";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let datas = $state([
     // {
     //   id: "1",
@@ -209,13 +211,15 @@ All Rights Reserved
         return;
       }
 
-      console.log("collections", response);
+      // console.log("collections", response);
 
       collections = response.result.data;
 
       pagination = response.result.meta.pagination;
 
-      let collectionList = await $call.getPage("client-dashboard", "document-library-collections");
+      let link = isFrontend
+        ? "/documents/libraries/collections"
+        : await $call.getPage("client-dashboard", "document-library-collections");
 
       let promise = collections.map(async (collection) => {
         let response4 = await $call.call("client-dashboard", "get-status-library", {
@@ -235,7 +239,7 @@ All Rights Reserved
           return;
         }
 
-        console.log("status", response4);
+        // console.log("status", response4);
 
         let collectionStatus = response4.result.status;
 
@@ -247,7 +251,7 @@ All Rights Reserved
           // totalDocuments: totalDocuments,
           // categories: categoriesCollection,
           status: collectionStatus,
-          href: `${collectionList}?libraryId=${collection.id}`,
+          href: `${link}?libraryId=${collection.id}`,
           webchat: collection.attributes.webchat_tmp === true ? true : false,
         };
       });
