@@ -75,6 +75,7 @@ All Rights Reserved
   let latestApiCollection = $state([]);
   let gettingDatas = $state(false);
   let gettingStatusBot = $state(false);
+  let attributeNotUnique = $state(false);
 
   let bots = $state([
     {
@@ -95,7 +96,7 @@ All Rights Reserved
     actionItems = [
       {
         onclick: () => {
-          addDocumentsModal = true;
+          addCollectionModal = true;
           attributeNotUnique = false;
           tmpCollectionName = "";
           tmpDescription = "";
@@ -139,7 +140,7 @@ All Rights Reserved
 
         const bot = response.result;
 
-        console.log("cek response get bot", response);
+        // console.log("cek response get bot", response);
 
         bots[0].deployStatus = bot.status;
         // datasChecked = collections.map((data) => {
@@ -163,7 +164,7 @@ All Rights Reserved
       try {
         gettingStatusBot = true;
 
-        console.log("botId", botId);
+        // console.log("botId", botId);
 
         const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
           URLQuery: {},
@@ -176,7 +177,7 @@ All Rights Reserved
           },
         });
 
-        console.log("cek response start reading", response);
+        // console.log("cek response start reading", response);
 
         if (response.status !== 200) {
           triggerToast("error");
@@ -323,7 +324,7 @@ All Rights Reserved
   async function editCollectionName() {
     let token = localStorage.getItem("token");
 
-    console.log("tmpCollectionId", tmpCollectionId);
+    // console.log("tmpCollectionId", tmpCollectionId);
 
     if (token !== null) {
       try {
@@ -397,7 +398,7 @@ All Rights Reserved
           return;
         }
 
-        console.log("ayam", response2);
+        // console.log("ayam", response2);
 
         tmpCollectionId = "";
         triggerToast("deleted");
@@ -435,7 +436,6 @@ All Rights Reserved
           },
         });
         if (response.status !== 200) {
-          console.log(response.status);
           console.log(response);
           return;
         }
@@ -557,8 +557,8 @@ All Rights Reserved
       structure[folderKey][fileName] = fileObject;
     }
 
-    console.log("structure::::::::::::");
-    console.log(structure);
+    // console.log("structure::::::::::::");
+    // console.log(structure);
     return structure;
   }
 
@@ -739,7 +739,7 @@ All Rights Reserved
       try {
         addDocumentsModal = false;
         triggerLoading(true);
-        console.log("trigger loading");
+        // console.log("trigger loading");
 
         for (let i = 0; i < files.length; i++) {
           if (
@@ -783,7 +783,7 @@ All Rights Reserved
                   Authorization: "Bearer " + token,
                 },
               });
-              console.log("audio-predict", response3);
+              // console.log("audio-predict", response3);
             }
 
             if (response3.status !== 200) {
@@ -853,17 +853,17 @@ All Rights Reserved
             tmpDocumentType === "Document Images" ||
             tmpDocumentType === "Document Audio"
           ) {
-            console.log("ayam");
+            // console.log("ayam");
             if (files.length > 1) {
               await sendDocument();
             } else {
-              console.log("bebek");
+              // console.log("bebek");
               previewModal = true;
               selectedFile = files[0];
               return;
             }
           } else {
-            console.log("cacing");
+            // console.log("cacing");
 
             let index = 1;
             let originalName = files[i].name.split(".").slice(0, -1).join(".");
@@ -1037,7 +1037,7 @@ All Rights Reserved
         },
       });
 
-      console.log("cek resp", resp);
+      // console.log("cek resp", resp);
 
       if (resp === null) {
         throw new Error("Server sibuk");
@@ -1070,7 +1070,7 @@ All Rights Reserved
 
   $effect(() => {
     if ($onProgress) {
-      console.log("notification", $notifications);
+      // console.log("notification", $notifications);
       if (
         $notifications.length > 0 &&
         $notifications[0].attributes.meta?.progress.includes("100")
@@ -1193,7 +1193,6 @@ All Rights Reserved
                     deleteModal = true;
                   }}
                   funcDetailCollection={() => {
-                    console.log("api href", api.href);
                     goto(api.href);
                   }}
                   {libraryId}

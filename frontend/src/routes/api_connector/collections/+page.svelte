@@ -1,6 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, P, Helper } from "flowbite-svelte";
+  import { Button, Modal, Input, Helper, Search } from "flowbite-svelte";
 
   import { call } from "$lib";
   import {
@@ -48,6 +48,7 @@
   let dropdownOpen = $state(false);
   let nameIsAvailable = $state(true);
   let gettingDatas = $state(false);
+  let searchTerm = $state("");
 
   //Ketbutuhan Untuk Modal DropDown
   let tmpDocumentType = $state("Handwriting");
@@ -112,7 +113,7 @@
         },
       });
 
-      console.log("library", response);
+      // console.log("library", response);
 
       collectionDatas = {
         title: response.result.attributes.name,
@@ -137,6 +138,7 @@
             page: pagination.page,
             page_size: pagination.pageSize,
             parent_id: parseInt(libraryId),
+            search: searchTerm,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -432,7 +434,7 @@
           return;
         }
 
-        console.log("ayam", response);
+        // console.log("ayam", response);
 
         triggerToast($_("successDeleteLibrary"), true);
 
@@ -482,7 +484,7 @@
           return;
         }
 
-        console.log("ayam", response);
+        // console.log("ayam", response);
 
         triggerToast($_("successDeleteCollection"), true);
 
@@ -518,7 +520,7 @@
         },
       });
 
-      console.log("cek resp", resp);
+      // console.log("cek resp", resp);
 
       if (resp === null) {
         throw new Error("Server sibuk");
@@ -918,7 +920,7 @@
                   Authorization: "Bearer " + token,
                 },
               });
-              console.log("audio-predict", response3);
+              // console.log("audio-predict", response3);
             }
 
             let statusDetectedDoc = triggerToastResponse(response3);
@@ -970,16 +972,16 @@
             tmpDocumentType === "Document Images" ||
             tmpDocumentType === "Document Audio"
           ) {
-            console.log("ayam");
+            // console.log("ayam");
             if (files.length > 1) {
               await sendDocument();
             } else {
-              console.log("bebek");
+              // console.log("bebek");
               previewModal = true;
               selectedFile = files[0];
             }
           } else {
-            console.log("cacing");
+            // console.log("cacing");
 
             let index = 1;
             let originalName = files[i].name.split(".").slice(0, -1).join(".");
@@ -1088,42 +1090,16 @@
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->
-        <div class="flex items-start justify-between mb-3 md:mb-8">
+        <div class="flex items-start justify-between mb-4 md:mb-8">
           <div class="flex flex-col gap-1.5">
             <div class="flex gap-4">
               <Typography
                 preset="Display sm/Semibold"
                 color="primary"
-                text={collectionDatas.title}
+                text={$_("apiCollectionList")}
                 propClass="fluid-xl"
               />
-              <button
-                onclick={() => {
-                  navigator.clipboard
-                    .writeText(collectionDatas.title)
-                    .then(() => {
-                      console.log("Text copied to clipboard");
-                      triggerToast("copyToClipboard");
-                    })
-                    .catch((err) => {
-                      console.error("Failed to copy: ", err);
-                    });
-                }}
-                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
-              >
-                <Copy01Icon
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
-              </button>
             </div>
-            <P
-              class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-              >{collectionDatas.description}</P
-            >
-            <P
-              class="text-sm font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-              >{$_("createOn")}{` ${collectionDatas.createdAt}`}</P
-            >
           </div>
 
           <div class="flex relative gap-3" onfocusout={handleDropdownFocusLoss}>
@@ -1173,30 +1149,24 @@
           </div>
         </div>
 
-        <TabBar {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+        <div>
+          <Search
+            class="bg-primary-light dark:bg-primary-dark mb-2 md:mb-4 rounded-lg"
+            placeholder={$_("search")}
+            bind:value={searchTerm}
+            on:input={getCollections}
+          />
+        </div>
 
-        {#if tabDatas.selected === "My Collections" && collectionListDatas.length > 0}
+        {#if collectionListDatas.length > 0}
           <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
             {#each collectionListDatas as collection}
               <LibraryCard
                 collectionName={collection.collectionName}
                 usedFor="libraries_collections"
-                functButton={() => {
-                  // selectCollection({
-                  //   id: collection.id,
-                  //   name: collection.collectionName,
-                  //   description: collection.description,
-                  //   totalDocuments: collection.totalDocuments,
-                  // });
-                }}
+                functButton={() => {}}
                 functAddDocuments={() => {
                   tmpCollectionId = collection.id;
-                  // tmpHref = collection.href;
-                  // categories = collection.categories;
-                  // selectTypeCollection("Documents");
-                  // categories = collection.categories;
-                  // otherCategory = "";
-                  // addOtherCategory = false;
                   addDocumentsModal = true;
                 }}
                 functEdit={() => {
@@ -1218,35 +1188,6 @@
                 {libraryId}
               />
             {/each}
-          </div>
-        {:else if tabDatas.selected === "Information" && Object.keys(informationDatas).length > 0}
-          <div class="grid grid-cols-12 mt-4 gap-2">
-            <div class="col-span-4">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                {$_("generalInformation")}
-              </P>
-            </div>
-            <div class="col-span-8">
-              <P
-                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >{$_("collectionTitle")}</P
-              >
-            </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
-              <InputRw onEdit={false} bind:value={collectionDatas.title} />
-            </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
-              <P
-                class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                >{$_("description")}</P
-              >
-            </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
-              <TextareaRw onEdit={false} bind:value={collectionDatas.description} />
-            </div>
           </div>
         {:else if gettingDatas}
           <StateCard
