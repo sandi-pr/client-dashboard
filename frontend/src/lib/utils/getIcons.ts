@@ -82,6 +82,7 @@ import Trash03Icon from "../icon/trash-03.svelte";
 import LineChartUp01 from "../icon/line-chart-up-01.svelte";
 import ThumbsDown from "../icon/thumbs-down.svelte";
 import Send03 from "../icon/send-03.svelte";
+import Dataflow02 from "../icon/dataflow-02.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -253,6 +254,8 @@ let getIcons = (presetIcon: String) => {
       return ThumbsDown;
     case "send03":
       return Send03;
+    case "dataflow02":
+      return Dataflow02;
     default:
       return "";
   }

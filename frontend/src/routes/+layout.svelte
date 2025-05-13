@@ -293,7 +293,8 @@ All Rights Reserved
         children: [],
         href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
       },
-      { // BRI ADJUSTMENT
+      {
+        // BRI ADJUSTMENT
         icon: "lightbulb",
         name: "insights",
         children: [],
@@ -417,6 +418,13 @@ All Rights Reserved
             href: isFrontend
               ? "/finetunings"
               : await call.getPage("client-dashboard", "finetunings"),
+          },
+          {
+            icon: "dataflow02",
+            name: "apiConnector",
+            href: isFrontend
+              ? "/api_connector"
+              : await call.getPage("client-dashboard", "api-connector"),
           },
         ],
       },

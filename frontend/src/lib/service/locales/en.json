@@ -1135,5 +1135,10 @@
   "chooseYourPreferedColor": "Choose your preferred color",
   "embedCodes": "Embed Codes",
   "copyToClipboard": "Copy to clipboard",
-  "clearConversations": "Clear Conversations"
+  "clearConversations": "Clear Conversations",
+  "apiConnector": "API Connector",
+  "apiConnectorOverview": "API Connector Overview",
+  "addNewApiCollection": "Add New API Collection",
+  "descAddNewApiCollection": "Register new API collection",
+  "apiCollectionList": "API Collection List"
 }

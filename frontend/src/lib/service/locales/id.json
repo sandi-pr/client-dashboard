@@ -1135,5 +1135,10 @@
   "chooseYourPreferedColor": "Pilih Warna Favorit Anda",
   "embedCodes": "Tanamkan Kode",
   "copyToClipboard": "Salin ke Papan Klip",
-  "clearConversations": "Hapus Percakapan"
+  "clearConversations": "Hapus Percakapan",
+  "apiConnector": "Konektor API",
+  "apiConnectorOverview": "Ikhtisar Konektor API",
+  "addNewApiCollection": "Tambahkan Koleksi API Baru",
+  "descAddNewApiCollection": "Daftarkan koleksi API baru",
+  "apiCollectionList": "Daftar Koleksi API"
 }

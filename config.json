@@ -335,6 +335,16 @@
             "file_path": "template/finetunings/conversation/chat.html"
         },
         {
+            "name": "api-connector",
+            "path": "/api_connector",
+            "file_path": "template/api_connector.html"
+        },
+        {
+            "name": "api-connector-collections",
+            "path": "/api_connector/collections",
+            "file_path": "template/api_connector/collections.html"
+        },
+        {
             "name": "hexabot",
             "path": "/hexabots",
             "file_path": "template/hexabots.html"
