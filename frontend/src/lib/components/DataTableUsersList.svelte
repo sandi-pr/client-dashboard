@@ -72,11 +72,9 @@
   // console.log(userListDatas);
 </script>
 
-<div
-  class="mt-4 rounded-lg [&>div]:sm:rounded-lg bg-gray-50 dark:bg-gray-700 [&>div]:border [&>div]:border-primary-light [&>div]:dark:border-primary-dark"
->
-  <Table hoverable={true}>
-    <TableHead>
+<div class="mt-4 [&>div]:rounded-lg">
+  <Table shadow>
+    <TableHead class="bg-hc-graylight-100 dark:bg-hc-graydark-800">
       <TableHeadCell>No.</TableHeadCell>
       <TableHeadCell>{$_("fullname")}</TableHeadCell>
       <TableHeadCell>{$_("username")}</TableHeadCell>
@@ -87,7 +85,9 @@
     </TableHead>
     <TableBody tableBodyClass="divide-y">
       {#each userListDatas as userListData (userListData.id)}
-        <TableBodyRow>
+        <TableBodyRow
+          class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-300 dark:border-hc-graydark-700"
+        >
           <TableBodyCell>
             <P>{userListData.no}</P>
           </TableBodyCell>
@@ -128,7 +128,7 @@
                 goto(userListData.href);
               }}
               color="white"
-              class="!p-2 focus-within:!ring-1 text-brand-tertiary-light dark:text-brand-tertiary-dark"
+              class="!p-0 focus-within:!ring-1 text-brand-tertiary-light dark:text-brand-tertiary-dark"
               size="lg"
             >
               &nbsp;{$_("detail")}

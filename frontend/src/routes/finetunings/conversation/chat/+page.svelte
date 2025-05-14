@@ -1,18 +1,12 @@
 <script>
-  import {
-    Input,
-    Button,
-    Spinner,
-    Textarea,
-    DarkMode,
-  } from "flowbite-svelte";
+  import { Input, Button, Spinner, Textarea, DarkMode } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { page } from "$app/stores";
   import Markdown from "svelte-exmarkdown";
   import { format } from "date-fns";
   import { onMount, onDestroy, tick } from "svelte";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  
+
   import {
     call,
     check,
@@ -25,17 +19,17 @@
     isBakrie,
   } from "$lib";
   import Chat from "$lib/components/Chat.svelte";
-  
+
   import UserIcon from "$lib/icon/user-01.svg";
   import MenuIcon from "$lib/icon/menu-01.svg";
   import VerifiedIcon from "$lib/icon/verified.svg";
-  
+
   import EditIcon from "$lib/icon/edit-05.svelte";
   import AlignRightIcon from "$lib/icon/align-right-01.svelte";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ToastContainer from "$lib/ui/toast/ToastContainer.svelte";
   import LaodingLottie from "$lib/components/LaodingLottie.svelte";
-  
+
   const plugins = [gfmPlugin()];
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -285,8 +279,6 @@
     editedMessage = "";
   };
 
-
-
   const clearConversation = async () => {
     let token = localStorage.getItem("token");
     if (token) {
@@ -379,7 +371,6 @@
     event.returnValue = message; // Required for some browsers
     return message;
   };
-
 
   const getmessage = async (conversationId) => {
     let token = localStorage.getItem("token");
@@ -672,7 +663,7 @@
       }
 
       let promise = response.result.data.map(async (data) => {
-        let link = await $call.getPage("client-dashboard", "datasets-detail");
+        let link = await $call.getPage("client-dashboard", "finetunings-detail");
 
         return {
           id: data.id,
@@ -760,15 +751,11 @@
   });
 </script>
 
-<div
-  bind:this={div}
-  id="chat-container"
-  class="static bg-primary-light dark:bg-primary-dark"
->
+<div bind:this={div} id="chat-container" class="static bg-primary-light dark:bg-primary-dark">
   <div class="flex flex-col pt-4 px-4 md:px-8">
     <div class="flex flex-col gap-3 md:gap-4">
       <div
-        class="flex sticky top-0 z-20 py-4 bg-primary-light dark:bg-primary-dark w-full justify-between items-center"
+        class="flex sticky top-0 z-[1] py-4 bg-primary-light dark:bg-primary-dark w-full justify-between items-center"
       >
         <div class="lg:hidden flex w-max items-end justify-end pe-4">
           <Button
@@ -914,7 +901,7 @@
                 {#if editingMessageId !== qaPair.id}
                   <button onclick={() => startEditingMessage(qaPair.id, qaPair.message)}>
                     <EditIcon
-                      svgClass="w-full h-full text-brand-secondary dark:text-brand-secondary"
+                      svgClass="w-full h-full text-brand-secondary-light dark:text-brand-secondary-dark"
                     />
                   </button>
                 {/if}
@@ -926,8 +913,10 @@
                   unWrappedClass="focus:border-fg-success-secondary-light dark:focus:border-fg-success-secondary-dark focus:ring-0"
                 ></Textarea>
                 <div class="flex gap-2 justify-end">
-                  <Button on:click={saveEditedMessage} class="h-max">Save</Button>
-                  <Button color="light" on:click={cancelEditing} class="h-max">Cancel</Button>
+                  <Button on:click={saveEditedMessage} class="h-max">{$_("save")}</Button>
+                  <Button color="light" on:click={cancelEditing} class="h-max"
+                    >{$_("cancel")}</Button
+                  >
                 </div>
               {:else}
                 <div

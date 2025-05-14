@@ -1,5 +1,5 @@
 <script>
-    import {
+  import {
     Typography,
     SectionHeader,
     ActionCard,
@@ -15,7 +15,7 @@
   import { format } from "date-fns";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  
+
   import DataTable from "$lib/components/DataTable.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -48,6 +48,8 @@
   let acceptedFileTypes = $state(".jpg, .jpeg, .png");
   let tmpDocumentTitle = $state("");
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   // let datasConversation = $state([
   //   {
   //     id: 1,
@@ -74,7 +76,9 @@
         desc: "desc Finetune for Handwriting",
       },
       {
-        href: await $call.getPage("client-dashboard", "finetunings-conversation"),
+        href: isFrontend
+          ? "finetunings/conversation/chat"
+          : await $call.getPage("client-dashboard", "finetunings-conversation-chat"),
         icon: "messageChatSquare",
         actionName: "Finetune for Conversation",
         desc: "desc Finetune for Conversation",
@@ -107,10 +111,12 @@
         return;
       }
 
-      console.log("response getDatasetsHandwriting", response);
+      // console.log("response getDatasetsHandwriting", response);
 
       let promise = response.result.data.map(async (data) => {
-        let link = await $call.getPage("client-dashboard", "datasets-detail");
+        let link = isFrontend
+          ? "/finetunings/detail"
+          : await $call.getPage("client-dashboard", "finetunings-detail");
 
         return {
           id: data.id,
@@ -168,17 +174,20 @@
       let promise = response.result.data.map(async (conversation) => {
         let title = conversation.attributes.title;
         let id = conversation.attributes.conversation_id;
+        let newLink = isFrontend
+          ? `/finetunings/conversation/chat`
+          : await $call.getPage("client-dashboard", "finetunings-conversation-chat");
 
         return {
           id: id,
-          conversation_name: title,
+          conversationName: title,
           updateAt: format(new Date(conversation.attributes.updatedAt), "MMM d, yyyy"),
           actions: {
             objects: [
               {
-                onclick: () => {
+                onclick: async () => {
                   setSelectedConversation(conversation.id);
-                  goto("/finetunings/conversation");
+                  goto(newLink + "?id=" + id);
                 },
                 icon: "eye",
                 name: "View",
@@ -190,22 +199,20 @@
 
       datasConversation = await Promise.all(promise);
 
-      console.log("datasConversation", datasConversation);
+      // console.log("datasConversation", datasConversation);
 
       gettingDatas = false;
     }
   };
 
   const handleFileUploadWrapper = () => {
-
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.accept = acceptedFileTypes;
     inputElement.multiple = true;
     inputElement.replaceWith(inputElement.cloneNode(true));
 
-    inputElement.addEventListener("change", async (event) => {  
-
+    inputElement.addEventListener("change", async (event) => {
       const filesSelect = event.target.files;
 
       const fileTypeRegex = new RegExp(
@@ -244,7 +251,7 @@
       isProcess = false;
     });
     inputElement.click();
-    };  
+  };
 
   async function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
@@ -313,7 +320,8 @@
           }
 
           if (response3?.result?.text !== null) {
-            let originalName = files.length > 1 ? files[i].name.split(".").slice(0, -1).join(".") : tmpDocumentTitle;
+            let originalName =
+              files.length > 1 ? files[i].name.split(".").slice(0, -1).join(".") : tmpDocumentTitle;
             let newName = originalName;
 
             files[i].name = newName + files[i].ext;
@@ -471,10 +479,14 @@
   async function getHrefAction(href) {
     let link = "";
     if (href === "handwriting") {
-      link = await $call.getPage("client-dashboard", "finetunings-handwriting");
+      link = isFrontend
+        ? "finetunings/handwriting"
+        : await $call.getPage("client-dashboard", "finetunings-handwriting");
       return link;
     } else if (href === "conversation") {
-      link = await $call.getPage("client-dashboard", "finetunings-conversation");
+      link = isFrontend
+        ? "finetunings/conversation"
+        : await $call.getPage("client-dashboard", "finetunings-conversation");
       return link;
     }
   }
@@ -485,7 +497,7 @@
     getActionItems();
     getDatasetsHandwriting();
     getListConversations();
-  })
+  });
 </script>
 
 <div class="flex flex-col gap-8 px-4 pt-4 pb-24">
@@ -498,37 +510,22 @@
   <div class="flex flex-col">
     <SectionHeader title={$_("handwritingFinetuneHistory")} hrefAction={hrefHandwriting} />
     {#if datas.length > 0}
-      <DataTable
-        bind:datas={datas}
-        bind:configs
-      />
+      <DataTable bind:datas bind:configs />
     {:else if gettingDatas}
-      <StateCard
-        illustration={IllustrationProgress}
-        description={$_("fetchingDataPleaseWait")}
-      />
+      <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
     {:else}
-      <StateCard
-        illustration={IllustrationEmpty}
-        description={$_("youDontHaveAnyDataYet")}
-      />
+      <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
     {/if}
   </div>
   <!-- Conversation Finetune -->
   <div class="flex flex-col">
     <SectionHeader title={$_("conversationFinetuneHistory")} hrefAction={hrefConversation} />
-    {#if datas.length > 0}
+    {#if datasConversation.length > 0}
       <DataTable bind:datas={datasConversation} bind:configs />
     {:else if gettingDatas}
-      <StateCard
-        illustration={IllustrationProgress}
-        description={$_("fetchingDataPleaseWait")}
-      />
+      <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
     {:else}
-      <StateCard
-        illustration={IllustrationEmpty}
-        description={$_("youDontHaveAnyDataYet")}
-      />
+      <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
     {/if}
   </div>
 </div>
@@ -596,7 +593,9 @@
         }}
         class="w-full">{$_("cancel")}</Button
       >
-      <Button color="primary" on:click={sendDocument} class="rounded-lg w-full">{$_("yesImSure")}</Button>
+      <Button color="primary" on:click={sendDocument} class="rounded-lg w-full"
+        >{$_("yesImSure")}</Button
+      >
     </div>
   </svelte:fragment>
 </Modal>

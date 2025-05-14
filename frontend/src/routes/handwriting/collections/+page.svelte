@@ -30,6 +30,8 @@
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import TabBar from "$lib/components/TabBar.svelte";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let addCollectionModal = $state(false);
   let editModal = $state(false);
   let editLibraryModal = $state(false);
@@ -166,7 +168,9 @@
         // type: "",
         // status: "reading",
 
-        let link = await $call.getPage("client-dashboard", "handwriting-documents");
+        let link = isFrontend
+          ? "/handwriting/collections/documents"
+          : await $call.getPage("client-dashboard", "handwriting-documents");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -1124,7 +1128,7 @@
 
           <div class="flex relative gap-3" onfocusout={handleDropdownFocusLoss}>
             <Button
-              color="primary"
+              outline
               class="w-fit gap-1.5 ms-14"
               disabled={!check("documentAi.documentLibrary.collection:create")}
               on:click={() => (dropdownUpload = !dropdownUpload)}

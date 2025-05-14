@@ -81,7 +81,7 @@
                 },
               };
             });
-            // console.log(cardDataArray);
+            // console.log("cardDataArray", cardDataArray);
           }
         } else {
           triggerToast("error");
@@ -597,7 +597,7 @@
           if (isFrontend) {
             goto("/llms/my_models/create");
           } else {
-            goto(await $call.getPage("client-dashboard", "my_models_create"));
+            goto(await $call.getPage("client-dashboard", "llms-my-models-create"));
           }
         }}
       >
@@ -620,8 +620,8 @@
             detail: true,
             detailView: true,
             detailTry: true,
-            cardFullLength: true,
             isLlm: true,
+            isFrontend,
           }}
           {handleDropdownFocusLoss}
         />

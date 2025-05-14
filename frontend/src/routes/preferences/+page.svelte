@@ -12,19 +12,24 @@
 
 <script>
   import { onMount } from "svelte";
-  import { P, Input, Avatar, Button, Select, Indicator, Modal } from "flowbite-svelte";
-  import { SelectedCard, StateCard, InformationForm, Typography, triggerToast, InputRw, Dropdown } from "$lib";
+  import { P, Avatar, Button, Indicator, Modal } from "flowbite-svelte";
+  import {
+    SelectedCard,
+    StateCard,
+    InformationForm,
+    Typography,
+    triggerToast,
+    InputRw,
+    Dropdown,
+  } from "$lib";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
-  import { SearchOutline } from "flowbite-svelte-icons";
-  import DataTable from "$lib/components/DataTable.svelte";
   import upload from "$lib/icon/upload-cloud-02.svg";
   import MarketIcon from "$lib/icon/building-02.svelte";
   import OfficeIcon from "$lib/icon/building-06.svelte";
   import BankIcon from "$lib/icon/bank.svelte";
   import BanksIcon from "$lib/icon/banks.svelte";
   import UserIcon from "$lib/icon/user-03.svelte";
-  import SignalIcon from "$lib/icon/signal-01.svelte";
   import UsbFlashDrive from "$lib/icon/usb-flash-drive.svelte";
   import OilGas from "$lib/icon/oil-gas.svelte";
   import BoxesIcon from "$lib/icon/boxes.svelte";
@@ -39,15 +44,11 @@
   import TechIcon from "$lib/icon/tech.svelte";
   import CheckCircle from "$lib/icon/check-circle.svelte";
   import TelecomIcon from "$lib/icon/telecom.svelte";
-  import SlidersIcon from "$lib/icon/sliders-04.svelte";
-  import { datas, informationFormDatas, configs } from "./dummy";
-  import { setPrimaryColor } from "$lib/utils/colorTheme";
-  import { purpleColors, greenColors, blueColors } from "$lib/utils/presetColors";
-  import { CR3Call } from "hexacomponents-svelte";
+  import { informationFormDatas } from "./dummy";
   import { _ } from "svelte-i18n";
+  import { ChevronDownOutline } from "flowbite-svelte-icons";
 
   import { call } from "$lib";
-  import { on } from "svelte/events";
 
   let screenWidth;
   let user = informationFormDatas;
@@ -59,20 +60,6 @@
   let show = false;
   let enableInsights = false;
   let selectedTheme = "purple";
-  let themes = [
-    {
-      name: "Purple",
-      value: "purple",
-    },
-    {
-      name: "Green",
-      value: "green",
-    },
-    {
-      name: "Blue",
-      value: "blue",
-    },
-  ];
   let fileImage = null;
   let fileImageName = null;
   let fileImageResult = null;
@@ -118,22 +105,24 @@
   let popupModal = false;
   let isBackup = true;
   let currentStep = 1;
+  let modalThemeColor = false;
+  let tmpThemeColor = "";
 
   let backupSteps = [
     {
       id: 1,
       title: "chooseBackupMethod",
-      desc: "externalSourcesToConnect"
+      desc: "externalSourcesToConnect",
     },
     {
       id: 2,
       title: "chooseSources",
-      desc: "chooseExternalDrive"
+      desc: "chooseExternalDrive",
     },
     {
       id: 3,
       title: "startBackUp",
-      desc: "insertLinkOrUploadFile"
+      desc: "insertLinkOrUploadFile",
     },
   ];
 
@@ -141,17 +130,17 @@
     {
       id: 1,
       title: "chooseRestoreMethod",
-      desc: "externalSourcesToConnect"
+      desc: "externalSourcesToConnect",
     },
     {
       id: 2,
       title: "chooseSources",
-      desc: "chooseExternalDrive"
+      desc: "chooseExternalDrive",
     },
     {
       id: 3,
       title: "startRestore",
-      desc: "insertLinkOrUploadFile"
+      desc: "insertLinkOrUploadFile",
     },
   ];
 
@@ -275,8 +264,26 @@
     confirmPassword: "",
   };
 
+  let themeColors = [
+    {
+      id: 1,
+      name: "purple",
+      value: "purple",
+    },
+    {
+      id: 2,
+      name: "blue",
+      value: "blue",
+    },
+    {
+      id: 3,
+      name: "green",
+      value: "green",
+    },
+  ];
+
   function getNameById(sources, id) {
-    return sources.find(source => source.id === id).name;
+    return sources.find((source) => source.id === id).name;
   }
 
   function handleDragOver(event) {
@@ -729,6 +736,15 @@
     }
   }
 
+  function getBrandColorName(selectedColor, value) {
+    const newSelectedColor = themeColors.find((color) => color.name === selectedColor);
+    return newSelectedColor
+      ? value === "name"
+        ? newSelectedColor.name
+        : newSelectedColor.value
+      : "Unknown Color";
+  }
+
   onMount(() => {
     getUser();
     getCompanyType();
@@ -915,6 +931,7 @@
               bind:selectedData={selectedCompanyType}
               numGrid={2}
               isRadio
+              iconIsComponent={true}
             />
             <div class="pt-4 pb-4 border-b border-secondary-light dark:border-secondary-dark">
               <Typography preset="Text lg/Semibold" text={$_("industryType")} />
@@ -927,6 +944,7 @@
               isFlex
               isRadio
               widthFlex="w-max"
+              iconIsComponent={true}
             />
           </div>
           <div class="flex w-full justify-end">
@@ -935,8 +953,11 @@
                 class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
                 on:click={() => {
                   onEditCompanyType = false;
-                }}>{$_("cancel")}</Button
+                  getCompanyType();
+                }}
               >
+                {$_("cancel")}
+              </Button>
               <Button
                 class="bg-hc-brand-600 hover:bg-hc-brand-700"
                 on:click={() => {
@@ -1010,14 +1031,34 @@
                 <Typography preset="Text lg/Semibold" text={$_("themeColors")} />
               </div>
               <div class="col-span-3 flex w-1/3">
-                <Dropdown
+                <!-- <Dropdown
                   dropdownOpen={dropdownThemeOpen}
                   bind:selectedItem={selectedTheme}
                   items={themes}
                   isOverlay={true}
                   widget={Indicator}
                   disabled={!onEditTheme}
-                />
+                /> -->
+                <Button
+                  on:click={!onEditTheme
+                    ? () => {}
+                    : () => {
+                        tmpThemeColor = themeColors.find(
+                          (color) => color.name === selectedTheme,
+                        ).id;
+                        modalThemeColor = true;
+                      }}
+                  class={`flex justify-between ${!onEditTheme ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
+                  color="light"
+                >
+                  <div class="flex items-center gap-2">
+                    <Indicator color={getBrandColorName(selectedTheme)} />
+                    {$_(getBrandColorName(selectedTheme, "name"))}
+                  </div>
+                  <ChevronDownOutline
+                    class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                  />
+                </Button>
               </div>
             </div>
           </div>
@@ -1081,13 +1122,18 @@
               <div class="col-span-3 flex flex-col gap-3">
                 <div class="flex flex-col gap-1">
                   <Typography preset="Text sm/Semibold" text={$_("lastBackup")} />
-                  <Typography preset="Text sm/Reguler" text="Wednesday, January 3, 2025, at 2:37 PM" />
+                  <Typography
+                    preset="Text sm/Reguler"
+                    text="Wednesday, January 3, 2025, at 2:37 PM"
+                  />
                 </div>
                 <div class="flex flex-col gap-1">
                   <Typography preset="Text sm/Semibold" text={$_("lastBackupSize")} />
                   <Typography preset="Text sm/Reguler" text="3,4 GB" />
                 </div>
-                <Button on:click={() => (modalBackup = true)} color="light" class="w-max">{$_("backUp")}</Button>
+                <Button on:click={() => (modalBackup = true)} color="light" class="w-max"
+                  >{$_("backUp")}</Button
+                >
                 <Typography preset="Text xs/Regular" text={$_("backupDesc")} />
               </div>
             </div>
@@ -1098,7 +1144,9 @@
                 <Typography preset="Text lg/Semibold" text={$_("restore")} />
               </div>
               <div class="col-span-3 flex flex-col gap-3">
-                <Button on:click={() => (modalRestore = true)} color="light" class="w-max">{$_("restoreData")}</Button>
+                <Button on:click={() => (modalRestore = true)} color="light" class="w-max"
+                  >{$_("restoreData")}</Button
+                >
                 <Typography preset="Text xs/Regular" text={$_("restoreDesc")} />
               </div>
             </div>
@@ -1114,7 +1162,12 @@
               <div class="col-span-3 flex w-full">
                 <div class="col-span-4">
                   <label class="inline-flex gap-3 items-center cursor-pointer">
-                    <input type="checkbox" value="" class="hidden peer" bind:checked={enableInsights} />
+                    <input
+                      type="checkbox"
+                      value=""
+                      class="hidden peer"
+                      bind:checked={enableInsights}
+                    />
                     <div
                       class="relative w-11 h-6 bg-tertiary-light dark:bg-tertiary-dark peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-utility-brand-200-light dark:peer-focus:ring-utility-brand-200-dark rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-solid-light"
                     ></div>
@@ -1433,13 +1486,19 @@
 <Modal bind:open={popupModal} size="xs" autoclose>
   <svelte:fragment slot="header">
     <div class="flex gap-3 items-center">
-      <Avatar size="sm" border class="!ring-0 !m-0 bg-hc-success-100 dark:bg-hc-success-600 !p-2 !h-10 !w-10">
-        <CheckCircle svgClass="w-5 h-5 text-fg-success-primary-light dark:text-fg-success-alt-dark" />
+      <Avatar
+        size="sm"
+        border
+        class="!ring-0 !m-0 bg-hc-success-100 dark:bg-hc-success-600 !p-2 !h-10 !w-10"
+      >
+        <CheckCircle
+          svgClass="w-5 h-5 text-fg-success-primary-light dark:text-fg-success-alt-dark"
+        />
       </Avatar>
       {#if isBackup}
-      <Typography preset="Text lg/Semibold" text={$_("backupInProgress")} />
-      {:else} 
-      <Typography preset="Text lg/Semibold" text={$_("restoreInProgress")} />
+        <Typography preset="Text lg/Semibold" text={$_("backupInProgress")} />
+      {:else}
+        <Typography preset="Text lg/Semibold" text={$_("restoreInProgress")} />
       {/if}
     </div>
   </svelte:fragment>
@@ -1447,4 +1506,23 @@
     <Typography preset="Text sm/Reguler" text={$_("backupInProgressDesc")} />
     <Button class="w-full mt-8">{$_("close")}</Button>
   </div>
+</Modal>
+
+<Modal title={$_("chooseYourPreferedColor")} bind:open={modalThemeColor} autoclose outsideclose>
+  <SelectedCard
+    selectionData={themeColors}
+    bind:selectedData={tmpThemeColor}
+    numGrid="2"
+    isRadio
+    widthFlex="w-full"
+    spacing="!p-4"
+    widgetIndicator={true}
+  />
+  <svelte:fragment slot="footer">
+    <Button
+      on:click={() =>
+        (selectedTheme = themeColors.find((color) => color.id === tmpThemeColor).name)}
+      class="px-3 w-full focus-within:!ring-1">{$_("save")}</Button
+    >
+  </svelte:fragment>
 </Modal>

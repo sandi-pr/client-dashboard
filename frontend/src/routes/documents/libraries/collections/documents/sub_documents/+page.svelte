@@ -41,6 +41,9 @@
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from "svelte-multiselect";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let subCollectionId;
   let collectionId;
@@ -125,7 +128,7 @@
         },
       });
 
-      console.log("collection", response);
+      // console.log("collection", response);
 
       collectionDatas = {
         title: response.result.attributes.name,
@@ -184,7 +187,9 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "document-library-sub-documents-detail");
+        let link = isFrontend
+          ? "/documents/libraries/collections/documents/sub_documents/detail"
+          : await $call.getPage("client-dashboard", "document-library-sub-documents-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -306,17 +311,17 @@
   const nextPage = (evt) => {
     if (pagination.pageCount > pagination.page) pagination.page = pagination.page + 1;
     getDocuments();
-    console.log("next page");
+    // console.log("next page");
   };
 
   const prevPage = (evt) => {
     if (pagination.page > 1) pagination.page = pagination.page - 1;
     getDocuments();
-    console.log("prev page");
+    // console.log("prev page");
   };
 
   const handleSearch = (evt) => {
-    console.log("clicked");
+    // console.log("clicked");
     getDocuments();
   };
 
@@ -350,7 +355,7 @@
                   Authorization: "Bearer " + token,
                 },
               });
-              console.log("trocr-predict", response3);
+              // console.log("trocr-predict", response3);
             } else {
               response3 = await $call.call("hexa-ai-rag", "audio-predict", {
                 URLQuery: {},
@@ -363,7 +368,7 @@
                   Authorization: "Bearer " + token,
                 },
               });
-              console.log("audio-predict", response3);
+              // console.log("audio-predict", response3);
             }
 
             if (response3.status !== 200) {
@@ -391,7 +396,11 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
+                let statusAvailable = await checkLibraryName(
+                  newName.trim(),
+                  subCollectionId,
+                  "document",
+                );
 
                 if (statusAvailable === true) {
                   break;
@@ -441,7 +450,11 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
+              let statusAvailable = await checkLibraryName(
+                newName.trim(),
+                subCollectionId,
+                "document",
+              );
 
               if (statusAvailable === true) {
                 break;
@@ -647,7 +660,11 @@
           tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), subCollectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              subCollectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -866,7 +883,7 @@
         }
 
         triggerLoading(false);
-        console.log(response);
+        // console.log(response);
         triggerToast("successUpdateDocument", true);
         getDocuments();
       } else {
@@ -928,10 +945,14 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "document-library-sub-documents");
+        link = isFrontend
+          ? "/documents/libraries/collections/documents/sub_documents"
+          : await $call.getPage("client-dashboard", "document-library-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "document-library-documents");
-        console.log("cek response");
+        link = isFrontend
+          ? "/documents/libraries/collections/documents"
+          : await $call.getPage("client-dashboard", "document-library-documents");
+        // console.log("cek response");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -953,10 +974,10 @@
 
       if (isChild) {
         childCollectionList = await Promise.all(promise);
-        console.log("ischild", childCollectionList);
+        // console.log("ischild", childCollectionList);
       } else if (subCollections) {
         childCollectionListDatas = await Promise.all(promise);
-        console.log("subcollection", childCollectionListDatas);
+        // console.log("subcollection", childCollectionListDatas);
         if (childCollectionListDatas.length > 0) {
           if (tabDatas.data.length < 2) {
             tabDatas.data = [
@@ -970,7 +991,7 @@
           tabDatas.data = tabDatas.data.filter((item) => item.name !== "Sub Collections");
         }
       } else {
-        console.log("collections", collectionList);
+        // console.log("collections", collectionList);
         collectionList = await Promise.all(promise);
       }
     } else {
@@ -1032,7 +1053,7 @@
       getCollections(false, true);
     }
 
-    console.log("selected collection", tmpSelectedCollection);
+    // console.log("selected collection", tmpSelectedCollection);
   };
 
   const checkLibraryName = async (name, parentId, type) => {
@@ -1055,7 +1076,7 @@
         },
       });
 
-      console.log("cek resp", resp);
+      // console.log("cek resp", resp);
 
       if (resp === null) {
         throw new Error("Server sibuk");
@@ -1186,6 +1207,24 @@
                 text={collectionDatas.title}
                 propClass="fluid-xl line-clamp-2"
               />
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(collectionDatas.title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+              >
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </div>
           </div>
 

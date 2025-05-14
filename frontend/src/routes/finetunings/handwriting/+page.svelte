@@ -1,11 +1,20 @@
 <script>
   import { Input, Button, Modal } from "flowbite-svelte";
-  import { Typography, StateCard, ModalObject, call, check, triggerToastResponse, triggerToast, triggerLoading } from "$lib";
+  import {
+    Typography,
+    StateCard,
+    ModalObject,
+    call,
+    check,
+    triggerToastResponse,
+    triggerToast,
+    triggerLoading,
+  } from "$lib";
   import { format } from "date-fns";
   import { onMount } from "svelte";
   import { SearchOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
-  
+
   import PdfViewer from "svelte-pdf";
   import DataTable from "$lib/components/DataTable.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
@@ -13,7 +22,9 @@
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import DataFlow from "$lib/icon/dataflow-03.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  
+
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let datas = $state([]);
   let files = $state([]);
   let configs = $state({});
@@ -77,10 +88,14 @@
 
       configs = {
         pagination: response.result.meta.pagination,
+        search: true,
+        searchHandler: handleSearch,
       };
 
       let promise = response.result.data.map(async (data) => {
-        let link = await $call.getPage("client-dashboard", "datasets-detail");
+        let link = isFrontend
+          ? "/finetunings/detail"
+          : await $call.getPage("client-dashboard", "finetunings-detail");
 
         return {
           id: data.id,
@@ -115,21 +130,22 @@
     }
   };
 
-  const handleSearch = (evt) => {
-    console.log("clicked");
-    getDatasetsHandwriting();
+  const handleSearch = async (value) => {
+    searchTerm = value;
+    paginationHandwriting.page = 1;
+
+    // console.log(searchTerm);
+    await getDatasetsHandwriting();
   };
 
   const handleFileUploadWrapper = () => {
-
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.accept = acceptedFileTypes;
     inputElement.multiple = true;
     inputElement.replaceWith(inputElement.cloneNode(true));
 
-    inputElement.addEventListener("change", async (event) => {  
-
+    inputElement.addEventListener("change", async (event) => {
       const filesSelect = event.target.files;
 
       const fileTypeRegex = new RegExp(
@@ -442,25 +458,30 @@
 
     console.log("cek next paginationHandwriting", paginationHandwriting.page);
     await getDatasetsHandwriting();
-  };
+  }
 
   // svelte-ignore non_reactive_update
   async function prevPage() {
     if (paginationHandwriting.page <= 1) return;
     paginationHandwriting.page--;
     await getDatasetsHandwriting();
-  };
+  }
 
   onMount(() => {
     getDatasetsHandwriting();
     getStatusRequestHandwriting();
-  })
+  });
 </script>
 
-<div class="relative h-full flex flex-col gap-8 px-4 pt-4 pb-24">
+<div class="relative h-full flex flex-col px-4 pt-4 pb-24">
   <div class="flex items-center justify-between">
-    <Typography preset="Display sm/Semibold" text={$_("handwritingDatasetHistory")} color="primary" propClass="grow fluid-lg md:fluid-xl" />
-    <div class="max-w-64">
+    <Typography
+      preset="Display sm/Semibold"
+      text={$_("handwritingFinetuningHistory")}
+      color="primary"
+      propClass="grow fluid-lg md:fluid-xl"
+    />
+    <!-- <div class="max-w-64">
       <Input
         id="search"
         type="search"
@@ -468,41 +489,28 @@
         bind:value={searchTerm}
         on:input={handleSearch}
       >
-        <SearchOutline
-          slot="left"
-          class="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-        />
+        <SearchOutline slot="left" class="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
       </Input>
-    </div>
+    </div> -->
     <Button
+      outline
       on:click={() => {
         addDocumentsModal = true;
       }}
       class="p-2 md:px-3 ms-3 md:py-2.5 gap-2 whitespace-nowrap"
     >
-      <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-      <div class="hidden md:block">{$_("addNewDataset")}</div>
+      <PenToolPlusIcon svgClass="w-5 h-5" />
+      <div class="hidden md:block">{$_("addNewFinetuneHandwriting")}</div>
     </Button>
   </div>
   <!-- Handwriting Finetune -->
   <div class="flex flex-col gap-4">
-    {#if datas.length > 0}
-      <DataTable
-        bind:datas={datas}
-        bind:configs
-        bind:next={nextPage}
-        bind:previous={prevPage}
-      />
+    {#if datas.length > 0 || searchTerm !== ""}
+      <DataTable bind:datas bind:configs bind:next={nextPage} bind:previous={prevPage} />
     {:else if gettingDatas}
-      <StateCard
-        illustration={IllustrationProgress}
-        description={$_("fetchingDataPleaseWait")}
-      />
+      <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
     {:else}
-      <StateCard
-        illustration={IllustrationEmpty}
-        description={$_("youDontHaveAnyDataYet")}
-      />
+      <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
     {/if}
   </div>
 
@@ -515,11 +523,9 @@
         processDatasetHandwriting();
       }}
       outline
-      class="!flex hover:bg-primary-light dark:hover:bg-primary-dark sticky bottom-0 w-full h-12 rounded-2xl"
+      class="!flex hover:bg-primary-light dark:hover:bg-primary-dark sticky bottom-0 w-full h-12 rounded-2xl mt-8"
     >
-      <DataFlow
-        svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark"
-      />
+      <DataFlow svgClass="w-5 h-5 text-utility-brand-700-light dark:text-utility-brand-700-dark" />
       &nbsp; &nbsp;
       <Typography preset="Text md/Semibold" text={$_("process")} color="brand-secondary" />
     </Button>
@@ -563,12 +569,7 @@
           alt="PNG Preview"
         />
       {:else if files[0].ext.includes(".pdf")}
-        <PdfViewer
-          showBorder={false}
-          showButtons={false}
-          scale={1}
-          data={atob(files[0].base64)}
-        />
+        <PdfViewer showBorder={false} showButtons={false} scale={1} data={atob(files[0].base64)} />
       {/if}
     </div>
     <!-- detected handwriting -->
@@ -597,7 +598,9 @@
         }}
         class="w-full">{$_("cancel")}</Button
       >
-      <Button color="primary" on:click={sendDocument} class="rounded-lg w-full">{$_("yesImSure")}</Button>
+      <Button color="primary" on:click={sendDocument} class="rounded-lg w-full"
+        >{$_("yesImSure")}</Button
+      >
     </div>
   </svelte:fragment>
 </Modal>

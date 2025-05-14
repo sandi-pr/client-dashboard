@@ -43,7 +43,7 @@ All Rights Reserved
     searchTerm = value;
     page = 1;
 
-    console.log(searchTerm);
+    // console.log(searchTerm);
 
     await getListConversations();
   };
@@ -95,7 +95,7 @@ All Rights Reserved
         let promise = conversations.map((conversation) => {
           return {
             id: conversation.attributes.conversation_id,
-            conversation_name: conversation.attributes.title,
+            conversationName: conversation.attributes.title,
             updateAt: format(new Date(conversation.attributes.updatedAt), "MMM d, yyyy"),
             actions: {
               objects: [
@@ -208,12 +208,19 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" text={$_("conversationDatasetHistory")} propClass="fluid-lg md:fluid-xl" />
-          <Button on:click={() => {
-            goto(hrefConversationChat);
-          }}>
-            <MessagePlusSquareIcon svgClass="w-5 h-5 md:me-1 text-white" />
-            <div class="hidden md:block">{$_("addNewDataset")}</div>
+          <Typography
+            preset="Display sm/Semibold"
+            text={$_("conversationFinetuningHistory")}
+            propClass="fluid-lg md:fluid-xl"
+          />
+          <Button
+            outline
+            on:click={() => {
+              goto(hrefConversationChat);
+            }}
+          >
+            <MessagePlusSquareIcon svgClass="w-5 h-5 md:me-1" />
+            <div class="hidden md:block">{$_("addNewFinetuneConversation")}</div>
           </Button>
         </div>
 

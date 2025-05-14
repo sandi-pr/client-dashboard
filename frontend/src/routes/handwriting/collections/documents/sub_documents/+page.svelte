@@ -42,6 +42,9 @@
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from "svelte-multiselect";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let subCollectionId;
   let collectionId;
@@ -185,7 +188,9 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "handwriting-sub-documents-detail");
+        let link = isFrontend
+          ? "/handwriting/collections/documents/sub_documents/detail"
+          : await $call.getPage("client-dashboard", "handwriting-sub-documents-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -392,7 +397,11 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
+                let statusAvailable = await checkLibraryName(
+                  newName.trim(),
+                  subCollectionId,
+                  "document",
+                );
 
                 if (statusAvailable === true) {
                   break;
@@ -425,7 +434,11 @@
             }
           }
 
-          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images" || tmpDocumentType === "Document Audio") {
+          if (
+            tmpDocumentType === "Handwriting" ||
+            tmpDocumentType === "Document Images" ||
+            tmpDocumentType === "Document Audio"
+          ) {
             if (files.length > 1) {
               await sendDocument();
             } else {
@@ -440,7 +453,11 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
+              let statusAvailable = await checkLibraryName(
+                newName.trim(),
+                subCollectionId,
+                "document",
+              );
 
               if (statusAvailable === true) {
                 break;
@@ -645,7 +662,11 @@
           tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), subCollectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              subCollectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -926,10 +947,14 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "handwriting-sub-documents");
+        link = isFrontend
+          ? "/handwriting/collections/documents/sub_documents"
+          : await $call.getPage("client-dashboard", "handwriting-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "handwriting-documents");
-        console.log("cek response");
+        link = isFrontend
+          ? "/handwriting/collections/documents"
+          : await $call.getPage("client-dashboard", "handwriting-documents");
+        // console.log("cek response");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1151,8 +1176,8 @@
   });
 
   $effect(() => {
-    hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
-  })
+    hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
+  });
 
   $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
@@ -1184,6 +1209,24 @@
                 text={collectionDatas.title}
                 propClass="fluid-xl line-clamp-2"
               />
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(collectionDatas.title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+              >
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </div>
           </div>
 
@@ -1455,11 +1498,7 @@
     {/if}
     {#if selectedFile.type === "Document Audio"}
       <div class="flex w-full flex-col gap-3 px-4 pb-1">
-        <Typography
-          preset="Text md/Semibold"
-          text="Audio Information"
-          color="secondary"
-        />
+        <Typography preset="Text md/Semibold" text="Audio Information" color="secondary" />
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
           <textarea

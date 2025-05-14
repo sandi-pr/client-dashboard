@@ -29,9 +29,7 @@ All Rights Reserved
     onProgress,
   } from "$lib";
   import { _ } from "svelte-i18n";
-  import {
-    ExclamationCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { goto } from "$app/navigation";
@@ -43,9 +41,11 @@ All Rights Reserved
     showAI,
     showNotif,
   } from "$lib";
-  
+
   import { call } from "$lib";
-  
+
+  const isFrontend = process.env.NODE_ENV === "development";
+
   // let { showAI = true } = $props();
   // let showAI = $state(false);
 
@@ -111,7 +111,7 @@ All Rights Reserved
       deployStatus: "Inactive",
       deployedPlatform: "",
       bot_profile: "",
-    }
+    },
   ]);
 
   async function getActionItems() {
@@ -130,7 +130,7 @@ All Rights Reserved
       },
       {
         onclick: async () => {
-          let urlBot = await $call.getPage("hexabot", "home-page") + "?id=" + botId
+          let urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
           window.open(urlBot, "_blank");
         },
         icon: "messageChatSquare",
@@ -393,7 +393,10 @@ All Rights Reserved
   let gettingStatusBot = $state(false);
 
   async function viewAll() {
-    goto(await $call.getPage("client-dashboard", "handwriting-collections") + "?libraryId=" + libraryId);
+    const newLink = isFrontend
+      ? "/handwriting/collections"
+      : await $call.getPage("client-dashboard", "handwriting-collections");
+    goto(newLink + "?libraryId=" + libraryId);
   }
 
   async function getBot() {
@@ -422,7 +425,7 @@ All Rights Reserved
         const bot = response.result;
 
         console.log("cek response get bot", response);
-        
+
         bots[0].deployStatus = bot.status;
         // datasChecked = collections.map((data) => {
         //   return { id: data, checked: true };
@@ -562,7 +565,9 @@ All Rights Reserved
         collections = collections.concat(response.result.data);
       }
 
-      let link = await $call.getPage("client-dashboard", "handwriting-documents");
+      let link = isFrontend
+        ? "/handwriting/collections/documents"
+        : await $call.getPage("client-dashboard", "handwriting-documents");
 
       let promise = collections.map(async (collection) => {
         console.log("collection", collection);
@@ -777,7 +782,7 @@ All Rights Reserved
     };
   }
 
-  function triggerToastResponse (response) {
+  function triggerToastResponse(response) {
     if (response.status !== 200) {
       console.log(response);
       if (response.status === 400) {
@@ -795,7 +800,7 @@ All Rights Reserved
       }
       return false;
     }
-    return true
+    return true;
   }
 
   async function readFileAsBase64(file) {
@@ -849,20 +854,18 @@ All Rights Reserved
         size: formatBytes(file.size),
         ext: "." + file.name.split(".").pop(),
         base64: base64Data,
-        type: tmpDocumentType
+        type: tmpDocumentType,
       };
 
       structure[folderKey][fileName] = fileObject;
     }
 
-    console.log('structure::::::::::::')
-    console.log(structure)
-    return structure
-
+    console.log("structure::::::::::::");
+    console.log(structure);
+    return structure;
   }
 
   const handleFileUploadWrapper = (isFolder = false) => {
-
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.webkitdirectory = isFolder;
@@ -870,7 +873,7 @@ All Rights Reserved
     inputElement.multiple = true;
     inputElement.replaceWith(inputElement.cloneNode(true));
 
-    inputElement.addEventListener("change", async (event) => {  
+    inputElement.addEventListener("change", async (event) => {
       if (isFolder) {
         groupedFiles = await groupFilesByPath(event.target.files);
         return;
@@ -910,7 +913,11 @@ All Rights Reserved
           const collectionId = localStorage.getItem("collectionIdhandwriting");
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              collectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -933,7 +940,7 @@ All Rights Reserved
 
   async function sendFolder() {
     triggerLoading(true);
-    var currentFolder = []
+    var currentFolder = [];
 
     // Buat Collection by Name Folder Dan Document
     for (var folder in groupedFiles) {
@@ -941,57 +948,56 @@ All Rights Reserved
       var sub_folder;
       var main_folder;
 
-      if (folder.split('/').length > 1) {
-        main_folder = folder.split('/')[0].trim()
-        sub_folder = folder.split('/')[1].trim()
+      if (folder.split("/").length > 1) {
+        main_folder = folder.split("/")[0].trim();
+        sub_folder = folder.split("/")[1].trim();
 
         if (currentFolder.length) {
-          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder);
           if (finded) {
-            parent_id = finded.id
+            parent_id = finded.id;
           }
         }
       }
 
       dataSend = {
         collection_name: folder,
-        description: '',
+        description: "",
         parent_id: parseInt(collectionId),
       };
 
       if (sub_folder && parent_id) {
-        dataSend["collection_name"] = sub_folder
-        dataSend["parent_id"] = parseInt(parent_id)
+        dataSend["collection_name"] = sub_folder;
+        dataSend["parent_id"] = parseInt(parent_id);
       }
     }
 
     let token = localStorage.getItem("token");
-    let res = await $call.call(
-        "client-dashboard", "create-library-collection", {
-            URLQuery: {},
-            URLParams: {},
-            Params: dataSend,
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-        });
+    let res = await $call.call("client-dashboard", "create-library-collection", {
+      URLQuery: {},
+      URLParams: {},
+      Params: dataSend,
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
 
-    let statusRes = triggerToastResponse(res)
+    let statusRes = triggerToastResponse(res);
     if (!statusRes) {
       triggerLoading(false);
-      return
+      return;
     }
 
-    currentFolder.push(res.result.data)
-    files = groupedFiles[folder]
+    currentFolder.push(res.result.data);
+    files = groupedFiles[folder];
 
     if (!parent_id && !sub_folder) {
-      parent_id = res.result.data.id
+      parent_id = res.result.data.id;
     }
 
     for (const doc in files) {
       if (sub_folder && parent_id) {
-        files[doc].id = parent_id
+        files[doc].id = parent_id;
       }
 
       dataSend = {
@@ -1008,14 +1014,14 @@ All Rights Reserved
         URLParams: {},
         Params: dataSend,
         Headers: {
-          Authorization: "Bearer " + token
+          Authorization: "Bearer " + token,
         },
       });
 
-      let statusResDoc = triggerToastResponse(resdoc)
+      let statusResDoc = triggerToastResponse(resdoc);
       if (!statusResDoc) {
         triggerLoading(false);
-        return
+        return;
       }
     }
 
@@ -1028,10 +1034,9 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-
-      if(groupedFiles != null) {
+      if (groupedFiles != null) {
         sendFolder();
-        return
+        return;
       }
 
       try {
@@ -1109,7 +1114,11 @@ All Rights Reserved
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
+                let statusAvailable = await checkLibraryName(
+                  newName.trim(),
+                  collectionId,
+                  "document",
+                );
 
                 if (statusAvailable === true) {
                   break;
@@ -1164,7 +1173,11 @@ All Rights Reserved
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
+              let statusAvailable = await checkLibraryName(
+                newName.trim(),
+                collectionId,
+                "document",
+              );
 
               if (statusAvailable === true) {
                 break;
@@ -1373,7 +1386,10 @@ All Rights Reserved
   $effect(() => {
     if ($onProgress) {
       console.log("notification", $notifications);
-      if ($notifications.length > 0 && $notifications[0].attributes.meta?.progress.includes("100")) {
+      if (
+        $notifications.length > 0 &&
+        $notifications[0].attributes.meta?.progress.includes("100")
+      ) {
         if (!gettingStatusBot) {
           startReading($notifications[0].attributes.meta.bot_id);
           console.log("start reading", $notifications[0].attributes.meta.bot_id);
@@ -1459,7 +1475,11 @@ All Rights Reserved
         <div
           class="flex items-center justify-between border-b border-secondary-light dark:border-secondary-dark pb-4"
         >
-          <Typography preset="Text lg/Semibold" color="primary" text={$_("handwritingCollection")} />
+          <Typography
+            preset="Text lg/Semibold"
+            color="primary"
+            text={$_("handwritingCollection")}
+          />
           {#if latestDocumentCollection.length > 0}
             <Button on:click={() => viewAll()} color="light">{$_("seeAll")}</Button>
           {/if}
@@ -1509,6 +1529,7 @@ All Rights Reserved
                     deleteModal = true;
                   }}
                   funcDetailCollection={() => {
+                    console.log("document href", document.href);
                     goto(document.href);
                   }}
                   {libraryId}
@@ -1541,9 +1562,18 @@ All Rights Reserved
         {:else if bots.length === 0}
           <StateCard illustration={IllustrationEmpty} description={$_("noDataFound")} />
         {:else}
-          <div class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}>
+          <div
+            class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}
+          >
             {#each bots as bot, index (bot.botsID)}
-              <BotCard {bot} {index} {dropdownOpen} {startReading} config={{ openWebchat: true, startReading: true }} {handleDropdownFocusLoss} />
+              <BotCard
+                {bot}
+                {index}
+                {dropdownOpen}
+                {startReading}
+                config={{ openWebchat: true, startReading: true }}
+                {handleDropdownFocusLoss}
+              />
             {/each}
           </div>
         {/if}
@@ -1588,7 +1618,7 @@ All Rights Reserved
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}
@@ -1617,7 +1647,7 @@ All Rights Reserved
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("collectionName")}*`} />
       <Input
         bind:value={tmpCollectionName}
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
         placeholder={$_("whatIsYourCollectionTitle")}
       />
       {#if !nameIsAvailable}

@@ -48,6 +48,7 @@ All Rights Reserved
     onProgress,
     isBakrie,
     check,
+    PageComingSoon,
   } from "$lib";
   import { onDestroy, onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -93,6 +94,9 @@ All Rights Reserved
   const hideScrollList = $state(["/document/document_collection/chat"]);
 
   const hideNavbarList = $state(["/client-dashboard/datasets", "/datasets"]);
+
+  const pageComingSoon = $state(["/support"]);
+  let isComingSoon = $state(false);
 
   const hideScroll = () => {
     return !hideScrollList.some((path) => {
@@ -283,34 +287,34 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      // {
-      //   icon: "bookClosed",
-      //   name: "dataSources",
-      //   children: [],
-      //   href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
-      // },
-      // { // BRI ADJUSTMENT
-      //   icon: "lightbulb",
-      //   name: "insights",
-      //   children: [],
-      //   href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      // },
+      {
+        icon: "bookClosed",
+        name: "dataSources",
+        children: [],
+        href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
+      },
+      { // BRI ADJUSTMENT
+        icon: "lightbulb",
+        name: "insights",
+        children: [],
+        href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+      },
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
-      // {
-      //   icon: "penTool",
-      //   name: "handwriting",
-      //   children: [],
-      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      // },
-      // {
-      //   icon: "recording02",
-      //   name: "voice",
-      //   children: [],
-      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      // },
+      {
+        icon: "penTool",
+        name: "handwriting",
+        children: [],
+        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      },
+      {
+        icon: "recording02",
+        name: "voice",
+        children: [],
+        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      },
       // {
       //   icon: "image03",
       //   name: "memories",
@@ -410,18 +414,19 @@ All Rights Reserved
           {
             icon: "data",
             name: "finetuning",
-            href: isFrontend ? "/finetunings" : await call.getPage("client-dashboard", "datasets"),
+            href: isFrontend
+              ? "/finetunings"
+              : await call.getPage("client-dashboard", "finetunings"),
           },
         ],
       },
-      // {
-      //   icon: "phoneCall",
-      //   name: "support",
-      //   href: isFrontend
-      //     ? "/support"
-      //     : await call.getPage("client-dashboard", "support"),
-      //     children: []
-      // },
+      {
+        icon: "phoneCall",
+        name: "support",
+        href: isFrontend ? "/support" : await call.getPage("client-dashboard", "support"),
+        commingSoon: true,
+        children: [],
+      },
       // End of new sidebar
 
       // {
@@ -724,8 +729,8 @@ All Rights Reserved
       Params: {},
       Headers: {},
     });
-    console.log("===============================");
-    console.log(resp_setup);
+    // console.log("===============================");
+    // console.log(resp_setup);
     if (resp_setup.status === 200) {
       if (resp_setup.result.is_need_setup === true) {
         if (localStorage.getItem("token") !== null) localStorage.removeItem("token");
@@ -1262,7 +1267,7 @@ All Rights Reserved
         },
       });
 
-      console.log("------" + libraryName, response);
+      // console.log("------" + libraryName, response);
 
       if (response.status !== 200) {
         // console.log("status not 200", response);
@@ -1690,6 +1695,10 @@ All Rights Reserved
     }
   }
 
+  const checkPageComingSoon = () => {
+    return pageComingSoon.some((path) => path === globalThis.location.pathname);
+  };
+
   onMount(async () => {
     if (localStorage.getItem("token") === null && isFrontend) {
       const token = prompt("Please insert your token:", "");
@@ -1700,6 +1709,8 @@ All Rights Reserved
         return;
       }
     }
+
+    isComingSoon = checkPageComingSoon();
 
     setCall(call);
 
@@ -1789,6 +1800,7 @@ All Rights Reserved
     // console.log(activeUrl);
     if (activeUrl !== $page.url.pathname) {
       activeUrl = $page.url.pathname;
+      isComingSoon = checkPageComingSoon();
       hideNavbar();
     }
   });
@@ -1868,18 +1880,22 @@ All Rights Reserved
                   />
                 </div>
               {/if}
-              <div class={`h-screen ${!hideNav ? "pt-12 lg:pt-20 pb-12 lg:pb-0" : ""}`}>
-                {#if hideScroll()}
-                  <div class="h-full overflow-y-auto">
-                    <slot />
-                  </div>
-                {:else}
-                  <div class="h-full">
-                    <slot />
-                  </div>
-                {/if}
-                <ToastContainer />
-              </div>
+              {#if isComingSoon}
+                <PageComingSoon />
+              {:else}
+                <div class={`h-screen ${!hideNav ? "pt-12 lg:pt-20 pb-12 lg:pb-0" : ""}`}>
+                  {#if hideScroll()}
+                    <div class="h-full overflow-y-auto">
+                      <slot />
+                    </div>
+                  {:else}
+                    <div class="h-full">
+                      <slot />
+                    </div>
+                  {/if}
+                  <ToastContainer />
+                </div>
+              {/if}
               <LoadingContainer />
             </div>
           </Pane>

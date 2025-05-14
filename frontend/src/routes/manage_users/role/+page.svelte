@@ -397,7 +397,18 @@ All Rights Reserved
           //   }
           // }
           else {
+            let newPermissionTitle = "";
             if (response2.result.permissions[i]?.icon) {
+              if (response2.result.permissions[i].name === "Hexa Bots") {
+                newPermissionTitle = "Configuration Bots";
+              } else if (response2.result.permissions[i].name === "Datasets") {
+                newPermissionTitle = "Finetunings";
+              } else if (response2.result.permissions[i].name === "Document Library") {
+                newPermissionTitle = "Documents";
+              } else {
+                newPermissionTitle = response2.result.permissions[i].name;
+              }
+
               permissionAll = [
                 ...permissionAll,
                 {
@@ -405,20 +416,27 @@ All Rights Reserved
                   type: "section",
                   icon: "",
                   level: 0,
-                  title:
-                    response2.result.permissions[i].name === "Hexa Bots"
-                      ? "Configuration Bots"
-                      : response2.result.permissions[i].name === "Datasets"
-                        ? "Configuration Datasources"
-                        : response2.result.permissions[i].name === "Document Library"
-                          ? "Documents"
-                          : response2.result.permissions[i].name,
+                  title: newPermissionTitle,
                   data: [],
                   hide: false,
                 },
               ];
               parentId = permissionAll.length;
             } else {
+              if (response2.result.permissions[i].name === "Create new datasets") {
+                newPermissionTitle = "Create new finetunings";
+              } else if (response2.result.permissions[i].name === "View datasets") {
+                newPermissionTitle = "View finetunings";
+              } else if (response2.result.permissions[i].name === "Edit datasets information") {
+                newPermissionTitle = "Edit finetunings information";
+              } else if (response2.result.permissions[i].name === "Delete datasets") {
+                newPermissionTitle = "Delete finetunings";
+              } else if (response2.result.permissions[i].name === "Process datasets") {
+                newPermissionTitle = "Process finetunings";
+              } else {
+                newPermissionTitle = response2.result.permissions[i].name;
+              }
+
               permissionAll = [
                 ...permissionAll,
                 {
@@ -426,7 +444,7 @@ All Rights Reserved
                   type: "content",
                   icon: "",
                   level: 0,
-                  title: response2.result.permissions[i].name,
+                  title: newPermissionTitle,
                   data: [
                     {
                       name: "allow",

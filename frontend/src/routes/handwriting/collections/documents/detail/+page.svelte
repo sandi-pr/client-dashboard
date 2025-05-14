@@ -42,6 +42,9 @@ All Rights Reserved
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import ExampleAudio from "$lib/components/strauss.mp3";
   import MultiSelect from "svelte-multiselect";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
@@ -842,6 +845,25 @@ All Rights Reserved
               >{globalThis.innerWidth < 768
                 ? truncateText(tmpData.document_title || "", 2)
                 : tmpData.document_title}
+              &nbsp;
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(tmpData.document_title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+              >
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </Heading>
           </div>
           <P
@@ -883,10 +905,10 @@ All Rights Reserved
             <Button
               onclick={async function () {
                 triggerLoading(false);
-                goto(
-                  (await $call.getPage("client-dashboard", "handwriting-documents")) +
-                    `?collectionId=${collectionId}&libraryId=${libraryId}`,
-                );
+                const newLink = isFrontend
+                  ? "/handwriting/collections/documents"
+                  : await $call.getPage("client-dashboard", "handwriting-documents");
+                goto(newLink + `?collectionId=${collectionId}&libraryId=${libraryId}`);
                 return;
               }}
               color="light"

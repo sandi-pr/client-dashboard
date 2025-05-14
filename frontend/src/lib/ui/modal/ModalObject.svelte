@@ -16,7 +16,7 @@
   import TabBar from "$lib/components/TabBar.svelte";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
-  import { onMount } from "svelte";
+  // import { onMount } from "svelte";
 
   let {
     modalObjectOpen = $bindable(false),
@@ -880,32 +880,6 @@
     folders = folders.filter((folder) => !folder.parentId);
   }
 
-  onMount(async () => {
-    if (usedFor === "Documents") {
-      configModal.header.contentCenter[0].text.text = $_("addDocuments");
-      limitation = [
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ];
-    } else if (usedFor === "Handwriting") {
-      configModal.header.contentCenter[0].text.text = $_("addHandwriting");
-      mainContentUpload[2].input.value = "Handwriting (JPG, JPEG, PNG)";
-      mainContentLink[2].input.value = "Handwriting (JPG, JPEG, PNG)";
-      limitation = ["image/jpeg", "image/png", "image/jpg"];
-    } else if (usedFor === "Audio") {
-      configModal.header.contentCenter[0].text.text = $_("addAudio");
-      mainContentUpload[2].input.value = "Audio (MP3, WAV, OGG)";
-      mainContentLink[2].input.value = "Audio (MP3, WAV, OGG)";
-      limitation = ["audio/mpeg", "audio/wav", "audio/ogg"];
-    } else if (usedFor === "Data") {
-      configModal.header.contentCenter[0].text.text = $_("addCsv");
-      mainContentUpload[2].input.value = "Data (CSV)";
-      mainContentLink[2].input.value = "Data (CSV)";
-      limitation = ["text/csv"];
-    }
-  });
-
   $effect(() => {
     if (groupedFiles) {
       configModal.footer[0].button.buttonDisabled = groupedFiles === null;
@@ -951,12 +925,36 @@
   });
 
   $effect(() => {
+    if (usedFor === "Documents") {
+      configModal.header.contentCenter[0].text.text = $_("addDocuments");
+      configModal.footer[0].button.text = $_("addNewDocument");
+      limitation = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ];
+    } else if (usedFor === "Handwriting") {
+      configModal.header.contentCenter[0].text.text = $_("addHandwriting");
+      configModal.footer[0].button.text = $_("addNewHandwriting");
+      mainContentUpload[2].input.value = "Handwriting (JPG, JPEG, PNG)";
+      mainContentLink[2].input.value = "Handwriting (JPG, JPEG, PNG)";
+      limitation = ["image/jpeg", "image/png", "image/jpg"];
+    } else if (usedFor === "Audio") {
+      configModal.header.contentCenter[0].text.text = $_("addAudio");
+      configModal.footer[0].button.text = $_("addNewAudio");
+      mainContentUpload[2].input.value = "Audio (MP3, WAV, OGG)";
+      mainContentLink[2].input.value = "Audio (MP3, WAV, OGG)";
+      limitation = ["audio/mpeg", "audio/wav", "audio/ogg"];
+    } else if (usedFor === "Data") {
+      configModal.header.contentCenter[0].text.text = $_("addCsv");
+      configModal.footer[0].button.text = $_("addNewCsv");
+      mainContentUpload[2].input.value = "Data (CSV)";
+      mainContentLink[2].input.value = "Data (CSV)";
+      limitation = ["text/csv"];
+    }
     if (folderMode) {
       configModal.header.contentCenter[0].text.text = $_("addFolder");
       configModal.footer[0].button.text = $_("addNewFolder");
-    } else {
-      configModal.header.contentCenter[0].text.text = $_("addDocuments");
-      configModal.footer[0].button.text = $_("addNewDocument");
     }
   });
 </script>

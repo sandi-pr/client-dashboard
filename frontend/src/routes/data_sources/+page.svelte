@@ -24,18 +24,13 @@ All Rights Reserved
   } from "$lib";
   import DataSourcesCard from "$lib/ui/cards/DataSourcesCard.svelte";
   import { _ } from "svelte-i18n";
-  import {
-    ExclamationCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { goto } from "$app/navigation";
-  import {
-    showAI,
-    showNotif,
-    call,
-    triggerToast,
-  } from "$lib";
+  import { showAI, showNotif, call, triggerToast } from "$lib";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let libraryId, collectionId;
   let collections = $state([]);
@@ -128,7 +123,9 @@ All Rights Reserved
         collections = collections.concat(response.result.data);
       }
 
-      let link = await $call.getPage("client-dashboard", "data-sources-documents");
+      let link = isFrontend
+        ? "/data_sources/collections/documents"
+        : await $call.getPage("client-dashboard", "data-sources-documents");
 
       let promise = collections.map(async (collection) => {
         console.log("collection", collection);
@@ -365,7 +362,7 @@ All Rights Reserved
     }
   }
 
-  function triggerToastResponse (response) {
+  function triggerToastResponse(response) {
     if (response.status !== 200) {
       console.log(response);
       if (response.status === 400) {
@@ -383,7 +380,7 @@ All Rights Reserved
       }
       return false;
     }
-    return true
+    return true;
   }
 
   async function readFileAsBase64(file) {
@@ -437,20 +434,18 @@ All Rights Reserved
         size: formatBytes(file.size),
         ext: "." + file.name.split(".").pop(),
         base64: base64Data,
-        type: tmpDocumentType
+        type: tmpDocumentType,
       };
 
       structure[folderKey][fileName] = fileObject;
     }
 
-    console.log('structure::::::::::::')
-    console.log(structure)
-    return structure
-
+    console.log("structure::::::::::::");
+    console.log(structure);
+    return structure;
   }
 
   const handleFileUploadWrapper = (isFolder = false) => {
-
     const inputElement = document.createElement("input");
     inputElement.type = "file";
     inputElement.webkitdirectory = isFolder;
@@ -458,7 +453,7 @@ All Rights Reserved
     inputElement.multiple = true;
     inputElement.replaceWith(inputElement.cloneNode(true));
 
-    inputElement.addEventListener("change", async (event) => {  
+    inputElement.addEventListener("change", async (event) => {
       if (isFolder) {
         groupedFiles = await groupFilesByPath(event.target.files);
         return;
@@ -498,7 +493,11 @@ All Rights Reserved
           const collectionId = localStorage.getItem("collectionIdhandwriting");
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), collectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              collectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -521,7 +520,7 @@ All Rights Reserved
 
   async function sendFolder() {
     triggerLoading(true);
-    var currentFolder = []
+    var currentFolder = [];
 
     // Buat Collection by Name Folder Dan Document
     for (var folder in groupedFiles) {
@@ -529,57 +528,56 @@ All Rights Reserved
       var sub_folder;
       var main_folder;
 
-      if (folder.split('/').length > 1) {
-        main_folder = folder.split('/')[0].trim()
-        sub_folder = folder.split('/')[1].trim()
+      if (folder.split("/").length > 1) {
+        main_folder = folder.split("/")[0].trim();
+        sub_folder = folder.split("/")[1].trim();
 
         if (currentFolder.length) {
-          let finded = currentFolder.find((f) => f[main_folder] == main_folder)
+          let finded = currentFolder.find((f) => f[main_folder] == main_folder);
           if (finded) {
-            parent_id = finded.id
+            parent_id = finded.id;
           }
         }
       }
 
       dataSend = {
         collection_name: folder,
-        description: '',
+        description: "",
         parent_id: parseInt(collectionId),
       };
 
       if (sub_folder && parent_id) {
-        dataSend["collection_name"] = sub_folder
-        dataSend["parent_id"] = parseInt(parent_id)
+        dataSend["collection_name"] = sub_folder;
+        dataSend["parent_id"] = parseInt(parent_id);
       }
     }
 
     let token = localStorage.getItem("token");
-    let res = await $call.call(
-        "client-dashboard", "create-library-collection", {
-            URLQuery: {},
-            URLParams: {},
-            Params: dataSend,
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-        });
+    let res = await $call.call("client-dashboard", "create-library-collection", {
+      URLQuery: {},
+      URLParams: {},
+      Params: dataSend,
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
 
-    let statusRes = triggerToastResponse(res)
+    let statusRes = triggerToastResponse(res);
     if (!statusRes) {
       triggerLoading(false);
-      return
+      return;
     }
 
-    currentFolder.push(res.result.data)
-    files = groupedFiles[folder]
+    currentFolder.push(res.result.data);
+    files = groupedFiles[folder];
 
     if (!parent_id && !sub_folder) {
-      parent_id = res.result.data.id
+      parent_id = res.result.data.id;
     }
 
     for (const doc in files) {
       if (sub_folder && parent_id) {
-        files[doc].id = parent_id
+        files[doc].id = parent_id;
       }
 
       dataSend = {
@@ -596,14 +594,14 @@ All Rights Reserved
         URLParams: {},
         Params: dataSend,
         Headers: {
-          Authorization: "Bearer " + token
+          Authorization: "Bearer " + token,
         },
       });
 
-      let statusResDoc = triggerToastResponse(resdoc)
+      let statusResDoc = triggerToastResponse(resdoc);
       if (!statusResDoc) {
         triggerLoading(false);
-        return
+        return;
       }
     }
 
@@ -616,10 +614,9 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-
-      if(groupedFiles != null) {
+      if (groupedFiles != null) {
         sendFolder();
-        return
+        return;
       }
 
       try {
@@ -697,7 +694,11 @@ All Rights Reserved
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
+                let statusAvailable = await checkLibraryName(
+                  newName.trim(),
+                  collectionId,
+                  "document",
+                );
 
                 if (statusAvailable === true) {
                   break;
@@ -751,7 +752,11 @@ All Rights Reserved
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim(), collectionId, "document");
+              let statusAvailable = await checkLibraryName(
+                newName.trim(),
+                collectionId,
+                "document",
+              );
 
               if (statusAvailable === true) {
                 break;
@@ -892,7 +897,9 @@ All Rights Reserved
   }
 
   async function viewAll() {
-    let link = await $call.getPage("client-dashboard", "data-sources-collections");
+    let link = isFrontend
+      ? "/data_sources/collections"
+      : await $call.getPage("client-dashboard", "data-sources-collections");
     goto(link + `?libraryId=${libraryId}`);
   }
 
@@ -926,11 +933,7 @@ All Rights Reserved
 <div class="flex dark:bg-primary-dark">
   <div class="flex flex-col w-full pb-20 m-4 gap-3 md:gap-8">
     <!-- User Information -->
-    <Typography
-      preset="Display sm/Semibold"
-      text={$_("dataSources")}
-      propClass="fluid-xl"
-    />
+    <Typography preset="Display sm/Semibold" text={$_("dataSources")} propClass="fluid-xl" />
 
     {#if check("documentAi.documentLibrary:create")}
       <!-- Action Items -->
@@ -958,7 +961,8 @@ All Rights Reserved
                 collectionName={document.collectionName}
                 totalDocuments={document.totalDocuments}
                 status={document.status}
-                linkIsFrontend={'/data_sources/collections/documents?collectionName=' + document.collectionName}
+                linkIsFrontend={"/data_sources/collections/documents?collectionName=" +
+                  document.collectionName}
                 functEdit={() => {
                   tmpCollectionId = document.id;
                   tmpOldName = document.collectionName;
@@ -1025,10 +1029,10 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("dataSourcesName")}*`} />
-      <Input 
-        bind:value={tmpCollectionName} 
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
-        placeholder={$_("whatIsYourDataSourcesTitle")} 
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
+        placeholder={$_("whatIsYourDataSourcesTitle")}
       />
       {#if !nameIsAvailable}
         <Helper color="red">
@@ -1054,12 +1058,12 @@ All Rights Reserved
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("dataSourcesName")}*`} />
-      <Input 
-        bind:value={tmpCollectionName} 
-        on:input={(event) => handleInput(event, libraryId, 'collection')}
-        placeholder={$_("whatIsYourDataSourcesTitle")} 
+      <Input
+        bind:value={tmpCollectionName}
+        on:input={(event) => handleInput(event, libraryId, "collection")}
+        placeholder={$_("whatIsYourDataSourcesTitle")}
       />
-    {#if !nameIsAvailable}
+      {#if !nameIsAvailable}
         <Helper color="red">
           <span class="font-medium">{$_("nameAlreadyTaken")}</span>
         </Helper>

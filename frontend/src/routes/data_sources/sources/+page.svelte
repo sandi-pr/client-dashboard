@@ -18,15 +18,14 @@
     SelectedCard,
   } from "$lib";
   import DataTableCsv from "$lib/components/DataTableCsv.svelte";
-  import {
-    SearchOutline,
-    ExclamationCircleSolid,
-    InfoCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { SearchOutline, ExclamationCircleSolid, InfoCircleSolid } from "flowbite-svelte-icons";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let subCollectionId;
   let collectionId;
@@ -68,11 +67,11 @@
   });
 
   let source = $state([
-    { 
+    {
       id: 1,
       name: "Upload CSV File",
     },
-    { 
+    {
       id: 2,
       name: "Upload with link",
     },
@@ -197,7 +196,9 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "document-library-sub-documents-detail");
+        let link = isFrontend
+          ? "/data_sources/collections/documents/sub_documents/detail"
+          : await $call.getPage("client-dashboard", "document-library-sub-documents-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -508,7 +509,7 @@
         checked: false,
         createdAt: format(new Date(), "MMM d, yyyy"),
       },
-    ]
+    ];
 
     localStorage.setItem("csvListDatas", JSON.stringify(csvListDatas));
 
@@ -912,10 +913,13 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "document-library-sub-documents");
+        link = isFrontend
+          ? "/data_sources/collections/documents/sub_documents"
+          : await $call.getPage("client-dashboard", "document-library-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "document-library-documents");
-        console.log("cek response");
+        link = isFrontend
+          ? "/data_sources/collections/documents"
+          : await $call.getPage("client-dashboard", "document-library-documents");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1064,8 +1068,7 @@
   });
 
   $effect(() => {
-    buttonDisabled =
-      files.length !== 0 || linkCsv !== "" ? false : true;
+    buttonDisabled = files.length !== 0 || linkCsv !== "" ? false : true;
   });
 </script>
 
@@ -1083,6 +1086,24 @@
                 text={collectionDatas.title}
                 propClass="fluid-xl"
               />
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(collectionDatas.title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+              >
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </div>
           </div>
 
@@ -1164,12 +1185,7 @@
 <Modal title={$_("addNewCsv")} bind:open={addDocumentsModal} size="xs">
   <div class="flex flex-col gap-4">
     {#if step === 0}
-      <SelectedCard
-        selectionData={source}
-        bind:selectedData={selectedSource}
-        isFlex
-        isRadio
-      />
+      <SelectedCard selectionData={source} bind:selectedData={selectedSource} isFlex isRadio />
     {:else if step === 1}
       {#if selectedSource === 1}
         <UploadFile
@@ -1199,13 +1215,13 @@
   </div>
   <svelte:fragment slot="footer">
     {#if step === 0}
-    <Button
-      on:click={() => {
-        step = 2;
-      }}
-      class="w-full"
-      disabled={!selectedSource}>{$_("next")}</Button
-    >
+      <Button
+        on:click={() => {
+          step = 2;
+        }}
+        class="w-full"
+        disabled={!selectedSource}>{$_("next")}</Button
+      >
     {:else if step === 1}
       <div class="flex gap-4 w-full">
         <!-- <button
@@ -1230,9 +1246,7 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteSource} color="red" class="me-2"
-      >{$_("yesImSure")}</Button
-    >
+    <Button onclick={deleteSource} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>

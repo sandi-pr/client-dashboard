@@ -24,14 +24,11 @@
   } = $props();
 
   onMount(() => {
-    console.log("bot", bot);
-  })
+    // console.log("bot", bot);
+  });
 </script>
 
-<Card
-  padding="none"
-  class="relative shadow-none grow w-full {config?.cardFullLength ? 'max-w-none' : ''}"
->
+<Card padding="none" class="relative shadow-none grow w-full max-w-none">
   {#if bot.deployStatus === "Reading"}
     <div class="absolute top-2 right-2">
       <Badge type="warning" text={bot.deployStatus} />
@@ -42,7 +39,7 @@
     </div>
   {/if}
   <div
-    class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6"
+    class="bg-active-light dark:bg-active-dark border-b border-secondary-light dark:border-secondary-dark px-4 py-6 rounded-t-lg"
   >
     <div class="flex justify-between items-center">
       <div class="flex items-center gap-3">
@@ -113,13 +110,19 @@
             on:click={async () => {
               if (config?.isLlm) {
                 goto(
-                  (await $call.getPage("client-dashboard", "llms-mymodel-detail")) +
-                    "?modelId=" +
-                    bot.botsID,
+                  config?.isFrontend
+                    ? "/llms/my_models/detail?modelId=" + bot.botsID
+                    : (await $call.getPage("client-dashboard", "llms-my-model-detail")) +
+                        "?modelId=" +
+                        bot.botsID,
                 );
               } else {
                 goto(
-                  (await $call.getPage("client-dashboard", "bots-detail")) + "?botId=" + bot.botsID,
+                  config?.isFrontend
+                    ? "/bots/detail?botId=" + bot.botsID
+                    : (await $call.getPage("client-dashboard", "bots-detail")) +
+                        "?botId=" +
+                        bot.botsID,
                 );
               }
             }}
@@ -137,10 +140,12 @@
           <Button
             on:click={async () => {
               goto(
-                (await $call.getPage("client-dashboard", "bots-detail")) +
-                  "?botId=" +
-                  bot.botsID +
-                  "&try=true",
+                config?.isFrontend
+                  ? "/bots/detail?botId=" + bot.botsID + "&try=true"
+                  : (await $call.getPage("client-dashboard", "bots-detail")) +
+                      "?botId=" +
+                      bot.botsID +
+                      "&try=true",
               );
             }}
             outline
@@ -163,10 +168,12 @@
           disabled={!check("aiManagement.hexabots:view")}
           on:click={async () => {
             goto(
-              (await $call.getPage("client-dashboard", "bots-detail")) +
-                "?botId=" +
-                bot.botsID +
-                "&edit=true",
+              config?.isFrontend
+                ? "/bots/detail?botId=" + bot.botsID + "&edit=true"
+                : (await $call.getPage("client-dashboard", "bots-detail")) +
+                    "?botId=" +
+                    bot.botsID +
+                    "&edit=true",
             );
           }}
           outline

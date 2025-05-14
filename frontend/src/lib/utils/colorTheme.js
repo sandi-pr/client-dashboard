@@ -1,15 +1,15 @@
 export let primaryColor = {
-  "50": "#F9F5FF",
-  "100": "#F4EBFF",
-  "200": "#E9D7FE",
-  "300": "#D6BBFB",
-  "400": "#B692F6",
-  "500": "#9E77ED",
-  "600": "#7F56D9",
-  "700": "#6941C6",
-  "800": "#53389E",
-  "900": "#42307D",
-  "950": "#2C1C5F",
+  50: "#F9F5FF",
+  100: "#F4EBFF",
+  200: "#E9D7FE",
+  300: "#D6BBFB",
+  400: "#B692F6",
+  500: "#9E77ED",
+  600: "#7F56D9",
+  700: "#6941C6",
+  800: "#53389E",
+  900: "#42307D",
+  950: "#2C1C5F",
 };
 
 export function setPrimaryColor(data) {
@@ -18,5 +18,5 @@ export function setPrimaryColor(data) {
     root.style.setProperty(`--primary-${key}`, value);
   }
 
-  console.log('Primary color updated:', data);
+  // console.log('Primary color updated:', data);
 }

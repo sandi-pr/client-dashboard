@@ -42,6 +42,9 @@
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from "svelte-multiselect";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let subCollectionId;
   let collectionId;
@@ -97,27 +100,27 @@
   let csvListDatas = $state([
     {
       id: 1,
-      filename: 'user_1.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
+      filename: "user_1.csv",
+      filesize: "200 KB",
+      fileext: "csv",
       checked: false,
-      createdAt: 'Jan 4, 2022',
+      createdAt: "Jan 4, 2022",
     },
     {
       id: 2,
-      filename: 'user_2.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
+      filename: "user_2.csv",
+      filesize: "200 KB",
+      fileext: "csv",
       checked: false,
-      createdAt: 'Jan 4, 2022',
+      createdAt: "Jan 4, 2022",
     },
     {
       id: 3,
-      filename: 'user_3.csv',
-      filesize: '200 KB',
-      fileext: 'csv',
+      filename: "user_3.csv",
+      filesize: "200 KB",
+      fileext: "csv",
       checked: false,
-      createdAt: 'Jan 4, 2022',
+      createdAt: "Jan 4, 2022",
     },
   ]);
 
@@ -214,7 +217,9 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "data-sources-sub-documents-detail");
+        let link = isFrontend
+          ? "/data_sources/collections/documents/sub_documents/detail"
+          : await $call.getPage("client-dashboard", "data-sources-sub-documents-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -433,7 +438,11 @@
               let newName = originalName;
 
               for (let i = 0; i < index; i++) {
-                let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
+                let statusAvailable = await checkLibraryName(
+                  newName.trim(),
+                  subCollectionId,
+                  "document",
+                );
 
                 if (statusAvailable === true) {
                   break;
@@ -466,7 +475,11 @@
             }
           }
 
-          if (tmpDocumentType === "Handwriting" || tmpDocumentType === "Document Images" || tmpDocumentType === "Document Audio") {
+          if (
+            tmpDocumentType === "Handwriting" ||
+            tmpDocumentType === "Document Images" ||
+            tmpDocumentType === "Document Audio"
+          ) {
             if (files.length > 1) {
               await sendDocument();
             } else {
@@ -479,7 +492,11 @@
             let newName = originalName;
 
             for (let i = 0; i < index; i++) {
-              let statusAvailable = await checkLibraryName(newName.trim(), subCollectionId, "document");
+              let statusAvailable = await checkLibraryName(
+                newName.trim(),
+                subCollectionId,
+                "document",
+              );
 
               if (statusAvailable === true) {
                 break;
@@ -684,7 +701,11 @@
           tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
 
           if (files.length === 1) {
-            const status = await checkLibraryName(tmpDocumentTitle.trim(), subCollectionId, "document");
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              subCollectionId,
+              "document",
+            );
             if (status === true) {
               nameIsAvailable = true;
             } else if (status === false) {
@@ -965,10 +986,13 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "document-library-sub-documents");
+        link = isFrontend
+          ? "/data_sources/collections/documents/sub_documents"
+          : await $call.getPage("client-dashboard", "document-library-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "document-library-documents");
-        console.log("cek response");
+        link = isFrontend
+          ? "/data_sources/collections/documents"
+          : await $call.getPage("client-dashboard", "document-library-documents");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1087,11 +1111,11 @@
         filename: file.name,
         filesize: file.size,
         fileext: file.ext,
-        type: 'CSV',
+        type: "CSV",
         checked: false,
         createdAt: format(new Date(), "MMM d, yyyy"),
       })),
-    ]
+    ];
 
     localStorage.setItem("csvListDatas", JSON.stringify(csvListDatas));
 
@@ -1241,8 +1265,8 @@
   });
 
   $effect(() => {
-    hasDocOrDocx = files.some(file => file.ext === '.doc' || file.ext === '.docx');
-  })
+    hasDocOrDocx = files.some((file) => file.ext === ".doc" || file.ext === ".docx");
+  });
 
   $effect(() => {
     checkAllState = collectionListDatas.every((data) => data.checked === true);
@@ -1292,6 +1316,24 @@
                 text={collectionDatas.title}
                 propClass="fluid-xl line-clamp-2"
               />
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(collectionDatas.title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+              >
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </div>
           </div>
 
@@ -1320,7 +1362,9 @@
                 class="p-2 md:px-3 md:py-2 gap-2 text-error-primary-light dark:text-error-primary-dark border-button-secondary-light dark:border-button-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
                 outline
               >
-                <Trash01Icon svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark" />
+                <Trash01Icon
+                  svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark"
+                />
                 <div class="hidden md:block">{$_("delete")}</div>
               </Button>
               <!-- <Button
@@ -1409,10 +1453,7 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
-      <Button
-        color="light"
-        class="flex justify-between"
-      >
+      <Button color="light" class="flex justify-between">
         {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
         <!-- <ChevronDownOutline class="w-6 h-6 text-fg-quaternary-light dark:text-quarterary-dark" /> -->
       </Button>
@@ -1697,11 +1738,7 @@
     {/if}
     {#if selectedFile.type === "Document Audio"}
       <div class="flex w-full flex-col gap-3 px-4 pb-1">
-        <Typography
-          preset="Text md/Semibold"
-          text="Audio Information"
-          color="secondary"
-        />
+        <Typography preset="Text md/Semibold" text="Audio Information" color="secondary" />
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/Medium" text="Detected Text" color="secondary" />
           <textarea

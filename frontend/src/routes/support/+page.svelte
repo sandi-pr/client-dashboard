@@ -15,9 +15,9 @@
   let dropdownToggle = $state([true, false, false]);
 
   async function sendMessageInput() {
+    console.log("messageInput", messageInput);
     messageInput = "";
     resetTextarea();
-    console.log("messageInput", messageInput);
   }
 
   const handleKeyDown = (event) => {
@@ -25,9 +25,7 @@
       if (event.key === "Enter") {
         if (!event.shiftKey) {
           event.preventDefault();
-          if (
-            messageInput.trim() !== ""
-          ) {
+          if (messageInput.trim() !== "") {
             onclickSend();
           }
         }
@@ -37,7 +35,7 @@
 
   const onclickSend = () => {
     if (messageInput.trim() !== "") {
-      // sendMessageInput();
+      sendMessageInput();
     }
   };
 
@@ -68,7 +66,6 @@
       globalThis.removeEventListener("resize", resizeHandler);
     };
   });
-
 </script>
 
 <div class="px-4 pt-6">
@@ -76,11 +73,13 @@
   <div class="flex flex-col items-center gap-2">
     <LogoIcon />
     <Typography preset="Display xs/Semibold" text={$_("hexaProductSupport")} color="secondary" />
-    <Typography preset="Text md/Regular" text={$_("supportDesc")} color="secondary" propClass="text-center" />
-    <form
-      onsubmit={messageInput !== "" ? sendMessageInput : () => {}}
-      class="w-full p-6"
-    >
+    <Typography
+      preset="Text md/Regular"
+      text={$_("supportDesc")}
+      color="secondary"
+      propClass="text-center"
+    />
+    <form onsubmit={messageInput !== "" ? sendMessageInput : () => {}} class="w-full p-6">
       <div class="flex items-center">
         <div class="w-full flex gap-4">
           <!-- svelte-ignore event_directive_deprecated -->
@@ -104,7 +103,12 @@
       </div>
     </form>
     <div class="w-full">
-      <Typography preset="Text lg/Semibold" text={$_("frequentlyAskedQuestion")} color="primary" propClass="pb-5" />
+      <Typography
+        preset="Text lg/Semibold"
+        text={$_("frequentlyAskedQuestion")}
+        color="primary"
+        propClass="pb-5"
+      />
       <Divider />
       <Button
         on:click={() => (dropdownToggle[0] = !dropdownToggle[0])}
@@ -113,14 +117,22 @@
       >
         <Typography preset="Text lg/Semibold" text={$_("howDoIAccessTheChatbot")} color="primary" />
         {#if dropdownToggle[0]}
-          <ChevronDownIcon svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark" />
+          <ChevronDownIcon
+            svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark"
+          />
         {:else}
-          <ChevronUpIcon svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark" />
+          <ChevronUpIcon
+            svgClass="w-5 h-5 text-utility-gray-700-light dark:text-utility-gray-700-dark"
+          />
         {/if}
       </Button>
       {#if dropdownToggle[0]}
         <div class="pt-4 px-6">
-          <Typography preset="Text md/Regular" text={$_("howDoIAccessTheChatbotDesc")} color="secondary" />
+          <Typography
+            preset="Text md/Regular"
+            text={$_("howDoIAccessTheChatbotDesc")}
+            color="secondary"
+          />
         </div>
       {/if}
     </div>

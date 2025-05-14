@@ -1,7 +1,7 @@
-<!-- 
+<!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Azzis Arswendo <azzis@hexacode.org>
   - Dean Ramhan <dean@hexacode.org>
   - Taqie Fadlillah <taqief@hexacode.org>
@@ -41,7 +41,8 @@ All Rights Reserved
   import XCloseIcon from "$lib/icon/x-close.svelte";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import ExampleAudio from "$lib/components/strauss.mp3";
-  import MultiSelect from 'svelte-multiselect';
+  import MultiSelect from "svelte-multiselect";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
 
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
@@ -128,7 +129,7 @@ All Rights Reserved
             triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
           }
           goto(await $call.getPage("client-dashboard", "voice-sub-documents")) +
-                    `?collectionId=${collectionId}&libraryId=${libraryId}`
+            `?collectionId=${collectionId}&libraryId=${libraryId}`;
           return;
         }
 
@@ -154,7 +155,7 @@ All Rights Reserved
 
         const blob = base64toBlob(base64, fileType);
         fileUrl = URL.createObjectURL(blob);
-        console.log(fileUrl);
+        // console.log(fileUrl);
 
         // let response2;
         // if (documentData.attributes.document_type === "Handwriting") {
@@ -418,7 +419,7 @@ All Rights Reserved
         // setTimeout(async () => {
         goto(
           (await $call.getPage("client-dashboard", "voice-sub-documents")) +
-                    `?collectionId=${collectionId}&libraryId=${libraryId}`
+            `?collectionId=${collectionId}&libraryId=${libraryId}`,
         );
         // }, 3000);
         return;
@@ -610,7 +611,7 @@ All Rights Reserved
           return;
         }
 
-        console.log(response);
+        // console.log(response);
         attributeNotUnique = false;
         nameIsAvailable = true;
         triggerToast("successUpdateDocument", true);
@@ -652,7 +653,7 @@ All Rights Reserved
         }
 
         triggerLoading(false);
-        console.log(response);
+        // console.log(response);
         triggerToast("successUpdateDocument", true);
         getDocument();
       }
@@ -663,7 +664,7 @@ All Rights Reserved
   }
 
   function truncateText(text, maxWords, maxFirstWordLength = 14) {
-    console.log("text", text);
+    // console.log("text", text);
     const words = text.split(" ");
 
     // Check if the first word is too long, or if the second word is long
@@ -720,7 +721,7 @@ All Rights Reserved
       // Membuat URL blob untuk diputar di audio player
       audioUrl = URL.createObjectURL(new Blob([file], { type: "audio/mp3" }));
 
-      console.log("audioUrl: ", audioUrl);
+      // console.log("audioUrl: ", audioUrl);
     } else {
       alert("Please upload a valid MP3 file.");
     }
@@ -756,7 +757,7 @@ All Rights Reserved
         },
       });
 
-      console.log("cek resp", resp);
+      // console.log("cek resp", resp);
 
       if (resp === null) {
         throw new Error("Server sibuk");
@@ -794,7 +795,12 @@ All Rights Reserved
       documentId = $page.url.searchParams.get("documentId");
       libraryId = $page.url.searchParams.get("libraryId");
       subCollectionId = $page.url.searchParams.get("subCollectionId");
-      if (documentId === null || documentId === undefined || libraryId === null || libraryId === undefined) {
+      if (
+        documentId === null ||
+        documentId === undefined ||
+        libraryId === null ||
+        libraryId === undefined
+      ) {
         triggerToast("error");
         goto(await $call.getPage("client-dashboard", "voice"));
         return;
@@ -835,13 +841,28 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{globalThis.innerWidth < 768 ? truncateText(tmpData.document_title || "", 2) : tmpData.document_title}
-              <!-- <Button
-                outline
-                color="red"
-                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
+              >{globalThis.innerWidth < 768
+                ? truncateText(tmpData.document_title || "", 2)
+                : tmpData.document_title}
+              &nbsp;
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(tmpData.document_title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
               >
-              </Button> -->
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </Heading>
           </div>
           <P
@@ -867,7 +888,7 @@ All Rights Reserved
                 data = { ...tmpData };
                 attributeNotUnique = false;
                 nameIsAvailable = true;
-                console.log(tmpData);
+                // console.log(tmpData);
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -883,9 +904,16 @@ All Rights Reserved
             <Button
               onclick={async function () {
                 triggerLoading(false);
+                documentId = $page.url.searchParams.get("documentId");
+                libraryId = $page.url.searchParams.get("libraryId");
+                subCollectionId = $page.url.searchParams.get("subCollectionId");
+
+                const newLink = isFrontend
+                  ? "/voice/collections/documents/sub_documents"
+                  : await $call.getPage("client-dashboard", "voice-sub-documents");
                 goto(
-                  (await $call.getPage("client-dashboard", "voice-sub-documents")) +
-                    `?collectionId=${collectionId}&libraryId=${libraryId}`,
+                  newLink +
+                    `?subCollectionId=${subCollectionId}&collectionId=${collectionId}&libraryId=${libraryId}`,
                 );
                 return;
               }}
@@ -951,7 +979,7 @@ All Rights Reserved
                 <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
                 <MultiSelect
                   --sms-min-height="40px"
-                  options={alltags || []} 
+                  options={alltags || []}
                   disabled={!onEdit}
                   allowUserOptions="append"
                   bind:selected={tags}
@@ -961,11 +989,7 @@ All Rights Reserved
                 />
               </div>
               <div class="flex flex-col gap-1.5">
-                <Typography
-                  preset="Text sm/medium"
-                  color="secondary"
-                  text={$_("uploadBy")}
-                />
+                <Typography preset="Text sm/medium" color="secondary" text={$_("uploadBy")} />
                 <InputRw onEdit={false} bind:value={uploadBy} />
               </div>
             </div>

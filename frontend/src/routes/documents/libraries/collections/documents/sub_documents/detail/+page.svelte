@@ -22,7 +22,7 @@ All Rights Reserved
     check,
   } from "$lib";
   import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import CopyIcon from "$lib/icon/copy-03.svelte";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
   import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
   import { onMount, onDestroy } from "svelte";
@@ -43,6 +43,8 @@ All Rights Reserved
   import ExampleAudio from "$lib/components/strauss.mp3";
   import MultiSelect from "svelte-multiselect";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let audioFile = $state(null); // menyimpan file audio sebagai base64
   let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
 
@@ -59,7 +61,6 @@ All Rights Reserved
   let fileUrl = $state("null");
   let pdfReady = $state(false);
   let attributeNotUnique = $state(false);
-
 
   let fileReady = $state(false);
 
@@ -142,7 +143,7 @@ All Rights Reserved
 
         const blob = base64toBlob(base64, fileType);
         fileUrl = URL.createObjectURL(blob);
-        console.log(fileUrl);
+        // console.log(fileUrl);
 
         // let response2;
         // if (documentData.attributes.document_type === "Handwriting") {
@@ -599,7 +600,7 @@ All Rights Reserved
           return;
         }
 
-        console.log(response);
+        // console.log(response);
         attributeNotUnique = false;
         triggerToast("successUpdateDocument", true);
         triggerLoading(false);
@@ -640,7 +641,7 @@ All Rights Reserved
         }
 
         triggerLoading(false);
-        console.log(response);
+        // console.log(response);
         triggerToast("successUpdateDocument", true);
         getDocument();
       }
@@ -651,7 +652,7 @@ All Rights Reserved
   }
 
   function truncateText(text, maxWords, maxFirstWordLength = 14) {
-    console.log("text", text);
+    // console.log("text", text);
     const words = text.split(" ");
 
     // Check if the first word is too long, or if the second word is long
@@ -708,7 +709,7 @@ All Rights Reserved
       // Membuat URL blob untuk diputar di audio player
       audioUrl = URL.createObjectURL(new Blob([file], { type: "audio/mp3" }));
 
-      console.log("audioUrl: ", audioUrl);
+      // console.log("audioUrl: ", audioUrl);
     } else {
       alert("Please upload a valid MP3 file.");
     }
@@ -744,7 +745,7 @@ All Rights Reserved
         },
       });
 
-      console.log("cek resp", resp);
+      // console.log("cek resp", resp);
 
       if (resp === null) {
         throw new Error("Server sibuk");
@@ -824,12 +825,25 @@ All Rights Reserved
               >{globalThis.innerWidth < 768
                 ? truncateText(tmpData.document_title || "", 2)
                 : tmpData.document_title}
-              <!-- <Button
-                outline
-                color="red"
-                class="hover:!bg-transparent !border-hc-graylight-200 dark:!border-hc-graydark-600 focus-within:!ring-1 !p-2"
+              &nbsp;
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(tmpData.document_title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
               >
-              </Button> -->
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </Heading>
           </div>
           <P
@@ -855,7 +869,7 @@ All Rights Reserved
                 data = { ...tmpData };
                 attributeNotUnique = false;
                 nameIsAvailable = true;
-                console.log(tmpData);
+                // console.log(tmpData);
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -871,9 +885,14 @@ All Rights Reserved
             <Button
               onclick={async function () {
                 triggerLoading(false);
+                let subCollectionId = $page.url.searchParams.get("subCollectionId");
+                let collectionId = $page.url.searchParams.get("collectionId");
+                let libraryId = $page.url.searchParams.get("libraryId");
                 goto(
-                  (await $call.getPage("client-dashboard", "document-library-documents")) +
-                    `?collectionId=${collectionId}`,
+                  (isFrontend
+                    ? "/documents/libraries/collections/documents/sub_documents"
+                    : await $call.getPage("client-dashboard", "document-library-sub-documents")) +
+                    `?collectionId=${collectionId}&libraryId=${libraryId}&subCollectionId=${subCollectionId}`,
                 );
                 return;
               }}

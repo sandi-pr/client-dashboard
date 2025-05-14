@@ -37,7 +37,7 @@
   } from "$lib";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
-  import { findIconFromModelName } from "$lib";
+  import { findIconFromModelName, getIcons } from "$lib";
   // import Highlight from "svelte-highlight";
   // import typescript from "svelte-highlight/languages/typescript";
   // import github from "svelte-highlight/styles/github";
@@ -145,17 +145,17 @@
   let themeColors = $state([
     {
       id: 1,
-      name: "Purple",
+      name: "purple",
       value: "purple",
     },
     {
       id: 2,
-      name: "Blue",
+      name: "blue",
       value: "blue",
     },
     {
       id: 3,
-      name: "Green",
+      name: "green",
       value: "green",
     },
   ]);
@@ -1110,7 +1110,7 @@
         // await getCollection();
         await getDocuments();
 
-        if (attributes.ai_engine === "openai"){
+        if (attributes.ai_engine === "openai") {
           // hanya tampilkan platform yang modelnya openai
           platforms = platforms.filter((platform) => platform.model === "openai");
           // hapus tabDatas yang namanya Data
@@ -1477,7 +1477,7 @@
 <!-- <LoadingSpinner {isLoading} /> -->
 {#if ready}
   <div class="m-4 pb-12">
-    <div class="sticky top-0 bg-primary-light dark:bg-primary-dark z-10">
+    <div class="sticky top-0 bg-primary-light dark:bg-primary-dark">
       <div class="flex justify-between items-center">
         <div class="flex items-center ms-4">
           <Avatar
@@ -1520,8 +1520,11 @@
             <div class="hidden md:flex gap-2">
               <Button
                 onclick={async function () {
-                  goto(await $call.getPage("client-dashboard", "bots"));
-                  return;
+                  if (isFrontend) {
+                    goto("/bots");
+                  } else {
+                    goto(await $call.getPage("client-dashboard", "bots"));
+                  }
                 }}
                 color="light"
                 class="px-3 focus-within:!ring-1">{$_("back")}</Button
@@ -1616,7 +1619,8 @@
               bind:selectedData={users.platform}
               numGrid={3}
               isRadio
-              disabled={!onEdit || platforms?.find((platform) => platform.id === users?.platform)?.model === "openai" }
+              disabled={!onEdit ||
+                platforms?.find((platform) => platform.id === users?.platform)?.model === "openai"}
             />
           </div>
         </div>
@@ -1638,36 +1642,36 @@
           </div>
         </div> -->
         {#if platforms?.find((platform) => platform.id === users?.platform)?.model !== "openai"}
-        <Divider />
-        <div class="md:flex">
-          <Typography
-            preset="Text md/Semibold"
-            text={$_("knowledgeSource")}
-            color="secondary"
-            propClass="w-full md:w-1/4"
-          />
-          <div class="w-full md:w-3/4">
-            <div class="flex items-center gap-4">
-              <Button
-                on:click={() => (modalOpen = true)}
-                disabled={!onEdit}
-                color="light"
-                class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
-              >
-                <Typography
-                  preset="Text md/Semibold"
-                  text={selectedCollection
-                    ? collections.find((item) => item.value === selectedCollection)?.name
-                    : $_("configure")}
-                  color="secondary"
-                />
-                <ChevronDownOutline
-                  class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-                />
-              </Button>
+          <Divider />
+          <div class="md:flex">
+            <Typography
+              preset="Text md/Semibold"
+              text={$_("knowledgeSource")}
+              color="secondary"
+              propClass="w-full md:w-1/4"
+            />
+            <div class="w-full md:w-3/4">
+              <div class="flex items-center gap-4">
+                <Button
+                  on:click={() => (modalOpen = true)}
+                  disabled={!onEdit}
+                  color="light"
+                  class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
+                >
+                  <Typography
+                    preset="Text md/Semibold"
+                    text={selectedCollection
+                      ? collections.find((item) => item.value === selectedCollection)?.name
+                      : $_("configure")}
+                    color="secondary"
+                  />
+                  <ChevronDownOutline
+                    class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                  />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
         {/if}
         <Divider />
         <div class="md:flex">
@@ -1900,22 +1904,199 @@
           </div>
         </div>
         <Divider />
-        <!-- <div class="flex justify-end gap-3">
-          <Button
-            on:click={async () => {
-              goto(await $call.getPage("client-dashboard", "bots-list"));
-            }}
-            color="light"
-            class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
-          >
-          <Button
-            disabled={disabledButton}
-            on:click={() => {
-              updateBot();
-            }}
-            class="px-3 focus-within:!ring-1">{$_("save")}</Button
-          >
-        </div> -->
+        <div class="md:flex">
+          <Typography
+            preset="Text md/Semibold"
+            text={$_("preview")}
+            color="secondary"
+            propClass="w-full md:w-1/4"
+          />
+          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="col-span-4">
+              <div
+                class="flex flex-col w-full border border-secondary-light dark:border-secondary-dark rounded-lg"
+              >
+                <div
+                  class="flex gap-4 {backgroundFile.name
+                    ? 'flex-col justify-center items-center mb-4'
+                    : 'items-center px-4 pt-4'}"
+                >
+                  {#if backgroundFile.name}
+                    <div class="relative overflow-hidden max-h-[20rem]">
+                      <img
+                        src={backgroundFile.imageResult}
+                        alt="Background"
+                        class="w-full h-full object-cover object-center rounded-lg"
+                      />
+                    </div>
+                  {/if}
+                  <div
+                    class={backgroundFile.name
+                      ? "mt-[-2.5rem] z-10 bg-primary-light dark:bg-primary-dark rounded-full p-2"
+                      : ""}
+                  >
+                    {#if logoFile.name}
+                      <Avatar src={logoFile.imageResult} />
+                    {:else}
+                      <svelte:component
+                        this={getIcons("brand")}
+                        svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
+                      />
+                    {/if}
+                  </div>
+                  {#if users.logoName && !users.logoOnly}
+                    <Typography preset="Text xl/Semibold" text={users.logoName} />
+                  {/if}
+                </div>
+                <div class="flex flex-col items-center gap-4 px-4 pb-4">
+                  <div class="flex w-1/2 justify-end">
+                    <Button outline color="alternative" class="mt-4 w-fit ">
+                      <svelte:component
+                        this={getIcons("refreshCw05")}
+                        svgClass="w-4 h-4 hover:text-white"
+                      />
+                      &nbsp;
+                      {$_("clearConversations")}
+                    </Button>
+                  </div>
+                  <div class="flex flex-col w-1/2 gap-4">
+                    {#if users?.welcomeMessage}
+                      <div
+                        class="w-full px-10 py-6 border rounded-lg border-secondary-light dark:border-secondary-dark bg-secondary-light dark:bg-secondary-dark"
+                      >
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-4">
+                            <Avatar src={botFile.name ? botFile.imageResult : ""} />
+                            <div class="flex gap-1 items-center">
+                              <Typography
+                                preset="Text md/Semibold"
+                                text={users?.botName ? users.botName : "Bot"}
+                              />
+                              <Typography
+                                preset="Text sm/regular"
+                                color="quarterary"
+                                text={$_("24/04/2024 03:15 PM")}
+                              />
+                            </div>
+                          </div>
+                          <svelte:component
+                            this={getIcons("thumbsDown")}
+                            svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
+                          />
+                        </div>
+                        <div class="mt-4">
+                          <Typography
+                            preset="Text md/Regular"
+                            color="tertiary"
+                            text={users.welcomeMessage}
+                          />
+                        </div>
+                      </div>
+                    {/if}
+                    <div
+                      class="w-full px-10 py-6 border rounded-lg bg-secondary-light dark:bg-secondary-dark {users.primaryBrandColor ===
+                      1
+                        ? 'border-brand-light'
+                        : users.primaryBrandColor === 2
+                          ? 'border-blue-500'
+                          : users.primaryBrandColor === 3
+                            ? 'border-green-500'
+                            : 'border-brand-light'}"
+                    >
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                          <Avatar src={userFile.name ? userFile.imageResult : ""} />
+                          <div class="flex gap-1 items-center">
+                            <Typography
+                              preset="Text md/Semibold"
+                              text={users?.username ? users.username : "User"}
+                            />
+                            <Typography
+                              preset="Text sm/regular"
+                              color="quarterary"
+                              text={$_("24/04/2024 03:15 PM")}
+                            />
+                          </div>
+                        </div>
+                        <svelte:component
+                          this={getIcons("thumbsDown")}
+                          svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
+                        />
+                      </div>
+                      <div class="mt-4">
+                        <Typography
+                          preset="Text md/Regular"
+                          color="tertiary"
+                          text={$_(
+                            "Hello! Can you explain the meaning of Surah Al-Fatihah, verse 1?",
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="w-full px-10 py-6 border rounded-lg border-secondary-light dark:border-secondary-dark bg-secondary-light dark:bg-secondary-dark"
+                    >
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                          <Avatar src={botFile.name ? botFile.imageResult : ""} />
+                          <div class="flex gap-1 items-center">
+                            <Typography
+                              preset="Text md/Semibold"
+                              text={users?.botName ? users.botName : "Bot"}
+                            />
+                            <Typography
+                              preset="Text sm/regular"
+                              color="quarterary"
+                              text={$_("24/04/2024 03:15 PM")}
+                            />
+                          </div>
+                        </div>
+                        <svelte:component
+                          this={getIcons("thumbsDown")}
+                          svgClass="w-5 h-5 text-gray-700 dark:text-gray-400"
+                        />
+                      </div>
+                      <div class="mt-4">
+                        <Typography
+                          preset="Text md/Regular"
+                          color="tertiary"
+                          text={$_(
+                            "Certainly! Surah Al-Fatihah, verse 1, is known as the Opener of the Book. It begins with ‘Al-Hamdu lillahi Rabbil-`Alamin,’ which means ‘All praise is due to Allah, the Lord of existence.’ This verse emphasizes praising Allah and recognizing His sovereignty. It’s also called Umm Al-Kitab (the Mother of the Book) because it contains the essence of the entire Quran. Would you like more details?",
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div class="w-full flex items-center gap-4">
+                      <div
+                        class="rounded-2xl border-2 p-4 grow {users.primaryBrandColor === 1
+                          ? 'border-brand-light'
+                          : users.primaryBrandColor === 2
+                            ? 'border-blue-500'
+                            : users.primaryBrandColor === 3
+                              ? 'border-green-500'
+                              : 'border-brand-light'}"
+                      >
+                        <Typography preset="Text md/regular" text={$_("Send a message...")} />
+                      </div>
+                      <div
+                        class="flex justify-center items-center p-3 rounded-full {users.primaryBrandColor ===
+                        1
+                          ? 'bg-brand-primary-dark'
+                          : users.primaryBrandColor === 2
+                            ? 'bg-blue-500'
+                            : users.primaryBrandColor === 3
+                              ? 'bg-green-500'
+                              : 'bg-brand-primary-dark'}"
+                      >
+                        <svelte:component this={getIcons("send03")} svgClass="w-5 h-5 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     {:else if tabDatas.selected === "Data"}
       {#each datas as data, index}
@@ -1968,7 +2149,7 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="Embed Codes"
+            text={$_("embedCodes")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
@@ -1983,7 +2164,7 @@
               <CopyIcon
                 svgClass="w-5 h-5 text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
               />
-              Copy to clipboard
+              {$_("copyToClipboard")}
             </Button>
             <div class="col-span-4">
               <TextareaRw bind:value={users.embedCode} onEdit={false} />
@@ -1994,7 +2175,7 @@
     {/if}
   </div>
 
-  <Modal title="Terms of Service" bind:open={modalThemeColor} autoclose outsideclose>
+  <Modal title={$_("chooseYourPreferedColor")} bind:open={modalThemeColor} autoclose outsideclose>
     <SelectedCard
       selectionData={themeColors}
       bind:selectedData={tmpThemeColor}
@@ -2002,12 +2183,12 @@
       isRadio
       widthFlex="w-full"
       spacing="!p-4"
-      widgetIndicator={Indicator}
+      widgetIndicator={true}
     />
     <svelte:fragment slot="footer">
       <Button
         on:click={() => (users.primaryBrandColor = tmpThemeColor)}
-        class="px-3 w-full focus-within:!ring-1">{"Save"}</Button
+        class="px-3 w-full focus-within:!ring-1">{$_("save")}</Button
       >
     </svelte:fragment>
   </Modal>
@@ -2020,7 +2201,7 @@
       isRadio
       widthFlex="w-full"
       spacing="!p-4"
-      widgetIndicator={Indicator}
+      widgetIndicator={true}
     />
     <svelte:fragment slot="footer">
       <Button

@@ -37,6 +37,7 @@ All Rights Reserved
   import upload from "$lib/icon/upload-cloud-02.svg";
   import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import ArrowRightIcon from "$lib/icon/arrow-right.svelte";
+  import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
 
   import {
     triggerSelectCollection,
@@ -53,6 +54,8 @@ All Rights Reserved
   import { goto } from "$app/navigation";
 
   import { call } from "$lib";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let datas = $state([
     // {
@@ -208,13 +211,15 @@ All Rights Reserved
         return;
       }
 
-      console.log("collections", response);
+      // console.log("collections", response);
 
       collections = response.result.data;
 
       pagination = response.result.meta.pagination;
 
-      let collectionList = await $call.getPage("client-dashboard", "document-library-collections");
+      let link = isFrontend
+        ? "/documents/libraries/collections"
+        : await $call.getPage("client-dashboard", "document-library-collections");
 
       let promise = collections.map(async (collection) => {
         let response4 = await $call.call("client-dashboard", "get-status-library", {
@@ -234,7 +239,7 @@ All Rights Reserved
           return;
         }
 
-        console.log("status", response4);
+        // console.log("status", response4);
 
         let collectionStatus = response4.result.status;
 
@@ -246,7 +251,7 @@ All Rights Reserved
           // totalDocuments: totalDocuments,
           // categories: categoriesCollection,
           status: collectionStatus,
-          href: `${collectionList}?libraryId=${collection.id}`,
+          href: `${link}?libraryId=${collection.id}`,
           webchat: collection.attributes.webchat_tmp === true ? true : false,
         };
       });
@@ -527,6 +532,8 @@ All Rights Reserved
               propClass="fluid-xl"
             />
             <Button
+              outline
+              class="min-w-max gap-1.5"
               disabled={!check("documentAi.documentLibrary:create")}
               on:click={() => {
                 addLibraryModal = true;
@@ -535,9 +542,8 @@ All Rights Reserved
                 tmpCollectionName = "";
                 tmpDescription = "";
               }}
-              class="p-2 md:px-3 md:py-2"
             >
-              <img class="w-4 h-4 md:me-1" src={PlusIcon} alt="plus-icon" />
+              <FilePlus02Icon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               <div class="hidden md:block">{$_("addNew")}</div>
             </Button>
           </div>

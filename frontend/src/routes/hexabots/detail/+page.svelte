@@ -145,17 +145,17 @@
   let themeColors = $state([
     {
       id: 1,
-      name: "Purple",
+      name: "purple",
       value: "purple",
     },
     {
       id: 2,
-      name: "Blue",
+      name: "blue",
       value: "blue",
     },
     {
       id: 3,
-      name: "Green",
+      name: "green",
       value: "green",
     },
   ]);
@@ -1922,7 +1922,7 @@
         <div class="md:flex">
           <Typography
             preset="Text md/Semibold"
-            text="Embed Codes"
+            text={$_("embedCodes")}
             color="secondary"
             propClass="w-full md:w-1/4"
           />
@@ -1937,7 +1937,7 @@
               <CopyIcon
                 svgClass="w-5 h-5 text-fg-brand-primary-light dark:text-fg-brand-primary-dark"
               />
-              Copy to clipboard
+              {$_("copyToClipboard")}
             </Button>
             <div class="col-span-4">
               <TextareaRw bind:value={users.embedCode} onEdit={false} />
@@ -1948,7 +1948,7 @@
     {/if}
   </div>
 
-  <Modal title="Terms of Service" bind:open={modalThemeColor} autoclose outsideclose>
+  <Modal title={$_("chooseYourPreferedColor")} bind:open={modalThemeColor} autoclose outsideclose>
     <SelectedCard
       selectionData={themeColors}
       bind:selectedData={tmpThemeColor}
@@ -1956,12 +1956,12 @@
       isRadio
       widthFlex="w-full"
       spacing="!p-4"
-      widgetIndicator={Indicator}
+      widgetIndicator={true}
     />
     <svelte:fragment slot="footer">
       <Button
         on:click={() => (users.primaryBrandColor = tmpThemeColor)}
-        class="px-3 w-full focus-within:!ring-1">{"Save"}</Button
+        class="px-3 w-full focus-within:!ring-1">{$_("save")}</Button
       >
     </svelte:fragment>
   </Modal>
@@ -1974,7 +1974,7 @@
       isRadio
       widthFlex="w-full"
       spacing="!p-4"
-      widgetIndicator={Indicator}
+      widgetIndicator={true}
     />
     <svelte:fragment slot="footer">
       <Button

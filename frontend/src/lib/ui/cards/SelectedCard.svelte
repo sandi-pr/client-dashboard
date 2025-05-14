@@ -2,7 +2,7 @@
   import { _ } from "svelte-i18n";
   import { Typography, FeaturedIcon, Icon } from "$lib";
   import { getIcons } from "$lib";
-  import { Card, Radio } from "flowbite-svelte";
+  import { Card, Radio, Indicator } from "flowbite-svelte";
 
   let {
     selectionData,
@@ -14,7 +14,7 @@
     spacing = "",
     widgetIndicator,
     disabled = false,
-    flexWrap = false,
+    iconIsComponent = false,
   }: {
     selectionData: any;
     selectedData?: any;
@@ -25,7 +25,7 @@
     spacing?: any;
     widgetIndicator?: any;
     disabled?: any;
-    flexWrap?: any;
+    iconIsComponent?: any;
   } = $props();
   const selectData = (id: any) => {
     selectedData = id;
@@ -49,13 +49,16 @@
     >
       <div class="flex items-center gap-4">
         {#if data.icon}
-          <!-- <data.icon
-            svgClass={`w-7 h-7 ${selectedData === data.id ? "text-fg-brand-primary-light dark:text-fg-brand-primary-dark" : "text-utility-gray-500-light dark:text-utility-gray-500-dark"}`}
-          /> -->
-          <FeaturedIcon classesSvg={getIcons(data.icon)} />
+          {#if iconIsComponent}
+            <data.icon
+              svgClass={`w-7 h-7 ${selectedData === data.id ? "text-fg-brand-primary-light dark:text-fg-brand-primary-dark" : "text-utility-gray-500-light dark:text-utility-gray-500-dark"}`}
+            />
+          {:else}
+            <FeaturedIcon classesSvg={getIcons(data.icon)} />
+          {/if}
         {/if}
         {#if widgetIndicator}
-          <widgetIndicator color={data.value} size="lg"> </widgetIndicator>
+          <Indicator color={data.value} size="xl" />
         {/if}
         <div class="flex-col">
           <div class="flex flex-col gap-[2px]">

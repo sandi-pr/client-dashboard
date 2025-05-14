@@ -80,6 +80,8 @@ import VerifiedTickIcon from "../icon/verified-tick.svelte";
 import OnedriveIcon from "../icon/onedrive.svelte";
 import Trash03Icon from "../icon/trash-03.svelte";
 import LineChartUp01 from "../icon/line-chart-up-01.svelte";
+import ThumbsDown from "../icon/thumbs-down.svelte";
+import Send03 from "../icon/send-03.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -247,6 +249,10 @@ let getIcons = (presetIcon: String) => {
       return Trash03Icon;
     case "lineChartUp01":
       return LineChartUp01;
+    case "thumbsDown":
+      return ThumbsDown;
+    case "send03":
+      return Send03;
     default:
       return "";
   }

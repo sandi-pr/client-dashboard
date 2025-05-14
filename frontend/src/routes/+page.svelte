@@ -96,30 +96,30 @@ All Rights Reserved
       description: "descDocumentLibrary",
       page: "document-collection-overview",
     },
-    // {
-    //   icon: "bookClosed",
-    //   title: "dataSources",
-    //   description: "descDataSources",
-    //   page: "data-sources",
-    // },
-    // { // BRI ADJUSTMENT
-    //   icon: "lightbulb",
-    //   title: "insights",
-    //   description: "descInsights",
-    //   page: "csv-insight",
-    // },
-    // {
-    //   icon: "penTool",
-    //   title: "handwriting",
-    //   description: "descHandwriting",
-    //   page: "handwriting",
-    // },
-    // {
-    //   icon: "recording02",
-    //   title: "voice",
-    //   description: "descVoice",
-    //   page: "voice",
-    // },
+    {
+      icon: "bookClosed",
+      title: "dataSources",
+      description: "descDataSources",
+      page: "data-sources",
+    },
+    { // BRI ADJUSTMENT
+      icon: "lightbulb",
+      title: "insights",
+      description: "descInsights",
+      page: "csv-insight",
+    },
+    {
+      icon: "penTool",
+      title: "handwriting",
+      description: "descHandwriting",
+      page: "handwriting",
+    },
+    {
+      icon: "recording02",
+      title: "voice",
+      description: "descVoice",
+      page: "voice",
+    },
     {
       icon: "messagePlusSquare",
       title: "createBots",
@@ -136,7 +136,7 @@ All Rights Reserved
       icon: "data",
       title: "finetunings",
       description: "descFinetunings",
-      page: "datasets",
+      page: "finetunings",
     },
   ];
 
@@ -219,7 +219,7 @@ All Rights Reserved
           icon: "data",
           title: "finetunings",
           description: "descFinetunings",
-          page: "datasets",
+          page: "finetunings",
         }
       : false,
   ].filter(Boolean);
@@ -892,12 +892,12 @@ All Rights Reserved
   function getIsFirstTime() {
     if (typeof localStorage !== "undefined") {
       isFirstTime = localStorage.getItem("isFirstTime") === "false" ? false : true;
-      console.log("isFirstTime", isFirstTime);
+      // console.log("isFirstTime", isFirstTime);
 
       if (isFirstTime) {
         isFirstTimeTimeoutId = setTimeout(() => {
           isFirstTime = false;
-          localStorage.setItem("isFirstTime", isFirstTime);
+          // localStorage.setItem("isFirstTime", isFirstTime);
         }, 6000);
       }
     } else {

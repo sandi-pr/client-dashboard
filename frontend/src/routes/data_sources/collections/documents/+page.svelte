@@ -41,6 +41,9 @@
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import MultiSelect from "svelte-multiselect";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
+  import Copy01Icon from "$lib/icon/copy-01.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let collectionId = $state(null);
   let libraryId = $state(null);
@@ -225,7 +228,9 @@
 
         pagination = response.result.meta.pagination;
 
-        let link = await $call.getPage("client-dashboard", "data-sources-detail");
+        let link = isFrontend
+          ? "/data_sources/collections/documents/detail"
+          : await $call.getPage("client-dashboard", "data-sources-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -1096,9 +1101,13 @@
       let link;
 
       if (isChild) {
-        link = await $call.getPage("client-dashboard", "data-sources-sub-documents");
+        link = isFrontend
+          ? "/data_sources/collections/documents/sub_documents"
+          : await $call.getPage("client-dashboard", "data-sources-sub-documents");
       } else {
-        link = await $call.getPage("client-dashboard", "data-sources-documents");
+        link = isFrontend
+          ? "/data_sources/collections/documents"
+          : await $call.getPage("client-dashboard", "data-sources-documents");
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -1294,7 +1303,9 @@
 
         deleteModal = false;
         const libraryIdWebchatBakrie = window.localStorage.getItem("libraryIdWebchatBakrie");
-        let link = await $call.getPage("client-dashboard", "data-sources");
+        let link = isFrontend
+          ? "/data_sources"
+          : await $call.getPage("client-dashboard", "data-sources");
         goto(`${link}?libraryId=${libraryIdWebchatBakrie}`);
       } catch (error) {
         console.error("Error during collection deletion:", error);
@@ -1715,6 +1726,24 @@
                 text={collectionDatas.title}
                 propClass="fluid-xl line-clamp-2"
               />
+              <button
+                onclick={() => {
+                  navigator.clipboard
+                    .writeText(collectionDatas.title)
+                    .then(() => {
+                      console.log("Text copied to clipboard");
+                      triggerToast("copyToClipboard");
+                    })
+                    .catch((err) => {
+                      console.error("Failed to copy: ", err);
+                    });
+                }}
+                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+              >
+                <Copy01Icon
+                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+                />
+              </button>
             </div>
           </div>
 
@@ -1764,7 +1793,7 @@
               </Button> -->
             {/if}
             <Button
-              color="light"
+              outline
               class="min-w-max gap-1.5"
               disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={() => (dropdownUpload = !dropdownUpload)}

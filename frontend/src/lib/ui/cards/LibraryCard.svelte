@@ -44,18 +44,14 @@
         title === "Document Images" ||
         title === "Handwriting"
       );
-    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
-      return (
-        title === "My Handwriting"
-      );
+    } else if (
+      parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))
+    ) {
+      return title === "My Handwriting";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
-      return (
-        title === "My Voice"
-      )
+      return title === "My Voice";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "insights"))) {
-      return (
-        title === "My Data Source"
-      )
+      return title === "My Data Source";
     } else {
       return false;
     }
@@ -103,9 +99,7 @@
   };
 </script>
 
-<Card
-  class={`gap-2.5 justify-between !p-0 h-min ${usedFor === "libraries_collections" ? "max-w-full" : ""}`}
->
+<Card class="gap-2.5 justify-between !p-0 h-min max-w-full">
   <div
     class="flex justify-between w-full px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
@@ -136,7 +130,12 @@
           <Folder svgClass="text-quarterary-light dark:text-quarterary-dark" />
         </div>
         <div class="pl-8 pr-5">
-          <Typography preset="Text sm/Semibold" color="secondary" text={collectionName} propClass="line-clamp-1 overflow-hidden text-ellipsis" />
+          <Typography
+            preset="Text sm/Semibold"
+            color="secondary"
+            text={collectionName}
+            propClass="line-clamp-1 overflow-hidden text-ellipsis"
+          />
         </div>
       {:else}
         <BookClosedIcon svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />

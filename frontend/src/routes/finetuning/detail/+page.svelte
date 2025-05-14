@@ -598,12 +598,13 @@
           <button
             class="ml-4 flex items-center gap-1 mb-2"
             on:click={async () => {
-              // window.location.href = "/datasets";
-              goto(await $call.getPage("client-dashboard", "datasets"));
+              goto(await $call.getPage("client-dashboard", "finetunings"));
             }}
           >
             <ChevronLeftOutline class="w-7 h-7 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
-            <P class="font-semibold text-fg-tertiary-light dark:text-fg-tertiary-dark">Back</P>
+            <P class="font-semibold text-fg-tertiary-light dark:text-fg-tertiary-dark"
+              >{$_("back")}</P
+            >
           </button>
 
           <div
@@ -619,7 +620,7 @@
                 <Button
                   onclick={handleDeleteDataset}
                   outline
-                  color="alternative"
+                  color="red"
                   class={innerWidth < 768 ? "w-full" : ""}
                 >
                   {$_("delete")}

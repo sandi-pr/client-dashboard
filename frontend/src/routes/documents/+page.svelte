@@ -11,32 +11,20 @@ All Rights Reserved
 -->
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input, P, Indicator, Alert, Select, Helper } from "flowbite-svelte";
+  import { Modal, Button, Input, Helper } from "flowbite-svelte";
   import {
     StateCard,
     Typography,
     SectionHeader,
-    Card,
     ChartCard,
-    CollectionCard,
     LibraryCard,
     triggerToast,
-    UploadFile,
     ActionCard,
     check,
     isBakrie,
   } from "$lib";
   import { _ } from "svelte-i18n";
-  import PlusIcon from "$lib/icon/plus.svg";
-  import FileTypeIcon from "$lib/icon/file-type-icon.svelte";
-  import {
-    ExclamationCircleSolid,
-    ChevronDownOutline,
-    InfoCircleSolid,
-  } from "flowbite-svelte-icons";
-  import upload from "$lib/icon/upload-cloud-02.svg";
-  import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { CR3Call } from "hexacomponents-svelte";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { format } from "date-fns";
@@ -46,14 +34,13 @@ All Rights Reserved
     triggerShowAI,
     triggerSelectDropdown,
     triggerReload,
-    triggerLoading,
     showAI,
     showNotif,
   } from "$lib";
-  import LoadingContainer from "$lib/components/LoadingContainer.svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   import { call } from "$lib";
-  import { on } from "svelte/events";
 
   // let { showAI = true } = $props();
   // let showAI = $state(false);
@@ -359,7 +346,11 @@ All Rights Reserved
   let gettingDatas = $state(false);
 
   async function viewAll() {
-    goto(await $call.getPage("client-dashboard", "document-library"));
+    goto(
+      isFrontend
+        ? "/documents/libraries"
+        : await $call.getPage("client-dashboard", "document-library"),
+    );
   }
 
   async function createCollection() {
@@ -485,10 +476,12 @@ All Rights Reserved
       //   }
       // }
 
-      let collectionList = await $call.getPage("client-dashboard", "document-library-collections");
+      let link = isFrontend
+        ? "/documents/libraries/collections"
+        : await $call.getPage("client-dashboard", "document-library-collections");
 
       let promise = collections.map(async (collection) => {
-        console.log("collection", collection);
+        // console.log("collection", collection);
         let response4 = await $call.call("client-dashboard", "get-status-library", {
           URLQuery: {},
           URLParams: {
@@ -506,7 +499,7 @@ All Rights Reserved
           return;
         }
 
-        console.log("status", response4);
+        // console.log("status", response4);
         let collectionStatus = response4.result.status;
 
         return {
@@ -517,7 +510,7 @@ All Rights Reserved
           // totalDocuments: totalDocuments,
           // categories: categoriesCollection,
           status: collectionStatus,
-          href: `${collectionList}?libraryId=${collection.id}`,
+          href: `${link}?libraryId=${collection.id}`,
           // webchat: collection.attributes.webchat_tmp === true ? true : false,
         };
       });
@@ -673,8 +666,8 @@ All Rights Reserved
       let totalCollections = groupingDataChart(monthlyCollectionsCounts);
       let totalCollectingData = groupingDataChart(monthlyCollectingDataCounts);
 
-      console.log("totalCollectingData", totalCollectingData);
-      console.log("totalCollections", monthlyCollectingDataCounts);
+      // console.log("totalCollectingData", totalCollectingData);
+      // console.log("totalCollections", monthlyCollectingDataCounts);
 
       getChartAction(totalCollections, totalCollectingData);
       generateChartData();

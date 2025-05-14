@@ -8,15 +8,16 @@
 
   const errorList = {
     404: "Oops! Page Not Found",
-    500: "Internal server error",
+    500: "We're Undergoing Maintenance",
   };
 
   const errorSubtitle = {
     404: "Uh oh! This page has gone on a little adventure. Try searching for what you need or head back to the homepage",
-    500: "Something went wrong on our end. Please try again later.",
+    500: "Our servers are taking a short break for some important maintenance. We expect to be back up and running soon.",
   };
 
   let status = $page.status;
+  // let status = 500;
   let referrer = "";
 
   onMount(() => {
@@ -38,7 +39,11 @@
   {:else}
     <img src={Logo502} alt="502" class="w-[20rem] h-[20rem] md:w-[30rem] md:h-[30rem]" />
   {/if}
-  <Typography text={errorList[status]} preset="Display xl/semibold" propClass="m-8 fluid-xl md:fluid-2xl" />
+  <Typography
+    text={errorList[status]}
+    preset="Display xl/semibold"
+    propClass="m-8 fluid-xl md:fluid-2xl"
+  />
   {#if status === 404}
     <Typography text={errorSubtitle[status]} preset="Text md/regular" propClass="text-center" />
   {/if}
@@ -58,8 +63,10 @@
         funcButton={() => (window.location.href = "/")}
         color="alternative"
         leftIcon="true"
-        classesSvg="refresh"
+        classesSvg="refreshCw05"
+        svgClassReplace="w-4 h-4 text-gray-700 dark:text-gray-400 mr-2"
       />
+      <Button text="Take me home" funcButton={() => (window.location.href = "/")} />
     {/if}
   </div>
 </main>

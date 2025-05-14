@@ -2,6 +2,7 @@
   import { twMerge } from "tailwind-merge";
   import { Typography, FeaturedIcon, Button } from "$lib";
   import { getIcons } from "$lib";
+  import { _ } from "svelte-i18n";
 
   let { cardData = {}, propClass = "", propClassContent = "" } = $props();
 
@@ -58,7 +59,7 @@
               {/if}
 
               {#if key === "text"}
-                <Typography {...content.text} />
+                <Typography {...content.text} text={$_(content.text.text)} />
               {/if}
             {/each}
           </div>

@@ -934,18 +934,25 @@
     <div class="flex text-sm gap-3">
       <Button
         on:click={async () => {
-          goto(await $call.getPage("client-dashboard", "bots"));
+          if (isFrontend) {
+            goto("/bots");
+          } else {
+            goto(await $call.getPage("client-dashboard", "bots"));
+          }
         }}
-        color="light">{$_("cancel")}</Button
+        color="light"
       >
+        {$_("cancel")}
+      </Button>
       <Button
         disabled={botName === "" || selectedplatforms === "" || platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai" ? selectedCollection === "" : false}
         on:click={() => {
           createBot();
         }}
         class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
-        >{$_("create")}</Button
       >
+        {$_("create")}
+      </Button>
     </div>
   </div>
 

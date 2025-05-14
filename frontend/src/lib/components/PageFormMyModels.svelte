@@ -86,7 +86,7 @@
         } else if (file.name.endsWith(".gguf")) {
           // Handle .gguf files
           selectedFile = file;
-          modelName = file.name;
+          modelName = modelName ? modelName : file.name;
           fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
           uploadProgress = 0;
         } else {
@@ -254,8 +254,8 @@
       while (offset < selectedFile.size) {
         chunkIndex++;
         const chunk = selectedFile.slice(offset, offset + 1024 * 1024);
-        // const formData = new FormData();
 
+        const formData = new FormData();
         formData.append("chunkIndex", chunkIndex.toString());
         formData.append("totalChunks", totalChunks.toString());
         formData.append("modelName", modelName);
@@ -264,15 +264,15 @@
         formData.append("description", description);
         formData.append("logo", logoData);
 
-        const payload = {
-          chunkIndex: chunkIndex.toString(),
-          totalChunks: totalChunks.toString(),
-          modelName: modelName,
-          extension: extension,
-          chunk: await chunk.arrayBuffer(), // Convert the chunk to a buffer
-          description: description,
-          logo: logoData,
-        };
+        // const payload = {
+        //   chunkIndex: chunkIndex.toString(),
+        //   totalChunks: totalChunks.toString(),
+        //   modelName: modelName,
+        //   extension: extension,
+        //   chunk: await chunk.arrayBuffer(), // Convert the chunk to a buffer
+        //   description: description,
+        //   logo: logoData,
+        // };
 
         // console.log("payload", payload);
         // triggerLoading(false);
@@ -282,29 +282,29 @@
           const response = await $call.call("hexa-ai-rag", "upload-my-model", {
             URLQuery: {},
             URLParams: {},
-            Params: payload,
+            Params: formData,
+            // Params: payload,
             Headers: {
-              Authorization: "Bearer " + token,
+              Authorization: `Bearer ${token}`,
             },
           });
 
           if (response.status !== 200) {
             console.log(response);
-            triggerLoading(false);
+            triggerToast("Upload failed");
+            isLoading = false;
             return;
           }
 
-          offset += 1024 * 1024;
+          offset += chunkSize;
           uploadProgress = (offset / selectedFile.size) * 100;
-
-          console.log(uploadProgress);
+          console.log(`Upload progress: ${uploadProgress}%`);
         } catch (error) {
-          console.log("error", error);
+          console.log("Error during upload:", error);
           limitError--;
           if (limitError === 0) {
-            // triggerLoading(false);
+            triggerToast("Upload failed after multiple attempts");
             isLoading = false;
-            triggerToast("error");
             return;
           }
         }
@@ -338,7 +338,7 @@
           console.log(response);
           triggerLoading(false);
           triggerToast("error");
-          goto(await $call.getPage("client-dashboard", "bots-list"));
+          goto(await $call.getPage("client-dashboard", "llms-my-models"));
           return;
         }
 
@@ -448,7 +448,7 @@
         // popupModal = false;
         triggerLoading(false);
         triggerToast("deleted");
-        goto(await $call.getPage("client-dashboard", "bots-list"));
+        goto(await $call.getPage("client-dashboard", "llms-my-models"));
       } catch (error) {
         triggerLoading(false);
         console.log(error);
@@ -483,7 +483,7 @@
         // popupModal = false;
         triggerLoading(false);
         triggerToast("deleted");
-        goto(await $call.getPage("client-dashboard", "bots-list"));
+        goto(await $call.getPage("client-dashboard", "llms-my-models"));
       } catch (error) {
         triggerLoading(false);
         console.log(error);
@@ -584,17 +584,13 @@
           </Button>
         {:else}
           <Button
-            onclick={async function () {
-              goto(await $call.getPage("client-dashboard", "my_models"));
-              return;
-            }}
             color="light"
             class="px-3 focus-within:!ring-1"
             on:click={async () => {
               if (isFrontend) {
                 goto("/llms/my_models");
               } else {
-                goto(await $call.getPage("client-dashboard", "my_models"));
+                goto(await $call.getPage("client-dashboard", "llms-my-models"));
               }
             }}
           >
@@ -623,7 +619,7 @@
             if (isFrontend) {
               goto("/llms/my_models");
             } else {
-              goto(await $call.getPage("client-dashboard", "my_models"));
+              goto(await $call.getPage("client-dashboard", "llms-my-models"));
             }
           }}
           color="light"
@@ -688,7 +684,7 @@
             handleFileUploadWrapper={() => handleFileInput("gguf")}
             disabled={!editable}
           />
-          {#if modelName}
+          {#if modelName && fileSizeMB}
             <div
               class="flex justify-between mt-4 p-6 w-full gap-4 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-secondary-dark dark:hover:border-gray-600"
             >
