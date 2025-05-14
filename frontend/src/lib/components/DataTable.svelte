@@ -196,7 +196,7 @@
   </div>
 
   {#if configs?.search || configs?.documentManagement}
-    <div class={`flex ${configs?.search ? "mb-8 mt-6" : ""} gap-x-4`}>
+    <div class={`flex ${configs?.search ? "mb-8 mt-4" : ""} gap-x-4`}>
       {#if configs.search}
         <Input
           id="search"
