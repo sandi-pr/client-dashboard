@@ -79,10 +79,12 @@ import UploadCloud01 from "../icon/upload-cloud-01.svelte";
 import VerifiedTickIcon from "../icon/verified-tick.svelte";
 import OnedriveIcon from "../icon/onedrive.svelte";
 import Trash03Icon from "../icon/trash-03.svelte";
-import LineChartUp01 from "../icon/line-chart-up-01.svelte";
-import ThumbsDown from "../icon/thumbs-down.svelte";
-import Send03 from "../icon/send-03.svelte";
-import Dataflow02 from "../icon/dataflow-02.svelte";
+import LineChartUp01Icon from "../icon/line-chart-up-01.svelte";
+import ThumbsDownIcon from "../icon/thumbs-down.svelte";
+import Send03Icon from "../icon/send-03.svelte";
+import Dataflow02Icon from "../icon/dataflow-02.svelte";
+import DotsVerticalIcon from "../icon/dots-vertical.svelte";
+import Save01 from "../icon/save-01.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -249,13 +251,17 @@ let getIcons = (presetIcon: String) => {
     case "trash03":
       return Trash03Icon;
     case "lineChartUp01":
-      return LineChartUp01;
+      return LineChartUp01Icon;
     case "thumbsDown":
-      return ThumbsDown;
+      return ThumbsDownIcon;
     case "send03":
-      return Send03;
+      return Send03Icon;
     case "dataflow02":
-      return Dataflow02;
+      return Dataflow02Icon;
+    case "dotsVertical":
+      return DotsVerticalIcon;
+    case "save01":
+      return Save01;
     default:
       return "";
   }

@@ -14,15 +14,15 @@
   import {
     P,
     Input,
+    Table,
     Avatar,
-    Pagination,
     Button,
     Heading,
-    Table,
+    Checkbox,
     TableBody,
-    TableBodyCell,
-    TableBodyRow,
     TableHead,
+    TableBodyRow,
+    TableBodyCell,
     TableHeadCell,
   } from "flowbite-svelte";
   import { Typography, getIcons } from "$lib";
@@ -50,8 +50,11 @@
 
   export let datas;
   export let configs;
+  export let checkAllState = false;
   export let next = () => {};
   export let previous = () => {};
+  export let checkAll = () => {};
+  export let checkSingle = () => {};
   // export let divider = false;
 
   let pages;
@@ -82,7 +85,9 @@
       key !== "authority" &&
       key !== "attendance" &&
       key !== "result" &&
-      key !== "fileName"
+      key !== "fileName" &&
+      key !== "checkbox" &&
+      key !== "method"
     );
   };
 
@@ -94,7 +99,8 @@
       key === "role" ||
       key === "category" ||
       key === "authority" ||
-      key === "attendance"
+      key === "attendance" ||
+      key === "method"
     );
   };
 
@@ -126,46 +132,19 @@
     }
   };
 
-  const withSeperator = (configs) => {
+  const withSeparator = (configs) => {
     if (configs?.seperator && configs.seperator === true) {
       return "pb-4 border-b border-hc-graylight-200 dark:border-hc-graydark-800";
     }
   };
 
-  let searchTerm = "";
-
-  // $: filteredItems = datas.filter((data) => {
-  //   if (searchTerm === "") return data;
-  //   if (data?.name) {
-  //     return data.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
-  //   }
-  // });
-
-  // $: filteredItems = datas.filter((data) => {
-  //   if (searchTerm === "") return true;
-  //   if (data) {
-  //     return Object.values(data).some((value) => {
-  //       if (typeof value === "string") {
-  //         return value.toLowerCase().includes(searchTerm.toLowerCase());
-  //       }
-  //       return false;
-  //     });
-  //   }
-  // });
-
   const handleSearch = (event) => {
     configs?.searchHandler(event.target.value);
   };
-
-  // onMount(() => {
-  // Object.keys(datas[0]).forEach((key) => {
-  //   console.log(key);
-  // });
-  // });
 </script>
 
 <div>
-  <div class={`flex items-center justify-between mb-4 ${withSeperator(configs)}`}>
+  <div class={`flex items-center justify-between mb-4 ${withSeparator(configs)}`}>
     {#if configs?.headers}
       <Heading tag="h6" class="font-jakarta w-fit text-hc-graylight-900 dark:text-hc-graydark-50"
         >{$_(configs.headers)}</Heading
@@ -230,26 +209,17 @@
   {/if}
 
   <Table shadow class="font-jakarta">
-    {#if configs?.doubleHeader}
-      <TableHead class="bg-hc-graylight-100 dark:bg-hc-graydark-800">
-        <TableHeadCell class="flex items-center">
-          <img
-            alt="Home Icon"
-            src={configs?.iconDoubleHeader}
-            class="w-5 h-5 mr-4"
-          />{configs.doubleHeader}</TableHeadCell
-        >
-        {#if datas.length > 0}
-          {#each Object.keys(datas[0]) as key, index (key)}
-            {#if index < Object.keys(datas[0]).length - 2}
-              <TableHeadCell></TableHeadCell>
-            {/if}
-          {/each}
-        {/if}
-      </TableHead>
-    {/if}
     <TableHead class="bg-hc-graylight-100 dark:bg-hc-graydark-800">
       {#if datas.length > 0}
+        {#if datas[0]?.checkbox && Object.keys(datas[0].checkbox).length > 0}
+          <TableHeadCell>
+            {#if checkAllState}
+              <Checkbox checked on:click={checkAll} />
+            {:else}
+              <Checkbox on:click={checkAll} />
+            {/if}
+          </TableHeadCell>
+        {/if}
         {#each Object.keys(datas[0]) as key}
           {#if normalContent(key)}
             <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
@@ -284,6 +254,25 @@
         <TableBodyRow
           class="bg-hc-graylight-50 dark:bg-hc-graydark-900 border-hc-graylight-300 dark:border-hc-graydark-700"
         >
+          {#if data?.checkbox && Object.keys(data.checkbox).length > 0}
+            <TableBodyCell class="px-6">
+              {#if data.checkbox.checked}
+                <Checkbox
+                  checked={data.checkbox.checked}
+                  on:click={() => {
+                    checkSingle(index);
+                  }}
+                />
+              {:else}
+                <Checkbox
+                  checked={data.checkbox.checked}
+                  on:click={() => {
+                    checkSingle(index);
+                  }}
+                />
+              {/if}
+            </TableBodyCell>
+          {/if}
           {#each Object.keys(datas[0]) as key}
             {#if normalContent(key)}
               <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
@@ -308,9 +297,9 @@
               </TableBodyCell>
             {/if}
           {/each}
-          {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0]?.role || datas[0]?.category || datas[0]?.authority}
+          {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0]?.role || datas[0]?.category || datas[0]?.authority || datas[0].method}
             {#each Object.keys(datas[0]) as key}
-              {#if key === "parentUnit" || key === "unit" || key === "role" || key === "category" || key === "authority"}
+              {#if key === "parentUnit" || key === "unit" || key === "role" || key === "category" || key === "authority" || key === "method"}
                 <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                   {#if data[key]?.type}
                     <p
@@ -627,39 +616,6 @@
     </TableBody>
   </Table>
 </div>
-
-<!-- {#if configs?.pagination && Object.keys(configs.pagination).length > 0}
-  <div class="flex justify-between">
-    <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-      {$_("showing")}
-      <span
-        >{configs.pagination.page === 1
-          ? 1
-          : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
-      >
-      {$_("to")}
-      <span
-        >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
-          ? configs.pagination.total
-          : configs.pagination.page * configs.pagination.pageSize}</span
-      >
-      {$_("of")}
-      <span>{configs.pagination.total}</span>
-      {$_("entries")}
-    </div>
-
-    <div class="m-4">
-      <Pagination
-        on:next={next}
-        on:previous={previous}
-        activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
-      >
-        <span slot="prev">{$_("previous")}</span>
-        <span slot="next">{$_("next")}</span>
-      </Pagination>
-    </div>
-  </div>
-{/if} -->
 
 {#if configs?.pagination && Object.keys(configs.pagination).length > 0}
   <div class="flex justify-between !border-t-0 !rounded-t-none rounded-b-lg">

@@ -16,14 +16,13 @@
     check,
     Divider,
     bakrieLibraryId,
-    LibraryCard,
     isBakrie,
     ModalObject,
     ModalFolder,
+    InputRw,
+    getIcons,
   } from "$lib";
-  import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
-  import DataTableLibraryCollectionVertical from "$lib/components/DataTableLibraryCollectionVertical.svelte";
-  import { SearchOutline, ExclamationCircleSolid, ArrowUpOutline } from "flowbite-svelte-icons";
+  import { ExclamationCircleSolid, ArrowUpOutline } from "flowbite-svelte-icons";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
@@ -35,6 +34,8 @@
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
+  import TabBar from "$lib/components/TabBar.svelte";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -50,11 +51,10 @@
   let editModal = $state(false);
   let deleteModal = $state(false);
   let deleteCategoriesModal = $state(false);
-  let dropdownOpen = $state(false);
   let dropdownMore = $state(false);
   let editCollectionModal = $state(false);
-  let dropdownUpload = $state(false);
   let dropdownUploadEmpty = $state(false);
+  let dropdownAuthorizationType = $state(false);
   let fileNotSupport = $state(false);
   let buttonDisabled = $state(false);
   let gettingDatas = $state(false);
@@ -76,19 +76,42 @@
   let tags = $state([]);
   let newTag = $state("");
   let files = $state([]);
-  let attributeNotUnique = $state(false);
   let checkboxDelete = $state(false);
-  let checkboxUpdate = $state(false);
   let tmpId = $state(null);
   let isMobileView = $state(false);
   let hasDocOrDocx = $state(false);
   let tabDatas = $state({
-    selected: "Collections",
+    selected: "My API",
     data: [
       {
-        name: "Collections",
+        name: "My API",
+      },
+      {
+        name: "Authorization",
+      },
+      {
+        name: "Information",
       },
     ],
+  });
+
+  let authorizationTypeList = $state({
+    selected: "No Auth",
+    data: [
+      { name: "No Auth" },
+      { name: "Inherit Auth from Parent" },
+      { name: "Basic Auth" },
+      { name: "Bearer Token" },
+    ],
+  });
+
+  let tmpSelectedAuthorizationType = $state("No Auth");
+  let authBasicAuth = $state({
+    username: "",
+    password: "",
+  });
+  let authBearerToken = $state({
+    token: "",
   });
 
   let groupedFiles = $state(null);
@@ -108,11 +131,31 @@
   let selectedFile = $state(null);
   let dataSend = $state({ detected_text: "" });
   let textarea = $state();
-  let div = $state();
   let nameIsAvailable = $state(true);
   let isProcess = $state(false);
   let folderMode = $state(false);
-  let selected = $state([]);
+  let apisData = $state([
+    {
+      checkbox: {
+        checked: false,
+      },
+      name: "Get Character Api",
+      method: {
+        type: "success",
+        name: "GET",
+      },
+      apiLink: "https://api.example.com/get-character",
+      dateUploaded: "2023-10-01",
+      actions: {
+        objects: [
+          {
+            href: "/api_connector/collections/api/detail",
+            name: "View",
+          },
+        ],
+      },
+    },
+  ]);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
@@ -129,7 +172,7 @@
         },
       });
 
-      console.log("collection", response);
+      // console.log("collection", response);
 
       collectionDatas = {
         title: response.result.attributes.name,
@@ -261,7 +304,7 @@
 
         collectionListDatas = await Promise.all(promise);
 
-        console.log("collectionListDatas", collectionListDatas);
+        // console.log("collectionListDatas", collectionListDatas);
       } catch (error) {
         console.error("Error during documents get:", error);
         gettingDocs = false;
@@ -324,7 +367,7 @@
           return;
         }
 
-        console.log(response);
+        // console.log(response);
 
         tmpCollectionName = "";
         tmpDescription = "";
@@ -353,7 +396,7 @@
       }
       return data;
     });
-    console.log("cek single", collectionListDatas);
+    // console.log("cek single", collectionListDatas);
   };
 
   const checkAll = () => {
@@ -385,18 +428,13 @@
   const nextPage = (evt) => {
     if (pagination.pageCount > pagination.page) pagination.page = pagination.page + 1;
     getDocuments();
-    console.log("next page");
+    // console.log("next page");
   };
 
   const prevPage = (evt) => {
     if (pagination.page > 1) pagination.page = pagination.page - 1;
     getDocuments();
-    console.log("prev page");
-  };
-
-  const handleSearch = (evt) => {
-    console.log("clicked");
-    getDocuments();
+    // console.log("prev page");
   };
 
   let audioUrl = $state(null);
@@ -406,7 +444,7 @@
       files = folderFiles;
     }
 
-    console.log("cekkkkk files", files);
+    // console.log("cekkkkk files", files);
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -461,7 +499,7 @@
                   Authorization: "Bearer " + token,
                 },
               });
-              console.log("audio-predict", response3);
+              // console.log("audio-predict", response3);
             }
 
             if (response3.status !== 200) {
@@ -517,7 +555,7 @@
                 edited: false,
               };
 
-              console.log("cekk dataSend", dataSend);
+              // console.log("cekk dataSend", dataSend);
 
               // convert base64 to url
               if (tmpDocumentType === "Document Audio") {
@@ -533,18 +571,18 @@
             tmpDocumentType === "Document Images" ||
             tmpDocumentType === "Document Audio"
           ) {
-            console.log("ayam");
+            // console.log("ayam");
             if (files.length > 1) {
               await sendDocument();
             } else {
-              console.log("bebek");
+              // console.log("bebek");
               previewModal = true;
               triggerLoading(false);
               selectedFile = files[0];
               return;
             }
           } else {
-            console.log("cacing");
+            // console.log("cacing");
 
             let index = 1;
             let originalName = files[i].name.split(".").slice(0, -1).join(".");
@@ -576,7 +614,7 @@
               category: tags.join(","),
             };
 
-            console.log("cekkkk dataSend", dataSend);
+            // console.log("cekkkk dataSend", dataSend);
 
             // console.log("cek data send", dataSend);
             await sendDocument();
@@ -685,34 +723,6 @@
     }
     return;
   }
-
-  const selectTypeCollection = (type) => {
-    tmpDocumentType = type;
-
-    if (type === "Documents") {
-      selectedTypeCollection = "Documents (TXT, PDF, DOC, DOCX)";
-      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
-    } else if (type === "Images") {
-      selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Document Images") {
-      selectedTypeCollection = "Document Images (JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Handwriting") {
-      selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".jpg, .jpeg, .png";
-    } else if (type === "Document Audio") {
-      selectedTypeCollection = "Document Audio (MP3, WAV, OGG)";
-      acceptedFileTypes = ".mp3, .wav, .ogg";
-    } else if (type === "CSV") {
-      selectedTypeCollection = "CSV";
-      acceptedFileTypes = ".csv";
-    }
-
-    files = [];
-
-    dropdownOpen = false;
-  };
 
   // Function to adjust the height of the textarea
   function autosize() {
@@ -1033,7 +1043,7 @@
         }
 
         triggerLoading(false);
-        console.log(response);
+        // console.log(response);
         triggerToast("successUpdateDocument", true);
         getDocuments();
       } else {
@@ -1133,10 +1143,10 @@
 
       if (isChild) {
         childCollectionList = await Promise.all(promise);
-        console.log("ischild", childCollectionList);
+        // console.log("ischild", childCollectionList);
       } else if (subCollections) {
         childCollectionListDatas = await Promise.all(promise);
-        console.log("subcollection", childCollectionListDatas);
+        // console.log("subcollection", childCollectionListDatas);
         if (childCollectionListDatas.length > 0) {
           if (tabDatas.data.length < 2) {
             tabDatas.data = [
@@ -1150,7 +1160,7 @@
           tabDatas.data = tabDatas.data.filter((item) => item.name !== "Sub Collections");
         }
       } else {
-        console.log("collections", collectionList);
+        // console.log("collections", collectionList);
         collectionList = await Promise.all(promise);
       }
       gettingDatas = false;
@@ -1352,7 +1362,7 @@
         },
       });
 
-      console.log("cek resp", resp);
+      // console.log("cek resp", resp);
 
       if (resp === null) {
         throw new Error("Server sibuk");
@@ -1424,7 +1434,7 @@
       getCollections(false, true);
     }
 
-    console.log("selected collection", tmpSelectedCollection);
+    // console.log("selected collection", tmpSelectedCollection);
   };
 
   const checkMobileView = () => {
@@ -1432,7 +1442,7 @@
   };
 
   const scrollToTop = () => {
-    console.log("Scrolling to top using scrollIntoView");
+    // console.log("Scrolling to top using scrollIntoView");
 
     // Use an existing element at the top of the page
     const topElement = document.querySelector(".top-element");
@@ -1445,10 +1455,9 @@
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    dropdownOpen = false;
-    dropdownUpload = false;
     dropdownUploadEmpty = false;
     dropdownMore = false;
+    dropdownAuthorizationType = false;
   };
 
   async function groupFilesByPath(files) {
@@ -1717,10 +1726,7 @@
 
 <div class="top-element"></div>
 <!-- Add this element at the top of the page -->
-<div
-  bind:this={div}
-  class="flex dark:bg-primary-dark overflow-auto md:overflow-y-hidden md:hover:overflow-y-auto"
->
+<div class="flex dark:bg-primary-dark overflow-auto md:overflow-y-hidden md:hover:overflow-y-auto">
   {#if isMobileView}
     <button
       class="fixed bottom-5 right-5 z-40 bg-brand-primary-light dark:bg-brand-primary-dark text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
@@ -1729,11 +1735,11 @@
       <ArrowUpOutline class="w-6 h-6" />
     </button>
   {/if}
-  <div class="w-full pb-10 min-h-[20rem]">
+  <div class="w-full pb-10 min-h-[30rem]">
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3 md:mb-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
           <div class="flex flex-col gap-2">
             <div class="flex gap-4">
               <Typography
@@ -1747,7 +1753,7 @@
                   navigator.clipboard
                     .writeText(collectionDatas.title)
                     .then(() => {
-                      console.log("Text copied to clipboard");
+                      // console.log("Text copied to clipboard");
                       triggerToast("copyToClipboard");
                     })
                     .catch((err) => {
@@ -1761,22 +1767,17 @@
                 />
               </button>
             </div>
+            <P
+              class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
+              >{collectionDatas.description}</P
+            >
+            <P
+              class="text-sm font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
+              >{$_("createOn")}{` ${collectionDatas.createdAt}`}</P
+            >
           </div>
 
           <div class="flex relative gap-3" onfocusout={handleDropdownFocusLoss}>
-            <Input
-              id="search"
-              type="search"
-              class="bg-white dark:bg-hc-graydark-950"
-              placeholder={$_("search")}
-              bind:value={search}
-              on:input={handleSearch}
-            >
-              <SearchOutline
-                slot="left"
-                class="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-              />
-            </Input>
             {#if !buttonDisabledCheckAction}
               <Button
                 on:click={() => {
@@ -1810,367 +1811,280 @@
               outline
               class="min-w-max gap-1.5"
               disabled={!check("documentAi.documentLibrary.document:create")}
-              on:click={() => (dropdownUpload = !dropdownUpload)}
+              on:click={async () => {
+                let link = isFrontend
+                  ? "/api_connector/collections/api/create"
+                  : await $call.getPage("client-dashboard", "api-connector-collections-api-create");
+                goto(link);
+              }}
             >
               <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-              <div class="hidden md:block">{$_("addNew")}</div>
+              <div class="hidden md:block">{$_("addNewApi")}</div>
             </Button>
-            <div
-              class={`z-50 ${dropdownUpload ? "absolute right-0 top-12" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-            >
-              <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-                <button
-                  class="flex p-2 w-full gap-1.5"
-                  disabled={!check("documentAi.documentLibrary.document:create")}
-                  onclick={() => {
-                    addCollectionModal = true;
-                    tmpCollectionName = "";
-                    tmpDescription = "";
-                    attributeNotUnique = false;
-                    dropdownUpload = false;
-                    nameIsAvailable = true;
-                  }}
-                  ><FolderPlusIcon
-                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("addSubCollection")}</button
+            {#if check("documentAi.documentLibrary.collection:delete")}
+              <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
+                <Button on:click={() => (dropdownMore = !dropdownMore)} color="light" class="p-2.5">
+                  <DotsVerticalIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                </Button>
+                <div
+                  class={`z-10 ${dropdownMore ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
                 >
-                <button
-                  class="flex p-2 w-full gap-1.5"
-                  disabled={!check("documentAi.documentLibrary.document:create")}
-                  onclick={() => {
-                    addDocumentsModal = true;
-                    folderMode = true;
-                    files = [];
-                    groupedFiles = null;
-                    attributeNotUnique = false;
-                    dropdownUpload = false;
-                    nameIsAvailable = true;
-                  }}
-                  ><FolderPlusIcon
-                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("addFolder")}</button
-                >
-                <button
-                  class="flex p-2 w-full gap-1.5"
-                  onclick={() => {
-                    addDocumentsModal = true;
-                    folderMode = false;
-                    tags = [];
-                    files = [];
-                    tmpDocumentTitle = "";
-                    tmpDocumentDescription = "";
-                    attributeNotUnique = false;
-                    dropdownUpload = false;
-                    nameIsAvailable = true;
-                  }}
-                  ><PenToolPlusIcon
-                    svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                  />{$_("addNewHandwriting")}</button
-                >
-              </ul>
-            </div>
-            {#if !checkTitle(collectionDatas.title)}
-              {#if check("documentAi.documentLibrary.collection:edit") || check("documentAi.documentLibrary.collection:delete")}
-                <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
-                  <Button
-                    on:click={() => (dropdownMore = !dropdownMore)}
-                    color="light"
-                    class="p-2.5"
-                  >
-                    <DotsVerticalIcon
-                      svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                    />
-                  </Button>
-                  <div
-                    class={`z-10 ${dropdownMore ? "absolute top-10 right-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-                  >
-                    <ul class="py-2 grow text-sm">
-                      {#if check("documentAi.documentLibrary.collection:edit")}
-                        <button
-                          class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                          onclick={() => {
-                            dropdownMore = !dropdownMore;
-                            tmpCollectionId = collectionId;
-                            tmpCollectionName = collectionDatas.title;
-                            tmpOldName = collectionDatas.title;
-                            tmpDescription = collectionDatas.description;
-                            nameIsAvailable = true;
-                            editCollectionModal = true;
-                          }}>{$_("editCollectionName")}</button
-                        >
-                      {/if}
-                      {#if check("documentAi.documentLibrary.collection:delete")}
-                        <button
-                          class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                          onclick={() => {
-                            dropdownMore = !dropdownMore;
-                            tmpCollectionId = collectionId;
-                            tmpCollectionName = collectionDatas.title;
-                            deleteModal = true;
-                          }}>{$_("delete")}</button
-                        >
-                      {/if}
-                    </ul>
-                  </div>
+                  <ul class="py-2 grow text-sm">
+                    <!-- {#if check("documentAi.documentLibrary.collection:edit")}
+                      <button
+                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                        onclick={() => {
+                          dropdownMore = !dropdownMore;
+                          tmpCollectionId = collectionId;
+                          tmpCollectionName = collectionDatas.title;
+                          tmpOldName = collectionDatas.title;
+                          tmpDescription = collectionDatas.description;
+                          nameIsAvailable = true;
+                          editCollectionModal = true;
+                        }}>{$_("editCollectionName")}</button
+                      >
+                    {/if} -->
+                    {#if check("documentAi.documentLibrary.collection:delete")}
+                      <button
+                        class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                        onclick={() => {
+                          dropdownMore = !dropdownMore;
+                          // tmpCollectionId = collectionId;
+                          // tmpCollectionName = collectionDatas.title;
+                          // deleteModal = true;
+                        }}
+                      >
+                        {$_("delete")}
+                      </button>
+                    {/if}
+                  </ul>
                 </div>
-              {/if}
+              </div>
             {/if}
           </div>
         </div>
 
-        {#if childCollectionList.length > 0 || collectionListDatas.length > 0}
-          <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
-            {#each childCollectionList as collection}
-              <LibraryCard
-                collectionName={collection.collectionName}
-                usedFor="libraries_collections"
-                functEdit={() => {
-                  tmpCollectionId = collection.id;
-                  tmpCollectionName = collection.collectionName;
-                  tmpOldName = collection.collectionName;
-                  tmpDescription = collection.description;
-                  nameIsAvailable = true;
-                  editModal = true;
-                }}
-                functDelete={() => {
-                  tmpCollectionId = collection.id;
-                  tmpCollectionName = collection.collectionName;
-                  deleteModal = true;
-                }}
-                funcDetailCollection={() => {
-                  goto(collection.href);
-                }}
-                {libraryId}
-              />
-            {/each}
-          </div>
-          <Divider />
+        <TabBar {tabDatas} />
+        <Divider class="mb-4" />
+
+        {#if tabDatas.selected === "My API"}
           {#if collectionListDatas.length > 0}
-            {#if isMobileView}
-              <DataTableLibraryCollectionVertical
-                {collectionListDatas}
-                {pagination}
-                {checkAllState}
-                {checkSingle}
-                {checkAll}
-                next={nextPage}
-                previous={prevPage}
-                functDeleteCategories={(id) => {
-                  tmpId = id;
-                  popupModal = true;
-                  checkboxDelete = false;
-                }}
-              />
-            {:else}
-              <DataTableLibraryCollection
-                {collectionListDatas}
-                {pagination}
-                {checkAllState}
-                {checkSingle}
-                {checkAll}
-                next={nextPage}
-                previous={prevPage}
-                functDeleteCategories={(id) => {
-                  tmpId = id;
-                  popupModal = true;
-                  checkboxDelete = false;
-                }}
-              />
-            {/if}
-          {/if}
-        {:else if gettingDatas || gettingDocs}
-          <StateCard
-            illustration={IllustrationProgress}
-            description={$_("fetchingDataPleaseWait")}
-          />
-        {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          <div
-            class="relative w-full justify-center flex mb-40"
-            onfocusout={handleDropdownFocusLoss}
-          >
-            <Button
-              color="primary"
-              class="w-fit gap-1.5 mt-4"
-              disabled={!check("documentAi.documentLibrary.document:create")}
-              on:click={() => (dropdownUploadEmpty = !dropdownUploadEmpty)}
-            >
-              <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-              <div class="hidden md:block">{$_("addNew")}</div>
-            </Button>
+            <DataTable
+              bind:datas={apisData}
+              next={nextPage}
+              previous={prevPage}
+              {checkAll}
+              {checkSingle}
+            />
+          {:else if gettingDatas || gettingDocs}
+            <StateCard
+              illustration={IllustrationProgress}
+              description={$_("fetchingDataPleaseWait")}
+            />
+          {:else}
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
             <div
-              class={`z-50 ${dropdownUploadEmpty ? "absolute top-32 left-1/2 transform -translate-x-1/2 -translate-y-1/2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+              class="relative w-full justify-center flex mb-40"
+              onfocusout={handleDropdownFocusLoss}
             >
-              <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-                <button
-                  class="flex p-2 w-full gap-1.5"
-                  disabled={!check("documentAi.documentLibrary.document:create")}
-                  onclick={() => {
-                    addCollectionModal = true;
-                    tmpCollectionName = "";
-                    tmpDescription = "";
-                    attributeNotUnique = false;
-                    dropdownUploadEmpty = false;
-                    nameIsAvailable = true;
-                  }}
-                >
-                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                  {$_("addSubCollection")}
-                </button>
-                <button
-                  class="flex p-2 w-full gap-1.5"
-                  disabled={!check("documentAi.documentLibrary.document:create")}
-                  onclick={() => {
-                    addDocumentsModal = true;
-                    folderMode = true;
-                    files = [];
-                    groupedFiles = null;
-                    attributeNotUnique = false;
-                    dropdownUploadEmpty = false;
-                    nameIsAvailable = true;
-                  }}
-                >
-                  <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                  {$_("addFolder")}
-                </button>
-                <button
-                  class="flex p-2 w-full gap-1.5"
-                  onclick={() => {
-                    addDocumentsModal = true;
-                    folderMode = false;
-                    tags = [];
-                    files = [];
-                    tmpDocumentTitle = "";
-                    tmpDocumentDescription = "";
-                    attributeNotUnique = false;
-                    dropdownUploadEmpty = false;
-                    nameIsAvailable = true;
-                  }}
-                >
-                  <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
-                  {$_("addNewHandwriting")}
-                </button>
-              </ul>
+              <Button
+                color="primary"
+                class="w-fit gap-1.5 mt-4"
+                disabled={!check("documentAi.documentLibrary.document:create")}
+                on:click={() => (dropdownUploadEmpty = !dropdownUploadEmpty)}
+              >
+                <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                <div class="hidden md:block">{$_("addNew")}</div>
+              </Button>
+              <div
+                class={`z-50 ${dropdownUploadEmpty ? "absolute top-32 left-1/2 transform -translate-x-1/2 -translate-y-1/2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
+              >
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                  <button
+                    class="flex p-2 w-full gap-1.5"
+                    disabled={!check("documentAi.documentLibrary.document:create")}
+                    onclick={() => {
+                      addCollectionModal = true;
+                      tmpCollectionName = "";
+                      tmpDescription = "";
+                      attributeNotUnique = false;
+                      dropdownUploadEmpty = false;
+                      nameIsAvailable = true;
+                    }}
+                  >
+                    <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                    {$_("addSubCollection")}
+                  </button>
+                  <button
+                    class="flex p-2 w-full gap-1.5"
+                    disabled={!check("documentAi.documentLibrary.document:create")}
+                    onclick={() => {
+                      addDocumentsModal = true;
+                      folderMode = true;
+                      files = [];
+                      groupedFiles = null;
+                      attributeNotUnique = false;
+                      dropdownUploadEmpty = false;
+                      nameIsAvailable = true;
+                    }}
+                  >
+                    <FolderPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                    {$_("addFolder")}
+                  </button>
+                  <button
+                    class="flex p-2 w-full gap-1.5"
+                    onclick={() => {
+                      addDocumentsModal = true;
+                      folderMode = false;
+                      tags = [];
+                      files = [];
+                      tmpDocumentTitle = "";
+                      tmpDocumentDescription = "";
+                      attributeNotUnique = false;
+                      dropdownUploadEmpty = false;
+                      nameIsAvailable = true;
+                    }}
+                  >
+                    <PenToolPlusIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
+                    {$_("addNewHandwriting")}
+                  </button>
+                </ul>
+              </div>
+            </div>
+          {/if}
+        {:else if tabDatas.selected === "Authorization"}
+          <div class="grid grid-cols-12 mt-4 gap-4">
+            <Typography
+              preset="Text md/Semibold"
+              color="secondary"
+              text={$_("authType")}
+              propClass="col-span-3"
+            />
+            <div
+              onfocusout={handleDropdownFocusLoss}
+              class=" flex flex-col gap-2 relative col-span-9"
+            >
+              <Typography
+                preset="Text sm/Medium"
+                color="secondary"
+                text={$_("authorizationType")}
+              />
+              <Button
+                on:click={() => (dropdownAuthorizationType = !dropdownAuthorizationType)}
+                class="flex justify-between bg-primary-light dark:bg-primary-dark border border-primary-light dark:border-primary-dark hover:bg-primary-light dark:hover:bg-primary-dark hover:border-primary-light dark:hover:border-primary-dark focus:ring-0"
+              >
+                <Typography preset="Text md/Reguler" text={authorizationTypeList.selected} />
+                <svelte:component
+                  this={getIcons("chevronDown")}
+                  svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
+                />
+              </Button>
+              <Typography
+                preset="Text sm/Reguler"
+                color="tertiary"
+                text={$_("theAuthorizationHeaderWillBeAutomaticallyGeneratedWhenYouSendTheRequest")}
+              />
+              <div
+                class={`z-10 ${dropdownAuthorizationType ? "absolute top-[5rem] left-0" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
+              >
+                <ul class="py-2 grow text-sm">
+                  {#each authorizationTypeList.data as auth}
+                    <button
+                      class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                      onclick={() => {
+                        dropdownAuthorizationType = !dropdownAuthorizationType;
+                        authorizationTypeList.selected = auth.name;
+                        authBasicAuth.username = "";
+                        authBasicAuth.password = "";
+                        authBearerToken.token = "";
+                      }}
+                    >
+                      {$_(auth.name)}
+                    </button>
+                  {/each}
+                </ul>
+              </div>
+            </div>
+
+            {#if authorizationTypeList.selected === "Basic Auth"}
+              <Divider className="col-span-12 my-4" />
+              <Typography
+                preset="Text md/Semibold"
+                color="secondary"
+                text={$_("token")}
+                propClass="col-span-3"
+              />
+              <div class="col-span-9 flex flex-col gap-2">
+                <Typography preset="Text sm/Medium" color="secondary" text={$_("username")} />
+                <InputRw bind:value={authBasicAuth.username} />
+              </div>
+              <div class="col-span-3"></div>
+              <div class="col-span-9 flex flex-col gap-2">
+                <Typography preset="Text sm/Medium" color="secondary" text={$_("password")} />
+                <InputRw bind:value={authBasicAuth.password} type="password" />
+              </div>
+            {:else if authorizationTypeList.selected === "Bearer Token"}
+              <Divider className="col-span-12 my-4" />
+              <Typography
+                preset="Text md/Semibold"
+                color="secondary"
+                text={$_("token")}
+                propClass="col-span-3"
+              />
+              <div class="col-span-9 flex flex-col gap-2">
+                <Typography preset="Text sm/Medium" color="secondary" text={$_("token")} />
+                <InputRw bind:value={authBearerToken.token} />
+              </div>
+            {/if}
+            <div class="col-span-12 flex justify-end">
+              <Button
+                class="min-w-max gap-1.5"
+                disabled={authorizationTypeList.selected === "No Auth" ||
+                authorizationTypeList.selected === "Inherit Auth from Parent"
+                  ? authorizationTypeList.selected === tmpSelectedAuthorizationType
+                  : authorizationTypeList.selected === "Basic Auth"
+                    ? authBasicAuth.username === "" && authBasicAuth.password === ""
+                    : authorizationTypeList.selected === "Bearer Token"
+                      ? authBearerToken.token === ""
+                      : false}
+                on:click={async () => {
+                  console.log("clicked");
+                }}
+              >
+                <svelte:component
+                  this={getIcons("save01")}
+                  svgClass="w-5 h-5 text-fg-primary-light dark:text-fg-primary-dark"
+                />
+                <div class="hidden md:block">{$_("saveChanges")}</div>
+              </Button>
             </div>
           </div>
+        {:else if tabDatas.selected === "Information"}
+          <div class="grid grid-cols-12 mt-4 gap-4">
+            <Typography
+              preset="Text md/Semibold"
+              color="secondary"
+              text={$_("generalInformation")}
+              propClass="col-span-3"
+            />
+            <div class="flex flex-col col-span-9 gap-2">
+              <Typography preset="Text sm/Medium" color="secondary" text={$_("collectionTitle")} />
+              <InputRw value={collectionDatas.title} />
+            </div>
+            <div class="col-span-3"></div>
+            <div class="flex flex-col col-span-9 gap-2">
+              <Typography preset="Text sm/Medium" color="secondary" text={$_("description")} />
+              <InputRw value={collectionDatas.description} />
+            </div>
+          </div>
+        {:else}
+          Hello
         {/if}
       </div>
     </div>
   </div>
   <ToastContainer />
 </div>
-
-<!-- <Modal title={$_("addHandwriting")} bind:open={addDocumentsModal} size="xs">
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5 relative" onfocusout={handleDropdownFocusLoss}>
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentType")}*`} />
-      <Button
-        color="light"
-        class="flex justify-between"
-      >
-        {`${selectedTypeCollection ? selectedTypeCollection : $_("selectDocumentType")}`}
-      </Button>
-      <div
-        class={`z-50 ${dropdownOpen ? "absolute top-20" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-      >
-        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Documents");
-            }}>Documents (TXT, PDF, DOC, DOCX)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Images");
-            }}>Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Document Images");
-            }}>Document Images (JPG, JPEG, PNG, WEBP, IMG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Handwriting");
-            }}>Handwriting (JPG, JPEG, PNG)</button
-          >
-          <button
-            class="flex p-2 w-full"
-            onclick={() => {
-              selectTypeCollection("Document Audio");
-            }}>Document Audio (MP3, WAV, OGG)</button
-          >
-        </ul>
-      </div>
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
-      <MultiSelect
-        --sms-min-height="40px"
-        options={alltags}
-        allowUserOptions="append"
-        bind:selected={tags}
-        autoScroll={true}
-        noMatchingOptionsMsg=""
-        createOptionMsg={null}
-      />
-    </div>
-    <UploadFile
-      title={`${$_("uploadDocuments")}*`}
-      handleFileUploadWrapper={() => handleFileUploadWrapper()}
-      file={files[0]}
-      {files}
-      bind:isProcess
-      multiple={true}
-      actionButton={true}
-      actionDelete={() => (files = [])}
-    />
-    {#if fileNotSupport}
-      <Alert color="red">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("fileNotSupport")}
-      </Alert>
-    {:else if hasDocOrDocx}
-      <Alert color="yellow">
-        <InfoCircleSolid slot="icon" class="w-5 h-5" />
-        {$_("docOrDocxWillConvertToPdf")}
-      </Alert>
-    {/if}
-    {#if files.length === 1 && !isProcess}
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-        <InputRw
-          onEdit={true}
-          bind:value={tmpDocumentTitle}
-          placeholder={$_("enterDocumentTitle")}
-          oninput={handleInput}
-        />
-        {#if !nameIsAvailable}
-          <Helper color="red">
-            <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-          </Helper>
-        {/if}
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
-        <InputRw
-          onEdit={true}
-          bind:value={tmpDocumentDescription}
-          placeholder={$_("enterDocumentDescription")}
-        />
-      </div>
-    {/if}
-  </div>
-  <svelte:fragment slot="footer">
-    <Button onclick={addDocumentByCollection} disabled={buttonDisabled} class="w-full"
-      >{$_("addNewDocument")}</Button
-    >
-  </svelte:fragment>
-</Modal> -->
 
 <ModalFolder
   bind:addDocumentsModal={addFolderModal}

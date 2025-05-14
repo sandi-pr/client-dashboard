@@ -282,8 +282,8 @@ All Rights Reserved
       }
 
       let link = isFrontend
-        ? "/handwriting/collections/documents"
-        : await $call.getPage("client-dashboard", "handwriting-documents");
+        ? "/api_connector/collections/api"
+        : await $call.getPage("client-dashboard", "api-connector-collections-api");
 
       let promise = collections.map(async (collection) => {
         // console.log("collection", collection);

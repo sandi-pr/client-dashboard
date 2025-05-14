@@ -171,8 +171,8 @@
         // status: "reading",
 
         let link = isFrontend
-          ? "/handwriting/collections/documents"
-          : await $call.getPage("client-dashboard", "handwriting-documents");
+          ? "/api_connector/collections/api"
+          : await $call.getPage("client-dashboard", "api-connector-collections-api");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);

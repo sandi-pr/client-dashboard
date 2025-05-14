@@ -1142,5 +1142,13 @@
   "descAddNewApiCollection": "Register new API collection",
   "apiCollectionList": "API Collection List",
   "role": "Role",
-  "status": "Status"
+  "status": "Status",
+  "api": "API",
+  "addNewApi": "Add New API",
+  "authType": "Auth Type",
+  "authorizationType": "Authorization Type",
+  "theAuthorizationHeaderWillBeAutomaticallyGeneratedWhenYouSendTheRequest": "The authorization header will be automatically generated when you send the request.",
+  "authorization": "Authorization",
+  "myAPI": "My API",
+  "token": "Token"
 }

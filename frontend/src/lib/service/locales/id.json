@@ -1142,5 +1142,13 @@
   "descAddNewApiCollection": "Daftarkan koleksi API baru",
   "apiCollectionList": "Daftar Koleksi API",
   "role": "Peran",
-  "status": "Status"
+  "status": "Status",
+  "api": "API",
+  "addNewApi": "Tambahkan API Baru",
+  "authType": "Jenis Otorisasi",
+  "authorizationType": "Jenis Otorisasi",
+  "theAuthorizationHeaderWillBeAutomaticallyGeneratedWhenYouSendTheRequest": "Header otorisasi akan secara otomatis dihasilkan saat Anda mengirim permintaan",
+  "authorization": "Perizinan",
+  "myAPI": "API Saya",
+  "token": "Token"
 }

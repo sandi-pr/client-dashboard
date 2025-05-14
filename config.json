@@ -345,6 +345,16 @@
             "file_path": "template/api_connector/collections.html"
         },
         {
+            "name": "api-connector-collections-api",
+            "path": "/api_connector/collections/api",
+            "file_path": "template/api_connector/collections/api.html"
+        },
+        {
+            "name": "api-connector-collections-api-create",
+            "path": "/api_connector/collections/api/create",
+            "file_path": "template/api_connector/collections/api/create.html"
+        },
+        {
             "name": "hexabot",
             "path": "/hexabots",
             "file_path": "template/hexabots.html"

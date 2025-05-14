@@ -15,7 +15,7 @@
 
   let {
     type = "text",
-    onEdit = false,
+    onEdit = true,
     value = $bindable(),
     disabled = $bindable(false),
     placeholder = "",
