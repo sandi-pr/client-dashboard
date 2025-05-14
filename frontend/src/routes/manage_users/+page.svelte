@@ -26,6 +26,8 @@ All Rights Reserved
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import PlusIcon from "$lib/icon/plus.svg";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let metadata = { page: 1, pageSize: 25, pageCount: 1, total: 25 };
 
   let datas = $state([]);
@@ -101,6 +103,10 @@ All Rights Reserved
         return;
       }
 
+      let link = isFrontend
+        ? "/manage_users/detail"
+        : await $call.getPage("client-dashboard", "user-detail");
+
       if (response.result.data.length > 0) {
         let promises = response.result.data.map(async (user, index) => {
           return {
@@ -111,8 +117,7 @@ All Rights Reserved
             email: user.email,
             role: user.authority || "No Authority",
             status: user.blocked === true ? "Inactive" : "Active",
-            href:
-              `${await $call.getPage("client-dashboard", "user-detail")}` + "?userId=" + user.id,
+            href: link + "?userId=" + user.id,
           };
         });
 
@@ -152,6 +157,10 @@ All Rights Reserved
           // pagination: response.result.meta.pagination,
         };
 
+        let link = isFrontend
+          ? "/manage_users/role"
+          : await $call.getPage("client-dashboard", "user-role");
+
         let promises = response.result.roles.map(async (role, index) => {
           return {
             id: index + 1,
@@ -164,7 +173,7 @@ All Rights Reserved
             actions: {
               objects: [
                 {
-                  href: (await $call.getPage("client-dashboard", "user-role")) + "?id=" + role.role,
+                  href: link + "?id=" + role.role,
                   name: "Detail",
                 },
               ],
