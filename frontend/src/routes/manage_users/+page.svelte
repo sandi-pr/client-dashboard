@@ -228,7 +228,10 @@ All Rights Reserved
   });
 
   async function addUser() {
-    goto(await $call.getPage("client-dashboard", "user-create"));
+    let link = isFrontend
+      ? "/manage_users/create"
+      : await $call.getPage("client-dashboard", "user-create");
+    goto(link);
     return;
   }
 
