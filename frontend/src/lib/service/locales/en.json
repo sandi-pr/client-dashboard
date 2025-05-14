@@ -1140,5 +1140,7 @@
   "apiConnectorOverview": "API Connector Overview",
   "addNewApiCollection": "Add New API Collection",
   "descAddNewApiCollection": "Register new API collection",
-  "apiCollectionList": "API Collection List"
+  "apiCollectionList": "API Collection List",
+  "role": "Role",
+  "status": "Status"
 }

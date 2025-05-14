@@ -716,7 +716,7 @@
   "inputRoleName": "Masukkan nama peran",
   "addNewRole": "Tambahkan peran baru",
   "deactive": "Nonaktif",
-  "roleId": "ID Role",
+  "roleId": "ID Peran",
   "createdDate": "Tanggal Dibuat",
   "allow": "Izinkan",
   "documentsAi": "AI Dokumen",
@@ -1140,5 +1140,7 @@
   "apiConnectorOverview": "Ikhtisar Konektor API",
   "addNewApiCollection": "Tambahkan Koleksi API Baru",
   "descAddNewApiCollection": "Daftarkan koleksi API baru",
-  "apiCollectionList": "Daftar Koleksi API"
+  "apiCollectionList": "Daftar Koleksi API",
+  "role": "Peran",
+  "status": "Status"
 }
