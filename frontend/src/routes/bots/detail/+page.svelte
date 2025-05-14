@@ -1110,6 +1110,13 @@
         // await getCollection();
         await getDocuments();
 
+        if (attributes.ai_engine === "openai"){
+          // hanya tampilkan platform yang modelnya openai
+          platforms = platforms.filter((platform) => platform.model === "openai");
+          // hapus tabDatas yang namanya Data
+          tabDatas.data = tabDatas.data.filter((tab) => tab.name !== "Data");
+        }
+
         users = {
           botName: attributes.bot_name,
           logoName: attributes.logo_name,
@@ -1609,7 +1616,7 @@
               bind:selectedData={users.platform}
               numGrid={3}
               isRadio
-              disabled={!onEdit}
+              disabled={!onEdit || platforms?.find((platform) => platform.id === users?.platform)?.model === "openai" }
             />
           </div>
         </div>
@@ -1630,6 +1637,7 @@
             />
           </div>
         </div> -->
+        {#if platforms?.find((platform) => platform.id === users?.platform)?.model !== "openai"}
         <Divider />
         <div class="md:flex">
           <Typography
@@ -1660,6 +1668,7 @@
             </div>
           </div>
         </div>
+        {/if}
         <Divider />
         <div class="md:flex">
           <Typography
