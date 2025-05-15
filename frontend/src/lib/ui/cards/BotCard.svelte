@@ -112,7 +112,7 @@
                 goto(
                   config?.isFrontend
                     ? "/llms/my_models/detail?modelId=" + bot.botsID
-                    : (await $call.getPage("client-dashboard", "llms-my-model-detail")) +
+                    : (await $call.getPage("client-dashboard", "llms-my-models-detail")) +
                         "?modelId=" +
                         bot.botsID,
                 );

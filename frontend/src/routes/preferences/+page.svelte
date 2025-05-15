@@ -374,21 +374,25 @@
           name: "Full Name",
           value: me.fullname,
           grid: 2,
+          disabled: true,
         },
         {
           name: "Username",
           value: me.username,
           grid: 2,
+          disabled: true,
         },
         {
           name: "User Id",
           value: me.id,
           grid: 1,
+          disabled: true,
         },
         {
           name: "Email",
           value: me.email,
           grid: 5,
+          disabled: true,
         },
       ],
     };
@@ -834,11 +838,15 @@
           <!-- <DataTable {datas} {configs} /> -->
           <div class="pt-4 pb-5 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text={$_("changePassword")} />
-            <Typography preset="Text sm/Reguler" text={$_("descPassword")} />
+            <Typography preset="Text sm/Reguler" text={$_("descPassword")} color="tertiary" />
           </div>
           <div class="flex flex-col py-4 gap-4">
             <div class="flex flex-col w-full gap-1.5">
-              <Typography preset="Text sm/Semibold" text={$_("currentPassword")} />
+              <Typography
+                preset="Text sm/Semibold"
+                text={$_("currentPassword")}
+                color="secondary"
+              />
               <InputRw
                 type="password"
                 bind:value={passwordObject.currentPassword}
@@ -854,7 +862,7 @@
               {/if}
             </div>
             <div class="flex flex-col w-full gap-1.5">
-              <Typography preset="Text sm/Semibold" text={$_("newPassword")} />
+              <Typography preset="Text sm/Semibold" text={$_("newPassword")} color="secondary" />
               <InputRw
                 type="password"
                 bind:value={passwordObject.newPassword}
@@ -870,7 +878,11 @@
               {/if}
             </div>
             <div class="flex flex-col w-full gap-1.5">
-              <Typography preset="Text sm/Semibold" text={$_("confirmPassword")} />
+              <Typography
+                preset="Text sm/Semibold"
+                text={$_("confirmPassword")}
+                color="secondary"
+              />
               <InputRw
                 type="password"
                 bind:value={passwordObject.confirmPassword}
@@ -922,7 +934,7 @@
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-5 border-b border-secondary-light dark:border-secondary-dark">
             <Typography preset="Text lg/Semibold" text={$_("companySize")} />
-            <Typography preset="Text sm/Reguler" text={$_("descCompanySize")} />
+            <Typography preset="Text sm/Reguler" text={$_("descCompanySize")} color="tertiary" />
           </div>
           <div class="flex flex-col py-4 gap-4">
             <SelectedCard
@@ -935,7 +947,7 @@
             />
             <div class="pt-4 pb-4 border-b border-secondary-light dark:border-secondary-dark">
               <Typography preset="Text lg/Semibold" text={$_("industryType")} />
-              <Typography preset="Text sm/Reguler" text={$_("decIndustry")} />
+              <Typography preset="Text sm/Reguler" text={$_("decIndustry")} color="tertiary" />
             </div>
             <SelectedCard
               disabled={!onEditCompanyType}
@@ -981,9 +993,10 @@
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <div class="grid grid-cols-4">
               <div class="col-span-1">
-                <Typography preset="Text lg/Semibold" text={$_("sidebarTitle")} />
+                <Typography preset="Text lg/Semibold" text={$_("sidebarTitle")} color="secondary" />
               </div>
-              <div class="col-span-3 flex w-full">
+              <div class="col-span-3 flex flex-col w-full gap-2">
+                <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
                 <InputRw bind:value={sidebarTitle} onEdit={onEditTheme} />
               </div>
             </div>
@@ -991,7 +1004,7 @@
           <div class="py-8 border-b border-secondary-light dark:border-secondary-dark">
             <div class="grid grid-cols-4">
               <div class="col-span-1">
-                <Typography preset="Text lg/Semibold" text={$_("companyLogo")} />
+                <Typography preset="Text lg/Semibold" text={$_("companyLogo")} color="secondary" />
               </div>
               <div class="col-span-3 flex w-full">
                 <Avatar class="size-12" src={fileImageName ? fileImageResult : ""} />
@@ -1028,17 +1041,14 @@
           <div class="py-8">
             <div class="grid grid-cols-4">
               <div class="col-span-1">
-                <Typography preset="Text lg/Semibold" text={$_("themeColors")} />
+                <Typography preset="Text lg/Semibold" text={$_("themeColors")} color="secondary" />
               </div>
-              <div class="col-span-3 flex w-1/3">
-                <!-- <Dropdown
-                  dropdownOpen={dropdownThemeOpen}
-                  bind:selectedItem={selectedTheme}
-                  items={themes}
-                  isOverlay={true}
-                  widget={Indicator}
-                  disabled={!onEditTheme}
-                /> -->
+              <div class="col-span-3 flex flex-col w-1/3 gap-2">
+                <Typography
+                  preset="Text sm/Medium"
+                  text={$_("primaryBrandColor")}
+                  color="secondary"
+                />
                 <Button
                   on:click={!onEditTheme
                     ? () => {}
@@ -1157,7 +1167,11 @@
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
             <div class="grid grid-cols-4">
               <div class="col-span-1">
-                <Typography preset="Text lg/Semibold" text={$_("enableInsights")} />
+                <Typography
+                  preset="Text lg/Semibold"
+                  text={$_("enableInsights")}
+                  color="secondary"
+                />
               </div>
               <div class="col-span-3 flex w-full">
                 <div class="col-span-4">
@@ -1173,7 +1187,11 @@
                     ></div>
                     <Typography preset="Text sm/Regular" text={$_("enabled")} />
                   </label>
-                  <Typography preset="Text sm/Regular" text={$_("enableInsightsDesc")} />
+                  <Typography
+                    preset="Text sm/Regular"
+                    text={$_("enableInsightsDesc")}
+                    color="tertiary"
+                  />
                 </div>
               </div>
             </div>

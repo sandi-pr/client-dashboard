@@ -26,6 +26,8 @@ All Rights Reserved
   import { page } from "$app/stores";
   import { format } from "date-fns";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let metadata = $state({ page: 1, pageSize: 25, pageCount: 0, total: 0 });
 
   let roleId = $state(null);
@@ -710,7 +712,10 @@ All Rights Reserved
             {:else}
               <Button
                 onclick={async function () {
-                  goto(await $call.getPage("client-dashboard", "users"));
+                  let link = isFrontend
+                    ? "/manage_users"
+                    : await $call.getPage("client-dashboard", "users");
+                  goto(link);
                   return;
                 }}
                 color="light"

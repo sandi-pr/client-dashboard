@@ -70,9 +70,14 @@
             "file_path": "template/manage_users/role.html"
         },
         {
-            "name": "settings",
+            "name": "preferences",
             "path": "/preferences",
             "file_path": "template/preferences.html"
+        },
+        {
+            "name": "usage",
+            "path": "/usage",
+            "file_path": "template/usage.html"
         },
         {
             "name": "crm-categories",
@@ -333,6 +338,26 @@
             "name": "finetunings-conversation-chat",
             "path": "/finetunings/conversation/chat",
             "file_path": "template/finetunings/conversation/chat.html"
+        },
+        {
+            "name": "api-connector",
+            "path": "/api_connector",
+            "file_path": "template/api_connector.html"
+        },
+        {
+            "name": "api-connector-collections",
+            "path": "/api_connector/collections",
+            "file_path": "template/api_connector/collections.html"
+        },
+        {
+            "name": "api-connector-collections-api",
+            "path": "/api_connector/collections/api",
+            "file_path": "template/api_connector/collections/api.html"
+        },
+        {
+            "name": "api-connector-collections-api-create",
+            "path": "/api_connector/collections/api/create",
+            "file_path": "template/api_connector/collections/api/create.html"
         },
         {
             "name": "hexabot",

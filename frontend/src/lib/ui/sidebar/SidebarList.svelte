@@ -331,7 +331,7 @@
                 dropdownUser = !dropdownUser;
                 let url = isFrontend
                   ? "/preferences"
-                  : await $call.getPage("client-dashboard", "settings");
+                  : await $call.getPage("client-dashboard", "preferences");
                 goto(url);
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
@@ -340,7 +340,7 @@
               <Typography
                 preset="Text md/Regular"
                 propClass="text-base font-normal"
-                text={$_("settings")}
+                text={$_("preferences")}
                 color="primary"
               />
             </button>

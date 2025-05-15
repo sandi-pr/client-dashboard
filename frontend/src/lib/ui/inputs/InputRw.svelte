@@ -10,9 +10,18 @@
 
 <script>
   import { Input } from "flowbite-svelte";
-  import { EyeOutline, EyeSlashOutline } from 'flowbite-svelte-icons';
+  import { EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
+  import { twMerge } from "tailwind-merge";
 
-  let { type = "text", onEdit = false, value = $bindable(), disabled = $bindable(false), placeholder = "", oninput = () => {}, show = false } = $props();
+  let {
+    type = "text",
+    onEdit = true,
+    value = $bindable(),
+    disabled = $bindable(false),
+    placeholder = "",
+    oninput = () => {},
+    show = false,
+  } = $props();
 
   let disabledInput = $state(false);
 
@@ -22,18 +31,29 @@
     } else {
       disabledInput = false;
     }
-  })
+  });
+
+  const inputClass = () => {
+    const disabledClass = onEdit
+      ? ""
+      : "cursor-not-allowed focus:ring-0 border-disabled-subtle-light dark:border-disabled-subtle-dark focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark text-disabled-light dark:text-disabled-dark";
+
+    return twMerge(
+      "text-primary-light dark:text-primary-dark focus:ring-0 border-primary-light dark:border-primary-dark focus:border-primary-light focus:dark:border-primary-dark bg-primary-light dark:bg-primary-dark",
+      disabledClass,
+    );
+  };
 </script>
 
 {#if type === "password" && onEdit}
   <Input
-    type={show ? 'text' : 'password'}
+    type={show ? "text" : "password"}
     readonly={!onEdit}
-    bind:value={value}
+    bind:value
     bind:disabled={disabledInput}
-    placeholder={placeholder}
+    {placeholder}
     on:input={oninput}
-    class={`bg-primary-light dark:bg-secondary-dark border-primary-light dark:border-primary-dark ${!onEdit ? "cursor-default focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600" : "focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500"}`}
+    class={inputClass()}
   >
     <button slot="left" onclick={() => (show = !show)} class="pointer-events-auto">
       {#if show}
@@ -44,13 +64,13 @@
     </button>
   </Input>
 {:else}
-<Input
-  type={type}
-  readonly={!onEdit}
-  bind:value={value}
-  bind:disabled={disabledInput}
-  placeholder={placeholder}
-  on:input={oninput}
-  class={`bg-primary-light dark:bg-secondary-dark border-primary-light dark:border-primary-dark ${!onEdit ? "cursor-default focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600" : "focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500"}`}
-/>
+  <Input
+    {type}
+    readonly={!onEdit}
+    bind:value
+    bind:disabled={disabledInput}
+    {placeholder}
+    on:input={oninput}
+    class={inputClass()}
+  />
 {/if}

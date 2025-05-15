@@ -47,19 +47,18 @@
   }
 </script>
 
-<div
-  class={`flex whitespace-nowrap ${spaceTop} md:mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden`}
->
-  {#each tabDatas.data as submenu (submenu)}
-    <button
-      name={submenu.name}
-      on:click={() => handleTabClick(submenu.name)}
-      class={`p-2 px-4 font-semibold text-quarterary-light dark:text-quarterary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark ${
-        tabDatas.selected === submenu.name &&
-        "border-b-2 border-fg-brand-primary-light dark:border-fg-brand-primary-dark !text-brand-secondary-light dark:!text-brand-secondary-dark"
-      }`}>{capitalizeFirstLetter($_(toCamelCase(submenu.name)))}</button
-    >
-  {/each}
+<div class="md:mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden">
+  <div class={`flex whitespace-nowrap ${spaceTop}`}>
+    {#each tabDatas.data as submenu (submenu)}
+      <button
+        name={submenu.name}
+        on:click={() => handleTabClick(submenu.name)}
+        class={`p-2 px-4 font-semibold text-quarterary-light dark:text-quarterary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark ${
+          tabDatas.selected === submenu.name &&
+          "border-b-2 border-fg-brand-primary-light dark:border-fg-brand-primary-dark !text-brand-secondary-light dark:!text-brand-secondary-dark"
+        }`}>{capitalizeFirstLetter($_(toCamelCase(submenu.name)))}</button
+      >
+    {/each}
+  </div>
+  <Divider />
 </div>
-
-<Divider />

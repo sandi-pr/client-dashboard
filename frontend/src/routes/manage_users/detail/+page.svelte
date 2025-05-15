@@ -30,6 +30,7 @@ All Rights Reserved
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
   import { triggerToast, check, InputRw, isBakrie } from "$lib";
+  import { twMerge } from "tailwind-merge";
 
   import { call } from "$lib";
 
@@ -273,6 +274,14 @@ All Rights Reserved
     return true;
   };
 
+  const inputClass = () => {
+    const disabledClasses = !onEdit
+      ? "text-disabled-light dark:text-disabled-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark border-disabled-subtle-light dark:border-disabled-subtle-dark focus:ring-0 focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark hover:bg-disabled-subtle-light dark:hover:bg-disabled-subtle-dark hover:border-disabled-subtle-light dark:hover:border-disabled-subtle-dark cursor-not-allowed"
+      : "bg-primary-light dark:bg-primary-dark border-primary-light dark:border-primary-dark focus:ring-0 focus:border-primary-light focus:dark:border-primary-dark hover:bg-primary-light dark:hover:bg-primary-dark hover:border-primary-light dark:hover:border-primary-dark";
+
+    return twMerge(disabledClasses);
+  };
+
   let me = $state({ id: 0 });
 
   onMount(async () => {
@@ -382,11 +391,7 @@ All Rights Reserved
                   >
                     {$_("fullname")}
                   </P>
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={data.fullname}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <Input readonly={!onEdit} bind:value={data.fullname} class={inputClass()} />
                 </div>
                 <div class="flex flex-col col-span-4 md:col-span-2 gap-2">
                   <P
@@ -394,11 +399,7 @@ All Rights Reserved
                   >
                     {$_("username")}
                   </P>
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={data.username}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <Input readonly={!onEdit} bind:value={data.username} class={inputClass()} />
                 </div>
                 <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
                   <P
@@ -406,11 +407,7 @@ All Rights Reserved
                   >
                     {$_("User ID")}
                   </P>
-                  <Input
-                    readonly
-                    bind:value={data.userId}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <Input readonly bind:value={data.userId} class={inputClass()} />
                 </div>
                 <div class="flex flex-col col-span-6 md:col-span-4 gap-2">
                   <P
@@ -418,11 +415,7 @@ All Rights Reserved
                   >
                     {$_("email")}
                   </P>
-                  <Input
-                    readonly={!onEdit}
-                    bind:value={data.email}
-                    class="bg-primary-light dark:bg-secondary-dark"
-                  />
+                  <Input readonly={!onEdit} bind:value={data.email} class={inputClass()} />
                 </div>
                 <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
                   <P
@@ -433,8 +426,12 @@ All Rights Reserved
                   <div class="my-auto">
                     <Button
                       color="light"
-                      class="py-[9px] px-3 w-full justify-between"
-                      on:click={() => (dropdownOpenRole = !dropdownOpenRole)}
+                      class={inputClass() + " flex justify-between w-full p-2"}
+                      on:click={() => {
+                        if (onEdit) {
+                          dropdownOpenRole = !dropdownOpenRole;
+                        }
+                      }}
                       id="dropdownDefaultButton"
                     >
                       <!-- <Badge
@@ -506,8 +503,12 @@ All Rights Reserved
                   <div class="my-auto">
                     <Button
                       color="light"
-                      class="py-[9px] px-3 w-full justify-between"
-                      on:click={() => (dropdownOpenStatus = !dropdownOpenStatus)}
+                      class={inputClass() + " flex justify-between w-full p-2"}
+                      on:click={() => {
+                        if (onEdit) {
+                          dropdownOpenStatus = !dropdownOpenStatus;
+                        }
+                      }}
                       id="dropdownDefaultButton"
                     >
                       <!-- <Badge

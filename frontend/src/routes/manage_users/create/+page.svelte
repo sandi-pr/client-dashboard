@@ -12,19 +12,17 @@ All Rights Reserved
 <script>
   import { P, Heading, Input, Button, Toggle, Helper } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import CopyIcon from "$lib/icon/copy-03.svelte";
   import { onMount, createEventDispatcher } from "svelte";
-  import { CR3Call, Typography } from "hexacomponents-svelte";
-  import Badge from "$lib/ui/badge/Badge.svelte";
+  import { Typography } from "hexacomponents-svelte";
   import { ChevronDownOutline, EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
   import { triggerToast, check, isBakrie } from "$lib";
+  import { twMerge } from "tailwind-merge";
 
   import { call } from "$lib";
-  import { da } from "date-fns/locale";
 
-  const params = new URLSearchParams(window.location.search);
-  const personId = params.get("personId");
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let onEdit = $state(true);
   let dropdownOpen = $state(false);
   let showPassword = $state(false);
@@ -90,7 +88,8 @@ All Rights Reserved
   }
 
   async function backPage() {
-    goto(await $call.getPage("client-dashboard", "users"));
+    let link = isFrontend ? "/manage_users" : await $call.getPage("client-dashboard", "users");
+    goto(link);
     return;
   }
 
@@ -168,6 +167,14 @@ All Rights Reserved
     dropdownOpen = false;
   };
 
+  const inputClass = () => {
+    const disabledClasses = !onEdit
+      ? "text-disabled-light dark:text-disabled-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark border-disabled-subtle-light dark:border-disabled-subtle-dark focus:ring-0 focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark hover:bg-disabled-subtle-light dark:hover:bg-disabled-subtle-dark hover:border-disabled-subtle-light dark:hover:border-disabled-subtle-dark cursor-not-allowed"
+      : "bg-primary-light dark:bg-primary-dark border-primary-light dark:border-primary-dark focus:ring-0 focus:border-primary-light focus:dark:border-primary-dark hover:bg-primary-light dark:hover:bg-primary-dark hover:border-primary-light dark:hover:border-primary-dark";
+
+    return twMerge(disabledClasses);
+  };
+
   onMount(async () => {
     // getPerson();
     if (!check("general.user:create")) {
@@ -230,11 +237,7 @@ All Rights Reserved
                 >
                   {$_("fullname")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.fullname}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <Input readonly={!onEdit} bind:value={data.fullname} class={inputClass()} />
               </div>
               <div class="flex flex-col col-span-3 gap-2">
                 <P
@@ -242,11 +245,7 @@ All Rights Reserved
                 >
                   {$_("username")}
                 </P>
-                <Input
-                  readonly={!onEdit}
-                  bind:value={data.username}
-                  class="bg-primary-light dark:bg-secondary-dark"
-                />
+                <Input readonly={!onEdit} bind:value={data.username} class={inputClass()} />
               </div>
               <div class="flex flex-col col-span-3 gap-2">
                 <P
@@ -258,7 +257,7 @@ All Rights Reserved
                   readonly={!onEdit}
                   bind:value={data.email}
                   on:input={handleEmailChange}
-                  class="bg-primary-light dark:bg-secondary-dark"
+                  class={inputClass()}
                 />
                 {#if !emailValid && data.email.length > 0}
                   <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
@@ -275,7 +274,7 @@ All Rights Reserved
                   readonly={!onEdit}
                   bind:value={data.password}
                   on:input={handlePasswordChange}
-                  class="bg-primary-light dark:bg-secondary-dark"
+                  class={inputClass()}
                 >
                   <button
                     slot="left"
@@ -302,7 +301,7 @@ All Rights Reserved
                 <div class="my-auto w-full" onfocusout={handleDropdownFocusLoss}>
                   <Button
                     color="light"
-                    class="py-[9px] px-3 w-full justify-between"
+                    class={inputClass() + " flex justify-between w-full p-2"}
                     on:click={() => (dropdownOpen = !dropdownOpen)}
                     id="dropdownDefaultButton"
                   >
