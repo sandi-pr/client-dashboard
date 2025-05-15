@@ -100,6 +100,8 @@ All Rights Reserved
   let selectedFile = $state(null);
   let groupedFiles = $state(null);
 
+  let timerGetStatusBot;
+
   let libraryId, botId, botIdStrapi, collectionId;
 
   let bots = $state([
@@ -426,7 +428,7 @@ All Rights Reserved
 
         console.log("cek response get bot", response);
 
-        bots[0].deployStatus = bot.status;
+        bots[0].deployStatus = bot.attributes.status;
         // datasChecked = collections.map((data) => {
         //   return { id: data, checked: true };
         // });
@@ -1431,6 +1433,7 @@ All Rights Reserved
     getCountDocumentsPerMonth();
     getCollections();
     getLabels();
+    getBot();
     // generateChartData();
   });
 

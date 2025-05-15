@@ -428,13 +428,13 @@ All Rights Reserved
           },
         ],
       },
-      {
-        icon: "phoneCall",
-        name: "support",
-        href: isFrontend ? "/support" : await call.getPage("client-dashboard", "support"),
-        commingSoon: true,
-        children: [],
-      },
+      // {
+      //   icon: "phoneCall",
+      //   name: "support",
+      //   href: isFrontend ? "/support" : await call.getPage("client-dashboard", "support"),
+      //   commingSoon: true,
+      //   children: [],
+      // },
       // End of new sidebar
 
       // {

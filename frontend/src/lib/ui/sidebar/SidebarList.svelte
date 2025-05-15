@@ -111,10 +111,10 @@
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
 
-    hrefUser = isFrontend ? "/manage_users" : await $call.getPage("client-dashboard", "users");
+    hrefUser = await $call.getPage("client-dashboard", "users");
     hrefJobLevels = await $call.getPage("client-dashboard", "job-management");
 
-    let home = isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page");
+    let home = await $call.getPage("client-dashboard", "home-page");
     sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
 
     // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
@@ -329,9 +329,7 @@
             <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
-                let url = isFrontend
-                  ? "/preferences"
-                  : await $call.getPage("client-dashboard", "preferences");
+                let url = await $call.getPage("client-dashboard", "preferences");
                 goto(url);
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
@@ -347,7 +345,7 @@
             <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
-                let url = isFrontend ? "/usage" : await $call.getPage("client-dashboard", "usage");
+                let url = await $call.getPage("client-dashboard", "usage");
                 goto(url);
               }}
               class="flex px-3 py-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"

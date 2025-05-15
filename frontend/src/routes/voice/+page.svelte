@@ -26,6 +26,8 @@ All Rights Reserved
     triggerLoading,
     ModalFilePreview,
     setVoiceLibraryIds,
+    notifications,
+    onProgress,
   } from "$lib";
   import { _ } from "svelte-i18n";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
@@ -99,13 +101,17 @@ All Rights Reserved
   let selectedFile = $state(null);
   let groupedFiles = $state(null);
 
+  let timerGetStatusBot;
+  
+  let gettingStatusBot = $state(false);
+
   let bots = $state([
     {
       botsName: "Voice’s Assistant",
       botDescription: "",
       botsID: 1,
       urlBot: "",
-      deployStatus: "Ready",
+      deployStatus: "",
       deployedPlatform: "",
       bot_profile: "",
     },
@@ -426,11 +432,56 @@ All Rights Reserved
     }
   }
 
+    async function getBot() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        let response = await $call.call("client-dashboard", "get-bot", {
+          URLQuery: {},
+          URLParams: {
+            id: botIdStrapi.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          triggerLoading(false);
+          triggerToast("error");
+          goto(await $call.getPage("client-dashboard", "hexabot-list"));
+          return;
+        }
+
+        const bot = response.result;
+
+        console.log("cek response get bot", response);
+
+        bots[0].deployStatus = bot.attributes.status;
+        // datasChecked = collections.map((data) => {
+        //   return { id: data, checked: true };
+        // });
+
+        // await getCollection();
+        // await getDocuments();
+
+        triggerLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   async function startReading(botId) {
     let token = localStorage.getItem("token");
 
     if (token) {
       try {
+        
+        gettingStatusBot = true;
+
         const response = await $call.call("client-dashboard", "add-document-by-bot-id", {
           URLQuery: {},
           URLParams: {
@@ -448,7 +499,7 @@ All Rights Reserved
           return;
         }
 
-        // setTimeout(getBots, 3000);
+        setTimeout(getBot, 3000);
       } catch (error) {
         console.log(error);
       }
@@ -1382,6 +1433,29 @@ All Rights Reserved
     }
   };
 
+    $effect(() => {
+    if ($onProgress) {
+      console.log("notification", $notifications);
+      if (
+        $notifications.length > 0 &&
+        $notifications[0].attributes.meta?.progress.includes("100")
+      ) {
+        if (!gettingStatusBot) {
+          startReading($notifications[0].attributes.meta.bot_id);
+          console.log("start reading", $notifications[0].attributes.meta.bot_id);
+        } else {
+          if (timerGetStatusBot) {
+            clearTimeout(timerGetStatusBot);
+          }
+          timerGetStatusBot = setTimeout(() => {
+            startReading($notifications[0].attributes.meta.bot_id);
+            console.log("start reading", $notifications[0].attributes.meta.bot_id);
+          }, 10000);
+        }
+      }
+    }
+  });
+
   onMount(async () => {
     if (
       $isBakrie &&
@@ -1410,6 +1484,7 @@ All Rights Reserved
     getCountDocumentsPerMonth();
     getCollections();
     getLabels();
+    getBot();
     // generateChartData();
   });
 
