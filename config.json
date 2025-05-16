@@ -2516,6 +2516,10 @@
                 {
                     "name": "edited",
                     "type": "boolean"
+                },
+                {
+                    "name": "repair",
+                    "type": "boolean"
                 }
             ]
         },

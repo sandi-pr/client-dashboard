@@ -26,6 +26,7 @@ import (
 	"gitlab.hexacode.org/go-libs/cr3call"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
+	"gitlab.hexacode.org/go-libs/requests"
 	"gitlab.hexacode.org/go-libs/strapi"
 )
 
@@ -400,6 +401,11 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		category = ""
 	}
 
+	repair, ok := ctx.Params.GetBool("repair")
+	if !ok {
+		repair = false
+	}
+
 	var documents interface{}
 	err = json.Unmarshal([]byte(document_str), &documents)
 
@@ -459,6 +465,34 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 						documentBase64, ok := document.(map[string]interface{})["base64"].(string)
 						if !ok {
 							return ctx.Error(400, "invalid parameters documents")
+						}
+
+						if repair {
+							http := requests.NewHttp(U.Dict{
+								"Content-type": "application/json",
+							})
+
+							resp, err := http.Post(fmt.Sprintf("%s/api/update-quality-document", HEXA_RAG_URL), nil, U.Dict{
+								"base64": documentBase64,
+							}.ToJson())
+
+							fmt.Println("Response repair:", resp)
+
+							if err != nil {
+								return ctx.Error(500, "Internal Server Error")
+							}
+
+							if resp.Status != 200 {
+								return ctx.Error(500, "Internal Server Error")
+							}
+
+							dict := U.NewDictFromJson(resp.Body)
+
+							if base64, ok := dict.GetString("base64"); ok {
+								documentBase64 = string(base64)
+							}
+
+							fmt.Println("Document successfully repaired")
 						}
 
 						ext := filepath.Ext(documentName)
