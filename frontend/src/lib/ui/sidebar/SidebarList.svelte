@@ -51,6 +51,8 @@
   import { _ } from "svelte-i18n";
   import { call } from "$lib";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let {
     getModule,
     name = $bindable(""),
@@ -58,7 +60,6 @@
     brand = $bindable(""),
     logoUrl = $bindable(""),
     isHidden = true,
-    isFrontend = $bindable(false),
     // funcButton,
     logout,
     innerWidth = 0,
@@ -111,7 +112,7 @@
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();
 
-    hrefUser = await $call.getPage("client-dashboard", "users");
+    hrefUser = isFrontend ? "/manage_users" : await $call.getPage("client-dashboard", "users");
     hrefJobLevels = await $call.getPage("client-dashboard", "job-management");
 
     let home = await $call.getPage("client-dashboard", "home-page");
@@ -288,7 +289,7 @@
     <div class="fixed bottom-0 pb-8 bg-primary-light dark:bg-primary-dark">
       <div class="relative dropdown-container">
         <div
-          class={`z-10 ${dropdownUser ? "fixed" : "hidden"} bottom-16 p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
+          class={`z-10 ${dropdownUser ? "fixed" : "hidden"} bottom-20 p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
         >
           <ul aria-labelledby="dropdownDefaultButton">
             <div class="flex pb-3 justify-between rounded-lg border-b">
@@ -313,6 +314,9 @@
               spanClass="flex-1 ms-0 text-left whitespace-nowrap"
               class="hover:bg-secondary-light dark:hover:bg-secondary-dark mt-2"
               label={$_("manage")}
+              onclick={(event) => {
+                event.stopPropagation(); // Prevent handleDropdownFocusLoss from being triggered
+              }}
             >
               <svelte:fragment slot="icon">
                 <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
@@ -329,7 +333,9 @@
             <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
-                let url = await $call.getPage("client-dashboard", "preferences");
+                let url = isFrontend
+                  ? "/preferences"
+                  : await $call.getPage("client-dashboard", "preferences");
                 goto(url);
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
@@ -345,7 +351,7 @@
             <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
-                let url = await $call.getPage("client-dashboard", "usage");
+                let url = isFrontend ? "/usage" : await $call.getPage("client-dashboard", "usage");
                 goto(url);
               }}
               class="flex px-3 py-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
@@ -363,7 +369,7 @@
         <SidebarGroup>
           <button
             type="button"
-            class="flex w-full justify-between rounded-lg hover:bg-secondary-light dark:hover:bg-secondary-dark"
+            class="flex w-full justify-between rounded-lg hover:bg-secondary-light dark:hover:bg-secondary-dark p-2"
             onclick={() => {
               dropdownUser = !dropdownUser;
             }}
@@ -377,20 +383,25 @@
                   <Typography preset="Text md/Semibold" text={name} color="secondary" />
                   <Typography preset="Text sm/Regular" text={email} color="tertiary" />
                 </div>
-                <Button
-                  color="light"
-                  class="focus-within:ring-0 border-0 p-2 bg-transparent dark:bg-transparent hover:bg-primary-light dark:hover:bg-secondary-dark"
-                >
+                <div>
                   {#if dropdownUser}
                     <ChevronUpOutline
-                      class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                      class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                      onclick={(event) => {
+                        event.stopPropagation(); // Prevent handleDropdownFocusLoss from being triggered
+                        dropdownUser = !dropdownUser;
+                      }}
                     />
                   {:else}
                     <ChevronDownOutline
-                      class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white"
+                      class="size-7 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                      onclick={(event) => {
+                        event.stopPropagation(); // Prevent handleDropdownFocusLoss from being triggered
+                        dropdownUser = !dropdownUser;
+                      }}
                     />
                   {/if}
-                </Button>
+                </div>
               {:else}
                 <div></div>
               {/if}

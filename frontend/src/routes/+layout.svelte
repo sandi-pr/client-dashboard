@@ -1862,7 +1862,6 @@ All Rights Reserved
           bind:email={userData.email}
           bind:brand
           bind:logoUrl
-          isFrontend
           innerWidth={winInnerWidth}
           {logout}
         />

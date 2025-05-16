@@ -33,7 +33,6 @@
     email = $bindable(""),
     brand = $bindable(""),
     logoUrl = $bindable(""),
-    isFrontend = $bindable(false),
     innerWidth = 0,
     logout,
   }: {
@@ -43,7 +42,6 @@
     email: string;
     brand: string;
     logoUrl: string;
-    isFrontend: boolean;
     innerWidth: number;
     logout: () => void;
   } = $props();
@@ -83,7 +81,6 @@
     {email}
     {brand}
     {logoUrl}
-    {isFrontend}
     isHidden={false}
     funcButton={() => (hidden2 = true)}
     {logout}
@@ -99,7 +96,6 @@
   {email}
   {brand}
   {logoUrl}
-  {isFrontend}
   isHidden={innerWidth < 1024}
   funcButton={() => (hidden2 = true)}
   {logout}
