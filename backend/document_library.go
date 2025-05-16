@@ -472,7 +472,7 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 								"Content-type": "application/json",
 							})
 
-							resp, err := http.Post(fmt.Sprintf("%s/update-quality-document", HEXA_RAG_URL), nil, U.Dict{
+							resp, err := http.Post(fmt.Sprintf("%s/api/update-quality-document", HEXA_RAG_URL), nil, U.Dict{
 								"base64": documentBase64,
 							}.ToJson())
 
