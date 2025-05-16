@@ -1150,5 +1150,6 @@
   "theAuthorizationHeaderWillBeAutomaticallyGeneratedWhenYouSendTheRequest": "Header otorisasi akan secara otomatis dihasilkan saat Anda mengirim permintaan",
   "authorization": "Perizinan",
   "myAPI": "API Saya",
-  "token": "Token"
+  "token": "Token",
+  "preferences": "Preferensi"
 }

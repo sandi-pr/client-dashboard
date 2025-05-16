@@ -1477,7 +1477,7 @@
 <!-- <LoadingSpinner {isLoading} /> -->
 {#if ready}
   <div class="m-4 pb-12">
-    <div class="sticky top-0 bg-primary-light dark:bg-primary-dark">
+    <div class="sticky z-[1] top-0 bg-primary-light dark:bg-primary-dark">
       <div class="flex justify-between items-center">
         <div class="flex items-center ms-4">
           <Avatar
@@ -1949,8 +1949,8 @@
                   {/if}
                 </div>
                 <div class="flex flex-col items-center gap-4 px-4 pb-4">
-                  <div class="flex w-1/2 justify-end">
-                    <Button outline color="alternative" class="mt-4 w-fit ">
+                  <div class="flex w-full md:w-1/2 justify-end">
+                    <Button outline color="alternative" class="mt-4 w-fit">
                       <svelte:component
                         this={getIcons("refreshCw05")}
                         svgClass="w-4 h-4 hover:text-white"
@@ -1959,7 +1959,7 @@
                       {$_("clearConversations")}
                     </Button>
                   </div>
-                  <div class="flex flex-col w-1/2 gap-4">
+                  <div class="flex flex-col w-full md:w-1/2 gap-4">
                     {#if users?.welcomeMessage}
                       <div
                         class="w-full px-10 py-6 border rounded-lg border-secondary-light dark:border-secondary-dark bg-secondary-light dark:bg-secondary-dark"

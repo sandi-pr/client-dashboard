@@ -1150,5 +1150,6 @@
   "theAuthorizationHeaderWillBeAutomaticallyGeneratedWhenYouSendTheRequest": "The authorization header will be automatically generated when you send the request.",
   "authorization": "Authorization",
   "myAPI": "My API",
-  "token": "Token"
+  "token": "Token",
+  "preferences": "Preferences"
 }
