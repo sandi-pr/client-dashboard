@@ -401,7 +401,7 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		category = ""
 	}
 
-	repair, ok := ctx.Params.GetBool("repair_pdf")
+	repair, ok := ctx.Params.GetBool("repair")
 	if !ok {
 		repair = false
 	}
