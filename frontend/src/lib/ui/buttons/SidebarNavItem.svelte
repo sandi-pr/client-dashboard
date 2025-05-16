@@ -9,24 +9,23 @@
   All Rights Reserved.
 -->
 
-<script lang="ts">
+<script>
   import { goto } from "$app/navigation";
   import { Typography, getIcons, Badge } from "$lib";
   import { page } from "$app/stores";
   import { _ } from "svelte-i18n";
   import { sidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
-  import { onMount } from "svelte";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let {
     href = "/",
-    activeUrl = "/",
     commingSoon = false,
     classes = "flex w-full gap-3 items-center justify-between px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700",
     classesActive = "flex w-full gap-3 items-center justify-between px-3 py-2 hover:no-underline bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700",
     icon = "",
     classesSvg = "w-5 h-5 flex text-hc-graylight-500 dark:text-hc-graydark-400",
     typographyData = {},
-    collapse = false,
   } = $props();
 
   function extractPath(url) {
@@ -35,21 +34,16 @@
     return match ? match[1] : url;
   }
 
-  let activeUrl2 = $derived($page.url.pathname);
-
-  onMount(() => {
-    // console.log(`cek comming soon ${icon}`, commingSoon);
-  });
+  let activeUrl = $derived("/" + $page.url.pathname.split("/")[isFrontend ? 1 : 2]);
 </script>
 
 <button
   class={!$sidebarLargeClosed
-    ? activeUrl2 === extractPath(href)
+    ? activeUrl === extractPath(href)
       ? classesActive
       : classes
     : "flex w-full py-2 m-0 !my-4 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 justify-center"}
   onclick={() => {
-    // console.log(href);
     goto(href);
   }}
 >
@@ -64,7 +58,6 @@
   {#if commingSoon}
     <Badge text={$_("soon")} type="brand" />
   {/if}
-  <!-- <Typography preset={typographyData.preset} text={typographyData.text} color={typographyData.color} /> -->
 </button>
 
 <!--

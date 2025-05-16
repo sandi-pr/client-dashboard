@@ -115,7 +115,7 @@
     hrefUser = isFrontend ? "/manage_users" : await $call.getPage("client-dashboard", "users");
     hrefJobLevels = await $call.getPage("client-dashboard", "job-management");
 
-    let home = await $call.getPage("client-dashboard", "home-page");
+    let home = isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page");
     sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
 
     // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
