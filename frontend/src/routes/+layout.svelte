@@ -287,35 +287,39 @@ All Rights Reserved
       //     },
       //   ],
       // },
-      {
-        icon: "bookClosed",
-        name: "dataSources",
-        children: [],
-        href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
-      },
-      {
-        // BRI ADJUSTMENT
-        icon: "lightbulb",
-        name: "insights",
-        children: [],
-        href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      },
+      // todo config
+      // {
+      //   icon: "bookClosed",
+      //   name: "dataSources",
+      //   children: [],
+      //   href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
+      // },
+      // {
+      //   // BRI ADJUSTMENT
+      //   icon: "lightbulb",
+      //   name: "insights",
+      //   children: [],
+      //   href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+      // },
+      //
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
-      {
-        icon: "penTool",
-        name: "handwriting",
-        children: [],
-        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      },
-      {
-        icon: "recording02",
-        name: "voice",
-        children: [],
-        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      },
+      // todo config
+      // {
+      //   icon: "penTool",
+      //   name: "handwriting",
+      //   children: [],
+      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      // },
+      // {
+      //   icon: "recording02",
+      //   name: "voice",
+      //   children: [],
+      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      // },
+      //
       // {
       //   icon: "image03",
       //   name: "memories",
@@ -419,13 +423,13 @@ All Rights Reserved
               ? "/finetunings"
               : await call.getPage("client-dashboard", "finetunings"),
           },
-          {
-            icon: "dataflow02",
-            name: "apiConnector",
-            href: isFrontend
-              ? "/api_connector"
-              : await call.getPage("client-dashboard", "api-connector"),
-          },
+          // {
+          //   icon: "dataflow02",
+          //   name: "apiConnector",
+          //   href: isFrontend
+          //     ? "/api_connector"
+          //     : await call.getPage("client-dashboard", "api-connector"),
+          // },
         ],
       },
       // {
@@ -1251,6 +1255,11 @@ All Rights Reserved
       additional_prompt:
         "Kamu adalah bot yang menjawab pertanyaan user sesuai dengan dokumen yang ada",
     },
+    {
+      name_library: "API Connector",
+      module_type: "apiconnector",
+      name_collection: "My API Collection",
+    }
   ];
 
   async function createCoreModule(
@@ -1282,81 +1291,95 @@ All Rights Reserved
         // console.log("11111111");
         return;
       }
+      
+      localStorage.setItem("libraryId" + moduleType, response.result.id);
 
-      const responseCollection = await call.call(
-        "client-dashboard",
-        "find-create-library-collection-by-name",
-        {
+      if (collectionName !== undefined) {
+        // console.log("collectionName not null" + collectionName); 
+        const responseCollection = await call.call(
+          "client-dashboard",
+          "find-create-library-collection-by-name",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              parent_id: response.result.id,
+              collection_name: collectionName,
+              description: "This is a collection for " + libraryName,
+            },
+            Headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        localStorage.setItem("collectionId" + moduleType, responseCollection.result.id);
+       
+      } else {
+        // console.log("collectionName null" + libraryName);
+      }
+
+
+      // console.log("checked library" + libraryName, response);
+      // console.log("------");
+
+      if (botName !== undefined) {
+        // console.log("botName not null" + botName);  
+        const resp = await call.call("client-dashboard", "get-bot-by-name", {
           URLQuery: {},
           URLParams: {},
           Params: {
-            parent_id: response.result.id,
-            collection_name: collectionName,
-            description: "This is a collection for " + libraryName,
+            name: botName,
           },
           Headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      localStorage.setItem("collectionId" + moduleType, responseCollection.result.id);
-
-      // console.log("checked library" + libraryName, response);
-      localStorage.setItem("libraryId" + moduleType, response.result.id);
-      // console.log("------");
-
-      const resp = await call.call("client-dashboard", "get-bot-by-name", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          name: botName,
-        },
-        Headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      });
-
-      // console.log("------" + botName, resp);
-
-      if (resp.status !== 404) {
-        // console.log("bot already exists" + botName, resp);
-        localStorage.setItem("botId" + moduleType, resp.result.attributes.bot_id);
-        localStorage.setItem("botIdStrapi" + moduleType, resp.result.id);
-        // gettingData = false;
-        return;
-      }
-
-      let dataSend = {
-        bot_name: botName,
-        description: "",
-        ai_engine: "llama3.1:8b",
-        library_id: response.result.id,
-        collection_id: "all",
-        additional_prompt: additionalPrompt,
-        need_auth: false,
-        module_type: moduleType,
-      };
-
-      try {
-        const response2 = await call.call("client-dashboard", "create-bot", {
-          URLQuery: {},
-          URLParams: {},
-          Params: dataSend,
-          Headers: {
-            Authorization: "Bearer " + token,
+            Authorization: "Bearer " + localStorage.getItem("token"),
           },
         });
 
-        // console.log("createCustomBot" + botName, response2);
-        localStorage.setItem("botId" + moduleType, response2.result.attributes.bot_id);
+        // console.log("------" + botName, resp);
 
-        if (response2.status !== 200) {
-          // console.log(response2);
+        if (resp.status !== 404) {
+          // console.log("bot already exists" + botName, resp);
+          localStorage.setItem("botId" + moduleType, resp.result.attributes.bot_id);
+          localStorage.setItem("botIdStrapi" + moduleType, resp.result.id);
+          // gettingData = false;
           return;
         }
-      } catch (error) {
-        // console.log(error);
+
+        let dataSend = {
+          bot_name: botName,
+          description: "",
+          ai_engine: "llama3.1:8b",
+          library_id: response.result.id,
+          collection_id: "all",
+          additional_prompt: additionalPrompt,
+          need_auth: false,
+          module_type: moduleType,
+        };
+
+        try {
+          const response2 = await call.call("client-dashboard", "create-bot", {
+            URLQuery: {},
+            URLParams: {},
+            Params: dataSend,
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          // console.log("createCustomBot" + botName, response2);
+          localStorage.setItem("botId" + moduleType, response2.result.attributes.bot_id);
+
+          if (response2.status !== 200) {
+            // console.log(response2);
+            return;
+          }
+        } catch (error) {
+          // console.log(error);
+        }
+
+      } else {
+        // console.log("botName null" + libraryName);
       }
     }
   }
