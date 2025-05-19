@@ -42,7 +42,7 @@
 <div>
   <div class="flex justify-between px-4 pt-1 lg:pt-8">
     <Breadcrumb {activeUrl} {appUrl} />
-    <div class="flex items-center gap-2 md:gap-3">
+    <div class="flex items-center gap-2">
       <div class="hidden md:flex gap-2">
         <LanguageSelector />
         {#if authority === "Admin"}

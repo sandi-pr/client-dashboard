@@ -11,15 +11,7 @@
 
 <script>
   import { page } from "$app/stores";
-  import {
-    LogoBrand,
-    SidebarNavItem,
-    Typography,
-    getIcons,
-    Icon,
-    LanguageSelector,
-    toCamelCase,
-  } from "$lib";
+  import { LogoBrand, SidebarNavItem, Typography, getIcons, Icon, toCamelCase } from "$lib";
   import { goto } from "$app/navigation";
   // import { CR3Call } from "hexacomponents-svelte";
   import {
@@ -31,8 +23,6 @@
     SidebarWrapper,
     SidebarDropdownWrapper,
     SidebarDropdownItem,
-    DarkMode,
-    // SidebarItem,
   } from "flowbite-svelte";
   import {
     CogOutline,
@@ -200,10 +190,6 @@
           <div class="grow w-full">
             <Search placeholder={$_("search")} class="bg-white dark:bg-primary-dark !py-2" />
           </div>
-          <DarkMode
-            btnClass="text-gray-500 h-max dark:text-gray-400 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600 focus-within:ring-4 focus-within:outline-none focus-within:ring-gray-200 dark:focus-within:ring-gray-700"
-          />
-          <LanguageSelector isMobileScreen />
         </div>
         <div class="hidden md:flex pb-4">
           <Search
