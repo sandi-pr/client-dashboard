@@ -32,6 +32,8 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { call, showAI, showNotif } from "$lib";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let userData = $state({ username: "", email: "", brand: "" });
 
   let isFirstTime = $state(true);
@@ -94,49 +96,56 @@ All Rights Reserved
       icon: "bookOpen",
       title: "documents",
       description: "descDocumentLibrary",
-      page: "document-collection-overview",
+      page: isFrontend ? "/documents" : "document-collection-overview",
     },
     {
       icon: "bookClosed",
       title: "dataSources",
       description: "descDataSources",
-      page: "data-sources",
+      page: isFrontend ? "/data_sources" : "data-sources",
     },
-    { // BRI ADJUSTMENT
+    {
+      // BRI ADJUSTMENT
       icon: "lightbulb",
       title: "insights",
       description: "descInsights",
-      page: "csv-insight",
+      page: isFrontend ? "data_sources" : "csv-insight",
     },
     {
       icon: "penTool",
       title: "handwriting",
       description: "descHandwriting",
-      page: "handwriting",
+      page: isFrontend ? "/handwriting" : "handwriting",
     },
     {
       icon: "recording02",
       title: "voice",
       description: "descVoice",
-      page: "voice",
+      page: isFrontend ? "/voice" : "voice",
     },
     {
       icon: "messagePlusSquare",
       title: "createBots",
       description: "descCreateBots",
-      page: "bots",
+      page: isFrontend ? "/bots" : "bots",
     },
     {
       icon: "globe01",
       title: "tryModels",
       description: "descTryModels",
-      page: "llms",
+      page: isFrontend ? "/llms" : "llms",
     },
     {
       icon: "data",
       title: "finetunings",
       description: "descFinetunings",
-      page: "finetunings",
+      page: isFrontend ? "/finetunings" : "finetunings",
+    },
+    {
+      icon: "data",
+      title: "apiConnector",
+      description: "descApiConnector",
+      page: isFrontend ? "api_connector" : "api-connector",
     },
   ];
 
@@ -951,9 +960,9 @@ All Rights Reserved
 
   const navigateToPage = async (page, param = "") => {
     if (page === "bakrie-webchat") {
-      goto(await $call.getPage("bakrie", "home-page"));
+      goto(isFrontend ? "/" : await $call.getPage("bakrie", "home-page"));
     } else {
-      goto((await $call.getPage("client-dashboard", page)) + param);
+      goto((isFrontend ? page : await $call.getPage("client-dashboard", page)) + param);
     }
   };
 

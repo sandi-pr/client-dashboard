@@ -1151,5 +1151,6 @@
   "authorization": "Perizinan",
   "myAPI": "API Saya",
   "token": "Token",
-  "preferences": "Preferensi"
+  "preferences": "Preferensi",
+  "descApiConnector": "Hubungkan dan kelola API Anda dengan mudah"
 }

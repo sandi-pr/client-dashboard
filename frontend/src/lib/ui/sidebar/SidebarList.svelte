@@ -60,7 +60,6 @@
     brand = $bindable(""),
     logoUrl = $bindable(""),
     isHidden = true,
-    // funcButton,
     logout,
     innerWidth = 0,
   } = $props();

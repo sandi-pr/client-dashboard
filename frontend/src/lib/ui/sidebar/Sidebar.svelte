@@ -82,7 +82,6 @@
     {brand}
     {logoUrl}
     isHidden={false}
-    funcButton={() => (hidden2 = true)}
     {logout}
     {innerWidth}
   />
@@ -97,7 +96,6 @@
   {brand}
   {logoUrl}
   isHidden={innerWidth < 1024}
-  funcButton={() => (hidden2 = true)}
   {logout}
   {innerWidth}
 />
