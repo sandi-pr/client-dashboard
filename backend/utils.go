@@ -80,3 +80,22 @@ func uploadFile(file U.Dict, Strapi *strapi.StrapiClassic) (int64, error) {
 		return 0, fmt.Errorf("internal server error")
 	}
 }
+
+func formatFileSize(size int) string {
+	const (
+		KB = 1024
+		MB = 1024 * KB
+		GB = 1024 * MB
+	)
+
+	switch {
+	case size >= MB:
+		return fmt.Sprintf("%.2f MB", float64(size)/MB)
+	case size >= KB:
+		return fmt.Sprintf("%.2f KB", float64(size)/KB)
+	case size >= GB:
+		return fmt.Sprintf("%.2f GB", float64(size)/GB)
+	default:
+		return fmt.Sprintf("%d B", size)
+	}
+}
