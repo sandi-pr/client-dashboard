@@ -367,8 +367,8 @@
 <div class="m-4 mb-32 md:m-4">
   <div class="flex justify-between items-center">
     <Typography preset="Display sm/Semibold" text="Usage" />
-    <div>
-      <Search class="bg-primary-light dark:bg-primary-dark hidden md:block" />
+    <div class="hidden md:block">
+      <Search class="bg-primary-light dark:bg-primary-dark" />
     </div>
   </div>
 
