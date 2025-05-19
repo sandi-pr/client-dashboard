@@ -467,6 +467,11 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 							return ctx.Error(400, "invalid parameters documents")
 						}
 
+						file_size, ok := document.(map[string]interface{})["size"].(string)
+						if !ok {
+							return ctx.Error(400, "invalid parameters documents")
+						}
+
 						if repair {
 							http := requests.NewHttp(U.Dict{
 								"Content-type": "application/json",
@@ -493,6 +498,13 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 							}
 
 							fmt.Println("Document successfully repaired")
+
+							decoded, err := base64.StdEncoding.DecodeString(documentBase64)
+							if err != nil {
+								return ctx.Error(500, "failed to decode base64")
+							}
+
+							file_size = formatFileSize(len(decoded))
 						}
 
 						ext := filepath.Ext(documentName)
@@ -555,11 +567,6 @@ func CreateLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 						if err != nil {
 							fmt.Println("Gagal menulis ke file:", err)
 							return ctx.Error(500, "Internal Server Error")
-						}
-
-						file_size, ok := document.(map[string]interface{})["size"].(string)
-						if !ok {
-							return ctx.Error(400, "invalid parameters documents")
 						}
 
 						contract, ok := document.(map[string]interface{})["contract"].(string)
