@@ -31,10 +31,16 @@
   function extractPath(url) {
     if (!url) return;
     const match = url.match(/^(?:https?:\/\/)?[^\/]+(\/[^?#]*)/);
-    return match ? match[1] : url;
+    return match ? "/" + match[1].split("/")[1] : url;
   }
 
   let activeUrl = $derived("/" + $page.url.pathname.split("/")[isFrontend ? 1 : 2]);
+
+  $effect(() => {
+    console.log("activeUrl", activeUrl);
+    console.log("href", href);
+    console.log("extractPath(href)", extractPath(href));
+  });
 </script>
 
 <button
