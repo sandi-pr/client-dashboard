@@ -3,6 +3,7 @@
   import { Typography, FeaturedIcon, Icon } from "$lib";
   import { getIcons } from "$lib";
   import { Card, Radio, Indicator } from "flowbite-svelte";
+  import { twMerge } from "tailwind-merge";
 
   let {
     selectionData,
@@ -27,9 +28,24 @@
     disabled?: any;
     iconIsComponent?: any;
   } = $props();
+
   const selectData = (id: any) => {
     selectedData = id;
-    console.log(selectedData);
+  };
+
+  const cardClass = (data: any) => {
+    return twMerge(
+      "justify-between",
+      "hover:no-underline",
+      isFlex ? `gap-3 ${widthFlex}` : "w-full h-full",
+      spacing ? spacing : "!py-6 !pr-4",
+      disabled
+        ? "bg-disabled-subtle-light dark:bg-disabled-subtle-dark cursor-not-allowed"
+        : "bg-primary-light dark:bg-primary-dark cursor-pointer hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark",
+      selectedData === data.id
+        ? "border-brand-solid-light dark:border-brand-solid-dark"
+        : "border-secondary-light dark:border-secondary-dark",
+    );
   };
 </script>
 
@@ -39,11 +55,7 @@
   {#each selectionData as data, i}
     <Card
       horizontal={true}
-      class={`justify-between ${isFlex ? `gap-3 ${widthFlex}` : "w-full h-full"} ${spacing ? spacing : "!py-6 !pr-4"} bg-primary-light dark:bg-secondary-dark ${disabled ? "!cursor-default" : "hover:bg-primary-hover-light dark:hover:bg-secondary-hover-dark"} ${
-        selectedData === data.id
-          ? "border-brand-solid-light dark:border-brand-solid-dark"
-          : "border-secondary-light dark:border-secondary-dark"
-      } shadow-sm hover:no-underline cursor-pointer`}
+      class={cardClass(data)}
       size="none"
       on:click={disabled ? () => {} : () => selectData(data?.id)}
     >

@@ -10,14 +10,20 @@
 
 <script>
   import { Textarea } from "flowbite-svelte";
+  import { twMerge } from "tailwind-merge";
 
   let { onEdit = false, value = $bindable(), placeholder = "", rows = 4 } = $props();
+
+  const inputClass = () => {
+    const disabledClass = onEdit
+      ? ""
+      : "cursor-not-allowed focus:ring-0 border-disabled-subtle-light dark:border-disabled-subtle-dark focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark text-disabled-light dark:text-disabled-dark";
+
+    return twMerge(
+      "text-primary-light dark:text-primary-dark focus:ring-0 border-primary-light dark:border-primary-dark focus:border-primary-light focus:dark:border-primary-dark bg-primary-light dark:bg-primary-dark",
+      disabledClass,
+    );
+  };
 </script>
 
-<Textarea
-  readonly={!onEdit}
-  bind:value={value}
-  placeholder={placeholder}
-  rows={rows}
-  class={`bg-primary-light dark:bg-secondary-dark border-primary-light dark:border-primary-dark ${!onEdit ? "cursor-default focus:ring-0 focus:!border-gray-300 dark:focus:!border-gray-600" : "focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500"}`}
-/>
+<Textarea readonly={!onEdit} bind:value {placeholder} {rows} class={inputClass()} />
