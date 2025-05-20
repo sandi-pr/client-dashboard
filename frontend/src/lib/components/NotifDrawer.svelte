@@ -10,7 +10,6 @@ All Rights Reserved
 <script>
   import {
     Typography,
-    TabBar,
     call,
     notifications,
     notificationsUnread,
@@ -22,10 +21,9 @@ All Rights Reserved
   } from "$lib";
   import InfoCircleIcon from "$lib/icon/info-circle.svelte";
   import { Pane } from "svelte-splitpanes";
-  import { CloseButton, Button, Toast, Progressbar } from "flowbite-svelte";
+  import { CloseButton, Toast } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
-  import { get } from "svelte/store";
   import { goto } from "$app/navigation";
   import Notif from "./Notif.svelte";
 
@@ -45,10 +43,6 @@ All Rights Reserved
       },
     ],
   });
-
-  const changeTabbar = (tabName) => {
-    tabDatas.selected = tabName;
-  };
 
   async function getNotifications() {
     let token = localStorage.getItem("token");
@@ -181,7 +175,9 @@ All Rights Reserved
 </script>
 
 <Pane size={innerWidth > 1024 ? 40 : 100} minSize={innerWidth > 1024 ? 40 : 100}>
-  <div class="h-screen transition-all duration-300 border-l-2 border-gray-200 dark:border-gray-800">
+  <div
+    class="h-screen transition-all duration-300 md:border-l-2 border-gray-200 dark:border-gray-800"
+  >
     <div class="sticky top-0 z-10">
       <div class="flex items-center">
         <div
@@ -223,9 +219,9 @@ All Rights Reserved
                   <InfoCircleIcon svgClass="w-6 h-6" />
                 </svelte:fragment>
 
-                <span class="font-semibold text-gray-900 dark:text-white"
-                  >{data.attributes.title}</span
-                >
+                <span class="font-semibold text-gray-900 dark:text-white">
+                  {data.attributes.title}
+                </span>
                 <div class="mt-1">
                   <div class="mb-2 text-sm font-normal">
                     {data.attributes.content}
