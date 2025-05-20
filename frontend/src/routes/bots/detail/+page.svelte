@@ -1389,7 +1389,7 @@
 {#if ready}
   <div class="m-4 pb-12">
     <div class="sticky z-[1] top-0 bg-primary-light dark:bg-primary-dark">
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col md:flex-row gap-4 justify-between md:items-center">
         <div class="flex items-center ms-4">
           <Avatar
             class="size-10 md:size-14 border-[1px] border-hc-graylight-200"
@@ -1414,56 +1414,22 @@
             />
           </div>
         </div>
-        {#if onEdit}
-          <div class="hidden md:flex gap-2">
+        <div class="flex gap-2">
+          {#if onEdit}
             <Button
               onclick={() => {
                 onEdit = false;
                 getBot();
               }}
               color="light"
-              class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+              class="w-full px-3 focus-within:!ring-1"
             >
-            <Button on:click={() => updateBot()} class="px-3 focus-within:!ring-1">
+              {$_("cancel")}
+            </Button>
+            <Button on:click={() => updateBot()} class="w-full px-3 focus-within:!ring-1">
               {$_("save")}
             </Button>
-          </div>
-          <div onfocusout={handleDropdownFocusLoss} class="flex md:hidden items-center relative">
-            <Button
-              on:click={() => (dropdownOpen = !dropdownOpen)}
-              class="focus-within:ring-0 !p-0"
-              color="none"
-              size="xs"
-            >
-              <DotsVerticalIcon svgClass="text-fg-quinary-light dark:text-fg-quinary-dark" />
-            </Button>
-            <div
-              class={`z-10 ${dropdownOpen ? "absolute top-0 right-6" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-            >
-              <ul class="py-2 grow text-sm">
-                <button
-                  class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                  onclick={() => {
-                    (onEdit = false), (dropdownOpen = !dropdownOpen);
-                    getBot();
-                  }}
-                >
-                  {$_("cancel")}
-                </button>
-                <button
-                  class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                  onclick={() => {
-                    (onEdit = false), (dropdownOpen = !dropdownOpen);
-                    updateBot();
-                  }}
-                >
-                  {$_("save")}
-                </button>
-              </ul>
-            </div>
-          </div>
-        {:else}
-          <div class="hidden md:flex gap-2">
+          {:else}
             <Button
               onclick={async function () {
                 if (isFrontend) {
@@ -1473,54 +1439,28 @@
                 }
               }}
               color="light"
-              class="px-3 focus-within:!ring-1">{$_("back")}</Button
+              class="w-full px-3 focus-within:!ring-1"
             >
+              {$_("back")}
+            </Button>
             <Button
               onclick={() => (modalDelete = true)}
               outline
               color="red"
-              class="px-3 focus-within:!ring-1">{$_("delete")}</Button
+              class="w-full px-3 focus-within:!ring-1"
             >
+              {$_("delete")}
+            </Button>
             <Button
               onclick={() => {
                 onEdit = true;
               }}
-              class="px-3 focus-within:!ring-1">{$_("edit")}</Button
+              class="w-full px-3 focus-within:!ring-1"
             >
-          </div>
-          <div onfocusout={handleDropdownFocusLoss} class="flex md:hidden items-center relative">
-            <Button
-              on:click={() => (dropdownOpen = !dropdownOpen)}
-              class="focus-within:ring-0 !p-0"
-              color="none"
-              size="xs"
-            >
-              <DotsVerticalIcon svgClass="text-fg-quinary-light dark:text-fg-quinary-dark" />
+              {$_("edit")}
             </Button>
-            <div
-              class={`z-10 ${dropdownOpen ? "absolute top-0 right-6" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-            >
-              <ul class="py-2 grow text-sm">
-                <button
-                  class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                  onclick={() => {
-                    (onEdit = true), (dropdownOpen = !dropdownOpen);
-                  }}
-                >
-                  {$_("edit")}
-                </button>
-                <button
-                  class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                  onclick={() => {
-                    (modalDelete = true), (dropdownOpen = !dropdownOpen);
-                  }}
-                >
-                  {$_("delete")}
-                </button>
-              </ul>
-            </div>
-          </div>
-        {/if}
+          {/if}
+        </div>
       </div>
 
       <!-- Submenu -->

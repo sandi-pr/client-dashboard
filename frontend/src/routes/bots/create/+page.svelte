@@ -781,72 +781,35 @@
 <svelte:window bind:innerWidth={screenWidth} />
 
 <div class="m-4 pb-12">
-  <div class="flex justify-between">
+  <div class="flex flex-col md:flex-row gap-4 justify-between">
     <Typography preset="Display sm/Semibold" text={$_("createNewBots")} />
     <div class="flex text-sm gap-3">
-      <div class="hidden md:flex gap-2">
-        <Button
-          on:click={async () => {
-            if (isFrontend) {
-              goto("/bots");
-            } else {
-              goto(await $call.getPage("client-dashboard", "bots"));
-            }
-          }}
-          color="light"
-        >
-          {$_("cancel")}
-        </Button>
-        <Button
-          disabled={botName === "" ||
-          selectedplatforms === "" ||
-          platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai"
-            ? selectedCollection === ""
-            : false}
-          on:click={() => {
-            createBot();
-          }}
-          class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
-        >
-          {$_("create")}
-        </Button>
-      </div>
-      <div onfocusout={handleDropdownFocusLoss} class="flex md:hidden items-center relative">
-        <Button
-          on:click={() => (dropdownOpen = !dropdownOpen)}
-          class="focus-within:ring-0 !p-0"
-          color="none"
-          size="xs"
-        >
-          <DotsVerticalIcon svgClass="text-fg-quinary-light dark:text-fg-quinary-dark" />
-        </Button>
-        <div
-          class={`z-10 ${dropdownOpen ? "absolute top-0 right-6" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-        >
-          <ul class="py-2 grow text-sm">
-            <button
-              class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-              onclick={async () => {
-                if (isFrontend) {
-                  goto("/bots");
-                } else {
-                  goto(await $call.getPage("client-dashboard", "bots"));
-                }
-              }}
-            >
-              {$_("cancel")}
-            </button>
-            <button
-              class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-              onclick={() => {
-                createBot();
-              }}
-            >
-              {$_("create")}
-            </button>
-          </ul>
-        </div>
-      </div>
+      <Button
+        on:click={async () => {
+          if (isFrontend) {
+            goto("/bots");
+          } else {
+            goto(await $call.getPage("client-dashboard", "bots"));
+          }
+        }}
+        color="light"
+        class="w-full"
+      >
+        {$_("cancel")}
+      </Button>
+      <Button
+        disabled={botName === "" ||
+        selectedplatforms === "" ||
+        platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai"
+          ? selectedCollection === ""
+          : false}
+        on:click={() => {
+          createBot();
+        }}
+        class="w-full bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
+      >
+        {$_("create")}
+      </Button>
     </div>
   </div>
 

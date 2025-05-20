@@ -105,7 +105,6 @@
     <Typography
       text={cardDataSelected?.raw?.model?.name || "Large Language Models Lists"}
       preset="Display sm/Semibold"
-      propClass="text-center md:text-left"
     />
     <div class="flex gap-4">
       <Search
