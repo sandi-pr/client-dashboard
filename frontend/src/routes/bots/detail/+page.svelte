@@ -10,7 +10,7 @@
   This file is part of the "Crossroads" project.
 -->
 <script>
-  import { P, Avatar, Button, Indicator, Modal } from "flowbite-svelte";
+  import { Avatar, Button, Indicator, Modal } from "flowbite-svelte";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
@@ -38,15 +38,6 @@
   import { onMount } from "svelte";
   import { page } from "$app/stores";
   import { findIconFromModelName, getIcons } from "$lib";
-  // import Highlight from "svelte-highlight";
-  // import typescript from "svelte-highlight/languages/typescript";
-  // import github from "svelte-highlight/styles/github";
-
-  // const API_URL = process.env.NODE_ENV === "development" ? PUBLIC_API_URL_DEV : PUBLIC_API_URL_PROD;
-  // const STRAPI_URL =
-  //   process.env.NODE_ENV === "development"
-  //     ? PUBLIC_STRAPI_MOTHERSHIP_DEV
-  //     : PUBLIC_STRAPI_MOTHERSHIP_PROD;
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -67,7 +58,6 @@
   let modalOverlayColor = $state(false);
   let dropdownBgAlignOpen = $state(false);
   let modalDelete = $state(false);
-  let background_align = $state("center");
   let bgAlign = $state([
     { name: "Center", value: "center" },
     { name: "Left", value: "left" },
@@ -82,7 +72,6 @@
   let gettingDatas = $state(false);
   let datasChecked = $state([]);
   let tmpDatasChecked = $state([]);
-  let configs = $state({});
   let configsChecked = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
@@ -99,11 +88,9 @@
   let allData = $state([]);
   let search = $state(false);
   let searchCategory = $state({});
-  let pages = $state(1);
   let disabledButton = $state(false);
   let collectionsChecked = $state([]);
   let checkAll = $state(false);
-  let selectCategories = $state(null);
   let datasCategoriesChecked = $state({});
   let configsCategories = $state({});
   let searchTermCategory = $state({});
@@ -177,75 +164,12 @@
       : "Unknown Color";
   }
 
-  let timeoutId;
-  // old
-  // const handleSearch = async (value) => {
-  //   pagination.page = 1;
-  //   searchTerm = value;
-
-  //   await getDocuments(1);
-  // };
   const handleSearch = async (value) => {
     search = true;
     pagination.page = 1;
     searchTerm = value;
 
     await getCollectionSub(selectedCollection);
-  };
-
-  let conversationDatas = [
-    {
-      id: 1,
-      timestamp: "03/19/2024 22:57",
-      customerName: "Elias Hoppe IV",
-      conversationId: "4c64986428240cn948929284",
-      actions: {
-        objects: [
-          {
-            name: "View",
-            href: "/conversation_logs",
-          },
-        ],
-      },
-    },
-    {
-      id: 2,
-      timestamp: "03/20/2024 09:15",
-      customerName: "Amelia Jones",
-      conversationId: "8d74683756ds33l90928f",
-      actions: {
-        objects: [
-          {
-            name: "View",
-            href: "/conversation_logs",
-          },
-        ],
-      },
-    },
-    {
-      id: 3,
-      timestamp: "03/21/2024 13:45",
-      customerName: "Mikhail Petrov",
-      conversationId: "5f739dks76402dk23kj4",
-      actions: {
-        objects: [
-          {
-            name: "View",
-            href: "/conversation_logs",
-          },
-        ],
-      },
-    },
-  ];
-
-  let conversationConfigs = {
-    search: handleSearch,
-    pagination: {
-      page: 1,
-      pageSize: 5,
-      pageCount: 1,
-      total: 5,
-    },
   };
 
   async function getCollections() {
@@ -765,8 +689,6 @@
   }
 
   let formattedDate = "Created on 2021-08-12 14:00 PM";
-
-  let code = `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="http://webchat.hexacode.org/19ca7b92-4bfd-4c20-b6ab-048207e66258"></iframe>`;
 
   async function getModels() {
     let token = localStorage.getItem("token");
@@ -1354,8 +1276,6 @@
     }
   }
 
-  async function getDocumentsByCategory() {}
-
   const handleSearchCategory = async (value, category) => {
     searchCategory[category] = true;
     configsCategories[category].pagination.page = 1;
@@ -1459,8 +1379,6 @@
     }
   });
 
-  // $: disabledButton = users.botName === "" || users.username === "";
-
   $effect(() => {
     if (disabledButton) {
       disabledButton = users.botName === "" || users.username === "";
@@ -1468,17 +1386,10 @@
   });
 </script>
 
-<!-- <svelte:head>
-  {@html github}
-</svelte:head> -->
-
-<!-- <svelte:window bind:innerWidth={screenWidth} /> -->
-
-<!-- <LoadingSpinner {isLoading} /> -->
 {#if ready}
   <div class="m-4 pb-12">
     <div class="sticky z-[1] top-0 bg-primary-light dark:bg-primary-dark">
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col md:flex-row gap-4 justify-between md:items-center">
         <div class="flex items-center ms-4">
           <Avatar
             class="size-10 md:size-14 border-[1px] border-hc-graylight-200"
@@ -1511,66 +1422,43 @@
                 getBot();
               }}
               color="light"
-              class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
+              class="w-full px-3 focus-within:!ring-1"
             >
-            <Button on:click={() => updateBot()} class="px-3 focus-within:!ring-1"
-              >{$_("save")}</Button
-            >
+              {$_("cancel")}
+            </Button>
+            <Button on:click={() => updateBot()} class="w-full px-3 focus-within:!ring-1">
+              {$_("save")}
+            </Button>
           {:else}
-            <div class="hidden md:flex gap-2">
-              <Button
-                onclick={async function () {
-                  if (isFrontend) {
-                    goto("/bots");
-                  } else {
-                    goto(await $call.getPage("client-dashboard", "bots"));
-                  }
-                }}
-                color="light"
-                class="px-3 focus-within:!ring-1">{$_("back")}</Button
-              >
-              <Button
-                onclick={() => (modalDelete = true)}
-                outline
-                color="red"
-                class="px-3 focus-within:!ring-1">{$_("delete")}</Button
-              >
-              <Button
-                onclick={() => {
-                  onEdit = true;
-                }}
-                class="px-3 focus-within:!ring-1">{$_("edit")}</Button
-              >
-            </div>
-            <div onfocusout={handleDropdownFocusLoss} class="flex md:hidden items-center relative">
-              <Button
-                on:click={() => (dropdownOpen = !dropdownOpen)}
-                class="focus-within:ring-0 !p-0"
-                color="none"
-                size="xs"
-                ><DotsVerticalIcon
-                  class="text-fg-quinary-light dark:text-fg-quinary-dark"
-                /></Button
-              >
-              <div
-                class={`z-10 ${dropdownOpen ? "absolute top-0 right-6" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-max dark:bg-gray-700`}
-              >
-                <ul class="py-2 grow text-sm">
-                  <button
-                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    onclick={() => {
-                      (onEdit = true), (dropdownOpen = !dropdownOpen);
-                    }}>{$_("edit")}</button
-                  >
-                  <button
-                    class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                    onclick={() => {
-                      (modalDelete = true), (dropdownOpen = !dropdownOpen);
-                    }}>{$_("delete")}</button
-                  >
-                </ul>
-              </div>
-            </div>
+            <Button
+              onclick={async function () {
+                if (isFrontend) {
+                  goto("/bots");
+                } else {
+                  goto(await $call.getPage("client-dashboard", "bots"));
+                }
+              }}
+              color="light"
+              class="w-full px-3 focus-within:!ring-1"
+            >
+              {$_("back")}
+            </Button>
+            <Button
+              onclick={() => (modalDelete = true)}
+              outline
+              color="red"
+              class="w-full px-3 focus-within:!ring-1"
+            >
+              {$_("delete")}
+            </Button>
+            <Button
+              onclick={() => {
+                onEdit = true;
+              }}
+              class="w-full px-3 focus-within:!ring-1"
+            >
+              {$_("edit")}
+            </Button>
           {/if}
         </div>
       </div>
@@ -1650,13 +1538,17 @@
               color="secondary"
               propClass="w-full md:w-1/4"
             />
-            <div class="w-full md:w-3/4">
+            <div class="w-full md:w-3/4 mt-2 md:mt-0">
               <div class="flex items-center gap-4">
                 <Button
-                  on:click={() => (modalOpen = true)}
-                  disabled={!onEdit}
-                  color="light"
-                  class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
+                  on:click={() => {
+                    if (onEdit) {
+                      modalOpen = true;
+                    }
+                  }}
+                  class="w-max rounded-lg border gap-1.5 flex justify-between items-center py-2.5 px-3 {!onEdit
+                    ? 'cursor-not-allowed focus:ring-0 border-disabled-subtle-light dark:border-disabled-subtle-dark hover:border-disabled-subtle-light hover:dark:border-disabled-subtle-dark focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark hover:bg-disabled-subtle-light dark:hover:bg-disabled-subtle-dark text-disabled-light dark:text-disabled-dark'
+                    : 'border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark focus:ring-0'}"
                 >
                   <Typography
                     preset="Text md/Semibold"
@@ -1709,8 +1601,7 @@
             color="secondary"
             propClass="w-full md:w-1/4"
           />
-
-          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="flex flex-col gap-1.5 col-span-4">
               <Typography preset="Text sm/Medium" text={$_("welcomeMessage")} color="secondary" />
               <TextareaRw bind:value={users.welcomeMessage} {onEdit} />
@@ -1753,7 +1644,7 @@
             color="secondary"
             propClass="w-full md:w-1/4"
           />
-          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4">
+          <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4">
             <div class="col-span-4">
               <Toggle {onEdit} bind:checked={users.logoOnly} text="logoOnly" />
             </div>
@@ -1780,7 +1671,7 @@
             color="secondary"
             propClass="w-full md:w-1/4"
           />
-          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="flex flex-col gap-1.5 col-span-2">
               <Typography
                 preset="Text sm/Medium"
@@ -1788,14 +1679,15 @@
                 color="secondary"
               />
               <Button
-                on:click={!onEdit
-                  ? () => {}
-                  : () => {
-                      tmpThemeColor = users.primaryBrandColor;
-                      modalThemeColor = true;
-                    }}
-                class={`flex justify-between ${!onEdit ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark`}
-                color="light"
+                on:click={() => {
+                  if (onEdit) {
+                    tmpThemeColor = users.primaryBrandColor;
+                    modalThemeColor = true;
+                  }
+                }}
+                class="flex justify-between border {!onEdit
+                  ? 'cursor-not-allowed focus:ring-0 border-disabled-subtle-light dark:border-disabled-subtle-dark hover:border-disabled-subtle-light hover:dark:border-disabled-subtle-dark focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark hover:bg-disabled-subtle-light dark:hover:bg-disabled-subtle-dark text-disabled-light dark:text-disabled-dark'
+                  : 'border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark focus:ring-0'}"
               >
                 <div class="flex items-center gap-2">
                   <Indicator color={getBrandColorName(users.primaryBrandColor)} />
@@ -1816,7 +1708,7 @@
             color="secondary"
             propClass="w-full md:w-1/4"
           />
-          <div class="w-full md:w-3/4">
+          <div class="w-full md:w-3/4 mt-2 md:mt-0">
             <SelectedCard
               selectionData={layouts}
               bind:selectedData={users.layout}
@@ -1837,7 +1729,7 @@
               color="secondary"
               propClass="w-full md:w-1/4"
             />
-            <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-4">
               <div class="col-span-4">
                 <UploadFile
                   title={$_("backgroundPicture")}
@@ -1894,7 +1786,7 @@
             color="secondary"
             propClass="w-full md:w-1/4"
           />
-          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
               <Toggle {onEdit} bind:checked={users.needAuth} text="requiresLogin" />
             </div>
@@ -1911,7 +1803,7 @@
             color="secondary"
             propClass="w-full md:w-1/4"
           />
-          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-4">
               <div
                 class="flex flex-col w-full border border-secondary-light dark:border-secondary-dark rounded-lg"
@@ -2154,7 +2046,7 @@
             propClass="w-full md:w-1/4"
           />
 
-          <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-4">
             <Button
               outline
               on:click={() => copyToClipboard(users.embedCode)}

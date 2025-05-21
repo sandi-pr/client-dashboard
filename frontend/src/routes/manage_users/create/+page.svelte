@@ -83,10 +83,6 @@ All Rights Reserved
     }
   }
 
-  function deleteResource(id) {
-    // resources = resources.filter(resource => resource.id !== id);
-  }
-
   async function backPage() {
     let link = isFrontend ? "/manage_users" : await $call.getPage("client-dashboard", "users");
     goto(link);
@@ -191,7 +187,7 @@ All Rights Reserved
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- Header -->
-      <div class="flex items-center pb-8">
+      <div class="flex flex-col md:flex-row md:items-center gap-4">
         <div class="flex flex-col gap-2 grow">
           <!-- Header -->
           <div class="gap-2">
@@ -199,15 +195,15 @@ All Rights Reserved
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
             >
-              Create New Users
+              {$_("createNewUser")}
             </Heading>
           </div>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 justify-end">
           {#if onEdit}
-            <Button onclick={backPage} color="light" class="px-3 focus-within:!ring-1"
-              >{$_("cancel")}</Button
-            >
+            <Button onclick={backPage} color="light" class="px-3 focus-within:!ring-1">
+              {$_("cancel")}
+            </Button>
             <Button
               disabled={data.fullname === "" ||
                 data.username === "" ||
@@ -221,9 +217,9 @@ All Rights Reserved
           {/if}
         </div>
       </div>
-      <div class="flex flex-col gap-4 pt-8">
+      <div class="mt-8 md:mt-16">
         <!-- general information -->
-        <div class="flex gap-6">
+        <div class="flex flex-col md:flex-row gap-6">
           <div class="w-60">
             <P class="font-semibold text-secondary-light dark:text-secondary-dark">
               {$_("generalInformation")}
@@ -231,7 +227,7 @@ All Rights Reserved
           </div>
           <div class="flex flex-col grow gap-6">
             <div class="grid grid-cols-6 gap-5">
-              <div class="flex flex-col col-span-3 gap-2">
+              <div class="flex flex-col col-span-6 md:col-span-3 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -239,7 +235,7 @@ All Rights Reserved
                 </P>
                 <Input readonly={!onEdit} bind:value={data.fullname} class={inputClass()} />
               </div>
-              <div class="flex flex-col col-span-3 gap-2">
+              <div class="flex flex-col col-span-6 md:col-span-3 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -247,7 +243,7 @@ All Rights Reserved
                 </P>
                 <Input readonly={!onEdit} bind:value={data.username} class={inputClass()} />
               </div>
-              <div class="flex flex-col col-span-3 gap-2">
+              <div class="flex flex-col col-span-6 md:col-span-3 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -263,7 +259,7 @@ All Rights Reserved
                   <Helper class="text-sm !text-red-400 pt-2">{$_("emailNotValid")}</Helper>
                 {/if}
               </div>
-              <div class="flex flex-col col-span-3 gap-2">
+              <div class="flex flex-col col-span-6 md:col-span-3 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >
@@ -292,7 +288,7 @@ All Rights Reserved
                   <Helper class="text-sm !text-red-400 pt-2">{$_("passwordInfo")}</Helper>
                 {/if}
               </div>
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col col-span-6 md:col-span-1 gap-2">
                 <P
                   class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >

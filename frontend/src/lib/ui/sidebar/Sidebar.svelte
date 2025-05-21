@@ -10,15 +10,15 @@
 -->
 
 <script lang="ts">
-  import { Typography, showAI } from "$lib";
-  import { Drawer, Button, CloseButton, P } from "flowbite-svelte";
+  import { Typography, showAI, LanguageSelector } from "$lib";
+  import { Drawer, Button, DarkMode } from "flowbite-svelte";
   import SidebarList from "./SidebarList.svelte";
   import LogoIcon from "$lib/icon/Logomark.svg";
   import MenuIcon from "$lib/icon/menu-02.svelte";
-  import ArrowLeftIcon from "$lib/icon/arrow-left.svelte";
   import { sineIn } from "svelte/easing";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
+  import { sidebarLargeClosed } from "$lib/utils/sidebarLargeClosed";
   let hidden2 = $state(true);
   let transitionParams = {
     x: -320,
@@ -68,7 +68,9 @@
   {transitionParams}
   bind:hidden={hidden2}
   class="!p-0"
-  divClass="overflow-y-hidden hover:overflow-y-auto !z-50 p-4 bg-white dark:bg-gray-800"
+  divClass="overflow-y-hidden hover:overflow-y-auto !z-50 p-4 bg-white dark:bg-gray-800 {$sidebarLargeClosed
+    ? '!w-20 [&>aside]:!w-20'
+    : '!w-80'}"
 >
   <!-- <div class="fixed z-10 top-3 left-[280px]"> -->
   <!-- <div class="absolute z-50 top-3 start-[280px]">
@@ -82,7 +84,6 @@
     {brand}
     {logoUrl}
     isHidden={false}
-    funcButton={() => (hidden2 = true)}
     {logout}
     {innerWidth}
   />
@@ -97,7 +98,6 @@
   {brand}
   {logoUrl}
   isHidden={innerWidth < 1024}
-  funcButton={() => (hidden2 = true)}
   {logout}
   {innerWidth}
 />
@@ -107,20 +107,17 @@
   <div
     class="lg:hidden fixed top-0 w-full z-40 px-2 py-1 md:py-3 justify-between items-center flex"
   >
-    <!-- {#if currentUrl.startsWith('/client-dashboard/') && currentUrl.split('/').length > 3}
-      <div class="p-2 rounded-lg justify-center items-center flex">
-        <Button on:click={() => history.back()} color="light" class="p-2">
-          <ArrowLeftIcon svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark" />
-        </Button>
-      </div>
-    {/if} -->
     <div class="justify-between items-center gap-2 pl-2 flex">
       <div class="w-8 h-8 justify-center items-center flex">
         <img alt="logo" src={logoUrl !== "" ? logoUrl : LogoIcon} class="w-8 h-8" />
       </div>
       <Typography preset="Text lg/Bold" text={brand} color="primary" />
     </div>
-    <div class="p-2 rounded-lg justify-center items-center flex">
+    <div class="p-2 rounded-lg justify-center items-center flex gap-2">
+      <DarkMode
+        btnClass="text-gray-500 h-max dark:text-gray-400 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600 focus-within:ring-4 focus-within:outline-none focus-within:ring-gray-200 dark:focus-within:ring-gray-700"
+      />
+      <LanguageSelector isMobileScreen />
       <Button on:click={() => (hidden2 = false)} color="light" class="p-2">
         <MenuIcon svgClass="w-6 h-6 text-fg-secondary-light dark:text-fg-secondary-dark" />
       </Button>

@@ -991,22 +991,22 @@
       {:else if tabDatas.selected === "Theme"}
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
-            <div class="grid grid-cols-4">
-              <div class="col-span-1">
+            <div class="grid grid-cols-4 gap-2 md:gap-0">
+              <div class="col-span-4 md:col-span-1">
                 <Typography preset="Text lg/Semibold" text={$_("sidebarTitle")} color="secondary" />
               </div>
-              <div class="col-span-3 flex flex-col w-full gap-2">
+              <div class="col-span-4 md:col-span-3 flex flex-col w-full gap-2">
                 <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
                 <InputRw bind:value={sidebarTitle} onEdit={onEditTheme} />
               </div>
             </div>
           </div>
           <div class="py-8 border-b border-secondary-light dark:border-secondary-dark">
-            <div class="grid grid-cols-4">
-              <div class="col-span-1">
+            <div class="grid grid-cols-4 gap-2 md:gap-0">
+              <div class="col-span-4 md:col-span-1">
                 <Typography preset="Text lg/Semibold" text={$_("companyLogo")} color="secondary" />
               </div>
-              <div class="col-span-3 flex w-full">
+              <div class="col-span-4 md:col-span-3 flex w-full">
                 <Avatar class="size-12" src={fileImageName ? fileImageResult : ""} />
                 <div class="grow ml-3">
                   <Button
@@ -1039,11 +1039,11 @@
             </div>
           </div>
           <div class="py-8">
-            <div class="grid grid-cols-4">
-              <div class="col-span-1">
+            <div class="grid grid-cols-4 gap-2 md:gap-0">
+              <div class="col-span-4 md:col-span-1">
                 <Typography preset="Text lg/Semibold" text={$_("themeColors")} color="secondary" />
               </div>
-              <div class="col-span-3 flex flex-col w-1/3 gap-2">
+              <div class="col-span-4 md:col-span-3 flex flex-col w-1/3 gap-2">
                 <Typography
                   preset="Text sm/Medium"
                   text={$_("primaryBrandColor")}
@@ -1165,15 +1165,15 @@
       {:else if tabDatas.selected === "Advanced"}
         <div class="mx-4 mt-4">
           <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
-            <div class="grid grid-cols-4">
-              <div class="col-span-1">
+            <div class="grid grid-cols-4 gap-2 md:gap-0">
+              <div class="col-span-4 md:col-span-1">
                 <Typography
                   preset="Text lg/Semibold"
                   text={$_("enableInsights")}
                   color="secondary"
                 />
               </div>
-              <div class="col-span-3 flex w-full">
+              <div class="col-span-4 md:col-span-3 flex w-full">
                 <div class="col-span-4">
                   <label class="inline-flex gap-3 items-center cursor-pointer">
                     <input

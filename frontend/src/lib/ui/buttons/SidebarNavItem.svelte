@@ -31,10 +31,18 @@
   function extractPath(url) {
     if (!url) return;
     const match = url.match(/^(?:https?:\/\/)?[^\/]+(\/[^?#]*)/);
-    return match ? match[1] : url;
+    return match ? "/" + match[1].split("/")[1] : url;
   }
 
   let activeUrl = $derived("/" + $page.url.pathname.split("/")[isFrontend ? 1 : 2]);
+
+  $effect(() => {
+    if (!isFrontend) {
+      console.log("activeUrl", activeUrl);
+      console.log("href", href);
+      console.log("extractPath(href)", extractPath(href));
+    }
+  });
 </script>
 
 <button
@@ -47,7 +55,7 @@
     goto(href);
   }}
 >
-  <div class="flex gap-3">
+  <div class="flex {$sidebarLargeClosed ? '' : 'gap-3'}">
     <div class="w-max">
       {#if icon}
         <svelte:component this={getIcons(icon)} svgClass={classesSvg} />

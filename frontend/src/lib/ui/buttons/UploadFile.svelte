@@ -59,14 +59,6 @@ All Rights Reserved
   let selectedFile = $state(null);
   let expanded = $state({});
 
-  const textFileType = (type) => {
-    if (type === "document") {
-      return "PDF (Max. 15MB)";
-    } else {
-      return "";
-    }
-  };
-
   function actionDeleteFile(fileToDelete) {
     const index = files.findIndex((file) => file === fileToDelete);
     if (index !== -1) {
@@ -168,7 +160,9 @@ All Rights Reserved
       <Button
         on:click={disabled ? () => {} : handleFileUploadWrapper}
         color="light"
-        class={`grow rounded-xl ${disabled ? "cursor-default focus-within:ring-0 hover:bg-primary-light hover:dark:bg-secondary-dark" : ""} border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark gap-3 py-4 flex flex-col justify-start items-center`}
+        class="grow rounded-xl border gap-3 py-4 flex flex-col justify-start items-center {disabled
+          ? 'cursor-not-allowed focus:ring-0 border-disabled-subtle-light dark:border-disabled-subtle-dark hover:border-disabled-subtle-light hover:dark:border-disabled-subtle-dark focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark hover:bg-disabled-subtle-light dark:hover:bg-disabled-subtle-dark text-disabled-light dark:text-disabled-dark'
+          : 'border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark focus:ring-0'}"
       >
         <div
           class="rounded-xl p-2.5 shadow border border-primary-light dark:border-primary-dark justify-center items-center"
@@ -181,7 +175,6 @@ All Rights Reserved
             text={$_("clickToUpload")}
             color="brand-secondary"
           />
-          <!-- <Typography preset="Text xs/Regular" text={textFileType(type)} color="tertiary" /> -->
         </div>
       </Button>
     </div>

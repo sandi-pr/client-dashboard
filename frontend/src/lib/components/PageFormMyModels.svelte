@@ -563,7 +563,7 @@
 <svelte:window bind:innerWidth={screenWidth} />
 
 <div class="m-4 pb-12">
-  <div class="flex justify-between">
+  <div class="flex flex-col md:flex-row gap-4 justify-between">
     <Typography preset="Display sm/Semibold" text={$_("deployMyModel")} />
     <div class="flex text-sm gap-3">
       {#if botId !== null || modelId !== null}
@@ -575,17 +575,17 @@
               getModels();
             }}
             color="light"
-            class="px-3 focus-within:!ring-1"
+            class="w-full px-3 focus-within:!ring-1"
           >
             {$_("cancel")}
           </Button>
-          <Button on:click={() => updateBot()} class="px-3 focus-within:!ring-1">
+          <Button on:click={() => updateBot()} class="w-full px-3 focus-within:!ring-1">
             {$_("save")}
           </Button>
         {:else}
           <Button
             color="light"
-            class="px-3 focus-within:!ring-1"
+            class="w-full px-3 focus-within:!ring-1"
             on:click={async () => {
               if (isFrontend) {
                 goto("/llms/my_models");
@@ -600,7 +600,7 @@
             onclick={() => (modalDelete = true)}
             outline
             color="red"
-            class="px-3 focus-within:!ring-1"
+            class="w-full px-3 focus-within:!ring-1"
           >
             {$_("delete")}
           </Button>
@@ -608,7 +608,7 @@
             onclick={() => {
               editable = true;
             }}
-            class="px-3 focus-within:!ring-1"
+            class="w-full px-3 focus-within:!ring-1"
           >
             {$_("edit")}
           </Button>
@@ -623,6 +623,7 @@
             }
           }}
           color="light"
+          class="w-full"
         >
           {$_("cancel")}
         </Button>
@@ -632,7 +633,7 @@
             // await createModel();
             modalUpload = true;
           }}
-          class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
+          class="w-full bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
         >
           {$_("deploy")}
         </Button>

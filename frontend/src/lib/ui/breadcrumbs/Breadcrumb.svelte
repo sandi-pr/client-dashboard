@@ -243,7 +243,11 @@
                   queryParams[key] = value;
                 }
                 const queryString = new URLSearchParams(queryParams).toString();
-                goto(`${baseUrl}${item.href}?${queryString}`);
+                // console.log(`check url: ${baseUrl}${item.href}?${queryString}`);
+                const newLink = isFrontend
+                  ? `${item.href}?${queryString}`
+                  : `${baseUrl}${item.href}?${queryString}`;
+                goto(newLink);
               }}
             >
               {#if detail && title !== null && index === activeUrlArray.length - 1}
@@ -264,7 +268,7 @@
         </li>
 
         <!-- Render ellipsis between the first and the second-to-last item -->
-        {#if isMobile && activeUrlArray.length > 1 && index === 0}
+        {#if isMobile && activeUrlArray.length > 2 && index === 0}
           <li class="inline-flex items-center">
             <ChevronRightIcon svgClass="w-4 h-4 text-fg-senary-light dark:text-fg-senary-dark" />
             <span class={spanClass}>...</span>

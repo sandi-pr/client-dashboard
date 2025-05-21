@@ -25,7 +25,6 @@
     InputRw,
     TextareaRw,
     StateCard,
-    Dropdown,
   } from "$lib";
   import { findIconFromModelName } from "$lib";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
@@ -33,13 +32,12 @@
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
+  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let dropdownCollectionOpen = false;
   let collections = $state([]);
   let initCollections = $state([]);
-  let documents = $state([]);
 
   let botName = $state("");
   let description = $state("");
@@ -58,7 +56,6 @@
   let search = $state(false);
   // let page = $state(1);
   let checkAll = $state(false);
-  let stateCheckAll = $state("");
   let datasChecked = $state([]);
   let tmpDatasChecked = $state({});
   let configs = $state({});
@@ -72,138 +69,10 @@
     { name: "Coding Assistant", value: "codingAssistant" },
   ]);
   let usecaseSelected = $state("myBots");
-
   let platforms = $state([]);
-
-  let selectedDays = [
-    {
-      name: "Monday",
-      label: "M",
-      selected: false,
-    },
-    {
-      name: "Tuesday",
-      label: "T",
-      selected: false,
-    },
-    {
-      name: "Wednesday",
-      label: "W",
-      selected: true,
-    },
-    {
-      name: "Thursday",
-      label: "T",
-      selected: true,
-    },
-    {
-      name: "Friday",
-      label: "F",
-      selected: true,
-    },
-    {
-      name: "Saturday",
-      label: "S",
-      selected: false,
-    },
-    {
-      name: "Sunday",
-      label: "S",
-      selected: false,
-    },
-  ];
-
   let screenWidth = $state(0);
-  let params = [];
-  let products_and_services = [];
-
-  let templates = [
-    {
-      id: 1,
-      attributes: {
-        name: "Template 1",
-        parameters: [
-          {
-            children: [
-              {
-                label: "Parameter 1",
-                required: true,
-                type: "text",
-                placeholder: "Enter Parameter 1",
-                enum: ["Option 1", "Option 2", "Option 3"],
-                description: "Description for Parameter 1",
-              },
-            ],
-          },
-          {
-            label: "Label 1",
-            children: [
-              {
-                list_dict_format: [
-                  {
-                    label: "Field 1",
-                    required: true,
-                    type: "text",
-                    placeholder: "Enter Field 1",
-                    name: "field1",
-                  },
-                  {
-                    label: "Field 2",
-                    required: false,
-                    type: "number",
-                    placeholder: "Enter Field 2",
-                    min: 0,
-                    max: 100,
-                    name: "field2",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    },
-    {
-      id: 2,
-      attributes: {
-        name: "Template 2",
-        parameters: [
-          {
-            children: [
-              {
-                label: "Parameter 2",
-                required: false,
-                type: "number",
-                placeholder: "Enter Parameter 2",
-                enum: ["Option A", "Option B", "Option C"],
-                description: "Description for Parameter 2",
-              },
-            ],
-          },
-        ],
-      },
-    },
-    {
-      id: 3,
-      attributes: {
-        name: "Template 3",
-        parameters: [
-          {
-            children: [
-              {
-                label: "Parameter 3",
-                required: true,
-                type: "text",
-                placeholder: "Enter Parameter 3",
-                enum: ["Option X", "Option Y", "Option Z"],
-                description: "Description for Parameter 3",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ];
+  let platformsReady = $state(false);
+  let dropdownOpen = $state(false);
 
   async function getCollectionSub(id) {
     let token = localStorage.getItem("token");
@@ -480,8 +349,6 @@
     });
   }
 
-  let platformsReady = $state(false);
-
   async function getCollections() {
     let token = localStorage.getItem("token");
 
@@ -599,98 +466,97 @@
       triggerLoading(true);
 
       if (platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai") {
-      let allCollection = "";
+        let allCollection = "";
 
-      // console.log("tmpDatasChecked", tmpDatasChecked);
+        // console.log("tmpDatasChecked", tmpDatasChecked);
 
-      let pageNow = pagination.page;
-      if (tmpDatasChecked[pageNow] === undefined) {
-        tmpDatasChecked = {
-          ...tmpDatasChecked,
-          [pageNow]: datasChecked,
-        };
-      } else {
-        tmpDatasChecked[pageNow] = datasChecked;
-      }
-
-      // Iterasi key dalam tmpDatasChecked
-      Object.values(tmpDatasChecked).forEach((pageData) => {
-        if (!pageData) {
-          triggerLoading(false);
-          return;
-        } // Skip jika pageData undefined/null
-
-        console.log("pageData", pageData);
-
-        const collections = pageData
-          .flatMap((item) => {
-            // Ambil ID dari sub_collection jika checked = true
-            const subCollectionIds =
-              item.sub_collection?.filter((sub) => sub.checked).map((sub) => sub.id) || [];
-
-            // Tambahkan item.id jika checked = true
-            return item.checked ? [item.id, ...subCollectionIds] : subCollectionIds;
-          })
-          .join(","); // Gabungkan ID dengan koma
-
-        console.log("collections check", collections);
-
-        if (collections) {
-          allCollection += collections + ",";
+        let pageNow = pagination.page;
+        if (tmpDatasChecked[pageNow] === undefined) {
+          tmpDatasChecked = {
+            ...tmpDatasChecked,
+            [pageNow]: datasChecked,
+          };
+        } else {
+          tmpDatasChecked[pageNow] = datasChecked;
         }
-      });
 
-      // Hapus koma terakhir jika ada
-      allCollection = allCollection.replace(/,$/, "");
+        // Iterasi key dalam tmpDatasChecked
+        Object.values(tmpDatasChecked).forEach((pageData) => {
+          if (!pageData) {
+            triggerLoading(false);
+            return;
+          } // Skip jika pageData undefined/null
 
-      // console.log("All Collection IDs (checked = true):", allCollection);
-      // return;
+          console.log("pageData", pageData);
 
-      // let collections2 = collections.split(",").map(Number);
+          const collections = pageData
+            .flatMap((item) => {
+              // Ambil ID dari sub_collection jika checked = true
+              const subCollectionIds =
+                item.sub_collection?.filter((sub) => sub.checked).map((sub) => sub.id) || [];
 
-      let dataSend = {
-        bot_name: botName,
-        description: description,
-        ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
-        library_id: selectedCollection,
-        collection_id: checkAll ? "all" : allCollection,
-        additional_prompt: additionalPrompt,
-        need_auth: needAuth,
-      };
-      if (fileImage !== "" && fileImage !== null && fileImage !== undefined) {
-        dataSend.bot_logo = JSON.stringify({ name: fileImageName, base64Data: fileImage });
-      }
+              // Tambahkan item.id jika checked = true
+              return item.checked ? [item.id, ...subCollectionIds] : subCollectionIds;
+            })
+            .join(","); // Gabungkan ID dengan koma
 
-      // console.log("dataSend", dataSend);
+          // console.log("collections check", collections);
 
-      try {
-        const response = await $call.call("client-dashboard", "create-bot", {
-          URLQuery: {},
-          URLParams: {},
-          Params: dataSend,
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
+          if (collections) {
+            allCollection += collections + ",";
+          }
         });
 
-        console.log(response);
+        // Hapus koma terakhir jika ada
+        allCollection = allCollection.replace(/,$/, "");
 
-        if (response.status !== 200) {
-          console.log(response);
-          triggerLoading(false);
-          return;
+        // console.log("All Collection IDs (checked = true):", allCollection);
+        // return;
+
+        // let collections2 = collections.split(",").map(Number);
+
+        let dataSend = {
+          bot_name: botName,
+          description: description,
+          ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
+          library_id: selectedCollection,
+          collection_id: checkAll ? "all" : allCollection,
+          additional_prompt: additionalPrompt,
+          need_auth: needAuth,
+        };
+        if (fileImage !== "" && fileImage !== null && fileImage !== undefined) {
+          dataSend.bot_logo = JSON.stringify({ name: fileImageName, base64Data: fileImage });
         }
 
-        goto(await $call.getPage("client-dashboard", "bots"));
-        triggerLoading(false);
-        triggerToast("created");
-      } catch (error) {
-        triggerLoading(false);
-        console.log(error);
-      }
-    } else {
+        // console.log("dataSend", dataSend);
 
-      const response = await $call.call("client-dashboard", "find-create-library-llm", {
+        try {
+          const response = await $call.call("client-dashboard", "create-bot", {
+            URLQuery: {},
+            URLParams: {},
+            Params: dataSend,
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          // console.log(response);
+
+          if (response.status !== 200) {
+            console.log(response);
+            triggerLoading(false);
+            return;
+          }
+
+          goto(await $call.getPage("client-dashboard", "bots"));
+          triggerLoading(false);
+          triggerToast("created");
+        } catch (error) {
+          triggerLoading(false);
+          console.log(error);
+        }
+      } else {
+        const response = await $call.call("client-dashboard", "find-create-library-llm", {
           URLQuery: {},
           URLParams: {},
           Params: {},
@@ -707,48 +573,48 @@
         let collectionId = response.result.collection_id;
         let libraryId = response.result.library_id;
 
-      let dataSend = {
-        bot_name: botName,
-        description: description,
-        ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
-        library_id: parseInt(libraryId),
-        collection_id: collectionId.toString(),
-        additional_prompt: additionalPrompt,
-        need_auth: needAuth,
-      };
+        let dataSend = {
+          bot_name: botName,
+          description: description,
+          ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
+          library_id: parseInt(libraryId),
+          collection_id: collectionId.toString(),
+          additional_prompt: additionalPrompt,
+          need_auth: needAuth,
+        };
 
-      if (fileImage !== "" && fileImage !== null && fileImage !== undefined) {
-        dataSend.bot_logo = JSON.stringify({ name: fileImageName, base64Data: fileImage });
-      }
-
-      // console.log("dataSend", dataSend);
-
-      try {
-        const response = await $call.call("client-dashboard", "create-bot", {
-          URLQuery: {},
-          URLParams: {},
-          Params: dataSend,
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        console.log(response);
-
-        if (response.status !== 200) {
-          console.log(response);
-          triggerLoading(false);
-          return;
+        if (fileImage !== "" && fileImage !== null && fileImage !== undefined) {
+          dataSend.bot_logo = JSON.stringify({ name: fileImageName, base64Data: fileImage });
         }
 
-        goto(await $call.getPage("client-dashboard", "bots"));
-        triggerLoading(false);
-        triggerToast("created");
-      } catch (error) {
-        triggerLoading(false);
-        console.log(error);
+        // console.log("dataSend", dataSend);
+
+        try {
+          const response = await $call.call("client-dashboard", "create-bot", {
+            URLQuery: {},
+            URLParams: {},
+            Params: dataSend,
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          // console.log(response);
+
+          if (response.status !== 200) {
+            console.log(response);
+            triggerLoading(false);
+            return;
+          }
+
+          goto(await $call.getPage("client-dashboard", "bots"));
+          triggerLoading(false);
+          triggerToast("created");
+        } catch (error) {
+          triggerLoading(false);
+          console.log(error);
+        }
       }
-    }
     } else {
       console.log("no token");
       return;
@@ -846,25 +712,6 @@
     // console.log("datasChecked setelah pembaruan:", datasChecked);
   }
 
-  async function handleCheckSubCollection(parentId, subId) {
-    datasChecked = datasChecked.map((data) => {
-      if (data.id === parentId) {
-        return {
-          ...data,
-          sub_collection: data.sub_collection.map((sub) => {
-            if (sub.id === subId) {
-              return { ...sub, checked: !sub.checked };
-            }
-            return sub;
-          }),
-        };
-      }
-      return data;
-    });
-
-    // console.log("Updated datasChecked (handleCheckSubCollection):", datasChecked);
-  }
-
   function areAllUnchecked() {
     // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
     const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
@@ -910,6 +757,11 @@
     getCollectionSub(selectedCollection);
   }
 
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownOpen = false;
+  };
+
   onMount(() => {
     getCollections();
     getModels();
@@ -929,7 +781,7 @@
 <svelte:window bind:innerWidth={screenWidth} />
 
 <div class="m-4 pb-12">
-  <div class="flex justify-between">
+  <div class="flex flex-col md:flex-row gap-4 justify-between">
     <Typography preset="Display sm/Semibold" text={$_("createNewBots")} />
     <div class="flex text-sm gap-3">
       <Button
@@ -941,15 +793,20 @@
           }
         }}
         color="light"
+        class="w-full"
       >
         {$_("cancel")}
       </Button>
       <Button
-        disabled={botName === "" || selectedplatforms === "" || platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai" ? selectedCollection === "" : false}
+        disabled={botName === "" ||
+        selectedplatforms === "" ||
+        platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai"
+          ? selectedCollection === ""
+          : false}
         on:click={() => {
           createBot();
         }}
-        class="bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
+        class="w-full bg-hc-brand-600 hover:bg-hc-brand-700 dark:bg-hc-brand-600 dark:hover:bg-hc-brand-700"
       >
         {$_("create")}
       </Button>
@@ -964,7 +821,7 @@
         text={$_("botsInformation")}
         propClass="w-full md:w-1/4"
       />
-      <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div class="flex flex-col gap-1.5 col-span-4">
           <Typography preset="Text sm/Medium" text={$_("botsName")} color="secondary" />
           <InputRw bind:value={botName} onEdit />
@@ -991,7 +848,7 @@
         color="secondary"
         propClass="w-full md:w-1/4"
       />
-      <div class="w-full md:w-3/4">
+      <div class="w-full md:w-3/4 mt-2 md:mt-0">
         <SelectedCard
           selectionData={platforms}
           bind:selectedData={selectedplatforms}
@@ -1000,57 +857,39 @@
         />
       </div>
     </div>
-    <!-- <Divider />
-    <div class="md:flex">
-      <Typography
-        preset="Text md/Semibold"
-        text={$_("useCase")}
-        color="secondary"
-        propClass="w-full md:w-1/4"
-      />
-      <div class="w-full md:w-auto">
-        <Dropdown
-          dropdownOpen={dropdownUsecaseOpen}
-          bind:selectedItem={usecaseSelected}
-          items={usecase}
-          isOverlay={true}
-        />
-      </div>
-    </div> -->
     {#if platformsReady}
-    {#if platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai"}
-    <Divider />
-    <div class="md:flex">
-      <Typography
-        preset="Text md/Semibold"
-        text={$_("knowledgeSource")}
-        color="secondary"
-        propClass="w-full md:w-1/4"
-      />
-      <div class="w-full md:w-3/4">
-        <div class="flex items-center gap-4">
-          <Button
-            on:click={() => (modalOpen = true)}
-            color="light"
-            class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
-          >
-            <Typography
-              preset="Text md/Semibold"
-              text={selectedCollection
-                ? collections.find((item) => item.value === selectedCollection)?.name
-                : $_("configure")}
-              color="secondary"
-            />
-            <ChevronDownOutline
-              class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-            />
-          </Button>
+      {#if platforms?.find((platform) => platform.id === selectedplatforms)?.model !== "openai"}
+        <Divider />
+        <div class="md:flex">
+          <Typography
+            preset="Text md/Semibold"
+            text={$_("knowledgeSource")}
+            color="secondary"
+            propClass="w-full md:w-1/4"
+          />
+          <div class="w-full md:w-3/4 mt-2 md:mt-0">
+            <div class="flex items-center gap-4">
+              <Button
+                on:click={() => (modalOpen = true)}
+                color="light"
+                class={`w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3`}
+              >
+                <Typography
+                  preset="Text md/Semibold"
+                  text={selectedCollection
+                    ? collections.find((item) => item.value === selectedCollection)?.name
+                    : $_("configure")}
+                  color="secondary"
+                />
+                <ChevronDownOutline
+                  class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+                />
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      {/if}
     {/if}
-    {/if}
-    
     <Divider />
     <div class="md:flex">
       <Typography
@@ -1059,7 +898,7 @@
         color="secondary"
         propClass="w-full md:w-1/4"
       />
-      <div class="w-full md:w-3/4 flex flex-col gap-1.5">
+      <div class="w-full md:w-3/4 mt-2 md:mt-0 flex flex-col gap-1.5">
         <Typography preset="Text sm/Medium" text={$_("botsRole")} color="secondary" />
         <TextareaRw bind:value={additionalPrompt} onEdit rows={8} />
       </div>
@@ -1072,7 +911,7 @@
         color="secondary"
         propClass="w-full md:w-1/4"
       />
-      <div class="w-full md:w-3/4 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="w-full md:w-3/4 mt-2 md:mt-0 grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="col-span-4">
           <label class="inline-flex items-center cursor-pointer">
             <input type="checkbox" value="" class="hidden peer" bind:checked={needAuth} />

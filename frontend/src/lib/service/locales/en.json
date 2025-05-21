@@ -1151,5 +1151,6 @@
   "authorization": "Authorization",
   "myAPI": "My API",
   "token": "Token",
-  "preferences": "Preferences"
+  "preferences": "Preferences",
+  "descApiConnector": "Connect and manage APIs effortlessly"
 }
