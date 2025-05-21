@@ -111,6 +111,7 @@
   let dataSend = $state(null);
   let textarea = $state();
   let nameIsAvailable = $state(true);
+  let isEnhance = $state(false);
   let isProcess = $state(false);
 
   async function getCollection() {
@@ -422,6 +423,7 @@
                 detected_text: response3.result.text,
                 result_trocr: JSON.stringify(response3.result),
                 edited: false,
+                repair: isEnhance,
               };
 
               if (tmpDocumentType === "Document Audio") {
@@ -474,6 +476,8 @@
               documents: JSON.stringify([files[i]]),
               document_type: tmpDocumentType,
               category: tags.join(","),
+              edited: false,
+              repair: isEnhance,
             };
             await sendDocument();
           }
@@ -1276,6 +1280,7 @@
               outline
               on:click={() => {
                 addDocumentsModal = true;
+                isEnhance = false;
                 tags = [];
                 tmpDocumentTitle = "";
                 tmpDocumentDescription = "";
@@ -1327,6 +1332,7 @@
   bind:tmpDocumentTitle
   {handleFileUploadWrapper}
   bind:isProcess
+  bind:isEnhance
   bind:files
   {alltags}
   bind:tags

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Checkbox } from 'flowbite-svelte';
   let {
-    checked,
+    checked = $bindable(false),
     required
   }: {
     checked: boolean;
@@ -9,4 +9,4 @@
   } = $props();
 </script>
 
-<Checkbox class="display-block" bind:checked={checked} required={required} />
+<Checkbox class="display-block" bind:checked={checked} required={required} on:click={() => checked = !checked}/>
