@@ -1242,30 +1242,30 @@
           </div>
         {:else if tabDatas.selected === "Information" && Object.keys(informationDatas).length > 0}
           <div class="grid grid-cols-12 mt-4 gap-2">
-            <div class="col-span-4">
+            <div class="col-span-full md:col-span-4">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
                 {$_("generalInformation")}
               </P>
             </div>
-            <div class="col-span-8">
+            <div class="col-span-full md:col-span-8">
               <P
                 class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >{$_("collectionTitle")}</P
               >
             </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
+            <div class="col-span-full md:col-span-4"></div>
+            <div class="col-span-full md:col-span-8">
               <InputRw onEdit={false} bind:value={collectionDatas.title} />
             </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
+            <div class="col-span-full md:col-span-4"></div>
+            <div class="col-span-full md:col-span-8">
               <P
                 class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                 >{$_("description")}</P
               >
             </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-8">
+            <div class="col-span-full md:col-span-4"></div>
+            <div class="col-span-full md:col-span-8">
               <TextareaRw onEdit={false} bind:value={collectionDatas.description} />
             </div>
           </div>

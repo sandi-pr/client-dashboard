@@ -1,47 +1,32 @@
 <script>
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, Alert, Select, P, Helper, Card } from "flowbite-svelte";
+  import { Button, Modal, Input, P, Card } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import { format, parse } from "date-fns";
+  import { format } from "date-fns";
 
   import {
     Typography,
     ToastContainer,
     StateCard,
     call,
-    InputRw,
-    TextareaRw,
     triggerToast,
     triggerLoading,
-    UploadFile,
     check,
-    onProgress,
     Divider,
-    SectionHeader,
-    LibraryCard,
     ModalObject,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
-  import {
-    SearchOutline,
-    ExclamationCircleSolid,
-    ChevronDownOutline,
-    InfoCircleSolid,
-  } from "flowbite-svelte-icons";
+  import { SearchOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import MoveIcon from "$lib/icon/move.svelte";
-  import FilePlus02Icon from "$lib/icon/file-plus-02.svelte";
   import Recording02Icon from "$lib/icon/recording-02.svelte";
-  import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import XCloseIcon from "$lib/icon/x-close.svelte";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import AlertCircleIcon from "$lib/icon/alert-circle.svg";
-  import MultiSelect from "svelte-multiselect";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
 
   const isFrontend = process.env.NODE_ENV === "development";
@@ -49,21 +34,13 @@
   let subCollectionId;
   let collectionId;
   let libraryId;
-  let inputRef;
   let checkAllState = $state(false);
   let addDocumentsModal = $state(false);
-  let addCollectionModal = $state(false);
-  let addCategoriesModal = $state(false);
   let popupModal = $state(false);
   let updateModal = $state(false);
-  let editModal = $state(false);
   let deleteModal = $state(false);
-  let deleteCategoriesModal = $state(false);
-  let dropdownOpen = $state(false);
-  let dropdownUpload = $state(false);
   let fileNotSupport = $state(false);
   let buttonDisabled = $state(false);
-  let gettingDatas = $state(false);
   let gettingDocs = $state(false);
   let buttonDisabledCheckAction = $state(false);
   let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
@@ -73,14 +50,11 @@
   let tmpCollectionId = $state("");
   let tmpCollectionName = $state("");
   let tmpOldName = $state("");
-  let tmpDescription = $state("");
   let tmpDocumentType = $state("Document Audio");
-  let selectedTypeCollection = $state("Document Audio (MP3, WAV, OGG)");
   let acceptedFileTypes = $state(".mp3, .wav, .ogg");
   let search = $state("");
   let alltags = $state([]);
   let tags = $state([]);
-  let newTag = $state("");
   let files = $state([]);
   let attributeNotUnique = $state(false);
   let checkboxDelete = $state(false);
@@ -579,34 +553,6 @@
     return;
   }
 
-  const selectTypeCollection = (type) => {
-    tmpDocumentType = type;
-
-    if (type === "Documents") {
-      selectedTypeCollection = "Documents (TXT, PDF, DOC, DOCX)";
-      acceptedFileTypes = ".txt, .pdf, .doc, .docx";
-    } else if (type === "Images") {
-      selectedTypeCollection = "Images (JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Document Images") {
-      selectedTypeCollection = "Document Images (JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Handwriting") {
-      selectedTypeCollection = "Handwriting (PDF, JPG, JPEG, PNG, WEBP, IMG)";
-      acceptedFileTypes = ".jpg, .jpeg, .png";
-    } else if (type === "Document Audio") {
-      selectedTypeCollection = "Document Audio (MP3, WAV, OGG)";
-      acceptedFileTypes = ".mp3, .wav, .ogg";
-    } else if (type === "CSV") {
-      selectedTypeCollection = "CSV";
-      acceptedFileTypes = ".csv";
-    }
-
-    files = [];
-
-    dropdownOpen = false;
-  };
-
   // Function to adjust the height of the textarea
   function autosize() {
     textarea.style.height = "auto"; // Reset height
@@ -709,29 +655,6 @@
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  function addTag() {
-    if (newTag.trim() && !tags.includes(newTag)) {
-      tags = [...tags, newTag];
-      newTag = ""; // Reset input setelah menambahkan tag
-    }
-  }
-
-  // Fungsi untuk menghapus tag
-  function removeTag(tagToRemove) {
-    tags = tags.filter((tag) => tag !== tagToRemove);
-  }
-
-  // Fungsi untuk menambah tag saat menekan Enter
-  function handleKeyDown(event) {
-    if (event.key === "Enter") {
-      addTag();
-    }
-  }
-
-  function focusInput(input) {
-    input.focus();
   }
 
   async function deleteDocuments() {
@@ -1144,11 +1067,6 @@
     }
   };
 
-  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    dropdownOpen = false;
-  };
-
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
@@ -1200,7 +1118,7 @@
     <div class="flex flex-col m-4">
       <div class="flex flex-col">
         <!-- User Information -->
-        <div class="flex items-center justify-between mb-3 md:mb-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-3 md:mb-8 gap-4">
           <div class="flex flex-col gap-2">
             <div class="flex gap-4">
               <Typography
