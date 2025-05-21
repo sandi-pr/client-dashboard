@@ -404,10 +404,11 @@
     if (folderFiles != null) {
       files = folderFiles;
     }
+
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      if (groupedFiles != null) {
+      if (Object.keys(groupedFiles).length > 0) {
         sendFolder();
         return;
       }
@@ -439,13 +440,6 @@
                 },
               });
               // console.log("trocr-predict", response3);
-              // response3 = {
-              //   status: 200,
-              //   result: {
-              //     slices: [],
-              //     text: "Belajian Tikin Bahagia\nHari-hari gajian selalu karena udah makan dalam\nnikin\nnakan.\nHal-\nbak aja uang ters-\nn kelasan dari pada menyat mengak dalam lari\nmelam lari bikin kita.\nmelu kita,\nmeli kita aja pada uang bisa,\npada bisa pada bahwa jaju kali bisa uang mengikin kekali bah turu kosia.\nTer.\nTakarta,\nTerimas AHY berkeni\nTerinti kali yang takarta.",
-              //   },
-              // };
             } else {
               response3 = await $call.call("hexa-ai-rag", "audio-predict", {
                 URLQuery: {},
@@ -458,7 +452,7 @@
                   Authorization: "Bearer " + token,
                 },
               });
-              console.log("audio-predict", response3);
+              // console.log("audio-predict", response3);
             }
 
             if (response3.status !== 200) {
@@ -722,7 +716,7 @@
   });
 
   $effect(() => {
-    if (groupedFiles != null) {
+    if (Object.keys(groupedFiles).length > 0) {
       buttonDisabled = false;
     } else {
       buttonDisabled = true;
@@ -1646,7 +1640,7 @@
       }
     }
 
-    groupedFiles = null;
+    groupedFiles = {};
     addDocumentsModal = false;
     getCollections(true);
     triggerLoading(false);
@@ -1695,7 +1689,7 @@
         files.length === 0 || files.length === 1
           ? tmpDocumentTitle === "" || !nameIsAvailable
           : false;
-    } else if (groupedFiles != null) {
+    } else if (Object.keys(groupedFiles).length > 0) {
       buttonDisabled = false;
     } else {
       buttonDisabled = true;
@@ -1829,7 +1823,7 @@
                     addDocumentsModal = true;
                     folderMode = true;
                     files = [];
-                    groupedFiles = null;
+                    groupedFiles = {};
                     attributeNotUnique = false;
                     dropdownUpload = false;
                     nameIsAvailable = true;
@@ -2012,7 +2006,7 @@
                     addDocumentsModal = true;
                     folderMode = true;
                     files = [];
-                    groupedFiles = null;
+                    groupedFiles = {};
                     attributeNotUnique = false;
                     dropdownUploadEmpty = false;
                     nameIsAvailable = true;
