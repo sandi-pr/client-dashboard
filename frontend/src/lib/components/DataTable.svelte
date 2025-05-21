@@ -99,8 +99,7 @@
       key === "role" ||
       key === "category" ||
       key === "authority" ||
-      key === "attendance" ||
-      key === "method"
+      key === "attendance"
     );
   };
 
@@ -225,6 +224,8 @@
             <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
           {:else if key === "fileName"}
             <TableHeadCell>{$_("fileName")}</TableHeadCell>
+          {:else if key === "method"}
+            <TableHeadCell>{$_("method")}</TableHeadCell>
           {/if}
         {/each}
         {#each Object.keys(datas[0]) as key}
@@ -295,11 +296,27 @@
                   />
                 </div>
               </TableBodyCell>
+            {:else if key === "method"}
+              <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                {#if data[key]?.type}
+                  <p
+                    class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${classStatusType(
+                      data[key].type,
+                    )}`}
+                  >
+                    {data[key].name}
+                  </p>
+                {:else}
+                  <p>
+                    {data[key]}
+                  </p>
+                {/if}
+              </TableBodyCell>
             {/if}
           {/each}
-          {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0]?.role || datas[0]?.category || datas[0]?.authority || datas[0].method}
+          {#if datas[0]?.parentUnit || datas[0]?.unit || datas[0]?.role || datas[0]?.category || datas[0]?.authority}
             {#each Object.keys(datas[0]) as key}
-              {#if key === "parentUnit" || key === "unit" || key === "role" || key === "category" || key === "authority" || key === "method"}
+              {#if key === "parentUnit" || key === "unit" || key === "role" || key === "category" || key === "authority"}
                 <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                   {#if data[key]?.type}
                     <p

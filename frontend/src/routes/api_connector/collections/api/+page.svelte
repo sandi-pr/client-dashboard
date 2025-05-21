@@ -136,20 +136,21 @@
   let folderMode = $state(false);
   let apisData = $state([
     {
-      checkbox: {
-        checked: false,
-      },
-      name: "Get Character Api",
+      id: 1,
+      // checkbox: {
+      //   checked: false,
+      // },
+      name: "GetUserAPI",
       method: {
         type: "success",
         name: "GET",
       },
-      apiLink: "https://api.example.com/get-character",
-      dateUploaded: "2023-10-01",
+      apiLink: "https://hexacode.ai/api/character?name",
+      dateUploaded: "Jan 4, 2022",
       actions: {
         objects: [
           {
-            href: "/api_connector/collections/api/detail",
+            href: "#",
             name: "View",
           },
         ],
@@ -1675,7 +1676,7 @@
     triggerToast($_("succesfullyUploaded"), true);
   }
 
-  onMount(() => {
+  onMount(async() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
       return;
@@ -1697,6 +1698,12 @@
       getDocuments();
       getLabels();
     });
+
+    const hrefDetailApi = isFrontend ? "/api_connector/collections/api/detail" : await $call.getPage("client-dashboard", "api-connector-collections-api-detail");
+
+    apisData.forEach((api) => {
+      api.actions.objects[0].href = hrefDetailApi + "?apiId=" + api.id + "&collectionId=" + collectionId + "&libraryId=" + libraryId;
+    })
 
     checkMobileView();
     window.addEventListener("resize", checkMobileView);
@@ -1813,8 +1820,8 @@
               disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={async () => {
                 let link = isFrontend
-                  ? "/api_connector/collections/api/create"
-                  : await $call.getPage("client-dashboard", "api-connector-collections-api-create");
+                  ? "/api_connector/collections/api/create" + `?collectionId=${collectionId}&libraryId=${libraryId}`
+                  : await $call.getPage("client-dashboard", "api-connector-collections-api-create") + `?collectionId=${collectionId}&libraryId=${libraryId}`;
                 goto(link);
               }}
             >
@@ -1868,7 +1875,7 @@
         <Divider class="mb-4" />
 
         {#if tabDatas.selected === "My API"}
-          {#if collectionListDatas.length > 0}
+          {#if apisData.length > 0}
             <DataTable
               bind:datas={apisData}
               next={nextPage}

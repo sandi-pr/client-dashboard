@@ -360,6 +360,11 @@
             "file_path": "template/api_connector/collections/api/create.html"
         },
         {
+            "name": "api-connector-collections-api-detail",
+            "path": "/api_connector/collections/api/detail",
+            "file_path": "template/api_connector/collections/api/detail.html"
+        },
+        {
             "name": "hexabot",
             "path": "/hexabots",
             "file_path": "template/hexabots.html"

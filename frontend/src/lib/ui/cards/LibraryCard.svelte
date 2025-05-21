@@ -52,6 +52,8 @@
       return title === "My Voice";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "insights"))) {
       return title === "My Data Source";
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "apiconnector"))) {
+      return title === "My API Collection";
     } else {
       return false;
     }

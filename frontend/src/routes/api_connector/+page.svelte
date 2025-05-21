@@ -1106,10 +1106,10 @@ All Rights Reserved
       window.history.back();
       return;
     }
-    libraryId = localStorage.getItem("libraryId" + "handwriting");
-    collectionId = localStorage.getItem("collectionId" + "handwriting");
-    botId = localStorage.getItem("botId" + "handwriting");
-    botIdStrapi = localStorage.getItem("botIdStrapi" + "handwriting");
+    libraryId = localStorage.getItem("libraryId" + "apiconnector");
+    collectionId = localStorage.getItem("collectionId" + "apiconnector");
+    botId = localStorage.getItem("botId" + "apiconnector");
+    botIdStrapi = localStorage.getItem("botIdStrapi" + "apiconnector");
     bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
     bots[0].botsID = botIdStrapi;
     getActionItems();
