@@ -11,7 +11,7 @@ All Rights Reserved
  -->
 
 <script>
-  import { P, Heading, Input, Textarea, Button, Select, Modal, Helper } from "flowbite-svelte";
+  import { P, Heading, Button, Modal, Helper } from "flowbite-svelte";
   import {
     ToastContainer,
     triggerToast,
@@ -20,82 +20,135 @@ All Rights Reserved
     Typography,
     triggerLoading,
     check,
+    truncateText,
+    PageFileViewer,
   } from "$lib";
-  import { CheckCircleSolid, ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import Copy01Icon from "$lib/icon/copy-01.svelte";
-  import DownloadIcon from "$lib/icon/file-download-03.svg";
   import Divider from "$lib/components/Divider.svelte";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { _, locale } from "svelte-i18n";
-  import { id as localeId, enUS as localeEn, ta } from "date-fns/locale";
-  import TabDetail from "$lib/components/TabDetail.svelte";
-  import { CR3Call } from "hexacomponents-svelte";
-  import { format, formatDistanceToNow } from "date-fns";
+  import { id as localeId, enUS as localeEn } from "date-fns/locale";
+  import { formatDistanceToNow } from "date-fns";
   import { goto } from "$app/navigation";
-  import { createEventDispatcher } from "svelte";
-  import PdfViewer from "svelte-pdf";
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
-  import { generateUniqueId } from "$lib";
   import { page } from "$app/stores";
-  import LoadingContainer from "$lib/components/LoadingContainer.svelte";
-  import XCloseIcon from "$lib/icon/x-close.svelte";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
-  import ExampleAudio from "$lib/components/strauss.mp3";
   import MultiSelect from "svelte-multiselect";
 
   const isFrontend = process.env.NODE_ENV === "development";
-
-  let audioFile = $state(null); // menyimpan file audio sebagai base64
-  let audioUrl = $state(null); // menyimpan URL blob untuk pemutaran audio
 
   let documentId, collectionId;
 
   import { call } from "$lib";
 
   let onEdit = $state(false);
-
   let popupModal = $state(false);
-
-  let contentFile = $state(null);
-  let base64 = $state(null);
-  let fileUrl = $state("null");
   let pdfReady = $state(false);
   let attributeNotUnique = $state(false);
   let nameIsAvailable = $state(true);
-
-  let tabDatas = $state({
-    selected: "Documents",
-    data: [
-      {
-        name: "Documents",
-      },
-      {
-        name: "Information",
-      },
-    ],
-  });
-
   let fileReady = $state(false);
-
+  let fileUrl = $state("null");
+  let uploadBy = $state("");
   let data = $state({});
   let tmpData = $state({});
-  let uploadBy = $state("");
   let alltags = $state([]);
+  let tags = $state([]);
+  let contentFile = $state(null);
+  let base64 = $state(null);
+  let innerWidth = $state(0);
 
-  // let categoriesTab = $state([
-  //   {
-  //     value: "GENERAL",
-  //     name: "General",
-  //   },
-  //   {
-  //     value: "CONTRACT",
-  //     name: "Contract",
-  //   },
-  // ]);
+  const base64toBlob = (base64Data, fileType) => {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
 
-  let personClient = $state([]);
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
 
-  async function getDocument() {
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  };
+
+  const getLabels = async () => {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-label", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (response.status !== 200) {
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
+        return;
+      }
+
+      alltags = response.result.labels;
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  };
+
+  // const truncateText = (text, maxWords, maxFirstWordLength = 14) => {
+  //   const words = text.split(" ");
+
+  //   // Check if the first word is too long, or if the second word is long
+  //   if (words[0] && words[0].length > maxFirstWordLength) {
+  //     return words[0].slice(0, maxFirstWordLength) + "...";
+  //   } else if (words[1] && words[1].length > maxFirstWordLength) {
+  //     return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
+  //   }
+
+  //   // Limit to maxWords and append "..." if necessary
+  //   if (words.length > maxWords) {
+  //     return words.slice(0, maxWords).join(" ") + " ...";
+  //   }
+
+  //   return words.join(" ");
+  // };
+
+  const downloadFile = (content, fileName, ext) => {
+    let fileType = "";
+    if (ext === ".pdf") {
+      fileType = "application/pdf";
+    } else if (ext === ".docx") {
+      fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    } else if (ext === ".doc") {
+      fileType = "application/msword";
+    } else {
+      fileType = "text/plain";
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(base64toBlob(base64, fileType));
+    a.download = fileName;
+    a.click();
+  };
+
+  const getDocument = async () => {
     triggerLoading(true);
     let token = localStorage.getItem("token");
     if (token !== null) {
@@ -110,8 +163,6 @@ All Rights Reserved
             Authorization: "Bearer " + token,
           },
         });
-
-        // console.log("document", response);
 
         if (response.status !== 200) {
           console.log(response);
@@ -155,61 +206,6 @@ All Rights Reserved
 
         const blob = base64toBlob(base64, fileType);
         fileUrl = URL.createObjectURL(blob);
-        // console.log(fileUrl);
-
-        // let response2;
-        // if (documentData.attributes.document_type === "Handwriting") {
-        //   if (
-        //     documentData.attributes.detected_text === null ||
-        //     documentData.attributes.result_trocr === null
-        //   ) {
-        //     response2 = await $call.call("hexa-ai-rag", "trocr-predict", {
-        //       URLQuery: {},
-        //       URLParams: {},
-        //       Params: {
-        //         image: base64,
-        //       },
-        //       Headers: {
-        //         Authorization: "Bearer " + token,
-        //       },
-        //     });
-
-        //     if (response2.status !== 200) {
-        //       // triggerToast("error");
-        //       console.log(response);
-        //       return;
-        //     }
-
-        //     console.log("trocr-predict", response2);
-
-        //     if (response2?.result?.text !== null) {
-        //       const response3 = await $call.call("client-dashboard", "update-document", {
-        //         URLQuery: {},
-        //         URLParams: {
-        //           id: documentId.toString(),
-        //         },
-        //         Params: {
-        //           detected_text: response2.result.text,
-        //           result_trocr: JSON.stringify(response2.result),
-        //           edited: false,
-        //         },
-        //         Headers: {
-        //           Authorization: "Bearer " + token,
-        //         },
-        //       });
-
-        //       if (response3.status !== 200) {
-        //         // triggerToast("error");
-        //         console.log(response);
-        //         return;
-        //       }
-
-        //       console.log("ayam", response3);
-        //     }
-        //   }
-        // }
-
-        // categories = await getCategories(collectionId);
 
         data = {
           id: response.result.id,
@@ -257,129 +253,9 @@ All Rights Reserved
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
+  };
 
-  async function getLabels() {
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-label", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (response.status !== 200) {
-        if (response.status === 400) {
-          console.error("Invalid parameters:", response);
-          triggerToast($_("invalidParameters"), true, "error");
-        } else if (response.status === 401) {
-          console.error("Unauthorized access:", response);
-          triggerToast($_("unauthorized"), true, "error");
-        } else if (response.status === 500) {
-          console.error("Server error:", response);
-          triggerToast($_("serverError"), true, "error");
-        } else {
-          console.error("Unexpected status code:", response);
-          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-        }
-        return;
-      }
-
-      alltags = response.result.labels;
-    } else {
-      triggerToast($_("unauthorized"), true, "error");
-      return;
-    }
-  }
-
-  async function getUser() {
-    let token = localStorage.getItem("token");
-    try {
-      let response = await $call.call("client-dashboard", "get-user", {
-        URLQuery: {},
-        URLParams: { id: data.upload_by.toString() },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        if (response.status === 400) {
-          console.error("Invalid parameters:", response);
-          triggerToast($_("invalidParameters"), true, "error");
-        } else if (response.status === 401) {
-          console.error("Unauthorized access:", response);
-          triggerToast($_("unauthorized"), true, "error");
-        } else if (response.status === 500) {
-          console.error("Server error:", response);
-          triggerToast($_("serverError"), true, "error");
-        } else {
-          console.error("Unexpected status code:", response);
-          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-        }
-        return;
-      }
-
-      uploadBy = response.result.user.username;
-    } catch (error) {
-      console.error("Error during user get:", error);
-      triggerToast($_("failedGetUser"), true, "error");
-    }
-  }
-
-  function truncateText(text, maxWords, maxFirstWordLength = 14) {
-    // console.log("text", text);
-    const words = text.split(" ");
-
-    // Check if the first word is too long, or if the second word is long
-    if (words[0] && words[0].length > maxFirstWordLength) {
-      return words[0].slice(0, maxFirstWordLength) + "...";
-    } else if (words[1] && words[1].length > maxFirstWordLength) {
-      return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
-    }
-
-    // Limit to maxWords and append "..." if necessary
-    if (words.length > maxWords) {
-      return words.slice(0, maxWords).join(" ") + " ...";
-    }
-
-    return words.join(" ");
-  }
-
-  async function getCategories(id) {
-    let token = localStorage.getItem("token");
-
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-categories-by-collection-id", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          collection_id: id.toString(),
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(id, response);
-        return;
-      }
-
-      return response.result.categories.map((category) => {
-        return {
-          name: category,
-          value: category,
-        };
-      });
-    }
-  }
-
-  async function deleteDocument() {
+  const deleteDocument = async () => {
     let token = localStorage.getItem("token");
     if (token === null) {
       triggerToast($_("unauthorized"), true, "error");
@@ -453,143 +329,9 @@ All Rights Reserved
         triggerToast($_("failedDeleteDocument"), true, "error");
       }
     }
-  }
+  };
 
-  async function getPersons() {
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      let page = 1;
-      while (true) {
-        let response = await $call.call("client-dashboard", "get-persons", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: page,
-            page_size: 25,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          console.log(response);
-          return;
-        }
-
-        if (response.result.data.length > 0) {
-          let promise = response.result.data.map((person) => {
-            return {
-              value: person.id,
-              name:
-                person.attributes.fullname !== null
-                  ? person.attributes.fullname
-                  : `<${person.attributes.email}>`,
-            };
-          });
-
-          let data = await Promise.all(promise);
-          personClient = personClient.concat(data);
-          page++;
-        } else {
-          break;
-        }
-      }
-    }
-  }
-
-  function downloadFile(content, fileName, ext) {
-    let fileType = "";
-    if (ext === ".pdf") {
-      fileType = "application/pdf";
-    } else if (ext === ".docx") {
-      fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    } else if (ext === ".doc") {
-      fileType = "application/msword";
-    } else {
-      fileType = "text/plain";
-    }
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(base64toBlob(base64, fileType));
-    a.download = fileName;
-    a.click();
-  }
-
-  function base64toBlob(base64Data, fileType) {
-    const byteCharacters = atob(base64Data);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
-
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    const blob = new Blob(byteArrays, { type: fileType });
-    return blob;
-  }
-
-  function getDocumentId() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("documentId");
-  }
-
-  function getCollectionId() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("collectionId");
-  }
-
-  // $effect(async () => {
-  //   documentId = getDocumentId();
-  //   collectionId = getCollectionId();
-  //   if (documentId && documentId !== documentIdOld) {
-  //     documentIdOld = documentId;
-  //     collectionIdOld = collectionId;
-  //     getDocument();
-  //   }
-  //   if (collectionId && collectionId !== collectionIdOld) {
-  //     collectionIdOld = collectionId;
-  //     documentIdOld = documentId;
-  //     getDocument();
-  //   }
-  // });
-
-  // async function editDetectedText() {
-  //   onEdit = false;
-  //   let token = localStorage.getItem("token");
-  //   if (token !== null) {
-  //     let response = await $call.call("client-dashboard", "update-document", {
-  //       URLQuery: {},
-  //       URLParams: {
-  //         id: documentId.toString(),
-  //       },
-  //       Params: {
-  //         detected_text: data.detectedText,
-  //         result_trocr: JSON.stringify(data.result_trocr),
-  //         edited: true,
-  //       },
-  //       Headers: {
-  //         Authorization: "Bearer " + token,
-  //       },
-  //     });
-  //     if (response.status !== 200) {
-  //       console.log(response);
-  //       return;
-  //     }
-
-  //     console.log(response);
-  //     triggerToast("updated");
-  //     getDocument();
-  //   }
-  // }
-
-  async function updateDocument() {
+  const updateDocument = async () => {
     triggerLoading(true);
     onEdit = false;
     let token = localStorage.getItem("token");
@@ -680,62 +422,7 @@ All Rights Reserved
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
-
-  let tags = $state([]); // Daftar tag yang sudah dimasukkan pengguna
-  let newTag = $state(""); // Menyimpan input dari pengguna
-  let inputRef;
-
-  // Fungsi untuk menambahkan tag
-  function addTag() {
-    if (newTag.trim() && !tags.includes(newTag)) {
-      tags = [...tags, newTag];
-      newTag = ""; // Reset input setelah menambahkan tag
-    }
-  }
-
-  // Fungsi untuk menghapus tag
-  function removeTag(tagToRemove) {
-    tags = tags.filter((tag) => tag !== tagToRemove);
-  }
-
-  // Fungsi untuk menambah tag saat menekan Enter
-  function handleKeyDown(event) {
-    if (event.key === "Enter") {
-      addTag();
-    }
-  }
-
-  function focusInput(input) {
-    input.focus();
-  }
-
-  // Fungsi untuk mengunggah file audio dan mengonversinya menjadi base64
-  async function handleAudioUpload(event) {
-    const file = event.target.files[0];
-    if (file && (file.type.includes("audio") || file.name.endsWith(".mp3"))) {
-      // Baca file sebagai base64
-      const base64Audio = await convertToBase64(file);
-      audioFile = base64Audio;
-
-      // Membuat URL blob untuk diputar di audio player
-      audioUrl = URL.createObjectURL(new Blob([file], { type: "audio/mp3" }));
-
-      // console.log("audioUrl: ", audioUrl);
-    } else {
-      alert("Please upload a valid MP3 file.");
-    }
-  }
-
-  // Fungsi konversi file ke Base64
-  function convertToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
+  };
 
   const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
@@ -775,7 +462,7 @@ All Rights Reserved
     }
   };
 
-  const handleInput = async (event) => {
+  const handleInputName = async (event) => {
     const name = event.target.value;
     const status = await checkLibraryName(name.trim());
 
@@ -795,48 +482,47 @@ All Rights Reserved
       documentId = $page.url.searchParams.get("documentId");
       if (documentId === null || documentId === undefined) {
         triggerToast("error");
-        goto(await $call.getPage("client-dashboard", "document-library"));
+        goto(
+          isFrontend ? "/documents" : await $call.getPage("client-dashboard", "document-library"),
+        );
         return;
       }
       base64 = null;
       pdfReady = false;
       await getDocument();
-      // getUser();
       getLabels();
     });
-    return () => unsubscribe();
+    const resizeHandler = () => {
+      innerWidth = globalThis.innerWidth;
+    };
+    globalThis.addEventListener("resize", resizeHandler);
+    resizeHandler();
+    return () => {
+      unsubscribe();
+      globalThis.removeEventListener("resize", resizeHandler);
+    };
   });
 
-  // $effect(async () => {
-  //   const unsubscribe = page.subscribe(($page) => {
-  //     documentId = $page.url.searchParams.get("documentId");
-  //     base64 = null;
-  //     pdfReady = false;
-  //     getDocument();
-  //   });
-  //   onDestroy(() => unsubscribe());
-  // });
-
-  // onDestroy(() => {
-  // if (timer) {
-  //   clearTimeout(timer);
-  // }
-  // });
+  $effect(() => {
+    if (innerWidth < 1024) {
+      tmpData.document_title = truncateText(tmpData.document_title || "", 2, 2);
+    } else {
+      tmpData.document_title = data.document_title;
+    }
+  });
 </script>
 
-<div class="flex dark:bg-hc-graydark-950">
+<!-- <div class="flex dark:bg-hc-graydark-950">
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <div class="flex items-center justify-between">
         <div class="flex flex-col grow">
-          <!-- Header -->
           <div class="gap-2">
             <Heading
               tag="h3"
               class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{globalThis.innerWidth < 768
-                ? truncateText(tmpData.document_title || "", 2)
-                : tmpData.document_title}
+            >
+              {tmpData.document_title}
               &nbsp;
               <button
                 onclick={() => {
@@ -872,7 +558,6 @@ All Rights Reserved
             {/if}</P
           >
         </div>
-
         <div class="flex gap-2">
           {#if onEdit}
             <Button
@@ -881,7 +566,6 @@ All Rights Reserved
                 data = { ...tmpData };
                 attributeNotUnique = false;
                 nameIsAvailable = true;
-                // console.log(tmpData);
               }}
               color="light"
               class="px-3 focus-within:!ring-1">{$_("cancel")}</Button
@@ -917,7 +601,6 @@ All Rights Reserved
               color="red"
               class="px-3 focus-within:!ring-1">{$_("delete")}</Button
             >
-            <!-- {#if data.document_type !== "Handwriting"} -->
             <Button
               disabled={!check("documentAi.documentLibrary.document:update")}
               onclick={() => {
@@ -925,18 +608,12 @@ All Rights Reserved
               }}
               class="px-3 focus-within:!ring-1">{$_("edit")}</Button
             >
-            <!-- {/if} -->
           {/if}
         </div>
       </div>
 
-      <!-- Tab Bar -->
-      <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
-
-      <!-- Content -->
       <div class="flex flex-col gap-4 pt-4 md:pt-6 md:gap-6">
         {#if fileReady}
-          <!-- general information -->
           <div class="flex flex-col md:flex-row gap-3 md:gap-6">
             <div class="w-60">
               <P class="font-semibold text-secondary-light dark:text-secondary-dark">
@@ -950,7 +627,7 @@ All Rights Reserved
                   color="secondary"
                   text={`${$_("documentTitle")}*`}
                 />
-                <InputRw {onEdit} oninput={handleInput} bind:value={data.document_title} />
+                <InputRw {onEdit} oninput={handleInputName} bind:value={data.document_title} />
                 {#if !nameIsAvailable}
                   <Helper color="red">
                     <span class="font-medium">{$_("nameAlreadyTaken")}</span>
@@ -1070,6 +747,23 @@ All Rights Reserved
     <Button onclick={deleteDocument} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
-</Modal>
+</Modal> -->
 
-<!-- <LoadingContainer /> -->
+<PageFileViewer
+  {data}
+  {tags}
+  {onEdit}
+  {base64}
+  {tmpData}
+  {alltags}
+  {fileUrl}
+  {pdfReady}
+  {uploadBy}
+  {fileReady}
+  {popupModal}
+  {updateDocument}
+  {deleteDocument}
+  {nameIsAvailable}
+  {handleInputName}
+  {attributeNotUnique}
+/>

@@ -59,6 +59,7 @@ export { default as ModalObject } from "$lib/ui/modal/ModalObject.svelte";
 export { default as ModalFilePreview } from "$lib/ui/modal/ModalFilePreview.svelte";
 export { default as ModalFolder } from "$lib/ui/modal/ModalFolder.svelte";
 export { default as PageComingSoon } from "$lib/components/PageComingSoon.svelte";
+export { default as PageFileViewer } from "$lib/components/PageFileViewer.svelte";
 export { checkLibraryName } from "$lib/utils/checkLibraryName";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {
@@ -106,3 +107,4 @@ export {
 export { voiceLibraryId, setVoiceLibraryIds } from "$lib/utils/voiceLibraryStore";
 export { datasourceLibraryId, setDatasourceLibraryIds } from "$lib/utils/datasourceLibraryStore";
 export { findIconFromModelName } from "$lib/utils/findIconFromModelName";
+export { truncateText } from "$lib/utils/truncateText";
