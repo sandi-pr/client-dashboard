@@ -107,3 +107,12 @@ export {
 export { voiceLibraryId, setVoiceLibraryIds } from "$lib/utils/voiceLibraryStore";
 export { datasourceLibraryId, setDatasourceLibraryIds } from "$lib/utils/datasourceLibraryStore";
 export { findIconFromModelName } from "$lib/utils/findIconFromModelName";
+export {
+  tabDatas,
+  cpuData, 
+  realTimeDatasCPU,
+  memoryData,
+  realTimeDatasMemory,
+  diskData,
+  realTimeDatasDisk
+} from "$lib/utils/usage";
