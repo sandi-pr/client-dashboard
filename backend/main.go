@@ -23,9 +23,11 @@ var STRAPI_URL = ""
 var STRAPI_TOKEN = ""
 var DOCUMENT_PATH = ""
 var DATASETS_PATH = ""
+var USAGE_MEMORY_PATH = ""
 var HEXA_RAG_URL = ""
 var botIdProccess = hctypes.List{}
 var notificationWS *NotificationWebSocket
+var usageWS *UsageWebSocket
 
 var checkUserId = true
 var metaDataCSV = hctypes.Dict{}
@@ -61,9 +63,15 @@ func init() {
 		panic(errors.New("Environment DATASETS_PATH is empty"))
 	}
 
+	USAGE_MEMORY_PATH = os.Getenv("USAGE_MEMORY_PATH")
+	if USAGE_MEMORY_PATH == "" {
+		panic(errors.New("Environment USAGE_MEMORY_PATH is empty"))
+	}
+
 	config.Schedule("", MODULE_MANAGER_URL)
 
 	notificationWS = NewNotificationWebSocket()
+	usageWS = NewUsageWebSocket()
 
 	go notificationWS.HandleMessages()
 }
