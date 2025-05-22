@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	U "gitlab.hexacode.org/go-libs/hctypes"
@@ -98,4 +99,23 @@ func formatFileSize(size int) string {
 	default:
 		return fmt.Sprintf("%d B", size)
 	}
+}
+
+func convertBytesToMB(b string) string {
+	val, err := strconv.ParseFloat(b, 64)
+	if err != nil {
+		return "-"
+	}
+	return fmt.Sprintf("%.0f", val/1024/1024)
+}
+
+func detectDiskTypeFromName(name string) string {
+	if strings.HasPrefix(name, "nvme") {
+		return "SSD"
+	} else if strings.HasPrefix(name, "sd") {
+		return "HDD"
+	} else if strings.HasPrefix(name, "vd") {
+		return "Virtual"
+	}
+	return "Unknown"
 }
