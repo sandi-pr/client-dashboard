@@ -463,11 +463,11 @@
 
   function updateMemoryData(data) {
     memoryData.update(current => {
-      const newValue = Math.round(data.used);
-      const updated = [...current, newValue];
+      const percentageUsed = Math.round((data.used / data.total) * 100);
+      const updated = [...current, percentageUsed];
       if (updated.length > 10) updated.shift();
       return updated;
-    })
+    });
 
     realTimeDatasMemory.set([
       {
