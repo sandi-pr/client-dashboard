@@ -5656,6 +5656,87 @@
                 "plugin": "plugin.so",
                 "function": "DownloadAllDatasetHandwriting"
             }
+        },
+        {
+            "name": "usage",
+            "path": "/usage/:dataType/:token",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "timeout": "1h",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "Usage"
+            },
+            "url_params": [
+                {
+                    "name": "dataType",
+                    "type": "text"
+                },
+                {
+                    "name": "token",
+                    "type": "text"
+                }
+            ],
+            "extra_config": {
+                "websocket": {
+                    "connect_event": true,
+                    "disconnect_event": true,
+                    "read_buffer_size": 10240,
+                    "write_buffer_size": 10240,
+                    "message_buffer_size": 4096,
+                    "max_message_size": 3200000,
+                    "write_wait": "10s",
+                    "pong_wait": "60s",
+                    "ping_period": "54s",
+                    "max_retries": 0,
+                    "backoff_strategy": "exponential"
+                }
+            }
+        },
+        {
+            "name": "get-cpu-info",
+            "path": "/get-cpu-info",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCPUGeneralInfo"
+            }
+        },
+        {
+            "name": "get-memory-info",
+            "path": "/get-memory-info",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetMemoryGeneralInfo"
+            }
+        },
+        {
+            "name": "get-disk-info",
+            "path": "/get-disk-info",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetDiskGeneralInfo"
+            }
+        },
+        {
+            "name": "get-gpu-info",
+            "path": "/get-gpu-info",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetGpuGeneralInfo"
+            }
         }
     ],
     "options": {
