@@ -130,8 +130,6 @@ All Rights Reserved
         tags =
           documentData.meta.category === undefined ? [] : documentData.meta.category.split(",");
 
-        console.log("tags get", tags);
-
         fileReady = true;
         triggerLoading(false);
       } catch (error) {

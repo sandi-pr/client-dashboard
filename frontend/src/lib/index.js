@@ -120,3 +120,5 @@ export {
 export { truncateText } from "$lib/utils/truncateText";
 export { base64toBlob } from "$lib/utils/base64toBlob";
 export { downloadFileBase64, downloadFileBlob } from "$lib/utils/downloadFile";
+export { getLabels } from "$lib/utils/getLabels";
+export { getUser } from "$lib/utils/getUser";

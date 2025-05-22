@@ -811,6 +811,7 @@
   "successUpdateLibrary": "Library updated successfully!",
   "failedEditLibrary": "Failed to edit library. Please try again.",
   "failedGetUser": "Failed to get user. Please try again.",
+  "failedGetLabels": "Failed to get labels. Please try again.",
   "failedGetDocuments": "Failed to get documents. Please try again.",
   "failedUploadDocument": "Failed to upload document. Please try again.",
   "successDeleteLibrary": "Library deleted successfully!",

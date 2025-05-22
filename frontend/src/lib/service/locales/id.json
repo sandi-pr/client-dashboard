@@ -811,6 +811,7 @@
   "successUpdateLibrary": "Pustaka berhasil diperbarui!",
   "failedEditLibrary": "Gagal mengedit pustaka. Silakan coba lagi.",
   "failedGetUser": "Gagal mendapatkan pengguna. Silakan coba lagi.",
+  "failedGetLabels": "Gagal mendapatkan label. Silakan coba lagi.",
   "failedGetDocuments": "Gagal mendapatkan dokumen. Silakan coba lagi.",
   "failedUploadDocument": "Gagal mengunggah dokumen. Silakan coba lagi.",
   "successDeleteLibrary": "Pustaka berhasil dihapus!",

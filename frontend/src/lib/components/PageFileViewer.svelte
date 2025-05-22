@@ -12,11 +12,13 @@
   import {
     call,
     check,
+    getUser,
     getIcons,
+    getLabels,
     triggerToast,
-    downloadFileBase64,
-    downloadFileBlob,
     triggerLoading,
+    downloadFileBlob,
+    downloadFileBase64,
   } from "$lib"; // Library for functions
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
@@ -50,85 +52,13 @@
   let uploadedBy = $state("");
   let alltags = $state([]);
 
-  const getLabels = async () => {
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-label", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (response.status !== 200) {
-        if (response.status === 400) {
-          console.error("Invalid parameters:", response);
-          triggerToast($_("invalidParameters"), true, "error");
-        } else if (response.status === 401) {
-          console.error("Unauthorized access:", response);
-          triggerToast($_("unauthorized"), true, "error");
-        } else if (response.status === 500) {
-          console.error("Server error:", response);
-          triggerToast($_("serverError"), true, "error");
-        } else {
-          console.error("Unexpected status code:", response);
-          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-        }
-        return;
-      }
-
-      alltags = response.result.labels;
-    } else {
-      triggerToast($_("unauthorized"), true, "error");
-      return;
-    }
-  };
-
-  const getUser = async (userData) => {
-    let token = localStorage.getItem("token");
-    try {
-      let response = await $call.call("client-dashboard", "get-user", {
-        URLQuery: {},
-        URLParams: { id: userData.upload_by.toString() },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        if (response.status === 400) {
-          console.error("Invalid parameters:", response);
-          triggerToast($_("invalidParameters"), true, "error");
-        } else if (response.status === 401) {
-          console.error("Unauthorized access:", response);
-          triggerToast($_("unauthorized"), true, "error");
-        } else if (response.status === 500) {
-          console.error("Server error:", response);
-          triggerToast($_("serverError"), true, "error");
-        } else {
-          console.error("Unexpected status code:", response);
-          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-        }
-        return;
-      }
-
-      uploadedBy = response?.result?.user?.username || "Unknown User";
-    } catch (error) {
-      console.error("Error during user get:", error);
-      triggerToast($_("failedGetUser"), true, "error");
-    }
-  };
-
   onMount(async () => {
-    await getLabels();
+    alltags = await getLabels($call);
   });
 
   $effect(async () => {
     if (Object.keys(data).length > 0) {
-      await getUser(data);
+      uploadedBy = await getUser($call, data);
     }
   });
 </script>
