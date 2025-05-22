@@ -3,6 +3,7 @@ import { writable, derived } from "svelte/store";
 export const cpuData = writable([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 export const memoryData = writable([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 export const diskData = writable([]);
+export const gpuData = writable([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 export const tabDatas = writable({ 
     selected: "CPU" , 
     data: [
@@ -59,6 +60,29 @@ export const realTimeDatasMemory = writable([
 
 export const realTimeDatasDisk = writable([]);
 
+export const realTimeDatasGPU = writable([
+  {
+    name: "Utilization",
+    value: "",
+  },
+  {
+    name: "GPU Memory",
+    value: "",
+  },
+  {
+    name: "Dedicated GPU Memory",
+    value: "",
+  },
+  // {
+  //   name: "Shared GPU Memory",
+  //   value: "0,3/7,7 GB",
+  // },
+  {
+    name: "GPU Temperature",
+    value: "",
+  },
+]);
+
 export const optionData = derived(tabDatas, ($tabDatas, set) => {
   if ($tabDatas.selected === "CPU") {
     cpuData.subscribe(set);
@@ -67,8 +91,8 @@ export const optionData = derived(tabDatas, ($tabDatas, set) => {
   } else if ($tabDatas.selected === "Disk") {
     diskData.subscribe(set);
   } else if ($tabDatas.selected === "GPU") {
-    set([50, 20, 50, 20, 50, 75, 10, 30, 60]);
+    gpuData.subscribe(set);
   } else {
-    set([25, 10, 80, 50, 95, 100, 75, 45, 30, 10]);
+    set([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   }
 });

@@ -114,5 +114,7 @@ export {
   memoryData,
   realTimeDatasMemory,
   diskData,
-  realTimeDatasDisk
+  realTimeDatasDisk,
+  gpuData,
+  realTimeDatasGPU
 } from "$lib/utils/usage";
