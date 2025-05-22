@@ -338,7 +338,16 @@
               onclick={async () => {
                 dropdownUser = !dropdownUser;
                 let url = await $call.getPage("client-dashboard", "usage");
-                goto(url);
+                if (url !== null) goto(url);
+                else {
+                  var base_url =
+                    (location.protocol) +
+                    "//" +
+                    location.hostname +
+                    (location.port == "" ? "" : ":" + location.port);
+                  
+                  console.log(`${base_url}/client-dashboard/usage`);
+                }
               }}
               class="flex px-3 py-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
