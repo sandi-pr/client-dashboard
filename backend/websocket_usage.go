@@ -46,8 +46,8 @@ func (c *UsageWebSocket) Serve(w http.ResponseWriter, r *http.Request, dataType 
 			sendMemoryData(conn)
 		case "Disk":
 			sendDiskData(conn)
-		// case "GPU":
-		// 	sendGPUData(conn)
+		case "GPU":
+			sendGPUData(conn)
 		default:
 			conn.WriteJSON(map[string]string{
 				"error": "Unknown data type",
@@ -176,7 +176,7 @@ func sendDiskData(conn *websocket.Conn) {
 	}
 }
 
-func SendGPUData(conn *websocket.Conn) {
+func sendGPUData(conn *websocket.Conn) {
 	http := requests.NewHttp(U.Dict{
 		"Content-type": "application/json",
 	})
