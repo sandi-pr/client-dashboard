@@ -181,7 +181,7 @@ func sendGPUData(conn *websocket.Conn) {
 		"Content-type": "application/json",
 	})
 
-	resp, err := http.Post(fmt.Sprintf("%s/api/get-gpu-utilization", HEXA_RAG_URL), nil, U.Dict{}.ToJson())
+	resp, err := http.Post(fmt.Sprintf("%s/api/get-gpu-utilization", USAGE_URL), nil, U.Dict{}.ToJson())
 
 	if err != nil {
 		fmt.Println("Error getting GPU utilization:", err)
