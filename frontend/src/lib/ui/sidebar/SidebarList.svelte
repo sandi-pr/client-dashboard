@@ -346,7 +346,7 @@
                     location.hostname +
                     (location.port == "" ? "" : ":" + location.port);
                   
-                  console.log(`${base_url}/client-dashboard/usage`);
+                  goto(`${base_url}/client-dashboard/usage`);
                 }
               }}
               class="flex px-3 py-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
