@@ -334,7 +334,7 @@
               />
             </button>
             <!-- todo config -->
-            <!-- <button
+            <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
                 let url = isFrontend ? "/usage" : await $call.getPage("client-dashboard", "usage");
@@ -349,7 +349,7 @@
                 text={$_("usage")}
                 color="primary"
               />
-            </button> -->
+            </button>
           </ul>
         </div>
         <SidebarGroup>
