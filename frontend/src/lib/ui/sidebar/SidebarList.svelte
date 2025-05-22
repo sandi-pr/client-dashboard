@@ -337,7 +337,7 @@
             <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
-                let url = isFrontend ? "/usage" : await $call.getPage("client-dashboard", "usage");
+                let url = await $call.getPage("client-dashboard", "usage");
                 goto(url);
               }}
               class="flex px-3 py-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
