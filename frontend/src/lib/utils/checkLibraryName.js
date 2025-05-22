@@ -1,4 +1,4 @@
-export const checkLibraryName = async (name, parentId, type, call) => {
+export const checkLibraryName = async (call, name, parentId, type) => {
   let token = localStorage.getItem("token");
   if (!name || !token) {
     return null;
@@ -18,7 +18,7 @@ export const checkLibraryName = async (name, parentId, type, call) => {
       },
     });
 
-    console.log("cek resp", resp);
+    // console.log("cek resp", resp);
 
     if (resp === null) {
       throw new Error("Server sibuk");

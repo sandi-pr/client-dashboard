@@ -108,3 +108,5 @@ export { voiceLibraryId, setVoiceLibraryIds } from "$lib/utils/voiceLibraryStore
 export { datasourceLibraryId, setDatasourceLibraryIds } from "$lib/utils/datasourceLibraryStore";
 export { findIconFromModelName } from "$lib/utils/findIconFromModelName";
 export { truncateText } from "$lib/utils/truncateText";
+export { base64toBlob } from "$lib/utils/base64toBlob";
+export { downloadFileBase64, downloadFileBlob } from "$lib/utils/downloadFile";

@@ -1,7 +1,7 @@
 <script>
-  import { page } from "$app/stores";
+  import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { P, Heading, Button, Modal, Helper } from "flowbite-svelte";
+  import { P, Button, Modal, Helper } from "flowbite-svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import MultiSelect from "svelte-multiselect";
   import { _, locale } from "svelte-i18n";
@@ -9,63 +9,153 @@
   import { formatDistanceToNow } from "date-fns";
 
   import { InputRw, TextareaRw, Typography, ToastContainer, Divider } from "$lib"; // Library for components
-  import { call, check, triggerToast, triggerLoading, getIcons, truncateText } from "$lib"; // Library for functions
+  import {
+    call,
+    check,
+    getIcons,
+    triggerToast,
+    downloadFileBase64,
+    downloadFileBlob,
+    triggerLoading,
+  } from "$lib"; // Library for functions
   import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
+
+  const Copy01Icon = getIcons("copy01");
 
   const isFrontend = process.env.NODE_ENV === "development";
 
   let {
-    data,
-    tags,
+    data = $bindable(),
+    tags = $bindable(),
+    documentTitle = $bindable(),
     onEdit,
     base64,
-    tmpData,
-    alltags,
     fileUrl,
     pdfReady,
-    uploadBy,
     fileReady,
+    libraryId,
     popupModal,
-    updateDocument,
-    deleteDocument,
+    documentId,
+    defaultData,
+    collectionId,
+    pageDataType,
     nameIsAvailable,
-    handleInputName,
     attributeNotUnique,
+    updateData = () => {},
+    deleteData = () => {},
+    handleInputName = () => {},
   } = $props();
+
+  let uploadedBy = $state("");
+  let alltags = $state([]);
+
+  const getLabels = async () => {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-label", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      if (response.status !== 200) {
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
+        return;
+      }
+
+      alltags = response.result.labels;
+    } else {
+      triggerToast($_("unauthorized"), true, "error");
+      return;
+    }
+  };
+
+  const getUser = async (userData) => {
+    let token = localStorage.getItem("token");
+    try {
+      let response = await $call.call("client-dashboard", "get-user", {
+        URLQuery: {},
+        URLParams: { id: userData.upload_by.toString() },
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
+        } else {
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        }
+        return;
+      }
+
+      uploadedBy = response?.result?.user?.username || "Unknown User";
+    } catch (error) {
+      console.error("Error during user get:", error);
+      triggerToast($_("failedGetUser"), true, "error");
+    }
+  };
+
+  onMount(async () => {
+    await getLabels();
+  });
+
+  $effect(async () => {
+    if (Object.keys(data).length > 0) {
+      await getUser(data);
+    }
+  });
 </script>
 
-<div class="flex dark:bg-hc-graydark-950">
+<div class="flex">
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- Header -->
       <div class="flex items-center justify-between">
         <div class="flex flex-col grow">
-          <div class="gap-2">
-            <Heading
-              tag="h3"
-              class="fluid-xl md:fluid-xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{tmpData.document_title}
-              &nbsp;
-              <button
-                onclick={() => {
-                  navigator.clipboard
-                    .writeText(tmpData.document_title)
-                    .then(() => {
-                      triggerToast("copyToClipboard");
-                    })
-                    .catch((err) => {
-                      console.error("Failed to copy: ", err);
-                    });
-                }}
-                class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
-              >
-                <svelte:component
-                  this={getIcons("copy01")}
-                  svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-                />
-              </button>
-            </Heading>
+          <div class="flex gap-2">
+            <Typography preset="Display sm/Semibold" text={documentTitle} />
+            <button
+              onclick={() => {
+                navigator.clipboard
+                  .writeText(documentTitle)
+                  .then(() => {
+                    triggerToast("copyToClipboard");
+                  })
+                  .catch((err) => {
+                    console.error("Failed to copy: ", err);
+                  });
+              }}
+              class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
+            >
+              <Copy01Icon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+            </button>
           </div>
           <P
             class="fluid-sm md:fluid-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
@@ -78,15 +168,15 @@
                 {$_("createOn")}
                 {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeEn })}
               {/if}
-            {/if}</P
-          >
+            {/if}
+          </P>
         </div>
         <div class="flex gap-2">
           {#if onEdit}
             <Button
               onclick={() => {
                 onEdit = false;
-                data = { ...tmpData };
+                data = { ...defaultData };
                 attributeNotUnique = false;
                 nameIsAvailable = true;
               }}
@@ -97,7 +187,10 @@
             </Button>
             <Button
               onclick={() => {
-                updateDocument();
+                updateData();
+                onEdit = false;
+                attributeNotUnique = false;
+                nameIsAvailable = true;
               }}
               disabled={data.document_title === "" || !nameIsAvailable}
               class="px-3 focus-within:!ring-1"
@@ -108,8 +201,6 @@
             <Button
               onclick={async function () {
                 triggerLoading(false);
-                let collectionId = $page.url.searchParams.get("collectionId");
-                let libraryId = $page.url.searchParams.get("libraryId");
                 goto(
                   (isFrontend
                     ? "/documents/libraries/collections/documents"
@@ -141,6 +232,18 @@
             >
               {$_("edit")}
             </Button>
+            <Button
+              onclick={() => {
+                if (pageDataType === "document") {
+                  downloadFileBase64(base64, data.document_title, data.ext);
+                } else {
+                  downloadFileBlob(fileUrl, data.document_title);
+                }
+              }}
+              class="px-3 focus-within:!ring-1"
+            >
+              {$_("download")}
+            </Button>
           {/if}
         </div>
       </div>
@@ -162,7 +265,13 @@
                   color="secondary"
                   text={`${$_("documentTitle")}*`}
                 />
-                <InputRw {onEdit} oninput={handleInputName} bind:value={data.document_title} />
+                <InputRw
+                  {onEdit}
+                  oninput={(evt) => {
+                    handleInputName(evt, defaultData.document_title);
+                  }}
+                  bind:value={data.document_title}
+                />
                 {#if !nameIsAvailable}
                   <Helper color="red">
                     <span class="font-medium">{$_("nameAlreadyTaken")}</span>
@@ -195,7 +304,7 @@
               </div>
               <div class="flex flex-col gap-1.5">
                 <Typography preset="Text sm/medium" color="secondary" text={$_("uploadBy")} />
-                <InputRw onEdit={false} bind:value={uploadBy} />
+                <InputRw onEdit={false} value={uploadedBy} />
               </div>
             </div>
           </div>
@@ -279,7 +388,7 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>
-    <Button onclick={deleteDocument} color="red" class="me-2">{$_("yesImSure")}</Button>
+    <Button onclick={deleteData} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
 </Modal>
