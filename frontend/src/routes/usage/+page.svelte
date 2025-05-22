@@ -669,6 +669,8 @@
       const data = response.result;
       console.log("Memory Information:", data);
 
+      titleList[1].value = `Memory ${data.model ?? "-"} ${data.total_installed}`;
+
       generalDatasMemory = [
         {
           name: "Speed",
@@ -676,7 +678,7 @@
         },
         {
           name: "Slots Used",
-          value: `${data.slots_used || 0} of ?`,
+          value: `${data.slots_used || 0} of 2`,
         },
         {
           name: "Form Factor",
