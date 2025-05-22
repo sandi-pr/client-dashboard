@@ -54,6 +54,8 @@ FROM localhost:32000/alpine:latest
 
 WORKDIR /app
 
+RUN apk add --no-cache sysstat util-linux
+
 COPY --from=frontend /app/template /app/template
 COPY --from=frontend /app/public /app/public
 
