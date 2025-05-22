@@ -12,9 +12,11 @@
   memoryData,
   realTimeDatasMemory,
   diskData,
-  realTimeDatasDisk } from "$lib";
+  realTimeDatasDisk,
+  gpuData,
+  realTimeDatasGPU} from "$lib";
   import Chart from "$lib/components/Chart.svelte";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -51,7 +53,7 @@
     },
     {
       name: "GPU",
-      value: "GPU NVIDIA GeForce RTX 3060 Ti",
+      value: "",
     },
   ]);
 
@@ -130,28 +132,28 @@
   //   },
   // ];
 
-  let realTimeDatasGPU = [
-    {
-      name: "Utilization",
-      value: "68%",
-    },
-    {
-      name: "GPU Memory",
-      value: "0,8/8,2 GB",
-    },
-    {
-      name: "Dedicated GPU Memory",
-      value: "451/512 MB",
-    },
-    {
-      name: "Shared GPU Memory",
-      value: "0,3/7,7 GB",
-    },
-    {
-      name: "GPU Temperature",
-      value: "80 °C",
-    },
-  ];
+  // let realTimeDatasGPU = [
+  //   {
+  //     name: "Utilization",
+  //     value: "68%",
+  //   },
+  //   {
+  //     name: "GPU Memory",
+  //     value: "0,8/8,2 GB",
+  //   },
+  //   {
+  //     name: "Dedicated GPU Memory",
+  //     value: "451/512 MB",
+  //   },
+  //   {
+  //     name: "Shared GPU Memory",
+  //     value: "0,3/7,7 GB",
+  //   },
+  //   {
+  //     name: "GPU Temperature",
+  //     value: "80 °C",
+  //   },
+  // ];
 
   let realTimeDatas = $state([]);
 
@@ -216,14 +218,14 @@
       name: "Driver Version",
       value: "496.76",
     },
-    {
-      name: "Driver Date",
-      value: "2021-11-09",
-    },
-    {
-      name: "DirectX Version",
-      value: "DirectX 12 Ultimate",
-    },
+    // {
+    //   name: "Driver Date",
+    //   value: "2021-11-09",
+    // },
+    // {
+    //   name: "DirectX Version",
+    //   value: "DirectX 12 Ultimate",
+    // },
     {
       name: "Physical Allocation",
       value: "PCI Slot 1",
@@ -254,13 +256,13 @@
       : $tabDatas.selected === "Memory"
         ? $memoryData
         : $tabDatas.selected === "Disk"
-          ? [20, 25, 10, 90, 65, 60, 70, 100, 30]
+          ? [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
           : $tabDatas.selected === "GPU"
-            ? [50, 20, 50, 20, 50, 75, 10, 30, 60]
-            : [25, 10, 80, 50, 95, 100, 75, 45, 30, 10],
+            ? $gpuData
+            : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   );
 
-  let optionsDisks = $state([]);
+  let optionsDisks = $derived([]);
 
   let options = $derived({
     chart: {
@@ -389,6 +391,7 @@
             updateDiskData(data);
             break;
           case "gpu_realtime":
+            updateGpuData(data);
             // console.log("[GPU] Received WebSocket message:", data);
             break;
           case "error":
@@ -557,8 +560,35 @@
 
       return updated;
     });
-
   }
+
+  function updateGpuData(data) {
+    gpuData.update(current => {
+      const updated = [...current, parseFloat(data.utilization)];
+      if (updated.length > 10) updated.shift();
+      return updated;
+    });
+
+    realTimeDatasGPU.set([
+      {
+        name: "Utilization",
+        value: data.utilization || "N/A",
+      },
+      {
+        name: "GPU Memory",
+        value: data.memory || "N/A",
+      },
+      {
+        name: "Dedicated GPU Memory",
+        value: data.dedicatedMemory || "N/A",
+      },
+      {
+        name: "GPU Temperature",
+        value: data.temperature || "N/A",
+      },
+    ]);
+  }
+
 
   async function getGeneralIformationCPU() {
     let token = localStorage.getItem("token");
@@ -707,8 +737,61 @@
 
         newOptions.series[0].data = [0,0,0,0,0,0,0,0,0,0];
 
-        optionsDisks = [...optionsDisks, newOptions];
+        optionsDisks.push(newOptions);
       }
+    }
+  }
+
+  async function getGeneralIformationGPU() {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const response = await $call.call("client-dashboard", "get-gpu-info", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        return;
+      }
+
+      const data = response.result;
+      console.log("GPU Information:", data);
+
+      titleList[3].value = `${data.model ?? "-"}`;
+
+      generalDatasGPU = [
+      {
+        name: "Driver Version",
+        value: data.driver_version || "N/A",
+      },
+      // {
+      //   name: "Driver Date",
+      //   value: data.driver_date || "N/A", // kalau tidak ada di response, kasih default
+      // },
+      // {
+      //   name: "DirectX Version",
+      //   value: "DirectX 12 Ultimate", // hardcoded karena tidak ada di response
+      // },
+      {
+        name: "Physical Allocation",
+        value: `${data.physical_allocation?.replace("00000000:", "") || "N/A"}`,
+      },
+      {
+        name: "Hardware Reserved Memory",
+        value: data.hardware_reserved || "N/A",
+      },
+    ];
+    }
+  }
+
+  function disconnectWebSocket() {
+    if (ws) {
+      ws.close();
     }
   }
 
@@ -717,6 +800,11 @@
     getGeneralIformationCPU();
     getGeneralIformationMemory();
     getGeneralIformationDisk();
+    getGeneralIformationGPU();
+  });
+
+  onDestroy(() => {
+    disconnectWebSocket();
   });
 
   $effect(() => {
@@ -739,7 +827,7 @@
           : $tabDatas.selected === "Disk"
             ? $realTimeDatasDisk
             : $tabDatas.selected === "GPU"
-              ? realTimeDatasGPU
+              ? $realTimeDatasGPU
               : realTimeDatasCPU;
   });
 </script>
@@ -754,10 +842,10 @@
 
   <TabBar tabDatas={$tabDatas} on:tabChange={(e) => {
       $tabDatas.selected = e.detail;
-      if ($tabDatas.selected !== "Disk") {
+      // if ($tabDatas.selected !== "Disk") {
         realTimeDatas = [];
         generalDatas = [];
-      }
+      // }
       connectWebSocket();
     }} />
 
@@ -836,12 +924,9 @@
             propClass="mt-8 mb-4"
           />
           <div class="md:max-w-[75%]">
-              {#if disk.series[0].data.length > 0}
-                {console.log(disk)}
-                <!-- <Chart dataChart={disk} /> -->
-              {/if}
+              <Chart dataChart={disk} />
           </div>
-          <!-- <Typography
+          <Typography
             preset="Text xs/Medium"
             text={$_(toCamelCase("Real Time Information"))}
             propClass="mt-8 mb-4"
@@ -896,7 +981,7 @@
                 </div>
               {/each}
             {/if}
-          </div> -->
+          </div>
         {/each}
       {/if}
     {/if}
