@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	U "gitlab.hexacode.org/go-libs/hctypes"
@@ -79,4 +80,42 @@ func uploadFile(file U.Dict, Strapi *strapi.StrapiClassic) (int64, error) {
 	} else {
 		return 0, fmt.Errorf("internal server error")
 	}
+}
+
+func formatFileSize(size int) string {
+	const (
+		KB = 1024
+		MB = 1024 * KB
+		GB = 1024 * MB
+	)
+
+	switch {
+	case size >= MB:
+		return fmt.Sprintf("%.2f MB", float64(size)/MB)
+	case size >= KB:
+		return fmt.Sprintf("%.2f KB", float64(size)/KB)
+	case size >= GB:
+		return fmt.Sprintf("%.2f GB", float64(size)/GB)
+	default:
+		return fmt.Sprintf("%d B", size)
+	}
+}
+
+func convertBytesToMB(b string) string {
+	val, err := strconv.ParseFloat(b, 64)
+	if err != nil {
+		return "-"
+	}
+	return fmt.Sprintf("%.0f", val/1024/1024)
+}
+
+func detectDiskTypeFromName(name string) string {
+	if strings.HasPrefix(name, "nvme") {
+		return "SSD"
+	} else if strings.HasPrefix(name, "sd") {
+		return "HDD"
+	} else if strings.HasPrefix(name, "vd") {
+		return "Virtual"
+	}
+	return "Unknown"
 }

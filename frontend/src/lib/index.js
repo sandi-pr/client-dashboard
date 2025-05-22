@@ -10,6 +10,7 @@
 // place files you want to import through the `$lib` alias in this folder.
 export { default as Input } from "./ui/inputs/Input.svelte";
 export { default as InputRw } from "$lib/ui/inputs/InputRw.svelte";
+export { default as InputCheckbox } from "$lib/ui/inputs/InputCheckbox.svelte";
 export { default as TextareaRw } from "$lib/ui/inputs/TextareaRw.svelte";
 export { default as Button } from "$lib/ui/buttons/Button.svelte";
 export { default as TextButton } from "$lib/ui/buttons/TextButton.svelte";
@@ -107,6 +108,15 @@ export {
 export { voiceLibraryId, setVoiceLibraryIds } from "$lib/utils/voiceLibraryStore";
 export { datasourceLibraryId, setDatasourceLibraryIds } from "$lib/utils/datasourceLibraryStore";
 export { findIconFromModelName } from "$lib/utils/findIconFromModelName";
+export {
+  tabDatas,
+  cpuData,
+  realTimeDatasCPU,
+  memoryData,
+  realTimeDatasMemory,
+  diskData,
+  realTimeDatasDisk,
+} from "$lib/utils/usage";
 export { truncateText } from "$lib/utils/truncateText";
 export { base64toBlob } from "$lib/utils/base64toBlob";
 export { downloadFileBase64, downloadFileBlob } from "$lib/utils/downloadFile";

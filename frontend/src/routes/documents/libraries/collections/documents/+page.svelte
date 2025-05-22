@@ -102,6 +102,7 @@
   let textarea = $state();
   let div = $state();
   let nameIsAvailable = $state(true);
+  let isEnhance = $state(false);
   let isProcess = $state(false);
   let selected = $state([]);
   let dummyTags = $state(["general", "news", "article"]);
@@ -476,6 +477,7 @@
                 detected_text: response3.result.text,
                 result_trocr: JSON.stringify(response3.result),
                 edited: false,
+                repair: isEnhance,
               };
 
               // convert base64 to url
@@ -547,6 +549,8 @@
               documents: JSON.stringify([files[i]]),
               document_type: tmpDocumentType,
               category: tags.join(","),
+              edited: false,
+              repair: isEnhance,
             };
 
             // console.log("cek data send", dataSend);
@@ -939,6 +943,7 @@
         document_type: files[doc].type,
         documents: JSON.stringify(Array(files[doc])),
         category: "",
+        repair: isEnhance,
       };
 
       let resdoc = await $call.call("client-dashboard", "create-library-document", {
@@ -1754,6 +1759,7 @@
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
                     addDocumentsModal = true;
+                    isEnhance = false;
                     folderMode = true;
                     files = [];
                     groupedFiles = null;
@@ -1769,6 +1775,7 @@
                   class="flex p-2 w-full gap-1.5"
                   onclick={() => {
                     addDocumentsModal = true;
+                    isEnhance = false;
                     folderMode = false;
                     tags = [];
                     files = [];
@@ -1939,6 +1946,7 @@
                   disabled={!check("documentAi.documentLibrary.document:create")}
                   onclick={() => {
                     addDocumentsModal = true;
+                    isEnhance = false;
                     folderMode = true;
                     files = [];
                     groupedFiles = null;
@@ -1954,6 +1962,7 @@
                   class="flex p-2 w-full gap-1.5"
                   onclick={() => {
                     addDocumentsModal = true;
+                    isEnhance = false;
                     folderMode = false;
                     tags = [];
                     files = [];
@@ -2027,6 +2036,7 @@
   bind:isProcess
   bind:files
   bind:tags
+  bind:isEnhance
   {handleFileUploadWrapper}
   {alltags}
   {addDocumentByCollection}

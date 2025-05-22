@@ -84,6 +84,7 @@ import ThumbsDownIcon from "../icon/thumbs-down.svelte";
 import Send03Icon from "../icon/send-03.svelte";
 import Dataflow02Icon from "../icon/dataflow-02.svelte";
 import DotsVerticalIcon from "../icon/dots-vertical.svelte";
+import LogoIcon from "../icon/Logo.svelte";
 import Save01Icon from "../icon/save-01.svelte";
 import Copy01Icon from "../icon/copy-01.svelte";
 
@@ -261,6 +262,8 @@ let getIcons = (presetIcon: String) => {
       return Dataflow02Icon;
     case "dotsVertical":
       return DotsVerticalIcon;
+    case "logo":
+      return LogoIcon;
     case "save01":
       return Save01Icon;
     case "copy01":

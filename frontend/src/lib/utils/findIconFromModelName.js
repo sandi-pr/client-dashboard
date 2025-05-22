@@ -11,6 +11,12 @@ export const findIconFromModelName = (modelName) => {
     icon = "openAi";
   } else if (/openai/.test(lowerCaseModelName)) {
     icon = "openAi";
+  } else if (/hexa/.test(lowerCaseModelName)) {
+    icon = "logo";
+  } else if (/gemma/.test(lowerCaseModelName)) {
+    icon = "gemini";
+  } else {
+    icon = "logo";
   }
 
   return icon;

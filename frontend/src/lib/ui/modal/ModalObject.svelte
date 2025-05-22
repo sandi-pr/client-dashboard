@@ -6,6 +6,7 @@
     FeaturedIcon,
     getIcons,
     InputRw as Input,
+    InputCheckbox,
     CardFeature as Card,
     UploadFile,
     UploadFolder,
@@ -24,6 +25,7 @@
     files = $bindable([]),
     groupedFiles = $bindable(null),
     isProcess = $bindable(false),
+    isEnhance = $bindable(undefined),
     addDocumentByCollection,
     alltags = [],
     tags = $bindable([]),
@@ -168,6 +170,16 @@
           //   },
           // },
         ],
+      },
+    },
+    isEnhance === undefined ? {} : {
+      text: {
+        text: "Enhance PDF for better AI reading",
+        color: "primary",
+        preset: "Text sm/Medium",
+      },
+      input: {
+        type: "checkbox",
       },
     },
   ];
@@ -979,7 +991,7 @@
   </svelte:fragment>
 
   {#if configModal?.mainContent}
-    {#each configModal?.mainContent as content}
+    {#each configModal?.mainContent as content, index}
       {#if content?.tabBar}
         <TabBar
           tabDatas={content.tabBar?.tabDatas}
@@ -996,7 +1008,9 @@
         />
       {/if}
       {#if content?.text}
-        <Typography {...content.text} />
+        {#if configModal?.mainContent[index]?.input?.type !== "checkbox"}
+          <Typography {...content.text} />
+        {/if}
       {/if}
       {#if content?.input && content.input.id === "link" && linkChecked}
         <UploadFile
@@ -1019,7 +1033,14 @@
           {handleDrop}
         />
       {:else if content?.input}
-        <Input {...content.input} />
+        {#if content.input.type !== "checkbox"}
+          <Input {...content.input} />
+        {:else}
+          <div class="flex items-center gap-2">
+            <InputCheckbox bind:checked={isEnhance} />
+            <Typography {...content.text} />
+          </div>
+        {/if}
       {/if}
       {#if content?.uploadFile}
         {#if folderMode && !isDND}
