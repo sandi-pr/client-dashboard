@@ -710,22 +710,22 @@ All Rights Reserved
     }
   };
 
-  const reset_database = async () => {
-    try {
-      await call.call("client-dashboard", "reset", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      });
+  // const reset_database = async () => {
+  //   try {
+  //     await call.call("client-dashboard", "reset", {
+  //       URLQuery: {},
+  //       URLParams: {},
+  //       Params: {},
+  //       Headers: {
+  //         Authorization: "Bearer " + localStorage.getItem("token"),
+  //       },
+  //     });
 
-      await logout();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  //     await logout();
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   export const load = async () => {
     if (browser) {
@@ -987,32 +987,32 @@ All Rights Reserved
     }
   }
 
-  async function checkLibrariesDatasouce() {
-    let token = localStorage.getItem("token");
-    if (token) {
-      const response = await call.call("client-dashboard", "find-create-library-by-name", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          library_name: "Data Source List",
-          description: "Data Source Collection",
-        },
-        Headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  // async function checkLibrariesDatasouce() {
+  //   let token = localStorage.getItem("token");
+  //   if (token) {
+  //     const response = await call.call("client-dashboard", "find-create-library-by-name", {
+  //       URLQuery: {},
+  //       URLParams: {},
+  //       Params: {
+  //         library_name: "Data Source List",
+  //         description: "Data Source Collection",
+  //       },
+  //       Headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      if (response.status !== 200) {
-        // console.log("status not 200", response);
-        return;
-      }
+  //     if (response.status !== 200) {
+  //       // console.log("status not 200", response);
+  //       return;
+  //     }
 
-      // console.log("created datasource library", response);
+  //     // console.log("created datasource library", response);
 
-      localStorage.setItem("libraryIdDatasource", response.result.id);
-      setDatasourceLibraryIds(response.result.id);
-    }
-  }
+  //     localStorage.setItem("libraryIdDatasource", response.result.id);
+  //     setDatasourceLibraryIds(response.result.id);
+  //   }
+  // }
 
   async function checkCollectionsBakrie() {
     try {
@@ -1167,69 +1167,69 @@ All Rights Reserved
     }
   }
 
-  async function createVoiceBot() {
-    let token = localStorage.getItem("token");
+  // async function createVoiceBot() {
+  //   let token = localStorage.getItem("token");
 
-    if (token !== null) {
-      const resp = await call.call("client-dashboard", "get-bot-by-name", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          name: "CSV Insights Bots",
-        },
-        Headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      });
+  //   if (token !== null) {
+  //     const resp = await call.call("client-dashboard", "get-bot-by-name", {
+  //       URLQuery: {},
+  //       URLParams: {},
+  //       Params: {
+  //         name: "CSV Insights Bots",
+  //       },
+  //       Headers: {
+  //         Authorization: "Bearer " + localStorage.getItem("token"),
+  //       },
+  //     });
 
-      // console.log("------", resp);
+  //     // console.log("------", resp);
 
-      if (resp.status !== 404) {
-        // console.log("bot already exists", resp);
-        // localStorage.setItem("botIdStrapi", resp.result.id);
-        // gettingData = false;
-        return;
-      }
+  //     if (resp.status !== 404) {
+  //       // console.log("bot already exists", resp);
+  //       // localStorage.setItem("botIdStrapi", resp.result.id);
+  //       // gettingData = false;
+  //       return;
+  //     }
 
-      let dataSend = {
-        bot_name: "CSV Insights Bots",
-        description: "",
-        ai_engine: "llama3.1:8b",
-        library_id: $datasourceLibraryId,
-        collection_id: "all",
-        additional_prompt: "",
-        need_auth: false,
-        module_type: "insights",
-      };
+  //     let dataSend = {
+  //       bot_name: "CSV Insights Bots",
+  //       description: "",
+  //       ai_engine: "llama3.1:8b",
+  //       library_id: $datasourceLibraryId,
+  //       collection_id: "all",
+  //       additional_prompt: "",
+  //       need_auth: false,
+  //       module_type: "insights",
+  //     };
 
-      // // console.log("dataSend", dataSend);
+  //     // // console.log("dataSend", dataSend);
 
-      try {
-        const response = await call.call("client-dashboard", "create-bot", {
-          URLQuery: {},
-          URLParams: {},
-          Params: dataSend,
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+  //     try {
+  //       const response = await call.call("client-dashboard", "create-bot", {
+  //         URLQuery: {},
+  //         URLParams: {},
+  //         Params: dataSend,
+  //         Headers: {
+  //           Authorization: "Bearer " + token,
+  //         },
+  //       });
 
-        // console.log("createVoiceBot", response);
+  //       // console.log("createVoiceBot", response);
 
-        if (response.status !== 200) {
-          // console.log(response);
-          return;
-        }
+  //       if (response.status !== 200) {
+  //         // console.log(response);
+  //         return;
+  //       }
 
-        // localStorage.setItem("botIdStrapi", response.result.data.id);
-      } catch (error) {
-        // console.log(error);
-      }
-    } else {
-      // console.log("no token");
-      return;
-    }
-  }
+  //       // localStorage.setItem("botIdStrapi", response.result.data.id);
+  //     } catch (error) {
+  //       // console.log(error);
+  //     }
+  //   } else {
+  //     // console.log("no token");
+  //     return;
+  //   }
+  // }
 
   let coreModule = [
     {
@@ -1259,7 +1259,7 @@ All Rights Reserved
       name_library: "API Connector",
       module_type: "apiconnector",
       name_collection: "My API Collection",
-    }
+    },
   ];
 
   async function createCoreModule(
@@ -1291,11 +1291,11 @@ All Rights Reserved
         // console.log("11111111");
         return;
       }
-      
+
       localStorage.setItem("libraryId" + moduleType, response.result.id);
 
       if (collectionName !== undefined) {
-        // console.log("collectionName not null" + collectionName); 
+        // console.log("collectionName not null" + collectionName);
         const responseCollection = await call.call(
           "client-dashboard",
           "find-create-library-collection-by-name",
@@ -1314,17 +1314,15 @@ All Rights Reserved
         );
 
         localStorage.setItem("collectionId" + moduleType, responseCollection.result.id);
-       
       } else {
         // console.log("collectionName null" + libraryName);
       }
-
 
       // console.log("checked library" + libraryName, response);
       // console.log("------");
 
       if (botName !== undefined) {
-        // console.log("botName not null" + botName);  
+        // console.log("botName not null" + botName);
         const resp = await call.call("client-dashboard", "get-bot-by-name", {
           URLQuery: {},
           URLParams: {},
@@ -1377,68 +1375,67 @@ All Rights Reserved
         } catch (error) {
           // console.log(error);
         }
-
       } else {
         // console.log("botName null" + libraryName);
       }
     }
   }
 
-  async function createDemoBot() {
-    let token = localStorage.getItem("token");
+  // async function createDemoBot() {
+  //   let token = localStorage.getItem("token");
 
-    if (token !== null) {
-      const resp = await call.call("client-dashboard", "get-bot-by-name", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          name: "Try LLMs Bot",
-        },
-        Headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      });
+  //   if (token !== null) {
+  //     const resp = await call.call("client-dashboard", "get-bot-by-name", {
+  //       URLQuery: {},
+  //       URLParams: {},
+  //       Params: {
+  //         name: "Try LLMs Bot",
+  //       },
+  //       Headers: {
+  //         Authorization: "Bearer " + localStorage.getItem("token"),
+  //       },
+  //     });
 
-      if (resp.status !== 404) {
-        // console.log(resp);
-        gettingData = false;
-        return;
-      }
+  //     if (resp.status !== 404) {
+  //       // console.log(resp);
+  //       gettingData = false;
+  //       return;
+  //     }
 
-      let dataSend = {
-        bot_name: "Try LLMs Bot",
-        description: "",
-        ai_engine: "llama3.2:8b",
-        library_id: parseInt(localStorage.getItem("libraryIdWebchatBakrie")),
-        collection_id: "all",
-        additional_prompt: "",
-        need_auth: false,
-      };
+  //     let dataSend = {
+  //       bot_name: "Try LLMs Bot",
+  //       description: "",
+  //       ai_engine: "llama3.2:8b",
+  //       library_id: parseInt(localStorage.getItem("libraryIdWebchatBakrie")),
+  //       collection_id: "all",
+  //       additional_prompt: "",
+  //       need_auth: false,
+  //     };
 
-      // console.log("dataSend", dataSend);
+  //     // console.log("dataSend", dataSend);
 
-      try {
-        const response = await call.call("client-dashboard", "create-bot", {
-          URLQuery: {},
-          URLParams: {},
-          Params: dataSend,
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+  //     try {
+  //       const response = await call.call("client-dashboard", "create-bot", {
+  //         URLQuery: {},
+  //         URLParams: {},
+  //         Params: dataSend,
+  //         Headers: {
+  //           Authorization: "Bearer " + token,
+  //         },
+  //       });
 
-        if (response.status !== 200) {
-          // console.log(response);
-          return;
-        }
-      } catch (error) {
-        // console.log(error);
-      }
-    } else {
-      // console.log("no token");
-      return;
-    }
-  }
+  //       if (response.status !== 200) {
+  //         // console.log(response);
+  //         return;
+  //       }
+  //     } catch (error) {
+  //       // console.log(error);
+  //     }
+  //   } else {
+  //     // console.log("no token");
+  //     return;
+  //   }
+  // }
 
   async function getIndustryId() {
     let token = localStorage.getItem("token");
@@ -1773,7 +1770,7 @@ All Rights Reserved
     await getModelsTrocr();
     await getIndustryId();
     await CheckBotLlm();
-    hideNavbar();
+    // hideNavbar(); // Taqie - Function to hide navbar on load
 
     getNotifications();
     getNotificationsUnread();
@@ -1898,16 +1895,7 @@ All Rights Reserved
             <div class="relative transition-all duration-300 h-screen">
               {#if !hideNav}
                 <div class="absolute w-full top-0 z-10">
-                  <Navbar
-                    {activeUrl}
-                    {$showAI}
-                    {changeShowAI}
-                    {changeShowNotif}
-                    {appUrl}
-                    {reset_database}
-                    bind:authority
-                    bind:hasNewNotif
-                  />
+                  <Navbar bind:authority bind:hasNewNotif {activeUrl} {appUrl} {changeShowNotif} />
                 </div>
               {/if}
               {#if isComingSoon}

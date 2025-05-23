@@ -1566,12 +1566,24 @@
   };
 
   const scrollToTop = () => {
-    // console.log("Scrolling to top using scrollIntoView");
-
     // Use an existing element at the top of the page
     const topElement = document.querySelector(".top-element");
+
     if (topElement) {
-      topElement.scrollIntoView({ behavior: "smooth" });
+      // Temporarily add padding to account for the navbar offset
+      const offset = 64; // 4rem in pixels
+      topElement.style.scrollMarginTop = `${offset}px`;
+
+      // Scroll the element into view
+      topElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      // Clean up the temporary padding after scrolling
+      setTimeout(() => {
+        topElement.style.scrollMarginTop = ""; // Reset the margin
+      }, 500); // Adjust timeout to match the scroll duration
     } else {
       console.error("Top element not found");
     }
