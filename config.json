@@ -553,6 +553,11 @@
             "name": "handwriting-sub-documents-detail",
             "path": "/handwriting/collections/documents/sub_documents/detail",
             "file_path": "template/handwriting/collections/documents/sub_documents/detail.html"
+        },
+        {
+            "name": "e-learning",
+            "path": "/e_learning",
+            "file_path": "template/e_learning.html"
         }
     ],
     "apis": [

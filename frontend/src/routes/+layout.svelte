@@ -49,6 +49,9 @@ All Rights Reserved
     isBakrie,
     check,
     PageComingSoon,
+    setCookie,
+    getCookie,
+    isMoodle
   } from "$lib";
   import { onDestroy, onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -406,6 +409,13 @@ All Rights Reserved
           // }
         ],
       },
+      // E-learning
+      // {
+      //   icon: "bookOpen",
+      //   name: "eLearning",
+      //   href: isFrontend ? "/e_learning" : await call.getPage("client-dashboard", "e-learning"),
+      //   children: [],
+      // },
       {
         icon: "settings03",
         name: "configurations",
@@ -1740,6 +1750,12 @@ All Rights Reserved
         return;
       }
     }
+
+    // if ($isMoodle) {
+    //   Example set cookie
+    //   const cookies = "250ff1da9fa2bcc6bf33388bc286ace4";
+    //   setCookie('MoodleSession', cookies, 1);
+    // }
 
     isComingSoon = checkPageComingSoon();
 

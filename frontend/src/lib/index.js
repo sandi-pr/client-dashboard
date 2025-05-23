@@ -118,3 +118,5 @@ export {
   gpuData,
   realTimeDatasGPU
 } from "$lib/utils/usage";
+export { setCookie, getCookie } from "$lib/utils/cookies";
+export { isMoodle } from "$lib/utils/moodleStore";

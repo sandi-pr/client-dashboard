@@ -29,7 +29,7 @@ All Rights Reserved
   import Badge from "$lib/ui/badge/Badge.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, check, InputRw, isBakrie } from "$lib";
+  import { Dropdown, triggerToast, check, InputRw, isBakrie, isMoodle } from "$lib";
   import { twMerge } from "tailwind-merge";
 
   import { call } from "$lib";
@@ -80,6 +80,7 @@ All Rights Reserved
         let promises = response.result.roles.map(async (role) => {
           return {
             name: role.name,
+            value: role.name,
           };
         });
 
@@ -94,8 +95,21 @@ All Rights Reserved
           if (!found) {
             promises.push({
               name: "User",
+              value: "User",
             });
           }
+        }
+
+        if ($isMoodle) {
+          promises.push({
+            name: "Student",
+            value: "Student",
+          });
+
+          promises.push({
+            name: "Teacher",
+            value: "Teacher",
+          });
         }
 
         roles = await Promise.all(promises);
@@ -423,77 +437,13 @@ All Rights Reserved
                   >
                     {$_("role")}
                   </P>
-                  <div class="my-auto">
-                    <Button
-                      color="light"
-                      class={inputClass() + " flex justify-between w-full p-2"}
-                      on:click={() => {
-                        if (onEdit) {
-                          dropdownOpenRole = !dropdownOpenRole;
-                        }
-                      }}
-                      id="dropdownDefaultButton"
-                    >
-                      <!-- <Badge
-                      text={data.role}
-                      type={data.role === "Super Admin" || data.role === "Admin" ? "brand" : "info"}
-                    /> -->
-                      <P class="font-semibold">{data.role}</P>
-                      <ChevronDownOutline class="w-6 h-6 ms-2 dark:text-white" />
-                    </Button>
-                    <div
-                      id="dropdown"
-                      class={`z-10 ${dropdownOpenRole && onEdit ? "fixed" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow w-auto dark:bg-gray-700`}
-                    >
-                      <ul
-                        class="py-2 text-sm text-gray-700 dark:text-gray-200"
-                        aria-labelledby="dropdownDefaultButton"
-                      >
-                        {#each roles as role}
-                          <button
-                            class="flex p-2"
-                            onclick={() => {
-                              data.role = role.name;
-                              dropdownOpenRole = false;
-                            }}
-                          >
-                            <Typography
-                              preset="Text sm/Regular"
-                              text={role.name}
-                              color="secondary"
-                            />
-                          </button>
-                        {/each}
-                        <!-- <button
-                            class="flex p-2"
-                            onclick={() => {
-                              data.role = "Admin";
-                              dropdownOpenRole = false;
-                            }}
-                          >
-                            <P>Admin</P>
-                          </button>
-                          <button
-                            class="flex p-2"
-                            onclick={() => {
-                              data.role = "Manager";
-                              dropdownOpenRole = false;
-                            }}
-                          >
-                            <P>Manager</P>
-                          </button>
-                        <button
-                          class="flex p-2"
-                          onclick={() => {
-                            data.role = "User";
-                            dropdownOpenRole = false;
-                          }}
-                        >
-                          <P>User</P>
-                        </button> -->
-                      </ul>
-                    </div>
-                  </div>
+                  <Dropdown
+                    {dropdownOpenRole}
+                    bind:selectedItem={data.role}
+                    items={roles}
+                    isOverlay={true}
+                    placeholder={$_("selectRole")}
+                  />
                 </div>
                 <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
                   <P

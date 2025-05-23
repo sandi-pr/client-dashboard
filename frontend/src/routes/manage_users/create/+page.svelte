@@ -16,7 +16,7 @@ All Rights Reserved
   import { Typography } from "hexacomponents-svelte";
   import { ChevronDownOutline, EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
-  import { triggerToast, check, isBakrie } from "$lib";
+  import { Dropdown, triggerToast, check, isBakrie, isMoodle } from "$lib";
   import { twMerge } from "tailwind-merge";
 
   import { call } from "$lib";
@@ -60,6 +60,7 @@ All Rights Reserved
         let promises = response.result.roles.map(async (role) => {
           return {
             name: role.name,
+            value: role.name,
           };
         });
 
@@ -74,8 +75,21 @@ All Rights Reserved
           if (!found) {
             promises.push({
               name: "User",
+              value: "User",
             });
           }
+        }
+
+        if ($isMoodle) {
+          promises.push({
+            name: "Student",
+            value: "Student",
+          });
+
+          promises.push({
+            name: "Teacher",
+            value: "Teacher",
+          });
         }
 
         roles = await Promise.all(promises);
@@ -294,7 +308,14 @@ All Rights Reserved
                 >
                   {$_("role")}
                 </P>
-                <div class="my-auto w-full" onfocusout={handleDropdownFocusLoss}>
+                <Dropdown
+                  {dropdownOpen}
+                  bind:selectedItem={data.role}
+                  items={roles}
+                  isOverlay={true}
+                  placeholder={$_("selectRole")}
+                />
+                <!-- <div class="my-auto w-full" onfocusout={handleDropdownFocusLoss}>
                   <Button
                     color="light"
                     class={inputClass() + " flex justify-between w-full p-2"}
@@ -302,14 +323,14 @@ All Rights Reserved
                     id="dropdownDefaultButton"
                   >
                     <Typography preset="Text sm/Regular" text={$_(data.role)} color="secondary" />
-                    <!-- <Badge
+                    <Badge
                       text={data.role}
                       type={data.role === "Super Admin" ||
                       data.role === "Admin" ||
                       data.role === "Manager"
                         ? "brand"
                         : "info"}
-                    /> -->
+                    />
                     <ChevronDownOutline class="w-3 h-3 ms-2 dark:text-white" />
                   </Button>
                   <div
@@ -331,40 +352,9 @@ All Rights Reserved
                           <Typography preset="Text sm/Regular" text={role.name} color="secondary" />
                         </button>
                       {/each}
-                      <!-- <button
-                        class="flex p-2"
-                        onclick={() => {
-                          data.role = "Admin";
-                          dropdownOpen = false;
-                        }}
-                      >
-                        <Typography preset="Text sm/Regular" text={$_("admin")} color="secondary" />
-                      </button>
-                      <button
-                        class="flex p-2"
-                        onclick={() => {
-                          data.role = "Manager";
-                          dropdownOpen = false;
-                        }}
-                      >
-                        <Typography
-                          preset="Text sm/Regular"
-                          text={$_("manager")}
-                          color="secondary"
-                        />
-                      </button>
-                      <button
-                        class="flex p-2"
-                        onclick={() => {
-                          data.role = "User";
-                          dropdownOpen = false;
-                        }}
-                      >
-                        <Typography preset="Text sm/Regular" text={$_("user")} color="secondary" />
-                      </button> -->
                     </ul>
                   </div>
-                </div>
+                </div> -->
                 <!-- <div class="my-auto">
                     <Badge text={data.role} />
                   </div>  -->
