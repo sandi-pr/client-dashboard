@@ -22,11 +22,6 @@
     options = dataChart;
     ready = true;
   }
-
-  $: if (dataChart) {
-    options = dataChart;
-    ready = true;
-  }
 </script>
 
 {#if ready}
