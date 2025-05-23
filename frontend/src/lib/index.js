@@ -61,6 +61,7 @@ export { default as ModalFilePreview } from "$lib/ui/modal/ModalFilePreview.svel
 export { default as ModalFolder } from "$lib/ui/modal/ModalFolder.svelte";
 export { default as PageComingSoon } from "$lib/components/PageComingSoon.svelte";
 export { default as PageFileViewer } from "$lib/components/PageFileViewer.svelte";
+export { default as PageDocumentDetail } from "$lib/components/PageDocumentDetail.svelte";
 export { checkLibraryName } from "$lib/utils/checkLibraryName";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {
@@ -122,3 +123,4 @@ export { base64toBlob } from "$lib/utils/base64toBlob";
 export { downloadFileBase64, downloadFileBlob } from "$lib/utils/downloadFile";
 export { getLabels } from "$lib/utils/getLabels";
 export { getUser } from "$lib/utils/getUser";
+export { handleInputName } from "$lib/utils/handleInputName";

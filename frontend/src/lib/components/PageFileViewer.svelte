@@ -1,6 +1,5 @@
 <script>
   import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
   import { P, Button, Modal, Helper } from "flowbite-svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import MultiSelect from "svelte-multiselect";
@@ -11,12 +10,12 @@
   import { InputRw, TextareaRw, Typography, ToastContainer, Divider, FeaturedIcon } from "$lib"; // Library for components
   import {
     call,
-    check,
     getUser,
     getIcons,
     getLabels,
     triggerToast,
-    triggerLoading,
+    truncateText,
+    handleInputName,
     downloadFileBlob,
     downloadFileBase64,
   } from "$lib"; // Library for functions
@@ -31,12 +30,9 @@
   const Trash01Icon = getIcons("trash01");
   const Save01Icon = getIcons("save01");
 
-  const isFrontend = process.env.NODE_ENV === "development";
-
   let {
     data = $bindable(),
     tags = $bindable(),
-    documentTitle = $bindable(),
     onEdit,
     base64,
     fileUrl,
@@ -47,18 +43,19 @@
     defaultData,
     collectionId,
     pageDataType,
-    nameIsAvailable,
     attributeNotUnique,
     updateData = () => {},
     deleteData = () => {},
-    handleInputName = () => {},
   } = $props();
 
+  let innerWidth = $state(0);
   let uploadedBy = $state("");
+  let documentTitle = $state("");
   let dropdownAction = $state(false);
-  let alltags = $state([]);
   let modalDelete = $state(false);
-  let modalDetail = $state(true);
+  let modalDetail = $state(false);
+  let nameIsAvailable = $state(true);
+  let alltags = $state([]);
 
   const handleDropdownFocusLoss = () => {
     setTimeout(() => {
@@ -67,12 +64,30 @@
   };
 
   onMount(async () => {
+    const resizeHandler = () => {
+      innerWidth = globalThis.innerWidth;
+    };
+    window.addEventListener("resize", resizeHandler);
+    resizeHandler();
+
     alltags = await getLabels($call);
+
+    return () => {
+      window.removeEventListener("resize", resizeHandler);
+    };
   });
 
   $effect(async () => {
     if (Object.keys(data).length > 0) {
       uploadedBy = await getUser($call, data);
+    }
+  });
+
+  $effect(() => {
+    if (innerWidth < 1024) {
+      documentTitle = truncateText(defaultData.document_title || "", 2);
+    } else {
+      documentTitle = defaultData.document_title;
     }
   });
 </script>
@@ -294,8 +309,18 @@
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
       <InputRw
         {onEdit}
-        oninput={(evt) => {
-          handleInputName(evt, defaultData.document_title);
+        oninput={async (evt) => {
+          const res = await handleInputName(
+            $call,
+            evt,
+            defaultData.document_title,
+            collectionId,
+            pageDataType,
+          );
+
+          if (res !== undefined) {
+            nameIsAvailable = res;
+          }
         }}
         bind:value={data.document_title}
       />
