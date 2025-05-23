@@ -1,12 +1,13 @@
 <script>
-  import { Breadcrumb, BreadcrumbItem } from "flowbite-svelte";
+  import { Breadcrumb } from "flowbite-svelte";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
-  import { CR3Call } from "hexacomponents-svelte";
-  import { getIcons } from "$lib";
+  import { call, getIcons, truncateText } from "$lib";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import ChevronRightIcon from "$lib/icon/chevron-right.svelte";
   import { _ } from "svelte-i18n";
+
+  const HomeIcon = getIcons("home");
 
   let {
     activeUrl = "/",
@@ -14,6 +15,7 @@
     linkClass = "md:ms-1 fluid-xs md:fluid-sm line-clamp-1 font-medium text-gray-700 hover:text-gray-900 md:ms-2 dark:text-gray-400 dark:hover:text-white",
     spanClass = "md:ms-1 fluid-xs md:fluid-sm line-clamp-1 font-medium text-gray-500 md:ms-2 dark:text-gray-400",
   } = $props();
+
   let baseUrl = $state("");
   let params = $state(new URLSearchParams(window.location.search).toString());
   let queryString = $state(params.toString() ? "?" + params.toString() : "");
@@ -23,8 +25,6 @@
   let detail = $state(false);
   let title = $state("");
   let isMobile = $state(false);
-
-  import { call } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -48,17 +48,15 @@
 
   const isDetailPage = (url) => {
     if (url.split("/").pop() === "detail") {
-      // console.log("detail");
       detail = true;
       const params = new URLSearchParams(window.location.search);
       title = params.get("title");
     } else {
-      // console.log("not detail");
       detail = false;
     }
   };
 
-  async function getLibraryCollectionName(libraryId) {
+  const getLibraryCollectionName = async (libraryId) => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -75,9 +73,9 @@
 
       return response.result.attributes.name;
     }
-  }
+  };
 
-  async function getDocumentName(documentId) {
+  const getDocumentName = async (documentId) => {
     let token = localStorage.getItem("token");
     if (token !== null) {
       try {
@@ -103,27 +101,13 @@
     } else {
       return;
     }
-  }
+  };
 
   const updateIsMobile = () => {
     isMobile = globalThis.innerWidth <= 768; // Assume mobile screen is less than or equal to 768px
   };
 
-  onMount(() => {
-    updateIsMobile();
-    globalThis.addEventListener("resize", updateIsMobile);
-
-    return () => {
-      globalThis.removeEventListener("resize", updateIsMobile);
-    };
-  });
-
-  onMount(async () => {
-    const result = await $call.getPage("client-dashboard", "home-page");
-    baseUrl = result.slice(0, result.lastIndexOf("/"));
-  });
-
-  async function getActiveUrl() {
+  const getActiveUrl = async () => {
     // console.log(activeUrl);
     isDetailPage(activeUrl);
     const cleanAppUrl = appUrl.replace(/^\/|\/$/g, "");
@@ -181,26 +165,34 @@
     );
 
     // console.log("activeUrlArray", activeUrlArray);
-  }
+  };
 
-  function truncateText(text, maxWords, maxFirstWordLength = 20) {
-    // console.log("text", text);
-    const words = text.split(" ");
-
-    // Check if the first word is too long, or if the second word is long
-    if (words[0] && words[0].length > maxFirstWordLength) {
-      return words[0].slice(0, maxFirstWordLength) + "...";
-    } else if (words[1] && words[1].length > maxFirstWordLength) {
-      return words[0] + " " + words[1].slice(0, maxFirstWordLength) + "...";
+  const traversal = (href) => {
+    const params = new URLSearchParams(window.location.search);
+    const queryParams = {};
+    for (const [key, value] of params.entries()) {
+      queryParams[key] = value;
     }
+    const queryString = new URLSearchParams(queryParams).toString();
+    // console.log(`check url: ${baseUrl}${href}?${queryString}`);
+    const newLink = isFrontend ? `${href}?${queryString}` : `${baseUrl}${href}?${queryString}`;
+    goto(newLink);
+  };
 
-    // Limit to maxWords and append "..." if necessary
-    if (words.length > maxWords) {
-      return words.slice(0, maxWords).join(" ") + " ...";
-    }
+  onMount(async () => {
+    // Update mobile state
+    updateIsMobile();
+    globalThis.addEventListener("resize", updateIsMobile);
 
-    return words.join(" ");
-  }
+    // Fetch base URL
+    const result = await $call.getPage("client-dashboard", "home-page");
+    baseUrl = result.slice(0, result.lastIndexOf("/"));
+
+    // Cleanup event listener on unmount
+    return () => {
+      globalThis.removeEventListener("resize", updateIsMobile);
+    };
+  });
 
   $effect(() => {
     if (activeUrl !== copyActiveUrl) {
@@ -209,8 +201,7 @@
   });
 </script>
 
-<Breadcrumb aria-label="Default breadcrumb" class="">
-  <!-- <BreadcrumbItem href="/" home></BreadcrumbItem> -->
+<Breadcrumb aria-label="Default breadcrumb">
   <li class={"inline-flex items-center"}>
     <button
       type="button"
@@ -218,10 +209,8 @@
       onclick={() => {
         goto(`${baseUrl}`);
       }}
-      ><svelte:component
-        this={getIcons("home")}
-        svgClass="w-4 h-4 md:w-5 md:h-5 text-gray-700 dark:text-gray-400"
-      />
+    >
+      <HomeIcon svgClass="w-4 h-4 md:w-5 md:h-5 text-gray-700 dark:text-gray-400" />
     </button>
   </li>
   {#if activeUrl !== "/"}
@@ -237,17 +226,7 @@
               disabled={index === activeUrlArray.length - 1}
               class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
               onclick={() => {
-                const params = new URLSearchParams(window.location.search);
-                const queryParams = {};
-                for (const [key, value] of params.entries()) {
-                  queryParams[key] = value;
-                }
-                const queryString = new URLSearchParams(queryParams).toString();
-                // console.log(`check url: ${baseUrl}${item.href}?${queryString}`);
-                const newLink = isFrontend
-                  ? `${item.href}?${queryString}`
-                  : `${baseUrl}${item.href}?${queryString}`;
-                goto(newLink);
+                traversal(item.href);
               }}
             >
               {#if detail && title !== null && index === activeUrlArray.length - 1}
@@ -267,11 +246,19 @@
           {/if}
         </li>
 
-        <!-- Render ellipsis between the first and the second-to-last item -->
         {#if isMobile && activeUrlArray.length > 2 && index === 0}
           <li class="inline-flex items-center">
             <ChevronRightIcon svgClass="w-4 h-4 text-fg-senary-light dark:text-fg-senary-dark" />
-            <span class={spanClass}>...</span>
+            <button
+              type="button"
+              class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
+              onclick={() => {
+                const ellipsisHref = activeUrlArray[1]?.href;
+                traversal(ellipsisHref);
+              }}
+            >
+              ...
+            </button>
           </li>
         {/if}
       {:else if !isMobile}
@@ -285,17 +272,7 @@
               disabled={index === activeUrlArray.length - 1}
               class={index === activeUrlArray.length - 1 ? `${linkClass} !font-bold` : linkClass}
               onclick={() => {
-                const params = new URLSearchParams(window.location.search);
-                const queryParams = {};
-                for (const [key, value] of params.entries()) {
-                  queryParams[key] = value;
-                }
-                const queryString = new URLSearchParams(queryParams).toString();
-                // console.log(`check url: ${baseUrl}${item.href}?${queryString}`);
-                const newLink = isFrontend
-                  ? `${item.href}?${queryString}`
-                  : `${baseUrl}${item.href}?${queryString}`;
-                goto(newLink);
+                traversal(item.href);
               }}
             >
               {#if detail && title !== null && index === activeUrlArray.length - 1}
