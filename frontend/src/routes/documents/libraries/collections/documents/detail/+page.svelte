@@ -32,7 +32,6 @@ All Rights Reserved
   let debounceTimeout;
 
   let onEdit = $state(false);
-  let popupModal = $state(false);
   let pdfReady = $state(false);
   let attributeNotUnique = $state(false);
   let nameIsAvailable = $state(true);
@@ -388,7 +387,6 @@ All Rights Reserved
   {uploadBy}
   {fileReady}
   {libraryId}
-  {popupModal}
   {documentId}
   {defaultData}
   {collectionId}

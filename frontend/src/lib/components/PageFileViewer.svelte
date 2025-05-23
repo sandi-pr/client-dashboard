@@ -8,7 +8,7 @@
   import { id as localeId, enUS as localeEn } from "date-fns/locale";
   import { formatDistanceToNow } from "date-fns";
 
-  import { InputRw, TextareaRw, Typography, ToastContainer, Divider } from "$lib"; // Library for components
+  import { InputRw, TextareaRw, Typography, ToastContainer, Divider, FeaturedIcon } from "$lib"; // Library for components
   import {
     call,
     check,
@@ -24,6 +24,12 @@
   import AudioPlayer from "$lib/components/AudioPlayer.svelte";
 
   const Copy01Icon = getIcons("copy01");
+  const DotsVerticalIcon = getIcons("dotsVertical");
+  const Download02Icon = getIcons("download02");
+  const InfoCircleIcon = getIcons("infoCircle");
+  const Edit05Icon = getIcons("edit05");
+  const Trash01Icon = getIcons("trash01");
+  const Save01Icon = getIcons("save01");
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -37,7 +43,6 @@
     pdfReady,
     fileReady,
     libraryId,
-    popupModal,
     documentId,
     defaultData,
     collectionId,
@@ -50,7 +55,16 @@
   } = $props();
 
   let uploadedBy = $state("");
+  let dropdownAction = $state(false);
   let alltags = $state([]);
+  let modalDelete = $state(false);
+  let modalDetail = $state(true);
+
+  const handleDropdownFocusLoss = () => {
+    setTimeout(() => {
+      dropdownAction = false;
+    }, 200);
+  };
 
   onMount(async () => {
     alltags = await getLabels($call);
@@ -101,144 +115,81 @@
             {/if}
           </P>
         </div>
-        <div class="flex gap-2">
-          {#if onEdit}
-            <Button
-              onclick={() => {
-                onEdit = false;
-                data = { ...defaultData };
-                attributeNotUnique = false;
-                nameIsAvailable = true;
-              }}
-              color="light"
-              class="px-3 focus-within:!ring-1"
-            >
-              {$_("cancel")}
-            </Button>
-            <Button
-              onclick={() => {
-                updateData();
-                onEdit = false;
-                attributeNotUnique = false;
-                nameIsAvailable = true;
-              }}
-              disabled={data.document_title === "" || !nameIsAvailable}
-              class="px-3 focus-within:!ring-1"
-            >
-              {$_("save")}
-            </Button>
-          {:else}
-            <Button
-              onclick={async function () {
-                triggerLoading(false);
-                goto(
-                  (isFrontend
-                    ? "/documents/libraries/collections/documents"
-                    : await $call.getPage("client-dashboard", "document-library-documents")) +
-                    `?collectionId=${collectionId}&libraryId=${libraryId}`,
-                );
-                return;
-              }}
-              color="light"
-              class="hidden md:block px-3 focus-within:!ring-1"
-            >
-              {$_("back")}
-            </Button>
-            <Button
-              disabled={!check("documentAi.documentLibrary.document:delete")}
-              onclick={() => (popupModal = true)}
-              outline
-              color="red"
-              class="px-3 focus-within:!ring-1"
-            >
-              {$_("delete")}
-            </Button>
-            <Button
-              disabled={!check("documentAi.documentLibrary.document:update")}
-              onclick={() => {
-                onEdit = true;
-              }}
-              class="px-3 focus-within:!ring-1"
-            >
-              {$_("edit")}
-            </Button>
-            <Button
+        <div onfocusout={handleDropdownFocusLoss} class="flex items-center relative">
+          <button
+            class="p-2 rounded-lg bg-secondary-light dark:bg-secondary-dark border border-secondary-light dark:border-secondary-dark"
+            onclick={() => {
+              dropdownAction = !dropdownAction;
+            }}
+          >
+            <DotsVerticalIcon
+              svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+            />
+          </button>
+          <div
+            class="flex flex-col z-10 rounded-lg shadow w-max bg-primary-light dark:bg-primary-dark p-2 {dropdownAction
+              ? 'absolute top-10 right-0'
+              : 'hidden'}"
+          >
+            <button
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
               onclick={() => {
                 if (pageDataType === "document") {
                   downloadFileBase64(base64, data.document_title, data.ext);
                 } else {
                   downloadFileBlob(fileUrl, data.document_title);
                 }
+                dropdownAction = false;
               }}
-              class="px-3 focus-within:!ring-1"
             >
-              {$_("download")}
-            </Button>
-          {/if}
+              <Download02Icon
+                svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+              />
+              <Typography preset="Text sm/Semibold" color="fg-tertiary" text={$_("download")} />
+            </button>
+            <button
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+              onclick={() => {
+                onEdit = false;
+                modalDetail = true;
+                dropdownAction = false;
+              }}
+            >
+              <InfoCircleIcon
+                svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
+              />
+              <Typography preset="Text sm/Semibold" color="fg-tertiary" text={$_("details")} />
+            </button>
+            <button
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+              onclick={() => {
+                onEdit = true;
+                modalDetail = true;
+                dropdownAction = false;
+              }}
+            >
+              <Edit05Icon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+              <Typography preset="Text sm/Semibold" color="fg-tertiary" text={$_("edit")} />
+            </button>
+            <button
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+              onclick={() => {
+                modalDelete = true;
+                dropdownAction = false;
+              }}
+            >
+              <Trash01Icon
+                svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark"
+              />
+              <Typography preset="Text sm/semibold" color="error-primary" text={$_("delete")} />
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Content -->
       <div class="flex flex-col gap-4 pt-4 md:pt-6 md:gap-6">
         {#if fileReady}
-          <!-- general information -->
-          <div class="flex flex-col md:flex-row gap-3 md:gap-6">
-            <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                {$_("generalInformation")}
-              </P>
-            </div>
-            <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
-              <div class="flex flex-col gap-1.5">
-                <Typography
-                  preset="Text sm/medium"
-                  color="secondary"
-                  text={`${$_("documentTitle")}*`}
-                />
-                <InputRw
-                  {onEdit}
-                  oninput={(evt) => {
-                    handleInputName(evt, defaultData.document_title);
-                  }}
-                  bind:value={data.document_title}
-                />
-                {#if !nameIsAvailable}
-                  <Helper color="red">
-                    <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-                  </Helper>
-                {/if}
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Typography
-                  preset="Text sm/medium"
-                  color="secondary"
-                  text={`${$_("description")}`}
-                />
-                <InputRw {onEdit} bind:value={data.description} />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
-                <MultiSelect
-                  --sms-min-height="40px"
-                  options={alltags || []}
-                  disabled={!onEdit}
-                  allowUserOptions="append"
-                  bind:selected={tags}
-                  autoScroll={true}
-                  noMatchingOptionsMsg=""
-                  createOptionMsg={null}
-                  outerDivClass="bg-primary-light dark:bg-secondary-dark border-primary-light dark:border-primary-dark text-primary-light dark:text-primary-dark rounded-lg"
-                  liOptionClass="bg-primary-light dark:bg-secondary-dark hover:bg-secondary-light hover:dark:bg-primary-dark text-primary-light dark:text-primary-dark"
-                  liSelectedClass="bg-tertiary-light dark:bg-primary-dark"
-                />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Typography preset="Text sm/medium" color="secondary" text={$_("uploadBy")} />
-                <InputRw onEdit={false} value={uploadedBy} />
-              </div>
-            </div>
-          </div>
-          <Divider />
           {#if data.document_type === "Handwriting" || data.document_type === "Document Images" || data.document_type === "Document Audio"}
             <div class="flex flex-col md:flex-row gap-4 md:gap-6">
               <div class="w-60">
@@ -312,7 +263,7 @@
   <ToastContainer />
 </div>
 
-<Modal bind:open={popupModal} size="xs" autoclose>
+<Modal bind:open={modalDelete} autoclose>
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
@@ -321,4 +272,114 @@
     <Button onclick={deleteData} color="red" class="me-2">{$_("yesImSure")}</Button>
     <Button color="alternative">{$_("noCancel")}</Button>
   </div>
+</Modal>
+
+<Modal
+  bind:open={modalDetail}
+  onclose={() => {
+    data = { ...defaultData };
+    attributeNotUnique = false;
+    nameIsAvailable = true;
+  }}
+  outsideclose="true"
+>
+  <svelte:fragment slot="header">
+    <div class="flex items-center gap-2">
+      <FeaturedIcon classesSvg={InfoCircleIcon} />
+      <Typography preset="Text lg/semibold" text={$_("generalInformation")} />
+    </div>
+  </svelte:fragment>
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-2">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
+      <InputRw
+        {onEdit}
+        oninput={(evt) => {
+          handleInputName(evt, defaultData.document_title);
+        }}
+        bind:value={data.document_title}
+      />
+      {#if !nameIsAvailable}
+        <Helper color="red">
+          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
+        </Helper>
+      {/if}
+    </div>
+    <div class="flex flex-col gap-2">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
+      <TextareaRw {onEdit} bind:value={data.description} />
+    </div>
+    <div class="flex flex-col gap-2">
+      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
+      <MultiSelect
+        --sms-min-height="40px"
+        options={alltags || []}
+        disabled={!onEdit}
+        allowUserOptions="append"
+        bind:selected={tags}
+        autoScroll={true}
+        noMatchingOptionsMsg=""
+        createOptionMsg={null}
+        outerDivClass="rounded-lg {onEdit
+          ? 'bg-primary-light dark:bg-primary-dark border-primary-light dark:border-primary-dark text-primary-light dark:text-primary-dark'
+          : 'bg-disabled-subtle-light dark:bg-disabled-subtle-dark border-disabled-subtle-light dark:border-disabled-subtle-dark text-disabled-light dark:text-disabled-dark'}"
+        liOptionClass="bg-primary-light dark:bg-secondary-dark hover:bg-secondary-light hover:dark:bg-primary-dark text-primary-light dark:text-primary-dark"
+        liSelectedClass={onEdit
+          ? "bg-tertiary-light dark:bg-tertiary-dark"
+          : "bg-primary-light dark:bg-primary-dark"}
+      />
+    </div>
+    <div class="flex flex-col gap-2">
+      <Typography preset="Text sm/medium" color="secondary" text={$_("uploadBy")} />
+      <InputRw onEdit={false} value={uploadedBy} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <div class="w-full flex items-center gap-2">
+      {#if onEdit}
+        <Button
+          color="alternative"
+          class="w-full"
+          onclick={() => {
+            onEdit = false;
+            data = { ...defaultData };
+            attributeNotUnique = false;
+            nameIsAvailable = true;
+          }}
+        >
+          <Typography preset="Text md/semibold" color="fg-secondary" text={$_("cancel")} />
+        </Button>
+        <Button
+          class="w-full gap-2"
+          onclick={() => {
+            updateData();
+            onEdit = false;
+            attributeNotUnique = false;
+            nameIsAvailable = true;
+            modalDetail = false;
+          }}
+        >
+          <Save01Icon
+            svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark"
+          />
+          <Typography preset="Text md/semibold" color="primary-onbrand" text={$_("save")} />
+        </Button>
+      {:else}
+        <Button
+          color="alternative"
+          class="w-full gap-2"
+          onclick={() => {
+            onEdit = true;
+          }}
+        >
+          <Edit05Icon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+          <Typography
+            preset="Text md/semibold"
+            color="fg-secondary"
+            text={$_("editInformations")}
+          />
+        </Button>
+      {/if}
+    </div>
+  </svelte:fragment>
 </Modal>

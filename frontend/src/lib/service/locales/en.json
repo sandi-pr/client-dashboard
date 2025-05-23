@@ -1171,5 +1171,7 @@
   "editApi": "Edit API",
   "selectType": "Select Type",
   "types": "Types",
-  "key": "Key"
+  "key": "Key",
+  "details": "Details",
+  "editInformations": "Edit Informations"
 }

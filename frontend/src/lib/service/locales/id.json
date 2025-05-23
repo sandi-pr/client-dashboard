@@ -1171,5 +1171,7 @@
   "editApi": "Ubah API",
   "selectType": "Pilih Tipe",
   "types": "Tipe",
-  "key": "Key"
+  "key": "Kunci",
+  "details": "Details",
+  "editInformations": "Ubah Informasi"
 }

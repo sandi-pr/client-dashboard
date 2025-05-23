@@ -71,10 +71,10 @@ import PenToolPlusIcon from "../icon/pen-tool-plus.svelte";
 import Code01Icon from "../icon/code-01.svelte";
 import CodeSquare01Icon from "../icon/code-square-01.svelte";
 import Image01 from "../icon/image-01.svelte";
-import InfoCircle from "../icon/info-circle.svelte";
+import InfoCircleIcon from "../icon/info-circle.svelte";
 import FolderDownload from "../icon/folder-download.svelte";
 import GoogleDriveIcon from "../icon/google-drive.svelte";
-import TrashIcon from "../icon/trash-01.svelte";
+import Trash01Icon from "../icon/trash-01.svelte";
 import UploadCloud01 from "../icon/upload-cloud-01.svelte";
 import VerifiedTickIcon from "../icon/verified-tick.svelte";
 import OnedriveIcon from "../icon/onedrive.svelte";
@@ -87,6 +87,9 @@ import DotsVerticalIcon from "../icon/dots-vertical.svelte";
 import LogoIcon from "../icon/Logo.svelte";
 import Save01Icon from "../icon/save-01.svelte";
 import Copy01Icon from "../icon/copy-01.svelte";
+import Download01Icon from "../icon/download-01.svelte";
+import Download02Icon from "../icon/download-02.svelte";
+import Edit05Icon from "../icon/edit-05.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -237,13 +240,13 @@ let getIcons = (presetIcon: String) => {
     case "image01":
       return Image01;
     case "infoCircle":
-      return InfoCircle;
+      return InfoCircleIcon;
     case "folderDownload":
       return FolderDownload;
     case "googleDrive":
       return GoogleDriveIcon;
-    case "trash":
-      return TrashIcon;
+    case "trash01":
+      return Trash01Icon;
     case "uploadCloud01":
       return UploadCloud01;
     case "verifiedTick":
@@ -268,6 +271,12 @@ let getIcons = (presetIcon: String) => {
       return Save01Icon;
     case "copy01":
       return Copy01Icon;
+    case "download01":
+      return Download01Icon;
+    case "download02":
+      return Download02Icon;
+    case "edit05":
+      return Edit05Icon;
     default:
       return "";
   }
