@@ -15,7 +15,7 @@
   realTimeDatasDisk,
   gpuData,
   realTimeDatasGPU} from "$lib";
-  import Chart from "$lib/components/Chart.svelte";
+  import Chart from "$lib/components/ChartUsage.svelte";
   import { onDestroy, onMount } from "svelte";
 
   const isFrontend = process.env.NODE_ENV === "development";
