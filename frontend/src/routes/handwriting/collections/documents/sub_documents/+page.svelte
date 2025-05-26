@@ -372,6 +372,17 @@
               console.log("audio-predict", response3);
             }
 
+            // Used for local dev mode
+            if (isFrontend && response3 === null) {
+              response3 = {
+                status: 200,
+                result: {
+                  slices: [],
+                  text: "Belajian Tikin Bahagia\nHari-hari gajian selalu karena udah makan dalam\nnikin\nnakan.\nHal-\nbak aja uang ters-\nn kelasan dari pada menyat mengak dalam lari\nmelam lari bikin kita.\nmelu kita,\nmeli kita aja pada uang bisa,\npada bisa pada bahwa jaju kali bisa uang mengikin kekali bah turu kosia.\nTer.\nTakarta,\nTerimas AHY berkeni\nTerinti kali yang takarta.",
+                },
+              };
+            }
+
             if (response3.status !== 200) {
               addDocumentsModal = true;
               triggerLoading(false);

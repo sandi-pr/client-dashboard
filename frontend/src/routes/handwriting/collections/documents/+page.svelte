@@ -402,15 +402,15 @@
   let audioUrl = $state(null);
 
   async function addDocumentByCollection(folderFiles = null, parentId = null) {
-    if (folderFiles != null) {
+    if (folderFiles !== null) {
       files = folderFiles;
     }
 
-    console.log("cekkkkk files", files);
+    // console.log("cekkkkk files", files);
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      if (groupedFiles != null) {
+      if (groupedFiles !== null) {
         sendFolder();
         return;
       }
@@ -441,14 +441,6 @@
                   Authorization: "Bearer " + token,
                 },
               });
-              // console.log("trocr-predict", response3);
-              // response3 = {
-              //   status: 200,
-              //   result: {
-              //     slices: [],
-              //     text: "Belajian Tikin Bahagia\nHari-hari gajian selalu karena udah makan dalam\nnikin\nnakan.\nHal-\nbak aja uang ters-\nn kelasan dari pada menyat mengak dalam lari\nmelam lari bikin kita.\nmelu kita,\nmeli kita aja pada uang bisa,\npada bisa pada bahwa jaju kali bisa uang mengikin kekali bah turu kosia.\nTer.\nTakarta,\nTerimas AHY berkeni\nTerinti kali yang takarta.",
-              //   },
-              // };
             } else {
               response3 = await $call.call("hexa-ai-rag", "audio-predict", {
                 URLQuery: {},
@@ -462,6 +454,17 @@
                 },
               });
               console.log("audio-predict", response3);
+            }
+
+            // Used for local dev mode
+            if (isFrontend && response3 === null) {
+              response3 = {
+                status: 200,
+                result: {
+                  slices: [],
+                  text: "Belajian Tikin Bahagia\nHari-hari gajian selalu karena udah makan dalam\nnikin\nnakan.\nHal-\nbak aja uang ters-\nn kelasan dari pada menyat mengak dalam lari\nmelam lari bikin kita.\nmelu kita,\nmeli kita aja pada uang bisa,\npada bisa pada bahwa jaju kali bisa uang mengikin kekali bah turu kosia.\nTer.\nTakarta,\nTerimas AHY berkeni\nTerinti kali yang takarta.",
+                },
+              };
             }
 
             if (response3.status !== 200) {
@@ -533,18 +536,18 @@
             tmpDocumentType === "Document Images" ||
             tmpDocumentType === "Document Audio"
           ) {
-            console.log("ayam");
+            // console.log("ayam");
             if (files.length > 1) {
               await sendDocument();
             } else {
-              console.log("bebek");
+              // console.log("bebek");
               previewModal = true;
               triggerLoading(false);
               selectedFile = files[0];
               return;
             }
           } else {
-            console.log("cacing");
+            // console.log("cacing");
 
             let index = 1;
             let originalName = files[i].name.split(".").slice(0, -1).join(".");
@@ -576,7 +579,7 @@
               category: tags.join(","),
             };
 
-            console.log("cekkkk dataSend", dataSend);
+            // console.log("cekkkk dataSend", dataSend);
 
             // console.log("cek data send", dataSend);
             await sendDocument();
@@ -732,7 +735,7 @@
   });
 
   $effect(() => {
-    if (groupedFiles != null) {
+    if (groupedFiles !== null) {
       buttonDisabled = false;
     } else {
       buttonDisabled = true;
@@ -1707,7 +1710,7 @@
         files.length === 0 || files.length === 1
           ? tmpDocumentTitle === "" || !nameIsAvailable
           : false;
-    } else if (groupedFiles != null) {
+    } else if (groupedFiles !== null) {
       buttonDisabled = false;
     } else {
       buttonDisabled = true;

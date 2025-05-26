@@ -205,7 +205,7 @@
       </div>
       {#if !$sidebarLargeClosed}
         {#each sidebarItems as item}
-          {#if item.children.length > 0}
+          {#if item?.children?.length > 0}
             <SidebarDropdownWrapper
               bind:isOpen={isOpen[item.name]}
               ulClass="!space-y-0"
@@ -341,11 +341,11 @@
                 if (url !== null) goto(url);
                 else {
                   var base_url =
-                    (location.protocol) +
+                    location.protocol +
                     "//" +
                     location.hostname +
                     (location.port == "" ? "" : ":" + location.port);
-                  
+
                   goto(`${base_url}/client-dashboard/usage`);
                 }
               }}
