@@ -1177,5 +1177,7 @@
   "detectedAudio": "Audio Terdeteksi",
   "wrongDetectedTextCorrectHere": "Teks yang Terdeteksi Salah? Perbaiki di Sini",
   "editDetectedText": "Ubah Teks yang Terdeteksi",
-  "AIHandwritingInformation": "Informasi Tulisan Tangan AI"
+  "AIHandwritingInformation": "Informasi Tulisan Tangan AI",
+  "audio": "Audio",
+  "listener": "Pendengar"
 }

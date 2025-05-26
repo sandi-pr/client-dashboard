@@ -1177,5 +1177,7 @@
   "detectedAudio": "Detected Audio",
   "wrongDetectedTextCorrectHere": "Wrong detected text? Correct here",
   "editDetectedText": "Edit Detected Text",
-  "AIHandwritingInformation": "AI Handwriting Information"
+  "AIHandwritingInformation": "AI Handwriting Information",
+  "audio": "Audio",
+  "listener": "Listener"
 }

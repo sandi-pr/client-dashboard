@@ -254,29 +254,35 @@
         {#if fileReady}
           <div class="flex flex-col md:flex-row gap-6">
             <div class="w-60">
-              <Typography preset="Text md/Semibold" color="secondary" text={$_("viewer")} />
+              <Typography
+                preset="Text md/Semibold"
+                color="secondary"
+                text={[".mp3", ".wav", ".ogg"].includes(data.ext) ? $_("listener") : $_("viewer")}
+              />
             </div>
-            <div
-              class={`flex flex-col relative ${data.document_type === "Document Audio" ? "items-start ps-8" : "items-center"} grow py-4 md:py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark`}
-            >
-              {#if data.ext === ".pdf"}
-                {#if pdfReady}
-                  <PdfjsViewer pdfFile={base64} />
-                {/if}
-              {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
-                <div class="flex justify-center">
-                  <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
-                </div>
-              {:else if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}
-                {#if fileUrl}
-                  <AudioPlayer src={fileUrl} />
-                {/if}
-              {:else}
-                {#each contentFile.split("\n") as paragraphs, i}
-                  <p class="dark:text-white">{paragraphs}</p>
-                {/each}
+            {#if [".mp3", ".wav", ".ogg"].includes(data.ext)}
+              {#if fileUrl}
+                <AudioPlayer src={fileUrl} />
               {/if}
-            </div>
+            {:else}
+              <div
+                class={`flex flex-col relative ${data.document_type === "Document Audio" ? "items-start ps-8" : "items-center"} grow py-4 md:py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark`}
+              >
+                {#if data.ext === ".pdf"}
+                  {#if pdfReady}
+                    <PdfjsViewer pdfFile={base64} />
+                  {/if}
+                {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
+                  <div class="flex justify-center">
+                    <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
+                  </div>
+                {:else if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}{:else}
+                  {#each contentFile.split("\n") as paragraphs, i}
+                    <p class="dark:text-white">{paragraphs}</p>
+                  {/each}
+                {/if}
+              </div>
+            {/if}
           </div>
           {#if ["Handwriting", "Document Images", "Document Audio"].includes(data.document_type)}
             <Divider />
