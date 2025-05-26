@@ -18,34 +18,48 @@ All Rights Reserved
   import { page } from "$app/stores";
 
   const isFrontend = process.env.NODE_ENV === "development";
-  const pageDataType = "document";
+  let { pageDataType = "document" } = $props();
 
   let onEdit = $state(false);
-  let pdfReady = $state(false);
   let attributeNotUnique = $state(false);
   let fileReady = $state(false);
-  let documentId = $state(null);
-  let collectionId = $state(null);
-  let libraryId = $state(null);
   let fileUrl = $state("null");
   let uploadBy = $state("");
   let data = $state({});
   let defaultData = $state({});
+  let CSVMetadata = $state({ page: 1, pageSize: 10, pageCount: 2, total: 13 });
   let tags = $state([]);
+  let CSVData = $state([]);
+  let documentId = $state(null);
+  let collectionId = $state(null);
+  let libraryId = $state(null);
   let contentFile = $state(null);
   let base64 = $state(null);
 
-  const getDocument = async () => {
+  const getData = async (state = "all") => {
     let token = localStorage.getItem("token");
     if (token !== null) {
-      triggerLoading(true);
+      if (state === "all") {
+        triggerLoading(true);
+      }
       try {
-        let response = await $call.call("client-dashboard", "get-library-document", {
+        const urlAction =
+          pageDataType === "document" ? "get-library-document" : "get-library-document-csv";
+        const urlParam =
+          pageDataType === "document"
+            ? {}
+            : {
+                page: CSVMetadata.page,
+                page_size: CSVMetadata.pageSize,
+              };
+        let response = await $call.call("client-dashboard", urlAction, {
           URLQuery: {},
           URLParams: {
             id: documentId.toString(),
           },
-          Params: {},
+          Params: {
+            ...urlParam,
+          },
           Headers: {
             Authorization: "Bearer " + token,
           },
@@ -73,26 +87,25 @@ All Rights Reserved
 
         let documentData = response.result.data;
 
-        collectionId = response.result.data.parent_id;
+        if (pageDataType !== "Data") {
+          base64 = response.result.base64;
 
-        base64 = response.result.base64;
-        pdfReady = true;
+          contentFile = atob(base64);
 
-        contentFile = atob(base64);
+          let fileType = "";
+          if (response.result.ext === ".pdf") {
+            fileType = "application/pdf";
+          } else if (response.result.ext === ".docx") {
+            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+          } else if (response.result.ext === ".doc") {
+            fileType = "application/msword";
+          } else {
+            fileType = "text/plain";
+          }
 
-        let fileType = "";
-        if (response.result.ext === ".pdf") {
-          fileType = "application/pdf";
-        } else if (response.result.ext === ".docx") {
-          fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        } else if (response.result.ext === ".doc") {
-          fileType = "application/msword";
-        } else {
-          fileType = "text/plain";
+          const blob = base64toBlob(base64, fileType);
+          fileUrl = URL.createObjectURL(blob);
         }
-
-        const blob = base64toBlob(base64, fileType);
-        fileUrl = URL.createObjectURL(blob);
 
         data = {
           id: response.result.id,
@@ -103,14 +116,19 @@ All Rights Reserved
           document_type: documentData.meta.document_type,
           upload_by: documentData.meta.upload_by,
           ext: response.result.ext,
-          // document_type: "Document Audio",
-          // ext: ".mp3",
           detectedText: documentData.meta.detected_text ? documentData.meta.detected_text : "",
           slices: documentData.meta.result_trocr ? documentData.meta.result_trocr.slices : "",
           result_trocr: documentData.meta.result_trocr,
         };
 
         defaultData = { ...data };
+
+        if (pageDataType === "Data") {
+          CSVMetadata.pageCount = response.result.result.total_pages;
+          CSVMetadata.total = response.result.result.total_items;
+
+          CSVData = response.result.result.data;
+        }
 
         tags =
           documentData.meta.category === undefined ? [] : documentData.meta.category.split(",");
@@ -126,7 +144,7 @@ All Rights Reserved
     triggerLoading(false);
   };
 
-  const deleteDocument = async () => {
+  const deleteData = async () => {
     let token = localStorage.getItem("token");
     if (token !== null) {
       triggerLoading(true);
@@ -179,7 +197,7 @@ All Rights Reserved
     triggerLoading(false);
   };
 
-  const updateDocument = async () => {
+  const updateData = async () => {
     let token = localStorage.getItem("token");
     if (token !== null) {
       triggerLoading(true);
@@ -224,7 +242,7 @@ All Rights Reserved
         // console.log(response);
         attributeNotUnique = false;
         triggerToast($_("successUpdateDocument"), true);
-        getDocument();
+        getData();
       } else {
         response = await $call.call("client-dashboard", "update-library-document", {
           URLQuery: {},
@@ -262,12 +280,25 @@ All Rights Reserved
         }
 
         triggerToast($_("successUpdateDocument"), true);
-        getDocument();
+        getData();
       }
     } else {
       triggerToast($_("unauthorized"), true, "error");
     }
     triggerLoading(false);
+  };
+
+  const CSVNext = () => {
+    if (CSVMetadata.page >= CSVMetadata.pageCount) return;
+    CSVMetadata.page += 1;
+    getData("partial");
+  };
+
+  const CSVPrevious = () => {
+    if (CSVMetadata.page > 1) {
+      CSVMetadata.page -= 1;
+      getData("partial");
+    }
   };
 
   onMount(() => {
@@ -288,8 +319,7 @@ All Rights Reserved
         return;
       }
       base64 = null;
-      pdfReady = false;
-      await getDocument();
+      await getData();
     });
 
     return () => {
@@ -301,10 +331,11 @@ All Rights Reserved
 <PageFileViewer
   bind:data
   bind:tags
+  bind:CSVMetadata
+  bind:CSVData
   {onEdit}
   {base64}
   {fileUrl}
-  {pdfReady}
   {uploadBy}
   {fileReady}
   {libraryId}
@@ -313,6 +344,8 @@ All Rights Reserved
   {collectionId}
   {pageDataType}
   {attributeNotUnique}
-  updateData={updateDocument}
-  deleteData={deleteDocument}
+  {updateData}
+  {deleteData}
+  {CSVNext}
+  {CSVPrevious}
 />

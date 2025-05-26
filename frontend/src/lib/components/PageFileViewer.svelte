@@ -1,13 +1,30 @@
 <script>
   import { onMount } from "svelte";
-  import { Button, Modal } from "flowbite-svelte";
+  import {
+    Table,
+    Modal,
+    Button,
+    TableHead,
+    TableBody,
+    TableBodyRow,
+    TableHeadCell,
+    TableBodyCell,
+  } from "flowbite-svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import MultiSelect from "svelte-multiselect";
   import { _, locale } from "svelte-i18n";
   import { id as localeId, enUS as localeEn } from "date-fns/locale";
   import { formatDistanceToNow } from "date-fns";
 
-  import { InputRw, TextareaRw, Typography, ToastContainer, Divider, FeaturedIcon } from "$lib"; // Library for components
+  import {
+    InputRw,
+    Divider,
+    TextareaRw,
+    Typography,
+    Pagination,
+    FeaturedIcon,
+    ToastContainer,
+  } from "$lib"; // Library for components
   import {
     call,
     getUser,
@@ -34,10 +51,11 @@
   let {
     data = $bindable(),
     tags = $bindable(),
+    CSVMetadata = $bindable(),
+    CSVData = $bindable(),
     onEdit,
     base64,
     fileUrl,
-    pdfReady,
     fileReady,
     libraryId,
     documentId,
@@ -47,6 +65,8 @@
     attributeNotUnique,
     updateData = () => {},
     deleteData = () => {},
+    CSVNext = () => {},
+    CSVPrevious = () => {},
   } = $props();
 
   let innerWidth = $state(0);
@@ -97,6 +117,10 @@
       pdf: {
         extensions: [".pdf"],
         text: $_("handwriting") + " (PDF)",
+      },
+      csv: {
+        extensions: [".csv"],
+        text: $_("data") + " (CSV)",
       },
     };
 
@@ -264,19 +288,53 @@
               {#if fileUrl}
                 <AudioPlayer src={fileUrl} />
               {/if}
+            {:else if [".csv"].includes(data.ext)}
+              <div
+                class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl pt-4"
+              >
+                <Table class="w-full">
+                  <TableHead>
+                    {#each Object.keys(CSVData[0]) as key}
+                      {#if key === "id"}
+                        <!-- empty -->
+                      {:else}
+                        <TableHeadCell>{key.replace(/_/g, " ")}</TableHeadCell>
+                      {/if}
+                    {/each}
+                  </TableHead>
+                  <TableBody tableBodyClass="divide-y">
+                    {#each CSVData as data}
+                      <TableBodyRow class="border-0 !border-gray-200 dark:!border-gray-700">
+                        {#each Object.entries(data) as [key, value]}
+                          {#if key === "id"}
+                            <!-- empty -->
+                          {:else}
+                            <TableBodyCell tdClass="px-6 py-4 font-medium">{value}</TableBodyCell>
+                          {/if}
+                        {/each}
+                      </TableBodyRow>
+                    {/each}
+                  </TableBody>
+                </Table>
+                <Pagination
+                  pagination={CSVMetadata}
+                  previousPage={CSVPrevious}
+                  nextPage={CSVNext}
+                />
+              </div>
             {:else}
               <div
                 class={`flex flex-col relative ${data.document_type === "Document Audio" ? "items-start ps-8" : "items-center"} grow py-4 md:py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark`}
               >
                 {#if data.ext === ".pdf"}
-                  {#if pdfReady}
+                  {#if fileReady}
                     <PdfjsViewer pdfFile={base64} />
                   {/if}
                 {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
                   <div class="flex justify-center">
                     <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
                   </div>
-                {:else if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}{:else}
+                {:else}
                   {#each contentFile.split("\n") as paragraphs, i}
                     <p class="dark:text-white">{paragraphs}</p>
                   {/each}
