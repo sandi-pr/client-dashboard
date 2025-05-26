@@ -11,7 +11,7 @@ All Rights Reserved
  -->
 
 <script>
-  import { PageDocumentDetail } from "$lib";
+  import { PageDetailView } from "$lib";
 </script>
 
-<PageDocumentDetail />
+<PageDetailView />
