@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { P, Button, Modal, Helper } from "flowbite-svelte";
+  import { Button, Modal } from "flowbite-svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import MultiSelect from "svelte-multiselect";
   import { _, locale } from "svelte-i18n";
@@ -29,6 +29,7 @@
   const Edit05Icon = getIcons("edit05");
   const Trash01Icon = getIcons("trash01");
   const Save01Icon = getIcons("save01");
+  const StarsIcon = getIcons("stars");
 
   let {
     data = $bindable(),
@@ -54,6 +55,7 @@
   let dropdownAction = $state(false);
   let modalDelete = $state(false);
   let modalDetail = $state(false);
+  let modalDetectedText = $state(false);
   let nameIsAvailable = $state(true);
   let alltags = $state([]);
 
@@ -61,6 +63,50 @@
     setTimeout(() => {
       dropdownAction = false;
     }, 200);
+  };
+
+  const getTROCRPerDataType = (dataType, infoType) => {
+    const dataTypeMapping = {
+      Handwriting: {
+        info: $_("handwritingInformation"),
+        text: $_("detectedText"),
+      },
+      "Document Images": {
+        info: $_("documentInformation"),
+        text: $_("documentText"),
+      },
+      "Document Audio": {
+        info: $_("audioInformation"),
+        text: $_("detectedAudio"),
+      },
+    };
+
+    return dataTypeMapping[dataType]?.[infoType] || null;
+  };
+
+  const getDataTypeTextPerExt = (ext) => {
+    const extMapping = {
+      image: {
+        extensions: [".jpg", ".jpeg", ".png", ".webp"],
+        text: $_("image") + " (JPG, JPEG, PNG, WEBP)",
+      },
+      audio: {
+        extensions: [".mp3", ".wav", ".ogg"],
+        text: $_("audio") + " (MP3, WAV, OGG)",
+      },
+      pdf: {
+        extensions: [".pdf"],
+        text: $_("handwriting") + " (PDF)",
+      },
+    };
+
+    for (const key in extMapping) {
+      if (extMapping[key].extensions.includes(ext)) {
+        return extMapping[key].text;
+      }
+    }
+
+    return $_("unknownFileType");
   };
 
   onMount(async () => {
@@ -97,7 +143,7 @@
     <div class="flex flex-col m-4">
       <!-- Header -->
       <div class="flex items-center justify-between">
-        <div class="flex flex-col grow">
+        <div class="flex flex-col grow gap-1">
           <div class="flex gap-2">
             <Typography preset="Display sm/Semibold" text={documentTitle} />
             <button
@@ -116,19 +162,20 @@
               <Copy01Icon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
             </button>
           </div>
-          <P
-            class="fluid-sm md:fluid-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-          >
-            {#if fileReady}
-              {#if $locale === "id"}
-                {$_("createOn")}
-                {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeId })}
-              {:else}
-                {$_("createOn")}
-                {formatDistanceToNow(data.createdAt, { addSuffix: true, locale: localeEn })}
-              {/if}
-            {/if}
-          </P>
+          <Typography
+            preset="Text sm/Medium"
+            color="tertiary"
+            text={fileReady
+              ? $_("createOn") +
+                " " +
+                $_(
+                  formatDistanceToNow(data.createdAt, {
+                    addSuffix: true,
+                    locale: $locale === "id" ? localeId : localeEn,
+                  }),
+                )
+              : ""}
+          />
         </div>
         <div onfocusout={handleDropdownFocusLoss} class="flex items-center relative">
           <button
@@ -196,7 +243,7 @@
               <Trash01Icon
                 svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark"
               />
-              <Typography preset="Text sm/semibold" color="error-primary" text={$_("delete")} />
+              <Typography preset="Text sm/Semibold" color="error-primary" text={$_("delete")} />
             </button>
           </div>
         </div>
@@ -205,49 +252,9 @@
       <!-- Content -->
       <div class="flex flex-col gap-4 pt-4 md:pt-6 md:gap-6">
         {#if fileReady}
-          {#if data.document_type === "Handwriting" || data.document_type === "Document Images" || data.document_type === "Document Audio"}
-            <div class="flex flex-col md:flex-row gap-4 md:gap-6">
-              <div class="w-60">
-                <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                  {#if data.document_type === "Handwriting"}
-                    {$_("handwritingInformation")}
-                  {:else if data.document_type === "Document Images"}
-                    {$_("documentInformation")}
-                  {:else if data.document_type === "Document Audio"}
-                    {$_("audioInformation")}
-                  {/if}
-                </P>
-              </div>
-              <div class="flex flex-col grow gap-4 md:gap-6">
-                <div class="grid grid-cols-1">
-                  <div class="flex flex-col gap-2">
-                    <P
-                      class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
-                    >
-                      {#if data.document_type === "Handwriting"}
-                        {$_("handwritingText")}
-                      {:else if data.document_type === "Document Images"}
-                        {$_("documentText")}
-                      {:else if data.document_type === "Document Audio"}
-                        {$_("audioText")}
-                      {/if}</P
-                    >
-                    <TextareaRw {onEdit} bind:value={data.detectedText} />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <Divider />
-          {/if}
           <div class="flex flex-col md:flex-row gap-6">
             <div class="w-60">
-              <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-                {#if data.ext === ".mp3" || data.ext === ".wav" || data.ext === ".ogg"}
-                  {$_("audioPreview")}
-                {:else}
-                  {$_("viewer")}
-                {/if}
-              </P>
+              <Typography preset="Text md/Semibold" color="secondary" text={$_("viewer")} />
             </div>
             <div
               class={`flex flex-col relative ${data.document_type === "Document Audio" ? "items-start ps-8" : "items-center"} grow py-4 md:py-12 rounded-lg bg-secondary-light dark:bg-secondary-dark`}
@@ -271,6 +278,41 @@
               {/if}
             </div>
           </div>
+          {#if ["Handwriting", "Document Images", "Document Audio"].includes(data.document_type)}
+            <Divider />
+            <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+              <div class="flex flex-col w-60 gap-2">
+                <Typography
+                  preset="Text md/Semibold"
+                  color="secondary"
+                  text={getTROCRPerDataType(data.document_type, "info")}
+                />
+                <button
+                  onclick={() => {
+                    modalDetectedText = true;
+                    onEdit = false;
+                  }}
+                >
+                  <Typography
+                    preset="Text sm/Semibold"
+                    color="fg-brand-primary"
+                    text={$_("wrongDetectedTextCorrectHere")}
+                  />
+                </button>
+              </div>
+              <div class="flex flex-col grow gap-4 md:gap-6">
+                <div class="grid grid-cols-1">
+                  <div class="flex flex-col gap-2">
+                    <Typography
+                      preset="Text sm/Medium"
+                      text={getTROCRPerDataType(data.document_type, "text")}
+                    />
+                    <TextareaRw {onEdit} bind:value={data.detectedText} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          {/if}
         {/if}
       </div>
     </div>
@@ -301,41 +343,45 @@
   <svelte:fragment slot="header">
     <div class="flex items-center gap-2">
       <FeaturedIcon classesSvg={InfoCircleIcon} />
-      <Typography preset="Text lg/semibold" text={$_("generalInformation")} />
+      <Typography preset="Text lg/Semibold" text={$_("generalInformation")} />
     </div>
   </svelte:fragment>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-col gap-2">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentTitle")}*`} />
-      <InputRw
-        {onEdit}
-        oninput={async (evt) => {
-          const res = await handleInputName(
-            $call,
-            evt,
-            defaultData.document_title,
-            collectionId,
-            pageDataType,
-          );
+    <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-2">
+        <Typography preset="Text sm/Medium" color="secondary" text={`${$_("documentTitle")}`} />
+        <InputRw
+          {onEdit}
+          oninput={async (evt) => {
+            const res = await handleInputName(
+              $call,
+              evt,
+              defaultData.document_title,
+              collectionId,
+              pageDataType,
+            );
 
-          if (res !== undefined) {
-            nameIsAvailable = res;
-          }
-        }}
-        bind:value={data.document_title}
-      />
+            if (res !== undefined) {
+              nameIsAvailable = res;
+            }
+          }}
+          bind:value={data.document_title}
+        />
+      </div>
       {#if !nameIsAvailable}
-        <Helper color="red">
-          <span class="font-medium">{$_("nameAlreadyTaken")}</span>
-        </Helper>
+        <Typography preset="Text xs/Thin" color="error-primary" text={$_("nameAlreadyTaken")} />
       {/if}
     </div>
     <div class="flex flex-col gap-2">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("description")}`} />
+      <Typography preset="Text sm/Medium" color="secondary" text={`${$_("description")}`} />
       <TextareaRw {onEdit} bind:value={data.description} />
     </div>
     <div class="flex flex-col gap-2">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("labels")}`} />
+      <Typography preset="Text sm/Medium" color="secondary" text={`${$_("documentType")}`} />
+      <InputRw onEdit={false} value={getDataTypeTextPerExt(data.ext)} />
+    </div>
+    <div class="flex flex-col gap-2">
+      <Typography preset="Text sm/Medium" color="secondary" text={`${$_("labels")}`} />
       <MultiSelect
         --sms-min-height="40px"
         options={alltags || []}
@@ -355,7 +401,7 @@
       />
     </div>
     <div class="flex flex-col gap-2">
-      <Typography preset="Text sm/medium" color="secondary" text={$_("uploadBy")} />
+      <Typography preset="Text sm/Medium" color="secondary" text={$_("uploadBy")} />
       <InputRw onEdit={false} value={uploadedBy} />
     </div>
   </div>
@@ -372,10 +418,11 @@
             nameIsAvailable = true;
           }}
         >
-          <Typography preset="Text md/semibold" color="fg-secondary" text={$_("cancel")} />
+          <Typography preset="Text md/Semibold" color="fg-secondary" text={$_("cancel")} />
         </Button>
         <Button
           class="w-full gap-2"
+          disabled={!nameIsAvailable || attributeNotUnique}
           onclick={() => {
             updateData();
             onEdit = false;
@@ -387,7 +434,7 @@
           <Save01Icon
             svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark"
           />
-          <Typography preset="Text md/semibold" color="primary-onbrand" text={$_("save")} />
+          <Typography preset="Text md/Semibold" color="primary-onbrand" text={$_("save")} />
         </Button>
       {:else}
         <Button
@@ -399,9 +446,74 @@
         >
           <Edit05Icon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
           <Typography
-            preset="Text md/semibold"
+            preset="Text md/Semibold"
             color="fg-secondary"
             text={$_("editInformations")}
+          />
+        </Button>
+      {/if}
+    </div>
+  </svelte:fragment>
+</Modal>
+
+<Modal
+  bind:open={modalDetectedText}
+  onclose={() => {
+    data = { ...defaultData };
+  }}
+  outsideclose="true"
+>
+  <svelte:fragment slot="header">
+    <div class="flex items-center gap-2">
+      <FeaturedIcon classesSvg={StarsIcon} />
+      <Typography preset="Text lg/Semibold" text={$_("AIHandwritingInformation")} />
+    </div>
+  </svelte:fragment>
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-2">
+      <Typography preset="Text sm/Medium" color="secondary" text={`${$_("detectedText")}`} />
+      <TextareaRw {onEdit} bind:value={data.detectedText} />
+    </div>
+  </div>
+  <svelte:fragment slot="footer">
+    <div class="w-full flex items-center gap-2">
+      {#if onEdit}
+        <Button
+          color="alternative"
+          class="w-full"
+          onclick={() => {
+            onEdit = false;
+            data = { ...defaultData };
+          }}
+        >
+          <Typography preset="Text md/Semibold" color="fg-secondary" text={$_("cancel")} />
+        </Button>
+        <Button
+          class="w-full gap-2"
+          onclick={() => {
+            updateData();
+            onEdit = false;
+            modalDetectedText = false;
+          }}
+        >
+          <Save01Icon
+            svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark"
+          />
+          <Typography preset="Text md/Semibold" color="primary-onbrand" text={$_("save")} />
+        </Button>
+      {:else}
+        <Button
+          color="alternative"
+          class="w-full gap-2"
+          onclick={() => {
+            onEdit = true;
+          }}
+        >
+          <Edit05Icon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+          <Typography
+            preset="Text md/Semibold"
+            color="fg-secondary"
+            text={$_("editDetectedText")}
           />
         </Button>
       {/if}

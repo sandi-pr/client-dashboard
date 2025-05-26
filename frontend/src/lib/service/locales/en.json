@@ -1173,5 +1173,9 @@
   "types": "Types",
   "key": "Key",
   "details": "Details",
-  "editInformations": "Edit Informations"
+  "editInformations": "Edit Informations",
+  "detectedAudio": "Detected Audio",
+  "wrongDetectedTextCorrectHere": "Wrong detected text? Correct here",
+  "editDetectedText": "Edit Detected Text",
+  "AIHandwritingInformation": "AI Handwriting Information"
 }

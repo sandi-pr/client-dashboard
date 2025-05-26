@@ -1173,5 +1173,9 @@
   "types": "Tipe",
   "key": "Kunci",
   "details": "Details",
-  "editInformations": "Ubah Informasi"
+  "editInformations": "Ubah Informasi",
+  "detectedAudio": "Audio Terdeteksi",
+  "wrongDetectedTextCorrectHere": "Teks yang Terdeteksi Salah? Perbaiki di Sini",
+  "editDetectedText": "Ubah Teks yang Terdeteksi",
+  "AIHandwritingInformation": "Informasi Tulisan Tangan AI"
 }
