@@ -85,6 +85,8 @@ All Rights Reserved
           return;
         }
 
+        // console.log("response", response);
+
         let documentData = response.result.data;
 
         if (pageDataType !== "Data") {

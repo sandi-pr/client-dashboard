@@ -562,7 +562,7 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      if (groupedFiles != null) {
+      if (Object.keys(groupedFiles).length > 0) {
         sendFolder();
         return;
       }
@@ -736,7 +736,7 @@
   });
 
   $effect(() => {
-    if (groupedFiles != null) {
+    if (Object.keys(groupedFiles).length > 0) {
       buttonDisabled = false;
     } else {
       buttonDisabled = true;
@@ -1637,7 +1637,7 @@
       }
     }
 
-    groupedFiles = null;
+    groupedFiles = {};
     addDocumentsModal = false;
     getCollections(true);
     triggerLoading(false);
@@ -1691,7 +1691,7 @@
         files.length === 0 || files.length === 1
           ? tmpDocumentTitle === "" || !nameIsAvailable
           : false;
-    } else if (groupedFiles != null) {
+    } else if (Object.keys(groupedFiles).length > 0) {
       buttonDisabled = false;
     } else {
       buttonDisabled = true;
@@ -1827,7 +1827,7 @@
                     addDocumentsModal = true;
                     folderMode = true;
                     files = [];
-                    groupedFiles = null;
+                    groupedFiles = {};
                     attributeNotUnique = false;
                     dropdownUpload = false;
                     nameIsAvailable = true;
