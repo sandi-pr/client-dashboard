@@ -334,11 +334,20 @@
               />
             </button>
             <!-- todo config -->
-            <!-- <button
+            <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
-                let url = isFrontend ? "/usage" : await $call.getPage("client-dashboard", "usage");
-                goto(url);
+                let url = await $call.getPage("client-dashboard", "usage");
+                if (url !== null) goto(url);
+                else {
+                  var base_url =
+                    (location.protocol) +
+                    "//" +
+                    location.hostname +
+                    (location.port == "" ? "" : ":" + location.port);
+                  
+                  goto(`${base_url}/client-dashboard/usage`);
+                }
               }}
               class="flex px-3 py-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
@@ -349,7 +358,7 @@
                 text={$_("usage")}
                 color="primary"
               />
-            </button> -->
+            </button>
           </ul>
         </div>
         <SidebarGroup>

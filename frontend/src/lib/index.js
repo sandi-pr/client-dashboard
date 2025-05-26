@@ -116,7 +116,9 @@ export {
   memoryData,
   realTimeDatasMemory,
   diskData,
-  realTimeDatasDisk,
+  realTimeDatasDisk,,
+  gpuData,
+  realTimeDatasGPU
 } from "$lib/utils/usage";
 export { truncateText } from "$lib/utils/truncateText";
 export { base64toBlob } from "$lib/utils/base64toBlob";

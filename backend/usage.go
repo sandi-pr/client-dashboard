@@ -276,7 +276,7 @@ func GetGpuGeneralInfo(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHT
 	http := requests.NewHttp(U.Dict{
 		"Content-type": "application/json",
 	})
-	resp, err := http.Post(fmt.Sprintf("%s/api/get-gpu-general", HEXA_RAG_URL), nil, U.Dict{}.ToJson())
+	resp, err := http.Post(fmt.Sprintf("%s/api/get-gpu-general", USAGE_URL), nil, U.Dict{}.ToJson())
 
 	if err != nil {
 		fmt.Println("Error getting GPU general:", err)
