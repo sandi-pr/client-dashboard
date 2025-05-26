@@ -291,37 +291,40 @@ All Rights Reserved
       //   ],
       // },
       // todo config
-      // {
-      //   icon: "bookClosed",
-      //   name: "dataSources",
-      //   children: [],
-      //   href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
-      // },
-      // {
-      //   // BRI ADJUSTMENT
-      //   icon: "lightbulb",
-      //   name: "insights",
-      //   children: [],
-      //   href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      // },
+      {
+        icon: "presentation",
+        name: "analytics",
+        children: [
+          {
+            icon: "bookClosed",
+            name: "dataSources",
+            href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
+          },
+          {
+            icon: "lightbulb",
+            name: "insights",
+            href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+          },
+        ],
+      },
       //
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
       // todo config
-      // {
-      //   icon: "penTool",
-      //   name: "handwriting",
-      //   children: [],
-      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      // },
-      // {
-      //   icon: "recording02",
-      //   name: "voice",
-      //   children: [],
-      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      // },
+      {
+        icon: "penTool",
+        name: "handwriting",
+        children: [],
+        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      },
+      {
+        icon: "recording02",
+        name: "voice",
+        children: [],
+        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      },
       //
       // {
       //   icon: "image03",
@@ -450,234 +453,6 @@ All Rights Reserved
       //   children: [],
       // },
       // End of new sidebar
-
-      // {
-      //   icon: "briefcase",
-      //   name: "crmOverview",
-      //   children: [
-      //     {
-      //       href: isFrontend ? "/crm" : await call.getPage("client-dashboard", "crm-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       icon: "user",
-      //       href: isFrontend ? "/crm/person" : await call.getPage("client-dashboard", "crm-person"),
-      //       name: "persons",
-      //     },
-      //     {
-      //       icon: "faceHappy",
-      //       href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
-      //       name: "hR",
-      //     },
-      //     {
-      //       icon: "package",
-      //       href: isFrontend
-      //         ? "/crm/product_service"
-      //         : await call.getPage("client-dashboard", "crm-product-service"),
-      //       name: "product&Services",
-      //     },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/crm/categories"
-      //     //     : await call.getPage("client-dashboard", "crm-categories"),
-      //     //   name: "categories",
-      //     // },
-      //     {
-      //       icon: "receipt",
-      //       href: isFrontend
-      //         ? "/crm/order_invoice"
-      //         : await call.getPage("client-dashboard", "crm-order-invoice"),
-      //       name: "order&Invoice",
-      //     },
-      //     {
-      //       icon: "calendar",
-      //       href: isFrontend
-      //         ? "/crm/calendar"
-      //         : await call.getPage("client-dashboard", "crm-calendar"),
-      //       name: "calendar",
-      //     },
-      //   ],
-      // },
-      // await checkLibrariesIndustry(sessionStorage.getItem("industry_id")),
-      // check("documentAi.documentLibrary:view") || check("aiManagement.datasets:view")
-      //   ? {
-      //       icon: "stars",
-      //       name: "aiManagement",
-      //       children: [
-      //         {
-      //           icon: "messageChat",
-      //           name: "hexabot",
-      //           href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-      //         },
-      //         check("documentAi.documentLibrary:view")
-      //           ? $isBakrie
-      //             ? {
-      //                 icon: "archive",
-      //                 name: "documentLibrary",
-      //                 href: isFrontend
-      //                   ? "/document_library/libraries/collections?libraryId=" +
-      //                     localStorage.getItem("libraryIdWebchatBakrie")
-      //                   : (await call.getPage("client-dashboard", "document-library-collections")) +
-      //                     `?libraryId=${localStorage.getItem("libraryIdWebchatBakrie")}`,
-      //               }
-      //             : {
-      //                 icon: "archive",
-      //                 name: "documentLibrary",
-      //                 href: isFrontend
-      //                   ? "/document_library"
-      //                   : await call.getPage("client-dashboard", "document-collection-overview"),
-      //               }
-      //           : false,
-      //         // {
-      //         //   icon: "archive",
-      //         //   name: "documentCollection",
-      //         //   href: isFrontend
-      //         //     ? "/document_collection/collections"
-      //         //     : await call.getPage("client-dashboard", "document-collection-overview"),
-      //         // },
-      //         // {
-      //         //   icon: "fileCheck",
-      //         //   name: "contractReviewer",
-      //         //   href: isFrontend
-      //         //     ? "/contract_reviewer"
-      //         //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-      //         // },
-      //         check("aiManagement.datasets:view")
-      //           ? {
-      //               icon: "data",
-      //               name: "datasets",
-      //               href: isFrontend
-      //                 ? "/datasets"
-      //                 : await call.getPage("client-dashboard", "datasets"),
-      //             }
-      //           : false,
-      //       ].filter(Boolean),
-      //     }
-      //   : false,
-      // {
-      //   icon: "box",
-      //   name: "documentCollection",
-      //   children: [
-      //     {
-      //       href: isFrontend
-      //         ? "/document_collection"
-      //         : await call.getPage("client-dashboard", "document-collection-overview"),
-      //       name: "overview",
-      //     },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/document/document_management"
-      //     //     : await call.getPage("client-dashboard", "document-management"),
-      //     //   name: "documentManagement",
-      //     // },
-      //     {
-      //       href: isFrontend
-      //         ? "/document_collection/collections"
-      //         : await call.getPage("client-dashboard", "document-library"),
-      //       name: "collections",
-      //     },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/document/contract"
-      //     //     : await call.getPage("client-dashboard", "document-contract"),
-      //     //   name: "contract",
-      //     // },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/document/finetuning"
-      //     //     : await call.getPage("client-dashboard", "document-finetuning"),
-      //     //   name: "finetuning",
-      //     // },
-      //   ],
-      // },
-      // {
-      //   icon: "data",
-      //   name: "datasets",
-      //   href: isFrontend ? "/datasets" : await call.getPage("client-dashboard", "datasets"),
-      //   children: [],
-      // },
-      // {
-      //   icon: "messageChat",
-      //   name: "hexabot",
-      //   href: isFrontend ? "/hexabot" : await call.getPage("client-dashboard", "hexabot"),
-      //   children: [],
-      // },
-      // {
-      //   icon: "fileAttachment",
-      //   name: "documentSigning",
-      //   children: [
-      //     {
-      //       href: isFrontend
-      //         ? "/document_signing"
-      //         : await call.getPage("client-dashboard", "document-signing-overview"),
-      //       name: "overview",
-      //     },
-      //   ],
-      // },
-      // {
-      //   icon: "userSquare",
-      //   name: "HR",
-      //   children: [
-      //     {
-      //       href: isFrontend ? "/hr" : await call.getPage("client-dashboard", "hr-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/attendance"
-      //         : await call.getPage("client-dashboard", "hr-attendance"),
-      //       name: "attendance",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/employee"
-      //         : await call.getPage("client-dashboard", "hr-employee"),
-      //       name: "employee",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/hr/recruitment"
-      //         : await call.getPage("client-dashboard", "hr-recruitment"),
-      //       name: "recruitment",
-      //     },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/hr/job_level"
-      //     //     : await call.getPage("client-dashboard", "hr-joblevel"),
-      //     //   name: "jobLevel",
-      //     // },
-      //     // {
-      //     //   href: isFrontend
-      //     //     ? "/hr/job_position"
-      //     //     : await call.getPage("client-dashboard", "hr-jobposition"),
-      //     //   name: "jobPosition",
-      //     // },
-      //   ],
-      // },
-      // {
-      //   icon: "fileShield",
-      //   name: "contractReviewer",
-      //   children: [
-      //     {
-      //       href: isFrontend
-      //         ? "/contract_reviewer"
-      //         : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-      //       name: "overview",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/contract_reviewer/project"
-      //         : await call.getPage("client-dashboard", "contract-project-list"),
-      //       name: "project",
-      //     },
-      //     {
-      //       href: isFrontend
-      //         ? "/contract_reviewer/case"
-      //         : await call.getPage("client-dashboard", "contract-case"),
-      //       name: "case",
-      //     },
-      //   ],
-      // },
     ].filter(Boolean);
   };
 

@@ -141,12 +141,12 @@ All Rights Reserved
       description: "descFinetunings",
       page: isFrontend ? "/finetunings" : "finetunings",
     },
-    {
-      icon: "data",
-      title: "apiConnector",
-      description: "descApiConnector",
-      page: isFrontend ? "api_connector" : "api-connector",
-    },
+    // {
+    //   icon: "data",
+    //   title: "apiConnector",
+    //   description: "descApiConnector",
+    //   page: isFrontend ? "api_connector" : "api-connector",
+    // },
   ];
 
   const cardsDocument = [
