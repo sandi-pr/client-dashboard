@@ -416,6 +416,7 @@ All Rights Reserved
       {
         icon: "graduationHat02",
         name: "eLearning",
+        commingSoon: true,
         href: isFrontend ? "/e_learning" : await call.getPage("client-dashboard", "e-learning"),
         children: [],
       },
