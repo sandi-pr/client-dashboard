@@ -413,12 +413,12 @@ All Rights Reserved
         ],
       },
       // E-learning
-      // {
-      //   icon: "bookOpen",
-      //   name: "eLearning",
-      //   href: isFrontend ? "/e_learning" : await call.getPage("client-dashboard", "e-learning"),
-      //   children: [],
-      // },
+      {
+        icon: "graduationHat02",
+        name: "eLearning",
+        href: isFrontend ? "/e_learning" : await call.getPage("client-dashboard", "e-learning"),
+        children: [],
+      },
       {
         icon: "settings03",
         name: "configurations",

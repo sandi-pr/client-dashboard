@@ -141,6 +141,12 @@ All Rights Reserved
       description: "descFinetunings",
       page: isFrontend ? "/finetunings" : "finetunings",
     },
+    {
+      icon: "graduationHat02",
+      title: "eLearning",
+      description: "descELearning",
+      page: isFrontend ? "/e_learning" : "e-learning",
+    },
     // {
     //   icon: "data",
     //   title: "apiConnector",
