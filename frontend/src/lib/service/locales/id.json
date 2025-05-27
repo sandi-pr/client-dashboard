@@ -1172,6 +1172,8 @@
   "selectType": "Pilih Tipe",
   "types": "Tipe",
   "key": "Kunci",
+  "eLearning": "E-Learning",
+  "descELearning": "Meredefinisi pembelajaran untuk era digital dengan AI",
   "details": "Details",
   "editInformations": "Ubah Informasi",
   "detectedAudio": "Audio Terdeteksi",

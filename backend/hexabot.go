@@ -1707,19 +1707,19 @@ func getStatusBot(bot_id int64, strapi *strapi.StrapiClassic) (string, string, e
 
 												if status_bot, ok := status_doc.GetString(string(knowledge_id)); ok {
 													if status_bot != "Ready" && status_bot != "Error" {
-														fmt.Println("not ready", collection_id_int[i], knowledge_id)
+														// fmt.Println("not ready", collection_id_int[i], knowledge_id)
 														return string(status_bot), string(bot_name), nil
 													} else {
-														fmt.Println("ready", collection_id_int[i], knowledge_id)
+														// fmt.Println("ready", collection_id_int[i], knowledge_id)
 														page = page + 1
 														continue
 													}
 												} else {
-													fmt.Println("not ready 1", collection_id_int[i], knowledge_id)
+													// fmt.Println("not ready 1", collection_id_int[i], knowledge_id)
 													return "Inactive", string(bot_name), nil
 												}
 											} else {
-												fmt.Println("not ready 2", collection_id_int[i], knowledge_id)
+												// fmt.Println("not ready 2", collection_id_int[i], knowledge_id)
 												return "Inactive", string(bot_name), nil
 											}
 										} else {
@@ -1907,6 +1907,8 @@ func getStatusBotNew(bot_id int64, strapi *strapi.StrapiClassic, userId string) 
 		}
 
 		tmpBotStatus = botStatus
+
+		time.Sleep(3 * time.Second)
 	}
 }
 

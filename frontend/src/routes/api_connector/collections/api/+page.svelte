@@ -1676,7 +1676,15 @@
     triggerToast($_("succesfullyUploaded"), true);
   }
 
-  onMount(async() => {
+  async function dummyAddLink() {
+    const hrefDetailApi = isFrontend ? "/api_connector/collections/api/detail" : await $call.getPage("client-dashboard", "api-connector-collections-api-detail");
+
+    apisData.forEach((api) => {
+      api.actions.objects[0].href = hrefDetailApi + "?apiId=" + api.id + "&collectionId=" + collectionId + "&libraryId=" + libraryId;
+    });
+  }
+
+  onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
       window.history.back();
       return;
@@ -1690,7 +1698,7 @@
         libraryId === null ||
         libraryId === undefined
       ) {
-        goto(await $call.getPage("client-dashboard", "handwriting"));
+        goto(await $call.getPage("client-dashboard", "api-connector"));
         return;
       }
       getCollections(true, false);
@@ -1699,11 +1707,7 @@
       getLabels();
     });
 
-    const hrefDetailApi = isFrontend ? "/api_connector/collections/api/detail" : await $call.getPage("client-dashboard", "api-connector-collections-api-detail");
-
-    apisData.forEach((api) => {
-      api.actions.objects[0].href = hrefDetailApi + "?apiId=" + api.id + "&collectionId=" + collectionId + "&libraryId=" + libraryId;
-    })
+    dummyAddLink();
 
     checkMobileView();
     window.addEventListener("resize", checkMobileView);

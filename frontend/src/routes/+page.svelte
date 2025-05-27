@@ -142,11 +142,17 @@ All Rights Reserved
       page: isFrontend ? "/finetunings" : "finetunings",
     },
     {
-      icon: "data",
-      title: "apiConnector",
-      description: "descApiConnector",
-      page: isFrontend ? "api_connector" : "api-connector",
+      icon: "graduationHat02",
+      title: "eLearning",
+      description: "descELearning",
+      page: isFrontend ? "/e_learning" : "e-learning",
     },
+    // {
+    //   icon: "data",
+    //   title: "apiConnector",
+    //   description: "descApiConnector",
+    //   page: isFrontend ? "api_connector" : "api-connector",
+    // },
   ];
 
   const cardsDocument = [

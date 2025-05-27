@@ -126,3 +126,5 @@ export { downloadFileBase64, downloadFileBlob } from "$lib/utils/downloadFile";
 export { getLabels } from "$lib/utils/getLabels";
 export { getUser } from "$lib/utils/getUser";
 export { handleInputName } from "$lib/utils/handleInputName";
+export { setCookie, getCookie } from "$lib/utils/cookies";
+export { isMoodle } from "$lib/utils/moodleStore";
