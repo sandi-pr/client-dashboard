@@ -1528,9 +1528,9 @@ All Rights Reserved
     }
 
     // if ($isMoodle) {
-    //   Example set cookie
-    //   const cookies = "250ff1da9fa2bcc6bf33388bc286ace4";
-    //   setCookie('MoodleSession', cookies, 1);
+    //   // Example set cookie
+    //   const cookies = "3581cd4947eef2b29950792f7e6389c8";
+    //   setCookie("MoodleSession", cookies, 1);
     // }
 
     isComingSoon = checkPageComingSoon();
