@@ -1343,6 +1343,78 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		data["logo_name"] = logo_name
 	}
 
+	if collection_id != "" {
+		status, findBot, err := Strapi.Find("hexabot-table", U.Dict{
+			"filters": U.Dict{
+				"id": U.Dict{
+					"$eq": id,
+				},
+			},
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := findBot.GetList("data")
+
+		if !ok {
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if dict, ok := list.GetDict(0); ok {
+			if attributes, ok := dict.GetDict("attributes"); ok {
+				if collection_id_old, ok := attributes.GetString("collection_id"); ok {
+					if collection_id != collection_id_old {
+						collection_id_array_old := strings.Split(string(collection_id_old), ",")
+						collection_id_int_old := make([]string, len(collection_id_array_old))
+						for i, str := range collection_id_array_old {
+							collection_id_int_old[i] = str
+						}
+
+						collection_id_array_new := strings.Split(string(collection_id), ",")
+						collection_id_map_new := make(map[string]bool)
+						for _, str := range collection_id_array_new {
+							collection_id_map_new[str] = true
+						}
+
+						var missing_ids []string
+						for _, id := range collection_id_int_old {
+							if !collection_id_map_new[id] {
+								missing_ids = append(missing_ids, id)
+							}
+						}
+
+						fmt.Println("ID yang hilang:", missing_ids)
+
+						for _, id := range missing_ids {
+							CR3 := cr3call.New(MODULE_MANAGER_URL)
+							resp, err := CR3.Call("client-dashboard", "delete-library-collection-by-param", cr3call.CR3CallData{
+								Headers: U.Dict{
+									"Authorization": bearer,
+								},
+								Params: U.Dict{
+									"id": id,
+								},
+							}, false)
+
+							fmt.Printf("Debug: CR3.Call response %s: %v\n", id, resp)
+							if err != nil {
+								return ctx.Error(500, "Internal Server Error")
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	status, update, err := Strapi.Update("hexabot-table", int64(id), data)
 	if err != nil {
 		fmt.Println(err)
