@@ -2921,6 +2921,24 @@
             ]
         },
         {
+            "name": "delete-library-collection-by-param",
+            "path": "/delete-library-collection-by-param",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteLibraryCollectionByParam"
+            },
+            "params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "delete-library-document",
             "path": "/delete-library-document/:id",
             "method": "DELETE",
