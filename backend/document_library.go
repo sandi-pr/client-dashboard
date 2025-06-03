@@ -2784,6 +2784,293 @@ func DeleteLibraryCollection(ctx *config.ConfigContext) (int, U.Dict, *config.Re
 	return 200, U.Dict{}, nil
 }
 
+func DeleteLibraryCollectionByParam(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idStr, ok := ctx.Params.GetString("id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idStr))
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	var page = 1
+
+	var idsCol U.List
+
+	for {
+		status, documents, err := Strapi.Find("document-library-table", U.Dict{
+			"filters": U.Dict{
+				"type": U.Dict{
+					"$eq": "collection",
+				},
+				"parent_id": U.Dict{
+					"$eq": id,
+				},
+			},
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": 25,
+			},
+			"sort":     "id:desc",
+			"populate": "*",
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			fmt.Println("ayam 1", documents)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		list, ok := documents.GetList("data")
+
+		if !ok {
+			fmt.Println(ok)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if len(list) < 1 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			if dict, ok := list.GetDict(i); ok {
+				if idCol, ok := dict.GetFloat64("id"); ok {
+					idsCol = append(idsCol, idCol)
+				}
+			}
+		}
+
+		page++
+	}
+
+	idsCol = append(idsCol, id)
+
+	var idsDoc U.List
+
+	for c := 0; c < len(idsCol); c++ {
+		var page2 = 1
+
+		for {
+			status, documents, err := Strapi.Find("document-library-table", U.Dict{
+				"filters": U.Dict{
+					"type": U.Dict{
+						"$eq": "document",
+					},
+					"parent_id": U.Dict{
+						"$eq": idsCol[c],
+					},
+				},
+				"pagination": U.Dict{
+					"page":     page2,
+					"pageSize": 25,
+				},
+				"sort":     "id:desc",
+				"populate": "*",
+			})
+
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println(status)
+				fmt.Println("ayam 1", documents)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			list, ok := documents.GetList("data")
+
+			if !ok {
+				fmt.Println(ok)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if len(list) < 1 {
+				break
+			}
+
+			for i := 0; i < len(list); i++ {
+				if dict, ok := list.GetDict(i); ok {
+					if idDoc, ok := dict.GetFloat64("id"); ok {
+						idsDoc = append(idsDoc, idDoc)
+					}
+				}
+			}
+
+			page2++
+		}
+
+	}
+
+	knowledge_ids, err := findKnowledgeIdBotByCollectionId(int64(id), Strapi)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	for i := 0; i < len(idsDoc); i++ {
+		if idDoc, ok := idsDoc.GetFloat64(i); ok {
+			for i := 0; i < len(knowledge_ids); i++ {
+				if knowledge_id, ok := knowledge_ids.GetString(i); ok {
+					idDocStr := strconv.Itoa(int(idDoc))
+
+					// dataSend := U.Dict{
+					// 	"knowledge_id": knowledge_id,
+					// 	"document_id":  idDocStr,
+					// }
+
+					// http := requests.NewHttp(U.Dict{
+					// 	"Content-type": "application/json",
+					// })
+
+					// _, err = http.Post(fmt.Sprintf("%s/api/%s", HEXA_RAG_URL, "remove-document"), nil, dataSend.ToJson())
+
+					CR3 := cr3call.New(MODULE_MANAGER_URL)
+					resp, err := CR3.Call("hexa-ai-rag", "remove-document", cr3call.CR3CallData{
+						Headers: U.Dict{
+							"Authorization": bearer,
+						},
+						Params: U.Dict{
+							"knowledge_id": knowledge_id,
+							"document_id":  idDocStr,
+						},
+					}, false)
+
+					fmt.Printf("Debug: CR3.Call response: %v\n", resp)
+					if err != nil {
+						return ctx.Error(500, "Internal Server Error")
+					}
+
+					// var deleteResponse DeleteResponse
+					// err = json.Unmarshal(response.Body, &deleteResponse)
+					// if err != nil {
+					// 	fmt.Println(err)
+					// 	return ctx.Error(500, "Internal Server Error")
+					// }
+
+					// fmt.Println("delete response ", knowledge_id, deleteResponse)
+				} else {
+					fmt.Println("failed to get knowledge_id")
+				}
+			}
+
+			status, document, err := Strapi.Delete("document-library-table", int64(idDoc))
+			if err != nil {
+				fmt.Println(err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			if status != 200 {
+				fmt.Println("ayam 2", document)
+				fmt.Println(status)
+				return ctx.Error(500, "Internal Server Error")
+			}
+		}
+	}
+
+	status, document, err := Strapi.Find("document-library-table", U.Dict{
+		"filters": U.Dict{
+			"type": U.Dict{
+				"$eq": "collection",
+			},
+			"id": U.Dict{
+				"$eq": id,
+			},
+		},
+		"populate": "*",
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		fmt.Println("ayam 3", document)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if list, ok := document.GetList("data"); ok {
+		if dict, ok := list.GetDict(0); ok {
+			if attributes, ok := dict.GetDict("attributes"); ok {
+				if path, ok := attributes.GetString("path"); ok {
+					find := true
+
+					if _, err := os.Stat(string(path)); os.IsNotExist(err) {
+						fmt.Println("Direktori atau file tidak ditemukan:", path)
+						find = false
+					}
+
+					if find {
+						err = os.RemoveAll(string(path))
+						if err != nil {
+							fmt.Println("Gagal menghapus direktori:", err)
+							return ctx.Error(500, "Internal Server Error")
+						}
+
+						fmt.Println("Direktori berhasil dihapus:", path)
+					}
+				}
+			}
+		}
+	}
+
+	for c := 0; c < len(idsCol); c++ {
+		var idDelete int
+
+		if idsCol[c] == id {
+			idDelete = idsCol[c].(int)
+		} else {
+			idDelete = int(idsCol[c].(U.Float64))
+		}
+
+		status, _, err = Strapi.Delete("document-library-table", int64(idDelete))
+		if err != nil {
+			fmt.Println(err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if status != 200 {
+			fmt.Println("ayam 4", document)
+			fmt.Println(status)
+			return ctx.Error(500, "Internal Server Error")
+		}
+	}
+
+	return 200, U.Dict{}, nil
+}
+
 func DeleteLibraryDocument(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
