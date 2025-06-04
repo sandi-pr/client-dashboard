@@ -104,43 +104,43 @@ All Rights Reserved
       description: "descAssistant",
       page: isFrontend ? "/assistant" : "assistant",
     },
-    {
-      icon: "bookClosed",
-      title: "dataSources",
-      description: "descDataSources",
-      page: isFrontend ? "/data_sources" : "data-sources",
-    },
-    {
-      // BRI ADJUSTMENT
-      icon: "lightbulb",
-      title: "insights",
-      description: "descInsights",
-      page: isFrontend ? "data_sources" : "csv-insight",
-    },
-    {
-      icon: "penTool",
-      title: "handwriting",
-      description: "descHandwriting",
-      page: isFrontend ? "/handwriting" : "handwriting",
-    },
-    {
-      icon: "recording02",
-      title: "voice",
-      description: "descVoice",
-      page: isFrontend ? "/voice" : "voice",
-    },
+    // {
+    //   icon: "bookClosed",
+    //   title: "dataSources",
+    //   description: "descDataSources",
+    //   page: isFrontend ? "/data_sources" : "data-sources",
+    // },
+    // {
+    //   // BRI ADJUSTMENT
+    //   icon: "lightbulb",
+    //   title: "insights",
+    //   description: "descInsights",
+    //   page: isFrontend ? "data_sources" : "csv-insight",
+    // },
+    // {
+    //   icon: "penTool",
+    //   title: "handwriting",
+    //   description: "descHandwriting",
+    //   page: isFrontend ? "/handwriting" : "handwriting",
+    // },
+    // {
+    //   icon: "recording02",
+    //   title: "voice",
+    //   description: "descVoice",
+    //   page: isFrontend ? "/voice" : "voice",
+    // },
     {
       icon: "messagePlusSquare",
       title: "createBots",
       description: "descCreateBots",
       page: isFrontend ? "/bots" : "bots",
     },
-    {
-      icon: "globe01",
-      title: "tryModels",
-      description: "descTryModels",
-      page: isFrontend ? "/llms" : "llms",
-    },
+    // {
+    //   icon: "globe01",
+    //   title: "tryModels",
+    //   description: "descTryModels",
+    //   page: isFrontend ? "/llms" : "llms",
+    // },
     {
       icon: "data",
       title: "finetunings",
