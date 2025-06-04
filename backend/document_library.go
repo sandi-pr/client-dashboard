@@ -2970,101 +2970,10 @@ func DeleteLibraryCollectionByParam(ctx *config.ConfigContext) (int, U.Dict, *co
 					if err != nil {
 						return ctx.Error(500, "Internal Server Error")
 					}
-
-					// var deleteResponse DeleteResponse
-					// err = json.Unmarshal(response.Body, &deleteResponse)
-					// if err != nil {
-					// 	fmt.Println(err)
-					// 	return ctx.Error(500, "Internal Server Error")
-					// }
-
-					// fmt.Println("delete response ", knowledge_id, deleteResponse)
 				} else {
 					fmt.Println("failed to get knowledge_id")
 				}
 			}
-
-			status, document, err := Strapi.Delete("document-library-table", int64(idDoc))
-			if err != nil {
-				fmt.Println(err)
-				return ctx.Error(500, "Internal Server Error")
-			}
-
-			if status != 200 {
-				fmt.Println("ayam 2", document)
-				fmt.Println(status)
-				return ctx.Error(500, "Internal Server Error")
-			}
-		}
-	}
-
-	status, document, err := Strapi.Find("document-library-table", U.Dict{
-		"filters": U.Dict{
-			"type": U.Dict{
-				"$eq": "collection",
-			},
-			"id": U.Dict{
-				"$eq": id,
-			},
-		},
-		"populate": "*",
-	})
-
-	if err != nil {
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	if status != 200 {
-		fmt.Println(status)
-		fmt.Println("ayam 3", document)
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	if list, ok := document.GetList("data"); ok {
-		if dict, ok := list.GetDict(0); ok {
-			if attributes, ok := dict.GetDict("attributes"); ok {
-				if path, ok := attributes.GetString("path"); ok {
-					find := true
-
-					if _, err := os.Stat(string(path)); os.IsNotExist(err) {
-						fmt.Println("Direktori atau file tidak ditemukan:", path)
-						find = false
-					}
-
-					if find {
-						err = os.RemoveAll(string(path))
-						if err != nil {
-							fmt.Println("Gagal menghapus direktori:", err)
-							return ctx.Error(500, "Internal Server Error")
-						}
-
-						fmt.Println("Direktori berhasil dihapus:", path)
-					}
-				}
-			}
-		}
-	}
-
-	for c := 0; c < len(idsCol); c++ {
-		var idDelete int
-
-		if idsCol[c] == id {
-			idDelete = idsCol[c].(int)
-		} else {
-			idDelete = int(idsCol[c].(U.Float64))
-		}
-
-		status, _, err = Strapi.Delete("document-library-table", int64(idDelete))
-		if err != nil {
-			fmt.Println(err)
-			return ctx.Error(500, "Internal Server Error")
-		}
-
-		if status != 200 {
-			fmt.Println("ayam 4", document)
-			fmt.Println(status)
-			return ctx.Error(500, "Internal Server Error")
 		}
 	}
 
