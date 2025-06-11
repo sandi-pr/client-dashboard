@@ -90,6 +90,11 @@ import Copy01Icon from "../icon/copy-01.svelte";
 import Download01Icon from "../icon/download-01.svelte";
 import Download02Icon from "../icon/download-02.svelte";
 import Edit05Icon from "../icon/edit-05.svelte";
+import ArrowRightIcon from "../icon/arrow-right.svelte";
+import Var76 from "../icon/var-76.svelte";
+import Var91 from "../icon/var-91.svelte";
+import Var95 from "../icon/var-95.svelte";
+import Var99 from "../icon/var-99.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -277,6 +282,16 @@ let getIcons = (presetIcon: String) => {
       return Download02Icon;
     case "edit05":
       return Edit05Icon;
+    case "arrowRight":
+      return ArrowRightIcon;
+    case "var76":
+      return Var76;
+    case "var91":
+      return Var91;
+    case "var95":
+      return Var95;
+    case "var99":
+      return Var99;
     default:
       return "";
   }
