@@ -11,9 +11,7 @@
 
 <script>
   import { page } from "$app/stores";
-  import { LogoBrand, SidebarNavItem, Typography, getIcons, Icon, toCamelCase } from "$lib";
   import { goto } from "$app/navigation";
-  // import { CR3Call } from "hexacomponents-svelte";
   import {
     Search,
     Button,
@@ -37,9 +35,9 @@
   import SidebarOpenIcon from "$lib/icon/sidebar-open.svelte";
   import { onMount } from "svelte";
   import Divider from "$lib/components/Divider.svelte";
-  // import Me from "$lib/utils/me";
   import { _ } from "svelte-i18n";
-  import { call } from "$lib";
+  import { LogoBrand, SidebarNavItem, Typography } from "$lib";
+  import { getIcons, Icon, toCamelCase, isOpenSidebarStore, call } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -54,13 +52,12 @@
     innerWidth = 0,
   } = $props();
 
-  let sidebarItems = $state([]);
   let dropdownUser = $state(false);
-  // let dropdownManage = $state(false);
-  let isOpen = $state({});
-  let isOpenOld = $state({});
+  let isInitialized = false; // Flag to ensure `onMount` runs first
   let hrefUser = $state("");
   let hrefJobLevels = $state("");
+  let sidebarItems = $state([]);
+  let isOpen = $state({});
 
   let activeUrl = $derived($page.url.pathname);
 
@@ -107,16 +104,27 @@
     let home = isFrontend ? "/" : await $call.getPage("client-dashboard", "home-page");
     sidebarItems = [{ name: "home", href: home, icon: "home", children: [] }, ...sidebarAddition];
 
-    // Inisialisasi isOpen dari sessionStorage atau buat baru jika tidak ada
+    // Initialize `isOpen` from sessionStorage or create a new object if not present
     let isOpenSession = JSON.parse(sessionStorage.getItem("isOpen"));
+
     if (isOpenSession !== null) {
-      isOpen = isOpenSession;
+      // Ensure all keys from `sidebarItems` exist in `isOpenSession`
+      sidebarItems.forEach((item) => {
+        if (!(item.name in isOpenSession)) {
+          isOpenSession[item.name] = false; // Default to closed if key is missing
+        }
+      });
+      isOpenSidebarStore.set(isOpenSession); // Restore state from sessionStorage
     } else {
-      for (const item of sidebarItems) {
-        isOpen[item.name] = false;
-      }
-      sessionStorage.setItem("isOpen", JSON.stringify(isOpen));
+      // Create a new `isOpen` object with all keys from `sidebarItems`
+      sidebarItems.forEach((item) => {
+        isOpen[item.name] = false; // Default all items to closed
+      });
+      isOpenSidebarStore.set(isOpen); // Set the store
+      sessionStorage.setItem("isOpen", JSON.stringify(isOpen)); // Persist the state
     }
+
+    isInitialized = true; // Mark initialization as complete
 
     document.addEventListener("click", handleDropdownFocusLoss);
     return () => {
@@ -125,10 +133,19 @@
   });
 
   $effect(() => {
-    if (JSON.stringify(isOpen) !== JSON.stringify(isOpenOld)) {
-      isOpenOld = { ...isOpen };
-      sessionStorage.setItem("isOpen", JSON.stringify(isOpen));
-    }
+    // Sync store changes to sessionStorage
+    isOpenSidebarStore.subscribe((value) => {
+      // Ensure all keys from `sidebarItems` exist in the store value
+      sidebarItems.forEach((item) => {
+        if (!(item.name in value)) {
+          value[item.name] = false; // Default to closed if key is missing
+        }
+      });
+      // Ensure `onMount` has completed before running this effect
+      if (isInitialized) {
+        sessionStorage.setItem("isOpen", JSON.stringify(value));
+      }
+    });
   });
 </script>
 
@@ -207,7 +224,7 @@
         {#each sidebarItems as item}
           {#if item?.children?.length > 0}
             <SidebarDropdownWrapper
-              bind:isOpen={isOpen[item.name]}
+              bind:isOpen={$isOpenSidebarStore[item.name]}
               ulClass="!space-y-0"
               spanClass="flex-1 text-left whitespace-nowrap text-secondary-light dark:text-secondary-dark text-base font-semibold leading-normal"
               btnClass="flex w-full gap-3 items-center px-3 py-2 hover:no-underline rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"

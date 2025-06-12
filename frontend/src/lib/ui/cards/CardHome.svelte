@@ -25,7 +25,7 @@
     {/if}
     <Typography preset="Text lg/Semibold" text={title} color="primary" />
     <Typography preset="Text sm/Regular" text={description} color="secondary" />
-    <div class="flex justify-between items-end">
+    <div class="flex justify-between items-end mt-2">
       <div class="flex items-center gap-2">
         <Typography preset="Text sm/Semibold" text={$_("tryNow")} color="secondary" />
         <ArrowRightIcon svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark" />

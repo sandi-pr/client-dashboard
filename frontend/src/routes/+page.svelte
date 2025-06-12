@@ -16,7 +16,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { Alert, CloseButton, Button as ButtonFlowbite } from "flowbite-svelte";
   import { Card, Icon, Divider, StateCard, ChartCard, Typography, CardHome } from "$lib";
-  import { call, showAI, showNotif } from "$lib";
+  import { call, showAI, showNotif, isOpenSidebarStore } from "$lib";
   import IllustrationFirst from "$lib/icon/illustration_first_time.svelte";
 
   const isFrontend = process.env.NODE_ENV === "development";
@@ -199,7 +199,7 @@ All Rights Reserved
     // getActionItems();
     // getCountPerModulePerMonth();
     cardsArrays = [
-      { name: "assistants", array: cardsAssistantActions },
+      { name: "assistant", array: cardsAssistantActions },
       { name: "documents", array: cardsDocumentActions },
       { name: "configurations", array: cardsConfigurationActions },
     ];
@@ -285,7 +285,22 @@ All Rights Reserved
                   icon={card.icon}
                   title={$_(card.title)}
                   description={$_(card.description)}
-                  onclick={() => navigateToPage(card.page)}
+                  onclick={() => {
+                    // const isOpen = JSON.parse(sessionStorage.getItem("isOpen")) || {};
+                    // if (cardArray.name in isOpen) {
+                    //   isOpen[cardArray.name] = true;
+                    //   sessionStorage.setItem("isOpen", JSON.stringify(isOpen));
+                    // }
+                    // // console.log(cardArray.name);
+                    // // console.log(isOpen);
+                    isOpenSidebarStore.update((isOpen) => {
+                      if (cardArray.name in isOpen) {
+                        isOpen[cardArray.name] = true;
+                      }
+                      return isOpen;
+                    });
+                    navigateToPage(card.page);
+                  }}
                   comingSoon={card?.comingSoon}
                 />
               {/each}
