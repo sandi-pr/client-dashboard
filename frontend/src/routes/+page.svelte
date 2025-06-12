@@ -30,18 +30,21 @@ All Rights Reserved
   let cardsArrays = $state([]);
   let isFirstTimeTimeoutId;
 
-  const cardsQuickActions = [
-    {
-      icon: "var91",
-      title: "documents",
-      description: "descDocumentLibrary",
-      page: isFrontend ? "/documents" : "document-collection-overview",
-    },
+  const cardsAssistantActions = [
     {
       icon: "var95",
       title: "assistant",
       description: "descAssistant",
       page: isFrontend ? "/assistant" : "assistant",
+    },
+  ];
+
+  const cardsDocumentActions = [
+    {
+      icon: "var91",
+      title: "documents",
+      description: "descDocumentLibrary",
+      page: isFrontend ? "/documents" : "document-collection-overview",
     },
     // {
     //   icon: "bookClosed",
@@ -68,24 +71,12 @@ All Rights Reserved
     //   description: "descVoice",
     //   page: isFrontend ? "/voice" : "voice",
     // },
-    {
-      icon: "var99",
-      title: "createBots",
-      description: "descCreateBots",
-      page: isFrontend ? "/bots" : "bots",
-    },
     // {
     //   icon: "globe01",
     //   title: "tryModels",
     //   description: "descTryModels",
     //   page: isFrontend ? "/llms" : "llms",
     // },
-    {
-      icon: "var76",
-      title: "finetunings",
-      description: "descFinetunings",
-      page: isFrontend ? "/finetunings" : "finetunings",
-    },
     // {
     //   icon: "graduationHat02",
     //   title: "eLearning",
@@ -98,6 +89,21 @@ All Rights Reserved
     //   description: "descApiConnector",
     //   page: isFrontend ? "api_connector" : "api-connector",
     // },
+  ];
+
+  const cardsConfigurationActions = [
+    {
+      icon: "var99",
+      title: "createBots",
+      description: "descCreateBots",
+      page: isFrontend ? "/bots" : "bots",
+    },
+    {
+      icon: "var76",
+      title: "finetunings",
+      description: "descFinetunings",
+      page: isFrontend ? "/finetunings" : "finetunings",
+    },
   ];
 
   function setIsFirstTime() {
@@ -193,13 +199,9 @@ All Rights Reserved
     // getActionItems();
     // getCountPerModulePerMonth();
     cardsArrays = [
-      { name: "quickActions", array: cardsQuickActions },
-      // { name: "documentLibrary", array: cardsDocument },
-      // { name: "aiManagements", array: cardsAi },
-      // { name: "aiAnalyzer", array: cardsAnalyzer },
-      // { name: "hexaTutor", array: cardsHexaTutor },
-      // { name: "analytic", array: cardsAnalytic },
-      // { name: "smartDocument", array: cardsSmartDocument },
+      { name: "assistants", array: cardsAssistantActions },
+      { name: "documents", array: cardsDocumentActions },
+      { name: "configurations", array: cardsConfigurationActions },
     ];
 
     let totalCardsSection = cardsNotEmpty(cardsArrays);

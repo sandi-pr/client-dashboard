@@ -1184,5 +1184,6 @@
   "audio": "Audio",
   "listener": "Listener",
   "data": "Data",
-  "tryNow": "Try Now"
+  "tryNow": "Try Now",
+  "assistants": "Assistants"
 }

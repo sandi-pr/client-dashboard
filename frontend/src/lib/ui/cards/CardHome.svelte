@@ -1,5 +1,6 @@
 <script>
   import { _ } from "svelte-i18n";
+  import { twMerge } from "tailwind-merge";
   import { Typography, Badge } from "$lib";
   import { getIcons } from "$lib";
 
@@ -7,15 +8,20 @@
 
   let PropsIcon = getIcons(icon);
   let ArrowRightIcon = getIcons("arrowRight");
+
+  let cardClass = twMerge(
+    "p-6",
+    "border rounded-xl border-primary-light dark:border-primary-dark",
+    "bg-primary-alt-light dark:bg-primary-alt-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark active:bg-secondary-light dark:active:bg-secondary-dark",
+  );
 </script>
 
-<button
-  {onclick}
-  class="p-6 border rounded-xl border-primary-light dark:border-primary-dark bg-primary-alt-light dark:bg-primary-alt-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark active:bg-secondary-light dark:active:bg-secondary-dark"
->
+<button {onclick} class={cardClass}>
   <div class="flex flex-col gap-2">
     {#if comingSoon}
       <Badge type="brand" text="Soon" />
+    {:else}
+      <div class="py-[11px]"></div>
     {/if}
     <Typography preset="Text lg/Semibold" text={title} color="primary" />
     <Typography preset="Text sm/Regular" text={description} color="secondary" />
