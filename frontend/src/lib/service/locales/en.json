@@ -1185,5 +1185,6 @@
   "listener": "Listener",
   "data": "Data",
   "tryNow": "Try Now",
-  "assistants": "Assistants"
+  "assistants": "Assistants",
+  "aiReader": "AI Reader"
 }

@@ -166,7 +166,7 @@
   <div class="w-full pb-10">
     <div class="flex flex-col m-4">
       <!-- Header -->
-      <div class="flex items-center justify-between">
+      <div class="flex gap-2 items-center justify-between">
         <div class="flex flex-col grow gap-1">
           <div class="flex gap-2">
             <Typography preset="Display sm/Semibold" text={documentTitle} />
@@ -201,6 +201,16 @@
               : ""}
           />
         </div>
+        <button
+          class="flex gap-2 py-2 px-4 rounded-lg bg-brand-solid-light dark:bg-brand-solid-dark hover:bg-brand-solid-hover-light dark:hover:bg-brand-solid-hover-dark"
+          onclick={() => {
+            modalDetectedText = true;
+            onEdit = false;
+          }}
+        >
+          <StarsIcon svgClass="w-5 h-5 text-fg-primary-light dark:text-fg-primary-dark" />
+          <Typography preset="Text sm/Semibold" color="fg-primary" text={$_("aiReader")} />
+        </button>
         <div onfocusout={handleDropdownFocusLoss} class="flex items-center relative">
           <button
             class="p-2 rounded-lg bg-secondary-light dark:bg-secondary-dark border border-secondary-light dark:border-secondary-dark"
@@ -354,7 +364,7 @@
                 <button
                   onclick={() => {
                     modalDetectedText = true;
-                    onEdit = false;
+                    onEdit = true;
                   }}
                 >
                   <Typography
