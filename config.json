@@ -5760,6 +5760,68 @@
                 "plugin": "plugin.so",
                 "function": "GetGpuGeneralInfo"
             }
+        },
+        {
+            "name": "create-bot-moodle",
+            "path": "/create-bot-moodle",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateBotMoodle"
+            },
+            "params": [
+                {
+                    "name": "bot_name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "ai_engine",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "collection_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "additional_prompt",
+                    "type": "string"
+                },
+                {
+                    "name": "system_item",
+                    "type": "boolean"
+                },
+                {
+                    "name": "module_type",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "get-bot-by-course-id-moodle",
+            "path": "/get-bot-by-course-id-moodle",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetBotByCourseIDMoodle"
+            },
+            "params": [
+                {
+                    "name": "course_id",
+                    "type": "string",
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {
