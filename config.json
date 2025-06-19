@@ -5822,6 +5822,29 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "update-url-moodle-bot",
+            "path": "/update-url-moodle-bot",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateUrlMoodleBot"
+            },
+            "params": [
+                {
+                    "name": "course_id",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "url",
+                    "type": "string",
+                    "required": true
+                }
+            ]
         }
     ],
     "options": {
@@ -6986,6 +7009,9 @@
                         "type": "boolean"
                     },
                     "module_type": {
+                        "type": "string"
+                    },
+                    "e_learning_url": {
                         "type": "string"
                     }
                 }
