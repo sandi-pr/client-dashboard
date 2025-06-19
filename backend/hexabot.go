@@ -2371,3 +2371,94 @@ func GetBotByCourseIDMoodle(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 
 	return 200, bot, nil
 }
+
+func UpdateUrlMoodleBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		fmt.Println("[DEBUG] Authorization header not found")
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	fmt.Println("[DEBUG] Bearer token received:", bearer)
+
+	token := strings.Replace(string(bearer), "Bearer ", "", 1)
+	fmt.Println("[DEBUG] Parsed token:", token)
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
+
+	collection_id, ok := ctx.Params.GetString("course_id")
+	if !ok {
+		fmt.Println("[DEBUG] course_id parameter not found")
+		return ctx.Error(400, "invalid parameters course_id")
+	}
+
+	e_learning_url, ok := ctx.Params.GetString("url")
+	if !ok {
+		fmt.Println("[DEBUG] url parameter not found")
+		return ctx.Error(400, "invalid parameters url")
+	}
+
+	fmt.Println("[DEBUG] course_id:", collection_id)
+
+	query := U.Dict{
+		"filters": U.Dict{
+			"collection_id": U.Dict{
+				"$eq": collection_id,
+			},
+			"module_type": U.Dict{
+				"$eq": "moodle",
+			},
+		},
+	}
+
+	fmt.Println("[DEBUG] Query to Strapi:", query)
+
+	status, bot, err := Strapi.Find("hexabot-table", query)
+
+	if err != nil {
+		fmt.Println("[ERROR] Strapi Find error:", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println("[DEBUG] Strapi response status:", status)
+	fmt.Println("[DEBUG] Strapi response data:", bot)
+
+	if status != 200 {
+		fmt.Println("[ERROR] Unexpected status from Strapi:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if data, ok := bot.GetList("data"); ok {
+		if len(data) < 1 {
+			fmt.Println("[ERROR] Unexpected data from Strapi:", data)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if dict, ok := data[0].(U.Dict); ok {
+			if id, ok := dict.GetFloat64("id"); ok {
+				fmt.Println("[DEBUG] bot_id:", id)
+
+				status, botUpdate, err := Strapi.Update("hexabot-table", int64(id), U.Dict{
+					"e_learning_url": e_learning_url,
+				})
+
+				if err != nil {
+					fmt.Println("[DEBUG] Strapi response data:", botUpdate)
+					fmt.Println("[ERROR] Strapi Update error:", err)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				if status != 200 {
+					fmt.Println("[DEBUG] Strapi response data:", botUpdate)
+					fmt.Println("[ERROR] Unexpected status from Strapi:", status)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				return 200, botUpdate, nil
+			}
+		}
+	}
+
+	return ctx.Error(500, "Internal Server Error")
+}
