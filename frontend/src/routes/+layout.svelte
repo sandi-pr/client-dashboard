@@ -83,7 +83,7 @@ All Rights Reserved
   let gettingNewNotif = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://lajnah.hexacode.ai")
+    ? new CR3Call("https://tank.hexacode.ai")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -291,40 +291,40 @@ All Rights Reserved
       //   ],
       // },
       // todo config
-      // {
-      //   icon: "presentation",
-      //   name: "analytics",
-      //   children: [
-      //     {
-      //       icon: "bookClosed",
-      //       name: "dataSources",
-      //       href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
-      //     },
-      //     {
-      //       icon: "lightbulb",
-      //       name: "insights",
-      //       href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      //     },
-      //   ],
-      // },
+      {
+        icon: "presentation",
+        name: "analytics",
+        children: [
+          {
+            icon: "bookClosed",
+            name: "dataSources",
+            href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
+          },
+          {
+            icon: "lightbulb",
+            name: "insights",
+            href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
+          },
+        ],
+      },
       //
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
       // todo config
-      // {
-      //   icon: "penTool",
-      //   name: "handwriting",
-      //   children: [],
-      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      // },
-      // {
-      //   icon: "recording02",
-      //   name: "voice",
-      //   children: [],
-      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      // },
+      {
+        icon: "penTool",
+        name: "handwriting",
+        children: [],
+        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      },
+      {
+        icon: "recording02",
+        name: "voice",
+        children: [],
+        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      },
       
       // {
       //   icon: "image03",
@@ -372,11 +372,11 @@ All Rights Reserved
       // },
       //   ],
       // },
-      // {
-      //   icon: "globe01",
-      //   name: "llms",
-      //   href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
-      //   children: [
+      {
+        icon: "globe01",
+        name: "llms",
+        href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
+        children: [
       //     // {
       //     //   icon: "dashboard01",
       //     //   name: "overview",
@@ -410,8 +410,8 @@ All Rights Reserved
       //     //     ? "/llms?tab=deepseek"
       //     //     : await call.getPage("client-dashboard", "llms"),
       //     // }
-      //   ],
-      // },
+        ],
+      },
       // E-learning
       // {
       //   icon: "graduationHat02",

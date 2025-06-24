@@ -692,17 +692,17 @@
 
 <div class="flex flex-col m-4 gap-4 pb-4 md:pb-12">
   <Typography text={$_("largeLanguageModelsOverview")} preset="Display sm/Semibold" />
-  <Typography text={$_("quickActions")} preset="Text lg/Semibold" propClass="mt-4" />
+  <!-- <Typography text={$_("quickActions")} preset="Text lg/Semibold" propClass="mt-4" />
   <Divider />
   {#if actionItems.length > 0}
     <ActionCard {actionItems} />
-  {/if}
+  {/if} -->
   <div class="flex justify-between items-center mt-4">
-    <Typography
+    <!-- <Typography
       text={$_("largeLanguageModelsLists")}
       preset="Text lg/Semibold"
       propClass="md:mt-4"
-    />
+    /> -->
     <!-- <Button
       spaceY="m-0 max-h-min"
       text="View All"
@@ -713,7 +713,7 @@
       color="alternative"
     /> -->
   </div>
-  <Divider />
+  <!-- <Divider /> -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     {#each cardDataArray as cardData}
       <CardFeature {cardData} />
