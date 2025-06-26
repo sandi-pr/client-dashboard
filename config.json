@@ -558,6 +558,11 @@
             "name": "e-learning",
             "path": "/e_learning",
             "file_path": "template/e_learning.html"
+        },
+        {
+            "name": "staging",
+            "path": "/staging",
+            "file_path": "template/staging.html"
         }
     ],
     "apis": [

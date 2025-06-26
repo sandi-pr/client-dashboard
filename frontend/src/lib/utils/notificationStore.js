@@ -31,6 +31,9 @@ export const paginationRead = writable({
 
 let timeout = null;
 
+let reconnectAttempts = 0; // Track the number of reconnection attempts
+const maxReconnectAttempts = 5; // Maximum allowed reconnection attempts
+
 export function connectWebSocket(token, isFrontend) {
   console.log("Connecting WebSocket...");
 
@@ -38,9 +41,6 @@ export function connectWebSocket(token, isFrontend) {
     console.log("WebSocket already connected.");
     return;
   }
-
-  let reconnectAttempts = 0; // Track the number of reconnection attempts
-  const maxReconnectAttempts = 5; // Maximum allowed reconnection attempts
 
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
   const host = location.hostname;

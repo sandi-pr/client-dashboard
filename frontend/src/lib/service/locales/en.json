@@ -1186,5 +1186,7 @@
   "data": "Data",
   "tryNow": "Try Now",
   "assistants": "Assistants",
-  "aiReader": "AI Reader"
+  "aiReader": "AI Reader",
+  "theSystemIsStarting": "The system is starting",
+  "justAMomentWhileWeGetThingsReady": "Just a moment while we get things ready"
 }

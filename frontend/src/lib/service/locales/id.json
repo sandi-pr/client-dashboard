@@ -1186,5 +1186,7 @@
   "data": "Data",
   "tryNow": "Coba Sekarang",
   "assistants": "Asisten",
-  "aiReader": "AI Pembaca"
+  "aiReader": "AI Pembaca",
+  "theSystemIsStarting": "Sistem Sedang Dimulai",
+  "justAMomentWhileWeGetThingsReady": "Sebentar Sambil Kami Menyiapkan Sistem Anda"
 }

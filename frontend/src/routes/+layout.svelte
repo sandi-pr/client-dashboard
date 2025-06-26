@@ -89,10 +89,16 @@ All Rights Reserved
   let hideBakrie = $state(true);
 
   const hideLayoutListBakrie = isFrontend
-    ? ["/document_collection", "/document_collection/libraries"]
+    ? ["/document_collection", "/document_collection/libraries", "/staging"]
     : ["/client-dashboard/documents", "/client-dashboard/documents/libraries"];
 
-  const hideLayoutList = $state(["/workflow/update", "/workflow/create", "/hexabot/webchat"]);
+  const hideLayoutList = $state([
+    "/workflow/update",
+    "/workflow/create",
+    "/hexabot/webchat",
+    "/staging",
+    "/client-dashboard/staging",
+  ]);
 
   const hideScrollList = $state(["/document/document_collection/chat"]);
 
@@ -1512,6 +1518,53 @@ All Rights Reserved
     return pageComingSoon.some((path) => path === globalThis.location.pathname);
   };
 
+  // check if the required modules are present in the module manager
+  const checkRequiredModuleManager = (modules) => {
+    const requiredModules = [
+      "client-login",
+      "client-dashboard",
+      "hexabot",
+      "hexa-ai-rag",
+      "hexapod-setup",
+      "module-manager",
+    ];
+    return requiredModules.every((req) => modules.some((module) => module === req));
+  };
+
+  const checkModuleManager = async () => {
+    try {
+      let token = localStorage.getItem("token");
+      if (token) {
+        const response = await call.call("module-manager", "get-namespaces", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {},
+          Headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // console.log("checkModuleManager response", response);
+
+        if (response.status !== 200) {
+          console.log(response);
+          throw new Error("Failed to fetch module manager namespaces");
+        } else if (!checkRequiredModuleManager(response.result.namespaces)) {
+          console.log(response);
+          throw new Error("Required modules are not present in module manager");
+        }
+
+        if (globalThis.location.pathname.includes("/staging")) {
+          // if (globalThis.location.pathname.endsWith("/staging")) { // if above doesn't work, try this
+          goto(isFrontend ? "/" : await call.getPage("client-dashboard", "home-page"));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      goto(isFrontend ? "/staging" : await call.getPage("client-dashboard", "staging"));
+    }
+  };
+
   onMount(async () => {
     if (localStorage.getItem("token") === null && isFrontend) {
       const token = prompt("Please insert your token:", "");
@@ -1532,6 +1585,8 @@ All Rights Reserved
     isComingSoon = checkPageComingSoon();
 
     setCall(call);
+
+    await checkModuleManager();
 
     await CheckSetup();
     if ($isBakrie) {
