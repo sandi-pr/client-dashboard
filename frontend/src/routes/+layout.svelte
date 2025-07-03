@@ -297,40 +297,44 @@ All Rights Reserved
       //   ],
       // },
       // todo config
-      // {
-      //   icon: "presentation",
-      //   name: "analytics",
-      //   children: [
-      //     {
-      //       icon: "bookClosed",
-      //       name: "dataSources",
-      //       href: isFrontend ? "/data_sources" : await call.getPage("client-dashboard", "data-sources"),
-      //     },
-      //     {
-      //       icon: "lightbulb",
-      //       name: "insights",
-      //       href: isFrontend ? "/csv_insight" : await call.getPage("client-dashboard", "csv-insight"),
-      //     },
-      //   ],
-      // },
+      {
+        icon: "presentation",
+        name: "analytics",
+        children: [
+          {
+            icon: "bookClosed",
+            name: "dataSources",
+            href: isFrontend
+              ? "/data_sources"
+              : await call.getPage("client-dashboard", "data-sources"),
+          },
+          {
+            icon: "lightbulb",
+            name: "insights",
+            href: isFrontend
+              ? "/csv_insight"
+              : await call.getPage("client-dashboard", "csv-insight"),
+          },
+        ],
+      },
       //
       // {
       //   icon: "star04",
       //   name: "aiAnalyzer",
       //   children: [
       // todo config
-      // {
-      //   icon: "penTool",
-      //   name: "handwriting",
-      //   children: [],
-      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      // },
-      // {
-      //   icon: "recording02",
-      //   name: "voice",
-      //   children: [],
-      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      // },
+      {
+        icon: "penTool",
+        name: "handwriting",
+        children: [],
+        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      },
+      {
+        icon: "recording02",
+        name: "voice",
+        children: [],
+        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      },
 
       // {
       //   icon: "image03",
@@ -378,46 +382,46 @@ All Rights Reserved
       // },
       //   ],
       // },
-      // {
-      //   icon: "globe01",
-      //   name: "llms",
-      //   href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
-      //   children: [
-      //     // {
-      //     //   icon: "dashboard01",
-      //     //   name: "overview",
-      //     //   href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
-      //     //   children: [],
-      //     // },
-      //     // {
-      //     //   icon: "dataflow04",
-      //     //   name: "lists",
-      //     //   href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
-      //     //   children: [],
-      //     // },
-      //     // {
-      //     //   icon: "meta",
-      //     //   name: "Llama3.2",
-      //     //   href: isFrontend
-      //     //     ? "/llms?tab=llama"
-      //     //     : await call.getPage("client-dashboard", "llms"),
-      //     // },
-      //     // {
-      //     //   icon: "gemini",
-      //     //   name: "Gemma 2",
-      //     //   href: isFrontend
-      //     //     ? "/llms?tab=gemma"
-      //     //     : await call.getPage("client-dashboard", "llms"),
-      //     // },
-      //     // {
-      //     //   icon: "deepseek",
-      //     //   name: "DeepSeek R1",
-      //     //   href: isFrontend
-      //     //     ? "/llms?tab=deepseek"
-      //     //     : await call.getPage("client-dashboard", "llms"),
-      //     // }
-      //   ],
-      // },
+      {
+        icon: "globe01",
+        name: "llms",
+        href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
+        children: [
+          //     // {
+          //     //   icon: "dashboard01",
+          //     //   name: "overview",
+          //     //   href: isFrontend ? "/llms" : await call.getPage("client-dashboard", "llms"),
+          //     //   children: [],
+          //     // },
+          //     // {
+          //     //   icon: "dataflow04",
+          //     //   name: "lists",
+          //     //   href: isFrontend ? "/llms/list" : await call.getPage("client-dashboard", "dataflow"),
+          //     //   children: [],
+          //     // },
+          //     // {
+          //     //   icon: "meta",
+          //     //   name: "Llama3.2",
+          //     //   href: isFrontend
+          //     //     ? "/llms?tab=llama"
+          //     //     : await call.getPage("client-dashboard", "llms"),
+          //     // },
+          //     // {
+          //     //   icon: "gemini",
+          //     //   name: "Gemma 2",
+          //     //   href: isFrontend
+          //     //     ? "/llms?tab=gemma"
+          //     //     : await call.getPage("client-dashboard", "llms"),
+          //     // },
+          //     // {
+          //     //   icon: "deepseek",
+          //     //   name: "DeepSeek R1",
+          //     //   href: isFrontend
+          //     //     ? "/llms?tab=deepseek"
+          //     //     : await call.getPage("client-dashboard", "llms"),
+          //     // }
+        ],
+      },
       // E-learning
       // {
       //   icon: "graduationHat02",

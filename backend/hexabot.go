@@ -2203,3 +2203,251 @@ func FindCreateBotLlm(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTT
 		}, nil
 	}
 }
+
+func CreateBotMoodle(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	bot_name, ok := ctx.Params.GetString("bot_name")
+	if !ok {
+		return ctx.Error(400, "invalid parameters bot_name")
+	}
+
+	description, ok := ctx.Params.GetString("description")
+	if !ok {
+		description = ""
+	}
+
+	system_item, ok := ctx.Params.GetBool("system_item")
+	if !ok {
+		system_item = false
+	}
+
+	module_type, ok := ctx.Params.GetString("module_type")
+	if !ok {
+		module_type = "document"
+	}
+
+	ai_engine, ok := ctx.Params.GetString("ai_engine")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters ai_engine")
+	}
+
+	collection_id, ok := ctx.Params.GetString("collection_id")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	additional_prompt, ok := ctx.Params.GetString("additional_prompt")
+
+	if !ok {
+		additional_prompt = ""
+	}
+
+	var data U.Dict
+
+	bot_id := uuid.New().String()
+
+	statusBot := "Inactive"
+	if ai_engine == "openai" {
+		statusBot = "Ready"
+	}
+
+	data = U.Dict{
+		"bot_id":           bot_id,
+		"bot_name":         bot_name,
+		"ai_engine":        ai_engine,
+		"background_align": "center",
+		"color_theme":      "purple",
+		"layout":           "Modern Minimalism",
+		"overlay_color":    "purple",
+		"username":         "User",
+		"need_auth":        false,
+		"status":           statusBot,
+		"manage_document":  false,
+		"system_item":      system_item,
+		"module_type":      module_type,
+	}
+
+	if description != "" {
+		data["description"] = description
+	}
+
+	if collection_id != "" {
+		data["collection_id"] = collection_id
+	}
+
+	if additional_prompt != "" {
+		data["additional_prompt"] = additional_prompt
+	}
+
+	status, bot, err := Strapi.Create("hexabot-table", data)
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+
+		if err2, ok := bot.GetDict("error"); ok {
+			if message, ok := err2.GetString("message"); ok {
+				return ctx.Error(status, string(message))
+			}
+		}
+
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	CR3 := cr3call.New(MODULE_MANAGER_URL)
+	go CR3.Call("hexa-ai-rag", "create-knowledge-moodle", cr3call.CR3CallData{
+		Params: U.Dict{
+			"knowledge_id":  bot_id,
+			"system_prompt": additional_prompt,
+		},
+	}, false)
+
+	return 200, bot, nil
+}
+
+func GetBotByCourseIDMoodle(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	token := strings.Replace(string(bearer), "Bearer ", "", 1)
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
+
+	collection_id, ok := ctx.Params.GetString("course_id")
+	if !ok {
+		return ctx.Error(400, "invalid parameters course_id")
+	}
+
+	query := U.Dict{
+		"filters": U.Dict{
+			"collection_id": U.Dict{
+				"$eq": collection_id,
+			},
+			"module_type": U.Dict{
+				"$eq": "moodle",
+			},
+		},
+		"sort": "updatedAt:desc",
+	}
+
+	status, bot, err := Strapi.Find("hexabot-table", query)
+
+	if err != nil {
+		fmt.Println("[ERROR] Strapi Find error:", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println("[ERROR] Unexpected status from Strapi:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, bot, nil
+}
+
+func UpdateUrlMoodleBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		fmt.Println("[DEBUG] Authorization header not found")
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	fmt.Println("[DEBUG] Bearer token received:", bearer)
+
+	token := strings.Replace(string(bearer), "Bearer ", "", 1)
+	fmt.Println("[DEBUG] Parsed token:", token)
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
+
+	collection_id, ok := ctx.Params.GetString("course_id")
+	if !ok {
+		fmt.Println("[DEBUG] course_id parameter not found")
+		return ctx.Error(400, "invalid parameters course_id")
+	}
+
+	e_learning_url, ok := ctx.Params.GetString("url")
+	if !ok {
+		fmt.Println("[DEBUG] url parameter not found")
+		return ctx.Error(400, "invalid parameters url")
+	}
+
+	fmt.Println("[DEBUG] course_id:", collection_id)
+
+	query := U.Dict{
+		"filters": U.Dict{
+			"collection_id": U.Dict{
+				"$eq": collection_id,
+			},
+			"module_type": U.Dict{
+				"$eq": "moodle",
+			},
+		},
+	}
+
+	fmt.Println("[DEBUG] Query to Strapi:", query)
+
+	status, bot, err := Strapi.Find("hexabot-table", query)
+
+	if err != nil {
+		fmt.Println("[ERROR] Strapi Find error:", err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println("[DEBUG] Strapi response status:", status)
+	fmt.Println("[DEBUG] Strapi response data:", bot)
+
+	if status != 200 {
+		fmt.Println("[ERROR] Unexpected status from Strapi:", status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if data, ok := bot.GetList("data"); ok {
+		if len(data) < 1 {
+			fmt.Println("[ERROR] Unexpected data from Strapi:", data)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		if dict, ok := data[0].(U.Dict); ok {
+			if id, ok := dict.GetFloat64("id"); ok {
+				fmt.Println("[DEBUG] bot_id:", id)
+
+				status, botUpdate, err := Strapi.Update("hexabot-table", int64(id), U.Dict{
+					"e_learning_url": e_learning_url,
+				})
+
+				if err != nil {
+					fmt.Println("[DEBUG] Strapi response data:", botUpdate)
+					fmt.Println("[ERROR] Strapi Update error:", err)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				if status != 200 {
+					fmt.Println("[DEBUG] Strapi response data:", botUpdate)
+					fmt.Println("[ERROR] Unexpected status from Strapi:", status)
+					return ctx.Error(500, "Internal Server Error")
+				}
+
+				return 200, botUpdate, nil
+			}
+		}
+	}
+
+	return ctx.Error(500, "Internal Server Error")
+}
