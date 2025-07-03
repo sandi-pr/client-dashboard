@@ -92,8 +92,20 @@ import Download02Icon from "../icon/download-02.svelte";
 import Edit05Icon from "../icon/edit-05.svelte";
 import ArrowRightIcon from "../icon/arrow-right.svelte";
 import Var76 from "../icon/var-76.svelte";
+import Var85 from "../icon/var-85.svelte";
+import Var86 from "../icon/var-86.svelte";
+import Var87 from "../icon/var-87.svelte";
+import Var88 from "../icon/var-88.svelte";
+import Var89 from "../icon/var-89.svelte";
+import Var90 from "../icon/var-90.svelte";
 import Var91 from "../icon/var-91.svelte";
+import Var92 from "../icon/var-92.svelte";
+import Var93 from "../icon/var-93.svelte";
+import Var94 from "../icon/var-94.svelte";
 import Var95 from "../icon/var-95.svelte";
+import Var96 from "../icon/var-96.svelte";
+import Var97 from "../icon/var-97.svelte";
+import Var98 from "../icon/var-98.svelte";
 import Var99 from "../icon/var-99.svelte";
 
 let getIcons = (presetIcon: String) => {
@@ -286,10 +298,34 @@ let getIcons = (presetIcon: String) => {
       return ArrowRightIcon;
     case "var76":
       return Var76;
+    case "var85":
+      return Var85;
+    case "var86":
+      return Var86;
+    case "var87":
+      return Var87;
+    case "var88":
+      return Var88;
+    case "var89":
+      return Var89;
+    case "var90":
+      return Var90;
     case "var91":
       return Var91;
+    case "var92":
+      return Var92;
+    case "var93":
+      return Var93;
+    case "var94":
+      return Var94;
     case "var95":
       return Var95;
+    case "var96":
+      return Var96;
+    case "var97":
+      return Var97;
+    case "var98":
+      return Var98;
     case "var99":
       return Var99;
     default:
