@@ -2343,6 +2343,7 @@ func GetBotByCourseIDMoodle(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 				"$eq": "moodle",
 			},
 		},
+		"sort": "updatedAt:desc",
 	}
 
 	status, bot, err := Strapi.Find("hexabot-table", query)
