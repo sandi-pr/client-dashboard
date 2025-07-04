@@ -448,43 +448,7 @@
 
         if (response.status === 200) {
           if (response?.result && response.result.models.length > 0) {
-            let llama31 = [
-              "expandedModelSizes",
-              "multilingualProcessing",
-              "extendedContextLength",
-              "openSourceAccessibility",
-              "enhancedPerformance",
-            ];
-            let llama32 = [
-              "multimodalCapabilities",
-              "costEfficiency",
-              "highPerformance",
-              "edgeDeploymentSuitability",
-              "broadFlexibility",
-            ];
-            let gemma = [
-              "realtimeMultilingualSupport",
-              "highContextualUnderstanding",
-              "efficientProcessing",
-              "scalability",
-              "userfriendlyIntegration",
-            ];
-            let deepseek = [
-              "modularDesign",
-              "costEffectiveReasoning",
-              "efficientResourceUtilization",
-              "openSourceAccessibility",
-              "competitivePerformance",
-            ];
-            let qurani = [
-              "findsHiddenProblemsInData",
-              "understandsImagesAndText",
-              "predictsMachineFailures",
-              "personalizesUserExperiences",
-              "discoversNewScientificInsights",
-            ];
-
-            // BRI ADJUSTMENT
+            
             response.result.models = response.result.models.filter(
               (model) => !model.name.includes("Qurani"),
             );
@@ -492,8 +456,7 @@
             let models = response.result.models;
 
             for (let i = 0; i < models.length; i++) {
-              if (models[i].name === "Llama3.1") {
-                models[i].points = llama31.map((point) => {
+              models[i].points = models[i].features.map((point) => {
                   return [
                     {
                       icon: {
@@ -508,73 +471,7 @@
                     },
                   ];
                 });
-              } else if (models[i].name === "Llama3.2") {
-                models[i].points = llama32.map((point) => {
-                  return [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: point,
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ];
-                });
-              } else if (models[i].name === "DeepSeek R1") {
-                models[i].points = deepseek.map((point) => {
-                  return [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: point,
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ];
-                });
-              } else if (models[i].name === "Gemma 2") {
-                models[i].points = gemma.map((point) => {
-                  return [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: point,
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ];
-                });
-              } else if (models[i].name.includes("Qurani")) {
-                models[i].points = qurani.map((point) => {
-                  return [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: point,
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
-                    },
-                  ];
-                });
-              }
             }
-            // console.log("masukkkkkkkkk", models);
 
             cardDataArray = response.result.models.map((model, index) => {
               return {
