@@ -1,37 +1,39 @@
 <script>
-  import {
-    Divider,
-    Typography,
-    StateCard,
-    Icon,
-    call,
-    SelectedCard,
-    datasourceLibraryId,
-    Pagination,
-  } from "$lib";
+  import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
   import { _ } from "svelte-i18n";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import UserIcon from "$lib/icon/user-01.svg";
-  import File06Icon from "$lib/icon/file-06.svelte";
-  import SendIcon from "$lib/icon/send-01.svg";
-  import ChevronDownIcon from "$lib/icon/chevron-down.svelte";
-  import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import {
-    Button,
+    Radio,
     Modal,
     Table,
+    Button,
     TableBody,
-    TableBodyCell,
-    TableBodyRow,
     TableHead,
+    TableBodyRow,
+    TableBodyCell,
     TableHeadCell,
   } from "flowbite-svelte";
-  import { onMount } from "svelte";
-  import { id } from "date-fns/locale";
-  import { goto } from "$app/navigation";
+  import {
+    Icon,
+    Divider,
+    StateCard,
+    Typography,
+    Pagination,
+    SelectedCard,
+    FeaturedIcon,
+  } from "$lib";
+  import { call, getIcons } from "$lib";
+  import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
+
+  const User01Icon = getIcons("user01");
+  const File06Icon = getIcons("file06");
+  const Send01Icon = getIcons("send01");
+  const FilePlusIcon = getIcons("filePlus");
+  const ChevronDownIcon = getIcons("chevronDown");
+  const IllustrationEmpty = getIcons("illustrationEmpty");
+  const IllustrationProgress = getIcons("illustrationProgress");
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -40,6 +42,7 @@
   let messageInput = $state("");
   let textarea = $state(null);
   let modalOpen = $state(false);
+  let modalOpenTable = $state(false);
   let allDataCollection = $state([]);
   let currentArrayData = $state([]);
   let datasChecked = $state([
@@ -91,6 +94,25 @@
   let isTyping = $state(false);
   let fileDetail = $state({});
 
+  let dummyDatabaseTable = $state([
+    {
+      id: 1,
+      name: "Table 1",
+      description: "This is table 1",
+    },
+    {
+      id: 2,
+      name: "Table 2",
+      description: "This is table 2",
+    },
+    {
+      id: 3,
+      name: "Table 3",
+      description: "This is table 3",
+    },
+  ]);
+  let dummyDatabaseTableSelected = $state("Table 1");
+
   function connectWebSocket() {
     var base_url =
       (location.protocol == "https:" ? "wss:" : "ws:") +
@@ -101,7 +123,7 @@
     // if (need_auth) {
     if (isFrontend) {
       ws = new WebSocket(
-        `http://192.168.18.18/insight/c/${encodeURIComponent(localStorage.getItem("token"))}`,
+        `https://tank.hexacode.ai/insight/c/${encodeURIComponent(localStorage.getItem("token"))}`,
       );
     } else {
       ws = new WebSocket(
@@ -868,7 +890,7 @@
 <div class="flex flex-col md:flex-row w-full pb-12">
   <!-- table preview -->
   <div class={`w-full md:w-1/2 pt-8 px-4 flex flex-col gap-6`}>
-    <Typography preset="Text md/Semibold" text={$_("providedTable")} />
+    <Typography preset="Text md/Semibold" text={$_("previewTable")} />
     {#if currentArrayData.length === 0}
       <StateCard
         illustration={IllustrationEmpty}
@@ -877,6 +899,23 @@
         actionText={$_("selectDataSource")}
       />
     {:else}
+      <!-- change to variable if backend done -->
+      {#if false}
+        <Button
+          color="light"
+          class="w-fit flex items-center gap-2 py-2 px-3"
+          on:click={() => {
+            modalOpenTable = true;
+          }}
+        >
+          <Typography
+            preset="Text sm/Semibold"
+            color="secondary"
+            text={"Table name from db here"}
+          />
+          <ChevronDownIcon svgClass="w-6 h-6 text-secondary-light dark:text-secondary-dark" />
+        </Button>
+      {/if}
       <div
         class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl pt-4"
       >
@@ -905,22 +944,6 @@
           </TableBody>
         </Table>
         <Pagination pagination={csvMeta} previousPage={previous} nextPage={next} />
-        <!-- <div class="flex justify-between items-center p-3 rounded-b-xl">
-          <Typography
-            preset="Text sm/Regular"
-            text={`Showing ${allDataMeta.page * allDataMeta.pageSize - allDataMeta.pageSize + 1} to ${
-              allDataMeta.page * allDataMeta.pageSize
-            } of ${allDataMeta.total} entries`}
-          />
-          <Pagination
-            on:next={next}
-            on:previous={previous}
-            activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
-          >
-            <span slot="prev">{$_("previous")}</span>
-            <span slot="next">{$_("next")}</span>
-          </Pagination>
-        </div> -->
       </div>
     {/if}
   </div>
@@ -939,7 +962,7 @@
           <div
             class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
           >
-            <img src={UserIcon} alt="User" class="w-4 h-4 md:w-6 md:h-6" />
+            <User01Icon svgClass="w-4 h-4 md:w-6 md:h-6" />
           </div>
         {/if}
         <div class="w-5/6">
@@ -993,7 +1016,7 @@
             onclick={onclickSend}
             class="rounded-full h-11 w-11 !p-3"
           >
-            <img src={SendIcon} alt="SendIcon" class="w-5 h-5" />
+            <Send01Icon svgClass="w-5 h-5" />
           </Button>
         </div>
       </div>
@@ -1097,5 +1120,88 @@
         >
       </div>
     {/if}
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={modalOpenTable} outsideclose>
+  <svelte:fragment slot="header">
+    <div class="flex gap-4 me-6 grow w-full">
+      <FeaturedIcon classesSvg={FilePlusIcon} />
+      <div class="flex flex-col gap-2">
+        <Typography preset="Text md/Bold" text={$_("changeTable")} color="secondary" />
+        <Typography
+          preset="Text sm/Regular"
+          text={$_("changeYourTableSourcesFiles")}
+          color="tertiary"
+        />
+      </div>
+    </div>
+  </svelte:fragment>
+  <!-- {#if !gettingDatas} -->
+  <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl">
+    <Table class="w-full rounded-xl">
+      <TableHead>
+        <TableHeadCell class="w-12 rounded-xl"></TableHeadCell>
+        {#each Object.keys(dummyDatabaseTable[0]) as key}
+          {#if key === "id"}
+            <!-- empty -->
+          {:else}
+            <TableHeadCell class="rounded-xl">{underscoreToSpace(key)}</TableHeadCell>
+          {/if}
+        {/each}
+      </TableHead>
+      <TableBody tableBodyClass="divide-y">
+        {#each dummyDatabaseTable as data, index (data.id)}
+          <TableBodyRow
+            class={`border-0 !border-gray-200 dark:!border-gray-700 ${index === dummyDatabaseTable.length - 1 ? "last-tr-class" : ""}`}
+            on:click={() => {
+              dummyDatabaseTableSelected = data.name;
+            }}
+          >
+            <TableBodyCell class={index === dummyDatabaseTable.length - 1 ? "rounded-es-xl" : ""}>
+              <Radio name="tableSelect" value={data.name} bind:group={dummyDatabaseTableSelected} />
+            </TableBodyCell>
+            {#each Object.entries(data).filter(([k]) => k !== "id") as [key, value], colIndex}
+              <TableBodyCell
+                class={index === dummyDatabaseTable.length - 1 &&
+                colIndex === Object.entries(data).filter(([k]) => k !== "id").length - 1
+                  ? "rounded-ee-xl"
+                  : ""}
+              >
+                {value}
+              </TableBodyCell>
+            {/each}
+          </TableBodyRow>
+        {/each}
+      </TableBody>
+    </Table>
+    <!-- pagination implement setelah backend kelar -->
+    <!-- <Pagination pagination={csvMeta} previousPage={previous} nextPage={next} /> -->
+  </div>
+  <!-- {:else}
+    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+  {/if} -->
+  <svelte:fragment slot="footer">
+    <div class="flex gap-4 w-full">
+      <Button
+        onclick={() => {
+          modalOpenTable = false;
+        }}
+        color="light"
+      >
+        {$_("cancel")}
+      </Button>
+      <Button
+        on:click={async () => {
+          modalOpenTable = false;
+          // await getCsvData();
+          // Select(current_session_user, documentPath);
+          console.log("no backend yet");
+        }}
+        class="grow"
+      >
+        {$_("finish")}
+      </Button>
+    </div>
   </svelte:fragment>
 </Modal>

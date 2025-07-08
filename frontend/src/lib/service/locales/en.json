@@ -1188,5 +1188,8 @@
   "assistants": "Assistants",
   "aiReader": "AI Reader",
   "theSystemIsStarting": "The system is starting",
-  "justAMomentWhileWeGetThingsReady": "Just a moment while we get things ready"
+  "justAMomentWhileWeGetThingsReady": "Just a moment while we get things ready",
+  "previewTable": "Preview Table",
+  "changeTable": "Change Table",
+  "changeYourTableSourcesFiles": "Change your table sources files"
 }

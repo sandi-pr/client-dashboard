@@ -72,7 +72,7 @@ All Rights Reserved
       icon: "var87",
       title: "insights",
       description: "descInsights",
-      page: isFrontend ? "data_sources" : "csv-insight",
+      page: isFrontend ? "csv_insight" : "csv-insight",
     },
   ];
 
