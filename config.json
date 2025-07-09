@@ -2726,6 +2726,10 @@
                 {
                     "name": "page_size",
                     "type": "number"
+                },
+                {
+                    "name": "table_name",
+                    "type": "string"
                 }
             ]
         },
