@@ -11,6 +11,8 @@
 package main
 
 import (
+	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
 	"encoding/base64"
 	"encoding/csv"
 	"encoding/json"
@@ -1324,6 +1326,11 @@ func GetLibraryDocumentCSV(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		page_size = 15
 	}
 
+	table_name, table_name_ok := ctx.Params.GetString("table_name")
+	if !table_name_ok {
+		table_name = ""
+	}
+
 	status, document, err := Strapi.Find("document-library-table", U.Dict{
 		"filters": U.Dict{
 			"id": U.Dict{
@@ -1371,19 +1378,44 @@ func GetLibraryDocumentCSV(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 
 		ext := filepath.Ext(string(document_path))
 
-		result, err := getDocumentCsvPerPage(string(document_path), int(page), int(page_size))
+		if ext == ".csv" {
+			result, err := getDocumentCsvPerPage(string(document_path), int(page), int(page_size))
 
-		if err != nil {
-			fmt.Println("[ERROR] Gagal mendapatkan halaman dokumen:", err)
-			return ctx.Error(500, "Internal Server Error")
+			if err != nil {
+				fmt.Println("[ERROR] Gagal mendapatkan halaman dokumen:", err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			return 200, U.Dict{
+				"id":     dict["id"].(U.Float64),
+				"data":   dict["attributes"].(U.Dict),
+				"result": result,
+				"ext":    ext,
+			}, nil
+		} else if ext == ".db" {
+			result, err := getDocumentDBPerPage(string(document_path), string(table_name), int(page), int(page_size))
+
+			if err != nil {
+				fmt.Println("[ERROR] Gagal mendapatkan halaman dokumen:", err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			tables, err := getDBTableNames(string(document_path))
+			if err != nil {
+				fmt.Println("[ERROR] Gagal mendapatkan nama tabel:", err)
+				return ctx.Error(500, "Internal Server Error")
+			}
+
+			return 200, U.Dict{
+				"id":     dict["id"].(U.Float64),
+				"data":   dict["attributes"].(U.Dict),
+				"result": result,
+				"ext":    ext,
+				"tables": tables,
+			}, nil
+		} else {
+			fmt.Println("[ERROR] Ekstensi dokumen tidak valid")
 		}
-
-		return 200, U.Dict{
-			"id":     dict["id"].(U.Float64),
-			"data":   dict["attributes"].(U.Dict),
-			"result": result,
-			"ext":    ext,
-		}, nil
 	}
 
 	return ctx.Error(500, "Internal Server Error")
@@ -3256,6 +3288,115 @@ func getDocumentCsvPerPage(document_path string, page, page_size int) (Paginatio
 		CurrentPage: page,
 		PageSize:    page_size,
 	}, nil
+}
+
+func getDocumentDBPerPage(dbPath, tableName string, page, pageSize int) (PaginationResult, error) {
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return PaginationResult{}, fmt.Errorf("gagal membuka database: %v", err)
+	}
+	defer db.Close()
+
+	if tableName == "" {
+		rows, err := db.Query(`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT 1`)
+		if err != nil {
+			return PaginationResult{}, fmt.Errorf("gagal mengambil nama tabel: %v", err)
+		}
+		defer rows.Close()
+
+		if rows.Next() {
+			if err := rows.Scan(&tableName); err != nil {
+				return PaginationResult{}, fmt.Errorf("gagal membaca nama tabel: %v", err)
+			}
+		} else {
+			return PaginationResult{}, fmt.Errorf("tidak ada tabel yang ditemukan di database")
+		}
+	}
+
+	var totalItems int
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM %s", tableName)
+	err = db.QueryRow(countQuery).Scan(&totalItems)
+	if err != nil {
+		return PaginationResult{}, fmt.Errorf("gagal menghitung total baris: %v", err)
+	}
+
+	totalPages := int(math.Ceil(float64(totalItems) / float64(pageSize)))
+	offset := (page - 1) * pageSize
+
+	// Ambil data halaman tertentu
+	query := fmt.Sprintf("SELECT * FROM %s LIMIT ? OFFSET ?", tableName)
+	rows, err := db.Query(query, pageSize, offset)
+	if err != nil {
+		return PaginationResult{}, fmt.Errorf("gagal mengambil data: %v", err)
+	}
+	defer rows.Close()
+
+	columns, err := rows.Columns()
+	if err != nil {
+		return PaginationResult{}, fmt.Errorf("gagal mengambil kolom: %v", err)
+	}
+
+	var result []map[string]interface{}
+	for rows.Next() {
+		values := make([]interface{}, len(columns))
+		pointers := make([]interface{}, len(columns))
+		for i := range values {
+			pointers[i] = &values[i]
+		}
+
+		if err := rows.Scan(pointers...); err != nil {
+			return PaginationResult{}, fmt.Errorf("gagal membaca baris: %v", err)
+		}
+
+		rowMap := make(map[string]interface{})
+		for i, col := range columns {
+			val := values[i]
+			if b, ok := val.([]byte); ok {
+				rowMap[col] = string(b)
+			} else {
+				rowMap[col] = val
+			}
+		}
+		result = append(result, rowMap)
+	}
+
+	return PaginationResult{
+		Data:        result,
+		TotalItems:  totalItems,
+		TotalPages:  totalPages,
+		CurrentPage: page,
+		PageSize:    pageSize,
+	}, nil
+}
+
+func getDBTableNames(dbPath string) ([]string, error) {
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return nil, fmt.Errorf("gagal membuka database: %v", err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+		SELECT name 
+		FROM sqlite_master 
+		WHERE type='table' AND name NOT LIKE 'sqlite_%'
+		ORDER BY name
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil daftar tabel: %v", err)
+	}
+	defer rows.Close()
+
+	var tableNames []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, fmt.Errorf("gagal membaca nama tabel: %v", err)
+		}
+		tableNames = append(tableNames, name)
+	}
+
+	return tableNames, nil
 }
 
 func GetStatusLibrary(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
