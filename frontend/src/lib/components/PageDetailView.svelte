@@ -51,6 +51,7 @@ All Rights Reserved
             : {
                 page: CSVMetadata.page,
                 page_size: CSVMetadata.pageSize,
+                table_name: "",
               };
         let response = await $call.call("client-dashboard", urlAction, {
           URLQuery: {},

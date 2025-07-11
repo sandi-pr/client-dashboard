@@ -76,7 +76,7 @@
   let tmpDescription = $state("");
   let tmpDocumentType = $state("Data");
   let selectedTypeCollection = $state("Data (CSV)");
-  let acceptedFileTypes = $state(".csv");
+  let acceptedFileTypes = $state(".csv, .db");
   let search = $state("");
   let alltags = $state([]);
   let tags = $state([]);

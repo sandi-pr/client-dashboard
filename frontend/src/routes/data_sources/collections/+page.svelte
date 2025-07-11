@@ -48,7 +48,7 @@
   //Ketbutuhan Untuk Modal DropDown
   let tmpDocumentType = $state("Data");
   let selectedTypeCollection = $state("Data (CSV)");
-  let acceptedFileTypes = $state(".csv");
+  let acceptedFileTypes = $state(".csv, .db");
   let files = $state([]);
   let dataSend = $state({ detected_text: "" });
   let groupedFiles = $state({});
