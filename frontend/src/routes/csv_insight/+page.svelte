@@ -90,6 +90,8 @@
   let current_session_user = $state("");
   let current_session_id = $state("");
   let image = $state("");
+  let textContent = $state("");
+  let jsonContent = $state(""); 
   let message = $state("");
   let isTyping = $state(false);
   let fileDetail = $state({});
@@ -163,6 +165,15 @@
       if (data.type === "content") {
         message = data.content.message;
         image = data.content.image;
+        textContent = data.content.text;
+        jsonContent = data.content.json;
+
+        if (textContent && textContent !== "") {
+          // message = message + "\n\n" + textContent;
+          message = textContent;
+        } else {
+          message = "";
+        }
 
         // if (image){
         //   image = base64toBlob(image, "image/png");
@@ -741,6 +752,7 @@
           Params: {
             page: csvMeta.page,
             page_size: csvMeta.pageSize,
+            table_name: "",
           },
           Headers: {
             Authorization: "Bearer " + token,
