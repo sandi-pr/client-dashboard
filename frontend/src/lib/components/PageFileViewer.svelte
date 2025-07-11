@@ -56,6 +56,8 @@
     tags = $bindable(),
     CSVMetadata = $bindable(),
     CSVData = $bindable(),
+    dataTables = $bindable(),
+    dataTablesSelected = $bindable(),
     onEdit,
     base64,
     fileUrl,
@@ -66,6 +68,7 @@
     collectionId,
     pageDataType,
     attributeNotUnique,
+    getData = () => {},
     updateData = () => {},
     deleteData = () => {},
     CSVNext = () => {},
@@ -82,25 +85,6 @@
   let modalTable = $state(false);
   let nameIsAvailable = $state(true);
   let alltags = $state([]);
-
-  let dummyDatabaseTable = $state([
-    {
-      id: 1,
-      name: "Table 1",
-      description: "This is table 1",
-    },
-    {
-      id: 2,
-      name: "Table 2",
-      description: "This is table 2",
-    },
-    {
-      id: 3,
-      name: "Table 3",
-      description: "This is table 3",
-    },
-  ]);
-  let dummyDatabaseTableSelected = $state("Table 1");
 
   const handleDropdownFocusLoss = () => {
     setTimeout(() => {
@@ -321,10 +305,9 @@
               {#if fileUrl}
                 <AudioPlayer src={fileUrl} />
               {/if}
-            {:else if [".csv"].includes(data.ext)}
+            {:else if [".csv", ".db"].includes(data.ext)}
               <div class="flex flex-col gap-4 w-full mr-10">
-                <!-- diganti variable saat backend ready -->
-                {#if false}
+                {#if [".db"].includes(data.ext)}
                   <Button
                     color="light"
                     class="w-fit flex items-center gap-2 py-2 px-3"
@@ -335,7 +318,7 @@
                     <Typography
                       preset="Text sm/Semibold"
                       color="secondary"
-                      text={"Table name from db here"}
+                      text={dataTablesSelected}
                     />
                     <ChevronDownIcon
                       svgClass="w-6 h-6 text-secondary-light dark:text-secondary-dark"
@@ -658,7 +641,7 @@
     <Table class="w-full rounded-xl">
       <TableHead>
         <TableHeadCell class="w-12 rounded-xl"></TableHeadCell>
-        {#each Object.keys(dummyDatabaseTable[0]) as key}
+        {#each Object.keys(dataTables[0]) as key}
           {#if key === "id"}
             <!-- empty -->
           {:else}
@@ -667,19 +650,19 @@
         {/each}
       </TableHead>
       <TableBody tableBodyClass="divide-y">
-        {#each dummyDatabaseTable as data, index (data.id)}
+        {#each dataTables as data, index (data.id)}
           <TableBodyRow
-            class={`border-0 !border-gray-200 dark:!border-gray-700 ${index === dummyDatabaseTable.length - 1 ? "last-tr-class" : ""}`}
+            class={`border-0 !border-gray-200 dark:!border-gray-700 ${index === dataTables.length - 1 ? "last-tr-class" : ""}`}
             on:click={() => {
-              dummyDatabaseTableSelected = data.name;
+              dataTablesSelected = data.name;
             }}
           >
-            <TableBodyCell class={index === dummyDatabaseTable.length - 1 ? "rounded-es-xl" : ""}>
-              <Radio name="tableSelect" value={data.name} bind:group={dummyDatabaseTableSelected} />
+            <TableBodyCell class={index === dataTables.length - 1 ? "rounded-es-xl" : ""}>
+              <Radio name="tableSelect" value={data.name} bind:group={dataTablesSelected} />
             </TableBodyCell>
             {#each Object.entries(data).filter(([k]) => k !== "id") as [key, value], colIndex}
               <TableBodyCell
-                class={index === dummyDatabaseTable.length - 1 &&
+                class={index === dataTables.length - 1 &&
                 colIndex === Object.entries(data).filter(([k]) => k !== "id").length - 1
                   ? "rounded-ee-xl"
                   : ""}
@@ -710,9 +693,7 @@
       <Button
         on:click={async () => {
           modalTable = false;
-          // await getCsvData();
-          // Select(current_session_user, documentPath);
-          console.log("no backend yet");
+          await getData();
         }}
         class="grow"
       >
