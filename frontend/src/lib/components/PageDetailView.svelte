@@ -27,6 +27,8 @@ All Rights Reserved
   let uploadBy = $state("");
   let data = $state({});
   let defaultData = $state({});
+  let dataTables = $state([]);
+  let dataTablesSelected = $state("");
   let CSVMetadata = $state({ page: 1, pageSize: 10, pageCount: 2, total: 13 });
   let tags = $state([]);
   let CSVData = $state([]);
@@ -51,6 +53,7 @@ All Rights Reserved
             : {
                 page: CSVMetadata.page,
                 page_size: CSVMetadata.pageSize,
+                table_name: dataTablesSelected,
               };
         let response = await $call.call("client-dashboard", urlAction, {
           URLQuery: {},
@@ -88,6 +91,22 @@ All Rights Reserved
         // console.log("response", response);
 
         let documentData = response.result.data;
+        dataTables =
+          dataTables.length > 0
+            ? dataTables
+            : response.result?.tables?.map((table, index) => {
+                return {
+                  id: index + 1,
+                  name: table,
+                  description: table,
+                };
+              }) || [];
+        dataTablesSelected =
+          dataTablesSelected !== ""
+            ? dataTablesSelected
+            : dataTables.length > 0
+              ? dataTables[0].name
+              : "";
 
         if (pageDataType !== "Data") {
           base64 = response.result.base64;
@@ -335,6 +354,8 @@ All Rights Reserved
   bind:tags
   bind:CSVMetadata
   bind:CSVData
+  bind:dataTables
+  bind:dataTablesSelected
   {onEdit}
   {base64}
   {fileUrl}
@@ -346,6 +367,7 @@ All Rights Reserved
   {collectionId}
   {pageDataType}
   {attributeNotUnique}
+  {getData}
   {updateData}
   {deleteData}
   {CSVNext}

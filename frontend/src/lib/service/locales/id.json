@@ -1188,5 +1188,8 @@
   "assistants": "Asisten",
   "aiReader": "AI Pembaca",
   "theSystemIsStarting": "Sistem Sedang Dimulai",
-  "justAMomentWhileWeGetThingsReady": "Sebentar Sambil Kami Menyiapkan Sistem Anda"
+  "justAMomentWhileWeGetThingsReady": "Sebentar Sambil Kami Menyiapkan Sistem Anda",
+  "previewTable": "Pratinjau Tabel",
+  "changeTable": "Ubah Tabel",
+  "changeYourTableSourcesFiles": "Ubah Sumber Tabel Anda"
 }

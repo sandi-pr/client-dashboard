@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import {
+    Radio,
     Table,
     Modal,
     Button,
@@ -47,12 +48,16 @@
   const Trash01Icon = getIcons("trash01");
   const Save01Icon = getIcons("save01");
   const StarsIcon = getIcons("stars");
+  const ChevronDownIcon = getIcons("chevronDown");
+  const FilePlusIcon = getIcons("filePlus");
 
   let {
     data = $bindable(),
     tags = $bindable(),
     CSVMetadata = $bindable(),
     CSVData = $bindable(),
+    dataTables = $bindable(),
+    dataTablesSelected = $bindable(),
     onEdit,
     base64,
     fileUrl,
@@ -63,6 +68,7 @@
     collectionId,
     pageDataType,
     attributeNotUnique,
+    getData = () => {},
     updateData = () => {},
     deleteData = () => {},
     CSVNext = () => {},
@@ -76,6 +82,7 @@
   let modalDelete = $state(false);
   let modalDetail = $state(false);
   let modalDetectedText = $state(false);
+  let modalTable = $state(false);
   let nameIsAvailable = $state(true);
   let alltags = $state([]);
 
@@ -298,39 +305,59 @@
               {#if fileUrl}
                 <AudioPlayer src={fileUrl} />
               {/if}
-            {:else if [".csv"].includes(data.ext)}
-              <div
-                class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl pt-4"
-              >
-                <Table class="w-full">
-                  <TableHead>
-                    {#each Object.keys(CSVData[0]) as key}
-                      {#if key === "id"}
-                        <!-- empty -->
-                      {:else}
-                        <TableHeadCell>{key.replace(/_/g, " ")}</TableHeadCell>
-                      {/if}
-                    {/each}
-                  </TableHead>
-                  <TableBody tableBodyClass="divide-y">
-                    {#each CSVData as data}
-                      <TableBodyRow class="border-0 !border-gray-200 dark:!border-gray-700">
-                        {#each Object.entries(data) as [key, value]}
-                          {#if key === "id"}
-                            <!-- empty -->
-                          {:else}
-                            <TableBodyCell tdClass="px-6 py-4 font-medium">{value}</TableBodyCell>
-                          {/if}
-                        {/each}
-                      </TableBodyRow>
-                    {/each}
-                  </TableBody>
-                </Table>
-                <Pagination
-                  pagination={CSVMetadata}
-                  previousPage={CSVPrevious}
-                  nextPage={CSVNext}
-                />
+            {:else if [".csv", ".db"].includes(data.ext)}
+              <div class="flex flex-col gap-4 w-full mr-10">
+                {#if [".db"].includes(data.ext)}
+                  <Button
+                    color="light"
+                    class="w-fit flex items-center gap-2 py-2 px-3"
+                    on:click={() => {
+                      modalTable = true;
+                    }}
+                  >
+                    <Typography
+                      preset="Text sm/Semibold"
+                      color="secondary"
+                      text={dataTablesSelected}
+                    />
+                    <ChevronDownIcon
+                      svgClass="w-6 h-6 text-secondary-light dark:text-secondary-dark"
+                    />
+                  </Button>
+                {/if}
+                <div
+                  class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl"
+                >
+                  <Table class="w-full rounded-xl">
+                    <TableHead>
+                      {#each Object.keys(CSVData[0]) as key}
+                        {#if key === "id"}
+                          <!-- empty -->
+                        {:else}
+                          <TableHeadCell class="rounded-xl">{key.replace(/_/g, " ")}</TableHeadCell>
+                        {/if}
+                      {/each}
+                    </TableHead>
+                    <TableBody tableBodyClass="divide-y">
+                      {#each CSVData as data}
+                        <TableBodyRow class="border-0 !border-gray-200 dark:!border-gray-700">
+                          {#each Object.entries(data) as [key, value]}
+                            {#if key === "id"}
+                              <!-- empty -->
+                            {:else}
+                              <TableBodyCell tdClass="px-6 py-4 font-medium">{value}</TableBodyCell>
+                            {/if}
+                          {/each}
+                        </TableBodyRow>
+                      {/each}
+                    </TableBody>
+                  </Table>
+                  <Pagination
+                    pagination={CSVMetadata}
+                    previousPage={CSVPrevious}
+                    nextPage={CSVNext}
+                  />
+                </div>
               </div>
             {:else}
               <div
@@ -591,6 +618,87 @@
           />
         </Button>
       {/if}
+    </div>
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={modalTable} outsideclose>
+  <svelte:fragment slot="header">
+    <div class="flex gap-4 me-6 grow w-full">
+      <FeaturedIcon classesSvg={FilePlusIcon} />
+      <div class="flex flex-col gap-2">
+        <Typography preset="Text md/Bold" text={$_("changeTable")} color="secondary" />
+        <Typography
+          preset="Text sm/Regular"
+          text={$_("changeYourTableSourcesFiles")}
+          color="tertiary"
+        />
+      </div>
+    </div>
+  </svelte:fragment>
+  <!-- {#if !gettingDatas} -->
+  <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl">
+    <Table class="w-full rounded-xl">
+      <TableHead>
+        <TableHeadCell class="w-12 rounded-xl"></TableHeadCell>
+        {#each Object.keys(dataTables[0]) as key}
+          {#if key === "id"}
+            <!-- empty -->
+          {:else}
+            <TableHeadCell class="rounded-xl">{key.replace(/_/g, " ")}</TableHeadCell>
+          {/if}
+        {/each}
+      </TableHead>
+      <TableBody tableBodyClass="divide-y">
+        {#each dataTables as data, index (data.id)}
+          <TableBodyRow
+            class={`border-0 !border-gray-200 dark:!border-gray-700 ${index === dataTables.length - 1 ? "last-tr-class" : ""}`}
+            on:click={() => {
+              dataTablesSelected = data.name;
+            }}
+          >
+            <TableBodyCell class={index === dataTables.length - 1 ? "rounded-es-xl" : ""}>
+              <Radio name="tableSelect" value={data.name} bind:group={dataTablesSelected} />
+            </TableBodyCell>
+            {#each Object.entries(data).filter(([k]) => k !== "id") as [key, value], colIndex}
+              <TableBodyCell
+                class={index === dataTables.length - 1 &&
+                colIndex === Object.entries(data).filter(([k]) => k !== "id").length - 1
+                  ? "rounded-ee-xl"
+                  : ""}
+              >
+                {value}
+              </TableBodyCell>
+            {/each}
+          </TableBodyRow>
+        {/each}
+      </TableBody>
+    </Table>
+    <!-- pagination implement setelah backend kelar -->
+    <!-- <Pagination pagination={csvMeta} previousPage={previous} nextPage={next} /> -->
+  </div>
+  <!-- {:else}
+    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
+  {/if} -->
+  <svelte:fragment slot="footer">
+    <div class="flex gap-4 w-full">
+      <Button
+        onclick={() => {
+          modalTable = false;
+        }}
+        color="light"
+      >
+        {$_("cancel")}
+      </Button>
+      <Button
+        on:click={async () => {
+          modalTable = false;
+          await getData();
+        }}
+        class="grow"
+      >
+        {$_("finish")}
+      </Button>
     </div>
   </svelte:fragment>
 </Modal>

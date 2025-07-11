@@ -28,6 +28,7 @@
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
   import MP3SolidIcon from "$lib/icon/MP3Solid.svg";
   import CSVIcon from "$lib/icon/csv.svg";
+  import DBSolidIcon from "$lib/icon/DBSolid.svg";
   import Trash01Icon from "$lib/icon/trash-01.svelte";
   import { onMount } from "svelte";
 
@@ -86,7 +87,11 @@
   <Table hoverable={true}>
     <TableBody tableBodyClass="divide-y">
       {#each collectionListDatas as collectionListData, index (collectionListData.id)}
-        <TableBodyRow on:click={() => {goto(collectionListData.href)}}>
+        <TableBodyRow
+          on:click={() => {
+            goto(collectionListData.href);
+          }}
+        >
           <TableBodyCell class="!py-4 !pl-4 !pr-0 w-4">
             <div class="flex items-center">
               {#if collectionListData.checked}
@@ -123,9 +128,13 @@
               {:else if collectionListData.fileext === "csv" || collectionListData.fileext === ".csv"}
                 <img src={CSVIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {:else if collectionListData.fileext === "mp3"}
-                <img src={MP3SolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10"/>
+                <img src={MP3SolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+              {:else if collectionListData.fileext === "db"}
+                <img src={DBSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
               {/if}
-              <P class="line-clamp-2 w-full truncate fluid-sm font-semibold">{truncateText(collectionListData.filename, 3)}</P>
+              <P class="line-clamp-2 w-full truncate fluid-sm font-semibold">
+                {truncateText(collectionListData.filename, 3)}
+              </P>
             </div>
           </TableBodyCell>
         </TableBodyRow>
@@ -164,8 +173,8 @@
           <TableBodyCell>{collectionListData.createdAt}</TableBodyCell>
         </TableBodyRow> -->
         <!-- <TableBodyRow> -->
-          <!-- <TableBodyCell>{$_("actions")}</TableBodyCell> -->
-          <!-- <TableBodyCell class="flex justify-between mr-4">
+        <!-- <TableBodyCell>{$_("actions")}</TableBodyCell> -->
+        <!-- <TableBodyCell class="flex justify-between mr-4">
             <Button
               disabled={!check("documentAi.documentLibrary.document:view")}
               on:click={() => {
@@ -178,7 +187,7 @@
               <EyeIcon svgClass="w-5 h-5" />
               &nbsp;{$_("view")}
             </Button> -->
-            <!-- {#if check("documentAi.documentLibrary.document:delete")}
+        <!-- {#if check("documentAi.documentLibrary.document:delete")}
               <div on:focusout={handleDropdownFocusLoss} class=" flex items-center relative">
                 <Button
                   on:click={() => (dropdownActionOpen[index] = !dropdownActionOpen[index])}
@@ -204,7 +213,7 @@
                 </div>
               </div>
             {/if} -->
-            <!-- <Button
+        <!-- <Button
               on:click={() => {
                 functDeleteCategories(collectionListData.id);
               }}

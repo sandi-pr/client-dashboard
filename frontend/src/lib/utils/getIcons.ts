@@ -93,6 +93,11 @@ import Download01Icon from "../icon/download-01.svelte";
 import Download02Icon from "../icon/download-02.svelte";
 import Edit05Icon from "../icon/edit-05.svelte";
 import ArrowRightIcon from "../icon/arrow-right.svelte";
+import IllustrationEmpty from "../icon/illustration_empty.svelte";
+import IllustrationProgress from "../icon/illustration_progress.svelte";
+import Send01Icon from "../icon/send-01.svelte";
+import File06Icon from "../icon/file-06.svelte";
+import User01Icon from "../icon/user-01.svelte";
 import Var76 from "../icon/var-76.svelte";
 import Var85 from "../icon/var-85.svelte";
 import Var86 from "../icon/var-86.svelte";
@@ -302,6 +307,16 @@ let getIcons = (presetIcon: String) => {
       return Edit05Icon;
     case "arrowRight":
       return ArrowRightIcon;
+    case "illustrationEmpty":
+      return IllustrationEmpty;
+    case "illustrationProgress":
+      return IllustrationProgress;
+    case "send01":
+      return Send01Icon;
+    case "file06":
+      return File06Icon;
+    case "user01":
+      return User01Icon;
     case "var76":
       return Var76;
     case "var85":

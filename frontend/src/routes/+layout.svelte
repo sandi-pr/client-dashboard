@@ -81,6 +81,7 @@ All Rights Reserved
   let hideNav = $state(false);
   let ready = $state(false);
   let gettingNewNotif = $state(false);
+  let moduleManagerSkipSetup = $state(false);
 
   const call = isFrontend
     ? new CR3Call("https://tank.hexacode.ai")
@@ -530,6 +531,9 @@ All Rights Reserved
   };
 
   async function CheckSetup() {
+    if (moduleManagerSkipSetup) {
+      return;
+    }
     var resp_setup = await call.call("client-login", "is-need-setup", {
       URLQuery: {},
       URLParams: {},
@@ -1565,6 +1569,7 @@ All Rights Reserved
       }
     } catch (error) {
       console.log(error);
+      moduleManagerSkipSetup = true;
       goto(isFrontend ? "/staging" : await call.getPage("client-dashboard", "staging"));
     }
   };

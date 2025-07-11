@@ -45,7 +45,7 @@ All Rights Reserved
   let tmpDocumentDescription = $state("");
   let tmpDocumentType = $state("Data");
   let selectedTypeCollection = $state("Data (CSV)");
-  let acceptedFileTypes = $state(".csv");
+  let acceptedFileTypes = $state(".csv, .db");
   let addDocumentsModal = $state(false);
   let addLibraryModal = $state(false);
   let fileNotSupport = $state(false);

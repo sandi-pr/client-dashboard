@@ -48,7 +48,7 @@
   let tmpCollectionId = $state("");
   let tmpCollectionName = $state("");
   let tmpDocumentType = $state("Documents");
-  let acceptedFileTypes = $state(".csv");
+  let acceptedFileTypes = $state(".csv, .db");
   let search = $state("");
   let tags = $state([]);
   let newTag = $state("");
