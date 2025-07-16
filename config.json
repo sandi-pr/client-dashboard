@@ -5854,6 +5854,28 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "shutdown",
+            "path": "/shutdown",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "Shutdown"
+            }
+        },
+        {
+            "name": "restart",
+            "path": "/restart",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "Restart"
+            }
         }
     ],
     "options": {
