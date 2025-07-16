@@ -39,6 +39,8 @@ func (c *UsageWebSocket) Serve(w http.ResponseWriter, r *http.Request, dataType 
 	defer conn.Close()
 
 	for {
+		interval := 1 * time.Second
+
 		switch dataType {
 		case "CPU":
 			sendCPUData(conn)
@@ -55,7 +57,7 @@ func (c *UsageWebSocket) Serve(w http.ResponseWriter, r *http.Request, dataType 
 			return
 		}
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(interval)
 	}
 }
 
@@ -203,13 +205,21 @@ func sendGPUData(conn *websocket.Conn) {
 	var memUsedMB, memTotalMB float64
 	fmt.Sscanf(string(gpuMemoryStr), "%f MiB/%f MiB", &memUsedMB, &memTotalMB)
 
-	conn.WriteJSON(map[string]interface{}{
+	payload := map[string]interface{}{
 		"type":            "gpu_realtime",
 		"utilization":     utilization,
 		"memory":          fmt.Sprintf("%.1f/%.1f GB", memUsedMB/1024, memTotalMB/1024),
 		"dedicatedMemory": dedicatedMemoryStr,
 		"temperature":     temperature,
-	})
+	}
+
+	for i := 0; i < 5; i++ {
+		if err := conn.WriteJSON(payload); err != nil {
+			fmt.Println("Error sending data to WebSocket:", err)
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
 }
 
 func formatUptime(seconds uint64) string {
