@@ -432,6 +432,7 @@ All Rights Reserved
                   <Input readonly={!onEdit} bind:value={data.email} class={inputClass()} />
                 </div>
                 <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
+                  {#if data && data?.role !== undefined} 
                   <P
                     class="text-sm font-medium leading-tight text-secondary-light dark:text-secondary-dark"
                   >
@@ -443,7 +444,9 @@ All Rights Reserved
                     items={roles}
                     isOverlay={true}
                     placeholder={$_("selectRole")}
+                    disabled={!onEdit}
                   />
+                  {/if}
                 </div>
                 <div class="flex flex-col col-span-2 md:col-span-1 gap-2">
                   <P
