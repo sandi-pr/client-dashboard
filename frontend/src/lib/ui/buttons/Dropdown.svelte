@@ -36,6 +36,7 @@ All Rights Reserved
     on:click={() => (dropdownOpen = !dropdownOpen)}
     class={`flex justify-between border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark ${disabled ? "focus:ring-0 hover:cursor-default hover:bg-primary-light dark:hover:bg-secondary-dark" : ""}`}
     color="light"
+    {disabled}
   >
     <div class="flex items-center gap-2">
       {#if widget}

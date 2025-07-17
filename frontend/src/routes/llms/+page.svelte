@@ -426,6 +426,10 @@
       icon = "deepseek";
     } else if (lowerCaseModelName.includes("chatgpt")) {
       icon = "openai";
+    } else if (lowerCaseModelName.includes("granite")) {
+      icon = "granite";
+    } else if (lowerCaseModelName.includes("mistral")) {
+      icon = "mistral";
     }
 
     return icon;

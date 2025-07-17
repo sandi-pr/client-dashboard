@@ -59,6 +59,8 @@ import Dataflow04Icon from "../icon/dataflow-04.svelte";
 import MetaIcon from "../icon/meta.svelte";
 import GeminiIcon from "../icon/gemini.svelte";
 import DeepseekIcon from "../icon/deepseek.svelte";
+import GraniteIcon from "../icon/granite-AI.svelte";
+import MistralIcon from "../icon/mistral-AI.svelte";
 import PhoneCallIcon from "../icon/phone-call-02.svelte";
 import ArrowLeftIcon from "../icon/arrow-left.svelte";
 import RefreshCw05Icon from "../icon/refresh-cw-05.svelte";
@@ -237,6 +239,10 @@ let getIcons = (presetIcon: String) => {
       return GeminiIcon;
     case "deepseek":
       return DeepseekIcon;
+    case "granite":
+      return GraniteIcon;
+    case "mistral":
+      return MistralIcon;
     case "phoneCall":
       return PhoneCallIcon;
     case "arrowLeft":

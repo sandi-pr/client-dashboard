@@ -624,33 +624,44 @@ All Rights Reserved
       // ...permissionBusinessManagement,
     ];
 
-    dataSend = allData
-      .filter((permission) =>
-        permission.data.some((item) => item.name === "allow" && item.granted === true),
-      )
-      .map((permission) => permission.key)
-      .join(",");
+    const filteredPermissions = allData.filter((permission) =>
+      permission.data.some((item) => item.name === "allow" && item.granted === true),
+    );
+
+    dataSend = filteredPermissions.map((permission) => permission.key).join(",");
 
     if (token !== null) {
-      let response = await $call.call("module-manager", "set-role-permissions", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          role: roleId,
-          permissions: dataSend,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      if (response.status !== 200) {
+      let response;
+      try {
+        response = await $call.call("module-manager", "set-role-permissions", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            role: roleId,
+            permissions: dataSend,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        console.log("API response:", response);
+      } catch (error) {
+        console.error("API call failed:", error);
         triggerToast("error");
         return;
       }
+
+      if (response.status !== 200) {
+        console.warn("Unexpected response status:", response.status);
+        triggerToast("error");
+        return;
+      }
+
+      console.log("Permissions updated successfully");
       triggerToast("updated");
       getRole();
     } else {
-      console.log("no token");
+      console.warn("No token found in localStorage");
     }
   }
 

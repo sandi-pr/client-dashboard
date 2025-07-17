@@ -881,6 +881,122 @@ func UpdateTheme(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPErro
 	return 200, company, nil
 }
 
+func Shutdown(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	// cek admin atau bukan
+	authority, ok := me.GetString("authority")
+	if !ok {
+		return ctx.Error(403, "Only admin can shutdown the device")
+	}
+
+	if authority != "Admin" {
+		return ctx.Error(403, "Only admin can shutdown the device")
+	}
+
+	go func() {
+		req, err := http.NewRequest("POST", SHUTDOWN_HOST+"/shutdown", nil)
+		if err != nil {
+			fmt.Println("Gagal buat request:", err)
+			return
+		}
+		req.Header.Set("Authorization", "Bearer "+SHUTDOWN_TOKEN)
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println("Gagal panggil shutdown host:", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			fmt.Println("Shutdown host gagal, status:", resp.StatusCode)
+		}
+	}()
+
+	fmt.Println("Request sent to shutdown-host service...")
+
+	return 200, U.Dict{
+		"message": "Shutdown command sent to host...",
+	}, nil
+}
+
+func Restart(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	// cek admin atau bukan
+	authority, ok := me.GetString("authority")
+	if !ok {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if authority != "Admin" {
+		return ctx.Error(403, "Only admin can restart the device")
+	}
+
+	go func() {
+		req, err := http.NewRequest("POST", SHUTDOWN_HOST+"/restart", nil)
+		if err != nil {
+			fmt.Println("Gagal buat request:", err)
+			return
+		}
+		req.Header.Set("Authorization", "Bearer "+SHUTDOWN_TOKEN)
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println("Gagal panggil shutdown host:", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			fmt.Println("Shutdown host gagal, status:", resp.StatusCode)
+		}
+	}()
+
+	fmt.Println("Request sent to shutdown-host service...")
+
+	return 200, U.Dict{
+		"message": "Restart command sent to host...",
+	}, nil
+}
+
 func GetId(token string) (int64, error) {
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
 	status, me, err := Strapi.UsersMe()

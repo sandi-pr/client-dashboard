@@ -26,6 +26,8 @@ var DATASETS_PATH = ""
 var USAGE_MEMORY_PATH = ""
 var USAGE_URL = ""
 var HEXA_RAG_URL = ""
+var SHUTDOWN_HOST = ""
+var SHUTDOWN_TOKEN = ""
 var botIdProccess = hctypes.List{}
 var notificationWS *NotificationWebSocket
 var usageWS *UsageWebSocket
@@ -72,6 +74,16 @@ func init() {
 	USAGE_URL = os.Getenv("USAGE_URL")
 	if USAGE_URL == "" {
 		panic(errors.New("Environment USAGE_URL is empty"))
+	}
+
+	SHUTDOWN_HOST = os.Getenv("SHUTDOWN_HOST")
+	if SHUTDOWN_HOST == "" {
+		panic(errors.New("Environment SHUTDOWN_HOST is empty"))
+	}
+
+	SHUTDOWN_TOKEN = os.Getenv("SHUTDOWN_TOKEN")
+	if SHUTDOWN_TOKEN == "" {
+		panic(errors.New("Environment SHUTDOWN_TOKEN is empty"))
 	}
 
 	config.Schedule("", MODULE_MANAGER_URL)
