@@ -324,18 +324,18 @@ All Rights Reserved
       //   name: "aiAnalyzer",
       //   children: [
       // todo config
-      {
-        icon: "penTool",
-        name: "handwriting",
-        children: [],
-        href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
-      },
-      {
-        icon: "recording02",
-        name: "voice",
-        children: [],
-        href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
-      },
+      // {
+      //   icon: "penTool",
+      //   name: "handwriting",
+      //   children: [],
+      //   href: isFrontend ? "/handwriting" : await call.getPage("client-dashboard", "handwriting"),
+      // },
+      // {
+      //   icon: "recording02",
+      //   name: "voice",
+      //   children: [],
+      //   href: isFrontend ? "/voice" : await call.getPage("client-dashboard", "voice"),
+      // },
 
       // {
       //   icon: "image03",
@@ -447,13 +447,13 @@ All Rights Reserved
               ? "/finetunings"
               : await call.getPage("client-dashboard", "finetunings"),
           },
-          {
-            icon: "dataflow02",
-            name: "apiConnector",
-            href: isFrontend
-              ? "/api_connector"
-              : await call.getPage("client-dashboard", "api-connector"),
-          },
+          // {
+          //   icon: "dataflow02",
+          //   name: "apiConnector",
+          //   href: isFrontend
+          //     ? "/api_connector"
+          //     : await call.getPage("client-dashboard", "api-connector"),
+          // },
         ],
       },
       // {
