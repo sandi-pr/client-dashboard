@@ -218,8 +218,8 @@
             onEdit = false;
           }}
         >
-          <StarsIcon svgClass="w-5 h-5 text-fg-primary-light dark:text-fg-primary-dark" />
-          <Typography preset="Text sm/Semibold" color="fg-primary" text={$_("aiReader")} />
+          <StarsIcon svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark" />
+          <Typography preset="Text sm/Semibold" color="primary-onbrand" text={$_("aiReader")} />
         </button>
         <div onfocusout={handleDropdownFocusLoss} class="flex items-center relative">
           <button

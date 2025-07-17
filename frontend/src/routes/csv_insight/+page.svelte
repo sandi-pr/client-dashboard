@@ -78,8 +78,11 @@
   let paginationModal = $state({ page: 1, pageSize: 3, pageCount: 0, total: 0 });
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
   let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 0, total: 0 });
-  let paginationNew = $state({ page: 1, pageSize: 24, pageCount: 1, total: 0 });
-  let csvMeta = $state({ page: 1, pageSize: 10, pageCount: 2, total: 0 });
+  let CSVMetadata = $state({ page: 1, pageSize: 10, pageCount: 2, total: 0 });
+  let currentArrayDataExt = $state("");
+  let dataTables = $state([]);
+  let dataTablesSelected = $state("");
+  let datatablesMetadata = $state({});
 
   let dataConversationChats = $state([]);
 
@@ -91,29 +94,10 @@
   let current_session_id = $state("");
   let image = $state("");
   let textContent = $state("");
-  let jsonContent = $state(""); 
+  let jsonContent = $state("");
   let message = $state("");
   let isTyping = $state(false);
   let fileDetail = $state({});
-
-  let dummyDatabaseTable = $state([
-    {
-      id: 1,
-      name: "Table 1",
-      description: "This is table 1",
-    },
-    {
-      id: 2,
-      name: "Table 2",
-      description: "This is table 2",
-    },
-    {
-      id: 3,
-      name: "Table 3",
-      description: "This is table 3",
-    },
-  ]);
-  let dummyDatabaseTableSelected = $state("Table 1");
 
   function connectWebSocket() {
     var base_url =
@@ -314,18 +298,24 @@
     }
   };
 
-  async function next() {
-    if (csvMeta.page >= csvMeta.pageCount) return;
-    csvMeta.page += 1;
-    getCsvData();
-  }
+  const tableNextPage = (table) => {
+    if (table.page >= table.pageCount) return;
+    table.page += 1;
+    getCsvData("partial");
+  };
 
-  async function previous() {
-    if (csvMeta.page > 1) {
-      csvMeta.page -= 1;
-      getCsvData();
+  const tablePreviousPage = (table) => {
+    if (table.page > 1) {
+      table.page -= 1;
+      getCsvData("partial");
     }
-  }
+  };
+
+  // Use the generic table pagination for CSV and Datatables
+  const CSVNext = () => tableNextPage(CSVMetadata);
+  const CSVPrevious = () => tablePreviousPage(CSVMetadata);
+  const DatatableNext = () => tableNextPage(datatablesMetadata);
+  const DatatablePrevious = () => tablePreviousPage(datatablesMetadata);
 
   async function nextCollectionDoc() {
     if (pagination.page >= pagination.pageCount) return;
@@ -750,25 +740,16 @@
             id: selectedDocument.toString(),
           },
           Params: {
-            page: csvMeta.page,
-            page_size: csvMeta.pageSize,
-            table_name: "",
+            page: CSVMetadata.page,
+            page_size: CSVMetadata.pageSize,
+            table_name: dataTablesSelected,
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
 
-        csvMeta.pageCount = response.result.result.total_pages;
-        csvMeta.total = response.result.result.total_items;
-
-        console.log("document csv response", response);
-
-        documentPath = response.result.data.path;
-
-        documentTitle = response.result.data.name;
-
-        console.log("documentPath", documentPath);
+        // console.log("document csv response", response);
 
         if (response.status !== 200) {
           console.log(response);
@@ -791,12 +772,44 @@
           return;
         }
 
-        csvMeta.pageCount = response.result.result.total_pages;
-        csvMeta.total = response.result.result.total_items;
+        documentPath = response.result.data.path;
+        documentTitle = response.result.data.name;
+
+        // console.log("documentPath", documentPath);
 
         currentArrayData = response.result.result.data;
+        currentArrayDataExt = response.result.ext;
+        dataTables =
+          dataTables.length > 0
+            ? dataTables
+            : response.result?.tables?.map((table, index) => {
+                return {
+                  id: index + 1,
+                  name: table,
+                  description: table,
+                };
+              }) || [];
+        dataTablesSelected =
+          dataTablesSelected !== ""
+            ? dataTablesSelected
+            : dataTables.length > 0
+              ? dataTables[0].name
+              : "";
 
-        console.log("currentArrayData", currentArrayData);
+        datatablesMetadata =
+          Object.keys(datatablesMetadata).length > 0
+            ? datatablesMetadata
+            : {
+                page: 1,
+                pageSize: 10,
+                pageCount: dataTables.length > 0 ? Math.ceil(dataTables.length / 10) : 1,
+                total: dataTables.length,
+              };
+
+        // console.log("currentArrayData", response.result);
+
+        CSVMetadata.pageCount = response.result.result.total_pages;
+        CSVMetadata.total = response.result.result.total_items;
 
         gettingDatas = false;
       } catch (error) {
@@ -911,8 +924,7 @@
         actionText={$_("selectDataSource")}
       />
     {:else}
-      <!-- change to variable if backend done -->
-      {#if false}
+      {#if currentArrayDataExt === ".db"}
         <Button
           color="light"
           class="w-fit flex items-center gap-2 py-2 px-3"
@@ -920,11 +932,7 @@
             modalOpenTable = true;
           }}
         >
-          <Typography
-            preset="Text sm/Semibold"
-            color="secondary"
-            text={"Table name from db here"}
-          />
+          <Typography preset="Text sm/Semibold" color="secondary" text={dataTablesSelected} />
           <ChevronDownIcon svgClass="w-6 h-6 text-secondary-light dark:text-secondary-dark" />
         </Button>
       {/if}
@@ -955,7 +963,7 @@
             {/each}
           </TableBody>
         </Table>
-        <Pagination pagination={csvMeta} previousPage={previous} nextPage={next} />
+        <Pagination pagination={CSVMetadata} previousPage={CSVPrevious} nextPage={CSVNext} />
       </div>
     {/if}
   </div>
@@ -1149,12 +1157,11 @@
       </div>
     </div>
   </svelte:fragment>
-  <!-- {#if !gettingDatas} -->
   <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl">
     <Table class="w-full rounded-xl">
       <TableHead>
         <TableHeadCell class="w-12 rounded-xl"></TableHeadCell>
-        {#each Object.keys(dummyDatabaseTable[0]) as key}
+        {#each Object.keys(dataTables[0]) as key}
           {#if key === "id"}
             <!-- empty -->
           {:else}
@@ -1163,19 +1170,19 @@
         {/each}
       </TableHead>
       <TableBody tableBodyClass="divide-y">
-        {#each dummyDatabaseTable as data, index (data.id)}
+        {#each dataTables as data, index (data.id)}
           <TableBodyRow
-            class={`border-0 !border-gray-200 dark:!border-gray-700 ${index === dummyDatabaseTable.length - 1 ? "last-tr-class" : ""}`}
+            class={`border-0 !border-gray-200 dark:!border-gray-700 ${index === dataTables.length - 1 ? "last-tr-class" : ""}`}
             on:click={() => {
-              dummyDatabaseTableSelected = data.name;
+              dataTablesSelected = data.name;
             }}
           >
-            <TableBodyCell class={index === dummyDatabaseTable.length - 1 ? "rounded-es-xl" : ""}>
-              <Radio name="tableSelect" value={data.name} bind:group={dummyDatabaseTableSelected} />
+            <TableBodyCell class={index === dataTables.length - 1 ? "rounded-es-xl" : ""}>
+              <Radio name="tableSelect" value={data.name} bind:group={dataTablesSelected} />
             </TableBodyCell>
             {#each Object.entries(data).filter(([k]) => k !== "id") as [key, value], colIndex}
               <TableBodyCell
-                class={index === dummyDatabaseTable.length - 1 &&
+                class={index === dataTables.length - 1 &&
                 colIndex === Object.entries(data).filter(([k]) => k !== "id").length - 1
                   ? "rounded-ee-xl"
                   : ""}
@@ -1187,12 +1194,12 @@
         {/each}
       </TableBody>
     </Table>
-    <!-- pagination implement setelah backend kelar -->
-    <!-- <Pagination pagination={csvMeta} previousPage={previous} nextPage={next} /> -->
+    <Pagination
+      pagination={datatablesMetadata}
+      previousPage={DatatablePrevious}
+      nextPage={DatatableNext}
+    />
   </div>
-  <!-- {:else}
-    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
-  {/if} -->
   <svelte:fragment slot="footer">
     <div class="flex gap-4 w-full">
       <Button
@@ -1206,9 +1213,7 @@
       <Button
         on:click={async () => {
           modalOpenTable = false;
-          // await getCsvData();
-          // Select(current_session_user, documentPath);
-          console.log("no backend yet");
+          await getCsvData();
         }}
         class="grow"
       >
