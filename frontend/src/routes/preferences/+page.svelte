@@ -13,6 +13,7 @@
 <script>
   import { onMount } from "svelte";
   import { P, Avatar, Button, Indicator, Modal } from "flowbite-svelte";
+  import { goto } from "$app/navigation";
   import {
     SelectedCard,
     StateCard,
@@ -44,11 +45,15 @@
   import TechIcon from "$lib/icon/tech.svelte";
   import CheckCircle from "$lib/icon/check-circle.svelte";
   import TelecomIcon from "$lib/icon/telecom.svelte";
+  import RefreshCw05Icon from "$lib/icon/refresh-cw-05.svelte";
+  import Power01Icon from "$lib/icon/power-01.svelte";
   import { informationFormDatas } from "./dummy";
   import { _ } from "svelte-i18n";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
 
   import { call } from "$lib";
+
+  const isFrontend = process.env.NODE_ENV === "development";
 
   let screenWidth;
   let user = informationFormDatas;
@@ -95,6 +100,7 @@
       // {
       //   name: "Configuration AI",
       // },
+      { name: "Device" },
     ],
   };
   let onEditPassword = false;
@@ -1197,52 +1203,81 @@
             </div>
           </div>
         </div>
-      {/if}
-
-      <!-- action buttons -->
-      <!-- {#if tabDatas.selected !== "My Profile"}
-        <div class="flex w-full px-4 justify-end">
-          {#if tabDatas.selected !== "Configuration AI"}
-            <Button
-              class="bg-white font-bold mr-2 border border-hc-graylight-300 hover:bg-hc-graylight-50 text-gray-900 dark:bg-white dark:hover:bg-hc-graylight-50"
-              on:click={() => {
-                if (tabDatas.selected === "My Profile") {
-                  getUser();
-                } else if (tabDatas.selected === "Password") {
-                  passwordObject = {
-                    currentPassword: "",
-                    newPassword: "",
-                    confirmPassword: "",
-                  };
-                }
-              }}>Cancel</Button
-            >
-          {/if}
-          <Button
-            disabled={tabDatas.selected === "Theme" ? (sidebarTitle === "" ? true : false) : false}
-            class="bg-hc-brand-600 hover:bg-hc-brand-700"
-            on:click={() => {
-              if (tabDatas.selected === "My Profile") {
-                updatePhotoUser();
-              } else if (tabDatas.selected === "Password") {
-                updatePassword();
-              } else if (tabDatas.selected === "Company Type") {
-                updateCompanyType();
-              } else if (tabDatas.selected === "Configuration AI") {
-                updateModelTrocr();
-              } else if (tabDatas.selected === "Theme") {
-                updateTheme();
-              }
-            }}
-          >
-            {#if tabDatas.selected === "My Profile" || tabDatas.selected === "Company Type" || tabDatas.selected === "Configuration AI" || tabDatas.selected === "Theme"}
-              Save
-            {:else if tabDatas.selected === "Password"}
-              Update Password
-            {/if}
-          </Button>
+      {:else if tabDatas.selected === "Device"}
+        <div class="mx-4 mt-4">
+          <div class="pt-4 pb-8 border-b border-secondary-light dark:border-secondary-dark">
+            <div class="grid grid-cols-4 gap-2 md:gap-0">
+              <div class="col-span-4 md:col-span-1">
+                <Typography
+                  preset="Text lg/Semibold"
+                  text={$_("restartDevice")}
+                  color="secondary"
+                />
+              </div>
+              <div class="col-span-4 md:col-span-3 flex w-full">
+                <div class="col-span-4">
+                  <Button
+                    class="flex gap-2 items-center mb-2"
+                    color="light"
+                    on:click={async () => {
+                      let restartUrl = isFrontend
+                        ? "/device_controls"
+                        : await call.getPage("client-dashboard", "device-controls");
+                      goto(restartUrl + "?action=restart");
+                    }}
+                  >
+                    <RefreshCw05Icon
+                      svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark"
+                    />
+                    <Typography preset="Text sm/Semibold" text={$_("restart")} color="secondary" />
+                  </Button>
+                  <Typography
+                    preset="Text sm/Regular"
+                    text={$_("quicklyRebootsRefreshesYourSystemWithoutFullyPoweringDown")}
+                    color="tertiary"
+                  />
+                </div>
+              </div>
+              <Divider className="col-span-4 my-8" />
+              <div class="col-span-4 md:col-span-1">
+                <Typography
+                  preset="Text lg/Semibold"
+                  text={$_("shutdownDevice")}
+                  color="secondary"
+                />
+              </div>
+              <div class="col-span-4 md:col-span-3 flex w-full">
+                <div class="col-span-4">
+                  <Button
+                    class="flex gap-2 items-center mb-2"
+                    color="light"
+                    on:click={async () => {
+                      let shutdownUrl = isFrontend
+                        ? "/device_controls"
+                        : await call.getPage("client-dashboard", "device-controls");
+                      goto(shutdownUrl + "?action=shutdown");
+                    }}
+                  >
+                    <Power01Icon
+                      svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark"
+                    />
+                    <Typography
+                      preset="Text sm/Semibold"
+                      text={$_("shutdown")}
+                      color="error-primary"
+                    />
+                  </Button>
+                  <Typography
+                    preset="Text sm/Regular"
+                    text={$_("safelyPowersDownYourDeviceWillStayOffUntilYouTurnItOnAgain")}
+                    color="tertiary"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      {/if} -->
+      {/if}
     {:else}
       hello user
     {/if}

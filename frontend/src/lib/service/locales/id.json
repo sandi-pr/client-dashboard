@@ -1191,5 +1191,11 @@
   "justAMomentWhileWeGetThingsReady": "Sebentar Sambil Kami Menyiapkan Sistem Anda",
   "previewTable": "Pratinjau Tabel",
   "changeTable": "Ubah Tabel",
-  "changeYourTableSourcesFiles": "Ubah Sumber Tabel Anda"
+  "changeYourTableSourcesFiles": "Ubah Sumber Tabel Anda",
+  "restartDevice": "Restart Perangkat",
+  "restart": "Restart",
+  "shutdownDevice": "Matikan Perangkat",
+  "shutdown": "Matikan",
+  "quicklyRebootsRefreshesYourSystemWithoutFullyPoweringDown": "Dengan cepat me-reboot dan menyegarkan sistem Anda tanpa mematikan sepenuhnya",
+  "safelyPowersDownYourDeviceWillStayOffUntilYouTurnItOnAgain": "Mematikan perangkat Anda dengan aman. Perangkat akan tetap mati sampai Anda menyalakannya kembali"
 }
