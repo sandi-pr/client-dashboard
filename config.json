@@ -563,6 +563,11 @@
             "name": "staging",
             "path": "/staging",
             "file_path": "template/staging.html"
+        },
+        {
+            "name": "device-controls",
+            "path": "/device_controls",
+            "file_path": "template/device_controls.html"
         }
     ],
     "apis": [

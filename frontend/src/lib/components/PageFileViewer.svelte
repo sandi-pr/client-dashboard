@@ -56,6 +56,7 @@
     tags = $bindable(),
     CSVMetadata = $bindable(),
     CSVData = $bindable(),
+    datatablesMetadata = $bindable(),
     dataTables = $bindable(),
     dataTablesSelected = $bindable(),
     onEdit,
@@ -73,6 +74,8 @@
     deleteData = () => {},
     CSVNext = () => {},
     CSVPrevious = () => {},
+    DatatableNext = () => {},
+    DatatablePrevious = () => {},
   } = $props();
 
   let innerWidth = $state(0);
@@ -215,8 +218,8 @@
             onEdit = false;
           }}
         >
-          <StarsIcon svgClass="w-5 h-5 text-fg-primary-light dark:text-fg-primary-dark" />
-          <Typography preset="Text sm/Semibold" color="fg-primary" text={$_("aiReader")} />
+          <StarsIcon svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark" />
+          <Typography preset="Text sm/Semibold" color="primary-onbrand" text={$_("aiReader")} />
         </button>
         <div onfocusout={handleDropdownFocusLoss} class="flex items-center relative">
           <button
@@ -636,7 +639,6 @@
       </div>
     </div>
   </svelte:fragment>
-  <!-- {#if !gettingDatas} -->
   <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl">
     <Table class="w-full rounded-xl">
       <TableHead>
@@ -674,12 +676,12 @@
         {/each}
       </TableBody>
     </Table>
-    <!-- pagination implement setelah backend kelar -->
-    <!-- <Pagination pagination={csvMeta} previousPage={previous} nextPage={next} /> -->
+    <Pagination
+      pagination={datatablesMetadata}
+      previousPage={DatatablePrevious}
+      nextPage={DatatableNext}
+    />
   </div>
-  <!-- {:else}
-    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
-  {/if} -->
   <svelte:fragment slot="footer">
     <div class="flex gap-4 w-full">
       <Button

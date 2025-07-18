@@ -7,7 +7,6 @@
   let { pagination, previousPage, nextPage } = $props();
 </script>
 
-
 <div class="flex justify-between !border-0">
   {#if pagination.total > 0}
     <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">

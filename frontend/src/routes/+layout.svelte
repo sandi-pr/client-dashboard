@@ -99,6 +99,8 @@ All Rights Reserved
     "/hexabot/webchat",
     "/staging",
     "/client-dashboard/staging",
+    "/device_controls",
+    "/client-dashboard/device-controls",
   ]);
 
   const hideScrollList = $state(["/document/document_collection/chat"]);

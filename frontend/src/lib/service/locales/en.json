@@ -1191,5 +1191,11 @@
   "justAMomentWhileWeGetThingsReady": "Just a moment while we get things ready",
   "previewTable": "Preview Table",
   "changeTable": "Change Table",
-  "changeYourTableSourcesFiles": "Change your table sources files"
+  "changeYourTableSourcesFiles": "Change your table sources files",
+  "restartDevice": "Restart Device",
+  "restart": "Restart",
+  "shutdownDevice": "Shutdown Device",
+  "shutdown": "Shutdown",
+  "quicklyRebootsRefreshesYourSystemWithoutFullyPoweringDown": "Quickly reboots/refreshes your system without fully powering down.",
+  "safelyPowersDownYourDeviceWillStayOffUntilYouTurnItOnAgain": "Safely powers down your device. It will stay off until you turn it on again."
 }

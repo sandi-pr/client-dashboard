@@ -30,6 +30,7 @@ All Rights Reserved
   let dataTables = $state([]);
   let dataTablesSelected = $state("");
   let CSVMetadata = $state({ page: 1, pageSize: 10, pageCount: 2, total: 13 });
+  let datatablesMetadata = $state({});
   let tags = $state([]);
   let CSVData = $state([]);
   let documentId = $state(null);
@@ -107,6 +108,16 @@ All Rights Reserved
             : dataTables.length > 0
               ? dataTables[0].name
               : "";
+
+        datatablesMetadata =
+          Object.keys(datatablesMetadata).length > 0
+            ? datatablesMetadata
+            : {
+                page: 1,
+                pageSize: 10,
+                pageCount: dataTables.length > 0 ? Math.ceil(dataTables.length / 10) : 1,
+                total: dataTables.length,
+              };
 
         if (pageDataType !== "Data") {
           base64 = response.result.base64;
@@ -309,18 +320,24 @@ All Rights Reserved
     triggerLoading(false);
   };
 
-  const CSVNext = () => {
-    if (CSVMetadata.page >= CSVMetadata.pageCount) return;
-    CSVMetadata.page += 1;
+  const tableNextPage = (table) => {
+    if (table.page >= table.pageCount) return;
+    table.page += 1;
     getData("partial");
   };
 
-  const CSVPrevious = () => {
-    if (CSVMetadata.page > 1) {
-      CSVMetadata.page -= 1;
+  const tablePreviousPage = (table) => {
+    if (table.page > 1) {
+      table.page -= 1;
       getData("partial");
     }
   };
+
+  // Use the generic table pagination for CSV and Datatables
+  const CSVNext = () => tableNextPage(CSVMetadata);
+  const CSVPrevious = () => tablePreviousPage(CSVMetadata);
+  const DatatableNext = () => tableNextPage(datatablesMetadata);
+  const DatatablePrevious = () => tablePreviousPage(datatablesMetadata);
 
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
@@ -354,6 +371,7 @@ All Rights Reserved
   bind:tags
   bind:CSVMetadata
   bind:CSVData
+  bind:datatablesMetadata
   bind:dataTables
   bind:dataTablesSelected
   {onEdit}
@@ -372,4 +390,6 @@ All Rights Reserved
   {deleteData}
   {CSVNext}
   {CSVPrevious}
+  {DatatableNext}
+  {DatatablePrevious}
 />
