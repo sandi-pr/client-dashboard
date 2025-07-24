@@ -214,8 +214,8 @@ All Rights Reserved
       { name: "assistant", array: cardsAssistantActions },
       { name: "documents", array: cardsDocumentActions },
       { name: "analytics", array: cardsAnalyticsActions },
-      { name: "handwriting", array: cardsHandwritingActions },
-      { name: "voice", array: cardsVoiceActions },
+      // { name: "handwriting", array: cardsHandwritingActions },
+      // { name: "voice", array: cardsVoiceActions },
       { name: "llms", array: cardsLlmsActions },
       { name: "configurations", array: cardsConfigurationActions },
     ];
