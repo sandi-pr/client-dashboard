@@ -113,6 +113,8 @@
   let currentStep = 1;
   let modalThemeColor = false;
   let tmpThemeColor = "";
+  let modalDevice = false;
+  let modalDeviceControl = "restart";
 
   let backupSteps = [
     {
@@ -1220,10 +1222,8 @@
                     class="flex gap-2 items-center mb-2"
                     color="light"
                     on:click={async () => {
-                      let restartUrl = isFrontend
-                        ? "/device_controls"
-                        : await call.getPage("client-dashboard", "device-controls");
-                      goto(restartUrl + "?action=restart");
+                      modalDevice = true;
+                      modalDeviceControl = "restart";
                     }}
                   >
                     <RefreshCw05Icon
@@ -1252,10 +1252,8 @@
                     class="flex gap-2 items-center mb-2"
                     color="light"
                     on:click={async () => {
-                      let shutdownUrl = isFrontend
-                        ? "/device_controls"
-                        : await call.getPage("client-dashboard", "device-controls");
-                      goto(shutdownUrl + "?action=shutdown");
+                      modalDevice = true;
+                      modalDeviceControl = "shutdown";
                     }}
                   >
                     <Power01Icon
@@ -1577,5 +1575,49 @@
         (selectedTheme = themeColors.find((color) => color.id === tmpThemeColor).name)}
       class="px-3 w-full focus-within:!ring-1">{$_("save")}</Button
     >
+  </svelte:fragment>
+</Modal>
+
+<Modal bind:open={modalDevice} autoclose outsideclose>
+  <div class="flex flex-col gap-4 justify-center items-center">
+    <Typography
+      preset="Text lg/Semibold"
+      text={modalDeviceControl === "shutdown"
+        ? $_("areYouSureToShutdown")
+        : $_("areYouSureToRestart")}
+    />
+    <Typography
+      preset="Text sm/Regular"
+      color="tertiary"
+      text={modalDeviceControl === "shutdown"
+        ? $_("yourDeviceWillTurnOffAndThenImmediatelyTurnBackOn")
+        : $_("confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain")}
+    />
+  </div>
+  <svelte:fragment slot="footer">
+    <Button
+      on:click={() => (modalDevice = false)}
+      color="light"
+      class="px-3 w-full focus-within:!ring-1"
+    >
+      {$_("cancel")}
+    </Button>
+    <Button
+      on:click={async () => {
+        modalDevice = false;
+
+        let redirectUrl = isFrontend
+          ? "/device_controls"
+          : await call.getPage("client-dashboard", "device-controls");
+        if (modalDeviceControl === "shutdown") {
+          goto(redirectUrl + "?action=shutdown");
+        } else if (modalDeviceControl === "restart") {
+          goto(redirectUrl + "?action=restart");
+        }
+      }}
+      class="px-3 w-full focus-within:!ring-1"
+    >
+      {$_("confirm")}
+    </Button>
   </svelte:fragment>
 </Modal>

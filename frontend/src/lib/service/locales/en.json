@@ -1197,5 +1197,9 @@
   "shutdownDevice": "Shutdown Device",
   "shutdown": "Shutdown",
   "quicklyRebootsRefreshesYourSystemWithoutFullyPoweringDown": "Quickly reboots/refreshes your system without fully powering down.",
-  "safelyPowersDownYourDeviceWillStayOffUntilYouTurnItOnAgain": "Safely powers down your device. It will stay off until you turn it on again."
+  "safelyPowersDownYourDeviceWillStayOffUntilYouTurnItOnAgain": "Safely powers down your device. It will stay off until you turn it on again.",
+  "areYouSureToShutdown": "Are you sure to shutdown?",
+  "areYouSureToRestart": "Are you sure to restart?",
+  "yourDeviceWillTurnOffAndThenImmediatelyTurnBackOn": "Your device will turn off and then immediately turn back on.",
+  "confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain": "Confirm to power down. You will need to manually turn on your device again."
 }

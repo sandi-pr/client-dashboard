@@ -1197,5 +1197,9 @@
   "shutdownDevice": "Matikan Perangkat",
   "shutdown": "Matikan",
   "quicklyRebootsRefreshesYourSystemWithoutFullyPoweringDown": "Dengan cepat me-reboot dan menyegarkan sistem Anda tanpa mematikan sepenuhnya",
-  "safelyPowersDownYourDeviceWillStayOffUntilYouTurnItOnAgain": "Mematikan perangkat Anda dengan aman. Perangkat akan tetap mati sampai Anda menyalakannya kembali"
+  "safelyPowersDownYourDeviceWillStayOffUntilYouTurnItOnAgain": "Mematikan perangkat Anda dengan aman. Perangkat akan tetap mati sampai Anda menyalakannya kembali",
+  "areYouSureToShutdown": "Apakah Anda yakin ingin mematikan perangkat?",
+  "areYouSureToRestart": "Apakah Anda yakin ingin me-restart perangkat?",
+  "yourDeviceWillTurnOffAndThenImmediatelyTurnBackOn": "Perangkat Anda akan mati dan kemudian segera menyala kembali",
+  "confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain": "Konfirmasi untuk mematikan. Anda perlu menyalakan perangkat secara manual lagi"
 }
