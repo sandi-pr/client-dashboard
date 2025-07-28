@@ -1201,5 +1201,7 @@
   "areYouSureToShutdown": "Apakah Anda yakin ingin mematikan perangkat?",
   "areYouSureToRestart": "Apakah Anda yakin ingin me-restart perangkat?",
   "yourDeviceWillTurnOffAndThenImmediatelyTurnBackOn": "Perangkat Anda akan mati dan kemudian segera menyala kembali",
-  "confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain": "Konfirmasi untuk mematikan. Anda perlu menyalakan perangkat secara manual lagi"
+  "confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain": "Konfirmasi untuk mematikan. Anda perlu menyalakan perangkat secara manual lagi",
+  "requestADemo": "Minta Demo",
+  "requestADemoDesc": "Anda belum dapat mengakses fitur ini. Dapatkan panduan personal untuk semua fitur dan manfaat yang kami tawarkan."
 }

@@ -1,7 +1,8 @@
 <script>
   import { Card, Button, Avatar } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import { Typography, call, triggerToast, check, Badge, Icon } from "$lib";
+  import { Typography, Badge, Icon } from "$lib";
+  import { call, triggerToast, check, me, isDemoTrue } from "$lib";
   import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import ArrowUpRightIcon from "$lib/icon/arrow-up-right.svelte";
   import Settings03Icon from "$lib/icon/settings-03.svelte";
@@ -10,7 +11,6 @@
   import EyeIcon from "$lib/icon/eye.svelte";
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
 
   let {
     bot,
@@ -22,10 +22,6 @@
     popupModal = $bindable(false),
     tmpId = $bindable(null),
   } = $props();
-
-  onMount(() => {
-    // console.log("bot", bot);
-  });
 </script>
 
 <Card padding="none" class="relative shadow-none grow w-full max-w-none">
@@ -108,22 +104,26 @@
           <Button
             disabled={!check("aiManagement.hexabots:view")}
             on:click={async () => {
-              if (config?.isLlm) {
-                goto(
-                  config?.isFrontend
-                    ? "/llms/my_models/detail?modelId=" + bot.botsID
-                    : (await $call.getPage("client-dashboard", "llms-my-models-detail")) +
-                        "?modelId=" +
-                        bot.botsID,
-                );
+              if ($me.authority.toLowerCase() === "demo") {
+                isDemoTrue.set(true);
               } else {
-                goto(
-                  config?.isFrontend
-                    ? "/bots/detail?botId=" + bot.botsID
-                    : (await $call.getPage("client-dashboard", "bots-detail")) +
-                        "?botId=" +
-                        bot.botsID,
-                );
+                if (config?.isLlm) {
+                  goto(
+                    config?.isFrontend
+                      ? "/llms/my_models/detail?modelId=" + bot.botsID
+                      : (await $call.getPage("client-dashboard", "llms-my-models-detail")) +
+                          "?modelId=" +
+                          bot.botsID,
+                  );
+                } else {
+                  goto(
+                    config?.isFrontend
+                      ? "/bots/detail?botId=" + bot.botsID
+                      : (await $call.getPage("client-dashboard", "bots-detail")) +
+                          "?botId=" +
+                          bot.botsID,
+                  );
+                }
               }
             }}
             outline
@@ -139,14 +139,18 @@
         {#if config?.detailTry === true}
           <Button
             on:click={async () => {
-              goto(
-                config?.isFrontend
-                  ? "/bots/detail?botId=" + bot.botsID + "&try=true"
-                  : (await $call.getPage("client-dashboard", "bots-detail")) +
-                      "?botId=" +
-                      bot.botsID +
-                      "&try=true",
-              );
+              if ($me.authority.toLowerCase() === "demo") {
+                isDemoTrue.set(true);
+              } else {
+                goto(
+                  config?.isFrontend
+                    ? "/bots/detail?botId=" + bot.botsID + "&try=true"
+                    : (await $call.getPage("client-dashboard", "bots-detail")) +
+                        "?botId=" +
+                        bot.botsID +
+                        "&try=true",
+                );
+              }
             }}
             outline
             class="!flex grow rounded-lg *:hover:text-white dark:*:hover:text-white"
@@ -167,14 +171,18 @@
         <Button
           disabled={!check("aiManagement.hexabots:view")}
           on:click={async () => {
-            goto(
-              config?.isFrontend
-                ? "/bots/detail?botId=" + bot.botsID + "&edit=true"
-                : (await $call.getPage("client-dashboard", "bots-detail")) +
-                    "?botId=" +
-                    bot.botsID +
-                    "&edit=true",
-            );
+            if ($me.authority.toLowerCase() === "demo") {
+              isDemoTrue.set(true);
+            } else {
+              goto(
+                config?.isFrontend
+                  ? "/bots/detail?botId=" + bot.botsID + "&edit=true"
+                  : (await $call.getPage("client-dashboard", "bots-detail")) +
+                      "?botId=" +
+                      bot.botsID +
+                      "&edit=true",
+              );
+            }
           }}
           outline
           class="!flex grow gap-1 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
@@ -187,8 +195,11 @@
         <Button
           disabled={bot.deployStatus !== "Ready"}
           on:click={() => {
-            console.log("open webchat", bot.urlBot);
-            window.open(bot.urlBot, "_blank");
+            if ($me.authority.toLowerCase() === "demo") {
+              isDemoTrue.set(true);
+            } else {
+              window.open(bot.urlBot, "_blank");
+            }
           }}
           outline
           class={`!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg ${config?.detail === true ? "border-secondary-light dark:border-secondary-dark" : "border-button-secondary-color-light dark:border-button-secondary-color-dark"}`}
@@ -206,8 +217,11 @@
       {#if config?.insights === true}
         <Button
           on:click={() => {
-            // window.open(bot.urlBot);
-            goto(bot.urlBot);
+            if ($me.authority.toLowerCase() === "demo") {
+              isDemoTrue.set(true);
+            } else {
+              goto(bot.urlBot);
+            }
           }}
           outline
           class={`!flex grow gap-1.5 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg ${config?.detail === true ? "border-secondary-light dark:border-secondary-dark" : "border-button-secondary-color-light dark:border-button-secondary-color-dark"}`}

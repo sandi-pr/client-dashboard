@@ -13,44 +13,45 @@ All Rights Reserved
   import { page } from "$app/stores";
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane, Splitpanes } from "svelte-splitpanes";
+  import { Modal, Button } from "flowbite-svelte";
+  import { Navbar, Sidebar, ToastContainer, PageComingSoon } from "$lib";
   import {
-    Navbar,
-    Sidebar,
-    ToastContainer,
-    setCall,
-    callReady,
-    triggerShowAI,
-    triggerShowNotif,
-    showNotif,
-    showAI,
-    triggerSelectDropdown,
-    triggerSelectCollection,
-    triggerReload,
-    triggerToast,
-    industryData,
-    notifications,
-    notificationsUnread,
-    notificationsRead,
-    notificationsNewCount,
-    newNotification,
-    paginationAll,
-    paginationRead,
-    paginationUnread,
-    connectWebSocket,
-    setLibraryIds,
-    setCollectionIds,
-    bakrieLibraryId,
-    handwritingCollectionId,
-    setDatasourceLibraryIds,
-    datasourceLibraryId,
-    onProgress,
-    isBakrie,
+    me,
     check,
-    PageComingSoon,
+    showAI,
+    setCall,
+    isBakrie,
+    isMoodle,
+    getIcons,
+    callReady,
+    showNotif,
     setCookie,
     getCookie,
-    isMoodle,
-    me,
+    onProgress,
+    isDemoTrue,
+    Typography,
+    triggerToast,
+    industryData,
+    triggerShowAI,
+    triggerReload,
+    notifications,
+    paginationAll,
+    setLibraryIds,
+    paginationRead,
+    newNotification,
+    bakrieLibraryId,
+    setCollectionIds,
+    paginationUnread,
+    triggerShowNotif,
+    connectWebSocket,
+    notificationsRead,
+    notificationsUnread,
+    datasourceLibraryId,
+    notificationsNewCount,
+    triggerSelectDropdown,
+    triggerSelectCollection,
+    handwritingCollectionId,
+    setDatasourceLibraryIds,
   } from "$lib";
   import { onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
@@ -65,6 +66,9 @@ All Rights Reserved
   import { purpleColors, greenColors, blueColors } from "$lib/utils/presetColors";
   import FingerprintJS from "@fingerprintjs/fingerprintjs";
   import CryptoJS from "crypto-js";
+  import requestDemo from "$lib/image/request-demo.svg";
+
+  const Send01Icon = getIcons("send01");
 
   set_pdfjs_context();
 
@@ -570,6 +574,8 @@ All Rights Reserved
           localStorage.setItem("user", JSON.stringify(resp.result));
           await getPermissions(resp.result.authority.toLowerCase().replace(/\s+/g, "_"));
           me.set(resp.result);
+          isDemoTrue.set(false);
+          // console.log("me", resp.result);
         }
       } else if (resp.status === 401) {
         let email = localStorage.getItem("email") || "";
@@ -1784,6 +1790,36 @@ All Rights Reserved
     <slot />
   {/if}
 {:else}{/if}
+
+<Modal bind:open={$isDemoTrue} autoclose={false} title={$_("requestADemo")}>
+  <div class="flex flex-col items-center justify-center gap-4">
+    <img src={requestDemo} alt="Request Demo ALT" />
+    <Typography text={$_("requestADemoDesc")} propClass="mx-4 text-center" />
+  </div>
+  <svelte:fragment slot="footer">
+    <div class="w-full flex flex-col items-center gap-2">
+      <Button
+        class="w-full gap-2"
+        onclick={() => {
+          window.open("https://hexacode.ai/contact-us/", "_blank", "noopener noreferrer");
+          isDemoTrue.set(false);
+        }}
+      >
+        <Send01Icon svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark" />
+        <Typography preset="Text md/Semibold" color="primary-onbrand" text={$_("requestADemo")} />
+      </Button>
+      <Button
+        class="w-full gap-2"
+        color="light"
+        onclick={() => {
+          isDemoTrue.set(false);
+        }}
+      >
+        <Typography preset="Text md/Semibold" color="fg-secondary" text={$_("cancel")} />
+      </Button>
+    </div>
+  </svelte:fragment>
+</Modal>
 
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */

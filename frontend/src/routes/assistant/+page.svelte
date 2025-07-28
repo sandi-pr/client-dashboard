@@ -1,18 +1,8 @@
 <script>
   import { Button, Toast, Modal, Search } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import {
-    Typography,
-    call,
-    triggerToast,
-    StateCard,
-    newNotification,
-    notifications,
-    showAI,
-    showNotif,
-    BotCard,
-    Pagination,
-  } from "$lib";
+  import { BotCard, StateCard, Typography, Pagination } from "$lib";
+  import { call, showAI, showNotif, triggerToast, notifications, newNotification } from "$lib";
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { onMount } from "svelte";

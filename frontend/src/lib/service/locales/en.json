@@ -1201,5 +1201,7 @@
   "areYouSureToShutdown": "Are you sure to shutdown?",
   "areYouSureToRestart": "Are you sure to restart?",
   "yourDeviceWillTurnOffAndThenImmediatelyTurnBackOn": "Your device will turn off and then immediately turn back on.",
-  "confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain": "Confirm to power down. You will need to manually turn on your device again."
+  "confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain": "Confirm to power down. You will need to manually turn on your device again.",
+  "requestADemo": "Request a Demo",
+  "requestADemoDesc": "You can’t access this feature yet. Get a personalized walkthrough of all the features and benefits we offer."
 }
