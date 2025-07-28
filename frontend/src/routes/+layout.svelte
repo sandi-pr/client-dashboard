@@ -13,7 +13,6 @@ All Rights Reserved
   import { page } from "$app/stores";
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane, Splitpanes } from "svelte-splitpanes";
-  import { Datepicker } from "flowbite-svelte";
   import {
     Navbar,
     Sidebar,
@@ -38,7 +37,6 @@ All Rights Reserved
     paginationRead,
     paginationUnread,
     connectWebSocket,
-    disconnectWebSocket,
     setLibraryIds,
     setCollectionIds,
     bakrieLibraryId,
@@ -52,13 +50,13 @@ All Rights Reserved
     setCookie,
     getCookie,
     isMoodle,
+    me,
   } from "$lib";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { locale, waitLocale, isLoading, _ } from "svelte-i18n";
   import "$lib/service/i18n";
   import SideDrawer from "$lib/components/SideDrawer.svelte";
   import NotifDrawer from "$lib/components/NotifDrawer.svelte";
-  import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
   import LoadingContainer from "$lib/components/LoadingContainer.svelte";
   import { goto } from "$app/navigation";
   import { set_pdfjs_context } from "$lib/utils/vite.ts";
@@ -73,8 +71,6 @@ All Rights Reserved
   let innerWidth = $state(0);
   let activeUrl = $state($page.url.pathname);
   let appUrl = "/";
-  let userData = $state({ username: "", email: "" });
-  let authority = $state("");
   let brand = $state("");
   let logoUrl = $state("");
   const isFrontend = process.env.NODE_ENV === "development";
@@ -89,9 +85,14 @@ All Rights Reserved
 
   let hideBakrie = $state(true);
 
-  const hideLayoutListBakrie = isFrontend
-    ? ["/document_collection", "/document_collection/libraries", "/staging"]
-    : ["/client-dashboard/documents", "/client-dashboard/documents/libraries"];
+  const hideLayoutListBakrie = [
+    "/document_collection",
+    "/client-dashboard/documents",
+    "/document_collection/libraries",
+    "/client-dashboard/documents/libraries",
+    "/staging",
+    "/client-dashboard/staging",
+  ];
 
   const hideLayoutList = $state([
     "/workflow/update",
@@ -568,8 +569,7 @@ All Rights Reserved
           // console.log("is token valid");
           localStorage.setItem("user", JSON.stringify(resp.result));
           await getPermissions(resp.result.authority.toLowerCase().replace(/\s+/g, "_"));
-          userData = resp.result;
-          authority = resp.result.authority;
+          me.set(resp.result);
         }
       } else if (resp.status === 401) {
         let email = localStorage.getItem("email") || "";
@@ -1716,10 +1716,6 @@ All Rights Reserved
       }
     }
   });
-
-  // onDestroy(() => {
-  //   disconnectWebSocket();
-  // });
 </script>
 
 <svelte:head>
@@ -1735,8 +1731,8 @@ All Rights Reserved
       <div class="z-20">
         <Sidebar
           getModule={getModules}
-          bind:name={userData.username}
-          bind:email={userData.email}
+          bind:name={$me.username}
+          bind:email={$me.email}
           bind:brand
           bind:logoUrl
           innerWidth={winInnerWidth}
@@ -1752,7 +1748,7 @@ All Rights Reserved
             <div class="relative transition-all duration-300 h-screen">
               {#if !hideNav}
                 <div class="absolute w-full top-0 z-10">
-                  <Navbar bind:authority bind:hasNewNotif {activeUrl} {appUrl} {changeShowNotif} />
+                  <Navbar bind:hasNewNotif {activeUrl} {appUrl} {changeShowNotif} />
                 </div>
               {/if}
               {#if isComingSoon}

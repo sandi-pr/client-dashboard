@@ -16,7 +16,6 @@
   import { _ } from "svelte-i18n";
 
   let {
-    authority = $bindable(""),
     hasNewNotif = $bindable(false),
     activeUrl = "/",
     appUrl = "/",

@@ -22,7 +22,6 @@
   import { getModule } from "$lib/utils/getModule";
   import { onMount } from "svelte";
   import { sineIn } from "svelte/easing";
-  import Me from "$lib/utils/me";
 
   let hidden2 = true;
   let spanClass = "flex-1 ms-3 whitespace-nowrap";
@@ -65,17 +64,6 @@
   };
 
   $: activeUrl = $page.url.pathname;
-
-  // let name = "";
-  // let email = "";
-
-  // if ($Me === null) {
-  //   name = data?.data?.user?.fullname;
-  //   email = data?.data?.user?.email;
-  // } else {
-  //   name = $Me?.user?.fullname;
-  //   email = $Me?.user?.email;
-  // }
 
   onMount(async () => {
     const sidebarAddition = await sidebarBuilder();

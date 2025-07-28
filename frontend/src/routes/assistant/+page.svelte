@@ -1,10 +1,5 @@
 <script>
-  import {
-    Button,
-    Toast,
-    Modal,
-    Search,
-  } from "flowbite-svelte";
+  import { Button, Toast, Modal, Search } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import {
     Typography,
@@ -13,7 +8,7 @@
     StateCard,
     newNotification,
     notifications,
-    showAI, 
+    showAI,
     showNotif,
     BotCard,
     Pagination,
@@ -144,7 +139,7 @@
         }
 
         gettingDatas = false;
-        console.log(bots);
+        // console.log(bots);
       } catch (error) {
         gettingDatas = false;
         console.log(error);
@@ -278,11 +273,22 @@
               />
             </div>
           {:else if bots.length === 0}
-            <StateCard illustration={IllustrationEmpty} description={searchTerm !== "" ? $_("noDataFound") : $_("youDontHaveAnyDataYet")} />
+            <StateCard
+              illustration={IllustrationEmpty}
+              description={searchTerm !== "" ? $_("noDataFound") : $_("youDontHaveAnyDataYet")}
+            />
           {:else}
-            <div class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}>
+            <div
+              class={`grid ${$showAI || $showNotif ? "grid-cols-1 xl:grid-cols-3" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"} gap-4`}
+            >
               {#each bots as bot, index (bot.botsID)}
-                <BotCard {bot} {index} {dropdownOpen} config={{ openWebchat: true }} {handleDropdownFocusLoss} />
+                <BotCard
+                  {bot}
+                  {index}
+                  {dropdownOpen}
+                  config={{ openWebchat: true }}
+                  {handleDropdownFocusLoss}
+                />
               {/each}
             </div>
             <Pagination {pagination} {previousPage} {nextPage} />

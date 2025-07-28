@@ -130,3 +130,4 @@ export { handleInputName } from "$lib/utils/handleInputName";
 export { setCookie, getCookie } from "$lib/utils/cookies";
 export { isMoodle } from "$lib/utils/moodleStore";
 export { isOpenSidebarStore } from "$lib/utils/isOpenSidebarStore";
+export { me } from "$lib/utils/me";
