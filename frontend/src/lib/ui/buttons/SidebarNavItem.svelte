@@ -31,7 +31,7 @@
   function extractPath(url) {
     if (!url) return;
     const match = url.match(/^(?:https?:\/\/)?[^\/]+(\/[^?#]*)/);
-    return match ? "/" + match[1].split("/")[1] : url;
+    return match ? "/" + match[1].split("/")[2] : url;
   }
 
   let activeUrl = $derived("/" + $page.url.pathname.split("/")[isFrontend ? 1 : 2]);
