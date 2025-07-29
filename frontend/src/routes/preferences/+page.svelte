@@ -15,13 +15,13 @@
   import { P, Avatar, Button, Indicator, Modal } from "flowbite-svelte";
   import { goto } from "$app/navigation";
   import {
-    SelectedCard,
-    StateCard,
-    InformationForm,
-    Typography,
-    triggerToast,
     InputRw,
     Dropdown,
+    StateCard,
+    Typography,
+    SelectedCard,
+    triggerToast,
+    InformationForm,
   } from "$lib";
   import TabDetail from "$lib/components/TabDetail.svelte";
   import Divider from "$lib/components/Divider.svelte";
@@ -51,7 +51,7 @@
   import { _ } from "svelte-i18n";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
 
-  import { call } from "$lib";
+  import { me, call } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -91,16 +91,16 @@
       {
         name: "Theme",
       },
-      {
-        name: "Advanced",
-      },
+      // {
+      //   name: "Advanced",
+      // },
       // {
       //   name: "Backup Restore",
       // }
       // {
       //   name: "Configuration AI",
       // },
-      { name: "Device" },
+      // { name: "Device" },
     ],
   };
   let onEditPassword = false;
@@ -758,6 +758,32 @@
   }
 
   onMount(() => {
+    if ($me.authority.toLowerCase() === "admin") {
+      tabDatas = {
+        selected: "My Profile",
+        data: [
+          {
+            name: "My Profile",
+          },
+          {
+            name: "Password",
+          },
+          {
+            name: "Company Type",
+          },
+          {
+            name: "Theme",
+          },
+          {
+            name: "Advanced",
+          },
+          {
+            name: "Device",
+          },
+        ],
+      };
+      console.log(tabDatas);
+    }
     getUser();
     getCompanyType();
     getModels();

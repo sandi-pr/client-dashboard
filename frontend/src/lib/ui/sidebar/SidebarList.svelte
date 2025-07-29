@@ -37,7 +37,7 @@
   import Divider from "$lib/components/Divider.svelte";
   import { _ } from "svelte-i18n";
   import { LogoBrand, SidebarNavItem, Typography } from "$lib";
-  import { getIcons, Icon, toCamelCase, isOpenSidebarStore, call } from "$lib";
+  import { getIcons, Icon, toCamelCase, isOpenSidebarStore, call, me } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -288,10 +288,14 @@
         {/each}
       {/if}
     </SidebarGroup>
-    <div class="fixed bottom-0 pb-8 bg-primary-light dark:bg-primary-dark">
+    <div
+      class="fixed bottom-0 pb-8 bg-primary-light dark:bg-primary-dark max-w-72 {$sidebarLargeClosed
+        ? ''
+        : 'w-full'}"
+    >
       <div class="relative dropdown-container">
         <div
-          class={`z-10 ${dropdownUser ? "fixed" : "hidden"} bottom-20 p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg`}
+          class={`z-10 ${dropdownUser ? "fixed" : "hidden"} bottom-20 p-2 mb-2 bg-white dark:bg-gray-700 divide-y divide-gray-100 rounded-lg border border-secondary-light dark:border-secondary-dark shadow dark:shadow-lg w-full max-w-72`}
         >
           <ul aria-labelledby="dropdownDefaultButton">
             <div class="flex pb-3 justify-between rounded-lg border-b">
@@ -312,26 +316,28 @@
                 />
               </Button>
             </div>
-            <SidebarDropdownWrapper
-              spanClass="flex-1 ms-0 text-left whitespace-nowrap"
-              class="hover:bg-secondary-light dark:hover:bg-secondary-dark mt-2"
-              label={$_("manage")}
-              onclick={(event) => {
-                event.stopPropagation(); // Prevent handleDropdownFocusLoss from being triggered
-              }}
-            >
-              <svelte:fragment slot="icon">
-                <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
-              </svelte:fragment>
-              <SidebarDropdownItem
-                onclick={() => {
-                  dropdownUser = !dropdownUser;
+            {#if $me.authority.toLowerCase() === "admin"}
+              <SidebarDropdownWrapper
+                spanClass="flex-1 ms-0 text-left whitespace-nowrap"
+                class="hover:bg-secondary-light dark:hover:bg-secondary-dark mt-2"
+                label={$_("manage")}
+                onclick={(event) => {
+                  event.stopPropagation(); // Prevent handleDropdownFocusLoss from being triggered
                 }}
-                href={hrefUser}
-                class="!ps-14 hover:bg-secondary-light dark:hover:bg-secondary-dark"
-                label={$_("users")}
-              />
-            </SidebarDropdownWrapper>
+              >
+                <svelte:fragment slot="icon">
+                  <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
+                </svelte:fragment>
+                <SidebarDropdownItem
+                  onclick={() => {
+                    dropdownUser = !dropdownUser;
+                  }}
+                  href={hrefUser}
+                  class="!ps-14 hover:bg-secondary-light dark:hover:bg-secondary-dark"
+                  label={$_("users")}
+                />
+              </SidebarDropdownWrapper>
+            {/if}
             <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
