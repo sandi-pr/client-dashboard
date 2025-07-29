@@ -1,15 +1,17 @@
 <script>
   import {
-    Typography,
-    SectionHeader,
-    ActionCard,
-    StateCard,
+    me,
     call,
+    isDemoTrue,
+    StateCard,
+    ActionCard,
+    Typography,
+    ModalObject,
     triggerToast,
+    SectionHeader,
     triggerLoading,
     triggerToastResponse,
     setSelectedConversation,
-    ModalObject,
   } from "$lib";
   import { Button, Modal } from "flowbite-svelte";
   import { format } from "date-fns";
@@ -69,6 +71,10 @@
     actionItems = [
       {
         onclick: () => {
+          if ($me.authority.toLowerCase() === "demo") {
+            isDemoTrue.set(true);
+            return;
+          }
           addDocumentsModal = true;
         },
         icon: "penToolPlus",
@@ -76,9 +82,15 @@
         desc: "desc Finetune for Handwriting",
       },
       {
-        href: isFrontend
-          ? "finetunings/conversation/chat"
-          : await $call.getPage("client-dashboard", "finetunings-conversation-chat"),
+        onclick: async () => {
+          if ($me.authority.toLowerCase() === "demo") {
+            isDemoTrue.set(true);
+            return;
+          }
+          isFrontend
+            ? goto("finetunings/conversation/chat")
+            : goto(await $call.getPage("client-dashboard", "finetunings-conversation-chat"));
+        },
         icon: "messageChatSquare",
         actionName: "Finetune for Conversation",
         desc: "desc Finetune for Conversation",
@@ -186,6 +198,10 @@
             objects: [
               {
                 onclick: async () => {
+                  if ($me.authority.toLowerCase() === "demo") {
+                    isDemoTrue.set(true);
+                    return;
+                  }
                   setSelectedConversation(conversation.id);
                   goto(newLink + "?id=" + id);
                 },

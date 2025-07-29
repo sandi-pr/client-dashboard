@@ -25,7 +25,7 @@
     TableBodyCell,
     TableHeadCell,
   } from "flowbite-svelte";
-  import { Typography, getIcons } from "$lib";
+  import { Typography, getIcons, me, isDemoTrue } from "$lib";
   import * as Icon from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
   import RefreshIcon from "../icon/refresh.svelte";
@@ -606,8 +606,14 @@
                           </button>
                         {/if}
                       {:else if action?.icon}
-                        <a
-                          href={action.href}
+                        <button
+                          on:click={() => {
+                            if ($me.authority.toLowerCase() === "demo") {
+                              isDemoTrue.set(true);
+                              return;
+                            }
+                            goto(action.href);
+                          }}
                           class="flex items-center gap-1 hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold"
                         >
                           <svelte:component
@@ -615,7 +621,7 @@
                             svgClass="w-5 h-5 text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark"
                           />
                           {$_(toCamelCase(action.name))}
-                        </a>
+                        </button>
                       {:else}
                         <a
                           class="hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold"
