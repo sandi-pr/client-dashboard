@@ -1789,37 +1789,38 @@ All Rights Reserved
   {:else}
     <slot />
   {/if}
-{:else}{/if}
-
-<Modal bind:open={$isDemoTrue} autoclose={false} title={$_("requestADemo")}>
-  <div class="flex flex-col items-center justify-center gap-4">
-    <img src={requestDemo} alt="Request Demo ALT" />
-    <Typography text={$_("requestADemoDesc")} propClass="mx-4 text-center" />
-  </div>
-  <svelte:fragment slot="footer">
-    <div class="w-full flex flex-col items-center gap-2">
-      <Button
-        class="w-full gap-2"
-        onclick={() => {
-          window.open("https://hexacode.ai/contact-us/", "_blank", "noopener noreferrer");
-          isDemoTrue.set(false);
-        }}
-      >
-        <Send01Icon svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark" />
-        <Typography preset="Text md/Semibold" color="primary-onbrand" text={$_("requestADemo")} />
-      </Button>
-      <Button
-        class="w-full gap-2"
-        color="light"
-        onclick={() => {
-          isDemoTrue.set(false);
-        }}
-      >
-        <Typography preset="Text md/Semibold" color="fg-secondary" text={$_("cancel")} />
-      </Button>
+  <Modal bind:open={$isDemoTrue} autoclose={false} title={$_("requestADemo")}>
+    <div class="flex flex-col items-center justify-center gap-4">
+      <img src={requestDemo} alt="Request Demo ALT" />
+      <Typography text={$_("requestADemoDesc")} propClass="mx-4 text-center" />
     </div>
-  </svelte:fragment>
-</Modal>
+    <svelte:fragment slot="footer">
+      <div class="w-full flex flex-col items-center gap-2">
+        <Button
+          class="w-full gap-2"
+          onclick={() => {
+            window.open("https://hexacode.ai/contact-us/", "_blank", "noopener noreferrer");
+            isDemoTrue.set(false);
+          }}
+        >
+          <Send01Icon
+            svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark"
+          />
+          <Typography preset="Text md/Semibold" color="primary-onbrand" text={$_("requestADemo")} />
+        </Button>
+        <Button
+          class="w-full gap-2"
+          color="light"
+          onclick={() => {
+            isDemoTrue.set(false);
+          }}
+        >
+          <Typography preset="Text md/Semibold" color="fg-secondary" text={$_("cancel")} />
+        </Button>
+      </div>
+    </svelte:fragment>
+  </Modal>
+{/if}
 
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */
