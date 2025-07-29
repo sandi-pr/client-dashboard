@@ -1646,10 +1646,10 @@
   }
 
   onMount(() => {
-    if (check("documentAi.documentLibrary:view") === false) {
-      window.history.back();
-      return;
-    }
+    // if (check("documentAi.documentLibrary:view") === false) {
+    //   window.history.back();
+    //   return;
+    // }
     const unsubscribe = page.subscribe(async ($page) => {
       collectionId = $page.url.searchParams.get("collectionId");
       libraryId = $page.url.searchParams.get("libraryId");

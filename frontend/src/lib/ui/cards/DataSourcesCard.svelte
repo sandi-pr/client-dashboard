@@ -110,11 +110,12 @@
   <div
     class="flex justify-between px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
-    <button
+    <button onclick={funcDetailCollection} class="flex items-center gap-3 grow">
+      <!-- <button
       disabled={!check("documentAi.documentLibrary:view")}
       onclick={funcDetailCollection}
       class="flex items-center gap-3 grow"
-    >
+    > -->
       {#if usedFor === "libraries"}
         <BookClosedIcon svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />
         <div class="flex flex-col gap-1">
