@@ -66,9 +66,9 @@ All Rights Reserved
   import { purpleColors, greenColors, blueColors } from "$lib/utils/presetColors";
   import FingerprintJS from "@fingerprintjs/fingerprintjs";
   import CryptoJS from "crypto-js";
-  import requestDemo from "$lib/image/request-demo.svg";
 
   const Send01Icon = getIcons("send01");
+  const RequestDemoIcon = getIcons("requestDemo");
 
   set_pdfjs_context();
 
@@ -1791,7 +1791,7 @@ All Rights Reserved
   {/if}
   <Modal bind:open={$isDemoTrue} autoclose={false} title={$_("requestADemo")}>
     <div class="flex flex-col items-center justify-center gap-4">
-      <img src={requestDemo} alt="Request Demo ALT" />
+      <RequestDemoIcon svgClass="text-utility-brand-50-light dark:text-gray-800" />
       <Typography text={$_("requestADemoDesc")} propClass="mx-4 text-center" />
     </div>
     <svelte:fragment slot="footer">

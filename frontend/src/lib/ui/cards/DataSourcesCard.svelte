@@ -49,18 +49,14 @@
         title === "Document Images" ||
         title === "Handwriting"
       );
-    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))) {
-      return (
-        title === "My Handwriting"
-      );
+    } else if (
+      parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))
+    ) {
+      return title === "My Handwriting";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
-      return (
-        title === "My Voice"
-      )
+      return title === "My Voice";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "insights"))) {
-      return (
-        title === "My Data Source"
-      )
+      return title === "My Data Source";
     } else {
       return false;
     }
@@ -173,14 +169,17 @@
                 onclick={() => {
                   functEdit(), (dropdownOpen = !dropdownOpen);
                 }}
-                >{$_("editDataSources")}</button
               >
+                {$_("editDataSources")}
+              </button>
               <button
                 class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                 onclick={() => {
                   functDelete(), (dropdownOpen = !dropdownOpen);
-                }}>{$_("delete")}</button
+                }}
               >
+                {$_("delete")}
+              </button>
             </ul>
           </div>
         </div>

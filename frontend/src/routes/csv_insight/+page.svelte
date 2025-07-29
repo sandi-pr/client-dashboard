@@ -24,7 +24,7 @@
     SelectedCard,
     FeaturedIcon,
   } from "$lib";
-  import { call, getIcons } from "$lib";
+  import { call, getIcons, me, isDemoTrue } from "$lib";
   import DataTableListCollection from "$lib/components/DataTableListCollection.svelte";
 
   const User01Icon = getIcons("user01");
@@ -34,6 +34,7 @@
   const ChevronDownIcon = getIcons("chevronDown");
   const IllustrationEmpty = getIcons("illustrationEmpty");
   const IllustrationProgress = getIcons("illustrationProgress");
+  const RequestDemoIcon = getIcons("requestDemo");
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -894,6 +895,10 @@
       color="light"
       class="min-w-max gap-1.5 px-3.5"
       on:click={() => {
+        if ($me.authority.toLowerCase() === "demo") {
+          isDemoTrue.set(true);
+          return;
+        }
         modalOpen = true;
       }}
     >
@@ -920,7 +925,13 @@
       <StateCard
         illustration={IllustrationEmpty}
         description={$_("noDataAvailable")}
-        funcButton={() => (modalOpen = true)}
+        funcButton={() => {
+          if ($me.authority.toLowerCase() === "demo") {
+            isDemoTrue.set(true);
+            return;
+          }
+          modalOpen = true;
+        }}
         actionText={$_("selectDataSource")}
       />
     {:else}
@@ -929,6 +940,10 @@
           color="light"
           class="w-fit flex items-center gap-2 py-2 px-3"
           on:click={() => {
+            if ($me.authority.toLowerCase() === "demo") {
+              isDemoTrue.set(true);
+              return;
+            }
             modalOpenTable = true;
           }}
         >
@@ -970,77 +985,84 @@
   <!-- chat -->
   <div class="w-full md:w-1/2 pt-8 px-4 flex flex-col gap-4">
     <Typography preset="Text md/Semibold" text={$_("csvInsight")} />
-    {#each dataConversationChats as chat}
-      <div class="flex gap-4 p-4">
-        {#if chat.role === "assistant"}
+    {#if $me.authority.toLowerCase() === "demo"}
+      <div class="flex flex-col items-center justify-center gap-4">
+        <RequestDemoIcon svgClass="text-utility-brand-50-light dark:text-gray-800" />
+        <Typography text={$_("requestADemoDesc")} propClass="mx-4 text-center" />
+      </div>
+    {:else}
+      {#each dataConversationChats as chat}
+        <div class="flex gap-4 p-4">
+          {#if chat.role === "assistant"}
+            <div
+              class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
+            >
+              <Icon name="lightbulb04" color="primary-onbrand" />
+            </div>
+          {:else}
+            <div
+              class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
+            >
+              <User01Icon svgClass="w-4 h-4 md:w-6 md:h-6" />
+            </div>
+          {/if}
+          <div class="w-5/6">
+            <div
+              class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
+            >
+              {#if chat.role === "assistant"}
+                <pre class="whitespace-pre-wrap break-words overflow-auto p-2">{chat.message}</pre>
+              {:else}
+                <Markdown md={chat.message} {plugins} />
+              {/if}
+              {#if chat.image}
+                <img src={chat.image} alt="Image" class="w-full" />
+              {/if}
+            </div>
+          </div>
+        </div>
+      {/each}
+
+      {#if isTyping}
+        <div class="flex gap-4 p-4">
           <div
             class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
           >
             <Icon name="lightbulb04" color="primary-onbrand" />
           </div>
-        {:else}
-          <div
-            class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-tertiary-light dark:bg-tertiary-dark rounded-full border border-primary-light dark:border-primary-dark"
-          >
-            <User01Icon svgClass="w-4 h-4 md:w-6 md:h-6" />
-          </div>
-        {/if}
-        <div class="w-5/6">
           <div
             class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
           >
-            {#if chat.role === "assistant"}
-              <pre class="whitespace-pre-wrap break-words overflow-auto p-2">{chat.message}</pre>
-            {:else}
-              <Markdown md={chat.message} {plugins} />
-            {/if}
-            {#if chat.image}
-              <img src={chat.image} alt="Image" class="w-full" />
-            {/if}
+            <pre class="whitespace-pre-wrap break-words overflow-auto p-2">Typing...</pre>
           </div>
         </div>
-      </div>
-    {/each}
+      {/if}
 
-    {#if isTyping}
-      <div class="flex gap-4 p-4">
-        <div
-          class="w-8 h-7 md:w-11 md:h-11 flex justify-center items-center bg-fg-brand-primary-light dark:bg-fg-brand-primary-dark rounded-full"
-        >
-          <Icon name="lightbulb04" color="primary-onbrand" />
+      <form onsubmit={messageInput !== "" ? sendMessageInput : () => {}} class="w-full p-6">
+        <div class="flex items-center">
+          <div class="w-full flex gap-4">
+            <!-- svelte-ignore event_directive_deprecated -->
+            <textarea
+              bind:this={textarea}
+              bind:value={messageInput}
+              onkeydown={handleKeyDown}
+              disabled={isTyping || currentArrayData.length === 0}
+              id="chat"
+              rows="1"
+              class="block resize-none p-2.5 w-full fluid-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-3xl border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:border-utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
+              placeholder={$_("sendAMessage")}
+            ></textarea>
+            <Button
+              disabled={!messageInput || isTyping || currentArrayData.length === 0}
+              onclick={onclickSend}
+              class="rounded-full h-11 w-11 !p-3"
+            >
+              <Send01Icon svgClass="w-5 h-5" />
+            </Button>
+          </div>
         </div>
-        <div
-          class="text-wrap font-medium fluid-base md:fluid-base text-tertiary-light dark:text-primary-dark"
-        >
-          <pre class="whitespace-pre-wrap break-words overflow-auto p-2">Typing...</pre>
-        </div>
-      </div>
+      </form>
     {/if}
-
-    <form onsubmit={messageInput !== "" ? sendMessageInput : () => {}} class="w-full p-6">
-      <div class="flex items-center">
-        <div class="w-full flex gap-4">
-          <!-- svelte-ignore event_directive_deprecated -->
-          <textarea
-            bind:this={textarea}
-            bind:value={messageInput}
-            onkeydown={handleKeyDown}
-            disabled={isTyping || currentArrayData.length === 0}
-            id="chat"
-            rows="1"
-            class="block resize-none p-2.5 w-full fluid-sm text-brand-primary-light dark:text-primary-dark bg-white dark:bg-primary-dark rounded-3xl border border-utility-brand-500-light dark:border-utility-brand-500-dark focus:border-utility-brand-500-light dark:focus:border-utility-brand-500-dark focus:ring-utility-brand-400-light dark:focus:ring-utility-brand-400-light dark:placeholder-gray-400"
-            placeholder={$_("sendAMessage")}
-          ></textarea>
-          <Button
-            disabled={!messageInput || isTyping || currentArrayData.length === 0}
-            onclick={onclickSend}
-            class="rounded-full h-11 w-11 !p-3"
-          >
-            <Send01Icon svgClass="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
-    </form>
   </div>
 </div>
 
