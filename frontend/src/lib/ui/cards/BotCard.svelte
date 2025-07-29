@@ -106,24 +106,24 @@
             on:click={async () => {
               if ($me.authority.toLowerCase() === "demo") {
                 isDemoTrue.set(true);
+                return;
+              }
+              if (config?.isLlm) {
+                goto(
+                  config?.isFrontend
+                    ? "/llms/my_models/detail?modelId=" + bot.botsID
+                    : (await $call.getPage("client-dashboard", "llms-my-models-detail")) +
+                        "?modelId=" +
+                        bot.botsID,
+                );
               } else {
-                if (config?.isLlm) {
-                  goto(
-                    config?.isFrontend
-                      ? "/llms/my_models/detail?modelId=" + bot.botsID
-                      : (await $call.getPage("client-dashboard", "llms-my-models-detail")) +
-                          "?modelId=" +
-                          bot.botsID,
-                  );
-                } else {
-                  goto(
-                    config?.isFrontend
-                      ? "/bots/detail?botId=" + bot.botsID
-                      : (await $call.getPage("client-dashboard", "bots-detail")) +
-                          "?botId=" +
-                          bot.botsID,
-                  );
-                }
+                goto(
+                  config?.isFrontend
+                    ? "/bots/detail?botId=" + bot.botsID
+                    : (await $call.getPage("client-dashboard", "bots-detail")) +
+                        "?botId=" +
+                        bot.botsID,
+                );
               }
             }}
             outline
@@ -141,16 +141,16 @@
             on:click={async () => {
               if ($me.authority.toLowerCase() === "demo") {
                 isDemoTrue.set(true);
-              } else {
-                goto(
-                  config?.isFrontend
-                    ? "/bots/detail?botId=" + bot.botsID + "&try=true"
-                    : (await $call.getPage("client-dashboard", "bots-detail")) +
-                        "?botId=" +
-                        bot.botsID +
-                        "&try=true",
-                );
+                return;
               }
+              goto(
+                config?.isFrontend
+                  ? "/bots/detail?botId=" + bot.botsID + "&try=true"
+                  : (await $call.getPage("client-dashboard", "bots-detail")) +
+                      "?botId=" +
+                      bot.botsID +
+                      "&try=true",
+              );
             }}
             outline
             class="!flex grow rounded-lg *:hover:text-white dark:*:hover:text-white"
@@ -173,16 +173,16 @@
           on:click={async () => {
             if ($me.authority.toLowerCase() === "demo") {
               isDemoTrue.set(true);
-            } else {
-              goto(
-                config?.isFrontend
-                  ? "/bots/detail?botId=" + bot.botsID + "&edit=true"
-                  : (await $call.getPage("client-dashboard", "bots-detail")) +
-                      "?botId=" +
-                      bot.botsID +
-                      "&edit=true",
-              );
+              return;
             }
+            goto(
+              config?.isFrontend
+                ? "/bots/detail?botId=" + bot.botsID + "&edit=true"
+                : (await $call.getPage("client-dashboard", "bots-detail")) +
+                    "?botId=" +
+                    bot.botsID +
+                    "&edit=true",
+            );
           }}
           outline
           class="!flex grow gap-1 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg border-secondary-light dark:border-secondary-dark"
@@ -197,9 +197,9 @@
           on:click={() => {
             if ($me.authority.toLowerCase() === "demo") {
               isDemoTrue.set(true);
-            } else {
-              window.open(bot.urlBot, "_blank");
+              return;
             }
+            window.open(bot.urlBot, "_blank");
           }}
           outline
           class={`!flex grow hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg ${config?.detail === true ? "border-secondary-light dark:border-secondary-dark" : "border-button-secondary-color-light dark:border-button-secondary-color-dark"}`}
@@ -219,9 +219,9 @@
           on:click={() => {
             if ($me.authority.toLowerCase() === "demo") {
               isDemoTrue.set(true);
-            } else {
-              goto(bot.urlBot);
+              return;
             }
+            goto(bot.urlBot);
           }}
           outline
           class={`!flex grow gap-1.5 hover:bg-primary-light dark:hover:bg-primary-dark rounded-lg ${config?.detail === true ? "border-secondary-light dark:border-secondary-dark" : "border-button-secondary-color-light dark:border-button-secondary-color-dark"}`}
@@ -239,6 +239,10 @@
     </div>
     <button
       onclick={() => {
+        if ($me.authority.toLowerCase() === "demo") {
+          isDemoTrue.set(true);
+          return;
+        }
         navigator.clipboard
           .writeText(bot.urlBot)
           .then(() => {
