@@ -1,15 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import {
-    Typography,
-    Divider,
-    Card,
-    ActionCard,
-    CardFeature,
-    Button,
-    call,
-    triggerToast,
-  } from "$lib";
+  import { me, call, isDemoTrue, triggerToast } from "$lib";
+  import { Card, Button, Divider, Typography, ActionCard, CardFeature } from "$lib";
   import { goto } from "$app/navigation";
   import { _ } from "svelte-i18n";
 
@@ -452,7 +444,6 @@
 
         if (response.status === 200) {
           if (response?.result && response.result.models.length > 0) {
-            
             response.result.models = response.result.models.filter(
               (model) => !model.name.includes("Qurani"),
             );
@@ -461,20 +452,20 @@
 
             for (let i = 0; i < models.length; i++) {
               models[i].points = models[i].features.map((point) => {
-                  return [
-                    {
-                      icon: {
-                        icon: "check2",
-                      },
-                      text: {
-                        text: point,
-                        color: "tertiary",
-                        preset: "Text md/Regular",
-                      },
-                      justify: "justify-start",
+                return [
+                  {
+                    icon: {
+                      icon: "check2",
                     },
-                  ];
-                });
+                    text: {
+                      text: point,
+                      color: "tertiary",
+                      preset: "Text md/Regular",
+                    },
+                    justify: "justify-start",
+                  },
+                ];
+              });
             }
 
             cardDataArray = response.result.models.map((model, index) => {
@@ -528,6 +519,10 @@
                       classesSvg: "arrowUpRight",
                       svgClassReplace: "w-5 h-5 text-white",
                       funcButton: async () => {
+                        if ($me.authority.toLowerCase() === "demo") {
+                          isDemoTrue.set(true);
+                          return;
+                        }
                         let resultPage = await $call.getPage("hexabot", "home-page");
                         window.open(
                           resultPage +
@@ -537,7 +532,6 @@
                             localStorage.getItem("botLlmId"),
                           "_blank",
                         );
-                        // goto(resultPage + "?model=" + model.model + "&id=" + localStorage.getItem("botLlmId"));
                       },
                     },
                   },
