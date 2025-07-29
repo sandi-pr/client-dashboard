@@ -52,7 +52,9 @@
       return title === "My Voice";
     } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "insights"))) {
       return title === "My Data Source";
-    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "apiconnector"))) {
+    } else if (
+      parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "apiconnector"))
+    ) {
       return title === "My API Collection";
     } else {
       return false;
@@ -105,11 +107,12 @@
   <div
     class="flex justify-between w-full px-4 pb-4 pt-3 border-b border-secondary-light dark:border-secondary-dark"
   >
-    <button
+    <button onclick={funcDetailCollection} class="flex items-center gap-3 w-full relative">
+      <!-- <button
       disabled={!check("documentAi.documentLibrary:view")}
       onclick={funcDetailCollection}
       class="flex items-center gap-3 w-full relative"
-    >
+    > -->
       {#if usedFor === "libraries"}
         <div class="absolute left-0">
           <BookClosedIcon svgClass="text-fg-quaternary-light dark:text-fg-quaternary-dark" />

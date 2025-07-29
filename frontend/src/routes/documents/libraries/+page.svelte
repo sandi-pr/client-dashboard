@@ -454,10 +454,10 @@ All Rights Reserved
       const redirectUrl = `libraries/collections/?libraryId=${libraryIdWebchatBakrie}`;
       goto(redirectUrl);
     }
-    if (check("documentAi.documentLibrary:view") === false) {
-      window.history.back();
-      return;
-    }
+    // if (check("documentAi.documentLibrary:view") === false) {
+    //   window.history.back();
+    //   return;
+    // }
     await getCollections();
   });
 
