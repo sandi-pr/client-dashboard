@@ -7,6 +7,7 @@
   import { format, parse, sub } from "date-fns";
 
   import {
+    me,
     Typography,
     ToastContainer,
     StateCard,
@@ -1014,10 +1015,25 @@
 
       if (isChild) {
         childCollectionList = await Promise.all(promise);
-        console.log("ischild", childCollectionList);
+        // console.log("ischild", childCollectionList);
+
+        if ($me.authority.toLowerCase() === "demo") {
+          // filter out collection name that doesn't have "demo" or "Demo" in it
+          childCollectionList = childCollectionList.filter((doc) =>
+            doc.collectionName.toLowerCase().includes("demo"),
+          );
+        }
       } else if (subCollections) {
         childCollectionListDatas = await Promise.all(promise);
-        console.log("subcollection", childCollectionListDatas);
+        // console.log("subcollection", childCollectionListDatas);
+
+        if ($me.authority.toLowerCase() === "demo") {
+          // filter out collection name that doesn't have "demo" or "Demo" in it
+          childCollectionListDatas = childCollectionListDatas.filter((doc) =>
+            doc.collectionName.toLowerCase().includes("demo"),
+          );
+        }
+
         if (childCollectionListDatas.length > 0) {
           if (tabDatas.data.length < 2) {
             tabDatas.data = [

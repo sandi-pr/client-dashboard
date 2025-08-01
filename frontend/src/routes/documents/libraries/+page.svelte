@@ -14,6 +14,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { CR3Call } from "hexacomponents-svelte";
   import {
+    me,
     StateCard,
     Typography,
     CollectionCard,
@@ -257,6 +258,11 @@ All Rights Reserved
       });
 
       datas = await Promise.all(promise);
+
+      if ($me.authority.toLowerCase() === "demo") {
+        // filter out collection name that doesn't have "demo" or "Demo" in it
+        datas = datas.filter((doc) => doc.collectionName.toLowerCase().includes("demo"));
+      }
 
       gettingDatas = false;
 

@@ -2,7 +2,7 @@
   import { _ } from "svelte-i18n";
   import { Button, Modal, Input, P, Helper } from "flowbite-svelte";
 
-  import { call } from "$lib";
+  import { me, call } from "$lib";
   import {
     Typography,
     ToastContainer,
@@ -184,7 +184,15 @@
         });
 
         collectionListDatas = await Promise.all(promise);
-        console.log("collectionListDatas", collectionListDatas);
+        // console.log("collectionListDatas", collectionListDatas);
+
+        if ($me.authority.toLowerCase() === "demo") {
+          // filter out collection name that doesn't have "demo" or "Demo" in it
+          collectionListDatas = collectionListDatas.filter((doc) =>
+            doc.collectionName.toLowerCase().includes("demo"),
+          );
+        }
+
         gettingDatas = false;
       } catch (error) {
         console.error("Error during collection get:", error);

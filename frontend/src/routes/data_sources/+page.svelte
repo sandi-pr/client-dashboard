@@ -28,7 +28,7 @@ All Rights Reserved
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
   import { goto } from "$app/navigation";
-  import { showAI, showNotif, call, triggerToast } from "$lib";
+  import { me, showAI, showNotif, call, triggerToast } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -157,7 +157,14 @@ All Rights Reserved
 
       latestDocumentCollection = await Promise.all(promise);
 
-      console.log("latestDocumentCollection", latestDocumentCollection);
+      // console.log("latestDocumentCollection", latestDocumentCollection);
+
+      if ($me.authority.toLowerCase() === "demo") {
+        // filter out collection name that doesn't have "demo" or "Demo" in it
+        latestDocumentCollection = latestDocumentCollection.filter((doc) =>
+          doc.collectionName.toLowerCase().includes("demo"),
+        );
+      }
 
       gettingDatas = false;
     }

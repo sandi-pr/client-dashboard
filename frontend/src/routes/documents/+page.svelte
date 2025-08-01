@@ -30,6 +30,7 @@ All Rights Reserved
   import { format } from "date-fns";
   import { goto } from "$app/navigation";
   import {
+    me,
     triggerSelectCollection,
     triggerShowAI,
     triggerSelectDropdown,
@@ -516,6 +517,13 @@ All Rights Reserved
       });
 
       latestDocumentCollection = await Promise.all(promise);
+
+      if ($me.authority.toLowerCase() === "demo") {
+        // filter out collection name that doesn't have "demo" or "Demo" in it
+        latestDocumentCollection = latestDocumentCollection.filter((doc) =>
+          doc.collectionName.toLowerCase().includes("demo"),
+        );
+      }
 
       gettingDatas = false;
     }
