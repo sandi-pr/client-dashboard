@@ -27,10 +27,13 @@
     ToastContainer,
   } from "$lib"; // Library for components
   import {
+    me,
     call,
+    check,
     getUser,
     getIcons,
     getLabels,
+    isDemoTrue,
     triggerToast,
     truncateText,
     handleInputName,
@@ -214,6 +217,15 @@
         <button
           class="flex gap-2 py-2 px-4 rounded-lg bg-brand-solid-light dark:bg-brand-solid-dark hover:bg-brand-solid-hover-light dark:hover:bg-brand-solid-hover-dark"
           onclick={() => {
+            if (check("documentAi.documentLibrary.document:edit") === false) {
+              isDemoTrue.set(true);
+              data.detectedText = defaultData.detectedText;
+              data.document_title = defaultData.document_title;
+              data.description = defaultData.description;
+              data.category = defaultData.category;
+              return;
+            }
+
             modalDetectedText = true;
             onEdit = false;
           }}
@@ -240,6 +252,11 @@
             <button
               class="flex items-center gap-2 p-2 rounded-lg hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
               onclick={() => {
+                if ($me.authority.toLowerCase() === "demo") {
+                  isDemoTrue.set(true);
+                  return;
+                }
+
                 if (pageDataType === "document") {
                   downloadFileBase64(base64, data.document_title, data.ext);
                 } else {
@@ -256,6 +273,15 @@
             <button
               class="flex items-center gap-2 p-2 rounded-lg hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
               onclick={() => {
+                if (check("documentAi.documentLibrary.document:edit") === false) {
+                  isDemoTrue.set(true);
+                  data.detectedText = defaultData.detectedText;
+                  data.document_title = defaultData.document_title;
+                  data.description = defaultData.description;
+                  data.category = defaultData.category;
+                  return;
+                }
+
                 onEdit = false;
                 modalDetail = true;
                 dropdownAction = false;
@@ -269,6 +295,15 @@
             <button
               class="flex items-center gap-2 p-2 rounded-lg hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
               onclick={() => {
+                if (check("documentAi.documentLibrary.document:edit") === false) {
+                  isDemoTrue.set(true);
+                  data.detectedText = defaultData.detectedText;
+                  data.document_title = defaultData.document_title;
+                  data.description = defaultData.description;
+                  data.category = defaultData.category;
+                  return;
+                }
+
                 onEdit = true;
                 modalDetail = true;
                 dropdownAction = false;
@@ -280,6 +315,11 @@
             <button
               class="flex items-center gap-2 p-2 rounded-lg hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
               onclick={() => {
+                if (check("documentAi.documentLibrary.document:delete") === false) {
+                  isDemoTrue.set(true);
+                  return;
+                }
+
                 modalDelete = true;
                 dropdownAction = false;
               }}

@@ -22,6 +22,7 @@
     SectionHeader,
     LibraryCard,
     ModalObject,
+    me,
   } from "$lib";
   import DataTableLibraryCollection from "$lib/components/DataTableLibraryCollection.svelte";
   import {
@@ -1152,10 +1153,10 @@
   };
 
   onMount(() => {
-    // if (check("documentAi.documentLibrary:view") === false) {
-    //   window.history.back();
-    //   return;
-    // }
+    if (check("documentAi.documentLibrary:view") === false) {
+      window.history.back();
+      return;
+    }
     const unsubscribe = page.subscribe(async ($page) => {
       subCollectionId = $page.url.searchParams.get("subCollectionId");
       collectionId = $page.url.searchParams.get("collectionId");

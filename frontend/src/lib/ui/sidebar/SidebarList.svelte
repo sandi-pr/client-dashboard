@@ -37,7 +37,16 @@
   import Divider from "$lib/components/Divider.svelte";
   import { _ } from "svelte-i18n";
   import { LogoBrand, SidebarNavItem, Typography } from "$lib";
-  import { getIcons, Icon, toCamelCase, isOpenSidebarStore, call, me } from "$lib";
+  import {
+    me,
+    Icon,
+    call,
+    check,
+    getIcons,
+    isDemoTrue,
+    toCamelCase,
+    isOpenSidebarStore,
+  } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -316,31 +325,37 @@
                 />
               </Button>
             </div>
-            {#if $me.authority.toLowerCase() === "admin"}
-              <SidebarDropdownWrapper
-                spanClass="flex-1 ms-0 text-left whitespace-nowrap"
-                class="hover:bg-secondary-light dark:hover:bg-secondary-dark mt-2"
-                label={$_("manage")}
-                onclick={(event) => {
-                  event.stopPropagation(); // Prevent handleDropdownFocusLoss from being triggered
+            <SidebarDropdownWrapper
+              spanClass="flex-1 ms-0 text-left whitespace-nowrap"
+              class="hover:bg-secondary-light dark:hover:bg-secondary-dark mt-2"
+              label={$_("manage")}
+              onclick={(event) => {
+                event.stopPropagation(); // Prevent handleDropdownFocusLoss from being triggered
+              }}
+            >
+              <svelte:fragment slot="icon">
+                <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
+              </svelte:fragment>
+              <SidebarDropdownItem
+                onclick={() => {
+                  dropdownUser = !dropdownUser;
+                  if (check("general.user:view")) {
+                    goto(hrefUser);
+                  } else {
+                    isDemoTrue.set(true);
+                  }
                 }}
-              >
-                <svelte:fragment slot="icon">
-                  <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
-                </svelte:fragment>
-                <SidebarDropdownItem
-                  onclick={() => {
-                    dropdownUser = !dropdownUser;
-                  }}
-                  href={hrefUser}
-                  class="!ps-14 hover:bg-secondary-light dark:hover:bg-secondary-dark"
-                  label={$_("users")}
-                />
-              </SidebarDropdownWrapper>
-            {/if}
+                class="!ps-14 hover:bg-secondary-light dark:hover:bg-secondary-dark"
+                label={$_("users")}
+              />
+            </SidebarDropdownWrapper>
             <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
+                if ($me.authority.toLowerCase() === "demo") {
+                  isDemoTrue.set(true);
+                  return;
+                }
                 let url = isFrontend
                   ? "/preferences"
                   : await $call.getPage("client-dashboard", "preferences");
@@ -360,7 +375,11 @@
             <button
               onclick={async () => {
                 dropdownUser = !dropdownUser;
-                let url = await $call.getPage("client-dashboard", "usage");
+                if ($me.authority.toLowerCase() === "demo") {
+                  isDemoTrue.set(true);
+                  return;
+                }
+                let url = isFrontend ? "/usage" : await $call.getPage("client-dashboard", "usage");
                 if (url !== null) goto(url);
                 else {
                   var base_url =
