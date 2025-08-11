@@ -1203,5 +1203,7 @@
   "yourDeviceWillTurnOffAndThenImmediatelyTurnBackOn": "Perangkat Anda akan mati dan kemudian segera menyala kembali",
   "confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain": "Konfirmasi untuk mematikan. Anda perlu menyalakan perangkat secara manual lagi",
   "requestADemo": "Minta Demo",
-  "requestADemoDesc": "Anda belum dapat mengakses fitur ini. Dapatkan panduan personal untuk semua fitur dan manfaat yang kami tawarkan."
+  "requestADemoDesc": "Anda belum dapat mengakses fitur ini. Dapatkan panduan personal untuk semua fitur dan manfaat yang kami tawarkan.",
+  "limitReached": "Batas Tercapai",
+  "limitReachedDesc": "Anda telah mencapai jumlah maksimum tindakan yang diizinkan pada paket Anda saat ini. Agar dapat terus berjalan tanpa gangguan, pertimbangkan untuk mendapatkan akses penuh."
 }

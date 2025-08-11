@@ -1203,5 +1203,7 @@
   "yourDeviceWillTurnOffAndThenImmediatelyTurnBackOn": "Your device will turn off and then immediately turn back on.",
   "confirmToPowerDownYouWillNeedToManuallyTurnOnYourDeviceAgain": "Confirm to power down. You will need to manually turn on your device again.",
   "requestADemo": "Request a Demo",
-  "requestADemoDesc": "You can’t access this feature yet. Get a personalized walkthrough of all the features and benefits we offer."
+  "requestADemoDesc": "You can’t access this feature yet. Get a personalized walkthrough of all the features and benefits we offer.",
+  "limitReached": "Limit Reached",
+  "limitReachedDesc": "You've reached the maximum number of actions allowed on your current plan. To keep going without interruption, consider get the full access."
 }

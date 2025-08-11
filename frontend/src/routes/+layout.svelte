@@ -13,8 +13,7 @@ All Rights Reserved
   import { page } from "$app/stores";
   import { CR3Call } from "hexacomponents-svelte";
   import { Pane, Splitpanes } from "svelte-splitpanes";
-  import { Modal, Button } from "flowbite-svelte";
-  import { Navbar, Sidebar, ToastContainer, PageComingSoon } from "$lib";
+  import { Navbar, Sidebar, ToastContainer, PageComingSoon, DemoInstanceModal } from "$lib";
   import {
     me,
     check,
@@ -66,9 +65,6 @@ All Rights Reserved
   import { purpleColors, greenColors, blueColors } from "$lib/utils/presetColors";
   import FingerprintJS from "@fingerprintjs/fingerprintjs";
   import CryptoJS from "crypto-js";
-
-  const Send01Icon = getIcons("send01");
-  const RequestDemoIcon = getIcons("requestDemo");
 
   set_pdfjs_context();
 
@@ -1789,37 +1785,7 @@ All Rights Reserved
   {:else}
     <slot />
   {/if}
-  <Modal bind:open={$isDemoTrue} autoclose={false} title={$_("requestADemo")}>
-    <div class="flex flex-col items-center justify-center gap-4">
-      <RequestDemoIcon svgClass="text-utility-brand-50-light dark:text-gray-800" />
-      <Typography text={$_("requestADemoDesc")} propClass="mx-4 text-center" />
-    </div>
-    <svelte:fragment slot="footer">
-      <div class="w-full flex flex-col items-center gap-2">
-        <Button
-          class="w-full gap-2"
-          onclick={() => {
-            window.open("https://hexacode.ai/contact-us/", "_blank", "noopener noreferrer");
-            isDemoTrue.set(false);
-          }}
-        >
-          <Send01Icon
-            svgClass="w-5 h-5 text-primary-onbrand-light dark:text-primary-onbrand-dark"
-          />
-          <Typography preset="Text md/Semibold" color="primary-onbrand" text={$_("requestADemo")} />
-        </Button>
-        <Button
-          class="w-full gap-2"
-          color="light"
-          onclick={() => {
-            isDemoTrue.set(false);
-          }}
-        >
-          <Typography preset="Text md/Semibold" color="fg-secondary" text={$_("cancel")} />
-        </Button>
-      </div>
-    </svelte:fragment>
-  </Modal>
+  <DemoInstanceModal />
 {/if}
 
 <style>

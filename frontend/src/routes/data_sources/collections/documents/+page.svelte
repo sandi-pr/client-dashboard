@@ -601,6 +601,8 @@
           };
 
           // console.log("data send", dataSend);
+          // DISINI BUG HALAMAN SAMPAI 500+
+          // break;
           await sendDocument();
         }
 
@@ -648,6 +650,7 @@
   }
 
   async function sendDocument(single = false) {
+    // return;
     let token = localStorage.getItem("token");
 
     if (token === null) {

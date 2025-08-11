@@ -517,6 +517,9 @@
               document_type: tmpDocumentType,
               category: tags.join(","),
             };
+            // console.log("data send", dataSend);
+            // DISINI BUG HALAMAN SAMPAI 500+
+            // break;
             await sendDocument();
           }
         }

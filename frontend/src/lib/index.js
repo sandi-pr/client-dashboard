@@ -63,6 +63,7 @@ export { default as PageComingSoon } from "$lib/components/PageComingSoon.svelte
 export { default as PageFileViewer } from "$lib/components/PageFileViewer.svelte";
 export { default as PageDetailView } from "$lib/components/PageDetailView.svelte";
 export { default as CardHome } from "$lib/ui/cards/CardHome.svelte";
+export { default as DemoInstanceModal } from "$lib/ui/modal/DemoInstanceModal.svelte";
 export { checkLibraryName } from "$lib/utils/checkLibraryName";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {
@@ -130,4 +131,4 @@ export { handleInputName } from "$lib/utils/handleInputName";
 export { setCookie, getCookie } from "$lib/utils/cookies";
 export { isMoodle } from "$lib/utils/moodleStore";
 export { isOpenSidebarStore } from "$lib/utils/isOpenSidebarStore";
-export { me, isDemoTrue } from "$lib/utils/me";
+export { me, isDemoTrue, isLimitTrue } from "$lib/utils/me";

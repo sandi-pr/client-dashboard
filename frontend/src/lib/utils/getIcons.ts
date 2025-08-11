@@ -100,7 +100,8 @@ import File06Icon from "../icon/file-06.svelte";
 import User01Icon from "../icon/user-01.svelte";
 import MeditationYoga from "../icon/meditation-yoga.svelte";
 import Bye from "../icon/bye.svelte";
-import RequestDemo from "../image/request-demo.svelte";
+import RequestDemoIcon from "../image/request-demo.svelte";
+import LimitReachedIcon from "../image/limit-reached.svelte";
 import Var76 from "../icon/var-76.svelte";
 import Var85 from "../icon/var-85.svelte";
 import Var86 from "../icon/var-86.svelte";
@@ -325,7 +326,9 @@ let getIcons = (presetIcon: String) => {
     case "bye":
       return Bye;
     case "requestDemo":
-      return RequestDemo;
+      return RequestDemoIcon;
+    case "limitReached":
+      return LimitReachedIcon;
     case "var76":
       return Var76;
     case "var85":

@@ -102,6 +102,7 @@ All Rights Reserved
                   description: table,
                 };
               }) || [];
+
         dataTablesSelected =
           dataTablesSelected !== ""
             ? dataTablesSelected
@@ -340,7 +341,7 @@ All Rights Reserved
   const DatatablePrevious = () => tablePreviousPage(datatablesMetadata);
 
   onMount(() => {
-    if (check("documentAi.documentLibrary:view") === false) {
+    if (check("documentAi.documentLibrary.document:view") === false) {
       window.history.back();
       return;
     }
