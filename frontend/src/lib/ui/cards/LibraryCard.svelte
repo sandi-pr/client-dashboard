@@ -185,14 +185,14 @@
                     ? $_("editCollectionName")
                     : $_("editLibraryName")}
                 </button>
-                <button
+                <!-- <button
                   class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                   onclick={() => {
                     funcMoveCollection(), (dropdownOpen = !dropdownOpen);
                   }}
                 >
                   {$_("moveCollection")}
-                </button>
+                </button> -->
               {/if}
               {#if check("documentAi.documentLibrary:delete")}
                 {#if !validCollections.includes(collectionName.toLowerCase())}

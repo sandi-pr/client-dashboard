@@ -556,7 +556,7 @@
               repair: isEnhance,
             };
 
-            console.log("cek data send", dataSend);
+            // console.log("cek data send", dataSend);
             await sendDocument();
           }
         }
@@ -1336,8 +1336,8 @@
               description: tmpDescription,
               parent_id: tmpSelectedCollection.id,
             };
-        console.log("params", params);
-        return;
+        // console.log("params", params);
+        // return;
         let response = await $call.call("client-dashboard", "update-library-collection", {
           URLQuery: {},
           URLParams: {
@@ -1868,7 +1868,7 @@
                         >
                           {$_("editCollectionName")}
                         </button>
-                        <button
+                        <!-- <button
                           class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                           onclick={() => {
                             updateModal = true;
@@ -1878,7 +1878,7 @@
                           }}
                         >
                           {$_("moveCollection")}
-                        </button>
+                        </button> -->
                       {/if}
                       {#if check("documentAi.documentLibrary.collection:delete")}
                         <button
