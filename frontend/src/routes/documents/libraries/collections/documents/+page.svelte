@@ -86,6 +86,7 @@
   let tmpId = $state(null);
   let isMobileView = $state(false);
   let hasDocOrDocx = $state(false);
+  let isMoveDocument = $state(true);
 
   let collectionDatas = $state({
     title: "",
@@ -359,13 +360,13 @@
   let audioUrl = $state(null);
 
   async function addDocumentByCollection(folderFiles = null, parentId = null) {
-    if (folderFiles != null) {
+    if (folderFiles !== null) {
       files = folderFiles;
     }
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      if (groupedFiles != null) {
+      if (groupedFiles !== null) {
         sendFolder();
         return;
       }
@@ -555,7 +556,7 @@
               repair: isEnhance,
             };
 
-            // console.log("cek data send", dataSend);
+            console.log("cek data send", dataSend);
             await sendDocument();
           }
         }
@@ -1292,7 +1293,7 @@
         }
 
         if (childCollectionListDatas.length > 0) {
-          if (tabDatas.data.length < 2) {
+          if (tabDatas.data.length < 2 && isMoveDocument) {
             tabDatas.data = [
               ...tabDatas.data,
               {
@@ -1320,15 +1321,29 @@
 
     if (token !== null) {
       try {
+        // console.log("tmpCollectionId", tmpCollectionId);
+        // // console.log("collectionDatas", collectionDatas);
+        // console.log("tmpCollectionName", tmpCollectionName);
+        // console.log("tmpDescription", tmpDescription);
+        // console.log("tmpSelectedCollection", tmpSelectedCollection);
+        const params = isMoveDocument
+          ? {
+              collection_name: tmpCollectionName,
+              description: tmpDescription,
+            }
+          : {
+              collection_name: tmpCollectionName,
+              description: tmpDescription,
+              parent_id: tmpSelectedCollection.id,
+            };
+        console.log("params", params);
+        return;
         let response = await $call.call("client-dashboard", "update-library-collection", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
           },
-          Params: {
-            collection_name: tmpCollectionName,
-            description: tmpDescription,
-          },
+          Params: params,
           Headers: {
             Authorization: "Bearer " + token,
           },
@@ -1356,6 +1371,8 @@
         tmpDescription = "";
 
         editModal = false;
+        updateModal = false;
+        isMoveDocument = true;
         triggerToast($_("successUpdateCollection"), true);
         getCollection();
         getCollections(true);
@@ -1655,7 +1672,7 @@
         files.length === 0 || files.length === 1
           ? tmpDocumentTitle === "" || !nameIsAvailable
           : false;
-    } else if (groupedFiles != null) {
+    } else if (groupedFiles !== null) {
       buttonDisabled = false;
     } else {
       buttonDisabled = true;
@@ -1743,8 +1760,8 @@
                 on:click={() => {
                   updateModal = true;
                   checkboxUpdate = true;
+                  isMoveDocument = true;
                   paginationCollection.page = 1;
-                  // id
                 }}
                 disabled={!check("documentAi.documentLibrary.document:update")}
                 class="p-2 md:px-3 md:py-2 gap-2 text-fg-secondary-light dark:text-fg-secondary-dark border-secondary-light dark:border-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:text-fg-secondary-light dark:hover:text-fg-secondary-dark"
@@ -1847,8 +1864,21 @@
                             tmpDescription = collectionDatas.description;
                             nameIsAvailable = true;
                             editCollectionModal = true;
-                          }}>{$_("editCollectionName")}</button
+                          }}
                         >
+                          {$_("editCollectionName")}
+                        </button>
+                        <button
+                          class="flex p-2 w-full text-secondary-light dark:text-secondary-dark hover:text-secondary-hover-light dark:hover:text-secondary-hover-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                          onclick={() => {
+                            updateModal = true;
+                            checkboxUpdate = false;
+                            isMoveDocument = false;
+                            paginationCollection.page = 1;
+                          }}
+                        >
+                          {$_("moveCollection")}
+                        </button>
                       {/if}
                       {#if check("documentAi.documentLibrary.collection:delete")}
                         <button
@@ -1884,6 +1914,7 @@
                   tmpDescription = collection.description;
                   nameIsAvailable = true;
                   editModal = true;
+                  isMoveDocument = true;
                 }}
                 functDelete={() => {
                   tmpCollectionId = collection.id;
@@ -1892,6 +1923,15 @@
                 }}
                 funcDetailCollection={() => {
                   goto(collection.href);
+                }}
+                funcMoveCollection={() => {
+                  tmpCollectionId = collection.id;
+                  tmpCollectionName = collection.collectionName;
+                  tmpDescription = collection.description;
+                  updateModal = true;
+                  checkboxUpdate = false;
+                  isMoveDocument = false;
+                  paginationCollection.page = 1;
                 }}
                 {libraryId}
               />
@@ -2229,9 +2269,15 @@
     {/if}
   </div>
   <svelte:fragment slot="footer">
-    <Button on:click={updateDocument} class="w-full" disabled={!tmpSelectedCollection}
-      >{$_("move")}</Button
+    <Button
+      on:click={() => {
+        isMoveDocument ? updateDocument() : editCollectionName();
+      }}
+      class="w-full"
+      disabled={!tmpSelectedCollection}
     >
+      {$_("move")}
+    </Button>
   </svelte:fragment>
 </Modal>
 

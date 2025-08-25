@@ -1192,6 +1192,7 @@
   "previewTable": "Preview Table",
   "changeTable": "Change Table",
   "changeYourTableSourcesFiles": "Change your table sources files",
+  "moveCollection": "Move Collection",
   "restartDevice": "Restart Device",
   "restart": "Restart",
   "shutdownDevice": "Shutdown Device",
