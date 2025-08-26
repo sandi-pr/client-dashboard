@@ -99,6 +99,14 @@
   let previewModal = $state(false);
   let selectedFile = $state(null);
   let dataSend = $state({ detected_text: "" });
+  let tabDatas = $state({
+    selected: "Collections",
+    data: [
+      {
+        name: "Collections",
+      },
+    ],
+  });
   let textarea = $state();
   let div = $state();
   let nameIsAvailable = $state(true);
