@@ -18,7 +18,6 @@
   import CopyIcon from "$lib/icon/copy-03.svelte";
   import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import TabDetail from "$lib/components/TabDetail.svelte";
-  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
   import {

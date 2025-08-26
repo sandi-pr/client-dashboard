@@ -64,6 +64,8 @@ export { default as PageFileViewer } from "$lib/components/PageFileViewer.svelte
 export { default as PageDetailView } from "$lib/components/PageDetailView.svelte";
 export { default as CardHome } from "$lib/ui/cards/CardHome.svelte";
 export { default as DemoInstanceModal } from "$lib/ui/modal/DemoInstanceModal.svelte";
+export { default as PageBots } from "$lib/components/PageBots.svelte";
+export { default as DataTableListCollection } from "$lib/components/DataTableListCollection.svelte";
 export { checkLibraryName } from "$lib/utils/checkLibraryName";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {

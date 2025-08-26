@@ -13,30 +13,24 @@
 <script>
   import {
     P,
+    Radio,
     Input,
-    Avatar,
-    Pagination,
     Button,
     Heading,
+    Checkbox,
     Table,
     TableBody,
     TableBodyCell,
     TableBodyRow,
     TableHead,
     TableHeadCell,
-    Checkbox,
-    Radio,
   } from "flowbite-svelte";
-  import Dropdown from "$lib/ui/buttons/Dropdown.svelte";
   import * as Icon from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
   import { _, locale } from "svelte-i18n";
-  import { formatDistanceToNow, sub } from "date-fns";
-  import { id as localeId, enUS as localeEn, da, id } from "date-fns/locale";
+  import { formatDistanceToNow } from "date-fns";
+  import { id as localeId, enUS as localeEn } from "date-fns/locale";
   import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import JpgIcon from "$lib/icon/jpg-icon.svelte";
-  import PngIcon from "$lib/icon/png-icon.svelte";
-  import PdfIcon from "$lib/icon/pdf-icon.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
   import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
@@ -55,7 +49,6 @@
   import FolderIcon from "$lib/icon/folder.svelte";
   import Stars03Icon from "$lib/icon/stars-03.svelte";
   import { onMount } from "svelte";
-  // import { toCamelCase } from "../utils/toCamelCase.js";
 
   export let datas;
   export let datasChecked;
@@ -76,14 +69,6 @@
   let isEdit = false;
 
   let dropdownActionOpen = false;
-  let selectedAction = "";
-  let action = [
-    {
-      value: "delete",
-      name: "Delete",
-    },
-  ];
-  // export let divider = false;
 
   export let allChecked = false;
 
@@ -155,25 +140,6 @@
 
   export let searchTerm = "";
 
-  // $: filteredItems = datas.filter((data) => {
-  //   if (searchTerm === "") return data;
-  //   if (data?.name) {
-  //     return data.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
-  //   }
-  // });
-
-  // $: filteredItems = datas.filter((data) => {
-  //   if (searchTerm === "") return true;
-  //   if (data) {
-  //     return Object.values(data).some((value) => {
-  //       if (typeof value === "string") {
-  //         return value.toLowerCase().includes(searchTerm.toLowerCase());
-  //       }
-  //       return false;
-  //     });
-  //   }
-  // });
-
   const handleSearch = (event) => {
     if (configs?.isCategories) {
       configs?.searchHandler(event.target.value, configs?.headers);
@@ -226,12 +192,6 @@
   });
 
   $: allChecked = datasChecked.every((data) => data.checked);
-
-  // onMount(() => {
-  // Object.keys(datas[0]).forEach((key) => {
-  //   console.log(key);
-  // });
-  // });
 </script>
 
 <div>
@@ -430,7 +390,7 @@
           {#if datas.length > 0}
             {#each Object.keys(datas[0]) as key}
               {#if key !== "actions" && key !== "id" && key !== "sub_collections"}
-                {#if key === "type" || key === "path" && selectCsv}
+                {#if key === "type" || (key === "path" && selectCsv)}
                   <div></div>
                 {:else}
                   <TableHeadCell>{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell>
@@ -471,7 +431,7 @@
                   {:else if data.type === "document"}
                     <Radio value={data.id} bind:group={selectedData}></Radio>
                   {:else if data.type === "collection"}
-                      <FolderIcon svgClass="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <FolderIcon svgClass="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   {/if}
                   <!-- <input
                     type="checkbox"
@@ -493,89 +453,87 @@
               {/if}
               {#each Object.keys(datas[0]) as key}
                 {#if key !== "actions" && key !== "id" && key !== "sub_collections"}
-                  {#if key === "type" || key === "path" && selectCsv}
+                  {#if key === "type" || (key === "path" && selectCsv)}
                     <div></div>
-                  {:else}
-                    {#if typeof data[key] === "string" || typeof data[key] === "number"}
-                      <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                        {#if key === "upload_date"}
-                          {#if $locale === "id"}
-                            {$_("createOn")}
-                            {formatDistanceToNow(data[key], { addSuffix: true, locale: localeId })}
-                          {:else}
-                            {$_("createOn")}
-                            {formatDistanceToNow(data[key], { addSuffix: true, locale: localeEn })}
-                          {/if}
-                        {:else if key === "collection_name" || key === "name"}
-                          <button
-                            onclick={() => {
-                              if (data.sub_collections.length > 0) {
-                                toggleRow(data.id);
-                              }
-                            }}
-                            class={`flex ${data.type === "collection" ? data.sub_collections.length > 0 ? "font-semibold" : "cursor-default" : ""} justify-between w-full`}
-                          >
-                            {data[key]}
-                            {#if data.sub_collections.length > 0}
-                              {#if openRow === data.id}
-                                <ChevronUpIcon
-                                  svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400"
-                                />
-                              {:else}
-                                <ChevronDownIcon
-                                  svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400"
-                                />
-                              {/if}
-                            {/if}
-                          </button>
+                  {:else if typeof data[key] === "string" || typeof data[key] === "number"}
+                    <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                      {#if key === "upload_date"}
+                        {#if $locale === "id"}
+                          {$_("createOn")}
+                          {formatDistanceToNow(data[key], { addSuffix: true, locale: localeId })}
                         {:else}
-                          {data[key]}
+                          {$_("createOn")}
+                          {formatDistanceToNow(data[key], { addSuffix: true, locale: localeEn })}
                         {/if}
-                      </TableBodyCell>
-                    {:else if typeof data[key] === "object"}
-                      {#if data[key]?.type !== "custom"}
-                        <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
-                          <div
-                            class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${getObjectDataTypeClass(data[key]?.type, data[key]?.color)}`}
-                          >
-                            {#if data[key]?.name}
-                              {data[key].name}
-                            {/if}
-                          </div>
-                        </TableBodyCell>
-                      {:else}
-                        <TableBodyCell
-                          class="text-hc-graylight-600 dark:text-hc-graydark-400 px-3 py-2 md:px-6 md:py-4 pe-8"
+                      {:else if key === "collection_name" || key === "name"}
+                        <button
+                          onclick={() => {
+                            if (data.sub_collections.length > 0) {
+                              toggleRow(data.id);
+                            }
+                          }}
+                          class={`flex ${data.type === "collection" ? (data.sub_collections.length > 0 ? "font-semibold" : "cursor-default") : ""} justify-between w-full`}
                         >
-                          <div class="flex gap-2 items-center">
-                            {#if data[key]?.filename?.includes(".jpg") || data[key]?.filename?.includes(".JPG")}
-                              <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                            {:else if data[key]?.filename?.includes(".jpeg") || data[key]?.filename?.includes(".JPEG")}
-                              <img src={JPEGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                            {:else if data[key]?.filename?.includes(".png") || data[key]?.filename?.includes(".PNG")}
-                              <img src={PNGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                            {:else if data[key]?.filename?.includes(".pdf") || data[key]?.filename?.includes(".PDF")}
-                              <img src={PDFSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                            {:else if data[key]?.filename?.includes(".doc") || data[key]?.filename?.includes(".DOC")}
-                              <img src={DOCSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
-                            {:else if data[key]?.filename?.includes(".docx") || data[key]?.filename?.includes(".DOCX")}
-                              <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {data[key]}
+                          {#if data.sub_collections.length > 0}
+                            {#if openRow === data.id}
+                              <ChevronUpIcon
+                                svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400"
+                              />
+                            {:else}
+                              <ChevronDownIcon
+                                svgClass="w-5 h-5 text-hc-graylight-600 dark:text-hc-graydark-400"
+                              />
                             {/if}
-                            <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG") || data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
+                          {/if}
+                        </button>
+                      {:else}
+                        {data[key]}
+                      {/if}
+                    </TableBodyCell>
+                  {:else if typeof data[key] === "object"}
+                    {#if data[key]?.type !== "custom"}
+                      <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
+                        <div
+                          class={`py-[2px] px-2 border-[1px] rounded-xl text-center w-min ${getObjectDataTypeClass(data[key]?.type, data[key]?.color)}`}
+                        >
+                          {#if data[key]?.name}
+                            {data[key].name}
+                          {/if}
+                        </div>
+                      </TableBodyCell>
+                    {:else}
+                      <TableBodyCell
+                        class="text-hc-graylight-600 dark:text-hc-graydark-400 px-3 py-2 md:px-6 md:py-4 pe-8"
+                      >
+                        <div class="flex gap-2 items-center">
+                          {#if data[key]?.filename?.includes(".jpg") || data[key]?.filename?.includes(".JPG")}
+                            <img src={JPGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".jpeg") || data[key]?.filename?.includes(".JPEG")}
+                            <img src={JPEGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".png") || data[key]?.filename?.includes(".PNG")}
+                            <img src={PNGSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".pdf") || data[key]?.filename?.includes(".PDF")}
+                            <img src={PDFSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".doc") || data[key]?.filename?.includes(".DOC")}
+                            <img src={DOCSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {:else if data[key]?.filename?.includes(".docx") || data[key]?.filename?.includes(".DOCX")}
+                            <img src={DOCXSolidIcon} alt="" class="w-8 h-8 md:w-10 md:h-10" />
+                          {/if}
+                          <!-- {#if data[key]?.type?.name?.includes(".jpg") || data[key]?.type?.name?.includes(".JPG") || data[key]?.type?.name?.includes(".jpeg") || data[key]?.type?.name?.includes(".JPEG")}
                               <JpgIcon />
                             {:else if data[key]?.type?.name?.includes(".png") || data[key]?.type?.name?.includes(".PNG")}
                               <PngIcon />
                             {:else if data[key]?.type?.name?.includes(".pdf") || data[key]?.type?.name?.includes(".PDF")}
                               <PdfIcon />
                             {/if} -->
-                            <!-- <JpgIcon /> -->
-                            <div class="flex flex-col min-w-40 md:min-w-64">
-                              <P class="line-clamp-2 fluid-sm">{data[key].name}</P>
-                              <P size="sm" class="text-hc-graylight-500">{data[key].size}</P>
-                            </div>
+                          <!-- <JpgIcon /> -->
+                          <div class="flex flex-col min-w-40 md:min-w-64">
+                            <P class="line-clamp-2 fluid-sm">{data[key].name}</P>
+                            <P size="sm" class="text-hc-graylight-500">{data[key].size}</P>
                           </div>
-                        </TableBodyCell>
-                      {/if}
+                        </div>
+                      </TableBodyCell>
                     {/if}
                   {/if}
                 {/if}
