@@ -47,7 +47,7 @@
   }
 </script>
 
-<div class="md:mx-4 sm:px-0 sm:mx-0 max-w-full overflow-x-auto overflow-hidden">
+<div class="px-0 mx-0 max-w-full overflow-x-auto overflow-hidden">
   <div class={`flex whitespace-nowrap ${spaceTop}`}>
     {#each tabDatas.data as submenu (submenu)}
       <button

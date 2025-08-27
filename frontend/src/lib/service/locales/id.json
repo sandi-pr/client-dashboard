@@ -1206,5 +1206,7 @@
   "requestADemo": "Minta Demo",
   "requestADemoDesc": "Anda belum dapat mengakses fitur ini. Dapatkan panduan personal untuk semua fitur dan manfaat yang kami tawarkan.",
   "limitReached": "Batas Tercapai",
-  "limitReachedDesc": "Anda telah mencapai jumlah maksimum tindakan yang diizinkan pada paket Anda saat ini. Agar dapat terus berjalan tanpa gangguan, pertimbangkan untuk mendapatkan akses penuh."
+  "limitReachedDesc": "Anda telah mencapai jumlah maksimum tindakan yang diizinkan pada paket Anda saat ini. Agar dapat terus berjalan tanpa gangguan, pertimbangkan untuk mendapatkan akses penuh.",
+  "value": "Nilai",
+  "overlayTransparency": "Transparansi Overlay"
 }
