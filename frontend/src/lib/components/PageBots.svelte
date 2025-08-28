@@ -72,14 +72,12 @@
   let tmpThemeColor = $state("");
   let tmpOverlayColor = $state("");
   let additionalPrompt = $state("");
-  let selectedCollection = $state("");
-  let tmpSelectedCollection = $state("");
+  let selectedCollectionId = $state("");
+  let tmpSelectedCollectionId = $state("");
   let fileImage = $state(null);
   let collectionId = $state(null);
   let fileImageName = $state(null);
   let fileImageResult = $state(null);
-  let selectedCollectionId = $state(null);
-  let tmpSelectedCollectionId = $state(null);
   let oldSelectedCollectionId = $state(null);
   let datas = $state([]);
   let allData = $state([]);
@@ -152,7 +150,52 @@
     ],
   });
 
-  const getCollectionSub = async (id) => {
+  const getLibraries = async () => {
+    let token = localStorage.getItem("token");
+
+    if (token !== null) {
+      let page = 1;
+      initCollections = [];
+      while (true) {
+        let response = await $call.call("client-dashboard", "get-librarys", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: page,
+            page_size: 25,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        if (response.result.data.length > 0) {
+          initCollections = initCollections.concat(response.result.data);
+          page++;
+        } else {
+          break;
+        }
+      }
+
+      // console.log("libraries", initCollections);
+
+      collections = initCollections.map((collection) => {
+        return {
+          value: collection.id,
+          id: collection.id,
+          name: collection.attributes.name,
+          description: collection.attributes.meta?.description,
+        };
+      });
+    }
+  };
+
+  const getCollections = async (id) => {
     let token = localStorage.getItem("token");
     if (token !== null) {
       if (!search) {
@@ -219,51 +262,46 @@
         allData = await Promise.all(promises);
         // console.log("all data with subcollections", allData);
 
-        if (checkAll) {
-          datasChecked = allData.map((data) => {
-            return {
-              id: data.id,
-              checked: true,
-              sub_collection: data.sub_collections.map((sub) => ({
-                id: sub.id,
-                checked: true,
-              })),
-            };
-          });
-          // console.log("datasChecked all", datasChecked);
-        } else {
-          if (tmpDatasChecked[pagination.page] === undefined) {
-            if (pageAction === "detail" && selectedCollection === tmpSelectedCollection) {
-              tmpSelectedCollection = null;
-              datasChecked = datasChecked.map((data) => {
-                if (collectionsChecked.includes(data.id)) {
-                  data.checked = true;
-                }
-
-                // Perbarui status checked untuk setiap sub_collection
-                data.sub_collection = data.sub_collection.map((sub) => {
-                  if (collectionsChecked.includes(sub.id)) {
-                    sub.checked = true;
-                  }
-                  return sub;
-                });
-
-                return data;
-              });
+        if (pageAction === "create") {
+          if (checkAll) {
+            datasChecked = mapAllDataChecked(allData, true);
+          } else {
+            if (tmpDatasChecked[pagination.page] === undefined) {
+              datasChecked = mapAllDataChecked(allData, false);
             } else {
-              datasChecked = allData.map((data) => {
-                return {
+              datasChecked = tmpDatasChecked[pagination.page];
+            }
+          }
+        } else if (pageAction === "detail") {
+          datasChecked = mapAllDataChecked(allData, false);
+
+          if (checkAll) {
+            datasChecked = mapAllDataChecked(allData, true);
+          } else {
+            if (tmpDatasChecked[pagination.page] === undefined) {
+              if (selectedCollectionId === tmpSelectedCollectionId) {
+                tmpSelectedCollectionId = null;
+                datasChecked = datasChecked.map((data) => {
+                  if (collectionsChecked.includes(data.id)) {
+                    data.checked = true;
+                  }
+                  data.sub_collection = data.sub_collection.map((sub) => {
+                    if (collectionsChecked.includes(sub.id)) {
+                      sub.checked = true;
+                    }
+                    return sub;
+                  });
+                  return data;
+                });
+              } else {
+                datasChecked = allData.map((data) => ({
                   id: data.id,
                   checked: false,
-                  sub_collection: data.sub_collections.map((sub) => ({
-                    id: sub.id,
-                    checked: false,
-                  })),
-                };
-              });
+                }));
+              }
+            } else {
+              datasChecked = tmpDatasChecked[pagination.page];
             }
-          } else {
-            datasChecked = tmpDatasChecked[pagination.page];
           }
         }
       } else {
@@ -366,151 +404,6 @@
     }
   };
 
-  const handleSearch = async (value) => {
-    search = true;
-    pagination.page = 1;
-    searchTerm = value;
-
-    await getCollectionSub(selectedCollectionId);
-  };
-
-  const handleInputFile = (usage) => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.accept = "image/jpeg, image/png";
-
-    inputElement.addEventListener("change", async (event) => {
-      const file = event.target.files[0];
-
-      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-        if (pageAction === "create" && usage === "bot") {
-          fileImageResult = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-
-            reader.readAsDataURL(file);
-          });
-
-          fileImage = await readFileAsBase64(file);
-          fileImageName = file.name;
-        } else if (usage === "bot") {
-          botFile.imageResult = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-
-            reader.readAsDataURL(file);
-          });
-
-          botFile.base64Data = await readFileAsBase64(file);
-          botFile.name = file.name;
-        } else if (usage === "user") {
-          userFile.imageResult = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-
-            reader.readAsDataURL(file);
-          });
-
-          userFile.base64Data = await readFileAsBase64(file);
-          userFile.name = file.name;
-        } else if (usage === "logo") {
-          logoFile.imageResult = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-
-            reader.readAsDataURL(file);
-          });
-
-          logoFile.base64Data = await readFileAsBase64(file);
-          logoFile.name = file.name;
-        } else if (usage === "background") {
-          backgroundFile.imageResult = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-
-            reader.readAsDataURL(file);
-          });
-
-          backgroundFile.base64Data = await readFileAsBase64(file);
-          backgroundFile.name = file.name;
-        }
-      } else {
-        alert("Invalid file. Please select a valid .jpg or .png file.");
-      }
-    });
-
-    inputElement.click();
-  };
-
-  const readFileAsBase64 = async (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const base64Data = reader.result.split(",")[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const getCollections = async () => {
-    let token = localStorage.getItem("token");
-
-    if (token !== null) {
-      let page = 1;
-      initCollections = [];
-      while (true) {
-        let response = await $call.call("client-dashboard", "get-librarys", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: page,
-            page_size: 25,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          console.log(response);
-          return;
-        }
-
-        if (response.result.data.length > 0) {
-          initCollections = initCollections.concat(response.result.data);
-          page++;
-        } else {
-          break;
-        }
-      }
-
-      // console.log("libraries", initCollections);
-
-      collections = initCollections.map((collection) => {
-        return {
-          value: collection.id,
-          id: collection.id,
-          name: collection.attributes.name,
-          description: collection.attributes.meta?.description,
-        };
-      });
-    }
-  };
-
   const getModels = async () => {
     let token = localStorage.getItem("token");
     if (token) {
@@ -571,6 +464,75 @@
       } catch (error) {
         console.log(error);
       }
+    }
+  };
+
+  const getDocument = async (id) => {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      let response = await $call.call("client-dashboard", "get-library-documents", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: paginationDocs[id].page,
+          page_size: paginationDocs[id].pageSize,
+          parent_id: parseInt(id),
+          search: searchTermCategory[id],
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        gettingDatas = false;
+        return;
+      }
+
+      // console.log("ayam", response);
+
+      let promises = response.result.data.map(async (document) => {
+        let link = await $call.getPage("client-dashboard", "document-library-detail");
+        return {
+          id: document.id,
+          file_name: {
+            name: document.attributes.name,
+            filename: document.attributes.name + "." + document.attributes.path.split(".").pop(),
+            type: "custom",
+            size:
+              document.attributes.meta.file_size === null
+                ? "Unknown"
+                : document.attributes.meta.file_size,
+          },
+          type: {
+            name: document.attributes.meta.document_type,
+            type: "pill",
+            color: "brand",
+          },
+          upload_date: document.attributes.createdAt,
+          actions: {
+            objects: [
+              {
+                href: `${link}` + "?documentId=" + document.id,
+                name: "View",
+              },
+            ],
+          },
+        };
+      });
+
+      datas = await Promise.all(
+        datas.map(async (data) => {
+          if (parseInt(Object.keys(data)[0]) === id) {
+            return { [id]: await Promise.all(promises) };
+          } else {
+            return data;
+          }
+        }),
+      );
+
+      configsCategories[id].pagination = response.result.meta.pagination;
     }
   };
 
@@ -705,75 +667,6 @@
       }
     }
     gettingDatas = false;
-  };
-
-  const getDocument = async (id) => {
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-library-documents", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: paginationDocs[id].page,
-          page_size: paginationDocs[id].pageSize,
-          parent_id: parseInt(id),
-          search: searchTermCategory[id],
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        gettingDatas = false;
-        return;
-      }
-
-      // console.log("ayam", response);
-
-      let promises = response.result.data.map(async (document) => {
-        let link = await $call.getPage("client-dashboard", "document-library-detail");
-        return {
-          id: document.id,
-          file_name: {
-            name: document.attributes.name,
-            filename: document.attributes.name + "." + document.attributes.path.split(".").pop(),
-            type: "custom",
-            size:
-              document.attributes.meta.file_size === null
-                ? "Unknown"
-                : document.attributes.meta.file_size,
-          },
-          type: {
-            name: document.attributes.meta.document_type,
-            type: "pill",
-            color: "brand",
-          },
-          upload_date: document.attributes.createdAt,
-          actions: {
-            objects: [
-              {
-                href: `${link}` + "?documentId=" + document.id,
-                name: "View",
-              },
-            ],
-          },
-        };
-      });
-
-      datas = await Promise.all(
-        datas.map(async (data) => {
-          if (parseInt(Object.keys(data)[0]) === id) {
-            return { [id]: await Promise.all(promises) };
-          } else {
-            return data;
-          }
-        }),
-      );
-
-      configsCategories[id].pagination = response.result.meta.pagination;
-    }
   };
 
   const getBot = async () => {
@@ -1119,7 +1012,7 @@
             username: users.username,
             need_auth: users.needAuth,
             collection_id: checkAll ? "all" : allCollection,
-            library_id: selectedCollection,
+            library_id: selectedCollectionId,
             manage_document: users.documentOptions,
           },
           Headers: {
@@ -1173,48 +1066,6 @@
     }
   };
 
-  const handleCheckAll = async (allChecked) => {
-    datasChecked = datasChecked.map((data) => ({
-      id: data.id,
-      checked: allChecked ? false : true,
-      sub_collection: data.sub_collection.map((sub) => ({
-        id: sub.id,
-        checked: allChecked ? false : true,
-      })),
-    }));
-
-    // console.log("Updated datasChecked (handleCheckAll):", datasChecked);
-  };
-
-  const handleCheckAllCollection = async (allChecked) => {
-    checkAll = allChecked;
-
-    datasChecked = datasChecked.map((data) => ({
-      id: data.id,
-      checked: allChecked,
-      sub_collection: data.sub_collection.map((sub) => ({
-        id: sub.id,
-        checked: allChecked,
-      })),
-    }));
-
-    if (!allChecked) {
-      // Jika allChecked adalah false, update tmpDatasChecked
-      Object.keys(tmpDatasChecked).forEach((page) => {
-        tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
-          id: data.id,
-          checked: false,
-          sub_collection: data.sub_collection.map((sub) => ({
-            id: sub.id,
-            checked: false,
-          })),
-        }));
-      });
-    }
-
-    // console.log("Updated datasChecked (handleCheckAllCollection):", datasChecked);
-  };
-
   const handleCheck = async (id, isSubCollection = false, parentId = null) => {
     if (!Array.isArray(datasChecked)) {
       datasChecked = [];
@@ -1264,78 +1115,46 @@
     // console.log("datasChecked setelah pembaruan:", datasChecked);
   };
 
-  const areAllUnchecked = () => {
-    // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
-    const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
+  const handleCheckAll = async (allChecked) => {
+    datasChecked = datasChecked.map((data) => ({
+      id: data.id,
+      checked: allChecked ? false : true,
+      sub_collection: data.sub_collection.map((sub) => ({
+        id: sub.id,
+        checked: allChecked ? false : true,
+      })),
+    }));
 
-    // Cek apakah semua data tidak ada yang checked
-    return allData.every((item) => item.checked === false);
+    // console.log("Updated datasChecked (handleCheckAll):", datasChecked);
   };
 
-  const next = async () => {
-    if (pagination.page >= pagination.pageCount) return;
+  const handleCheckAllCollection = async (allChecked) => {
+    checkAll = allChecked;
 
-    let pageNow = pagination.page;
-    if (tmpDatasChecked[pageNow] === undefined) {
-      tmpDatasChecked = {
-        ...tmpDatasChecked,
-        [pageNow]: datasChecked,
-      };
-    } else {
-      tmpDatasChecked[pageNow] = datasChecked;
+    datasChecked = datasChecked.map((data) => ({
+      id: data.id,
+      checked: allChecked,
+      sub_collection: data.sub_collection.map((sub) => ({
+        id: sub.id,
+        checked: allChecked,
+      })),
+    }));
+
+    if (!allChecked) {
+      // Jika allChecked adalah false, update tmpDatasChecked
+      Object.keys(tmpDatasChecked).forEach((page) => {
+        tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
+          id: data.id,
+          checked: false,
+          sub_collection: data.sub_collection.map((sub) => ({
+            id: sub.id,
+            checked: false,
+          })),
+        }));
+      });
     }
 
-    pagination.page = pagination.page + 1;
-    // console.log("cek tmpDatasChecked", tmpDatasChecked);
-    // getDocuments();
-    getCollectionSub(selectedCollectionId);
-  };
-
-  const previous = async () => {
-    if (pagination.page <= 1) return;
-
-    let pageNow = pagination.page;
-    if (tmpDatasChecked[pageNow] === undefined) {
-      tmpDatasChecked = {
-        ...tmpDatasChecked,
-        [pageNow]: datasChecked,
-      };
-    } else {
-      tmpDatasChecked[pageNow] = datasChecked;
-    }
-
-    pagination.page = pagination.page - 1;
-    // getDocuments();
-    getCollectionSub(selectedCollectionId);
-  };
-
-  const nextByCategory = async (category) => {
-    if (
-      configsCategories[category].pagination.page >=
-      configsCategories[category].pagination.pageCount
-    )
-      return;
-    configsCategories[category].pagination.page++;
-    getDocument(category);
-  };
-
-  const previousByCategory = async (category) => {
-    if (configsCategories[category].pagination.page <= 1) return;
-    configsCategories[category].pagination.page--;
-    getDocument(category);
-  };
-
-  const handleCheckAllCategories = async (category, allChecked) => {
-    configsCategories[category].actions.find((config) => {
-      if (config.id === "delete") {
-        config.disabled = allChecked
-          ? datasCategoriesChecked[category].find((data) => data.checked)
-          : false;
-      }
-    });
-    datasCategoriesChecked[category] = datasCategoriesChecked[category].map((data) => {
-      return { id: data.id, checked: allChecked ? false : true };
-    });
+    // console.log("Updated datasChecked (handleCheckAllCollection):", datasChecked);
   };
 
   const handleCheckCategories = async (category, id) => {
@@ -1372,6 +1191,201 @@
     datasCategoriesChecked[category] = datasCategoriesCheckedCopy;
   };
 
+  const handleCheckAllCategories = async (category, allChecked) => {
+    configsCategories[category].actions.find((config) => {
+      if (config.id === "delete") {
+        config.disabled = allChecked
+          ? datasCategoriesChecked[category].find((data) => data.checked)
+          : false;
+      }
+    });
+    datasCategoriesChecked[category] = datasCategoriesChecked[category].map((data) => {
+      return { id: data.id, checked: allChecked ? false : true };
+    });
+  };
+
+  const next = async () => {
+    if (pagination.page >= pagination.pageCount) return;
+
+    let pageNow = pagination.page;
+    if (tmpDatasChecked[pageNow] === undefined) {
+      tmpDatasChecked = {
+        ...tmpDatasChecked,
+        [pageNow]: datasChecked,
+      };
+    } else {
+      tmpDatasChecked[pageNow] = datasChecked;
+    }
+
+    pagination.page = pagination.page + 1;
+    // console.log("cek tmpDatasChecked", tmpDatasChecked);
+    // getDocuments();
+    getCollections(selectedCollectionId);
+  };
+
+  const previous = async () => {
+    if (pagination.page <= 1) return;
+
+    let pageNow = pagination.page;
+    if (tmpDatasChecked[pageNow] === undefined) {
+      tmpDatasChecked = {
+        ...tmpDatasChecked,
+        [pageNow]: datasChecked,
+      };
+    } else {
+      tmpDatasChecked[pageNow] = datasChecked;
+    }
+
+    pagination.page = pagination.page - 1;
+    // getDocuments();
+    getCollections(selectedCollectionId);
+  };
+
+  const nextByCategory = async (category) => {
+    if (
+      configsCategories[category].pagination.page >=
+      configsCategories[category].pagination.pageCount
+    )
+      return;
+    configsCategories[category].pagination.page++;
+    getDocument(category);
+  };
+
+  const previousByCategory = async (category) => {
+    if (configsCategories[category].pagination.page <= 1) return;
+    configsCategories[category].pagination.page--;
+    getDocument(category);
+  };
+
+  const handleSearch = async (value) => {
+    search = true;
+    pagination.page = 1;
+    searchTerm = value;
+
+    await getCollections(selectedCollectionId);
+  };
+
+  const handleSearchCategory = async (value, category) => {
+    searchCategory[category] = true;
+    configsCategories[category].pagination.page = 1;
+    searchTermCategory = { ...searchTermCategory, [category]: value };
+
+    await getDocument(category);
+  };
+
+  const readFileAsBase64 = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const areAllUnchecked = () => {
+    // Gabungkan data dari halaman sekarang dengan data yang tersimpan di tmpDatasChecked
+    const allData = [...datasChecked, ...Object.values(tmpDatasChecked).flat()];
+
+    // Cek apakah semua data tidak ada yang checked
+    return allData.every((item) => item.checked === false);
+  };
+
+  const handleInputFile = (usage) => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = "image/jpeg, image/png";
+
+    inputElement.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+
+      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+        if (pageAction === "create" && usage === "bot") {
+          fileImageResult = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+
+            reader.readAsDataURL(file);
+          });
+
+          fileImage = await readFileAsBase64(file);
+          fileImageName = file.name;
+        } else if (usage === "bot") {
+          botFile.imageResult = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+
+            reader.readAsDataURL(file);
+          });
+
+          botFile.base64Data = await readFileAsBase64(file);
+          botFile.name = file.name;
+        } else if (usage === "user") {
+          userFile.imageResult = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+
+            reader.readAsDataURL(file);
+          });
+
+          userFile.base64Data = await readFileAsBase64(file);
+          userFile.name = file.name;
+        } else if (usage === "logo") {
+          logoFile.imageResult = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+
+            reader.readAsDataURL(file);
+          });
+
+          logoFile.base64Data = await readFileAsBase64(file);
+          logoFile.name = file.name;
+        } else if (usage === "background") {
+          backgroundFile.imageResult = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+
+            reader.readAsDataURL(file);
+          });
+
+          backgroundFile.base64Data = await readFileAsBase64(file);
+          backgroundFile.name = file.name;
+        }
+      } else {
+        alert("Invalid file. Please select a valid .jpg or .png file.");
+      }
+    });
+
+    inputElement.click();
+  };
+
+  const mapAllDataChecked = (allData, checked = false) => {
+    return allData.map((data) => ({
+      id: data.id,
+      checked,
+      sub_collection: data.sub_collections
+        ? data.sub_collections.map((sub) => ({
+            id: sub.id,
+            checked,
+          }))
+        : [],
+    }));
+  };
+
   const classStatusType = (type) => {
     if (type === "Done") {
       return "success";
@@ -1384,14 +1398,6 @@
     } else if (type === "Web") {
       return "sky";
     }
-  };
-
-  const handleSearchCategory = async (value, category) => {
-    searchCategory[category] = true;
-    configsCategories[category].pagination.page = 1;
-    searchTermCategory = { ...searchTermCategory, [category]: value };
-
-    await getDocument(category);
   };
 
   const getFile = (base64, ext, name) => {
@@ -1465,7 +1471,7 @@
         triggerLoading(true);
         if (edit === "true" || pageAction === "create") onEdit = true;
 
-        await getCollections();
+        await getLibraries();
         await getModels();
 
         if (!botId && pageAction === "detail") {
@@ -1496,7 +1502,7 @@
       ) {
         oldSelectedCollectionId = selectedCollectionId;
         tmpDatasChecked = {};
-        getCollectionSub(selectedCollectionId);
+        getCollections(selectedCollectionId);
       }
     }
   });
