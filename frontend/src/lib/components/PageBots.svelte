@@ -16,7 +16,7 @@
   import { goto } from "$app/navigation";
   import { _ } from "svelte-i18n";
   import { Avatar, Button, Modal, Indicator } from "flowbite-svelte";
-  import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import { ChevronDownOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
   import {
     Badge,
     Toggle,
@@ -688,7 +688,7 @@
           console.log(response);
           triggerLoading(false);
           triggerToast("error");
-          goto(await $call.getPage("client-dashboard", "bots-list"));
+          goto(isFrontend ? "/bots/list" : await $call.getPage("client-dashboard", "bots-list"));
           return;
         }
 
@@ -868,7 +868,7 @@
             return;
           }
 
-          goto(await $call.getPage("client-dashboard", "bots"));
+          goto(isFrontend ? "/bots" : await $call.getPage("client-dashboard", "bots"));
           triggerLoading(false);
           triggerToast("created");
         } catch (error) {
@@ -927,7 +927,7 @@
             return;
           }
 
-          goto(await $call.getPage("client-dashboard", "bots"));
+          goto(isFrontend ? "/bots" : await $call.getPage("client-dashboard", "bots"));
           triggerLoading(false);
           triggerToast("created");
         } catch (error) {
@@ -1058,7 +1058,7 @@
         // popupModal = false;
         triggerLoading(false);
         triggerToast("deleted");
-        goto(await $call.getPage("client-dashboard", "bots-list"));
+        goto(isFrontend ? "/bots/list" : await $call.getPage("client-dashboard", "bots-list"));
       } catch (error) {
         triggerLoading(false);
         console.log(error);
@@ -1485,7 +1485,7 @@
         if (window.history.length > 1) {
           goto(-1);
         } else {
-          goto(await $call.getPage("client-dashboard", "bots-list"));
+          goto(isFrontend ? "/bots/list" : await $call.getPage("client-dashboard", "bots-list"));
         }
       } finally {
         triggerLoading(false);
@@ -1556,11 +1556,7 @@
         {#if pageAction === "create"}
           <Button
             on:click={async () => {
-              if (isFrontend) {
-                goto("/bots");
-              } else {
-                goto(await $call.getPage("client-dashboard", "bots"));
-              }
+              goto(isFrontend ? "/bots" : await $call.getPage("client-dashboard", "bots"));
             }}
             color="light"
             class="w-full h-min"
@@ -1593,11 +1589,7 @@
         {:else}
           <Button
             onclick={async function () {
-              if (isFrontend) {
-                goto("/bots");
-              } else {
-                goto(await $call.getPage("client-dashboard", "bots"));
-              }
+              goto(isFrontend ? "/bots" : await $call.getPage("client-dashboard", "bots"));
             }}
             color="light"
             class="w-full px-3 focus-within:!ring-1"
@@ -2153,7 +2145,10 @@
             <button
               onclick={async function () {
                 goto(
-                  (await $call.getPage("client-dashboard", "document-library-documents")) +
+                  (isFrontend
+                    ? "documents/libraries/collections/documents" +
+                      `?collectionId=${collectionId[index]}`
+                    : await $call.getPage("client-dashboard", "document-library-documents")) +
                     `?collectionId=${collectionId[index]}`,
                 );
                 return;
