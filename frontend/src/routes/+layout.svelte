@@ -84,7 +84,8 @@ All Rights Reserved
   let moduleManagerSkipSetup = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
+    // ? new CR3Call("https://tank.hexacode.ai")
+    ? new CR3Call("http://localhost")
     : new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -359,15 +360,15 @@ All Rights Reserved
       //   icon: "aiDocument",
       //   name: "smartDocument",
       //   children: [
-      // {
-      //   icon: "fileLock",
-      //   name: "contractReviewer",
-      //   children: [],
-      //   commingSoon: true,
-      //   href: isFrontend
-      //     ? "/contract_reviewer"
-      //     : await call.getPage("client-dashboard", "contract-reviewer-overview"),
-      // },
+      {
+        icon: "fileLock",
+        name: "contractReviewer",
+        children: [],
+        // commingSoon: true,
+        href: isFrontend
+          ? "/contract_reviewer"
+          : await call.getPage("client-dashboard", "contract-reviewer-overview"),
+      },
       //     {
       //       icon: "fileLock",
       //       name: "sopCompliance",
@@ -1633,7 +1634,7 @@ All Rights Reserved
     getNotificationsUnread();
     getNotificationsRead();
 
-    connectWebSocket(localStorage.getItem("token"), isFrontend);
+    // connectWebSocket(localStorage.getItem("token"), isFrontend);
 
     // bakrie;
     if ($isBakrie) {
