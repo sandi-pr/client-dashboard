@@ -1,7 +1,7 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Dean Ramhan <dean@hexacode.org>
   - Sandi Permana <sandy@hexacode.org>
 Copyright (C) 2024 Hexacode Teknologi Indonesia
@@ -10,30 +10,15 @@ All Rights Reserved
 <script>
   import { onMount } from "svelte";
   import { Modal, Button, Input, Textarea, Heading } from "flowbite-svelte";
-  import {
-    Typography,
-    SectionHeader,
-    Card,
-    Dropdown,
-    triggerToast,
-    StateCard,
-    triggerLoading,
-    ActionCard,
-    check,
-  } from "$lib";
-  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
   import { DatePicker } from "@svelte-plugins/datepicker";
   import { _ } from "svelte-i18n";
-  import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import { goto } from "$app/navigation";
-  import { CR3Call } from "hexacomponents-svelte";
   import { format } from "date-fns";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import { tr } from "date-fns/locale";
+  import { call, check, getIcons, triggerToast, triggerLoading } from "$lib";
+  import { Dropdown, DataTable, StateCard, Typography, ActionCard } from "$lib";
 
-  import { call } from "$lib";
+  const IllustrationEmpty = getIcons("illustrationEmpty");
+  const IllustrationProgress = getIcons("illustrationProgress");
+  const CalendarPlus02 = getIcons("calendarPlus02");
 
   let files = $state([]);
   let actionItems = $state([]);
@@ -67,7 +52,9 @@ All Rights Reserved
 
   let gettingDatas = $state(false);
 
-  async function getActionItems() {
+  let buttonDisabled = $state(false);
+
+  const getActionItems = async () => {
     actionItems = [
       {
         disabled: !check("aiManagement.contractreviewer.project:create"),
@@ -84,9 +71,9 @@ All Rights Reserved
         desc: "desc Set your referenced document",
       },
     ];
-  }
+  };
 
-  async function getCompanyType() {
+  const getCompanyType = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
@@ -110,9 +97,9 @@ All Rights Reserved
         return 0;
       }
     }
-  }
+  };
 
-  async function createProject() {
+  const createProject = async () => {
     addProjectModal = false;
     triggerLoading(true);
     let token = localStorage.getItem("token");
@@ -162,9 +149,9 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
+  };
 
-  async function getRules() {
+  const getRules = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       rulesTmp = [];
@@ -208,13 +195,9 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
-
-  const toggleDatePicker = () => {
-    isOpen = !isOpen;
   };
 
-  async function getProjectsLatest() {
+  const getProjectsLatest = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       gettingDatas = true;
@@ -230,7 +213,7 @@ All Rights Reserved
             Authorization: "Bearer " + token,
           },
         });
-        console.log("response", response);
+        // console.log("response", response);
         if (response.status === 200) {
           configs = {
             headers: "projectList",
@@ -243,7 +226,9 @@ All Rights Reserved
             ],
             seperator: true,
           };
+
           let url = await $call.getPage("client-dashboard", "contract-project-detail");
+
           let promise = response.result.data.map((project) => {
             return {
               id: project.id,
@@ -262,7 +247,7 @@ All Rights Reserved
           });
 
           datas = await Promise.all(promise);
-          console.log("datas", datas);
+          // console.log("datas", datas);
           gettingDatas = false;
         }
       } catch (error) {
@@ -270,17 +255,19 @@ All Rights Reserved
         gettingDatas = false;
       }
     }
-  }
+  };
+
+  const toggleDatePicker = () => {
+    isOpen = !isOpen;
+  };
+
+  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
 
   onMount(async () => {
     getActionItems();
     getProjectsLatest();
     await getRules();
   });
-
-  let buttonDisabled = $state(false);
-
-  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
 
   $effect(() => {
     formattedStartDate = formatDate(startDate);
@@ -299,7 +286,11 @@ All Rights Reserved
 
       <div class="flex flex-col gap-8">
         <!-- User Information -->
-        <Typography preset="Display sm/Semibold" text={$_("contractReviewerOverview")} propClass="fluid-xl" />
+        <Typography
+          preset="Display sm/Semibold"
+          text={$_("contractReviewerOverview")}
+          propClass="fluid-xl"
+        />
 
         <!-- Action Items -->
         <div>
@@ -388,10 +379,7 @@ All Rights Reserved
             class:open={isOpen}
             class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
           >
-            <svelte:component
-              this={CalendarPlus02}
-              class="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400"
-            />
+            <CalendarPlus02 class="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400" />
             <div class="date">
               {#if startDate != endDate}
                 {formattedStartDate} - {formattedEndDate}

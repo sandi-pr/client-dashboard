@@ -1,35 +1,32 @@
 <script>
-  import {
-    Typography,
-    FeaturedIcon,
-    InputRw,
-    TextareaRw,
-    UploadFile,
-    Dropdown,
-    triggerLoading,
-    triggerToast,
-  } from "$lib";
-  import { Button, P } from "flowbite-svelte";
-  import Divider from "$lib/components/Divider.svelte";
-  import FilePlusIcon from "$lib/icon/file-plus-02.svelte";
-  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
-  import { DatePicker } from "@svelte-plugins/datepicker";
-  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
-  import { format } from "date-fns";
-  import { _ } from "svelte-i18n";
   import { onMount, onDestroy } from "svelte";
-  import { CR3Call } from "hexacomponents-svelte";
-  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
+  import { _ } from "svelte-i18n";
+  import { format } from "date-fns";
+  import { Button } from "flowbite-svelte";
+  import { DatePicker } from "@svelte-plugins/datepicker";
 
-  import { call } from "$lib";
+  import { call, getIcons, triggerToast, triggerLoading } from "$lib";
+  import {
+    Divider,
+    InputRw,
+    Dropdown,
+    UploadFile,
+    TextareaRw,
+    Typography,
+    PdfjsViewer,
+    FeaturedIcon,
+  } from "$lib";
+
+  const FilePlusIcon = getIcons("filePlus");
+  const CalendarPlus02Icon = getIcons("calendarPlus02");
 
   let projectId;
   let projectDocumentId;
 
   let onEdit = $state(true);
   let onView = $state(false);
-  let buttonDisabled = $state(false);
   let isOpen = $state(false);
   let docTypeOpen = $state(false);
   let startDate = $state(null);
@@ -66,90 +63,120 @@
     description: "",
   });
 
-  const selectTypeCollection = (type) => {
-    tmpDocumentType = type;
+  const getDocument = async (id) => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await $call.call(
+          "client-dashboard",
+          "get-contract-project-with-document-id",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              id: parseInt(id),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
 
-    if (type === "Documents") {
-      selectedTypeCollection = "Documents";
-      acceptedFileTypes = ".txt, .pdf, .docx";
-    } else if (type === "Images") {
-      selectedTypeCollection = "Images";
-      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Handwriting") {
-      selectedTypeCollection = "Handwriting";
-      acceptedFileTypes = ".jpg, .jpeg, .png";
-    }
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
 
-    if (tmpSelected !== selectedTypeCollection) {
-      file = null;
-      tmpSelected = selectedTypeCollection;
-    }
-  };
-
-  async function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const base64Data = reader.result.split(",")[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  const handleFileUploadWrapper = () => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.accept = acceptedFileTypes;
-
-    inputElement.addEventListener("change", async (event) => {
-      const uploadedFile = event.target.files[0];
-
-      if (uploadedFile) {
-        const base64Data = await readFileAsBase64(uploadedFile);
         file = {
-          type: data.document_name,
-          role: tmpDocumentType,
-          name: uploadedFile.name,
-          size: formatBytes(uploadedFile.size),
-          base64: base64Data,
+          base64: response.result.base64,
         };
-      } else {
-        alert("Invalid file. Please select a valid file.");
+
+        data = {
+          document_name: response.result.document.data[0].attributes.document_name,
+          content_date: response.result.document.data[0].attributes.content_date,
+          description: response.result.document.data[0].attributes.description,
+          ext: response.result.document.data[0].attributes.document_media_id.data.attributes.ext,
+        };
+
+        startDate = new Date(response.result.document.data[0].attributes.content_date);
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
       }
-    });
-
-    inputElement.click();
+    }
   };
 
-  const toggleDatePicker = () => {
-    if (onView) return;
-    isOpen = !isOpen;
+  const getCollections = async (id) => {
+    let token = localStorage.getItem("token");
+    if (token !== null) {
+      try {
+        const response = await $call.call("client-dashboard", "get-contract-project", {
+          URLQuery: {},
+          URLParams: {
+            id: id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        projectName = response.result.data[0].attributes.project_name;
+
+        let response2 = await $call.call("client-dashboard", "get-collection-by-name", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            collection_name: id + ". " + projectName + " (Project Documents)",
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        if (response2.status !== 200) {
+          triggerToast("error");
+          console.log(response2);
+          return;
+        }
+
+        if (response2.result.data.length === 0) {
+          let response3 = await $call.call("client-dashboard", "create-document-collection", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              collection_name: id + ". " + projectName + " (Project Documents)",
+              description: "Collection for " + projectName,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (response3.status !== 200) {
+            triggerToast("error");
+            console.log(response3);
+            return;
+          }
+
+          collectionId = response3.result.data.id;
+          return;
+        }
+
+        collectionId = response2.result.data[0].id;
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
-  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
-
-  $effect(() => {
-    formattedStartDate = formatDate(startDate);
-    formattedEndDate = formatDate(endDate);
-  });
-
-  async function createDocument() {
+  const createDocument = async () => {
     triggerLoading(true);
 
     let token = localStorage.getItem("token");
@@ -218,120 +245,97 @@
         );
       }, 2000);
     }
-  }
+  };
 
-  async function getDocument(id) {
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await $call.call(
-          "client-dashboard",
-          "get-contract-project-with-document-id",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              id: parseInt(id),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          },
-        );
+  const readFileAsBase64 = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
-        if (response.status !== 200) {
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
 
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const selectTypeCollection = (type) => {
+    tmpDocumentType = type;
+
+    if (type === "Documents") {
+      selectedTypeCollection = "Documents";
+      acceptedFileTypes = ".txt, .pdf, .docx";
+    } else if (type === "Images") {
+      selectedTypeCollection = "Images";
+      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
+    } else if (type === "Handwriting") {
+      selectedTypeCollection = "Handwriting";
+      acceptedFileTypes = ".jpg, .jpeg, .png";
+    }
+
+    onView = false;
+    file = null;
+    fileUrl = "";
+
+    if (tmpSelected !== selectedTypeCollection) {
+      file = null;
+      tmpSelected = selectedTypeCollection;
+    }
+  };
+
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  };
+
+  const handleFileUploadWrapper = () => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = acceptedFileTypes;
+
+    inputElement.addEventListener("change", async (event) => {
+      const uploadedFile = event.target.files[0];
+
+      if (uploadedFile) {
+        const base64Data = await readFileAsBase64(uploadedFile);
         file = {
-          base64: response.result.base64,
+          type: projectDocumentId ? data.document_name : uploadedFile.type,
+          role: tmpDocumentType,
+          name: uploadedFile.name,
+          size: formatBytes(uploadedFile.size),
+          base64: base64Data,
+          ext: "." + uploadedFile.name.split(".").pop(),
         };
 
-        data = {
-          document_name: response.result.document.data[0].attributes.document_name,
-          content_date: response.result.document.data[0].attributes.content_date,
-          description: response.result.document.data[0].attributes.description,
-          ext: response.result.document.data[0].attributes.document_media_id.data.attributes.ext,
-        };
-
-        startDate = new Date(response.result.document.data[0].attributes.content_date);
-      } catch (error) {
-        triggerToast("error");
-        console.log(error);
+        if (uploadedFile.type.startsWith("image/")) {
+          fileUrl = URL.createObjectURL(uploadedFile);
+          // console.log("fileUrl", fileUrl);
+        }
+        // console.log("file", file);
+        onView = true;
+      } else {
+        alert("Invalid file. Please select a valid file.");
       }
-    }
-  }
+    });
 
-  async function getCollections(id) {
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      try {
-        const response = await $call.call("client-dashboard", "get-contract-project", {
-          URLQuery: {},
-          URLParams: {
-            id: id.toString(),
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+    inputElement.click();
+  };
 
-        if (response.status !== 200) {
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
+  const toggleDatePicker = () => {
+    if (onView) return;
+    isOpen = !isOpen;
+  };
 
-        projectName = response.result.data[0].attributes.project_name;
-
-        let response2 = await $call.call("client-dashboard", "get-collection-by-name", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_name: id + ". " + projectName + " (Project Documents)",
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-        if (response2.status !== 200) {
-          triggerToast("error");
-          console.log(response2);
-          return;
-        }
-
-        if (response2.result.data.length === 0) {
-          let response3 = await $call.call("client-dashboard", "create-document-collection", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              collection_name: id + ". " + projectName + " (Project Documents)",
-              description: "Collection for " + projectName,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response3.status !== 200) {
-            triggerToast("error");
-            console.log(response3);
-            return;
-          }
-
-          collectionId = response3.result.data.id;
-          return;
-        }
-
-        collectionId = response2.result.data[0].id;
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
+  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
 
   onMount(() => {
     formattedStartDate = formatDate(new Date());
@@ -352,6 +356,11 @@
       }
     });
     onDestroy(() => unsubscribe());
+  });
+
+  $effect(() => {
+    formattedStartDate = formatDate(startDate);
+    formattedEndDate = formatDate(endDate);
   });
 </script>
 
@@ -413,8 +422,7 @@
               class:open={isOpen}
               class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
             >
-              <svelte:component
-                this={CalendarPlus02}
+              <CalendarPlus02Icon
                 svgClass="w-4 h-4 ms-2 text-secondary-light dark:text-secondary-dark"
               />
               <div class="date text-secondary-light dark:text-secondary-dark">
@@ -486,22 +494,17 @@
       >
     </div>
   {/if} -->
-  {#if onView}
+  {#if onView && (file?.base64 !== undefined || fileUrl !== "")}
     <div class="flex gap-6">
       <div class="w-60">
-        <P class="font-semibold text-secondary-light dark:text-secondary-dark">
-          {$_("viewer")}
-        </P>
+        <Typography preset="Text md/Medium" text={$_("viewer")} color="secondary" />
       </div>
       <div class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark">
-        {#if data.ext === ".pdf"}
-          <!-- <iframe class="w-full h-screen" src={`${fileUrl}`}></iframe> -->
+        {#if data.ext === ".pdf" || file?.ext === ".pdf"}
           <div class="flex justify-center">
-            <!-- {#if pdfReady} -->
             <PdfjsViewer pdfFile={file.base64} />
-            <!-- {/if} -->
           </div>
-        {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp"}
+        {:else if data.ext === ".jpg" || data.ext === ".png" || data.ext === ".jpeg" || data.ext === ".webp" || file?.ext === ".jpg" || file?.ext === ".png" || file?.ext === ".jpeg" || file?.ext === ".webp" || file?.ext === ".img"}
           <div class="flex justify-center">
             <img class="w-full h-screen" src={`${fileUrl}`} alt="imageViewer" />
           </div>

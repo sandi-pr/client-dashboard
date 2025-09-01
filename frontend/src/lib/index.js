@@ -68,6 +68,8 @@ export { default as PageBots } from "$lib/components/PageBots.svelte";
 export { default as DataTableListCollection } from "$lib/components/DataTableListCollection.svelte";
 export { default as TabDetail } from "$lib/components/TabDetail.svelte";
 export { default as InputSlider } from "$lib/ui/inputs/InputSlider.svelte";
+export { default as DataTable } from "$lib/components/DataTable.svelte";
+export { default as PdfjsViewer } from "$lib/components/PdfjsViewer.svelte";
 export { checkLibraryName } from "$lib/utils/checkLibraryName";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {

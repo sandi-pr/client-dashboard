@@ -103,6 +103,7 @@ import Bye from "../icon/bye.svelte";
 import RequestDemoIcon from "../image/request-demo.svelte";
 import LimitReachedIcon from "../image/limit-reached.svelte";
 import Copy03Icon from "../icon/copy-03.svelte";
+import CalendarPlus02 from "../icon/calendar-plus-02.svelte";
 import Var76 from "../icon/var-76.svelte";
 import Var85 from "../icon/var-85.svelte";
 import Var86 from "../icon/var-86.svelte";
@@ -332,6 +333,8 @@ let getIcons = (presetIcon: String) => {
       return LimitReachedIcon;
     case "copy03":
       return Copy03Icon;
+    case "calendarPlus02":
+      return CalendarPlus02;
     case "var76":
       return Var76;
     case "var85":
