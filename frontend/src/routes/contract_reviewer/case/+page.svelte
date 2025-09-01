@@ -10,31 +10,98 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { Modal, Button, Input, Pagination } from "flowbite-svelte";
-  import { Typography, triggerToast, StateCard, triggerLoading, call, check } from "$lib";
-  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
   import { _ } from "svelte-i18n";
-  import { format } from "date-fns";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import PlusIcon from "$lib/icon/plus.svg";
-  import { goto } from "$app/navigation";
+  import { Modal, Button, Input } from "flowbite-svelte";
+  import { triggerToast, triggerLoading, call, check, getIcons } from "$lib";
+  import { Typography, StateCard, DataTable } from "$lib";
 
-  let tmpRulesName = $state("");
+  const IllustrationEmpty = getIcons("illustrationEmpty");
+  const IllustrationProgress = getIcons("illustrationProgress");
+  const PlusIcon = getIcons("plus");
+
+  const isFrontend = process.env.NODE_ENV === "development";
+
+  let gettingDatas = $state(false);
   let addRulesModal = $state(false);
+  let buttonDisabled = $state(false);
+
+  let page = $state(1);
+  let pageCount = $state(1);
+
+  let searchTerm = $state("");
+  let tmpRulesName = $state("");
 
   let configs = $state({});
 
   let datas = $state([]);
 
-  let gettingDatas = $state(false);
+  const getRules = async () => {
+    // triggerLoading(true);
+    let token = localStorage.getItem("token");
+    if (token) {
+      gettingDatas = true;
+      let rules = [];
+      try {
+        const response = await $call.call("client-dashboard", "get-contract-rules", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            search: searchTerm,
+            page: page,
+            page_size: 10,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-  let page = $state(1);
-  let pageCount = $state(1);
-  let searchTerm = $state("");
+        if (response.status !== 200) {
+          triggerLoading(false);
+          gettingDatas = false;
+          console.log(response);
+          return;
+        }
 
-  async function createRules() {
+        rules = response.result.data;
+
+        if (rules.length > 0) {
+          pageCount = response.result.meta.pagination.pageCount;
+          configs = {
+            pagination: response.result.meta.pagination,
+            search: true,
+            searchHandler: handleSearch,
+          };
+          let link = isFrontend
+            ? "/contract_reviewer/case/detail"
+            : await $call.getPage("client-dashboard", "contract-case-detail");
+          let promise = rules.map((rule) => {
+            return {
+              id: rule.id,
+              case_name: rule.attributes.rule_name,
+              actions: {
+                objects: [
+                  check("businessManagement.hr.recruitment:view") && {
+                    href: link + "?caseId=" + rule.id,
+                    name: "View",
+                  },
+                ].filter(Boolean),
+              },
+            };
+          });
+          datas = await Promise.all(promise);
+          triggerLoading(false);
+          gettingDatas = false;
+        }
+        triggerLoading(false);
+        gettingDatas = false;
+      } catch (error) {
+        console.log(error);
+        gettingDatas = false;
+      }
+    }
+  };
+
+  const createRules = async () => {
     addRulesModal = false;
     triggerLoading(true);
     let token = localStorage.getItem("token");
@@ -76,7 +143,7 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
+  };
 
   const handleSearch = async (value) => {
     page = 1;
@@ -85,88 +152,21 @@ All Rights Reserved
     await getRules();
   };
 
-  async function getRules() {
-    // triggerLoading(true);
-    let token = localStorage.getItem("token");
-    if (token) {
-      gettingDatas = true;
-      let rules = [];
-      try {
-        const response = await $call.call("client-dashboard", "get-contract-rules", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            search: searchTerm,
-            page: page,
-            page_size: 10,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          triggerLoading(false);
-          gettingDatas = false;
-          console.log(response);
-          return;
-        }
-
-        rules = response.result.data;
-
-        if (rules.length > 0) {
-          pageCount = response.result.meta.pagination.pageCount;
-          configs = {
-            pagination: response.result.meta.pagination,
-            search: true,
-            searchHandler: handleSearch,
-          };
-          let link = await $call.getPage("client-dashboard", "contract-case-detail");
-          let promise = rules.map((rule) => {
-            return {
-              id: rule.id,
-              case_name: rule.attributes.rule_name,
-              actions: {
-                objects: [
-                  check("businessManagement.hr.recruitment:view") &&
-                  {
-                    href: link + "?caseId=" + rule.id,
-                    name: "View",
-                  },
-                ].filter(Boolean),
-              },
-            };
-          });
-          datas = await Promise.all(promise);
-          triggerLoading(false);
-          gettingDatas = false;
-        }
-        triggerLoading(false);
-        gettingDatas = false;
-      } catch (error) {
-        console.log(error);
-        gettingDatas = false;
-      }
-    }
-  }
-
-  async function nextPage() {
+  const nextPage = async () => {
     if (page >= pageCount) return;
     page++;
     await getRules();
-  }
+  };
 
-  async function prevPage() {
+  const prevPage = async () => {
     if (page <= 1) return;
     page--;
     await getRules();
-  }
+  };
 
   onMount(async () => {
     getRules();
   });
-
-  let buttonDisabled = $state(false);
 
   $effect(() => {
     buttonDisabled = tmpRulesName.length === 0;
@@ -190,7 +190,7 @@ All Rights Reserved
               variant="contained"
               size="sm"
             >
-              <img class="w-4 h-4" src={PlusIcon} alt="plus-icon" />
+              <PlusIcon svgClass="w-4 h-4" />
               {$_("addNew")}
             </Button>
           {/if}

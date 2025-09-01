@@ -1,58 +1,61 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Dean Ramhan <dean@hexacode.org>
   - Sandi Permana <sandy@hexacode.org>
 Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { Typography, StateCard, Dropdown, triggerToast, triggerLoading, call, check } from "$lib";
-  import { Button, Modal, Input, Textarea } from "flowbite-svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
-  import PlusIcon from "$lib/icon/plus.svg";
+  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { format } from "date-fns";
   import { DatePicker } from "@svelte-plugins/datepicker";
-  import { onMount } from "svelte";
+  import { Button, Modal, Input, Textarea } from "flowbite-svelte";
+  import { triggerToast, triggerLoading, call, check, getIcons } from "$lib";
+  import { Typography, StateCard, Dropdown, DataTable } from "$lib";
 
-  let tmpProjectName = $state("");
-  let tmpProjectDescription = $state("");
-  let selectedRules = $state("");
-  let selectedRole = $state("Buyer");
-  let dropdownIndustryOpen = $state(false);
-  let dropdownRulesOpen = $state(false);
+  const IllustrationEmpty = getIcons("illustrationEmpty");
+  const IllustrationProgress = getIcons("illustrationProgress");
+  const CalendarPlus02 = getIcons("calendarPlus02");
+  const PlusIcon = getIcons("plus");
+
+  const isFrontend = process.env.NODE_ENV === "development";
+
+  let isOpen = $state(false);
+  let gettingDatas = $state(false);
   let dropdownRole = $state(false);
   let addProjectModal = $state(false);
-  let isOpen = $state(false);
-  let startDate = $state(null);
-  let endDate = $state(null);
-  let dateFormat = $state("d MMM yyyy");
-  let formattedStartDate = $state("");
-  let formattedEndDate = $state("");
-  let rulesTmp = $state([]);
+  let dropdownRulesOpen = $state(false);
+  let dropdownIndustryOpen = $state(false);
+
   let page = $state(1);
   let pageCount = $state(1);
 
-  let industries = $state([]);
-  let rules = $state([]);
+  let selectedRules = $state("");
+  let tmpProjectName = $state("");
+  let formattedEndDate = $state("");
+  let selectedRole = $state("Buyer");
+  let formattedStartDate = $state("");
+  let dateFormat = $state("d MMM yyyy");
+  let tmpProjectDescription = $state("");
 
+  let configs = $state({});
+
+  let datas = $state([]);
+  let rules = $state([]);
+  let rulesTmp = $state([]);
+  let industries = $state([]);
   let role = $state([
     { name: "Buyer", value: "Buyer" },
     { name: "Seller", value: "Seller" },
   ]);
 
-  let configs = $state({});
+  let endDate = $state(null);
+  let startDate = $state(null);
 
-  let datas = $state([]);
-
-  let gettingDatas = $state(false);
-
-  async function getProjects() {
+  const getProjects = async () => {
     gettingDatas = true;
     // triggerLoading(true);
     await getRules();
@@ -84,7 +87,9 @@ All Rights Reserved
           configs = {
             pagination: response.result.meta.pagination,
           };
-          let url = await $call.getPage("client-dashboard", "contract-project-detail");
+          let url = isFrontend
+            ? "/contract_reviewer/project/detail"
+            : await $call.getPage("client-dashboard", "contract-project-detail");
           let promise = response.result.data.map((project) => {
             return {
               id: project.id,
@@ -116,9 +121,9 @@ All Rights Reserved
       }
     }
     gettingDatas = false;
-  }
+  };
 
-  async function getRules() {
+  const getRules = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       rulesTmp = [];
@@ -162,32 +167,9 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
-
-  function nextPage() {
-    if (page >= pageCount) return;
-    page++;
-    getProjects();
-  }
-
-  function previousPage() {
-    if (page <= 1) return;
-    page--;
-    getProjects();
-  }
-
-  const toggleDatePicker = () => {
-    isOpen = !isOpen;
   };
 
-  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
-
-  $effect(() => {
-    formattedStartDate = formatDate(startDate);
-    formattedEndDate = formatDate(endDate);
-  });
-
-  async function createProject() {
+  const createProject = async () => {
     addProjectModal = false;
     triggerLoading(true);
     let token = localStorage.getItem("token");
@@ -237,7 +219,30 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
+  };
+
+  const nextPage = () => {
+    if (page >= pageCount) return;
+    page++;
+    getProjects();
+  };
+
+  const previousPage = () => {
+    if (page <= 1) return;
+    page--;
+    getProjects();
+  };
+
+  const toggleDatePicker = () => {
+    isOpen = !isOpen;
+  };
+
+  const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
+
+  $effect(() => {
+    formattedStartDate = formatDate(startDate);
+    formattedEndDate = formatDate(endDate);
+  });
 
   onMount(async () => {
     getProjects();
@@ -255,7 +260,7 @@ All Rights Reserved
           <Typography preset="Display sm/Semibold" color="primary" text={$_("projectList")} />
           {#if check("aiManagement.contractreviewer.project:create")}
             <Button onclick={() => (addProjectModal = true)}>
-              <img class="w-4 h-4 me-1" src={PlusIcon} alt="plus-icon" />
+              <PlusIcon svgClass="w-4 h-4 me-1" />
               {$_("addNew")}
             </Button>
           {/if}
@@ -263,7 +268,7 @@ All Rights Reserved
 
         <!-- Document Table Data -->
         {#if datas.length > 0}
-          <DataTable bind:datas bind:configs bind:next={nextPage} bind:previous={previousPage} />
+          <DataTable bind:datas bind:configs next={nextPage} previous={previousPage} />
         {:else if gettingDatas}
           <StateCard
             illustration={IllustrationProgress}
@@ -324,10 +329,7 @@ All Rights Reserved
             class:open={isOpen}
             class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
           >
-            <svelte:component
-              this={CalendarPlus02}
-              class="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400"
-            />
+            <CalendarPlus02 svgClass="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400" />
             <div class="date">
               {#if startDate != endDate}
                 {formattedStartDate} - {formattedEndDate}

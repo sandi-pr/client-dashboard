@@ -1,59 +1,49 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Button, Modal, P } from "flowbite-svelte";
-  import { Typography, triggerToast, triggerLoading } from "$lib";
-  import PdfViewer from "svelte-pdf";
-  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
+  import { Button, Modal } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import Divider from "$lib/components/Divider.svelte";
-  import FileDownloadIcon from "$lib/icon/file-download-03.svelte";
-  import DownloadIcon from "$lib/icon/download-01.svelte";
-  import { ChevronDownOutline, RefreshOutline } from "flowbite-svelte-icons";
-  import templatePdf from "$lib/template.pdf";
-  // import PdfViewer from 'svelte-pdf-scrollable';
-  import DataTable from "$lib/components/DataTable.svelte";
-  import DataTableAiReview from "$lib/components/DataTableAIReview.svelte";
-  // import { Svroller, Svrollbar } from 'svrollbar';
-  import { CR3Call } from "hexacomponents-svelte";
   import { page } from "$app/stores";
-  import Markdown from "svelte-exmarkdown";
-  import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { goto } from "$app/navigation";
-  import { ListMarkdown } from "$lib";
-  // import jsPDF from "jspdf";
+  import { ChevronDownOutline } from "flowbite-svelte-icons";
+  import { call, getIcons, triggerToast, triggerLoading } from "$lib";
+  import { Typography, ListMarkdown, PdfjsViewer, Divider, DataTableAIReview } from "$lib";
 
-  // import html2canvas from "html2canvas";
+  const isFrontend = process.env.NODE_ENV === "development";
 
-  import { call } from "$lib";
-
-  const plugins = [gfmPlugin()];
+  const FileDownload03Icon = getIcons("fileDownload03");
 
   let projectDocumentId;
+
+  let editModal = $state(false);
+  let documentViewModal = $state(false);
+
+  let tmpText = $state("");
+  let tmpTitle = $state("");
+  let markdown = $state("");
   let projectName = $state("");
+
   let configs = $state({});
   let pagination = $state({ page: 1, pageSize: 10, pageCount: 0, total: 0 });
-  let dropdownToggle = $state([true, true, false]);
-  let documentViewModal = $state(false);
-  let editModal = $state(false);
-  let tmpResult = $state([]);
-  let tmpTitle = $state("");
-  let tmpText = $state("");
-  let selectedFile = $state(null);
-  let pdfData = $state([null, null, null, null]);
-  let base64Data = $state();
-  let fileUrl = $state(null);
+
   let datas = $state([]);
   let datas2 = $state([]);
-  let markdown = $state("");
+  let tmpResult = $state([]);
+  let pdfData = $state([null, null, null, null]);
+  let dropdownToggle = $state([true, true, false]);
+
+  let fileUrl = $state(null);
+  let base64Data = $state(null);
+  let selectedFile = $state(null);
+
   let markdownDummy = $state(`
 
-  Jakarta, 15 June 2023  
-  Number: R-021/PNC400000/2023-S3  
-  Enclosure: 1 (one) set of files  
+  Jakarta, 15 June 2023
+  Number: R-021/PNC400000/2023-S3
+  Enclosure: 1 (one) set of files
   Subject: **Confirmation of Gasoline 90 RON for July-December 2023 (Term) – Aramco (DAP/CFR)**
 
-  Mr/Mrs/Ms  
-  Kelvin Lee / Joseph Lim  
+  Mr/Mrs/Ms
+  Kelvin Lee / Joseph Lim
   Aramco Trading Singapore Pte. Ltd.
 
   With reference to our email correspondences dated 11-30 May 2023 captioned OFFER: Competitive Negotiation of Gasoline 90 RON Supply for H2 2023 Delivery CFR/DAP (Term) - REVISE 2 and email correspondences dated 31 May-9 June 2023 captioned Recap: Competitive Negotiation of Gasoline 90 RON Supply for H2 2023 Delivery CFR/DAP (Term) (PTP23SS00012), we hereby accept and confirm your proposal with Deal Confirmation as follows:
@@ -90,53 +80,6 @@
     PT Pertamina Patra Niaga
 `);
 
-  async function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const base64Data = reader.result.split(",")[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function base64toBlob(base64Data, fileType) {
-    const byteCharacters = atob(base64Data);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
-
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    const blob = new Blob(byteArrays, { type: fileType });
-    return blob;
-  }
-
-  // async function createPdfUrl(file) {
-  //   const response = await fetch(templatePdf);
-  //   const blob = await response.blob();
-  //   base64Data = await readFileAsBase64(blob);
-
-  //   const pdfBlob = base64toBlob(base64Data, blob.type);
-  //   fileUrl = URL.createObjectURL(pdfBlob);
-  // }
-
-  // onMount(async () => {
-  //   // await getDocument(1);
-  //   await createPdfUrl();
-  // });
-
   let dummyDatas = $state([
     {
       id: 1,
@@ -160,7 +103,7 @@
     },
   ]);
 
-  async function getProjectResult() {
+  const getProjectResult = async () => {
     triggerLoading(true);
     datas = [];
     let token = localStorage.getItem("token");
@@ -311,18 +254,9 @@
         console.log(error);
       }
     }
-  }
-
-  const removeCodeBlocks = (text) => {
-    return text
-      .replace(/```/g, "") // Hapus semua backticks triple
-      .replace(/“/g, "") // Hapus semua tanda kutip buka
-      .replace(/”/g, "") // Hapus semua tanda kutip tutup
-      .replace(/\s{3,}/g, "  ") // Gantikan lebih dari tiga spasi dengan dua spasi
-      .trim();
   };
 
-  async function updateResult() {
+  const updateResult = async () => {
     editModal = false;
     triggerLoading(true);
     let token = localStorage.getItem("token");
@@ -363,9 +297,51 @@
         console.log(error);
       }
     }
-  }
+  };
 
-  // function downloadFile() {
+  const readFileAsBase64 = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const base64toBlob = (base64Data, fileType) => {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  };
+
+  const removeCodeBlocks = (text) => {
+    return text
+      .replace(/```/g, "") // Hapus semua backticks triple
+      .replace(/“/g, "") // Hapus semua tanda kutip buka
+      .replace(/”/g, "") // Hapus semua tanda kutip tutup
+      .replace(/\s{3,}/g, "  ") // Gantikan lebih dari tiga spasi dengan dua spasi
+      .trim();
+  };
+
+  // const downloadFile=() =>{
   //   // const element = document.getElementById("content-to-download");
 
   //   // Menggunakan skala untuk memastikan gambar pas di halaman PDF
@@ -442,7 +418,11 @@
         getProjectResult();
       } else {
         triggerToast("error");
-        goto(await $call.getPage("client-dashboard", "contract-project-list"));
+        goto(
+          isFrontend
+            ? "/contract_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
+        );
       }
     });
     return () => unsubscribe();
@@ -454,7 +434,11 @@
       if (projectDocumentId !== null) {
         getProjectResult();
       } else {
-        goto(await $call.getPage("client-dashboard", "contract-project-list"));
+        goto(
+          isFrontend
+            ? "/contract_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
+        );
       }
     });
     onDestroy(() => unsubscribe());
@@ -466,26 +450,24 @@
   <div class="flex justify-between">
     <div class="flex items-center gap-3">
       <div class="flex flex-col gap-1.5">
-        <P class="text-3xl text-primary-light dark:text-primary-dark font-semibold"
-          >{$_("aiReview")}</P
-        >
+        <Typography preset="Text md/Semibold" text={$_("aiReview")} color="primary" />
         <Typography preset="Text sm/Regular" text={projectName} color="tertiary" />
         <!-- <Button
           onclick={() => {
             downloadFile();
           }}
-          class="h-max"><DownloadIcon svgClass="w-5 h-5 text-white" />Download</Button
+          class="h-max"><Download01Icon svgClass="w-5 h-5 text-white" />Download</Button
         > -->
       </div>
     </div>
     <div class="flex items-center gap-3">
       <!-- <Button outline on:click={() => {}} color="light" class="h-max">
-        <FileDownloadIcon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+        <FileDownload03Icon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
         &nbsp;
         {$_("seeReferencedDoc")}
       </Button> -->
       <!-- <Button outline on:click={() => {}} color="light" class="h-max">
-        <FileDownloadIcon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+        <FileDownload03Icon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
         &nbsp;
         {$_("generateNewDocs")}
       </Button> -->
@@ -495,7 +477,7 @@
         }}
         class="h-max"
       >
-        <DownloadIcon svgClass="w-5 h-5 text-white" />
+        <Download01Icon svgClass="w-5 h-5 text-white" />
         &nbsp;
         {$_("download")}</Button
       > -->
@@ -517,7 +499,7 @@
               >{$_("generatedDocument")}</P
             >
             <Button outline on:click={() => (documentViewModal = true)} color="light" class="h-max">
-              <FileDownloadIcon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
+              <FileDownload03Icon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
               &nbsp;
               {$_("seeReferencedDoc")}
             </Button>
@@ -562,8 +544,7 @@
           </div>
         {/if}
         {#if dropdownToggle[1]}
-          <DataTableAiReview bind:datas />
-          <!-- <DataTable bind:datas /> -->
+          <DataTableAIReview bind:datas />
         {/if}
       </div>
     </div>

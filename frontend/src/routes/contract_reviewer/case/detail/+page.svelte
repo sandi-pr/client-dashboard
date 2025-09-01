@@ -9,59 +9,40 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import { Modal, Button, Input, Textarea, Heading, P } from "flowbite-svelte";
-  import {
-    Typography,
-    UploadFile,
-    triggerToast,
-    StateCard,
-    triggerLoading,
-    InputRw,
-    TextareaRw,
-    call,
-    check,
-  } from "$lib";
-  import Divider from "$lib/components/Divider.svelte";
-  import { PlusOutline, ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import CopyIcon from "$lib/icon/copy-03.svelte";
-  import { _ } from "svelte-i18n";
-  import { format } from "date-fns";
-  import TabDetail from "$lib/components/TabDetail.svelte";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import PlusCircleICon from "$lib/icon/plus-circle.svelte";
-  import PdfViewer from "svelte-pdf";
-  import PdfjsViewer from "$lib/components/PdfjsViewer.svelte";
+  import { onMount } from "svelte";
+  import { Modal, Button, Input, Heading } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { _ } from "svelte-i18n";
+  import { format } from "date-fns";
+  import { call, check, getIcons, triggerToast, triggerLoading } from "$lib";
+  import {
+    InputRw,
+    Divider,
+    TabDetail,
+    StateCard,
+    Typography,
+    UploadFile,
+    TextareaRw,
+    PdfjsViewer,
+  } from "$lib";
 
-  let ruleId = $state(null);
-  let addRulesSectionsModal = $state(false);
-  let addRefDocModal = $state(false);
-  let documentViewModal = $state(false);
-  let deleteModal = $state(false);
-  let caseDelete = $state(false);
-  let editRules = $state([]);
+  const IllustrationEmpty = getIcons("illustrationEmpty");
+  const PlusCircleIcon = getIcons("plusCircle");
+  const PlusIcon = getIcons("plus");
+
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let init = $state(false);
   let edit = $state(false);
-  let formData = $state({ title: "", prompt: "", sample: "" });
-  let files = $state([
-    // {
-    //   id: 1,
-    //   type: "Testing",
-    //   role: "buyer",
-    //   name: "test.pdf",
-    //   size: "1.2 MB",
-    //   base64: "",
-    // }
-  ]);
-  let tmpFile = $state(null);
-  let selectedFile = $state(null);
-  let tmpId = $state(null);
-  let tmpDocumentName = $state(null);
-  let tmpSectionId = $state(null);
-  let collectionId = $state(null);
+  let caseDelete = $state(false);
+  let deleteModal = $state(false);
+  let addRefDocModal = $state(false);
+  let documentViewModal = $state(false);
+  let addRulesSectionsModal = $state(false);
 
+  let formData = $state({ title: "", prompt: "", sample: "" });
   let tabDatas = $state({
     selected: "Referenced Documents",
     data: [
@@ -73,7 +54,6 @@ All Rights Reserved
       },
     ].filter(Boolean),
   });
-
   let datas = $state({
     title: "",
     createdAt: "",
@@ -89,7 +69,27 @@ All Rights Reserved
     ],
   });
 
-  async function getCollections(name, id) {
+  let editRules = $state([]);
+  let files = $state([
+    // {
+    //   id: 1,
+    //   type: "Testing",
+    //   role: "buyer",
+    //   name: "test.pdf",
+    //   size: "1.2 MB",
+    //   base64: "",
+    // }
+  ]);
+
+  let tmpId = $state(null);
+  let ruleId = $state(null);
+  let tmpFile = $state(null);
+  let selectedFile = $state(null);
+  let tmpSectionId = $state(null);
+  let collectionId = $state(null);
+  let tmpDocumentName = $state(null);
+
+  const getCollections = async (name, id) => {
     let token = localStorage.getItem("token");
     if (token !== null) {
       try {
@@ -135,9 +135,9 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
+  };
 
-  async function getRulesSections() {
+  const getRulesSections = async () => {
     triggerLoading(true);
     let token = localStorage.getItem("token");
     if (token) {
@@ -232,118 +232,9 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
+  };
 
-  async function createRulesSections(data) {
-    triggerLoading(true);
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await $call.call("client-dashboard", "create-contract-rule-section", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            contract_rule_id: ruleId.toString(),
-            section_title: data.title,
-            section_prompt: data.prompt,
-            reference_prompt: data.reference_prompt,
-            section_sample: data.sample,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
-
-        triggerLoading(false);
-        triggerToast("created");
-      } catch (error) {
-        triggerLoading(false);
-        triggerToast("error");
-        console.log(error);
-      }
-    }
-  }
-
-  async function deleteSection() {
-    deleteModal = false;
-    triggerLoading(true);
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await $call.call("client-dashboard", "delete-contract-rule-section", {
-          URLQuery: {},
-          URLParams: {
-            id: tmpSectionId.toString(),
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          deleteModal = true;
-          console.log(response);
-          return;
-        }
-
-        triggerLoading(false);
-        triggerToast("deleted");
-        getRulesSections();
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
-
-  async function editSection() {
-    triggerLoading(true);
-    init = false;
-    let token = localStorage.getItem("token");
-    let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
-    if (token) {
-      try {
-        const response = await $call.call("client-dashboard", "update-contract-rule-section", {
-          URLQuery: {},
-          URLParams: {
-            id: tmpSection.id.toString(),
-          },
-          Params: {
-            section_title: tmpSection.title,
-            section_prompt: tmpSection.prompt,
-            reference_prompt: tmpSection.reference_prompt,
-            section_sample: tmpSection.sample,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
-
-        triggerLoading(false);
-        triggerToast("updated");
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
-
-  async function getReferences() {
+  const getReferences = async () => {
     let token = localStorage.getItem("token");
     let industry_id = sessionStorage.getItem("industry_id");
 
@@ -387,58 +278,46 @@ All Rights Reserved
     } catch (error) {
       console.log(error);
     }
-  }
-
-  const handleFileUploadWrapper = (type) => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.accept = ".pdf";
-
-    inputElement.addEventListener("change", async (event) => {
-      const uploadedFile = event.target.files[0];
-
-      const base64Data = await readFileAsBase64(uploadedFile);
-      tmpFile = {
-        id: 0,
-        type: type,
-        role: "Buyer",
-        name: uploadedFile.name,
-        size: formatBytes(uploadedFile.size),
-        base64: base64Data,
-      };
-      console.log(tmpFile);
-    });
-
-    inputElement.click();
   };
 
-  async function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+  const createRulesSections = async (data) => {
+    triggerLoading(true);
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "create-contract-rule-section", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            contract_rule_id: ruleId.toString(),
+            section_title: data.title,
+            section_prompt: data.prompt,
+            reference_prompt: data.reference_prompt,
+            section_sample: data.sample,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      reader.onload = () => {
-        const base64Data = reader.result.split(",")[1];
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
 
-      reader.readAsDataURL(file);
-    });
-  }
+        triggerLoading(false);
+        triggerToast("created");
+      } catch (error) {
+        triggerLoading(false);
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  };
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  async function addOtherDocument() {
+  const addOtherDocument = async () => {
     addRefDocModal = false;
     triggerLoading(true);
     let token = localStorage.getItem("token");
@@ -506,9 +385,81 @@ All Rights Reserved
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-  async function deleteDocument() {
+  const editSection = async () => {
+    triggerLoading(true);
+    init = false;
+    let token = localStorage.getItem("token");
+    let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "update-contract-rule-section", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpSection.id.toString(),
+          },
+          Params: {
+            section_title: tmpSection.title,
+            section_prompt: tmpSection.prompt,
+            reference_prompt: tmpSection.reference_prompt,
+            section_sample: tmpSection.sample,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        triggerLoading(false);
+        triggerToast("updated");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const deleteSection = async () => {
+    deleteModal = false;
+    triggerLoading(true);
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await $call.call("client-dashboard", "delete-contract-rule-section", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpSectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          deleteModal = true;
+          console.log(response);
+          return;
+        }
+
+        triggerLoading(false);
+        triggerToast("deleted");
+        getRulesSections();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const deleteDocument = async () => {
     deleteModal = false;
     triggerLoading(true);
 
@@ -558,9 +509,9 @@ All Rights Reserved
       triggerLoading(false);
       triggerToast("deleted");
     }
-  }
+  };
 
-  async function deleteCase() {
+  const deleteCase = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
@@ -580,15 +531,71 @@ All Rights Reserved
         }
 
         triggerToast("deleted");
-        goto(await $call.getPage("client-dashboard", "contract-case"));
+        goto(
+          isFrontend
+            ? "/contract_reviewer/case"
+            : await $call.getPage("client-dashboard", "contract-case"),
+        );
       } catch (error) {
         console.log(error);
       }
     }
-  }
+  };
+
+  const readFileAsBase64 = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64Data = reader.result.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileUploadWrapper = (type) => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.accept = ".pdf";
+
+    inputElement.addEventListener("change", async (event) => {
+      const uploadedFile = event.target.files[0];
+
+      const base64Data = await readFileAsBase64(uploadedFile);
+      tmpFile = {
+        id: 0,
+        type: type,
+        role: "Buyer",
+        name: uploadedFile.name,
+        size: formatBytes(uploadedFile.size),
+        base64: base64Data,
+      };
+      console.log(tmpFile);
+    });
+
+    inputElement.click();
+  };
+
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  };
 
   onMount(() => {
-    if (check("aiManagement.contractreviewer.rule:create_delete") === false && check("aiManagement.contractreviewer.document:create_delete") === false) {
+    if (
+      check("aiManagement.contractreviewer.rule:create_delete") === false &&
+      check("aiManagement.contractreviewer.document:create_delete") === false
+    ) {
       console.log("no access");
       window.history.back();
       return;
@@ -603,7 +610,11 @@ All Rights Reserved
         triggerToast("error");
         setTimeout(async () => {
           triggerLoading(false);
-          goto(await $call.getPage("client-dashboard", "contract-case"));
+          goto(
+            isFrontend
+              ? "/contract_reviewer/case"
+              : await $call.getPage("client-dashboard", "contract-case"),
+          );
         }, 2000);
       }
     });
@@ -624,12 +635,14 @@ All Rights Reserved
             <Heading
               tag="h3"
               class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-              >{datas.title}</Heading
             >
-            <P
-              class="text-base font-medium leading-normal text-hc-graylight-500 dark:text-hc-graydark-400"
-              >{$_("createOn")}{` ${datas.createdAt}`}</P
-            >
+              {datas.title}
+            </Heading>
+            <Typography
+              preset="Text md/Medium"
+              color="tertiary"
+              text={`${$_("createOn")} ${datas.createdAt}`}
+            />
           </div>
           {#if check("aiManagement.contractreviewer.case:delete")}
             <div class="flex flex-col gap-2">
@@ -703,7 +716,7 @@ All Rights Reserved
                     on:click={() => (addRefDocModal = true)}
                     color="light"
                   >
-                    <PlusCircleICon
+                    <PlusCircleIcon
                       svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark"
                     />
                     {$_("addReferenceDocs")}
@@ -734,9 +747,10 @@ All Rights Reserved
                   });
                   editRules = [...editRules, true];
                 }}
-                ><PlusOutline class="w-4 h-4" />
-                {$_("addNewSection")}</Button
               >
+                <PlusIcon svgClass="w-4 h-4" />
+                {$_("addNewSection")}
+              </Button>
             </div>
             <!-- table latest -->
             {#if Object.keys(datas).length > 0}

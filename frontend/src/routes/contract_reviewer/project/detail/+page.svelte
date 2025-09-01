@@ -1,129 +1,57 @@
 <script>
-  import {
-    Typography,
-    InputRw,
-    TextareaRw,
-    UploadFile,
-    triggerToast,
-    Dropdown,
-    DocumentProject,
-    triggerLoading,
-    call,
-    check,
-  } from "$lib";
-  import { Button, Modal, Input } from "flowbite-svelte";
-  import { DatePicker } from "@svelte-plugins/datepicker";
-  import { _ } from "svelte-i18n";
-  import Divider from "$lib/components/Divider.svelte";
-  import Stars03Icon from "$lib/icon/stars-03.svelte";
-  import * as Icon from "flowbite-svelte-icons";
-  import CalendarPlus02 from "$lib/icon/calendar-plus-02.svelte";
-  import PlusCircleICon from "$lib/icon/plus-circle.svelte";
-  import { formatDistanceToNow, format } from "date-fns";
-  import PdfViewer from "svelte-pdf";
   import { onMount, onDestroy } from "svelte";
-  import { CR3Call } from "hexacomponents-svelte";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import { breadcrumbLastName } from "$lib/stores/breadcrumbLastName.js";
+  import { _ } from "svelte-i18n";
+  import { Button, Modal } from "flowbite-svelte";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { formatDistanceToNow, format } from "date-fns";
+  import { DatePicker } from "@svelte-plugins/datepicker";
+  import { call, check, getIcons, triggerToast, triggerLoading } from "$lib";
+  import {
+    Divider,
+    InputRw,
+    Dropdown,
+    TextareaRw,
+    UploadFile,
+    Typography,
+    DocumentProject,
+  } from "$lib";
 
-  let projectId = $state(null);
+  const isFrontend = process.env.NODE_ENV === "development";
 
-  let data = $state({});
+  const CalendarPlus02 = getIcons("calendarPlus02");
+  const PlusCircleIcon = getIcons("plusCircle");
 
-  let deleteModal = $state(false);
-  let projectDelete = $state(false);
-  let ready = $state(false);
-  let files = $state([]);
-  let tmpFile = $state([]);
-  let typeTmp = $state("");
-  let asTmp = $state("");
-  let rulesTmp = $state([]);
-  let init = $state(true);
-  let initRAG = $state(true);
-  let contractReady = $state(false);
   let timer;
   let timer2;
   let timer3;
+
+  let init = $state(true);
+  let ready = $state(false);
+  let initRAG = $state(true);
   let interval = $state(false);
   let ragStatus = $state(false);
+  let deleteModal = $state(false);
+  let projectDelete = $state(false);
+  let contractReady = $state(false);
+
   let countSection = $state(0);
-  let idResults = $state([]);
+
+  let asTmp = $state("");
+  let typeTmp = $state("");
+
+  let data = $state({});
 
   let rules = $state([]);
+  let files = $state([]);
+  let tmpFile = $state([]);
+  let rulesTmp = $state([]);
+  let idResults = $state([]);
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
+  let projectId = $state(null);
 
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  function getFileByType(type) {
-    const index = files.findIndex((file) => file.type === type);
-    return index !== -1 ? files[index] : [];
-  }
-
-  async function deleteFileByType(type) {
-    deleteModal = false;
-    triggerLoading(true);
-    const index = files.findIndex((file) => file.type === type);
-    if (index !== -1) {
-      let token = localStorage.getItem("token");
-      if (token) {
-        const response = await $call.call("client-dashboard", "delete-document-project", {
-          URLQuery: {},
-          URLParams: {
-            id: files[index].id.toString(),
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
-
-        const response2 = await $call.call(
-          "client-dashboard",
-          "delete-document-collection-by-contract",
-          {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              contract: "PROJECT",
-              contract_doc_id: files[index].id.toString(),
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          },
-        );
-
-        if (response2.status !== 200) {
-          triggerLoading(false);
-          // triggerToast("error");
-          // console.log(response2);
-        }
-
-        triggerToast("deleted");
-        triggerLoading(false);
-        files.splice(index, 1);
-      }
-    }
-  }
-
-  async function getRules() {
+  const getRules = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       rulesTmp = [];
@@ -168,9 +96,9 @@
         console.log(error);
       }
     }
-  }
+  };
 
-  async function getProject() {
+  const getProject = async () => {
     if (init) triggerLoading(true);
 
     let token = localStorage.getItem("token");
@@ -198,7 +126,11 @@
           if (response.result.data.length === 0) {
             triggerToast("error");
             setTimeout(async () => {
-              goto(await $call.getPage("client-dashboard", "contract-project-list"));
+              goto(
+                isFrontend
+                  ? "contract_reviewer/project"
+                  : await $call.getPage("client-dashboard", "contract-project-list"),
+              );
               return;
             }, 2000);
           }
@@ -231,8 +163,6 @@
           getStatusReference();
           getStatusGenerated();
 
-          // breadcrumbLastName.set(data.name);
-
           ready = true;
 
           if (init) triggerLoading(false);
@@ -243,10 +173,9 @@
         console.log(error);
       }
     }
-    // breadcrumbLastName.set("Bruh");
-  }
+  };
 
-  async function getCountSection() {
+  const getCountSection = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
@@ -285,63 +214,9 @@
         console.log(error);
       }
     }
-  }
+  };
 
-  async function generatedAI(file) {
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await $call.call("hexa-ai-contract-review", "generate-review", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            project_id: projectId.toString(),
-            project_document_id: file.id.toString(),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
-
-        const response2 = await $call.call(
-          "client-dashboard",
-          "update-project-document-status-generated",
-          {
-            URLQuery: {},
-            URLParams: {
-              id: file.id.toString(),
-            },
-            Params: {
-              status_generated: "START",
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          },
-        );
-
-        if (response2.status !== 200) {
-          triggerToast("error");
-          console.log(response2);
-          return;
-        }
-
-        setIntervalGetDocument();
-        getStatusGenerated();
-      } catch (error) {
-        triggerToast("error");
-        console.log(error);
-      }
-    }
-  }
-
-  async function getDocumentContractProject() {
+  const getDocumentContractProject = async () => {
     let token = localStorage.getItem("token");
     try {
       const response2 = await $call.call("client-dashboard", "get-document-contract-project", {
@@ -438,18 +313,9 @@
       triggerToast("error");
       console.log(error);
     }
-  }
+  };
 
-  function setIntervalGetDocument() {
-    if (interval) {
-      return;
-    } else {
-      interval = true;
-      timer3 = setInterval(() => getDocumentContractProject(), 3000);
-    }
-  }
-
-  async function getStatusReference() {
+  const getStatusReference = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
@@ -482,9 +348,9 @@
         console.log(error);
       }
     }
-  }
+  };
 
-  async function getStatusGenerated() {
+  const getStatusGenerated = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
@@ -641,9 +507,117 @@
         console.log(error);
       }
     }
-  }
+  };
 
-  async function deleteProject() {
+  const generatedAI = async (file) => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await $call.call("hexa-ai-contract-review", "generate-review", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            project_id: projectId.toString(),
+            project_document_id: file.id.toString(),
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        const response2 = await $call.call(
+          "client-dashboard",
+          "update-project-document-status-generated",
+          {
+            URLQuery: {},
+            URLParams: {
+              id: file.id.toString(),
+            },
+            Params: {
+              status_generated: "START",
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response2.status !== 200) {
+          triggerToast("error");
+          console.log(response2);
+          return;
+        }
+
+        setIntervalGetDocument();
+        getStatusGenerated();
+      } catch (error) {
+        triggerToast("error");
+        console.log(error);
+      }
+    }
+  };
+
+  const deleteFileByType = async (type) => {
+    deleteModal = false;
+    triggerLoading(true);
+    const index = files.findIndex((file) => file.type === type);
+    if (index !== -1) {
+      let token = localStorage.getItem("token");
+      if (token) {
+        const response = await $call.call("client-dashboard", "delete-document-project", {
+          URLQuery: {},
+          URLParams: {
+            id: files[index].id.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          triggerLoading(false);
+          triggerToast("error");
+          console.log(response);
+          return;
+        }
+
+        const response2 = await $call.call(
+          "client-dashboard",
+          "delete-document-collection-by-contract",
+          {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              contract: "PROJECT",
+              contract_doc_id: files[index].id.toString(),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          },
+        );
+
+        if (response2.status !== 200) {
+          triggerLoading(false);
+          // triggerToast("error");
+          // console.log(response2);
+        }
+
+        triggerToast("deleted");
+        triggerLoading(false);
+        files.splice(index, 1);
+      }
+    }
+  };
+
+  const deleteProject = async () => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -666,12 +640,42 @@
         }
 
         triggerToast("deleted");
-        goto(await $call.getPage("client-dashboard", "contract-project-list"));
+        goto(
+          isFrontend
+            ? "contract_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
+        );
       } catch (error) {
         console.log(error);
       }
     }
-  }
+  };
+
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  };
+
+  const getFileByType = (type) => {
+    const index = files.findIndex((file) => file.type === type);
+    return index !== -1 ? files[index] : [];
+  };
+
+  const setIntervalGetDocument = () => {
+    if (interval) {
+      return;
+    } else {
+      interval = true;
+      timer3 = setInterval(() => getDocumentContractProject(), 3000);
+    }
+  };
 
   onMount(() => {
     if (check("aiManagement.contractreviewer.project:view") === false) {
@@ -685,7 +689,11 @@
         getProject();
       } else {
         triggerToast("error");
-        goto(await $call.getPage("client-dashboard", "contract-project-list"));
+        goto(
+          isFrontend
+            ? "contract_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
+        );
       }
     });
     return () => unsubscribe();
@@ -772,8 +780,7 @@
                 onclick={() => {}}
                 class="flex w-full p-2 border rounded-lg bg-primary-light dark:bg-gray-800 border-primary-light dark:border-primary-dark gap-2 justify-center items-center hover:cursor-default"
               >
-                <svelte:component
-                  this={CalendarPlus02}
+                <CalendarPlus02
                   svgClass="w-4 h-4 ms-2 text-secondary-light dark:text-secondary-dark"
                 />
                 <div class="date text-secondary-light dark:text-secondary-dark">
@@ -793,7 +800,11 @@
       <Divider />
       <div class="flex gap-3">
         <div class="w-60">
-          <Typography preset="Text md/Semibold" text={`${$_("documentUploads")}`} color="secondary" />
+          <Typography
+            preset="Text md/Semibold"
+            text={`${$_("documentUploads")}`}
+            color="secondary"
+          />
           <!-- <button
             onclick={() => {
               getStatusGenerated();
@@ -814,11 +825,10 @@
                 actionButton={true}
                 isLoading={file.status !== "FINISH"}
                 actionView={async () => {
-                  goto(
-                    (await $call.getPage("client-dashboard", "contract-project-detail-document")) +
-                      "?projectDocumentId=" +
-                      file.id,
-                  );
+                  let gotoUrl = isFrontend
+                    ? "/contract_reviewer/project/document"
+                    : await $call.getPage("client-dashboard", "contract-project-detail-document");
+                  goto(gotoUrl + "?projectDocumentId=" + file.id);
                   // (documentViewModal = true), (selectedFile = getFileByType(file.type));
                 }}
                 actionDelete={() => {
@@ -828,26 +838,27 @@
                   deleteModal = true;
                 }}
                 actionGenerate={async () => {
-                  if (file.status_generated !== "FINISH" && file.status_generated !== "GENERATING") {
+                  if (
+                    file.status_generated !== "FINISH" &&
+                    file.status_generated !== "GENERATING"
+                  ) {
                     generatedAI(file);
                   } else {
                     if (file.result_id !== undefined) {
-                      goto(
-                        (await $call.getPage("client-dashboard", "contract-project-review")) +
-                          "?projectDocumentId=" +
-                          file.result_id,
-                      );
+                      let gotoUrl = isFrontend
+                        ? "/contract_reviewer/project/review"
+                        : await $call.getPage("client-dashboard", "contract-project-review");
+                      goto(gotoUrl + "?projectDocumentId=" + file.result_id);
                     } else {
                       console.log("gamasuk");
                       console.log(idResults);
                       let index = idResults.findIndex((result) => result.id_doc === file.id);
                       console.log(index);
                       console.log(idResults[index]);
-                      goto(
-                        (await $call.getPage("client-dashboard", "contract-project-review")) +
-                          "?projectDocumentId=" +
-                          idResults[index].id,
-                      );
+                      let gotoUrl = isFrontend
+                        ? "/contract_reviewer/project/review"
+                        : await $call.getPage("client-dashboard", "contract-project-review");
+                      goto(gotoUrl + "?projectDocumentId=" + idResults[index].id);
                     }
                   }
                 }}
@@ -868,15 +879,16 @@
             <Button
               class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
               on:click={async () => {
-                goto(
-                  (await $call.getPage("client-dashboard", "contract-project-detail-document")) +
-                    "?projectId=" +
-                    projectId,
-                );
+                let gotoUrl = isFrontend
+                  ? "/contract_reviewer/project/document"
+                  : await $call.getPage("client-dashboard", "contract-project-detail-document");
+                goto(gotoUrl + "?projectId=" + projectId);
               }}
               color="light"
             >
-              <PlusCircleICon svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark" />
+              <PlusCircleIcon
+                svgClass="w-6 h-6 text-fg-tertiary-light dark:text-fg-tertiary-dark"
+              />
               {$_("addComplianceDocs")}
             </Button>
           </div>
@@ -888,7 +900,7 @@
 
 <Modal bind:open={deleteModal} size="xs" autoclose>
   <div class="text-center">
-    <Icon.ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       {$_("areYouSureYouWantToDelete")}
     </h3>

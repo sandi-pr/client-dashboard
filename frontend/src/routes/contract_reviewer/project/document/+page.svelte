@@ -19,6 +19,8 @@
     FeaturedIcon,
   } from "$lib";
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   const FilePlusIcon = getIcons("filePlus");
   const CalendarPlus02Icon = getIcons("calendarPlus02");
 
@@ -238,11 +240,10 @@
 
       setTimeout(async () => {
         triggerLoading(false);
-        goto(
-          (await $call.getPage("client-dashboard", "contract-project-detail")) +
-            "?projectId=" +
-            projectId,
-        );
+        const gotoUrl = isFrontend
+          ? "/contract_reviewer/project/detail"
+          : await $call.getPage("client-dashboard", "contract-project-detail");
+        goto(gotoUrl + "?projectId=" + projectId);
       }, 2000);
     }
   };
@@ -352,7 +353,11 @@
         getDocument(projectDocumentId);
       } else {
         triggerToast("error");
-        goto(await $call.getPage("client-dashboard", "contract-project-list"));
+        goto(
+          isFrontend
+            ? "/contract_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
+        );
       }
     });
     onDestroy(() => unsubscribe());
@@ -380,11 +385,10 @@
           outline
           color="light"
           on:click={async () => {
-            goto(
-              (await $call.getPage("client-dashboard", "contract-project-detail")) +
-                "?projectId=" +
-                projectId,
-            );
+            const gotoUrl = isFrontend
+              ? "/contract_reviewer/project/detail"
+              : await $call.getPage("client-dashboard", "contract-project-detail");
+            goto(gotoUrl + "?projectId=" + projectId);
           }}
         >
           {$_("cancel")}

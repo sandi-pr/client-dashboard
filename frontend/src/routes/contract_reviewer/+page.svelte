@@ -20,6 +20,8 @@ All Rights Reserved
   const IllustrationProgress = getIcons("illustrationProgress");
   const CalendarPlus02 = getIcons("calendarPlus02");
 
+  const isFrontend = process.env.NODE_ENV === "development";
+
   let files = $state([]);
   let actionItems = $state([]);
   let tmpProjectName = $state("");
@@ -65,7 +67,9 @@ All Rights Reserved
       },
       {
         disabled: !check("aiManagement.contractreviewer.case:view"),
-        href: await $call.getPage("client-dashboard", "contract-case"),
+        href: isFrontend
+          ? "/contract_reviewer/case"
+          : await $call.getPage("client-dashboard", "contract-case"),
         icon: "bookOpen",
         actionName: "Manage cases",
         desc: "desc Set your referenced document",
@@ -220,14 +224,18 @@ All Rights Reserved
             actions: [
               {
                 name: "viewAll",
-                href: await $call.getPage("client-dashboard", "contract-project-list"),
+                href: isFrontend
+                  ? "/contract_reviewer/project"
+                  : await $call.getPage("client-dashboard", "contract-project-list"),
                 type: "info",
               },
             ],
             seperator: true,
           };
 
-          let url = await $call.getPage("client-dashboard", "contract-project-detail");
+          let url = isFrontend
+            ? "/contract_reviewer/project/detail"
+            : await $call.getPage("client-dashboard", "contract-project-detail");
 
           let promise = response.result.data.map((project) => {
             return {
@@ -379,7 +387,7 @@ All Rights Reserved
             class:open={isOpen}
             class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
           >
-            <CalendarPlus02 class="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400" />
+            <CalendarPlus02 svgClass="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400" />
             <div class="date">
               {#if startDate != endDate}
                 {formattedStartDate} - {formattedEndDate}
