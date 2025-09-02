@@ -1208,5 +1208,11 @@
   "limitReached": "Batas Tercapai",
   "limitReachedDesc": "Anda telah mencapai jumlah maksimum tindakan yang diizinkan pada paket Anda saat ini. Agar dapat terus berjalan tanpa gangguan, pertimbangkan untuk mendapatkan akses penuh.",
   "value": "Nilai",
-  "overlayTransparency": "Transparansi Overlay"
+  "overlayTransparency": "Transparansi Overlay",
+  "enable": "Aktifkan",
+  "apiSources": "Sumber API",
+  "promptRecommendation": "Rekomendasi Prompt",
+  "promptRecommendationDesc": "Tambahkan maksimal 3 rekomendasi",
+  "addPromptRecommendation": "Tambahkan Rekomendasi Prompt",
+  "promptRecommendationNotFound": "Tidak ada rekomendasi prompt. Anda dapat menambahkan rekomendasi prompt dikonfigurasi."
 }

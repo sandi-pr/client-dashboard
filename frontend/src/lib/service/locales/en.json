@@ -1208,5 +1208,11 @@
   "limitReached": "Limit Reached",
   "limitReachedDesc": "You've reached the maximum number of actions allowed on your current plan. To keep going without interruption, consider get the full access.",
   "value": "Value",
-  "overlayTransparency": "Overlay Transparency"
+  "overlayTransparency": "Overlay Transparency",
+  "enable": "Enable",
+  "apiSources": "API Sources",
+  "promptRecommendation": "Prompt Recommendation",
+  "promptRecommendationDesc": "Add to maximum 3 prompt recommendation.",
+  "addPromptRecommendation": "Add Prompt Recommendation",
+  "promptRecommendationNotFound": "No prompt recommendation added. You can add prompt recommendation in configure chatbot."
 }

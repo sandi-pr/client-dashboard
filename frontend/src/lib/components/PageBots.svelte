@@ -37,7 +37,9 @@
   import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
   import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
 
+  const PlusIcon = getIcons("plus");
   const CopyIcon = getIcons("copy03");
+  const Trash01Icon = getIcons("trash01");
   // const BrandIcon = getIcons("brand");
   // const Send03Icon = getIcons("send03");
   // const ThumbsDownIcon = getIcons("thumbsDown");
@@ -61,6 +63,7 @@
   let modalDelete = $state(false);
   let gettingDatas = $state(false);
   let modalThemeColor = $state(false);
+  let apiSourceEnable = $state(false);
   let modalOverlayColor = $state(false);
   let isSelectedLibrary = $state(false);
   let dropdownBgAlignOpen = $state(false);
@@ -85,6 +88,7 @@
   let collections = $state([]);
   let datasChecked = $state([]);
   let paginationDocs = $state([]);
+  let recommendations = $state([]);
   let initCollections = $state([]);
   let collectionsChecked = $state([]);
   let layouts = $state([
@@ -1713,6 +1717,37 @@
           </div>
         </div>
       {/if}
+      <!-- <Divider />
+      <div class="md:flex">
+        <Typography
+          preset="Text md/Semibold"
+          text={$_("apiSources")}
+          color="secondary"
+          propClass="w-full md:w-1/4"
+        />
+        <div class="w-full md:w-3/4 mt-2 md:mt-0">
+          <div class="flex flex-col justify-center gap-4">
+            <Toggle {onEdit} bind:checked={apiSourceEnable} text="enable" />
+            <Button
+              color="light"
+              class="w-max rounded-lg border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark gap-1.5 flex justify-between items-center py-2.5 px-3"
+              on:click={() => (modalOpen = true)}
+              disabled={!onEdit || !apiSourceEnable}
+            >
+              <Typography
+                preset="Text md/Semibold"
+                text={selectedCollectionId
+                  ? collections.find((item) => item.value === selectedCollectionId)?.name
+                  : $_("configure")}
+                color="secondary"
+              />
+              <ChevronDownOutline
+                class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+              />
+            </Button>
+          </div>
+        </div>
+      </div> -->
       <Divider />
       <div class="md:flex">
         <Typography
@@ -1764,72 +1799,70 @@
             <Typography preset="Text sm/Medium" text={$_("welcomeMessage")} color="secondary" />
             <TextareaRw bind:value={users.welcomeMessage} {onEdit} />
           </div>
-          <!-- <div class="flex gap-4 col-span-4">
-            <div class="flex flex-col gap-1.5 grow">
-              <Typography preset="Text sm/Medium" text={$_("botsName")} color="secondary" />
-              <InputRw bind:value={users.botName} {onEdit} />
-            </div>
-            <div class="flex flex-col gap-1.5 grow">
-              <Typography preset="Text sm/Medium" text={$_("userName")} color="secondary" />
-              <InputRw bind:value={users.username} {onEdit} />
-            </div>
-          </div>
-          <div class="col-span-4 md:col-span-2">
-            <UploadFile
-              title={$_("botsProfilePicture")}
-              handleFileUploadWrapper={() => handleInputFile("bot")}
-              isPreview
-              srcAvatar={botFile.name ? botFile.imageResult : ""}
-              disabled={!onEdit}
-            />
-          </div>
-          <div class="col-span-4 md:col-span-2">
-            <UploadFile
-              title={$_("userprofilePicture")}
-              handleFileUploadWrapper={() => handleInputFile("user")}
-              isPreview
-              srcAvatar={userFile.name ? userFile.imageResult : ""}
-              disabled={!onEdit}
-            />
-          </div> -->
         </div>
       </div>
-      <Divider />
+      <!-- <Divider />
       <div class="flex flex-col md:flex-row gap-1.5">
-        <Typography
-          preset="Text md/Semibold"
-          text={$_("logo")}
-          color="secondary"
-          propClass="w-full md:w-1/4"
-        />
-        <div class="w-full md:w-3/4 mt-2 md:mt-0">
-          <!-- <div class="col-span-4">
-            {#if users?.logoOnly !== undefined}
-              <Toggle {onEdit} bind:checked={users.logoOnly} text="logoOnly" />
-            {/if}
-          </div> -->
-          <!-- <div class="col-span-4 md:col-span-2"> -->
-          <!-- <UploadFile
-              title={$_("logo")}
-              handleFileUploadWrapper={() => handleInputFile("logo")}
-              isPreview
-              srcAvatar={logoFile.name ? logoFile.imageResult : ""}
-              disabled={!onEdit}
-            /> -->
-          <UploadFile
-            title={$_("botsProfilePicture")}
-            handleFileUploadWrapper={() => handleInputFile("bot")}
-            isPreview
-            srcAvatar={botFile.name ? botFile.imageResult : ""}
-            disabled={!onEdit}
+        <div class="flex flex-col gap-2 w-full md:w-1/4">
+          <Typography
+            preset="Text md/Semibold"
+            text={$_("promptRecommendation")}
+            color="secondary"
           />
-          <!-- </div> -->
-          <!-- <div class="flex flex-col gap-1.5 col-span-4 md:col-span-2">
-            <Typography preset="Text sm/Medium" text={$_("logoName")} color="secondary" />
-            <InputRw bind:value={users.logoName} {onEdit} />
-          </div> -->
+          <Typography
+            preset="Text md/Regular"
+            text={$_("promptRecommendationDesc")}
+            color="tertiary"
+          />
         </div>
-      </div>
+        <div class="flex flex-col gap-3 w-full md:w-3/4">
+          {#each recommendations as _unneeded, index}
+            <div class="flex flex-col gap-2">
+              <div class="flex justify-between items-center">
+                <Typography
+                  preset="Text sm/Medium"
+                  text={$_("promptRecommendation") + ` #${index + 1}`}
+                  color="secondary"
+                />
+                <Button
+                  color="none"
+                  disabled={!onEdit}
+                  class="p-0 mr-8 focus:ring-0 outline-none"
+                  on:click={() => {
+                    if (onEdit) {
+                      recommendations = recommendations.filter((_, i) => i !== index);
+                    }
+                  }}
+                >
+                  <Trash01Icon
+                    svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark"
+                  />
+                </Button>
+              </div>
+              <TextareaRw bind:value={recommendations[index]} {onEdit} rows={3} />
+            </div>
+          {/each}
+          <Button
+            class="flex gap-2 w-fit focus:ring-0"
+            on:click={() => {
+              if (onEdit) {
+                recommendations = [...recommendations, ""];
+              }
+            }}
+            disabled={!onEdit || recommendations.length >= 3}
+          >
+            <PlusIcon svgClass="w-5 h-5 text-primary-light dark:text-primary-dark" />
+            <Typography preset="Text md/Regular" text={$_("addPromptRecommendation")} />
+          </Button>
+          {#if recommendations.length <= 0}
+            <Typography
+              preset="Text md/Regular"
+              text={$_("promptRecommendationNotFound")}
+              color="secondary"
+            />
+          {/if}
+        </div>
+      </div> -->
       <Divider />
       <div class="md:flex">
         <Typography
@@ -1937,7 +1970,7 @@
                 disabled={!onEdit}
               />
             </div>
-            <div class="col-span-4">
+            <!-- <div class="col-span-4">
               <div>
                 <Typography
                   preset="Text sm/Medium"
@@ -1946,7 +1979,7 @@
                 />
                 <InputSlider bind:value={users.backgroundOpacity} />
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       {/if}
