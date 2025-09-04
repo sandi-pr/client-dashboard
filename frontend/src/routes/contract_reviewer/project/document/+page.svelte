@@ -332,7 +332,7 @@
   };
 
   const toggleDatePicker = () => {
-    if (onView) return;
+    // if (onView) return;
     isOpen = !isOpen;
   };
 
@@ -403,6 +403,28 @@
     {:else}
       <div class="flex items-center gap-3">
         <Typography preset="Display sm/Semibold" text={data.document_name} color="primary" />
+      </div>
+      <div class="flex gap-3">
+        <Button
+          outline
+          color="light"
+          on:click={async () => {
+            const gotoUrl = isFrontend
+              ? "/contract_reviewer/project/detail"
+              : await $call.getPage("client-dashboard", "contract-project-detail");
+            goto(gotoUrl + "?projectId=" + projectId);
+          }}
+        >
+          {$_("cancel")}
+        </Button>
+        <Button
+          disabled={file === null}
+          on:click={() => {
+            createDocument();
+          }}
+        >
+          {$_("add")}
+        </Button>
       </div>
     {/if}
   </div>
