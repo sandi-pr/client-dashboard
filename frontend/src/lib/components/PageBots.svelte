@@ -61,6 +61,7 @@
   let checkAll = $state(false);
   let modalOpen = $state(false);
   let modalDelete = $state(false);
+  let onMountState = $state(true);
   let gettingDatas = $state(false);
   let modalThemeColor = $state(false);
   let apiSourceEnable = $state(false);
@@ -158,188 +159,206 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      let page = 1;
-      initCollections = [];
-      while (true) {
-        let response = await $call.call("client-dashboard", "get-librarys", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: page,
-            page_size: 25,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
+      try {
+        let page = 1;
+        initCollections = [];
+        while (true) {
+          let response = await $call.call("client-dashboard", "get-librarys", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: page,
+              page_size: 25,
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
+
+          if (
+            response === null ||
+            response === undefined ||
+            (response?.status && response.status !== 200)
+          ) {
+            errorResponseTrigger(error);
+            return;
+          }
+
+          if (response.result.data.length > 0) {
+            initCollections = initCollections.concat(response.result.data);
+            page++;
+          } else {
+            break;
+          }
+        }
+
+        // console.log("libraries", initCollections);
+
+        collections = initCollections.map((collection) => {
+          return {
+            value: collection.id,
+            id: collection.id,
+            name: collection.attributes.name,
+            description: collection.attributes.meta?.description,
+          };
         });
-
-        if (response.status !== 200) {
-          console.log(response);
-          return;
-        }
-
-        if (response.result.data.length > 0) {
-          initCollections = initCollections.concat(response.result.data);
-          page++;
-        } else {
-          break;
-        }
+      } catch (error) {
+        errorResponseTrigger(error);
       }
-
-      // console.log("libraries", initCollections);
-
-      collections = initCollections.map((collection) => {
-        return {
-          value: collection.id,
-          id: collection.id,
-          name: collection.attributes.name,
-          description: collection.attributes.meta?.description,
-        };
-      });
     }
   };
 
   const getCollections = async (id) => {
     let token = localStorage.getItem("token");
     if (token !== null) {
-      if (!search) {
-        gettingDatas = true;
-      }
-      let response = await $call.call("client-dashboard", "get-library-collections", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: pagination.page,
-          page_size: pagination.pageSize,
-          parent_id: id,
-          search: searchTerm,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      try {
+        if (!search) {
+          gettingDatas = true;
+        }
 
-      if (response.status !== 200) {
-        console.log(response);
-        gettingDatas = false;
-        return;
-      }
-
-      // console.log("collections", response);
-
-      if (response.result.data.length > 0) {
-        pagination = response.result.meta.pagination;
-        configs = {
-          search: true,
-          searchHandler: handleSearch,
-          pagination: response.result.meta.pagination,
-          space: "p-4",
-          actionInLeft: true,
-          actions: [
-            {
-              id: "deselect_all",
-              name: "Deselect All",
-              onclick: () => {
-                handleCheckAllCollection(false);
-              },
-            },
-            {
-              id: "select_all",
-              name: "Select All",
-              type: "brand-inverse",
-              onclick: () => {
-                handleCheckAllCollection(true);
-              },
-            },
-          ],
-        };
-
-        let promises = response.result.data.map(async (document) => {
-          const sub_collections = await getSubCollections(document.id);
-          return {
-            id: document.id,
-            collection_name: document.attributes.name,
-            sub_collections,
-          };
+        let response = await $call.call("client-dashboard", "get-library-collections", {
+          URLQuery: {},
+          URLParams: {},
+          Params: {
+            page: pagination.page,
+            page_size: pagination.pageSize,
+            parent_id: id,
+            search: searchTerm,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
         });
 
-        allData = await Promise.all(promises);
-        // console.log("all data with subcollections", allData);
-
-        if (pageAction === "create") {
-          if (checkAll) {
-            datasChecked = mapAllDataChecked(allData, true);
-          } else {
-            if (tmpDatasChecked[pagination.page] === undefined) {
-              datasChecked = mapAllDataChecked(allData, false);
-            } else {
-              datasChecked = tmpDatasChecked[pagination.page];
-            }
-          }
-        } else if (pageAction === "detail") {
-          datasChecked = mapAllDataChecked(allData, false);
-
-          if (checkAll) {
-            datasChecked = mapAllDataChecked(allData, true);
-          } else {
-            if (tmpDatasChecked[pagination.page] === undefined) {
-              if (selectedCollectionId === tmpSelectedCollectionId) {
-                tmpSelectedCollectionId = null;
-                datasChecked = datasChecked.map((data) => {
-                  if (collectionsChecked.includes(data.id)) {
-                    data.checked = true;
-                  }
-                  data.sub_collection = data.sub_collection.map((sub) => {
-                    if (collectionsChecked.includes(sub.id)) {
-                      sub.checked = true;
-                    }
-                    return sub;
-                  });
-                  return data;
-                });
-              } else {
-                datasChecked = allData.map((data) => ({
-                  id: data.id,
-                  checked: false,
-                }));
-              }
-            } else {
-              datasChecked = tmpDatasChecked[pagination.page];
-            }
-          }
+        if (
+          response === null ||
+          response === undefined ||
+          (response?.status && response.status !== 200)
+        ) {
+          errorResponseTrigger(response);
+          gettingDatas = false;
+          return;
         }
-      } else {
-        pagination = response.result.meta.pagination;
-        allData = [];
-        datasChecked = [];
-        configs = {
-          search: true,
-          searchHandler: handleSearch,
-          pagination: response.result.meta.pagination,
-          space: "p-4",
-          actionInLeft: true,
-          actions: [
-            {
-              id: "deselect_all",
-              name: "Deselect All",
-              onclick: () => {
-                handleCheckAllCollection(false);
-              },
-            },
-            {
-              id: "select_all",
-              name: "Select All",
-              type: "brand-inverse",
-              onclick: () => {
-                handleCheckAllCollection(true);
-              },
-            },
-          ],
-        };
-      }
 
-      gettingDatas = false;
-      search = false;
+        // console.log("collections", response);
+
+        if (response.result.data.length > 0) {
+          pagination = response.result.meta.pagination;
+          configs = {
+            search: true,
+            searchHandler: handleSearch,
+            pagination: response.result.meta.pagination,
+            space: "p-4",
+            actionInLeft: true,
+            actions: [
+              {
+                id: "deselect_all",
+                name: "Deselect All",
+                onclick: () => {
+                  handleCheckAllCollection(false);
+                },
+              },
+              {
+                id: "select_all",
+                name: "Select All",
+                type: "brand-inverse",
+                onclick: () => {
+                  handleCheckAllCollection(true);
+                },
+              },
+            ],
+          };
+
+          let promises = response.result.data.map(async (document) => {
+            const sub_collections = await getSubCollections(document.id);
+
+            return {
+              id: document.id,
+              collection_name: document.attributes.name,
+              sub_collections,
+            };
+          });
+
+          allData = await Promise.all(promises);
+          // console.log("all data with subcollections", allData);
+
+          if (pageAction === "create") {
+            if (checkAll) {
+              datasChecked = mapAllDataChecked(allData, true);
+            } else {
+              if (tmpDatasChecked[pagination.page] === undefined) {
+                datasChecked = mapAllDataChecked(allData, false);
+              } else {
+                datasChecked = tmpDatasChecked[pagination.page];
+              }
+            }
+          } else if (pageAction === "detail") {
+            datasChecked = mapAllDataChecked(allData, false);
+
+            if (checkAll) {
+              datasChecked = mapAllDataChecked(allData, true);
+            } else {
+              if (tmpDatasChecked[pagination.page] === undefined) {
+                if (selectedCollectionId === tmpSelectedCollectionId) {
+                  tmpSelectedCollectionId = null;
+                  datasChecked = datasChecked.map((data) => {
+                    if (collectionsChecked.includes(data.id)) {
+                      data.checked = true;
+                    }
+                    data.sub_collection = data.sub_collection.map((sub) => {
+                      if (collectionsChecked.includes(sub.id)) {
+                        sub.checked = true;
+                      }
+                      return sub;
+                    });
+                    return data;
+                  });
+                } else {
+                  datasChecked = allData.map((data) => ({
+                    id: data.id,
+                    checked: false,
+                  }));
+                }
+              } else {
+                datasChecked = tmpDatasChecked[pagination.page];
+              }
+            }
+          }
+        } else {
+          pagination = response.result.meta.pagination;
+          allData = [];
+          datasChecked = [];
+          configs = {
+            search: true,
+            searchHandler: handleSearch,
+            pagination: response.result.meta.pagination,
+            space: "p-4",
+            actionInLeft: true,
+            actions: [
+              {
+                id: "deselect_all",
+                name: "Deselect All",
+                onclick: () => {
+                  handleCheckAllCollection(false);
+                },
+              },
+              {
+                id: "select_all",
+                name: "Select All",
+                type: "brand-inverse",
+                onclick: () => {
+                  handleCheckAllCollection(true);
+                },
+              },
+            ],
+          };
+        }
+      } catch (error) {
+        errorResponseTrigger(error);
+      } finally {
+        gettingDatas = false;
+        search = false;
+      }
     }
   };
 
@@ -347,64 +366,66 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      gettingDatas = true;
-      const aggregatedData = [];
+      try {
+        gettingDatas = true;
+        const aggregatedData = [];
 
-      paginationCollection.page = 1;
+        paginationCollection.page = 1;
 
-      do {
-        let response = await $call.call("client-dashboard", "get-library-collections", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: paginationCollection.page,
-            page_size: paginationCollection.pageSize,
-            parent_id: parseInt(id),
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        do {
+          let response = await $call.call("client-dashboard", "get-library-collections", {
+            URLQuery: {},
+            URLParams: {},
+            Params: {
+              page: paginationCollection.page,
+              page_size: paginationCollection.pageSize,
+              parent_id: parseInt(id),
+            },
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
 
-        if (response.status !== 200) {
-          console.log(response);
-          gettingDatas = false;
-          if (response.status === 400) {
-            console.error("Invalid parameters:", response);
-            triggerToast($_("invalidParameters"), true, "error");
-          } else if (response.status === 401) {
-            console.error("Unauthorized access:", response);
-            triggerToast($_("unauthorized"), true, "error");
-          } else if (response.status === 500) {
-            console.error("Server error:", response);
-            triggerToast($_("serverError"), true, "error");
-          } else {
-            console.error("Unexpected status code:", response);
-            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+          if (response.status !== 200) {
+            console.log(response);
+            gettingDatas = false;
+            if (response.status === 400) {
+              console.error("Invalid parameters:", response);
+              triggerToast($_("invalidParameters"), true, "error");
+            } else if (response.status === 401) {
+              console.error("Unauthorized access:", response);
+              triggerToast($_("unauthorized"), true, "error");
+            } else if (response.status === 500) {
+              console.error("Server error:", response);
+              triggerToast($_("serverError"), true, "error");
+            } else {
+              console.error("Unexpected status code:", response);
+              triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+            }
+            return;
           }
-          return;
-        }
 
-        aggregatedData.push(...response.result.data);
+          aggregatedData.push(...response.result.data);
 
-        paginationCollection = response.result.meta.pagination;
+          paginationCollection = response.result.meta.pagination;
 
-        paginationCollection.page++;
-      } while (paginationCollection.page <= paginationCollection.pageCount);
+          paginationCollection.page++;
+        } while (paginationCollection.page <= paginationCollection.pageCount);
 
-      const promise = aggregatedData.map(async (collection) => ({
-        id: collection.id,
-        collection_name: collection.attributes.name,
-      }));
+        const promise = aggregatedData.map(async (collection) => ({
+          id: collection.id,
+          collection_name: collection.attributes.name,
+        }));
 
-      const subCollectionList = await Promise.all(promise);
-      // console.log("subCollectionList", subCollectionList);
-      gettingDatas = false;
-      return subCollectionList;
-    } else {
-      triggerToast($_("unauthorized"), true, "error");
-      gettingDatas = false;
-      return;
+        const subCollectionList = await Promise.all(promise);
+        // console.log("subCollectionList", subCollectionList);
+        gettingDatas = false;
+        return subCollectionList;
+      } catch (error) {
+        gettingDatas = false;
+        errorResponseTrigger(error);
+        return;
+      }
     }
   };
 
@@ -423,7 +444,11 @@
 
         // console.log("models", response);
 
-        if (response === null) {
+        if (
+          response === null ||
+          response === undefined ||
+          (response?.status && response.status !== 200)
+        ) {
           if (isFrontend) {
             platforms = [
               {
@@ -436,37 +461,32 @@
             ];
             return;
           } else {
-            triggerToast("error");
-            throw new Error("Response is null");
+            triggerLoading(false);
+            errorResponseTrigger(response);
+            return;
           }
         }
 
-        if (response.status === 200) {
-          // BRI ADJUSTMENT
-          response.result.models = response.result.models.filter(
-            (model) => !model.name.includes("Qurani"),
-          );
+        response.result.models = response.result.models.filter(
+          (model) => !model.name.includes("Qurani"),
+        );
 
-          let i = 0;
-          let promise = response.result.models.map((model) => {
-            return {
-              id: i++,
-              name: model.name,
-              model: model.model,
-              description: model.description,
-              create_at: model.create_at,
-              icon: findIconFromModelName(model.name),
-              recommended: model.name === "Llama3.1" ? true : false,
-            };
-          });
+        let i = 0;
+        let promise = response.result.models.map((model) => {
+          return {
+            id: i++,
+            name: model.name,
+            model: model.model,
+            description: model.description,
+            create_at: model.create_at,
+            icon: findIconFromModelName(model.name),
+            recommended: model.name === "Llama3.1" ? true : false,
+          };
+        });
 
-          platforms = await Promise.all(promise);
-        } else {
-          triggerToast("error");
-          console.log(response);
-        }
+        platforms = await Promise.all(promise);
       } catch (error) {
-        console.log(error);
+        errorResponseTrigger(error);
       }
     }
   };
@@ -488,8 +508,13 @@
         },
       });
 
-      if (response.status !== 200) {
-        console.log(response);
+      if (
+        response === null ||
+        response === undefined ||
+        (response?.status && response.status !== 200)
+      ) {
+        triggerLoading(false);
+        errorResponseTrigger(response);
         gettingDatas = false;
         return;
       }
@@ -568,8 +593,13 @@
           },
         });
 
-        if (response.status !== 200) {
-          console.log(response);
+        if (
+          response === null ||
+          response === undefined ||
+          (response?.status && response.status !== 200)
+        ) {
+          triggerLoading(false);
+          errorResponseTrigger(response);
           gettingDatas = false;
           return;
         }
@@ -677,6 +707,7 @@
     let token = localStorage.getItem("token");
     if (token) {
       try {
+        !onMountState && triggerLoading(true);
         let response = await $call.call("client-dashboard", "get-bot", {
           URLQuery: {},
           URLParams: {
@@ -688,10 +719,13 @@
           },
         });
 
-        if (response.status !== 200) {
-          console.log(response);
+        if (
+          response === null ||
+          response === undefined ||
+          (response?.status && response.status !== 200)
+        ) {
           triggerLoading(false);
-          triggerToast("error");
+          errorResponseTrigger(response);
           goto(isFrontend ? "/bots/list" : await $call.getPage("client-dashboard", "bots-list"));
           return;
         }
@@ -775,10 +809,10 @@
             attributes.bot_profile.data.attributes.name,
           );
         }
-
-        triggerLoading(false);
       } catch (error) {
-        console.log(error);
+        errorResponseTrigger(error);
+      } finally {
+        !onMountState && triggerLoading(false);
       }
     }
   };
@@ -848,6 +882,7 @@
           additional_prompt: additionalPrompt,
           need_auth: needAuth,
         };
+
         if (fileImage !== "" && fileImage !== null && fileImage !== undefined) {
           dataSend.bot_logo = JSON.stringify({ name: fileImageName, base64Data: fileImage });
         }
@@ -866,18 +901,22 @@
 
           // console.log(response);
 
-          if (response.status !== 200) {
-            console.log(response);
+          if (
+            response === null ||
+            response === undefined ||
+            (response?.status && response.status !== 200)
+          ) {
             triggerLoading(false);
+            errorResponseTrigger(response);
             return;
           }
 
           goto(isFrontend ? "/bots" : await $call.getPage("client-dashboard", "bots"));
-          triggerLoading(false);
           triggerToast("created");
         } catch (error) {
+          errorResponseTrigger(error);
+        } finally {
           triggerLoading(false);
-          console.log(error);
         }
       } else {
         const response = await $call.call("client-dashboard", "find-create-library-llm", {
@@ -889,8 +928,13 @@
           },
         });
 
-        if (response.status !== 200) {
-          // console.log(response);
+        if (
+          response === null ||
+          response === undefined ||
+          (response?.status && response.status !== 200)
+        ) {
+          triggerLoading(false);
+          errorResponseTrigger(response);
           return;
         }
 
@@ -925,23 +969,24 @@
 
           // console.log(response);
 
-          if (response.status !== 200) {
-            console.log(response);
+          if (
+            response === null ||
+            response === undefined ||
+            (response?.status && response.status !== 200)
+          ) {
             triggerLoading(false);
+            errorResponseTrigger(response);
             return;
           }
 
           goto(isFrontend ? "/bots" : await $call.getPage("client-dashboard", "bots"));
-          triggerLoading(false);
           triggerToast("created");
         } catch (error) {
+          errorResponseTrigger(error);
+        } finally {
           triggerLoading(false);
-          console.log(error);
         }
       }
-    } else {
-      console.log("no token");
-      return;
     }
   };
 
@@ -1024,13 +1069,21 @@
           },
         });
 
-        // console.log("update bot", response);
-        onEdit = false;
-        triggerLoading(false);
+        if (
+          response === null ||
+          response === undefined ||
+          (response?.status && response.status !== 200)
+        ) {
+          triggerLoading(false);
+          errorResponseTrigger(response);
+          return;
+        }
+
         triggerToast("updated");
       } catch (error) {
-        triggerLoading(false);
-        console.log(error);
+        errorResponseTrigger(error);
+      } finally {
+        getBot();
       }
     }
   };
@@ -1052,20 +1105,22 @@
           },
         });
 
-        if (response.status !== 200) {
+        if (
+          response === null ||
+          response === undefined ||
+          (response?.status && response.status !== 200)
+        ) {
           triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
+          errorResponseTrigger(response);
           return;
         }
 
-        // popupModal = false;
-        triggerLoading(false);
         triggerToast("deleted");
         goto(isFrontend ? "/bots/list" : await $call.getPage("client-dashboard", "bots-list"));
       } catch (error) {
+        errorResponseTrigger(error);
+      } finally {
         triggerLoading(false);
-        console.log(error);
       }
     }
   };
@@ -1223,7 +1278,6 @@
 
     pagination.page = pagination.page + 1;
     // console.log("cek tmpDatasChecked", tmpDatasChecked);
-    // getDocuments();
     getCollections(selectedCollectionId);
   };
 
@@ -1241,7 +1295,6 @@
     }
 
     pagination.page = pagination.page - 1;
-    // getDocuments();
     getCollections(selectedCollectionId);
   };
 
@@ -1469,6 +1522,11 @@
       });
   };
 
+  const errorResponseTrigger = (error) => {
+    triggerToast("error");
+    console.log("error", error);
+  };
+
   onMount(() => {
     const unsubscribe = page.subscribe(async () => {
       try {
@@ -1492,6 +1550,7 @@
           goto(isFrontend ? "/bots/list" : await $call.getPage("client-dashboard", "bots-list"));
         }
       } finally {
+        onMountState = false;
         triggerLoading(false);
       }
     });
@@ -1509,10 +1568,6 @@
         getCollections(selectedCollectionId);
       }
     }
-  });
-
-  $effect(() => {
-    // console.log("datasChecked", datasChecked);
   });
 </script>
 
@@ -1580,6 +1635,12 @@
           <Button
             onclick={() => {
               onEdit = false;
+              tabDatas.selected = "Information";
+              const url = new URL(window.location.href);
+              if (url.searchParams.get("edit")) {
+                url.searchParams.delete("edit");
+                window.history.replaceState({}, "", url);
+              }
               getBot();
             }}
             color="light"
@@ -1587,7 +1648,19 @@
           >
             {$_("cancel")}
           </Button>
-          <Button on:click={() => updateBot()} class="w-full px-3 focus-within:!ring-1">
+          <Button
+            on:click={() => {
+              onEdit = false;
+              tabDatas.selected = "Information";
+              const url = new URL(window.location.href);
+              if (url.searchParams.get("edit")) {
+                url.searchParams.delete("edit");
+                window.history.replaceState({}, "", url);
+              }
+              updateBot();
+            }}
+            class="w-full px-3 focus-within:!ring-1"
+          >
             {$_("save")}
           </Button>
         {:else}
@@ -1776,6 +1849,12 @@
             {:else if pageAction === "detail" && users?.needAuth !== undefined}
               <Toggle {onEdit} bind:checked={users.needAuth} text="requiresLogin" />
             {/if}
+            <Typography
+              preset="Text sm/Regular"
+              text={$_("requiresLoginDesc")}
+              color="tertiary"
+              propClass="mt-1"
+            />
           </div>
           {#if pageAction === "detail" && users?.documentOptions !== undefined}
             <div class="col-span-4">
@@ -1863,6 +1942,24 @@
           {/if}
         </div>
       </div> -->
+      <Divider />
+      <div class="md:flex">
+        <Typography
+          preset="Text md/Semibold"
+          text={$_("botsProfilePicture")}
+          color="secondary"
+          propClass="w-full md:w-1/4"
+        />
+        <div class="w-full md:w-3/4">
+          <UploadFile
+            title={$_("botsProfilePicture")}
+            handleFileUploadWrapper={() => handleInputFile("bot")}
+            isPreview
+            srcAvatar={botFile.name ? botFile.imageResult : ""}
+            disabled={!onEdit}
+          />
+        </div>
+      </div>
       <Divider />
       <div class="md:flex">
         <Typography
