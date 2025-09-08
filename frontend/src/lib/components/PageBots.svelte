@@ -755,7 +755,6 @@
           logoOnly: attributes.logo_only,
           deployedPlatform: attributes?.deployed_platform || "Web",
           description: attributes.description,
-          additionalPrompts: attributes.additional_prompt,
           welcomeMessage: attributes.greeting_text,
           username: attributes?.username || "User",
           primaryBrandColor:
@@ -766,7 +765,6 @@
             attributes.overlay_color !== null
               ? themeColors.find((color) => color.value === attributes.overlay_color).id
               : 1,
-          platform: platforms.find((platform) => platform.model === attributes.ai_engine).id,
           layout:
             attributes.layout !== null
               ? layouts.find((layout) => layout.name === attributes.layout).id
@@ -777,6 +775,11 @@
           needAuth: attributes.need_auth,
           documentOptions: attributes.manage_document,
         };
+
+        additionalPrompt = attributes.additional_prompt;
+        selectedplatforms = platforms.find(
+          (platform) => platform.model === attributes.ai_engine,
+        ).id;
 
         if (attributes.background.data !== null) {
           backgroundFile = getFile(
@@ -1042,8 +1045,8 @@
             id: botId,
           },
           Params: {
-            additional_prompt: users.additionalPrompts,
-            ai_engine: platforms.find((platform) => platform.id === users.platform).model,
+            additional_prompt: additionalPrompt,
+            ai_engine: platforms.find((platform) => platform.id === selectedplatforms).model,
             background: JSON.stringify(backgroundFile),
             background_align: users.background_align,
             bot_logo: JSON.stringify(logoFile),
