@@ -1,6 +1,7 @@
 <script>
   import { Typography, InputRw, TextareaRw, Divider, Dropdown, call, triggerToast } from "$lib";
-  import { Button, Helper } from "flowbite-svelte";
+  import { Button, Helper, Modal } from "flowbite-svelte";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { page } from "$app/stores";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
@@ -20,18 +21,19 @@
   let libraryId = $state(null);
   let apiId = $state(null);
   let dropdownMore = $state(false);
+  let deleteModal = $state(false);
 
-  let data = $state({
-    apiName: "",
-    description: "",
-    createOn: "",
-    apiLink: "",
-    method: "GET",
-    authorization: "Basic Auth",
-    username: "",
-    password: "",
-    token: "",
-  });
+  // let data = $state({
+  //   apiName: "",
+  //   description: "",
+  //   createOn: "",
+  //   apiLink: "",
+  //   method: "GET",
+  //   authorization: "Basic Auth",
+  //   username: "",
+  //   password: "",
+  //   token: "",
+  // });
 
   let dummyData = $state({
     apiName: "GetUserAPI",
@@ -49,7 +51,17 @@
   let dropdownMethodOpen = $state(false);
   let dropdownAuthorization = $state(false);
 
-  let { stateCreate = $bindable("formApi"), paramsData = $bindable(null), saveApi = () => {} } = $props();
+  let { data = $bindable({
+    apiName: "",
+    description: "",
+    createOn: "",
+    urlLink: "",
+    method: "GET",
+    authorization: "Basic Auth",
+    username: "",
+    password: "",
+    token: "",
+  }), stateCreate = $bindable("formApi"), paramsData = $bindable(null), saveApi = () => {}, deleteApi = () => {} } = $props();
 
   let tabDatas = $state({
     selected: "API Information",
@@ -95,7 +107,7 @@
       apiId = $page.url.searchParams.get("apiId");
       if (apiId !== null) {
         onEdit = false;
-        data = dummyData;
+        // data = dummyData;
       }
       if (
         collectionId === null ||
@@ -112,6 +124,10 @@
       unsubscribe();
     };
   })
+
+  $effect(() => {
+    paramsConfigured = paramsData.length;
+  });
 
 </script>
 
@@ -154,7 +170,7 @@
         <Button color="light" class="gap-1.5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark" 
           on:click={() => {
             onEdit = !onEdit;
-            data = dummyData;
+            // data = dummyData;
           }}>
           <Edit05Icon svgClass="w-5 h-5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark" />
           {$_("edit")}
@@ -170,6 +186,7 @@
               <button
                   class="flex p-2 w-full text-error-primary-light dark:text-error-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
                   onclick={() => {
+                    deleteModal = true;
                     dropdownMore = !dropdownMore;
                   }}
                 >
@@ -201,7 +218,10 @@
             : await $call.getPage("client-dashboard", "api-connector-collections-api") + `?collectionId=${collectionId}&libraryId=${libraryId}`;
           onEdit ? onEdit = !onEdit : goto(link);
         }}>{$_("cancel")}</Button>
-        <Button class="gap-1.5" on:click={saveApi}>
+        <Button class="gap-1.5" on:click={() => {
+          onEdit = false;
+          saveApi(data);
+        }}>
           <Save01Icon />
           {$_("saveApi")}
         </Button>
@@ -463,3 +483,20 @@
     {/if}
   {/if}
 </div>
+
+<Modal 
+  bind:open={deleteModal} 
+  size="xs" 
+  autoclose
+  backdropClass="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 dark:bg-opacity-80"
+  dialogClass="fixed top-0 start-0 end-0 h-modal md:inset-0 md:h-full z-50 w-full p-4 flex" 
+>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      Are you sure you want to delete {data.name}?
+    </h3>
+    <Button onclick={() => {deleteApi();}} color="red" class="me-2">Yes, I'm sure</Button>
+    <Button color="alternative" onclick={() => (deleteModal = false)}>Cancel</Button>
+  </div>
+</Modal>
