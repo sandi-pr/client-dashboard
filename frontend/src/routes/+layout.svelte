@@ -80,8 +80,8 @@ All Rights Reserved
   let moduleManagerSkipSetup = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai")
-    : // ? new CR3Call("http://localhost")
+    ? new CR3Call("https://tank.hexacode.ai") :
+    // ? new CR3Call("http://localhost") :
       new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
@@ -451,13 +451,13 @@ All Rights Reserved
               ? "/finetunings"
               : await call.getPage("client-dashboard", "finetunings"),
           },
-          // {
-          //   icon: "dataflow02",
-          //   name: "apiConnector",
-          //   href: isFrontend
-          //     ? "/api_connector"
-          //     : await call.getPage("client-dashboard", "api-connector"),
-          // },
+          {
+            icon: "dataflow02",
+            name: "apiConnector",
+            href: isFrontend
+              ? "/api_connector"
+              : await call.getPage("client-dashboard", "api-connector"),
+          },
         ],
       },
       // {
@@ -1059,11 +1059,11 @@ All Rights Reserved
       additional_prompt:
         "Kamu adalah bot yang menjawab pertanyaan user sesuai dengan dokumen yang ada",
     },
-    {
-      name_library: "API Connector",
-      module_type: "apiconnector",
-      name_collection: "My API Collection",
-    },
+    // {
+    //   name_library: "API Connector",
+    //   module_type: "apiconnector",
+    //   name_collection: "My API Collection",
+    // },
   ];
 
   async function createCoreModule(
