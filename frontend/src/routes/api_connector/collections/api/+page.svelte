@@ -40,7 +40,7 @@
   const isFrontend = process.env.NODE_ENV === "development";
 
   let collectionId = $state(null);
-  let libraryId = $state(null);
+  let libraryId = $state(0);
   let inputRef;
   let checkAllState = $state(false);
   let addDocumentsModal = $state(false);
@@ -1699,12 +1699,9 @@
     }
     const unsubscribe = page.subscribe(async ($page) => {
       collectionId = $page.url.searchParams.get("collectionId");
-      libraryId = $page.url.searchParams.get("libraryId");
       if (
         collectionId === null ||
-        collectionId === undefined ||
-        libraryId === null ||
-        libraryId === undefined
+        collectionId === undefined
       ) {
         goto(await $call.getPage("client-dashboard", "api-connector"));
         return;
@@ -1715,7 +1712,7 @@
       getLabels();
     });
 
-    dummyAddLink();
+    // dummyAddLink();
 
     checkMobileView();
     window.addEventListener("resize", checkMobileView);
@@ -1832,8 +1829,8 @@
               disabled={!check("documentAi.documentLibrary.document:create")}
               on:click={async () => {
                 let link = isFrontend
-                  ? "/api_connector/collections/api/create" + `?collectionId=${collectionId}&libraryId=${libraryId}`
-                  : await $call.getPage("client-dashboard", "api-connector-collections-api-create") + `?collectionId=${collectionId}&libraryId=${libraryId}`;
+                  ? "/api_connector/collections/api/create" + `?collectionId=${collectionId}`
+                  : await $call.getPage("client-dashboard", "api-connector-collections-api-create") + `?collectionId=${collectionId}`;
                 goto(link);
               }}
             >
