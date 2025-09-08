@@ -135,34 +135,34 @@
   let isProcess = $state(false);
   let folderMode = $state(false);
   let apisData = $state([
-    {
-      id: 1,
-      // checkbox: {
-      //   checked: false,
-      // },
-      name: "GetUserAPI",
-      method: {
-        type: "success",
-        name: "GET",
-      },
-      apiLink: "https://hexacode.ai/api/character?name",
-      dateUploaded: "Jan 4, 2022",
-      actions: {
-        objects: [
-          {
-            href: "#",
-            name: "View",
-          },
-        ],
-      },
-    },
+    // {
+    //   id: 1,
+    //   // checkbox: {
+    //   //   checked: false,
+    //   // },
+    //   name: "GetUserAPI",
+    //   method: {
+    //     type: "success",
+    //     name: "GET",
+    //   },
+    //   apiLink: "https://hexacode.ai/api/character?name",
+    //   dateUploaded: "Jan 4, 2022",
+    //   actions: {
+    //     objects: [
+    //       {
+    //         href: "#",
+    //         name: "View",
+    //       },
+    //     ],
+    //   },
+    // },
   ]);
 
   async function getCollection() {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-library-collection", {
+      let response = await $call.call("client-dashboard", "get-collection-api", {
         URLQuery: {},
         URLParams: {
           id: collectionId,
@@ -176,9 +176,9 @@
       // console.log("collection", response);
 
       collectionDatas = {
-        title: response.result.attributes.name,
-        description: response.result.attributes?.meta?.description || "",
-        createdAt: format(new Date(response.result.attributes.createdAt), "dd-MM-yyyy"),
+        title: response.result.data.attributes.name,
+        description: response.result.data.attributes?.meta?.description || "",
+        createdAt: format(new Date(response.result.data.attributes.createdAt), "dd-MM-yyyy"),
       };
     }
   }
@@ -195,7 +195,7 @@
       }
 
       try {
-        let response = await $call.call("client-dashboard", "get-library-documents", {
+        let response = await $call.call("client-dashboard", "get-apis", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -235,8 +235,8 @@
         pagination = response.result.meta.pagination;
 
         let link = isFrontend
-          ? "/handwriting/collections/documents/detail"
-          : await $call.getPage("client-dashboard", "handwriting-detail");
+          ? "/api_connector/collections/api/detail"
+          : await $call.getPage("client-dashboard", "api-connector-collections-api-detail");
 
         let promise = response.result.data.map(async (collection) => {
           const params = new URLSearchParams(window.location.search);
@@ -286,24 +286,32 @@
             queryParams[key] = value;
           }
           const queryString = new URLSearchParams(queryParams).toString();
+
           return {
             id: collection.id,
-            filename: collection.attributes.name,
-            fileext: collection.attributes.path.split(".").pop(),
-            label:
-              collection.attributes.meta.category === undefined
-                ? []
-                : collection.attributes.meta.category.split(","),
-            type: collection.attributes.meta.document_type,
-            upload_by: collection.attributes.meta.author,
-            filesize: collection.attributes.meta.file_size,
-            createdAt: format(new Date(collection.attributes.createdAt), "MMM d, yyyy"),
-            href: link + "?documentId=" + collection.id + "&" + queryString,
-            checked: false,
+            // checkbox: {
+            //   checked: false,
+            // },
+            name: collection.attributes.name,
+            method: {
+              type: "success",
+              name: collection.attributes.method,
+            },
+            apiLink: collection.attributes.url,
+            dateUploaded: format(new Date(collection.attributes.createdAt), "dd-MM-yyyy"),
+            actions: {
+              objects: [
+                {
+                  href: link + "?apiId=" + collection.id + "&" + queryString,
+                  name: "View",
+                },
+              ],
+            },
+            // href: link + "?documentId=" + collection.id + "&" + queryString,
           };
         });
 
-        collectionListDatas = await Promise.all(promise);
+        apisData = await Promise.all(promise);
 
         // console.log("collectionListDatas", collectionListDatas);
       } catch (error) {
@@ -1064,7 +1072,7 @@
       paginationCollection.page = 1;
 
       do {
-        let response = await $call.call("client-dashboard", "get-library-collections", {
+        let response = await $call.call("client-dashboard", "get-apis", {
           URLQuery: {},
           URLParams: {},
           Params: {
@@ -1701,8 +1709,8 @@
         goto(await $call.getPage("client-dashboard", "api-connector"));
         return;
       }
-      getCollections(true, false);
-      getCollections(false, false);
+      // getCollections(true, false);
+      // getCollections(false, false);
       getDocuments();
       getLabels();
     });
