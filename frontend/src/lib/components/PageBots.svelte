@@ -638,9 +638,19 @@
             };
           });
 
-          datas = [...datas, { [collectionId[i]]: await Promise.all(promises) }];
+          // Remove any existing object with the same key
+          const key = collectionId[i];
+          datas = [
+            ...datas.filter((obj) => !Object.prototype.hasOwnProperty.call(obj, key)),
+            { [key]: await Promise.all(promises) },
+          ];
         } else {
-          datas = [...datas, { [collectionId[i]]: [] }];
+          // Remove any existing object with the same key
+          const key = collectionId[i];
+          datas = [
+            ...datas.filter((obj) => !Object.prototype.hasOwnProperty.call(obj, key)),
+            { [key]: [] },
+          ];
         }
 
         searchCategory = {
