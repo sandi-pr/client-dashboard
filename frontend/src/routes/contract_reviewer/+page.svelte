@@ -338,7 +338,7 @@ All Rights Reserved
   </div>
 </div>
 
-<Modal title={$_("createNewProject")} bind:open={addProjectModal} size="lg">
+<Modal title={$_("createNewProject")} bind:open={addProjectModal} size="lg" outsideclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectName")}*`} />
@@ -367,6 +367,7 @@ All Rights Reserved
           items={rules}
           placeholder={$_("chooseCase")}
           isOverlay={true}
+          propClass="w-full disabled:cursor-not-allowed disabled:opacity-50 rtl:text-right p-2.5 text-gray-900 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-500 text-sm rounded-lg bg-primary-light dark:bg-gray-800"
         />
       </div>
     </div>
@@ -423,11 +424,3 @@ All Rights Reserved
     >
   </svelte:fragment>
 </Modal>
-
-<!-- <LoadingContainer /> -->
-
-<!-- <style>
-  :global(.datepicker[data-picker-theme="custom-datepicker"]) {
-    --datepicker-container-background: #fff;
-  }
-</style> -->

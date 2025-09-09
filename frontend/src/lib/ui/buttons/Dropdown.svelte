@@ -1,15 +1,15 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Sandi Permana <sandy@hexacode.org>
 Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
   import { Button } from "flowbite-svelte";
+  import { twMerge } from "tailwind-merge";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
-  import { toCamelCase } from "$lib/utils/toCamelCase.js";
   import { _ } from "svelte-i18n";
   import Divider from "../../components/Divider.svelte";
 
@@ -23,18 +23,33 @@ All Rights Reserved
     disabled = false,
     onClick = null,
     widget = null,
+    propClass = "",
   } = $props();
 
   const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
     if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
     dropdownOpen = false;
   };
+
+  const buttonClass = () => {
+    const defaultClass = `flex justify-between border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark focus:ring-0 ${
+      disabled
+        ? "focus:ring-0 cursor-not-allowed bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:border-primary-light hover:dark:border-primary-dark"
+        : ""
+    }`;
+
+    if (propClass) {
+      return twMerge(defaultClass, propClass);
+    } else {
+      return defaultClass;
+    }
+  };
 </script>
 
 <div onfocusout={handleDropdownFocusLoss} class={`flex flex-col relative gap-1 ${width}`}>
   <Button
     on:click={() => (dropdownOpen = !dropdownOpen)}
-    class={`flex justify-between border-primary-light dark:border-primary-dark bg-primary-light dark:bg-secondary-dark ${disabled ? "focus:ring-0 hover:cursor-default hover:bg-primary-light dark:hover:bg-secondary-dark" : ""}`}
+    class={buttonClass()}
     color="light"
     {disabled}
   >
@@ -48,18 +63,18 @@ All Rights Reserved
       {selectedItem === "" ? placeholder : items.find((item) => item.value === selectedItem)?.name}
     </div>
     <ChevronDownOutline
-      class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
+      class="w-4 h-4 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
     />
   </Button>
   {#if dropdownOpen && items.length > 0 && !disabled}
     {#if isOverlay}
       <div
         id="dropdown"
-        class={`z-10 ${dropdownOpen ? "absolute top-12 px-2" : "hidden"} bg-white divide-y divide-gray-100 rounded-lg shadow ${width} dark:bg-gray-700`}
+        class={`z-10 ${width} ${dropdownOpen ? "absolute top-12" : "hidden"} bg-white dark:bg-gray-700 rounded-lg shadow`}
         style="max-height: 200px; overflow-y: auto;"
       >
         <ul
-          class="py-2 text-sm text-gray-700 dark:text-gray-200"
+          class="text-sm text-gray-700 dark:text-gray-200"
           aria-labelledby="dropdownDefaultButton"
         >
           {#each items as item, index}
@@ -67,7 +82,7 @@ All Rights Reserved
               <Divider />
             {/if}
             <button
-              class="flex w-full text-left py-2 px-4"
+              class="flex w-full text-left py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600"
               onclick={onClick === null
                 ? () => ((dropdownOpen = false), (selectedItem = item.value))
                 : () => ((dropdownOpen = false), (selectedItem = item.value), onClick(item.value))}
