@@ -40,10 +40,11 @@
   let tmpCollectionName = $state("");
   let tmpOldName = $state("");
   let tmpDescription = $state("");
+  let tmpParentId = $state(0);
   let tmpLibraryName = $state("");
   let tmpDescLibrary = $state("");
   let tmpCollectionId = $state("");
-  let libraryId = $state("");
+  let libraryId = $state(0);
   let botIdStrapi = $state(null);
   let dropdownOpen = $state(false);
   let nameIsAvailable = $state(true);
@@ -131,13 +132,13 @@
       try {
         getLibrary();
 
-        let response = await $call.call("client-dashboard", "get-library-collections", {
+        let response = await $call.call("client-dashboard", "get-collection-apis", {
           URLQuery: {},
           URLParams: {},
           Params: {
             page: pagination.page,
             page_size: pagination.pageSize,
-            parent_id: parseInt(libraryId),
+            parent_id: 0,
             search: searchTerm,
           },
           Headers: {
@@ -190,6 +191,7 @@
             description: collection.attributes?.meta?.description || "",
             type: collection.attributes.type,
             href: link + "?collectionId=" + collection.id + "&" + queryString,
+            parentId: collection.attributes.parent_id,
           };
         });
 
@@ -210,68 +212,45 @@
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      try {
-        let dataSend = {};
-        if ($isBakrie) {
-          dataSend = {
-            collection_name: tmpCollectionName,
-            description: tmpDescription,
-            parent_id: parseInt(libraryId),
-            // bakrie
-            bot_id: localStorage.getItem("botIdStrapi").toString(),
-          };
+      let response = await $call.call("client-dashboard", "create-collection-api", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          name: tmpCollectionName,
+          description: tmpDescription,
+          parent_id: 0,
+          // bot_id: botIdStrapi,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        console.log(response);
+        if (response.status === 400) {
+          console.error("Invalid parameters:", response);
+          triggerToast($_("invalidParameters"), true, "error");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access:", response);
+          triggerToast($_("unauthorized"), true, "error");
+        } else if (response.status === 500) {
+          console.error("Server error:", response);
+          triggerToast($_("serverError"), true, "error");
         } else {
-          dataSend = {
-            collection_name: tmpCollectionName,
-            description: tmpDescription,
-            parent_id: parseInt(libraryId),
-            bot_id: botIdStrapi,
-          };
+          console.error("Unexpected status code:", response);
+          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
         }
-
-        let response = await $call.call("client-dashboard", "create-library-collection", {
-          URLQuery: {},
-          URLParams: {},
-          Params: dataSend,
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response.status !== 200) {
-          console.log(response);
-          if (response.status === 400) {
-            console.error("Invalid parameters:", response);
-            triggerToast($_("invalidParameters"), true, "error");
-          } else if (response.status === 401) {
-            console.error("Unauthorized access:", response);
-            triggerToast($_("unauthorized"), true, "error");
-          } else if (response.status === 500) {
-            console.error("Server error:", response);
-            triggerToast($_("serverError"), true, "error");
-          } else {
-            console.error("Unexpected status code:", response);
-            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-          }
-          return;
-        }
-
-        // console.log(response);
-
-        tmpCollectionName = "";
-        tmpDescription = "";
-        addCollectionModal = false;
-
-        triggerToast($_("successCreateCollection"), true);
-        getCollections();
-        // goto(await $call.getPage("client-dashboard", "document-library"));
-      } catch (error) {
-        console.error("Error during collection creation:", error);
-        triggerToast($_("failedCreateCollection"), true, "error");
+        return;
       }
-    } else {
-      triggerToast($_("unauthorized"), true, "error");
-      return;
+
+      tmpCollectionName = "";
+      tmpDescription = "";
+
+      triggerToast($_("successCreateCollection"), true);
+
+      addCollectionModal = false;
+      getCollections();
     }
   }
 
@@ -331,16 +310,19 @@
   async function editCollectionName() {
     let token = localStorage.getItem("token");
 
+    // console.log("tmpCollectionId", tmpCollectionId);
+
     if (token !== null) {
       try {
-        let response = await $call.call("client-dashboard", "update-library-collection", {
+        let response = await $call.call("client-dashboard", "update-collection-api", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
           },
           Params: {
-            collection_name: tmpCollectionName,
+            name: tmpCollectionName,
             description: tmpDescription,
+            parent_id: tmpParentId ? parseInt(tmpParentId) : 0,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -367,6 +349,7 @@
 
         tmpCollectionName = "";
         tmpDescription = "";
+        tmpParentId = "";
 
         editModal = false;
         triggerToast($_("successUpdateCollection"), true);
@@ -455,7 +438,7 @@
 
     if (token !== null) {
       try {
-        let response = await $call.call("client-dashboard", "delete-library-collection", {
+        let response = await $call.call("client-dashboard", "delete-collection-api", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -507,7 +490,7 @@
     }
 
     try {
-      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+      let resp = await $call.call("client-dashboard", "is-collection-api-name-available", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -1051,17 +1034,18 @@
       return;
     }
 
-    botIdStrapi = localStorage.getItem("botIdStrapi" + "handwriting");
+    // botIdStrapi = localStorage.getItem("botIdStrapi" + "handwriting");
 
-    const unsubscribe = page.subscribe(async ($page) => {
-      libraryId = $page.url.searchParams.get("libraryId");
-      if (libraryId === null) {
-        // goto(await $call.getPage("client-dashboard", "document-library"));
-        return;
-      }
-      getCollections();
-    });
-    return () => unsubscribe();
+    // const unsubscribe = page.subscribe(async ($page) => {
+    //   libraryId = $page.url.searchParams.get("libraryId");
+    //   if (libraryId === null) {
+    //     // goto(await $call.getPage("client-dashboard", "document-library"));
+    //     return;
+    //   }
+    //   getCollections();
+    // });
+    // return () => unsubscribe();
+    getCollections();
   });
 
   $effect(() => {
@@ -1174,6 +1158,7 @@
                   tmpCollectionName = collection.collectionName;
                   tmpOldName = document.collectionName;
                   tmpDescription = collection.description;
+                  tmpParentId = collection.parentId;
                   nameIsAvailable = true;
                   editModal = true;
                 }}

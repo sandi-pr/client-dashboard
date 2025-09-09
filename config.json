@@ -5881,7 +5881,339 @@
                 "plugin": "plugin.so",
                 "function": "Restart"
             }
-        }
+        },
+        {
+            "name": "create-collection-api",
+            "path": "/create-collection-api",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateCollectionApi"
+            },
+            "params": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "update-collection-api",
+            "path": "/update-collection-api/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateCollectionApi"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "delete-collection-api",
+            "path": "/delete-collection-api/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteCollectionApi"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-collection-apis",
+            "path": "/get-collection-apis",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCollectionApis"
+            },
+            "params": [
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                },
+                {
+                    "name": "search",
+                    "type": "string"
+                },
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
+        },
+        {
+            "name": "get-collection-api",
+            "path": "/get-collection-api/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetCollectionApi"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "create-api",
+            "path": "/create-api",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateApi"
+            },
+            "params": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                },
+                {
+                    "name": "url",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "method",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "auth_type",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "username",
+                    "type": "string"
+                },
+                {
+                    "name": "password",
+                    "type": "string"
+                },
+                {
+                    "name": "token",
+                    "type": "string"
+                },
+                {
+                    "name": "params",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-api",
+            "path": "/update-api/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateApi"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                },
+                {
+                    "name": "url",
+                    "type": "string"
+                },
+                {
+                    "name": "method",
+                    "type": "string"
+                },
+                {
+                    "name": "auth_type",
+                    "type": "string"
+                },
+                {
+                    "name": "username",
+                    "type": "string"
+                },
+                {
+                    "name": "password",
+                    "type": "string"
+                },
+                {
+                    "name": "token",
+                    "type": "string"
+                },
+                {
+                    "name": "params",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delete-api",
+            "path": "/delete-api/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteApi"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-apis",
+            "path": "/get-apis",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetApis"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                },
+                {
+                    "name": "search",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "get-api",
+            "path": "/get-api/:id",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetApi"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "is-collection-api-name-available",
+            "path": "/is-collection-api-name-available",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "IsCollectionApiNameAvailable"
+            },
+            "params": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "parent_id",
+                    "type": "number"
+                },
+                {
+                    "name": "type",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        } 
     ],
     "options": {
         "strapi_schemas": [
@@ -7130,6 +7462,50 @@
                     },
                     "file_size": {
                         "type": "string"
+                    }
+                }
+            },
+            {
+                "name": "api-library",
+                "label": "API Library",
+                "fields": {
+                    "name": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "parent_id": {
+                        "type": "integer"
+                    },
+                    "type": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "method": {
+                        "type": "string"
+                    },
+                    "auth_type": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "password"
+                    },
+                    "token": {
+                        "type": "string"
+                    },
+                    "params": {
+                        "type": "json"
+                    },
+                    "meta": {
+                        "type": "json"
                     }
                 }
             }

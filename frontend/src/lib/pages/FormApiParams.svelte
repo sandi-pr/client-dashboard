@@ -50,12 +50,29 @@
     newData.actions.objects[0].onclick = () => deleteParam(newData.id);
     paramsData = [...paramsData, newData];
 
+    newData = {
+      id: 1,
+      key: "",
+      type: "",
+      description: "",
+      actions: {
+        objects: [
+          {
+            onclick: () => {},
+            name: "Delete",
+            icon: "trash",
+          },
+        ],
+      },
+    };
+
     console.log("cek paramsData", paramsData);
     addParamModal = false;
   }
 
   async function deleteParam(index) {
     // TODO: delete paramsData
+    paramsData = paramsData.filter((item) => item.id !== index);
   }
 
 </script>

@@ -52,6 +52,7 @@ All Rights Reserved
   let tmpCollectionName = $state("");
   let tmpOldName = $state("");
   let tmpDescription = $state("");
+  let tmpParentId = $state(0);
   let tmpCollectionId = $state("");
   let tmpDocumentTitle = $state("");
   let tmpDocumentDescription = $state("");
@@ -89,7 +90,7 @@ All Rights Reserved
     },
   ]);
 
-  let libraryId = $state("");
+  let libraryId = $state(0);
   let botId, botIdStrapi, collectionId;
 
   async function getActionItems() {
@@ -112,7 +113,7 @@ All Rights Reserved
     const newLink = isFrontend
       ? "/api_connector/collections"
       : await $call.getPage("client-dashboard", "api-connector-collections");
-    goto(newLink + "?libraryId=" + libraryId);
+    goto(newLink);
   }
 
   async function getBot() {
@@ -196,14 +197,14 @@ All Rights Reserved
     let token = localStorage.getItem("token");
 
     if (token !== null) {
-      let response = await $call.call("client-dashboard", "create-library-collection", {
+      let response = await $call.call("client-dashboard", "create-collection-api", {
         URLQuery: {},
         URLParams: {},
         Params: {
-          collection_name: tmpCollectionName,
+          name: tmpCollectionName,
           description: tmpDescription,
-          parent_id: parseInt(libraryId),
-          bot_id: botIdStrapi,
+          parent_id: 0,
+          // bot_id: botIdStrapi,
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -245,13 +246,14 @@ All Rights Reserved
       gettingDatas = true;
       collections = [];
       documents = [];
-      let response = await $call.call("client-dashboard", "get-library-collections", {
+      let response = await $call.call("client-dashboard", "get-collection-apis", {
         URLQuery: {},
         URLParams: {},
         Params: {
           page: 1,
           page_size: 8,
-          parent_id: parseInt(libraryId),
+          parent_id: 0,
+          search: "",
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -311,7 +313,8 @@ All Rights Reserved
           collectionName: collection.attributes.name,
           description: collection.attributes?.meta?.description || "",
           type: collection.attributes.type,
-          href: link + "?collectionId=" + collection.id + "&" + `libraryId=${libraryId}`,
+          href: link + "?collectionId=" + collection.id,
+          parent_id: collection.attributes.parent_id,
         };
       });
 
@@ -328,14 +331,15 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response = await $call.call("client-dashboard", "update-library-collection", {
+        let response = await $call.call("client-dashboard", "update-collection-api", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
           },
           Params: {
-            collection_name: tmpCollectionName,
+            name: tmpCollectionName,
             description: tmpDescription,
+            parent_id: tmpParentId ? parseInt(tmpParentId) : 0,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -362,6 +366,7 @@ All Rights Reserved
 
         tmpCollectionName = "";
         tmpDescription = "";
+        tmpParentId = "";
 
         editModal = false;
         triggerToast($_("successUpdateCollection"), true);
@@ -381,7 +386,7 @@ All Rights Reserved
 
     if (token !== null) {
       try {
-        let response2 = await $call.call("client-dashboard", "delete-library", {
+        let response2 = await $call.call("client-dashboard", "delete-collection-api", {
           URLQuery: {},
           URLParams: {
             id: tmpCollectionId.toString(),
@@ -1024,7 +1029,7 @@ All Rights Reserved
     }
 
     try {
-      let resp = await $call.call("client-dashboard", "is-library-name-available", {
+      let resp = await $call.call("client-dashboard", "is-collection-api-name-available", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -1106,16 +1111,16 @@ All Rights Reserved
       window.history.back();
       return;
     }
-    libraryId = localStorage.getItem("libraryId" + "apiconnector");
-    collectionId = localStorage.getItem("collectionId" + "apiconnector");
-    botId = localStorage.getItem("botId" + "apiconnector");
-    botIdStrapi = localStorage.getItem("botIdStrapi" + "apiconnector");
-    bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
-    bots[0].botsID = botIdStrapi;
+    // libraryId = localStorage.getItem("libraryId" + "apiconnector");
+    // collectionId = localStorage.getItem("collectionId" + "apiconnector");
+    // botId = localStorage.getItem("botId" + "apiconnector");
+    // botIdStrapi = localStorage.getItem("botIdStrapi" + "apiconnector");
+    // bots[0].urlBot = (await $call.getPage("hexabot", "home-page")) + "?id=" + botId;
+    // bots[0].botsID = botIdStrapi;
     getActionItems();
-    getCountDocumentsPerMonth();
+    // getCountDocumentsPerMonth();
     getCollections();
-    getLabels();
+    // getLabels();
     // generateChartData();
   });
 
@@ -1183,6 +1188,7 @@ All Rights Reserved
                     tmpCollectionName = api.collectionName;
                     tmpOldName = api.collectionName;
                     tmpDescription = api.description;
+                    tmpParentId = api.parent_id;
                     attributeNotUnique = false;
                     nameIsAvailable = true;
                     editModal = true;
