@@ -139,3 +139,4 @@ export { setCookie, getCookie } from "$lib/utils/cookies";
 export { isMoodle } from "$lib/utils/moodleStore";
 export { isOpenSidebarStore } from "$lib/utils/isOpenSidebarStore";
 export { me, isDemoTrue, isLimitTrue } from "$lib/utils/me";
+export { getRules, getAllRules, getProjects } from "$lib/utils/contractReviewerFunctions";

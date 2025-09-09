@@ -1215,5 +1215,6 @@
   "promptRecommendationDesc": "Tambahkan maksimal 3 rekomendasi",
   "addPromptRecommendation": "Tambahkan Rekomendasi Prompt",
   "promptRecommendationNotFound": "Tidak ada rekomendasi prompt. Anda dapat menambahkan rekomendasi prompt dikonfigurasi.",
-  "requiresLoginDesc": "Jika membutuhkan login diaktifkan, Anda dapat menyimpan riwayat obrolan Anda."
+  "requiresLoginDesc": "Jika membutuhkan login diaktifkan, Anda dapat menyimpan riwayat obrolan Anda.",
+  "casesList": "Daftar Kasus"
 }

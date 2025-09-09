@@ -131,6 +131,14 @@
     }
   };
 
+  const classActionText = (type) => {
+    if (type === "primary") {
+      return "hover:no-underline text-fg-brand-primary-light dark:text-fg-brand-primary-dark leading-tight text-sm font-semibold";
+    } else {
+      return "hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold";
+    }
+  };
+
   const withSeparator = (configs) => {
     if (configs?.seperator && configs.seperator === true) {
       return "pb-4 border-b border-hc-graylight-200 dark:border-hc-graydark-800";
@@ -622,11 +630,17 @@
                           />
                           {$_(toCamelCase(action.name))}
                         </button>
+                      {:else if action?.type}
+                        <a class={classActionText(action.type)} href={action.href}>
+                          {$_(toCamelCase(action.name))}
+                        </a>
                       {:else}
                         <a
                           class="hover:no-underline text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark leading-tight text-sm font-semibold"
-                          href={action.href}>{$_(toCamelCase(action.name))}</a
+                          href={action.href}
                         >
+                          {$_(toCamelCase(action.name))}
+                        </a>
                       {/if}
                     {/each}
                   </div>

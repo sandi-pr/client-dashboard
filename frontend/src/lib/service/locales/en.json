@@ -1215,5 +1215,6 @@
   "promptRecommendationDesc": "Add to maximum 3 prompt recommendation.",
   "addPromptRecommendation": "Add Prompt Recommendation",
   "promptRecommendationNotFound": "No prompt recommendation added. You can add prompt recommendation in configure chatbot.",
-  "requiresLoginDesc": "If requires login enabled, you are able to save your chat history."
+  "requiresLoginDesc": "If requires login enabled, you are able to save your chat history.",
+  "casesList": "Cases List"
 }

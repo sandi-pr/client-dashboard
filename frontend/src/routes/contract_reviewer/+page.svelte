@@ -13,7 +13,15 @@ All Rights Reserved
   import { DatePicker } from "@svelte-plugins/datepicker";
   import { _ } from "svelte-i18n";
   import { format } from "date-fns";
-  import { call, check, getIcons, triggerToast, triggerLoading } from "$lib";
+  import {
+    call,
+    check,
+    getIcons,
+    getAllRules,
+    getProjects,
+    triggerToast,
+    triggerLoading,
+  } from "$lib";
   import { Dropdown, DataTable, StateCard, Typography, ActionCard } from "$lib";
 
   const IllustrationEmpty = getIcons("illustrationEmpty");
@@ -47,24 +55,20 @@ All Rights Reserved
     { name: "Seller", value: "Seller" },
   ]);
 
-  let configs = $state({});
+  let datasConfigs = $state({});
+  let rulesConfigs = $state({});
 
-  let datas = $state([]);
+  let datasTable = $state([]);
   let rules = $state([]);
+  let rulesTable = $state([]);
 
   let gettingDatas = $state(false);
+  let gettingRules = $state(false);
 
   let buttonDisabled = $state(false);
 
   const getActionItems = async () => {
     actionItems = [
-      {
-        disabled: !check("aiManagement.contractreviewer.project:create"),
-        onclick: () => (addProjectModal = true),
-        icon: "packagePlus",
-        actionName: "Add new project",
-        desc: "desc Add new project",
-      },
       {
         disabled: !check("aiManagement.contractreviewer.case:view"),
         href: isFrontend
@@ -73,6 +77,13 @@ All Rights Reserved
         icon: "bookOpen",
         actionName: "Manage cases",
         desc: "desc Set your referenced document",
+      },
+      {
+        disabled: !check("aiManagement.contractreviewer.project:create"),
+        onclick: () => (addProjectModal = true),
+        icon: "packagePlus",
+        actionName: "Add new project",
+        desc: "desc Add new project",
       },
     ];
   };
@@ -91,13 +102,15 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          console.log(response);
-          return 0;
+          const error = new Error("An error occurred while fetching the data.");
+          error.response = response;
+          throw error;
         }
 
-        return parseInt(response.result.data[0].attributes.company_industry);
+        // console.log("response", response);
+        return response?.result?.data?.attributes?.company_industry || 0;
       } catch (error) {
-        console.log(error);
+        console.log("error", error);
         return 0;
       }
     }
@@ -145,7 +158,7 @@ All Rights Reserved
         startDate = null;
         endDate = null;
         triggerToast("created");
-        getProjectsLatest();
+        handleGetProjects();
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");
@@ -155,114 +168,100 @@ All Rights Reserved
     }
   };
 
-  const getRules = async () => {
-    let token = localStorage.getItem("token");
-    if (token) {
-      rulesTmp = [];
-      let page = 1;
-      try {
-        while (true) {
-          const response = await $call.call("client-dashboard", "get-contract-rules", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              page: page,
-              page_size: 25,
+  const handleGetRules = async () => {
+    gettingRules = true;
+    const allrules = await getAllRules($call);
+    if (allrules.length > 0) {
+      let link = isFrontend
+        ? "/contract_reviewer/case/detail"
+        : await $call.getPage("client-dashboard", "contract-case-detail");
+
+      rules = allrules.map((rule) => ({
+        value: rule.id,
+        name: rule.attributes.rule_name,
+      }));
+
+      rulesConfigs = {
+        headers: "casesList",
+        actions: [
+          {
+            name: "viewAll",
+            href: isFrontend
+              ? "/contract_reviewer/case"
+              : await $call.getPage("client-dashboard", "contract-case"),
+            type: "info",
+          },
+        ],
+        seperator: true,
+      };
+
+      const promise = allrules.map(async (rule) => ({
+        id: rule.id,
+        rule_name: rule.attributes.rule_name,
+        actions: {
+          objects: [
+            check("businessManagement.hr.recruitment:view") && {
+              href: link + "?caseId=" + rule.id,
+              name: "View",
+              type: "primary",
             },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response.status !== 200) {
-            console.log(response);
-            return;
-          }
-
-          if (response.result.data.length === 0) {
-            break;
-          }
-          rulesTmp = rulesTmp.concat(response.result.data);
-          page++;
-        }
-
-        if (rulesTmp.length > 0) {
-          let promise = rulesTmp.map((rule) => {
-            return {
-              value: rule.id,
-              name: rule.attributes.rule_name,
-            };
-          });
-          rules = await Promise.all(promise);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+          ].filter(Boolean),
+        },
+      }));
+      rulesTable = await Promise.all(promise);
+    } else {
+      rulesTable = [];
     }
+    gettingRules = false;
   };
 
-  const getProjectsLatest = async () => {
-    let token = localStorage.getItem("token");
-    if (token) {
-      gettingDatas = true;
-      try {
-        const response = await $call.call("client-dashboard", "get-contract-projects", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            page: 1,
-            page_size: 5,
+  const handleGetProjects = async () => {
+    gettingDatas = true;
+
+    const projects = await getProjects($call, { page: 1, pageSize: 5 });
+    if (projects.length > 0) {
+      datasConfigs = {
+        headers: "projectList",
+        actions: [
+          {
+            name: "viewAll",
+            href: isFrontend
+              ? "/contract_reviewer/project"
+              : await $call.getPage("client-dashboard", "contract-project-list"),
+            type: "info",
           },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-        // console.log("response", response);
-        if (response.status === 200) {
-          configs = {
-            headers: "projectList",
-            actions: [
+        ],
+        seperator: true,
+      };
+
+      let url = isFrontend
+        ? "/contract_reviewer/project/detail"
+        : await $call.getPage("client-dashboard", "contract-project-detail");
+
+      const promise = projects.map((project) => {
+        return {
+          id: project.id,
+          project_name: project.attributes.project_name,
+          start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
+          end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
+          actions: {
+            objects: [
               {
-                name: "viewAll",
-                href: isFrontend
-                  ? "/contract_reviewer/project"
-                  : await $call.getPage("client-dashboard", "contract-project-list"),
-                type: "info",
+                href: url + `?projectId=${project.id}`,
+                name: "View",
+                type: "primary",
               },
             ],
-            seperator: true,
-          };
+          },
+        };
+      });
 
-          let url = isFrontend
-            ? "/contract_reviewer/project/detail"
-            : await $call.getPage("client-dashboard", "contract-project-detail");
-
-          let promise = response.result.data.map((project) => {
-            return {
-              id: project.id,
-              project_name: project.attributes.project_name,
-              start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
-              end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
-              actions: {
-                objects: [
-                  {
-                    href: url + `?projectId=${project.id}`,
-                    name: "View",
-                  },
-                ],
-              },
-            };
-          });
-
-          datas = await Promise.all(promise);
-          // console.log("datas", datas);
-          gettingDatas = false;
-        }
-      } catch (error) {
-        console.log(error);
-        gettingDatas = false;
-      }
+      datasTable = await Promise.all(promise);
+    } else {
+      datasTable = [];
     }
+
+    gettingDatas = false;
   };
 
   const toggleDatePicker = () => {
@@ -272,9 +271,10 @@ All Rights Reserved
   const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
 
   onMount(async () => {
-    getActionItems();
-    getProjectsLatest();
-    await getRules();
+    await getActionItems();
+    await handleGetRules();
+    await handleGetProjects();
+    await getCompanyType();
   });
 
   $effect(() => {
@@ -305,16 +305,26 @@ All Rights Reserved
           {#if actionItems.some((item) => item.disabled !== true)}
             <div class="flex border-b border-secondary-light dark:border-secondary-dark pb-4 mb-4">
               <Heading tag="h6" class="font-jakarta text-primary-light dark:text-primary-dark">
-                {$_("action")}
+                {$_("actions")}
               </Heading>
             </div>
           {/if}
           <ActionCard {actionItems} />
         </div>
 
-        <!-- table latest -->
-        {#if datas.length > 0}
-          <DataTable bind:datas bind:configs />
+        {#if datasTable.length > 0}
+          <DataTable bind:datas={datasTable} bind:configs={datasConfigs} />
+        {:else if gettingDatas}
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
+        {:else}
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+        {/if}
+
+        {#if rulesTable.length > 0}
+          <DataTable bind:datas={rulesTable} bind:configs={rulesConfigs} />
         {:else if gettingDatas}
           <StateCard
             illustration={IllustrationProgress}
