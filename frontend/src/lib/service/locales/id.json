@@ -1216,5 +1216,7 @@
   "addPromptRecommendation": "Tambahkan Rekomendasi Prompt",
   "promptRecommendationNotFound": "Tidak ada rekomendasi prompt. Anda dapat menambahkan rekomendasi prompt dikonfigurasi.",
   "requiresLoginDesc": "Jika membutuhkan login diaktifkan, Anda dapat menyimpan riwayat obrolan Anda.",
-  "casesList": "Daftar Kasus"
+  "casesList": "Daftar Kasus",
+  "failedFetchCollections": "Gagal mengambil koleksi. Silakan coba lagi.",
+  "failedUpdateCollection": "Gagal memperbarui koleksi. Silakan coba lagi."
 }

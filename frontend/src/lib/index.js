@@ -140,3 +140,9 @@ export { isMoodle } from "$lib/utils/moodleStore";
 export { isOpenSidebarStore } from "$lib/utils/isOpenSidebarStore";
 export { me, isDemoTrue, isLimitTrue } from "$lib/utils/me";
 export { getRules, getAllRules, getProjects } from "$lib/utils/contractReviewerFunctions";
+export {
+  getCollectionAPIConnector,
+  createCollectionAPIConnector,
+  updateCollectionAPIConnector,
+  deleteCollectionAPIConnector,
+} from "$lib/utils/apiConnectorFunctions";

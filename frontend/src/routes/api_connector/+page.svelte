@@ -10,74 +10,85 @@ Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 
-<!-- COPAS FROM HANDWRITING -->
 <script>
   import { onMount, onDestroy } from "svelte";
+  import { goto } from "$app/navigation";
+  import { _ } from "svelte-i18n";
   import { Modal, Button, Input, Helper } from "flowbite-svelte";
+  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import {
+    call,
+    check,
+    showAI,
+    getIcons,
+    isBakrie,
+    showNotif,
+    onProgress,
+    triggerToast,
+    notifications,
+    triggerLoading,
+    getCollectionAPIConnector,
+    createCollectionAPIConnector,
+    updateCollectionAPIConnector,
+    deleteCollectionAPIConnector,
+  } from "$lib";
   import {
     StateCard,
-    Typography,
-    SectionHeader,
-    LibraryCard,
-    triggerToast,
     ActionCard,
-    check,
-    isBakrie,
+    Typography,
+    LibraryCard,
     ModalObject,
-    triggerLoading,
+    SectionHeader,
     ModalFilePreview,
-    notifications,
-    onProgress,
   } from "$lib";
-  import { _ } from "svelte-i18n";
-  import { ExclamationCircleSolid } from "flowbite-svelte-icons";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import { goto } from "$app/navigation";
-  import { showAI, showNotif } from "$lib";
 
-  import { call } from "$lib";
+  const IllustrationEmpty = getIcons("illustrationEmpty");
+  const IllustrationProgress = getIcons("illustrationProgress");
 
   const isFrontend = process.env.NODE_ENV === "development";
+
+  let botId, botIdStrapi, collectionId;
   let timer;
 
-  let collections = $state([]);
-  let documents = $state([]);
+  let audioUrl = $state(null);
+  let selectedFile = $state(null);
+  let groupedFiles = $state(null);
+
+  let editModal = $state(false);
+  let isProcess = $state(false);
+  let folderMode = $state(false);
+  let deleteModal = $state(false);
+  let previewModal = $state(false);
+  let gettingDatas = $state(false);
+  let fileNotSupport = $state(false);
+  let nameIsAvailable = $state(true);
+  let buttonDisabled = $state(false);
+  let gettingStatusBot = $state(false);
+  let addDocumentsModal = $state(false);
+  let attributeNotUnique = $state(false);
+  let addCollectionModal = $state(false);
+
+  let libraryId = $state(0);
+  let tmpParentId = $state(0);
+
+  let tmpOldName = $state("");
+  let tmpDescription = $state("");
+  let tmpCollectionId = $state("");
+  let tmpDocumentTitle = $state("");
+  let tmpCollectionName = $state("");
+  let tmpDocumentDescription = $state("");
+  let tmpDocumentType = $state("Handwriting");
+  let acceptedFileTypes = $state(".jpg, .jpeg, .png");
+
+  let tags = $state([]);
   let files = $state([]);
+  let alltags = $state([]);
+  let actionItems = $state([]);
+  let latestApiCollection = $state([]);
   let monthlyCollectionsCounts = $state([]);
   let monthlyCollectingDataCounts = $state([]);
   let tmpMonthlyCollectionsCounts = $state([]);
   let tmpMonthlyCollectingDataCounts = $state([]);
-  let actionItems = $state([]);
-  let tmpCollectionName = $state("");
-  let tmpOldName = $state("");
-  let tmpDescription = $state("");
-  let tmpParentId = $state(0);
-  let tmpCollectionId = $state("");
-  let tmpDocumentTitle = $state("");
-  let tmpDocumentDescription = $state("");
-  let addCollectionModal = $state(false);
-  let addDocumentsModal = $state(false);
-  let editModal = $state(false);
-  let deleteModal = $state(false);
-  let tmpDocumentType = $state("Handwriting");
-  let acceptedFileTypes = $state(".jpg, .jpeg, .png");
-  let fileNotSupport = $state(false);
-  let nameIsAvailable = $state(true);
-  let isProcess = $state(false);
-  let alltags = $state([]);
-  let tags = $state([]);
-  let folderMode = $state(false);
-  let audioUrl = $state(null);
-  let previewModal = $state(false);
-  let dataSend = $state({ detected_text: "" });
-  let selectedFile = $state(null);
-  let groupedFiles = $state(null);
-  let latestApiCollection = $state([]);
-  let gettingDatas = $state(false);
-  let gettingStatusBot = $state(false);
-  let attributeNotUnique = $state(false);
-
   let bots = $state([
     {
       botsName: "Handwriting’s Assistant",
@@ -90,10 +101,9 @@ All Rights Reserved
     },
   ]);
 
-  let libraryId = $state(0);
-  let botId, botIdStrapi, collectionId;
+  let dataSend = $state({ detected_text: "" });
 
-  async function getActionItems() {
+  const getActionItems = async () => {
     actionItems = [
       {
         onclick: () => {
@@ -107,16 +117,16 @@ All Rights Reserved
         desc: "descAddNewApiCollection",
       },
     ];
-  }
+  };
 
-  async function viewAll() {
+  const viewAll = async () => {
     const newLink = isFrontend
       ? "/api_connector/collections"
       : await $call.getPage("client-dashboard", "api-connector-collections");
     goto(newLink);
-  }
+  };
 
-  async function getBot() {
+  const getBot = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
@@ -144,9 +154,6 @@ All Rights Reserved
         // console.log("cek response get bot", response);
 
         bots[0].deployStatus = bot.status;
-        // datasChecked = collections.map((data) => {
-        //   return { id: data, checked: true };
-        // });
 
         // await getCollection();
         // await getDocuments();
@@ -156,9 +163,9 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
+  };
 
-  async function startReading(botId) {
+  const startReading = async (botId) => {
     let token = localStorage.getItem("token");
 
     if (token) {
@@ -191,235 +198,61 @@ All Rights Reserved
         console.log(error);
       }
     }
-  }
+  };
 
-  async function createCollection() {
-    let token = localStorage.getItem("token");
+  const handleCreateCollection = async () => {
+    gettingDatas = true;
+    addCollectionModal = false;
 
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "create-collection-api", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          name: tmpCollectionName,
-          description: tmpDescription,
-          parent_id: 0,
-          // bot_id: botIdStrapi,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+    const result = await createCollectionAPIConnector($_, $call, tmpCollectionName, tmpDescription);
 
-      if (response.status !== 200) {
-        console.log(response);
-        if (response.status === 400) {
-          console.error("Invalid parameters:", response);
-          triggerToast($_("invalidParameters"), true, "error");
-        } else if (response.status === 401) {
-          console.error("Unauthorized access:", response);
-          triggerToast($_("unauthorized"), true, "error");
-        } else if (response.status === 500) {
-          console.error("Server error:", response);
-          triggerToast($_("serverError"), true, "error");
-        } else {
-          console.error("Unexpected status code:", response);
-          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-        }
-        return;
-      }
-
-      tmpCollectionName = "";
-      tmpDescription = "";
-
-      triggerToast($_("successCreateCollection"), true);
-
-      addCollectionModal = false;
-      getCollections();
-    }
-  }
-
-  async function getCollections() {
-    let token = localStorage.getItem("token");
-
-    if (token !== null) {
-      gettingDatas = true;
-      collections = [];
-      documents = [];
-      let response = await $call.call("client-dashboard", "get-collection-apis", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          page: 1,
-          page_size: 8,
-          parent_id: 0,
-          search: "",
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        gettingDatas = false;
-        if (response.status === 400) {
-          console.error("Invalid parameters:", response);
-          triggerToast($_("invalidParameters"), true, "error");
-        } else if (response.status === 401) {
-          console.error("Unauthorized access:", response);
-          triggerToast($_("unauthorized"), true, "error");
-        } else if (response.status === 500) {
-          console.error("Server error:", response);
-          triggerToast($_("serverError"), true, "error");
-        } else {
-          console.error("Unexpected status code:", response);
-          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-        }
-        return;
-      }
-
-      if (response.result.data.length > 0) {
-        collections = collections.concat(response.result.data);
-      }
-
-      let link = isFrontend
-        ? "/api_connector/collections/api"
-        : await $call.getPage("client-dashboard", "api-connector-collections-api");
-
-      let promise = collections.map(async (collection) => {
-        // console.log("collection", collection);
-        let response4 = await $call.call("client-dashboard", "get-status-library", {
-          URLQuery: {},
-          URLParams: {
-            id: collection.id.toString(),
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        if (response4.status !== 200) {
-          console.log(response4);
-          gettingDatas = false;
-          return;
-        }
-
-        // console.log("status", response4);
-
-        return {
-          id: collection.id,
-          collectionName: collection.attributes.name,
-          description: collection.attributes?.meta?.description || "",
-          type: collection.attributes.type,
-          href: link + "?collectionId=" + collection.id,
-          parent_id: collection.attributes.parent_id,
-        };
-      });
-
-      latestApiCollection = await Promise.all(promise);
-
+    if (result) {
+      handleGetCollections();
+    } else {
       gettingDatas = false;
     }
-  }
+  };
 
-  async function editCollectionName() {
-    let token = localStorage.getItem("token");
+  const handleGetCollections = async () => {
+    gettingDatas = true;
+    latestApiCollection = await getCollectionAPIConnector($_, $call);
+    gettingDatas = false;
+  };
 
-    // console.log("tmpCollectionId", tmpCollectionId);
+  const handleUpdateCollection = async () => {
+    gettingDatas = true;
+    editModal = false;
 
-    if (token !== null) {
-      try {
-        let response = await $call.call("client-dashboard", "update-collection-api", {
-          URLQuery: {},
-          URLParams: {
-            id: tmpCollectionId.toString(),
-          },
-          Params: {
-            name: tmpCollectionName,
-            description: tmpDescription,
-            parent_id: tmpParentId ? parseInt(tmpParentId) : 0,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+    const result = await updateCollectionAPIConnector(
+      $_,
+      $call,
+      tmpParentId ? parseInt(tmpParentId) : 0,
+      tmpCollectionId,
+      tmpCollectionName,
+      tmpDescription,
+    );
 
-        if (response.status !== 200) {
-          console.log(response);
-          if (response.status === 400) {
-            console.error("Invalid parameters:", response);
-            triggerToast($_("invalidParameters"), true, "error");
-          } else if (response.status === 401) {
-            console.error("Unauthorized access:", response);
-            triggerToast($_("unauthorized"), true, "error");
-          } else if (response.status === 500) {
-            console.error("Server error:", response);
-            triggerToast($_("serverError"), true, "error");
-          } else {
-            console.error("Unexpected status code:", response);
-            triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-          }
-          return;
-        }
-
-        tmpCollectionName = "";
-        tmpDescription = "";
-        tmpParentId = "";
-
-        editModal = false;
-        triggerToast($_("successUpdateCollection"), true);
-        getCollections();
-      } catch (error) {
-        console.error("Error during collection editing:", error);
-        triggerToast($_("failedEditCollection"), true, "error");
-      }
+    if (result) {
+      handleGetCollections();
     } else {
-      triggerToast($_("unauthorized"), true, "error");
-      return;
+      gettingDatas = false;
     }
-  }
+  };
 
-  async function deleteDocumentCollection() {
-    let token = localStorage.getItem("token");
+  const deleteDocumentCollection = async () => {
+    deleteModal = false;
+    gettingDatas = true;
 
-    if (token !== null) {
-      try {
-        let response2 = await $call.call("client-dashboard", "delete-collection-api", {
-          URLQuery: {},
-          URLParams: {
-            id: tmpCollectionId.toString(),
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+    const result = await deleteCollectionAPIConnector($_, $call, tmpCollectionId);
 
-        if (response2.status !== 200) {
-          console.log(response2);
-          triggerToast("error");
-          return;
-        }
-
-        // console.log("ayam", response2);
-
-        tmpCollectionId = "";
-        triggerToast("deleted");
-
-        getCollections();
-        deleteModal = false;
-      } catch (error) {
-        triggerToast("error");
-        console.log(error);
-      }
+    if (result) {
+      handleGetCollections();
     } else {
-      console.log("Token not found");
+      gettingDatas = false;
     }
-  }
+  };
 
-  async function getCountDocumentsPerMonth() {
+  const getCountDocumentsPerMonth = async () => {
     tmpMonthlyCollectionsCounts = [];
 
     const today = new Date();
@@ -482,30 +315,9 @@ All Rights Reserved
     } else {
       console.log("no token");
     }
-  }
+  };
 
-  function triggerToastResponse(response) {
-    if (response.status !== 200) {
-      console.log(response);
-      if (response.status === 400) {
-        console.error("Invalid parameters:", response);
-        triggerToast($_("invalidParameters"), true, "error");
-      } else if (response.status === 401) {
-        console.error("Unauthorized access:", response);
-        triggerToast($_("unauthorized"), true, "error");
-      } else if (response.status === 500) {
-        console.error("Server error:", response);
-        triggerToast($_("serverError"), true, "error");
-      } else {
-        console.error("Unexpected status code:", response);
-        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-      }
-      return false;
-    }
-    return true;
-  }
-
-  async function readFileAsBase64(file) {
+  const readFileAsBase64 = async (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -517,21 +329,9 @@ All Rights Reserved
 
       reader.readAsDataURL(file);
     });
-  }
+  };
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  async function groupFilesByPath(files) {
+  const groupFilesByPath = async (files) => {
     const structure = {};
 
     for (const file of files) {
@@ -565,82 +365,9 @@ All Rights Reserved
     // console.log("structure::::::::::::");
     // console.log(structure);
     return structure;
-  }
-
-  const handleFileUploadWrapper = (isFolder = false) => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.webkitdirectory = isFolder;
-    inputElement.accept = acceptedFileTypes;
-    inputElement.multiple = true;
-    inputElement.replaceWith(inputElement.cloneNode(true));
-
-    inputElement.addEventListener("change", async (event) => {
-      if (isFolder) {
-        groupedFiles = await groupFilesByPath(event.target.files);
-        return;
-      }
-
-      const filesSelect = event.target.files;
-
-      const fileTypeRegex = new RegExp(
-        acceptedFileTypes
-          .split(",")
-          .map((type) => type.trim().replace(".", "\\."))
-          .join("|") + "$",
-        "i",
-      );
-
-      // console.log(filesSelect.length);
-      isProcess = true;
-
-      for (const file of filesSelect) {
-        if (file && fileTypeRegex.test(file.name)) {
-          fileNotSupport = false;
-          const base64Data = await readFileAsBase64(file);
-
-          files.push({
-            id: files.length < 1 ? 1 : files.length + 1,
-            name: file.name,
-            document_title: tmpDocumentTitle,
-            description: tmpDocumentDescription,
-            size: formatBytes(file.size),
-            base64: base64Data,
-            ext: "." + file.name.split(".").pop(),
-            type: tmpDocumentType,
-          });
-          tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
-
-          // console.log("cek files", files[0]);
-          const collectionId = localStorage.getItem("collectionIdhandwriting");
-
-          if (files.length === 1) {
-            const status = await checkLibraryName(
-              tmpDocumentTitle.trim(),
-              collectionId,
-              "document",
-            );
-            if (status === true) {
-              nameIsAvailable = true;
-            } else if (status === false) {
-              nameIsAvailable = false;
-            }
-          }
-
-          files = [...files];
-          // console.log(JSON.stringify(files));
-          // console.log("total file", files.length);
-        } else {
-          fileNotSupport = true;
-        }
-      }
-
-      isProcess = false;
-    });
-    inputElement.click();
   };
 
-  async function sendFolder() {
+  const sendFolder = async () => {
     triggerLoading(true);
     var currentFolder = [];
 
@@ -728,11 +455,11 @@ All Rights Reserved
     }
 
     addFolderModal = false;
-    getCollections();
+    handleGetCollections();
     triggerLoading(false);
-  }
+  };
 
-  async function addDocumentByCollection() {
+  const addDocumentByCollection = async () => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -923,7 +650,7 @@ All Rights Reserved
           dataSend = null;
           previewModal = false;
           addDocumentsModal = false;
-          getCollections();
+          handleGetCollections();
           triggerToast($_("succesfullyUploaded"), true);
         }
       } catch (error) {
@@ -937,9 +664,9 @@ All Rights Reserved
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
+  };
 
-  async function sendDocument(single = false) {
+  const sendDocument = async (single = false) => {
     let token = localStorage.getItem("token");
 
     if (token === null) {
@@ -985,9 +712,9 @@ All Rights Reserved
       triggerToast($_("succesfullyUploaded"), true);
     }
     return;
-  }
+  };
 
-  async function getLabels() {
+  const getLabels = async () => {
     let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-label", {
@@ -1020,7 +747,7 @@ All Rights Reserved
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
+  };
 
   const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
@@ -1073,28 +800,111 @@ All Rights Reserved
     }
   };
 
-  $effect(() => {
-    if ($onProgress) {
-      // console.log("notification", $notifications);
-      if (
-        $notifications.length > 0 &&
-        $notifications[0].attributes.meta?.progress.includes("100")
-      ) {
-        if (!gettingStatusBot) {
-          startReading($notifications[0].attributes.meta.bot_id);
-          console.log("start reading", $notifications[0].attributes.meta.bot_id);
-        } else {
-          if (timerGetStatusBot) {
-            clearTimeout(timerGetStatusBot);
+  const handleFileUploadWrapper = (isFolder = false) => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.webkitdirectory = isFolder;
+    inputElement.accept = acceptedFileTypes;
+    inputElement.multiple = true;
+    inputElement.replaceWith(inputElement.cloneNode(true));
+
+    inputElement.addEventListener("change", async (event) => {
+      if (isFolder) {
+        groupedFiles = await groupFilesByPath(event.target.files);
+        return;
+      }
+
+      const filesSelect = event.target.files;
+
+      const fileTypeRegex = new RegExp(
+        acceptedFileTypes
+          .split(",")
+          .map((type) => type.trim().replace(".", "\\."))
+          .join("|") + "$",
+        "i",
+      );
+
+      // console.log(filesSelect.length);
+      isProcess = true;
+
+      for (const file of filesSelect) {
+        if (file && fileTypeRegex.test(file.name)) {
+          fileNotSupport = false;
+          const base64Data = await readFileAsBase64(file);
+
+          files.push({
+            id: files.length < 1 ? 1 : files.length + 1,
+            name: file.name,
+            document_title: tmpDocumentTitle,
+            description: tmpDocumentDescription,
+            size: formatBytes(file.size),
+            base64: base64Data,
+            ext: "." + file.name.split(".").pop(),
+            type: tmpDocumentType,
+          });
+          tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
+
+          // console.log("cek files", files[0]);
+          const collectionId = localStorage.getItem("collectionIdhandwriting");
+
+          if (files.length === 1) {
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              collectionId,
+              "document",
+            );
+            if (status === true) {
+              nameIsAvailable = true;
+            } else if (status === false) {
+              nameIsAvailable = false;
+            }
           }
-          timerGetStatusBot = setTimeout(() => {
-            startReading($notifications[0].attributes.meta.bot_id);
-            console.log("start reading", $notifications[0].attributes.meta.bot_id);
-          }, 10000);
+
+          files = [...files];
+          // console.log(JSON.stringify(files));
+          // console.log("total file", files.length);
+        } else {
+          fileNotSupport = true;
         }
       }
+
+      isProcess = false;
+    });
+    inputElement.click();
+  };
+
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  };
+
+  const triggerToastResponse = (response) => {
+    if (response.status !== 200) {
+      console.log(response);
+      if (response.status === 400) {
+        console.error("Invalid parameters:", response);
+        triggerToast($_("invalidParameters"), true, "error");
+      } else if (response.status === 401) {
+        console.error("Unauthorized access:", response);
+        triggerToast($_("unauthorized"), true, "error");
+      } else if (response.status === 500) {
+        console.error("Server error:", response);
+        triggerToast($_("serverError"), true, "error");
+      } else {
+        console.error("Unexpected status code:", response);
+        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+      }
+      return false;
     }
-  });
+    return true;
+  };
 
   onMount(async () => {
     if (
@@ -1119,7 +929,7 @@ All Rights Reserved
     // bots[0].botsID = botIdStrapi;
     getActionItems();
     // getCountDocumentsPerMonth();
-    getCollections();
+    handleGetCollections();
     // getLabels();
     // generateChartData();
   });
@@ -1130,7 +940,28 @@ All Rights Reserved
     }
   });
 
-  let buttonDisabled = $state(false);
+  $effect(() => {
+    if ($onProgress) {
+      // console.log("notification", $notifications);
+      if (
+        $notifications.length > 0 &&
+        $notifications[0].attributes.meta?.progress.includes("100")
+      ) {
+        if (!gettingStatusBot) {
+          startReading($notifications[0].attributes.meta.bot_id);
+          console.log("start reading", $notifications[0].attributes.meta.bot_id);
+        } else {
+          if (timerGetStatusBot) {
+            clearTimeout(timerGetStatusBot);
+          }
+          timerGetStatusBot = setTimeout(() => {
+            startReading($notifications[0].attributes.meta.bot_id);
+            console.log("start reading", $notifications[0].attributes.meta.bot_id);
+          }, 10000);
+        }
+      }
+    }
+  });
 
   $effect(() => {
     buttonDisabled = files.length === 0 || tmpDocumentTitle === "";
@@ -1271,7 +1102,7 @@ All Rights Reserved
   </div>
   <svelte:fragment slot="footer">
     <Button
-      onclick={createCollection}
+      onclick={handleCreateCollection}
       disabled={!tmpCollectionName || !nameIsAvailable}
       class="w-full">{$_("addNewCollection")}</Button
     >
@@ -1300,7 +1131,7 @@ All Rights Reserved
   </div>
   <svelte:fragment slot="footer">
     <Button
-      onclick={editCollectionName}
+      onclick={handleUpdateCollection}
       disabled={!tmpCollectionName || !nameIsAvailable}
       class="me-2 w-full">{$_("save")}</Button
     >
