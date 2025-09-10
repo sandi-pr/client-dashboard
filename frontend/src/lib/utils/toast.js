@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
 export const toastCreated = writable(false);
 export const toastUpdated = writable(false);
@@ -12,11 +12,11 @@ export let counter = 6;
 
 export const customToasts = writable([]);
 
-function triggerToast(target, isCustom = false, type = 'success') {
-  console.log(target, isCustom, type);
+function triggerToast(target, isCustom = false, type = "success") {
+  // console.log(target, isCustom, type);
 
   if (isCustom) {
-    console.log("custom");
+    // console.log("custom");
     const toastId = Date.now(); // Menggunakan timestamp sebagai ID unik
 
     customToasts.update((toasts) => {
@@ -28,32 +28,32 @@ function triggerToast(target, isCustom = false, type = 'success') {
   }
 
   switch (target) {
-    case 'created':
+    case "created":
       toastCreated.set(true);
       break;
-    case 'updated':
+    case "updated":
       toastUpdated.set(true);
       break;
-    case 'deleted':
+    case "deleted":
       toastDeleted.set(true);
       break;
-    case 'error':
+    case "error":
       toastError.set(true);
       break;
-    case 'notAvailable':
+    case "notAvailable":
       toastNotAvailable.set(true);
       break;
-    case 'dayNotAvailable':
+    case "dayNotAvailable":
       toastDayNotAvailable.set(true);
       break;
-    case 'timeNotAvailable':
+    case "timeNotAvailable":
       toastTimeNotAvailable.set(true);
       break;
-    case 'copyToClipboard':
+    case "copyToClipboard":
       toastCopyToClipboard.set(true);
       break;
     default:
-      console.log('target not found');
+      console.log("target not found");
       return;
   }
   counter = 6;
@@ -64,36 +64,36 @@ function timeout(toastId, isCustom = false) {
   setTimeout(() => {
     if (isCustom) {
       customToasts.update((toasts) => {
-        return toasts.filter(toast => toast.id !== toastId);
+        return toasts.filter((toast) => toast.id !== toastId);
       });
     } else {
       switch (toastId) {
-        case 'created':
+        case "created":
           toastCreated.set(false);
           break;
-        case 'updated':
+        case "updated":
           toastUpdated.set(false);
           break;
-        case 'deleted':
+        case "deleted":
           toastDeleted.set(false);
           break;
-        case 'error':
+        case "error":
           toastError.set(false);
           break;
-        case 'notAvailable':
+        case "notAvailable":
           toastNotAvailable.set(false);
           break;
-        case 'dayNotAvailable':
+        case "dayNotAvailable":
           toastDayNotAvailable.set(false);
           break;
-        case 'timeNotAvailable':
+        case "timeNotAvailable":
           toastTimeNotAvailable.set(false);
           break;
-        case 'copyToClipboard':
+        case "copyToClipboard":
           toastCopyToClipboard.set(false);
           break;
         default:
-          console.log('target not found');
+          console.log("target not found");
           return;
       }
     }

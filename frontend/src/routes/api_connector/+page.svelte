@@ -27,6 +27,7 @@ All Rights Reserved
     errorHandling,
     notifications,
     triggerLoading,
+    checkLibraryName,
     getCollectionAPIConnector,
     createCollectionAPIConnector,
     updateCollectionAPIConnector,
@@ -208,47 +209,9 @@ All Rights Reserved
     }
   };
 
-  const checkLibraryName = async (name, parentId, type) => {
-    let token = localStorage.getItem("token");
-    if (!name || !token) {
-      return null;
-    }
-
-    try {
-      let resp = await $call.call("client-dashboard", "is-collection-api-name-available", {
-        URLQuery: {},
-        URLParams: {},
-        Params: {
-          name: name,
-          parent_id: parseInt(parentId),
-          type: type,
-        },
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      // console.log("cek resp", resp);
-
-      if (resp === null) {
-        throw new Error("Server sibuk");
-      }
-
-      if (resp.status === 200) {
-        return resp.result.available; // Mengembalikan status (true: tersedia, false: tidak tersedia)
-      } else {
-        console.error("Error memeriksa name:", resp);
-        return null;
-      }
-    } catch (error) {
-      console.error("Terjadi kesalahan:", error);
-      return null;
-    }
-  };
-
   const handleInput = async (event, parentId = collectionId, type = "document") => {
     const name = event.target.value;
-    const status = await checkLibraryName(name.trim(), parentId, type);
+    const status = await checkLibraryName($call, name.trim(), parentId, type);
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
@@ -353,14 +316,13 @@ All Rights Reserved
         </div>
 
         <div>
-          {#if latestApiCollection.length > 0}
+          {#if latestApiCollection.length > 0 && !gettingDatas}
             <div
               class={`${$showAI || $showNotif ? "grid grid-cols-1 xl:grid-cols-3" : "grid grid-cols-2 lg:grid-cols-4"} gap-4`}
             >
               {#each latestApiCollection as api}
                 <LibraryCard
                   collectionName={api.collectionName}
-                  totalDocuments={api.totalDocuments}
                   usedFor="libraries_collections"
                   status={api.status}
                   functEdit={() => {
