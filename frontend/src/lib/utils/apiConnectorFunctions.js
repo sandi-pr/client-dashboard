@@ -1,4 +1,4 @@
-import { triggerToast } from "$lib";
+import { triggerToast, errorHandling } from "$lib";
 
 const isFrontend = process.env.NODE_ENV === "development";
 
@@ -40,7 +40,7 @@ export const createCollectionAPIConnector = async (
       return true;
     }
   } catch (error) {
-    errorHandling(error, "create");
+    errorHandling(_, error, "create");
     return false;
   }
 };
@@ -117,7 +117,7 @@ export const getCollectionAPIConnector = async (
       return await Promise.all(promise);
     }
   } catch (error) {
-    errorHandling(error, "get");
+    errorHandling(_, error, "get");
     return [];
   }
 };
@@ -165,7 +165,7 @@ export const updateCollectionAPIConnector = async (
       return true;
     }
   } catch (error) {
-    errorHandling(error, "update");
+    errorHandling(_, error, "update");
     return false;
   }
 };
@@ -200,43 +200,7 @@ export const deleteCollectionAPIConnector = async (_, call, collectionId) => {
       return true;
     }
   } catch (error) {
-    errorHandling(error, "delete");
+    errorHandling(_, error, "delete");
     return false;
-  }
-};
-
-const errorHandling = (error, action = "get") => {
-  if (action === "get") {
-    console.error("Error during fetching collections:", error);
-  } else if (action === "create") {
-    console.error("Error during collection creation:", error);
-  } else if (action === "update") {
-    console.error("Error during updating collection:", error);
-  } else if (action === "delete") {
-    console.error("Error during deleting collection:", error);
-  }
-
-  if (error?.status) {
-    if (error.status === 400) {
-      triggerToast(_("invalidParameters"), true, "error");
-    } else if (error.status === 401) {
-      triggerToast(_("unauthorized"), true, "error");
-    } else if (error.status === 500) {
-      triggerToast(_("serverError"), true, "error");
-    } else {
-      triggerToast(`${_("unexpectedError")}: ${error?.status}`, true, "error");
-    }
-  } else {
-    if (action === "get") {
-      triggerToast(_("failedFetchCollections"), true, "error");
-    } else if (action === "create") {
-      triggerToast(_("failedCreateCollection"), true, "error");
-    } else if (action === "update") {
-      triggerToast(_("failedUpdateCollection"), true, "error");
-    } else if (action === "delete") {
-      triggerToast(_("failedDeleteCollection"), true, "error");
-    } else {
-      triggerToast(`${_("unexpectedError")}: ${error?.message}`, true, "error");
-    }
   }
 };

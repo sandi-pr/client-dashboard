@@ -71,6 +71,7 @@ export { default as InputSlider } from "$lib/ui/inputs/InputSlider.svelte";
 export { default as DataTable } from "$lib/components/DataTable.svelte";
 export { default as PdfjsViewer } from "$lib/components/PdfjsViewer.svelte";
 export { default as DataTableAIReview } from "$lib/components/DataTableAIReview.svelte";
+export { default as AudioPlayer } from "$lib/components/AudioPlayer.svelte";
 export { checkLibraryName } from "$lib/utils/checkLibraryName";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";
 export {
@@ -146,3 +147,4 @@ export {
   updateCollectionAPIConnector,
   deleteCollectionAPIConnector,
 } from "$lib/utils/apiConnectorFunctions";
+export { default as errorHandling } from "$lib/utils/errorHandling";

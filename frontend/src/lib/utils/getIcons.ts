@@ -107,6 +107,8 @@ import CalendarPlus02Icon from "../icon/calendar-plus-02.svelte";
 import PlusIcon from "../icon/plus.svelte";
 import PlusCircleIcon from "../icon/plus-circle.svelte";
 import FileDownload03Icon from "../icon/file-download-03.svelte";
+import MoveIcon from "../icon/move.svelte";
+import AlertCircleIcon from "../icon/alert-circle.svelte";
 import Var76 from "../icon/var-76.svelte";
 import Var85 from "../icon/var-85.svelte";
 import Var86 from "../icon/var-86.svelte";
@@ -344,6 +346,10 @@ let getIcons = (presetIcon: String) => {
       return PlusCircleIcon;
     case "fileDownload03":
       return FileDownload03Icon;
+    case "move":
+      return MoveIcon;
+    case "alertCircle":
+      return AlertCircleIcon;
     case "var76":
       return Var76;
     case "var85":
