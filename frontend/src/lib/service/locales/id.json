@@ -1218,5 +1218,6 @@
   "requiresLoginDesc": "Jika membutuhkan login diaktifkan, Anda dapat menyimpan riwayat obrolan Anda.",
   "casesList": "Daftar Kasus",
   "failedFetchCollections": "Gagal mengambil koleksi. Silakan coba lagi.",
-  "failedUpdateCollection": "Gagal memperbarui koleksi. Silakan coba lagi."
+  "failedUpdateCollection": "Gagal memperbarui koleksi. Silakan coba lagi.",
+  "successDeleteDocuments": "Banyak dokumen berhasil dihapus!"
 }

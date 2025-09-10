@@ -1218,5 +1218,6 @@
   "requiresLoginDesc": "If requires login enabled, you are able to save your chat history.",
   "casesList": "Cases List",
   "failedFetchCollections": "Failed to fetch collections. Please try again.",
-  "failedUpdateCollection": "Failed to update collection. Please try again."
+  "failedUpdateCollection": "Failed to update collection. Please try again.",
+  "successDeleteDocuments": "Documents deleted successfully!"
 }
