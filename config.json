@@ -7513,7 +7513,7 @@
                     "body_type": {
                         "type": "string"
                     },
-                    "payload": {
+                    "body": {
                         "type": "json"
                     }
                 }
