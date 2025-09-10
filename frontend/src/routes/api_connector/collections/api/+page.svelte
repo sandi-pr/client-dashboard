@@ -1,139 +1,108 @@
 <script>
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { Button, Modal, Input, P, Helper, Card } from "flowbite-svelte";
+  import { format } from "date-fns";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import { format } from "date-fns";
+  import { Button, Modal, Input, P, Helper, Card } from "flowbite-svelte";
+  import { ExclamationCircleSolid, ArrowUpOutline } from "flowbite-svelte-icons";
 
   import {
-    Typography,
-    ToastContainer,
-    StateCard,
     call,
+    check,
+    isBakrie,
+    getIcons,
     triggerToast,
     triggerLoading,
-    check,
-    Divider,
     bakrieLibraryId,
-    isBakrie,
+  } from "$lib";
+  import {
+    TabBar,
+    Divider,
+    InputRw,
+    TabDetail,
+    DataTable,
+    StateCard,
+    Typography,
     ModalObject,
     ModalFolder,
-    InputRw,
-    getIcons,
+    AudioPlayer,
+    ToastContainer,
   } from "$lib";
-  import { ExclamationCircleSolid, ArrowUpOutline } from "flowbite-svelte-icons";
-  import AudioPlayer from "$lib/components/AudioPlayer.svelte";
-  import Trash01Icon from "$lib/icon/trash-01.svelte";
-  import MoveIcon from "$lib/icon/move.svelte";
-  import PenToolPlusIcon from "$lib/icon/pen-tool-plus.svelte";
-  import FolderPlusIcon from "$lib/icon/folder-plus.svelte";
-  import IllustrationEmpty from "$lib/icon/illustration_empty.svelte";
-  import IllustrationProgress from "$lib/icon/illustration_progress.svelte";
-  import TabDetail from "$lib/components/TabDetail.svelte";
-  import AlertCircleIcon from "$lib/icon/alert-circle.svg";
-  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  import Copy01Icon from "$lib/icon/copy-01.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
-  import TabBar from "$lib/components/TabBar.svelte";
+
+  const MoveIcon = getIcons("move");
+  const Copy01Icon = getIcons("copy01");
+  const Save01Icon = getIcons("save01");
+  const Trash01Icon = getIcons("trash01");
+  const FolderPlusIcon = getIcons("folderPlus");
+  const ChevronDownIcon = getIcons("chevronDown");
+  const PenToolPlusIcon = getIcons("penToolPlus");
+  const AlertCircleIcon = getIcons("alertCircle");
+  const DotsVerticalIcon = getIcons("dotsVertical");
+  const IllustrationEmpty = getIcons("illustrationEmpty");
+  const IllustrationProgress = getIcons("illustrationProgress");
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let collectionId = $state(null);
-  let libraryId = $state(0);
   let inputRef;
+
+  let tmpId = $state(null);
+  let textarea = $state(null);
+  let audioUrl = $state(null);
+  let collectionId = $state(null);
+  let groupedFiles = $state(null);
+  let selectedFile = $state(null);
+  let tmpSelectedCollection = $state(null);
+
+  let editModal = $state(false);
+  let isProcess = $state(false);
+  let popupModal = $state(false);
+  let folderMode = $state(false);
+  let updateModal = $state(false);
+  let deleteModal = $state(false);
+  let gettingDocs = $state(false);
+  let previewModal = $state(false);
+  let dropdownMore = $state(false);
+  let gettingDatas = $state(false);
+  let isMobileView = $state(false);
+  let hasDocOrDocx = $state(false);
   let checkAllState = $state(false);
+  let fileNotSupport = $state(false);
+  let buttonDisabled = $state(false);
+  let checkboxDelete = $state(false);
+  let nameIsAvailable = $state(true);
+  let addFolderModal = $state(false);
   let addDocumentsModal = $state(false);
   let addCollectionModal = $state(false);
   let addCategoriesModal = $state(false);
-  let popupModal = $state(false);
-  let updateModal = $state(false);
-  let editModal = $state(false);
-  let deleteModal = $state(false);
-  let deleteCategoriesModal = $state(false);
-  let dropdownMore = $state(false);
   let editCollectionModal = $state(false);
   let dropdownUploadEmpty = $state(false);
-  let dropdownAuthorizationType = $state(false);
-  let fileNotSupport = $state(false);
-  let buttonDisabled = $state(false);
-  let gettingDatas = $state(false);
-  let gettingDocs = $state(false);
+  let deleteCategoriesModal = $state(false);
   let buttonDisabledCheckAction = $state(true);
-  let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
-  let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
-  let tmpDocumentTitle = $state("");
-  let tmpDocumentDescription = $state("");
-  let tmpCollectionId = $state("");
-  let tmpCollectionName = $state("");
+  let dropdownAuthorizationType = $state(false);
+
+  let libraryId = $state(0);
+
+  let search = $state("");
+  let newTag = $state("");
   let tmpOldName = $state("");
   let tmpDescription = $state("");
+  let tmpCollectionId = $state("");
+  let tmpDocumentTitle = $state("");
+  let tmpCollectionName = $state("");
+  let tmpDocumentDescription = $state("");
   let tmpDocumentType = $state("Handwriting");
-  let selectedTypeCollection = $state("Handwriting (JPG, JPEG, PNG)");
   let acceptedFileTypes = $state(".jpg, .jpeg, .png");
-  let search = $state("");
-  let alltags = $state([]);
-  let tags = $state([]);
-  let newTag = $state("");
-  let files = $state([]);
-  let checkboxDelete = $state(false);
-  let tmpId = $state(null);
-  let isMobileView = $state(false);
-  let hasDocOrDocx = $state(false);
-  let tabDatas = $state({
-    selected: "My API",
-    data: [
-      {
-        name: "My API",
-      },
-      {
-        name: "Authorization",
-      },
-      {
-        name: "Information",
-      },
-    ],
-  });
-
-  let authorizationTypeList = $state({
-    selected: "No Auth",
-    data: [
-      { name: "No Auth" },
-      { name: "Inherit Auth from Parent" },
-      { name: "Basic Auth" },
-      { name: "Bearer Token" },
-    ],
-  });
-
   let tmpSelectedAuthorizationType = $state("No Auth");
-  let authBasicAuth = $state({
-    username: "",
-    password: "",
-  });
-  let authBearerToken = $state({
-    token: "",
-  });
+  let selectedTypeCollection = $state("Handwriting (JPG, JPEG, PNG)");
 
-  let groupedFiles = $state(null);
-  let addFolderModal = $state(false);
-
-  let collectionDatas = $state({
-    title: "",
-    description: "",
-    createdAt: "",
-  });
-  let collectionListDatas = $state([]);
-  let childCollectionListDatas = $state([]);
-  let childCollectionList = $state([]);
+  let tags = $state([]);
+  let files = $state([]);
+  let alltags = $state([]);
   let collectionList = $state([]);
-  let tmpSelectedCollection = $state(null);
-  let previewModal = $state(false);
-  let selectedFile = $state(null);
-  let dataSend = $state({ detected_text: "" });
-  let textarea = $state();
-  let nameIsAvailable = $state(true);
-  let isProcess = $state(false);
-  let folderMode = $state(false);
+  let collectionListDatas = $state([]);
+  let childCollectionList = $state([]);
+  let childCollectionListDatas = $state([]);
   let apisData = $state([
     // {
     //   id: 1,
@@ -158,7 +127,46 @@
     // },
   ]);
 
-  async function getCollection() {
+  let dataSend = $state({ detected_text: "" });
+  let pagination = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
+  let paginationCollection = $state({ page: 1, pageSize: 20, pageCount: 1, total: 0 });
+  let tabDatas = $state({
+    selected: "My API",
+    data: [
+      {
+        name: "My API",
+      },
+      {
+        name: "Authorization",
+      },
+      {
+        name: "Information",
+      },
+    ],
+  });
+  let authorizationTypeList = $state({
+    selected: "No Auth",
+    data: [
+      { name: "No Auth" },
+      { name: "Inherit Auth from Parent" },
+      { name: "Basic Auth" },
+      { name: "Bearer Token" },
+    ],
+  });
+  let authBasicAuth = $state({
+    username: "",
+    password: "",
+  });
+  let authBearerToken = $state({
+    token: "",
+  });
+  let collectionDatas = $state({
+    title: "",
+    description: "",
+    createdAt: "",
+  });
+
+  const getCollection = async () => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -181,9 +189,9 @@
         createdAt: format(new Date(response.result.data.attributes.createdAt), "dd-MM-yyyy"),
       };
     }
-  }
+  };
 
-  async function getDocuments() {
+  const getDocuments = async () => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -325,9 +333,9 @@
       gettingDocs = false;
       return;
     }
-  }
+  };
 
-  async function createCollection() {
+  const createCollection = async () => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -393,62 +401,9 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
-
-  const checkSingle = (index) => {
-    collectionListDatas = collectionListDatas.map((data, i) => {
-      if (i === index) {
-        return {
-          ...data,
-          checked: !data.checked,
-        };
-      }
-      return data;
-    });
-    // console.log("cek single", collectionListDatas);
   };
 
-  const checkAll = () => {
-    let findCheckAll = true;
-    for (const data of collectionListDatas) {
-      if (data.checked === false) {
-        findCheckAll = false;
-        break;
-      }
-    }
-
-    if (findCheckAll) {
-      collectionListDatas = collectionListDatas.map((data) => {
-        return {
-          ...data,
-          checked: false,
-        };
-      });
-    } else {
-      collectionListDatas = collectionListDatas.map((data) => {
-        return {
-          ...data,
-          checked: true,
-        };
-      });
-    }
-  };
-
-  const nextPage = (evt) => {
-    if (pagination.pageCount > pagination.page) pagination.page = pagination.page + 1;
-    getDocuments();
-    // console.log("next page");
-  };
-
-  const prevPage = (evt) => {
-    if (pagination.page > 1) pagination.page = pagination.page - 1;
-    getDocuments();
-    // console.log("prev page");
-  };
-
-  let audioUrl = $state(null);
-
-  async function addDocumentByCollection(folderFiles = null, parentId = null) {
+  const addDocumentByCollection = async (folderFiles = null, parentId = null) => {
     if (folderFiles != null) {
       files = folderFiles;
     }
@@ -663,29 +618,9 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
+  };
 
-  function base64toBlob(base64Data, fileType) {
-    const byteCharacters = atob(base64Data);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512);
-
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    const blob = new Blob(byteArrays, { type: fileType });
-    return blob;
-  }
-
-  async function sendDocument(single = false) {
+  const sendDocument = async (single = false) => {
     let token = localStorage.getItem("token");
 
     if (token === null) {
@@ -731,128 +666,9 @@
       triggerToast($_("succesfullyUploaded"), true);
     }
     return;
-  }
-
-  // Function to adjust the height of the textarea
-  function autosize() {
-    textarea.style.height = "auto"; // Reset height
-    textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scroll height
-
-    textarea.addEventListener("input", (e) => {
-      e.target.style.height = "auto";
-      e.target.style.height = `${e.target.scrollHeight}px`;
-    });
-  }
-
-  $effect(() => {
-    if (textarea) {
-      autosize();
-    }
-  });
-
-  $effect(() => {
-    if (groupedFiles != null) {
-      buttonDisabled = false;
-    } else {
-      buttonDisabled = true;
-    }
-  });
-
-  const handleFileUploadWrapper = (isFolder = false) => {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.webkitdirectory = isFolder;
-    inputElement.accept = acceptedFileTypes;
-    inputElement.multiple = true;
-
-    inputElement.addEventListener("change", async (event) => {
-      if (isFolder) {
-        // Buat Collection by Name Folder Dan Document
-        groupedFiles = await groupFilesByPath(event.target.files);
-        return;
-      }
-
-      const filesSelect = event.target.files;
-
-      const fileTypeRegex = new RegExp(
-        acceptedFileTypes
-          .split(",")
-          .map((type) => type.trim().replace(".", "\\."))
-          .join("|") + "$",
-        "i",
-      );
-
-      // console.log(filesSelect.length);
-      isProcess = true;
-
-      for (const file of filesSelect) {
-        if (file && fileTypeRegex.test(file.name)) {
-          fileNotSupport = false;
-          const base64Data = await readFileAsBase64(file);
-
-          files.push({
-            id: files.length < 1 ? 1 : files.length + 1,
-            name: file.name,
-            document_title: tmpDocumentTitle,
-            description: tmpDocumentDescription,
-            size: formatBytes(file.size),
-            base64: base64Data,
-            ext: "." + file.name.split(".").pop(),
-            type: tmpDocumentType,
-          });
-          tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
-
-          // console.log("cek files", files[0]);
-
-          if (files.length === 1) {
-            const status = await checkLibraryName(
-              tmpDocumentTitle.trim(),
-              collectionId,
-              "document",
-            );
-            if (status === true) {
-              nameIsAvailable = true;
-            } else if (status === false) {
-              nameIsAvailable = false;
-            }
-          }
-
-          files = [...files];
-          // console.log(JSON.stringify(files));
-          // console.log("total file", files.length);
-        } else {
-          fileNotSupport = true;
-        }
-      }
-
-      isProcess = false;
-    });
-    inputElement.click();
   };
 
-  //#FUNCTION UNTUK TRIGGERTOAST DARI RESPONSE
-  function triggerToastResponse(response) {
-    if (response.status !== 200) {
-      console.log(response);
-      if (response.status === 400) {
-        console.error("Invalid parameters:", response);
-        triggerToast($_("invalidParameters"), true, "error");
-      } else if (response.status === 401) {
-        console.error("Unauthorized access:", response);
-        triggerToast($_("unauthorized"), true, "error");
-      } else if (response.status === 500) {
-        console.error("Server error:", response);
-        triggerToast($_("serverError"), true, "error");
-      } else {
-        console.error("Unexpected status code:", response);
-        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-      }
-      return false;
-    }
-    return true;
-  }
-
-  async function readFileAsBase64(file) {
+  const readFileAsBase64 = async (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -864,44 +680,9 @@
 
       reader.readAsDataURL(file);
     });
-  }
+  };
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  }
-
-  function addTag() {
-    if (newTag.trim() && !tags.includes(newTag)) {
-      tags = [...tags, newTag];
-      newTag = ""; // Reset input setelah menambahkan tag
-    }
-  }
-
-  // Fungsi untuk menghapus tag
-  function removeTag(tagToRemove) {
-    tags = tags.filter((tag) => tag !== tagToRemove);
-  }
-
-  // Fungsi untuk menambah tag saat menekan Enter
-  function handleKeyDown(event) {
-    if (event.key === "Enter") {
-      addTag();
-    }
-  }
-
-  function focusInput(input) {
-    input.focus();
-  }
-
-  async function deleteDocuments() {
+  const deleteDocuments = async () => {
     let datasDelete = collectionListDatas.filter((data) => data.checked === true);
     popupModal = false;
     triggerLoading(true);
@@ -956,9 +737,9 @@
 
     getDocuments();
     triggerLoading(false);
-  }
+  };
 
-  async function deleteDocument() {
+  const deleteDocument = async () => {
     popupModal = false;
     triggerLoading(true);
     let token = localStorage.getItem("token");
@@ -1009,9 +790,9 @@
       console.error("Error during document deletion:", error);
       triggerToast($_("failedDeleteDocument"), true, "error");
     }
-  }
+  };
 
-  async function updateDocument() {
+  const updateDocument = async () => {
     let datasUpdate = collectionListDatas.filter((data) => data.checked === true);
     updateModal = false;
     triggerLoading(true);
@@ -1060,9 +841,9 @@
         return;
       }
     }
-  }
+  };
 
-  async function getCollections(isChild = false, subCollections = false) {
+  const getCollections = async (isChild = false, subCollections = false) => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -1178,9 +959,9 @@
       gettingDatas = false;
       return;
     }
-  }
+  };
 
-  async function editCollectionName() {
+  const editCollectionName = async () => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -1232,9 +1013,9 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
+  };
 
-  async function deleteDocumentCollection() {
+  const deleteDocumentCollection = async () => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -1279,9 +1060,9 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
+  };
 
-  async function deleteCollection() {
+  const deleteCollection = async () => {
     let token = localStorage.getItem("token");
 
     if (token !== null) {
@@ -1330,26 +1111,7 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
-
-  function checkTitle(title) {
-    if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
-      return (
-        title === "Documents" ||
-        title === "Images" ||
-        title === "Document Images" ||
-        title === "Handwriting"
-      );
-    } else if (
-      parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))
-    ) {
-      return title === "My Handwriting";
-    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
-      return title === "My Voice";
-    } else {
-      return false;
-    }
-  }
+  };
 
   const checkLibraryName = async (name, parentId, type) => {
     let token = localStorage.getItem("token");
@@ -1389,7 +1151,7 @@
     }
   };
 
-  async function getLabels() {
+  const getLabels = async () => {
     let token = localStorage.getItem("token");
     if (token !== null) {
       let response = await $call.call("client-dashboard", "get-label", {
@@ -1422,7 +1184,7 @@
       triggerToast($_("unauthorized"), true, "error");
       return;
     }
-  }
+  };
 
   const handleInput = async (event, parentId = collectionId, type = "document") => {
     const name = event.target.value;
@@ -1437,39 +1199,7 @@
     }
   };
 
-  const selectCollection = (item, subcollection = false) => {
-    tmpSelectedCollection = item;
-    if (!subcollection) {
-      getCollections(false, true);
-    }
-
-    // console.log("selected collection", tmpSelectedCollection);
-  };
-
-  const checkMobileView = () => {
-    isMobileView = window.innerWidth <= 768;
-  };
-
-  const scrollToTop = () => {
-    // console.log("Scrolling to top using scrollIntoView");
-
-    // Use an existing element at the top of the page
-    const topElement = document.querySelector(".top-element");
-    if (topElement) {
-      topElement.scrollIntoView({ behavior: "smooth" });
-    } else {
-      console.error("Top element not found");
-    }
-  };
-
-  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
-    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
-    dropdownUploadEmpty = false;
-    dropdownMore = false;
-    dropdownAuthorizationType = false;
-  };
-
-  async function groupFilesByPath(files) {
+  const groupFilesByPath = async (files) => {
     const structure = {};
 
     const fileTypeRegex = new RegExp(
@@ -1517,28 +1247,9 @@
     }
 
     return structure;
-  }
-
-  const checkNewName = async (name, parentId, type) => {
-    let index = 1;
-    let originalName = name;
-    let newName = originalName;
-
-    for (let i = 0; i < index; i++) {
-      let statusAvailable = await checkLibraryName(newName.trim(), parentId, type);
-
-      if (statusAvailable === true) {
-        break;
-      } else {
-        newName = `${originalName}(${index})`;
-        index++;
-      }
-    }
-
-    return newName;
   };
 
-  async function sendFolder() {
+  const sendFolder = async () => {
     triggerLoading(true);
     var currentFolder = [];
 
@@ -1682,15 +1393,303 @@
     triggerLoading(false);
 
     triggerToast($_("succesfullyUploaded"), true);
-  }
+  };
 
-  async function dummyAddLink() {
-    const hrefDetailApi = isFrontend ? "/api_connector/collections/api/detail" : await $call.getPage("client-dashboard", "api-connector-collections-api-detail");
+  const dummyAddLink = async () => {
+    const hrefDetailApi = isFrontend
+      ? "/api_connector/collections/api/detail"
+      : await $call.getPage("client-dashboard", "api-connector-collections-api-detail");
 
     apisData.forEach((api) => {
-      api.actions.objects[0].href = hrefDetailApi + "?apiId=" + api.id + "&collectionId=" + collectionId + "&libraryId=" + libraryId;
+      api.actions.objects[0].href =
+        hrefDetailApi +
+        "?apiId=" +
+        api.id +
+        "&collectionId=" +
+        collectionId +
+        "&libraryId=" +
+        libraryId;
     });
-  }
+  };
+
+  const base64toBlob = (base64Data, fileType) => {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: fileType });
+    return blob;
+  };
+
+  const checkSingle = (index) => {
+    collectionListDatas = collectionListDatas.map((data, i) => {
+      if (i === index) {
+        return {
+          ...data,
+          checked: !data.checked,
+        };
+      }
+      return data;
+    });
+    // console.log("cek single", collectionListDatas);
+  };
+
+  const checkAll = () => {
+    let findCheckAll = true;
+    for (const data of collectionListDatas) {
+      if (data.checked === false) {
+        findCheckAll = false;
+        break;
+      }
+    }
+
+    if (findCheckAll) {
+      collectionListDatas = collectionListDatas.map((data) => {
+        return {
+          ...data,
+          checked: false,
+        };
+      });
+    } else {
+      collectionListDatas = collectionListDatas.map((data) => {
+        return {
+          ...data,
+          checked: true,
+        };
+      });
+    }
+  };
+
+  const nextPage = (evt) => {
+    if (pagination.pageCount > pagination.page) pagination.page = pagination.page + 1;
+    getDocuments();
+    // console.log("next page");
+  };
+
+  const prevPage = (evt) => {
+    if (pagination.page > 1) pagination.page = pagination.page - 1;
+    getDocuments();
+    // console.log("prev page");
+  };
+
+  const autosize = () => {
+    textarea.style.height = "auto"; // Reset height
+    textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scroll height
+
+    textarea.addEventListener("input", (e) => {
+      e.target.style.height = "auto";
+      e.target.style.height = `${e.target.scrollHeight}px`;
+    });
+  };
+
+  const handleFileUploadWrapper = (isFolder = false) => {
+    const inputElement = document.createElement("input");
+    inputElement.type = "file";
+    inputElement.webkitdirectory = isFolder;
+    inputElement.accept = acceptedFileTypes;
+    inputElement.multiple = true;
+
+    inputElement.addEventListener("change", async (event) => {
+      if (isFolder) {
+        // Buat Collection by Name Folder Dan Document
+        groupedFiles = await groupFilesByPath(event.target.files);
+        return;
+      }
+
+      const filesSelect = event.target.files;
+
+      const fileTypeRegex = new RegExp(
+        acceptedFileTypes
+          .split(",")
+          .map((type) => type.trim().replace(".", "\\."))
+          .join("|") + "$",
+        "i",
+      );
+
+      // console.log(filesSelect.length);
+      isProcess = true;
+
+      for (const file of filesSelect) {
+        if (file && fileTypeRegex.test(file.name)) {
+          fileNotSupport = false;
+          const base64Data = await readFileAsBase64(file);
+
+          files.push({
+            id: files.length < 1 ? 1 : files.length + 1,
+            name: file.name,
+            document_title: tmpDocumentTitle,
+            description: tmpDocumentDescription,
+            size: formatBytes(file.size),
+            base64: base64Data,
+            ext: "." + file.name.split(".").pop(),
+            type: tmpDocumentType,
+          });
+          tmpDocumentTitle = file.name.split(".").slice(0, -1).join(".");
+
+          // console.log("cek files", files[0]);
+
+          if (files.length === 1) {
+            const status = await checkLibraryName(
+              tmpDocumentTitle.trim(),
+              collectionId,
+              "document",
+            );
+            if (status === true) {
+              nameIsAvailable = true;
+            } else if (status === false) {
+              nameIsAvailable = false;
+            }
+          }
+
+          files = [...files];
+          // console.log(JSON.stringify(files));
+          // console.log("total file", files.length);
+        } else {
+          fileNotSupport = true;
+        }
+      }
+
+      isProcess = false;
+    });
+    inputElement.click();
+  };
+
+  const triggerToastResponse = (response) => {
+    if (response.status !== 200) {
+      console.log(response);
+      if (response.status === 400) {
+        console.error("Invalid parameters:", response);
+        triggerToast($_("invalidParameters"), true, "error");
+      } else if (response.status === 401) {
+        console.error("Unauthorized access:", response);
+        triggerToast($_("unauthorized"), true, "error");
+      } else if (response.status === 500) {
+        console.error("Server error:", response);
+        triggerToast($_("serverError"), true, "error");
+      } else {
+        console.error("Unexpected status code:", response);
+        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+      }
+      return false;
+    }
+    return true;
+  };
+
+  const focusInput = (input) => {
+    input.focus();
+  };
+
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  };
+
+  const addTag = () => {
+    if (newTag.trim() && !tags.includes(newTag)) {
+      tags = [...tags, newTag];
+      newTag = ""; // Reset input setelah menambahkan tag
+    }
+  };
+
+  // Fungsi untuk menghapus tag
+  const removeTag = (tagToRemove) => {
+    tags = tags.filter((tag) => tag !== tagToRemove);
+  };
+
+  // Fungsi untuk menambah tag saat menekan Enter
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      addTag();
+    }
+  };
+
+  const checkTitle = (title) => {
+    if (parseInt(libraryId) === parseInt($bakrieLibraryId)) {
+      return (
+        title === "Documents" ||
+        title === "Images" ||
+        title === "Document Images" ||
+        title === "Handwriting"
+      );
+    } else if (
+      parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "handwriting"))
+    ) {
+      return title === "My Handwriting";
+    } else if (parseInt(libraryId) === parseInt(localStorage.getItem("libraryId" + "voice"))) {
+      return title === "My Voice";
+    } else {
+      return false;
+    }
+  };
+
+  const selectCollection = (item, subcollection = false) => {
+    tmpSelectedCollection = item;
+    if (!subcollection) {
+      getCollections(false, true);
+    }
+
+    // console.log("selected collection", tmpSelectedCollection);
+  };
+
+  const checkMobileView = () => {
+    isMobileView = window.innerWidth <= 768;
+  };
+
+  const scrollToTop = () => {
+    // console.log("Scrolling to top using scrollIntoView");
+
+    // Use an existing element at the top of the page
+    const topElement = document.querySelector(".top-element");
+    if (topElement) {
+      topElement.scrollIntoView({ behavior: "smooth" });
+    } else {
+      console.error("Top element not found");
+    }
+  };
+
+  const handleDropdownFocusLoss = ({ relatedTarget, currentTarget }) => {
+    if (relatedTarget instanceof HTMLElement && currentTarget.contains(relatedTarget)) return;
+    dropdownUploadEmpty = false;
+    dropdownMore = false;
+    dropdownAuthorizationType = false;
+  };
+
+  const checkNewName = async (name, parentId, type) => {
+    let index = 1;
+    let originalName = name;
+    let newName = originalName;
+
+    for (let i = 0; i < index; i++) {
+      let statusAvailable = await checkLibraryName(newName.trim(), parentId, type);
+
+      if (statusAvailable === true) {
+        break;
+      } else {
+        newName = `${originalName}(${index})`;
+        index++;
+      }
+    }
+
+    return newName;
+  };
 
   onMount(() => {
     if (check("documentAi.documentLibrary:view") === false) {
@@ -1699,10 +1698,7 @@
     }
     const unsubscribe = page.subscribe(async ($page) => {
       collectionId = $page.url.searchParams.get("collectionId");
-      if (
-        collectionId === null ||
-        collectionId === undefined
-      ) {
+      if (collectionId === null || collectionId === undefined) {
         goto(await $call.getPage("client-dashboard", "api-connector"));
         return;
       }
@@ -1721,6 +1717,20 @@
       unsubscribe();
       window.removeEventListener("resize", checkMobileView);
     };
+  });
+
+  $effect(() => {
+    if (textarea) {
+      autosize();
+    }
+  });
+
+  $effect(() => {
+    if (groupedFiles != null) {
+      buttonDisabled = false;
+    } else {
+      buttonDisabled = true;
+    }
   });
 
   $effect(() => {
@@ -1830,7 +1840,10 @@
               on:click={async () => {
                 let link = isFrontend
                   ? "/api_connector/collections/api/create" + `?collectionId=${collectionId}`
-                  : await $call.getPage("client-dashboard", "api-connector-collections-api-create") + `?collectionId=${collectionId}`;
+                  : (await $call.getPage(
+                      "client-dashboard",
+                      "api-connector-collections-api-create",
+                    )) + `?collectionId=${collectionId}`;
                 goto(link);
               }}
             >
@@ -1990,10 +2003,7 @@
                 class="flex justify-between bg-primary-light dark:bg-primary-dark border border-primary-light dark:border-primary-dark hover:bg-primary-light dark:hover:bg-primary-dark hover:border-primary-light dark:hover:border-primary-dark focus:ring-0"
               >
                 <Typography preset="Text md/Reguler" text={authorizationTypeList.selected} />
-                <svelte:component
-                  this={getIcons("chevronDown")}
-                  svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark"
-                />
+                <ChevronDownIcon svgClass="w-5 h-5 text-quinary-light dark:text-quinary-dark" />
               </Button>
               <Typography
                 preset="Text sm/Reguler"
@@ -2067,10 +2077,7 @@
                   console.log("clicked");
                 }}
               >
-                <svelte:component
-                  this={getIcons("save01")}
-                  svgClass="w-5 h-5 text-fg-primary-light dark:text-fg-primary-dark"
-                />
+                <Save01Icon svgClass="w-5 h-5 text-fg-primary-light dark:text-fg-primary-dark" />
                 <div class="hidden md:block">{$_("saveChanges")}</div>
               </Button>
             </div>
@@ -2170,7 +2177,8 @@
             >
               <span>{tag}</span>
               <button
-                onclick={() => {
+                onclick={(evt) => {
+                  evt.stopPropagation();
                   removeTag(tag);
                 }}
                 class="text-brand-primary-light dark:text-brand-primary-dark">x</button
@@ -2518,17 +2526,3 @@
     >
   </svelte:fragment>
 </Modal>
-
-<style>
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: auto;
-  }
-
-  .content {
-    min-height: 200vh; /* Ensure content is long enough to require scrolling */
-  }
-</style>
