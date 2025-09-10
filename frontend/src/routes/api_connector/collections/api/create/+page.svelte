@@ -3,6 +3,7 @@
   import FormApiParams from "$lib/pages/FormApiParams.svelte";
   import { call } from "$lib";
   import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
 
   import { _, json } from "svelte-i18n";
 
@@ -102,7 +103,7 @@
       }
       const queryString = new URLSearchParams(queryParams).toString();
 
-      window.location.href = link + "?" + queryString;
+      goto(link + "?" + queryString)
     }
   }
 
