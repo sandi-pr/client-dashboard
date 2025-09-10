@@ -103,7 +103,6 @@
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
       collectionId = $page.url.searchParams.get("collectionId");
-      libraryId = $page.url.searchParams.get("libraryId");
       apiId = $page.url.searchParams.get("apiId");
       if (apiId !== null) {
         onEdit = false;
@@ -111,9 +110,7 @@
       }
       if (
         collectionId === null ||
-        collectionId === undefined ||
-        libraryId === null ||
-        libraryId === undefined
+        collectionId === undefined
       ) {
         goto(await $call.getPage("client-dashboard", "api-connector"));
         return;
