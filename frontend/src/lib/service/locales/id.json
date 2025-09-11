@@ -1219,5 +1219,8 @@
   "casesList": "Daftar Kasus",
   "failedFetchCollections": "Gagal mengambil koleksi. Silakan coba lagi.",
   "failedUpdateCollection": "Gagal memperbarui koleksi. Silakan coba lagi.",
-  "successDeleteDocuments": "Banyak dokumen berhasil dihapus!"
+  "successDeleteDocuments": "Banyak dokumen berhasil dihapus!",
+  "bodyConfigured": "badan dikonfigurasi",
+  "addBody": "Tambahkan Badan",
+  "body": "Badan"
 }

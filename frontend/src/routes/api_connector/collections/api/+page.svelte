@@ -16,6 +16,7 @@
     deleteCollectionAPIConnector,
   } from "$lib";
   import {
+    TabBar,
     Divider,
     InputRw,
     TabDetail,
@@ -786,7 +787,12 @@
           </div>
         </div>
 
-        <TabDetail {tabDatas} bind:selectedTab={tabDatas.selected} />
+        <TabBar
+          {tabDatas}
+          changeTabbar={(tabName) => {
+            tabDatas.selected = tabName;
+          }}
+        />
         <Divider class="mb-4" />
 
         {#if tabDatas.selected === "My API"}

@@ -13,7 +13,6 @@
   import TabBar from "$lib/components/TabBar.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
   import { onMount } from "svelte";
-  import { on } from "svelte/events";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
@@ -23,45 +22,30 @@
   let dropdownMore = $state(false);
   let deleteModal = $state(false);
 
-  // let data = $state({
-  //   apiName: "",
-  //   description: "",
-  //   createOn: "",
-  //   apiLink: "",
-  //   method: "GET",
-  //   authorization: "Basic Auth",
-  //   username: "",
-  //   password: "",
-  //   token: "",
-  // });
-
-  let dummyData = $state({
-    apiName: "GetUserAPI",
-    description: "API uses to get a User Name",
-    createOn: "2023-07-02 08:51 PM",
-    apiLink: "https://hexacode.ai/api/character?name",
-    method: "GET",
-    authorization: "Inherit Auth from Parent",
-    username: "",
-    password: "",
-    token: "",
-  })
   let paramsConfigured = $state(0);
+  let bodyConfigured = $state(0);
   let onEdit = $state(true);
   let dropdownMethodOpen = $state(false);
   let dropdownAuthorization = $state(false);
 
-  let { data = $bindable({
-    apiName: "",
-    description: "",
-    createOn: "",
-    urlLink: "",
-    method: "GET",
-    authorization: "Basic Auth",
-    username: "",
-    password: "",
-    token: "",
-  }), stateCreate = $bindable("formApi"), paramsData = $bindable(null), saveApi = () => {}, deleteApi = () => {} } = $props();
+  let {
+    data = $bindable({
+      apiName: "",
+      description: "",
+      createOn: "",
+      urlLink: "",
+      method: "GET",
+      authorization: "Basic Auth",
+      username: "",
+      password: "",
+      token: "",
+    }),
+    stateCreate = $bindable("formApi"),
+    paramsData = $bindable(null),
+    bodyData = $bindable(null),
+    saveApi = () => {},
+    deleteApi = () => {},
+  } = $props();
 
   let tabDatas = $state({
     selected: "API Information",
@@ -71,6 +55,9 @@
       },
       {
         name: "Params",
+      },
+      {
+        name: "Body",
       },
       {
         name: "Authorization",
@@ -89,7 +76,7 @@
   ]);
 
   let authorization = $state([
-    { name: "Inherit Auth from Parent", value: "Inherit Auth from Parent"},
+    { name: "Inherit Auth from Parent", value: "Inherit Auth from Parent" },
     { name: "No Auth", value: "No Auth" },
     { name: "Basic Auth", value: "Basic Auth" },
     { name: "Bearer Token", value: "Bearer Token" },
@@ -108,10 +95,7 @@
         onEdit = false;
         // data = dummyData;
       }
-      if (
-        collectionId === null ||
-        collectionId === undefined
-      ) {
+      if (collectionId === null || collectionId === undefined) {
         goto(await $call.getPage("client-dashboard", "api-connector"));
         return;
       }
@@ -120,24 +104,20 @@
     return () => {
       unsubscribe();
     };
-  })
+  });
 
   $effect(() => {
     paramsConfigured = paramsData.length;
+    bodyConfigured = bodyData.length;
   });
-
 </script>
 
 <div class="flex flex-col m-4 pb-8 md:pb-24">
-  <div class="flex justify-between"> 
+  <div class="flex justify-between">
     {#if apiId !== null && onEdit === false}
       <div class="flex flex-col gap-2">
         <div class="flex gap-2 items-center">
-          <Typography
-            preset="Display sm/Semibold"
-            color="primary"
-            text={"GetUserAPI"}
-          />
+          <Typography preset="Display sm/Semibold" color="primary" text={"GetUserAPI"} />
           <button
             onclick={() => {
               navigator.clipboard
@@ -152,9 +132,7 @@
             }}
             class="p-2 border-2 rounded-lg border-secondary-light dark:border-secondary-dark"
           >
-            <Copy01Icon
-              svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark"
-            />
+            <Copy01Icon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
           </button>
         </div>
         <Typography
@@ -164,12 +142,17 @@
         />
       </div>
       <div class="flex gap-2 items-center">
-        <Button color="light" class="gap-1.5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark" 
+        <Button
+          color="light"
+          class="gap-1.5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark"
           on:click={() => {
             onEdit = !onEdit;
             // data = dummyData;
-          }}>
-          <Edit05Icon svgClass="w-5 h-5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark" />
+          }}
+        >
+          <Edit05Icon
+            svgClass="w-5 h-5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark"
+          />
           {$_("edit")}
         </Button>
         <div onfocusout={handleDropdownFocusLoss} class=" flex items-center relative">
@@ -181,44 +164,43 @@
           >
             <ul class="py-2 grow text-sm">
               <button
-                  class="flex p-2 w-full text-error-primary-light dark:text-error-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
-                  onclick={() => {
-                    deleteModal = true;
-                    dropdownMore = !dropdownMore;
-                  }}
-                >
-                  {$_("deleteApi")}
-                </button>
+                class="flex p-2 w-full text-error-primary-light dark:text-error-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark"
+                onclick={() => {
+                  deleteModal = true;
+                  dropdownMore = !dropdownMore;
+                }}
+              >
+                {$_("deleteApi")}
+              </button>
             </ul>
           </div>
         </div>
       </div>
     {:else}
       {#if apiId === null}
-        <Typography
-          preset="Display sm/Semibold"
-          color="primary"
-          text={$_("createNewApi")}
-        />
+        <Typography preset="Display sm/Semibold" color="primary" text={$_("createNewApi")} />
       {:else}
-        <Typography
-          preset="Display sm/Semibold"
-          color="primary"
-          text={$_("editApi")}
-        />
+        <Typography preset="Display sm/Semibold" color="primary" text={$_("editApi")} />
       {/if}
       <div class="flex gap-2 items-center">
-        <Button color="light" on:click={async() => {
-          const link =
-          isFrontend
-            ? "/api_connector/collections/api" + `?collectionId=${collectionId}&libraryId=${libraryId}`
-            : await $call.getPage("client-dashboard", "api-connector-collections-api") + `?collectionId=${collectionId}&libraryId=${libraryId}`;
-          onEdit ? onEdit = !onEdit : goto(link);
-        }}>{$_("cancel")}</Button>
-        <Button class="gap-1.5" on:click={() => {
-          onEdit = false;
-          saveApi(data);
-        }}>
+        <Button
+          color="light"
+          on:click={async () => {
+            const link = isFrontend
+              ? "/api_connector/collections/api" +
+                `?collectionId=${collectionId}&libraryId=${libraryId}`
+              : (await $call.getPage("client-dashboard", "api-connector-collections-api")) +
+                `?collectionId=${collectionId}&libraryId=${libraryId}`;
+            onEdit ? (onEdit = !onEdit) : goto(link);
+          }}>{$_("cancel")}</Button
+        >
+        <Button
+          class="gap-1.5"
+          on:click={() => {
+            onEdit = false;
+            saveApi(data);
+          }}
+        >
           <Save01Icon />
           {$_("saveApi")}
         </Button>
@@ -226,25 +208,22 @@
     {/if}
   </div>
   {#if apiId !== null && onEdit === false}
-   <TabBar {tabDatas} />
+    <TabBar
+      {tabDatas}
+      changeTabbar={(tabName) => {
+        tabDatas.selected = tabName;
+      }}
+    />
   {/if}
   {#if tabDatas.selected === "API Information"}
     <div class="flex flex-col gap-4 pt-4 md:pt-6 md:gap-6">
       <div class="flex flex-col md:flex-row gap-3 md:gap-6">
         <div class="w-60">
-          <Typography
-              preset="Text md/Semibold"
-              color="secondary"
-              text={$_("generalInformation")}
-            />
+          <Typography preset="Text md/Semibold" color="secondary" text={$_("generalInformation")} />
         </div>
         <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
           <div class="flex flex-col gap-1.5">
-            <Typography
-              preset="Text sm/medium"
-              color="secondary"
-              text={$_("apiName")}
-            />
+            <Typography preset="Text sm/medium" color="secondary" text={$_("apiName")} />
             <InputRw {onEdit} bind:value={data.apiName} />
           </div>
           <div class="flex flex-col gap-1.5">
@@ -260,11 +239,7 @@
       <Divider />
       <div class="flex flex-col md:flex-row gap-3 md:gap-6">
         <div class="w-60">
-          <Typography
-              preset="Text md/Semibold"
-              color="secondary"
-              text={$_("method")}
-            />
+          <Typography preset="Text md/Semibold" color="secondary" text={$_("method")} />
         </div>
         <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
           <div class="flex flex-col gap-1.5">
@@ -282,33 +257,21 @@
       <Divider />
       <div class="flex flex-col md:flex-row gap-3 md:gap-6">
         <div class="w-60">
-          <Typography
-              preset="Text md/Semibold"
-              color="secondary"
-              text={$_("urlLink")}
-            />
+          <Typography preset="Text md/Semibold" color="secondary" text={$_("urlLink")} />
         </div>
         <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
           <div class="flex flex-col gap-1.5">
-            <Typography
-              preset="Text sm/medium"
-              color="secondary"
-              text={$_("apiUrlLink")}
-            />
+            <Typography preset="Text sm/medium" color="secondary" text={$_("apiUrlLink")} />
             <InputRw {onEdit} bind:value={data.urlLink} />
           </div>
         </div>
       </div>
-      
+
       {#if apiId === null || onEdit === true}
         <Divider />
         <div class="flex flex-col md:flex-row gap-3 md:gap-6">
           <div class="w-60">
-            <Typography
-                preset="Text md/Semibold"
-                color="secondary"
-                text={$_("params")}
-              />
+            <Typography preset="Text md/Semibold" color="secondary" text={$_("params")} />
           </div>
           <div class="flex flex-col gap-3 md:gap-6 rounded-lg">
             <div class="flex flex-col gap-1.5">
@@ -319,8 +282,14 @@
                   stateCreate = "formParams";
                 }}
               >
-                <PlusIcon svgClass="w-5 h-5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark" />
-                <div class="hidden text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark md:block">{$_("addParams")}</div>
+                <PlusIcon
+                  svgClass="w-5 h-5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark"
+                />
+                <div
+                  class="hidden text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark md:block"
+                >
+                  {$_("addParams")}
+                </div>
               </Button>
               <Helper>
                 <span class="font-medium">{`${paramsConfigured} ${$_("paramsConfigured")}`}</span>
@@ -331,11 +300,36 @@
         <Divider />
         <div class="flex flex-col md:flex-row gap-3 md:gap-6">
           <div class="w-60">
-            <Typography
-                preset="Text md/Semibold"
-                color="secondary"
-                text={$_("authType")}
-              />
+            <Typography preset="Text md/Semibold" color="secondary" text={$_("body")} />
+          </div>
+          <div class="flex flex-col gap-3 md:gap-6 rounded-lg">
+            <div class="flex flex-col gap-1.5">
+              <Button
+                color="light"
+                class="gap-1.5"
+                on:click={async () => {
+                  stateCreate = "formBody";
+                }}
+              >
+                <PlusIcon
+                  svgClass="w-5 h-5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark"
+                />
+                <div
+                  class="hidden text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark md:block"
+                >
+                  {$_("addBody")}
+                </div>
+              </Button>
+              <Helper>
+                <span class="font-medium">{`${bodyConfigured} ${$_("bodyConfigured")}`}</span>
+              </Helper>
+            </div>
+          </div>
+        </div>
+        <Divider />
+        <div class="flex flex-col md:flex-row gap-3 md:gap-6">
+          <div class="w-60">
+            <Typography preset="Text md/Semibold" color="secondary" text={$_("authType")} />
           </div>
           <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
             <div class="flex flex-col gap-1.5">
@@ -361,39 +355,23 @@
           <Divider />
           <div class="flex flex-col md:flex-row gap-3 md:gap-6">
             <div class="w-60">
-              <Typography
-                  preset="Text md/Semibold"
-                  color="secondary"
-                  text={$_("token")}
-                />
+              <Typography preset="Text md/Semibold" color="secondary" text={$_("token")} />
             </div>
             {#if data.authorization === "Basic Auth"}
               <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
                 <div class="flex flex-col gap-1.5">
-                  <Typography
-                    preset="Text sm/medium"
-                    color="secondary"
-                    text={$_("username")}
-                  />
+                  <Typography preset="Text sm/medium" color="secondary" text={$_("username")} />
                   <InputRw {onEdit} bind:value={data.username} />
                 </div>
                 <div class="flex flex-col gap-1.5">
-                  <Typography
-                    preset="Text sm/medium"
-                    color="secondary"
-                    text={$_("password")}
-                  />
+                  <Typography preset="Text sm/medium" color="secondary" text={$_("password")} />
                   <InputRw {onEdit} bind:value={data.password} />
                 </div>
               </div>
             {:else if data.authorization === "Bearer Token"}
               <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
                 <div class="flex flex-col gap-1.5">
-                  <Typography
-                    preset="Text sm/medium"
-                    color="secondary"
-                    text={$_("token")}
-                  />
+                  <Typography preset="Text sm/medium" color="secondary" text={$_("token")} />
                   <InputRw {onEdit} bind:value={data.token} />
                 </div>
               </div>
@@ -406,22 +384,18 @@
     <div class="pt-2 md:pt-4">
       <DataTable bind:datas={paramsData} />
     </div>
+  {:else if tabDatas.selected === "Body"}
+    <div class="pt-2 md:pt-4">
+      <DataTable bind:datas={bodyData} />
+    </div>
   {:else if tabDatas.selected === "Authorization"}
     <div class="flex flex-col md:flex-row pt-4 md:pt-6 gap-3 md:gap-6">
       <div class="w-60">
-        <Typography
-            preset="Text md/Semibold"
-            color="secondary"
-            text={$_("authType")}
-          />
+        <Typography preset="Text md/Semibold" color="secondary" text={$_("authType")} />
       </div>
       <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
         <div class="flex flex-col gap-1.5">
-          <Typography
-            preset="Text sm/medium"
-            color="secondary"
-            text={$_("authorizationType")}
-          />
+          <Typography preset="Text sm/medium" color="secondary" text={$_("authorizationType")} />
           <Dropdown
             dropdownOpen={dropdownAuthorization}
             bind:selectedItem={data.authorization}
@@ -439,39 +413,23 @@
       <Divider />
       <div class="flex flex-col md:flex-row gap-3 md:gap-6">
         <div class="w-60">
-          <Typography
-              preset="Text md/Semibold"
-              color="secondary"
-              text={$_("token")}
-            />
+          <Typography preset="Text md/Semibold" color="secondary" text={$_("token")} />
         </div>
         {#if data.authorization === "Basic Auth"}
           <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
             <div class="flex flex-col gap-1.5">
-              <Typography
-                preset="Text sm/medium"
-                color="secondary"
-                text={$_("username")}
-              />
+              <Typography preset="Text sm/medium" color="secondary" text={$_("username")} />
               <InputRw {onEdit} bind:value={data.username} />
             </div>
             <div class="flex flex-col gap-1.5">
-              <Typography
-                preset="Text sm/medium"
-                color="secondary"
-                text={$_("password")}
-              />
+              <Typography preset="Text sm/medium" color="secondary" text={$_("password")} />
               <InputRw {onEdit} bind:value={data.password} />
             </div>
           </div>
         {:else if data.authorization === "Bearer Token"}
           <div class="flex flex-col grow gap-3 md:gap-6 rounded-lg">
             <div class="flex flex-col gap-1.5">
-              <Typography
-                preset="Text sm/medium"
-                color="secondary"
-                text={$_("token")}
-              />
+              <Typography preset="Text sm/medium" color="secondary" text={$_("token")} />
               <InputRw {onEdit} bind:value={data.token} />
             </div>
           </div>
@@ -481,19 +439,25 @@
   {/if}
 </div>
 
-<Modal 
-  bind:open={deleteModal} 
-  size="xs" 
+<Modal
+  bind:open={deleteModal}
+  size="xs"
   autoclose
   backdropClass="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 dark:bg-opacity-80"
-  dialogClass="fixed top-0 start-0 end-0 h-modal md:inset-0 md:h-full z-50 w-full p-4 flex" 
+  dialogClass="fixed top-0 start-0 end-0 h-modal md:inset-0 md:h-full z-50 w-full p-4 flex"
 >
   <div class="text-center">
     <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       Are you sure you want to delete {data.name}?
     </h3>
-    <Button onclick={() => {deleteApi();}} color="red" class="me-2">Yes, I'm sure</Button>
+    <Button
+      onclick={() => {
+        deleteApi();
+      }}
+      color="red"
+      class="me-2">Yes, I'm sure</Button
+    >
     <Button color="alternative" onclick={() => (deleteModal = false)}>Cancel</Button>
   </div>
 </Modal>

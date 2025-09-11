@@ -1219,5 +1219,8 @@
   "casesList": "Cases List",
   "failedFetchCollections": "Failed to fetch collections. Please try again.",
   "failedUpdateCollection": "Failed to update collection. Please try again.",
-  "successDeleteDocuments": "Documents deleted successfully!"
+  "successDeleteDocuments": "Documents deleted successfully!",
+  "bodyConfigured": "body configured",
+  "addBody": "Add Body",
+  "body": "Body"
 }

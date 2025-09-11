@@ -66,7 +66,7 @@
       },
     };
 
-    console.log("cek paramsData", paramsData);
+    // console.log("cek paramsData", paramsData);
     addParamModal = false;
   }
 
@@ -74,19 +74,14 @@
     // TODO: delete paramsData
     paramsData = paramsData.filter((item) => item.id !== index);
   }
-
 </script>
 
 <div class="flex flex-col m-4">
   <div class="flex items-start justify-between mb-4 md:mb-8">
-    <Typography
-      preset="Display sm/Semibold"
-      color="primary"
-      text={$_("addParams")}
-    />
+    <Typography preset="Display sm/Semibold" color="primary" text={$_("addParams")} />
     <div class="flex gap-2 items-center">
-      <Button color="light" on:click={() => stateCreate = "formApi"}>{$_("cancel")}</Button>
-      <Button class="gap-1.5" on:click={() => stateCreate = "formApi"}>
+      <Button color="light" on:click={() => (stateCreate = "formApi")}>{$_("cancel")}</Button>
+      <Button class="gap-1.5" on:click={() => (stateCreate = "formApi")}>
         <Edit05Icon />
         {$_("saveParams")}
       </Button>
@@ -94,9 +89,7 @@
   </div>
 
   <div class="flex flex-col gap-4 pt-4 md:pt-6 md:gap-6">
-    <DataTable
-      bind:datas={paramsData}
-    />
+    <DataTable bind:datas={paramsData} />
     <div>
       <Button
         outline
@@ -134,10 +127,8 @@
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button
-      onclick={addParam}
-      disabled={!newData.key || !newData.type}
-      class="w-full">{$_("addNewRow")}</Button
+    <Button onclick={addParam} disabled={!newData.key || !newData.type} class="w-full"
+      >{$_("addNewRow")}</Button
     >
   </svelte:fragment>
 </Modal>

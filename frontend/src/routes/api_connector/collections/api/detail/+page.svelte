@@ -1,19 +1,28 @@
 <script>
-  import FormApiConnector from "$lib/pages/FormApiConnector.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
-  import FormApiParams from "$lib/pages/FormApiParams.svelte";
-  import { format } from "date-fns";
-
-  import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
+  import { _ } from "svelte-i18n";
+  import { format } from "date-fns";
   import { page } from "$app/stores";
+
   import { call, triggerToast } from "$lib";
 
-  let stateCreate = $state("formApi");
+  import FormApiConnector from "$lib/pages/FormApiConnector.svelte";
+  import FormApiParams from "$lib/pages/FormApiParams.svelte";
 
   let apiID;
 
+  let stateCreate = $state("formApi");
+
   let paramsData = $state([
+    // {
+    //   id: 1,
+    //   key: "user_id",
+    //   type: "INT",
+    //   description: "Unique identifier for the user",
+    // },
+  ]);
+
+  let bodyData = $state([
     // {
     //   id: 1,
     //   key: "user_id",
@@ -32,7 +41,7 @@
     password: "",
     token: "",
   });
-  
+
   async function getApi() {
     let token = localStorage.getItem("token");
 
@@ -48,7 +57,7 @@
         },
       });
 
-      console.log(response);
+      // console.log(response);
 
       if (response.status === 200) {
         data.apiName = response.result.attributes.name;
@@ -125,14 +134,17 @@
         username: data.username,
         password: data.password,
         token: data.token,
-      }
+      };
 
       let collectionId = $page.url.searchParams.get("collectionId");
       newData.parent_id = parseInt(collectionId);
       if (paramsData.length > 0) {
         newData.params = JSON.stringify(paramsData);
       }
-      console.log("data", newData);
+      if (bodyData.length > 0) {
+        newData.body = JSON.stringify(bodyData);
+      }
+      // console.log("data", newData);
 
       let response = await $call.call("client-dashboard", "update-api", {
         URLQuery: {},
@@ -170,12 +182,21 @@
   onMount(() => {
     apiID = $page.url.searchParams.get("apiId");
     getApi();
-  })
-
+  });
 </script>
 
 {#if stateCreate === "formApi"}
-  <FormApiConnector bind:data bind:stateCreate bind:paramsData bind:apiID {saveApi} {deleteApi} />
+  <FormApiConnector
+    bind:data
+    bind:stateCreate
+    bind:paramsData
+    bind:bodyData
+    bind:apiID
+    {saveApi}
+    {deleteApi}
+  />
 {:else if stateCreate === "formParams"}
   <FormApiParams bind:stateCreate bind:paramsData />
+{:else if stateCreate === "formBody"}
+  <FormApiParams bind:stateCreate bind:paramsData={bodyData} />
 {/if}
