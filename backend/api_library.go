@@ -155,6 +155,26 @@ func UpdateCollectionApi(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 		parent_id = 0
 	}
 
+	auth_type, ok := ctx.Params.GetString("auth_type")
+	if !ok {
+		return ctx.Error(400, "Invalid parameter: auth_type")
+	}
+
+	username, ok := ctx.Params.GetString("username")
+	if !ok {
+		username = ""
+	}
+
+	password, ok := ctx.Params.GetString("password")
+	if !ok {
+		password = ""
+	}
+
+	token, ok := ctx.Params.GetString("token")
+	if !ok {
+		token = ""
+	}
+
 	dataSend := U.Dict{}
 
 	if name != "" {
@@ -167,6 +187,22 @@ func UpdateCollectionApi(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 
 	if parent_id != 0 {
 		dataSend["parent_id"] = parent_id
+	}
+
+	if auth_type != "" {
+		dataSend["auth_type"] = auth_type
+	}
+
+	if username != "" {
+		dataSend["username"] = username
+	}
+
+	if password != "" {
+		dataSend["password"] = password
+	}
+
+	if token != "" {
+		dataSend["token"] = token
 	}
 
 	status, response, err := Strapi.Update("api-library-table", int64(id), dataSend)
