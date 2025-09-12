@@ -110,6 +110,7 @@ import FileDownload03Icon from "../icon/file-download-03.svelte";
 import MoveIcon from "../icon/move.svelte";
 import AlertCircleIcon from "../icon/alert-circle.svelte";
 import FilePlus02Icon from "../icon/file-plus-02.svelte";
+import ApiConnectorSupportIcon from "../icon/api-connector-support.svelte";
 import Var76 from "../icon/var-76.svelte";
 import Var85 from "../icon/var-85.svelte";
 import Var86 from "../icon/var-86.svelte";
@@ -353,6 +354,8 @@ let getIcons = (presetIcon: String) => {
       return AlertCircleIcon;
     case "filePlus02":
       return FilePlus02Icon;
+    case "apiConnectorSupport":
+      return ApiConnectorSupportIcon;
     case "var76":
       return Var76;
     case "var85":

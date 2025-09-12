@@ -80,8 +80,11 @@
                 text={$_(data.name)}
                 color={`${selectedData === data.id ? "brand-primary" : "primary"}`}
               />
-              {#if data.recommended}
+              {#if data?.recommended}
                 <Icon name="verifiedTick" />
+              {/if}
+              {#if data?.apiSupported}
+                <Icon name="apiConnectorSupport" />
               {/if}
             </div>
             {#if data.description}

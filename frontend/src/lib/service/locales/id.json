@@ -1225,5 +1225,12 @@
   "body": "Badan",
   "saveBody": "Simpan Badan",
   "bodyType": "Tipe Badan",
-  "bodyTypeDesc": "Pilih jenis badan API yang sesuai dengan format data yang Anda kirimkan."
+  "bodyTypeDesc": "Pilih jenis badan API yang sesuai dengan format data yang Anda kirimkan.",
+  "recommendedModels": "Model yang Direkomendasikan",
+  "supportForApiConnector": "Dukungan untuk Konektor API",
+  "chooseApiSources": "Pilih Sumber API",
+  "apiSourceAsThePrimarySource": "Sumber API sebagai sumber utama",
+  "chooseWhichApiEndpoints": "Pilih endpoint API mana yang akan digunakan",
+  "chooseTheOneYouWantToIncludeApi": "Pilih yang ingin Anda sertakan dalam permintaan API",
+  "latestApiCollections": "Koleksi API Terbaru"
 }

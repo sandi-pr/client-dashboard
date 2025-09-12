@@ -1225,5 +1225,12 @@
   "body": "Body",
   "saveBody": "Save Body",
   "bodyType": "Body Type",
-  "bodyTypeDesc": "Choose the API body type that matches the format of the data you are sending."
+  "bodyTypeDesc": "Choose the API body type that matches the format of the data you are sending.",
+  "recommendedModels": "Recommended Models",
+  "supportForApiConnector": "Support for API Connector",
+  "chooseApiSources": "Choose API Sources",
+  "apiSourceAsThePrimarySource": "API source as the primary source",
+  "chooseWhichApiEndpoints": "Choose which API endpoints",
+  "chooseTheOneYouWantToIncludeApi": "Choose the one you want to include API",
+  "latestApiCollections": "Latest API Collection"
 }

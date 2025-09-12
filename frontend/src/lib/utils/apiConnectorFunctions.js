@@ -49,7 +49,7 @@ export const getCollectionAPIConnector = async (
   _,
   call,
   search = "",
-  pagination = { page: 1, pageSize: 8 },
+  pagination = { page: 1, pageSize: 8, pageCount: 0, total: 0 },
 ) => {
   try {
     let token = localStorage.getItem("token");
@@ -81,6 +81,8 @@ export const getCollectionAPIConnector = async (
         collections = collections.concat(response.result.data);
       }
 
+      // console.log("collections", collections);
+
       let link = isFrontend
         ? "/api_connector/collections/api"
         : await call.getPage("client-dashboard", "api-connector-collections-api");
@@ -103,6 +105,8 @@ export const getCollectionAPIConnector = async (
           error.response = await responseLibrary;
           throw error;
         }
+
+        // console.log("responseLibrary", responseLibrary);
 
         return {
           id: collection.id,
