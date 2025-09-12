@@ -9,7 +9,7 @@
     call,
     check,
     getIcons,
-    checkLibraryName,
+    checkCollectionApiName,
     getCollectionAPIConnector,
     createCollectionAPIConnector,
     updateCollectionAPIConnector,
@@ -95,7 +95,7 @@
 
   const handleInput = async (event, parentId, type) => {
     const name = event.target.value;
-    const status = await checkLibraryName($call, name.trim(), parentId, type);
+    const status = await checkCollectionApiName($call, name.trim(), parentId, type);
 
     if (tmpOldName === name) {
       nameIsAvailable = true;

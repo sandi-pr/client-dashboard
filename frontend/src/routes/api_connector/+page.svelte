@@ -27,7 +27,7 @@ All Rights Reserved
     errorHandling,
     notifications,
     triggerLoading,
-    checkLibraryName,
+    checkCollectionApiName,
     getCollectionAPIConnector,
     createCollectionAPIConnector,
     updateCollectionAPIConnector,
@@ -211,7 +211,7 @@ All Rights Reserved
 
   const handleInput = async (event, parentId = collectionId, type = "document") => {
     const name = event.target.value;
-    const status = await checkLibraryName($call, name.trim(), parentId, type);
+    const status = await checkCollectionApiName($call, name.trim(), parentId, type);
 
     if (tmpOldName === name) {
       nameIsAvailable = true;
