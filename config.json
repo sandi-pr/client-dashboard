@@ -5953,6 +5953,22 @@
                 {
                     "name": "parent_id",
                     "type": "number"
+                },
+                {
+                    "name": "auth_type",
+                    "type": "string"
+                },
+                {
+                    "name": "username",
+                    "type": "string"
+                },
+                {
+                    "name": "password",
+                    "type": "string"
+                },
+                {
+                    "name": "token",
+                    "type": "string"
                 }
             ]
         },
