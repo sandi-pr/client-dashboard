@@ -545,6 +545,16 @@ func CreateApi(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		params = ""
 	}
 
+	body_type, ok := ctx.Params.GetString("body_type")
+	if !ok {
+		body_type = "none"
+	}
+
+	body, ok := ctx.Params.GetString("body")
+	if !ok {
+		body = ""
+	}
+
 	dataSend := U.Dict{
 		"name":      name,
 		"type":      "api",
@@ -552,6 +562,7 @@ func CreateApi(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"url":       url,
 		"method":    method,
 		"auth_type": auth_type,
+		"body_type": body_type,
 		"meta": U.Dict{
 			"upload_by": upload_by,
 			"author":    author,
@@ -582,6 +593,16 @@ func CreateApi(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		}
 
 		dataSend["params"] = paramsJson
+	}
+
+	if body != "" {
+		var bodyJson interface{}
+		err := json.Unmarshal([]byte(body), &bodyJson)
+		if err != nil {
+			return ctx.Error(400, "Invalid parameter: body")
+		}
+
+		dataSend["body"] = bodyJson
 	}
 
 	status, response, err := Strapi.Create("api-library-table", dataSend)
@@ -683,6 +704,16 @@ func UpdateApi(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		params = ""
 	}
 
+	body_type, ok := ctx.Params.GetString("body_type")
+	if !ok {
+		body_type = "none"
+	}
+
+	body, ok := ctx.Params.GetString("body")
+	if !ok {
+		body = ""
+	}
+
 	dataSend := U.Dict{}
 
 	if name != "" {
@@ -723,6 +754,20 @@ func UpdateApi(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		if err != nil {
 			return ctx.Error(400, "Invalid parameter: params")
 		}
+	}
+
+	if body_type != "" {
+		dataSend["body_type"] = body_type
+	}
+
+	if body != "" {
+		var bodyJson map[string]interface{}
+		err := json.Unmarshal([]byte(body), &bodyJson)
+		if err != nil {
+			return ctx.Error(400, "Invalid parameter: body")
+		}
+
+		dataSend["body"] = bodyJson
 	}
 
 	status, response, err := Strapi.Update("api-library-table", int64(id), dataSend)
