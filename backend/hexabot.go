@@ -198,6 +198,17 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		need_auth = false
 	}
 
+	collection_api_ids, ok := ctx.Params.GetString("collection_api_ids")
+	if !ok {
+		collection_api_ids = ""
+	}
+
+	function_call, ok := ctx.Params.GetBool("function_call")
+
+	if !ok {
+		function_call = false
+	}
+
 	var data U.Dict
 
 	bot_id := uuid.New().String()
@@ -223,6 +234,7 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"assistant_item":   assistant_item,
 		"system_item":      system_item,
 		"module_type":      module_type,
+		"function_call":    function_call,
 	}
 
 	if description != "" {
@@ -243,6 +255,10 @@ func CreateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 
 	if additional_prompt != "" {
 		data["additional_prompt"] = additional_prompt
+	}
+
+	if collection_api_ids != "" {
+		data["collection_api_ids"] = collection_api_ids
 	}
 
 	status, bot, err := Strapi.Create("hexabot-table", data)
@@ -1171,6 +1187,18 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		manage_document = false
 	}
 
+	collection_api_ids, ok := ctx.Params.GetString("collection_api_ids")
+
+	if !ok {
+		collection_api_ids = ""
+	}
+
+	function_call, ok := ctx.Params.GetBool("function_call")
+
+	if !ok {
+		function_call = false
+	}
+
 	var background_id int64
 
 	if backgroundStr != "" {
@@ -1248,6 +1276,7 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 		"username":          username,
 		"need_auth":         need_auth,
 		"manage_document":   manage_document,
+		"function_call":     function_call,
 	}
 
 	if backgroundStr != "" {
@@ -1341,6 +1370,10 @@ func UpdateBot(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 
 	if logo_name != "" {
 		data["logo_name"] = logo_name
+	}
+
+	if collection_api_ids != "" {
+		data["collection_api_ids"] = collection_api_ids
 	}
 
 	if collection_id != "" {
