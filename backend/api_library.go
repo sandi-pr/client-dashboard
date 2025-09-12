@@ -157,7 +157,7 @@ func UpdateCollectionApi(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 
 	auth_type, ok := ctx.Params.GetString("auth_type")
 	if !ok {
-		return ctx.Error(400, "Invalid parameter: auth_type")
+		auth_type = ""
 	}
 
 	username, ok := ctx.Params.GetString("username")
