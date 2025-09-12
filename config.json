@@ -4996,6 +4996,14 @@
                 {
                     "name": "module_type",
                     "type": "string"
+                },
+                {
+                    "name": "collection_api_ids",
+                    "type": "string"
+                },
+                {
+                    "name": "function_call",
+                    "type": "boolean"
                 }
             ]
         },
@@ -5214,6 +5222,14 @@
                 },
                 {
                     "name": "manage_document",
+                    "type": "boolean"
+                },
+                {
+                    "name": "collection_api_ids",
+                    "type": "string"
+                },
+                {
+                    "name": "function_call",
                     "type": "boolean"
                 }
             ]
@@ -6059,6 +6075,14 @@
                 {
                     "name": "params",
                     "type": "string"
+                },
+                {
+                    "name": "body_type",
+                    "type": "string"
+                },
+                {
+                    "name": "body",
+                    "type": "string"
                 }
             ]
         },
@@ -6118,6 +6142,14 @@
                 },
                 {
                     "name": "params",
+                    "type": "string"
+                },
+                {
+                    "name": "body_type",
+                    "type": "string"
+                },
+                {
+                    "name": "body",
                     "type": "string"
                 }
             ]
@@ -7384,6 +7416,9 @@
                     },
                     "collection_api_ids": {
                         "type": "string"
+                    },
+                    "function_call": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -7499,7 +7534,7 @@
                         "type": "string"
                     },
                     "password": {
-                        "type": "password"
+                        "type": "string"
                     },
                     "token": {
                         "type": "string"
