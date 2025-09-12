@@ -84,6 +84,7 @@
       }
       if (bodyData.length > 0) {
         newData.body = JSON.stringify(bodyData);
+        newData.body_type = "raw";
       }
       // console.log("data", newData);
 
