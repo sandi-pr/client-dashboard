@@ -1222,5 +1222,8 @@
   "successDeleteDocuments": "Documents deleted successfully!",
   "bodyConfigured": "body configured",
   "addBody": "Add Body",
-  "body": "Body"
+  "body": "Body",
+  "saveBody": "Save Body",
+  "bodyType": "Body Type",
+  "bodyTypeDesc": "Choose the API body type that matches the format of the data you are sending."
 }

@@ -1222,5 +1222,8 @@
   "successDeleteDocuments": "Banyak dokumen berhasil dihapus!",
   "bodyConfigured": "badan dikonfigurasi",
   "addBody": "Tambahkan Badan",
-  "body": "Badan"
+  "body": "Badan",
+  "saveBody": "Simpan Badan",
+  "bodyType": "Tipe Badan",
+  "bodyTypeDesc": "Pilih jenis badan API yang sesuai dengan format data yang Anda kirimkan."
 }

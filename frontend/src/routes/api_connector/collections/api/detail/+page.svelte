@@ -4,33 +4,16 @@
   import { format } from "date-fns";
   import { page } from "$app/stores";
 
-  import { call, triggerToast } from "$lib";
+  import { call, triggerToast, errorHandling } from "$lib";
 
   import FormApiConnector from "$lib/pages/FormApiConnector.svelte";
   import FormApiParams from "$lib/pages/FormApiParams.svelte";
 
-  let apiID;
-
+  let apiID = $state(0);
+  let isBody = $state(false);
   let stateCreate = $state("formApi");
-
-  let paramsData = $state([
-    // {
-    //   id: 1,
-    //   key: "user_id",
-    //   type: "INT",
-    //   description: "Unique identifier for the user",
-    // },
-  ]);
-
-  let bodyData = $state([
-    // {
-    //   id: 1,
-    //   key: "user_id",
-    //   type: "INT",
-    //   description: "Unique identifier for the user",
-    // },
-  ]);
-
+  let paramsData = $state([]);
+  let bodyData = $state([]);
   let data = $state({
     apiName: "",
     description: "",
@@ -40,26 +23,34 @@
     username: "",
     password: "",
     token: "",
+    body_type: "raw",
   });
 
-  async function getApi() {
-    let token = localStorage.getItem("token");
+  const getApi = async () => {
+    try {
+      let token = localStorage.getItem("token");
 
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "get-api", {
-        URLQuery: {},
-        URLParams: {
-          id: apiID,
-        },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      if (token !== null) {
+        let response = await $call.call("client-dashboard", "get-api", {
+          URLQuery: {},
+          URLParams: {
+            id: apiID,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      // console.log(response);
+        // console.log(response);
 
-      if (response.status === 200) {
+        if (response?.status !== 200) {
+          const error = new Error("Failed to fetch API details");
+          error.response = response;
+          error.status = response?.status;
+          throw error;
+        }
+
         data.apiName = response.result.attributes.name;
         data.description = response.result.attributes.description;
         data.urlLink = response.result.attributes.url;
@@ -69,41 +60,40 @@
         data.password = response.result.attributes.password;
         data.token = response.result.attributes.token;
         data.createOn = format(new Date(response.result.attributes.createdAt), "dd-MM-yyyy");
+        data.body_type = response.result.attributes.body_type
+          ? response.result.attributes.body_type
+          : "raw";
         paramsData = response.result.attributes.params ? response.result.attributes.params : [];
+        bodyData = response.result.attributes.body ? response.result.attributes.body : [];
       }
+    } catch (error) {
+      errorHandling($_, error, "get");
     }
-  }
+  };
 
-  async function deleteApi() {
-    let token = localStorage.getItem("token");
+  const deleteApi = async () => {
+    try {
+      let token = localStorage.getItem("token");
 
-    if (token !== null) {
-      let response = await $call.call("client-dashboard", "delete-api", {
-        URLQuery: {},
-        URLParams: {
-          id: apiID,
-        },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      if (token !== null) {
+        let response = await $call.call("client-dashboard", "delete-api", {
+          URLQuery: {},
+          URLParams: {
+            id: apiID,
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      if (response.status === 400) {
-        console.error("Invalid parameters:", response);
-        triggerToast($_("invalidParameters"), true, "error");
-      } else if (response.status === 401) {
-        console.error("Unauthorized access:", response);
-        triggerToast($_("unauthorized"), true, "error");
-      } else if (response.status === 500) {
-        console.error("Server error:", response);
-        triggerToast($_("serverError"), true, "error");
-      } else {
-        console.error("Unexpected status code:", response);
-        triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
-      }
+        if (response?.status !== 200) {
+          const error = new Error("Failed to delete API");
+          error.response = response;
+          error.status = response?.status;
+          throw error;
+        }
 
-      if (response.status === 200) {
         let link = await $call.getPage("client-dashboard", "api-connector-collections-api");
 
         const params = new URLSearchParams(window.location.search);
@@ -117,68 +107,66 @@
         const queryString = new URLSearchParams(queryParams).toString();
 
         window.location.href = link + "?" + queryString;
+
+        triggerToast($_("successfullyDeleted"));
       }
+    } catch (error) {
+      errorHandling($_, error, "delete");
     }
-  }
+  };
 
-  async function saveApi() {
-    let token = localStorage.getItem("token");
+  const saveApi = async () => {
+    try {
+      let token = localStorage.getItem("token");
 
-    if (token !== null) {
-      let newData = {
-        name: data.apiName,
-        description: data.description,
-        url: data.urlLink,
-        method: data.method,
-        auth_type: data.authorization,
-        username: data.username,
-        password: data.password,
-        token: data.token,
-      };
+      if (token !== null) {
+        let newData = {
+          name: data.apiName,
+          description: data.description,
+          url: data.urlLink,
+          method: data.method,
+          auth_type: data.authorization,
+          username: data.username,
+          password: data.password,
+          token: data.token,
+          body_type: data.body_type,
+        };
 
-      let collectionId = $page.url.searchParams.get("collectionId");
-      newData.parent_id = parseInt(collectionId);
-      if (paramsData.length > 0) {
-        newData.params = JSON.stringify(paramsData);
-      }
-      if (bodyData.length > 0) {
-        newData.body = JSON.stringify(bodyData);
-        newData.body_type = "raw";
-      }
-      // console.log("data", newData);
-
-      let response = await $call.call("client-dashboard", "update-api", {
-        URLQuery: {},
-        URLParams: {
-          id: apiID,
-        },
-        Params: newData,
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response.status !== 200) {
-        console.log(response);
-        if (response.status === 400) {
-          console.error("Invalid parameters:", response);
-          triggerToast($_("invalidParameters"), true, "error");
-        } else if (response.status === 401) {
-          console.error("Unauthorized access:", response);
-          triggerToast($_("unauthorized"), true, "error");
-        } else if (response.status === 500) {
-          console.error("Server error:", response);
-          triggerToast($_("serverError"), true, "error");
-        } else {
-          console.error("Unexpected status code:", response);
-          triggerToast(`${$_("unexpectedError")}: ${response.status}`, true, "error");
+        let collectionId = $page.url.searchParams.get("collectionId");
+        newData.parent_id = parseInt(collectionId);
+        if (paramsData.length > 0) {
+          newData.params = JSON.stringify(paramsData);
         }
-        return;
-      }
+        if (bodyData.length > 0) {
+          newData.body = JSON.stringify(bodyData);
+        }
+        // console.log("data", newData);
 
-      // console.log(response);
+        let response = await $call.call("client-dashboard", "update-api", {
+          URLQuery: {},
+          URLParams: {
+            id: apiID,
+          },
+          Params: newData,
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          const error = new Error("Failed to update API");
+          error.response = response;
+          error.status = response?.status;
+          throw error;
+        }
+
+        // console.log(response);
+        triggerToast($_("successfullyUpdated"));
+      }
+    } catch (error) {
+      errorHandling($_, error, "update");
     }
-  }
+  };
 
   onMount(() => {
     apiID = $page.url.searchParams.get("apiId");
@@ -193,11 +181,12 @@
     bind:paramsData
     bind:bodyData
     bind:apiID
+    bind:isBody
     {saveApi}
     {deleteApi}
   />
 {:else if stateCreate === "formParams"}
   <FormApiParams bind:stateCreate bind:paramsData />
 {:else if stateCreate === "formBody"}
-  <FormApiParams bind:stateCreate bind:paramsData={bodyData} />
+  <FormApiParams bind:stateCreate bind:paramsData={bodyData} bind:isBody />
 {/if}

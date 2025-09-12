@@ -1,32 +1,20 @@
 <script>
-  import { Typography, InputRw, TextareaRw, Divider, Dropdown, call, triggerToast } from "$lib";
+  import { onMount } from "svelte";
   import { Button, Helper, Modal } from "flowbite-svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { page } from "$app/stores";
   import { _ } from "svelte-i18n";
   import { goto } from "$app/navigation";
-  import Save01Icon from "$lib/icon/save-01.svelte";
-  import PlusIcon from "$lib/icon/plus.svelte";
-  import Copy01Icon from "$lib/icon/copy-01.svelte";
-  import Edit05Icon from "$lib/icon/edit-05.svelte";
-  import DotsVerticalIcon from "$lib/icon/dots-vertical.svelte";
-  import TabBar from "$lib/components/TabBar.svelte";
-  import DataTable from "$lib/components/DataTable.svelte";
-  import { onMount } from "svelte";
+  import { call, getIcons, triggerToast } from "$lib";
+  import { Typography, InputRw, TextareaRw, Divider, Dropdown, DataTable, TabBar } from "$lib";
+
+  const Save01Icon = getIcons("save01");
+  const PlusIcon = getIcons("plus");
+  const Copy01Icon = getIcons("copy01");
+  const Edit05Icon = getIcons("edit05");
+  const DotsVerticalIcon = getIcons("dotsVertical");
 
   const isFrontend = process.env.NODE_ENV === "development";
-
-  let collectionId = $state(null);
-  let libraryId = $state(null);
-  let apiId = $state(null);
-  let dropdownMore = $state(false);
-  let deleteModal = $state(false);
-
-  let paramsConfigured = $state(0);
-  let bodyConfigured = $state(0);
-  let onEdit = $state(true);
-  let dropdownMethodOpen = $state(false);
-  let dropdownAuthorization = $state(false);
 
   let {
     data = $bindable({
@@ -43,9 +31,23 @@
     stateCreate = $bindable("formApi"),
     paramsData = $bindable(null),
     bodyData = $bindable(null),
+    isBody = $bindable(false),
     saveApi = () => {},
     deleteApi = () => {},
   } = $props();
+
+  let apiId = $state(null);
+  let libraryId = $state(null);
+  let collectionId = $state(null);
+
+  let onEdit = $state(true);
+  let deleteModal = $state(false);
+  let dropdownMore = $state(false);
+  let dropdownMethodOpen = $state(false);
+  let dropdownAuthorization = $state(false);
+
+  let bodyConfigured = $state(0);
+  let paramsConfigured = $state(0);
 
   let tabDatas = $state({
     selected: "API Information",
@@ -147,6 +149,7 @@
           class="gap-1.5 text-fg-button-secondary-color-light dark:text-fg-button-secondary-color-dark"
           on:click={() => {
             onEdit = !onEdit;
+            tabDatas.selected = "API Information";
             // data = dummyData;
           }}
         >
@@ -280,6 +283,7 @@
                 class="gap-1.5"
                 on:click={async () => {
                   stateCreate = "formParams";
+                  isBody = false;
                 }}
               >
                 <PlusIcon
@@ -309,6 +313,7 @@
                 class="gap-1.5"
                 on:click={async () => {
                   stateCreate = "formBody";
+                  isBody = true;
                 }}
               >
                 <PlusIcon
