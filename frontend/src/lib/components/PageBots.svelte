@@ -1724,6 +1724,16 @@
       }
     }
   });
+
+  $effect(() => {
+    if (apiSourceEnable) {
+      console.log("trigger");
+      apiSourceEnable = selectedplatforms === 1 ? true : false;
+    }
+    if (users.apiSourceEnable) {
+      users.apiSourceEnable = selectedplatforms === 1 ? true : false;
+    }
+  });
 </script>
 
 <svelte:window bind:innerWidth={screenWidth} />
