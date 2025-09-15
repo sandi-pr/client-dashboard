@@ -187,6 +187,10 @@ All Rights Reserved
       tmpCollectionId,
       tmpCollectionName,
       tmpDescription,
+      "",
+      "",
+      "",
+      "",
     );
 
     if (result) {
