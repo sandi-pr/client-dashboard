@@ -495,12 +495,12 @@
             create_at: model.create_at,
             icon: findIconFromModelName(model.name),
             recommended: model.name === "Llama3.1" || model.name === "Llama3.2" ? true : false,
-            apiSupported: model.name === "Llama3.2" ? true : false,
+            apiSupported: model.function_tools ? true : false,
           };
         });
 
         platforms = await Promise.all(promise);
-        // console.log("platforms", platforms);
+        console.log("platforms", platforms);
       } catch (error) {
         errorResponseTrigger(error);
       }
