@@ -1726,11 +1726,8 @@
   });
 
   $effect(() => {
-    if (apiSourceEnable) {
-      console.log("trigger");
+    if (apiSourceEnable || users.apiSourceEnable) {
       apiSourceEnable = selectedplatforms === 1 ? true : false;
-    }
-    if (users.apiSourceEnable) {
       users.apiSourceEnable = selectedplatforms === 1 ? true : false;
     }
   });
