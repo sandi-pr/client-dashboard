@@ -188,5 +188,5 @@
 {:else if stateCreate === "formParams"}
   <FormApiParams bind:stateCreate bind:paramsData />
 {:else if stateCreate === "formBody"}
-  <FormApiParams bind:stateCreate bind:paramsData={bodyData} bind:isBody />
+  <FormApiParams bind:stateCreate bind:paramsData={bodyData} bind:data bind:isBody />
 {/if}

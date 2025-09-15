@@ -14,6 +14,7 @@
     triggerToast,
     triggerLoading,
     deleteCollectionAPIConnector,
+    updateCollectionAPIConnector,
   } from "$lib";
   import {
     TabBar,
@@ -120,7 +121,6 @@
     selected: "No Auth",
     data: [
       { name: "No Auth" },
-      { name: "Inherit Auth from Parent" },
       { name: "Basic Auth" },
       { name: "Bearer Token" },
     ],
@@ -133,6 +133,7 @@
     token: "",
   });
   let collectionDatas = $state({
+    parentId: 0,
     title: "",
     description: "",
     createdAt: "",
@@ -159,7 +160,13 @@
         title: response.result.data.attributes.name,
         description: response.result.data.attributes?.meta?.description || "",
         createdAt: format(new Date(response.result.data.attributes.createdAt), "dd-MM-yyyy"),
+        parentId: response.result.data.attributes.parent_id,
       };
+
+      authorizationTypeList.selected = response.result.data.attributes.auth_type || "No Auth";
+      authBasicAuth.username = response.result.data.attributes.username || "";
+      authBasicAuth.password = response.result.data.attributes.password || "";
+      authBearerToken.token = response.result.data.attributes.token || "";
     }
   };
 
@@ -505,6 +512,31 @@
           ? "api_connector/collections"
           : await $call.getPage("client-dashboard", "api-connector-collections"),
       );
+    } else {
+      gettingDatas = false;
+    }
+  };
+
+  const handleUpdateCollection = async () => {
+    gettingDatas = true;
+
+    console.log("test", authorizationTypeList.selected);
+
+    const result = await updateCollectionAPIConnector(
+      $_,
+      $call,
+      collectionDatas.parentId,
+      collectionId,
+      collectionDatas.title,
+      collectionDatas.description,
+      authorizationTypeList.selected,
+      authBasicAuth.username,
+      authBasicAuth.password,
+      authBearerToken.token,
+    );
+
+    if (result) {
+      handleGetCollection();
     } else {
       gettingDatas = false;
     }
@@ -905,7 +937,7 @@
                       ? authBearerToken.token === ""
                       : false}
                 on:click={async () => {
-                  console.log("clicked");
+                  handleUpdateCollection();
                 }}
               >
                 <Save01Icon svgClass="w-5 h-5 text-fg-primary-light dark:text-fg-primary-dark" />

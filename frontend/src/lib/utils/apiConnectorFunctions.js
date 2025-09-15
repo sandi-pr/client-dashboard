@@ -133,6 +133,10 @@ export const updateCollectionAPIConnector = async (
   collectionId,
   collectionName,
   collectionDescription,
+  auth_type,
+  username,
+  password,
+  token_auth
 ) => {
   try {
     let token = localStorage.getItem("token");
@@ -147,6 +151,10 @@ export const updateCollectionAPIConnector = async (
           name: collectionName,
           description: collectionDescription,
           parent_id: parentId ? parseInt(parentId) : 0,
+          auth_type: auth_type,
+          username: username,
+          password: password,
+          token: token_auth,
         },
         Headers: {
           Authorization: "Bearer " + token,
