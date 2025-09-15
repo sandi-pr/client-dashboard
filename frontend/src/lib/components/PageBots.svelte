@@ -101,6 +101,7 @@
   let apiCollections = $state([]);
   let recommendations = $state([]);
   let initCollections = $state([]);
+  let datasCheckedApi = $state([]);
   let collectionsChecked = $state([]);
   let datasCheckedKnowledge = $state([]);
   let layouts = $state([
@@ -136,9 +137,10 @@
     { name: "Right", value: "right" },
   ]);
   let users = $state({});
-  let configsKnowledge = $state({});
+  let configsApi = $state({});
   let searchCategory = $state({});
   let tmpDatasChecked = $state({});
+  let configsKnowledge = $state({});
   let configsCategories = $state({});
   let searchTermCategory = $state({});
   let datasCategoriesChecked = $state({});
@@ -267,7 +269,7 @@
                 id: "deselect_all",
                 name: "Deselect All",
                 onclick: () => {
-                  handleCheckAllCollection(false);
+                  handleCheckAllCollection(false, "knowledge");
                 },
               },
               {
@@ -275,7 +277,7 @@
                 name: "Select All",
                 type: "brand-inverse",
                 onclick: () => {
-                  handleCheckAllCollection(true);
+                  handleCheckAllCollection(true, "knowledge");
                 },
               },
             ],
@@ -351,7 +353,7 @@
                 id: "deselect_all",
                 name: "Deselect All",
                 onclick: () => {
-                  handleCheckAllCollection(false);
+                  handleCheckAllCollection(false, "knowledge");
                 },
               },
               {
@@ -359,7 +361,7 @@
                 name: "Select All",
                 type: "brand-inverse",
                 onclick: () => {
-                  handleCheckAllCollection(true);
+                  handleCheckAllCollection(true, "knowledge");
                 },
               },
             ],
@@ -498,6 +500,7 @@
         });
 
         platforms = await Promise.all(promise);
+        // console.log("platforms", platforms);
       } catch (error) {
         errorResponseTrigger(error);
       }
@@ -727,8 +730,46 @@
   };
 
   const handleGetAPICollections = async () => {
-    apiCollections = await getCollectionAPIConnector($_, $call, "", paginationApi);
-    console.log("apiCollections", apiCollections);
+    apiCollections = await getCollectionAPIConnector($_, $call, searchTerm, paginationApi);
+    if (apiCollections.length > 0) {
+      apiCollections = apiCollections.map((collection) => {
+        return {
+          id: collection.id,
+          collectionName: collection.collectionName,
+        };
+      });
+
+      datasCheckedApi = apiCollections.map((data) => ({
+        id: data.id,
+        checked: false,
+      }));
+
+      configsApi = {
+        search: true,
+        searchHandler: handleSearch,
+        pagination: paginationApi,
+        space: "p-4",
+        actionInLeft: true,
+        actions: [
+          {
+            id: "deselect_all",
+            name: "Deselect All",
+            onclick: () => {
+              handleCheckAllCollection(false, "api");
+            },
+          },
+          {
+            id: "select_all",
+            name: "Select All",
+            type: "brand-inverse",
+            onclick: () => {
+              handleCheckAllCollection(true, "api");
+            },
+          },
+        ],
+      };
+    }
+    // console.log("apiCollections", apiCollections);
   };
 
   const getBot = async () => {
@@ -802,13 +843,15 @@
           embedCode: `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="${urlBot}"></iframe>`,
           needAuth: attributes.need_auth,
           documentOptions: attributes.manage_document,
-          apiSourceEnable: attributes.function_call,
+          apiSourceEnable: attributes?.function_call || false,
         };
 
         additionalPrompt = attributes.additional_prompt;
         selectedplatforms = platforms.find(
           (platform) => platform.model === attributes.ai_engine,
         ).id;
+
+        // console.log("selectedplatforms", selectedplatforms);
 
         if (attributes.background.data !== null) {
           backgroundFile = getFile(
@@ -841,6 +884,13 @@
             attributes.bot_profile.data.attributes.name,
           );
         }
+
+        datasCheckedApi = apiCollections.map((data) => ({
+          id: data.id,
+          checked: attributes.collection_api_ids
+            ? attributes.collection_api_ids.split(",").map(Number).includes(data.id)
+            : false,
+        }));
       } catch (error) {
         errorResponseTrigger(error);
       } finally {
@@ -870,14 +920,13 @@
           tmpDatasChecked[pageNow] = datasCheckedKnowledge;
         }
 
-        // Iterasi key dalam tmpDatasChecked
         Object.values(tmpDatasChecked).forEach((pageData) => {
           if (!pageData) {
             triggerLoading(false);
             return;
-          } // Skip jika pageData undefined/null
+          }
 
-          console.log("pageData", pageData);
+          // console.log("pageData", pageData);
 
           const collections = pageData
             .flatMap((item) => {
@@ -897,13 +946,20 @@
           }
         });
 
-        // Hapus koma terakhir jika ada
         allCollection = allCollection.replace(/,$/, "");
 
         // console.log("All Collection IDs (checked = true):", allCollection);
         // return;
 
-        // let collections2 = collections.split(",").map(Number);
+        const apiCollectionSend = apiCollections
+          .filter((collection) =>
+            datasCheckedApi.some((data) => data.id === collection.id && data.checked),
+          )
+          .map((collection) => collection.id)
+          .join(",");
+
+        // console.log("apiCollectionSend", apiCollectionSend);
+        // return;
 
         let dataSend = {
           bot_name: botName,
@@ -914,6 +970,7 @@
           additional_prompt: additionalPrompt,
           need_auth: needAuth,
           function_call: apiSourceEnable,
+          collection_api_ids: apiCollectionSend,
         };
 
         if (fileImage !== "" && fileImage !== null && fileImage !== undefined) {
@@ -1068,6 +1125,14 @@
 
       // Hapus koma terakhir jika ada
       allCollection = allCollection.replace(/,$/, "");
+
+      const apiCollectionSend = apiCollections
+        .filter((collection) =>
+          datasCheckedApi.some((data) => data.id === collection.id && data.checked),
+        )
+        .map((collection) => collection.id)
+        .join(",");
+
       try {
         let response = await $call.call("client-dashboard", "update-bot", {
           URLQuery: {},
@@ -1097,6 +1162,7 @@
             library_id: selectedCollectionId,
             manage_document: users.documentOptions,
             function_call: users.apiSourceEnable,
+            collection_api_ids: apiCollectionSend,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -1159,92 +1225,139 @@
     }
   };
 
-  const handleCheck = async (id, isSubCollection = false, parentId = null) => {
-    if (!Array.isArray(datasCheckedKnowledge)) {
-      datasCheckedKnowledge = [];
-    }
-
-    datasCheckedKnowledge = datasCheckedKnowledge.map((data) => {
-      // Jika parentId tidak ada, kita memproses level utama
-      if (!isSubCollection && data.id === id) {
-        if (data.checked) {
-          checkAll = false;
-        }
-        return {
-          ...data,
-          checked: !data.checked,
-        };
+  const handleCheck = async (id, isSubCollection = false, parentId = null, type = "knowledge") => {
+    if (type === "knowledge") {
+      if (!Array.isArray(datasCheckedKnowledge)) {
+        datasCheckedKnowledge = [];
       }
 
-      // console.log("checkAll", checkAll);
-
-      // Jika parentId cocok, kita memproses sub_collection
-      if (isSubCollection && data.id === parentId) {
-        const updatedSubCollection = data.sub_collection.map((sub) => {
-          if (sub.id === id) {
-            return { ...sub, checked: !sub.checked };
+      datasCheckedKnowledge = datasCheckedKnowledge.map((data) => {
+        // Jika parentId tidak ada, kita memproses level utama
+        if (!isSubCollection && data.id === id) {
+          if (data.checked) {
+            checkAll = false;
           }
-          return sub;
-        });
+          return {
+            ...data,
+            checked: !data.checked,
+          };
+        }
 
-        return {
-          ...data,
-          sub_collection: updatedSubCollection,
+        // console.log("checkAll", checkAll);
+
+        // Jika parentId cocok, kita memproses sub_collection
+        if (isSubCollection && data.id === parentId) {
+          const updatedSubCollection = data.sub_collection.map((sub) => {
+            if (sub.id === id) {
+              return { ...sub, checked: !sub.checked };
+            }
+            return sub;
+          });
+
+          return {
+            ...data,
+            sub_collection: updatedSubCollection,
+          };
+        }
+
+        return data;
+      });
+
+      let pageNow = pagination.page;
+      if (tmpDatasChecked[pageNow] === undefined) {
+        tmpDatasChecked = {
+          ...tmpDatasChecked,
+          [pageNow]: datasCheckedKnowledge,
         };
+      } else {
+        tmpDatasChecked[pageNow] = datasCheckedKnowledge;
+      }
+      // console.log("datasCheckedKnowledge setelah pembaruan:", datasCheckedKnowledge);
+    } else {
+      if (!Array.isArray(datasCheckedApi)) {
+        datasCheckedApi = [];
       }
 
-      return data;
-    });
+      datasCheckedApi = datasCheckedApi.map((data) => {
+        if (data.id === id) {
+          if (data.checked) {
+            checkAll = false;
+          }
+          return {
+            ...data,
+            checked: !data.checked,
+          };
+        }
+        return data;
+      });
 
-    let pageNow = pagination.page;
-    if (tmpDatasChecked[pageNow] === undefined) {
-      tmpDatasChecked = {
-        ...tmpDatasChecked,
-        [pageNow]: datasCheckedKnowledge,
-      };
-    } else {
-      tmpDatasChecked[pageNow] = datasCheckedKnowledge;
+      // console.log("datasCheckedApi setelah pembaruan:", datasCheckedApi);
     }
-    // console.log("datasCheckedKnowledge setelah pembaruan:", datasCheckedKnowledge);
   };
 
-  const handleCheckAll = async (allChecked) => {
-    datasCheckedKnowledge = datasCheckedKnowledge.map((data) => ({
-      id: data.id,
-      checked: allChecked ? false : true,
-      sub_collection: data.sub_collection.map((sub) => ({
-        id: sub.id,
+  const handleCheckAll = async (allChecked, type = "knowledge") => {
+    if (type === "knowledge") {
+      datasCheckedKnowledge = datasCheckedKnowledge.map((data) => ({
+        id: data.id,
         checked: allChecked ? false : true,
-      })),
-    }));
+        sub_collection: data.sub_collection.map((sub) => ({
+          id: sub.id,
+          checked: allChecked ? false : true,
+        })),
+      }));
+    } else if (type === "api") {
+      datasCheckedApi = datasCheckedApi.map((data) => ({
+        id: data.id,
+        checked: allChecked ? false : true,
+      }));
+    }
 
     // console.log("Updated datasCheckedKnowledge (handleCheckAll):", datasCheckedKnowledge);
   };
 
-  const handleCheckAllCollection = async (allChecked) => {
-    checkAll = allChecked;
+  const handleCheckAllCollection = async (allChecked, type = "knowledge") => {
+    if (type === "knowledge") {
+      checkAll = allChecked;
 
-    datasCheckedKnowledge = datasCheckedKnowledge.map((data) => ({
-      id: data.id,
-      checked: allChecked,
-      sub_collection: data.sub_collection.map((sub) => ({
-        id: sub.id,
+      datasCheckedKnowledge = datasCheckedKnowledge.map((data) => ({
+        id: data.id,
         checked: allChecked,
-      })),
-    }));
+        sub_collection: data.sub_collection.map((sub) => ({
+          id: sub.id,
+          checked: allChecked,
+        })),
+      }));
 
-    if (!allChecked) {
-      // Jika allChecked adalah false, update tmpDatasChecked
-      Object.keys(tmpDatasChecked).forEach((page) => {
-        tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
-          id: data.id,
-          checked: false,
-          sub_collection: data.sub_collection.map((sub) => ({
-            id: sub.id,
+      if (!allChecked) {
+        // Jika allChecked adalah false, update tmpDatasChecked
+        Object.keys(tmpDatasChecked).forEach((page) => {
+          tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
+            id: data.id,
             checked: false,
-          })),
-        }));
-      });
+            sub_collection: data.sub_collection.map((sub) => ({
+              id: sub.id,
+              checked: false,
+            })),
+          }));
+        });
+      }
+    } else if (type === "api") {
+      checkAll = allChecked;
+
+      datasCheckedApi = datasCheckedApi.map((data) => ({
+        id: data.id,
+        checked: allChecked,
+      }));
+
+      if (!allChecked) {
+        // Jika allChecked adalah false, update tmpDatasChecked
+        Object.keys(tmpDatasChecked).forEach((page) => {
+          tmpDatasChecked[page] = tmpDatasChecked[page].map((data) => ({
+            id: data.id,
+            checked: false,
+          }));
+        });
+      }
     }
 
     // console.log("Updated datasCheckedKnowledge (handleCheckAllCollection):", datasCheckedKnowledge);
@@ -1348,12 +1461,19 @@
     getDocument(category);
   };
 
-  const handleSearch = async (value) => {
-    search = true;
-    pagination.page = 1;
-    searchTerm = value;
+  const handleSearch = async (value, type = "knowledge") => {
+    if (type === "knowledge") {
+      search = true;
+      pagination.page = 1;
+      searchTerm = value;
 
-    await getCollections(selectedCollectionId);
+      await getCollections(selectedCollectionId);
+    } else {
+      paginationApi.page = 1;
+      searchTerm = value;
+
+      await handleGetAPICollections();
+    }
   };
 
   const handleSearchCategory = async (value, category) => {
@@ -1856,9 +1976,17 @@
         <div class="w-full md:w-3/4 mt-2 md:mt-0">
           <div class="flex flex-col justify-center gap-4">
             {#if pageAction === "create"}
-              <Toggle {onEdit} bind:checked={apiSourceEnable} text="enable" />
-            {:else}
-              <Toggle {onEdit} bind:checked={users.apiSourceEnable} text="enable" />
+              {#if selectedplatforms === 1}
+                <Toggle {onEdit} bind:checked={apiSourceEnable} text="enable" />
+              {:else}
+                <Toggle onEdit={false} bind:checked={apiSourceEnable} text="enable" />
+              {/if}
+            {:else if Object.keys(users).length > 0}
+              {#if selectedplatforms === 1}
+                <Toggle {onEdit} bind:checked={users.apiSourceEnable} text="enable" />
+              {:else}
+                <Toggle onEdit={false} bind:checked={users.apiSourceEnable} text="enable" />
+              {/if}
             {/if}
             <Button
               color="light"
@@ -1866,14 +1994,17 @@
               on:click={() => {
                 modalAPI = true;
               }}
-              disabled={!onEdit || !apiSourceEnable}
+              disabled={!onEdit ||
+                !(pageAction === "create" ? apiSourceEnable : users.apiSourceEnable)}
             >
               <Typography
                 preset="Text md/Semibold"
-                text={selectedCollectionId
-                  ? collections.find((item) => item.value === selectedCollectionId)?.name
+                text={!datasCheckedApi.map((item) => item.checked).every((checked) => !checked)
+                  ? $_("configured")
                   : $_("configure")}
-                color="secondary"
+                color={!datasCheckedApi.map((item) => item.checked).every((checked) => !checked)
+                  ? "fg-success-primary"
+                  : "secondary"}
               />
               <ChevronDownOutline
                 class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
@@ -2498,9 +2629,9 @@
     {#if !gettingDatasKnowledge}
       <DataTableListCollection
         bind:datas={allData}
-        bind:datasCheckedKnowledge
-        bind:configsKnowledge
-        bind:gettingDatasKnowledge
+        bind:datasChecked={datasCheckedKnowledge}
+        bind:configs={configsKnowledge}
+        bind:gettingDatas={gettingDatasKnowledge}
         {next}
         {previous}
         {handleCheckAll}
@@ -2519,6 +2650,7 @@
       <Button
         on:click={() => {
           isSelectedLibrary = true;
+          searchTerm = "";
         }}
         class="w-full"
         disabled={!selectedCollectionId}>{$_("next")}</Button
@@ -2528,12 +2660,14 @@
         <button
           onclick={() => {
             isSelectedLibrary = false;
+            searchTerm = "";
           }}
           class="px-5">{$_("goBack")}</button
         >
         <Button
           on:click={() => {
             modalKnowledge = false;
+            searchTerm = "";
           }}
           class="grow"
           disabled={areAllUnchecked()}>{$_("finish")}</Button
@@ -2546,9 +2680,7 @@
 <Modal bind:open={modalAPI} outsideclose>
   <svelte:fragment slot="header">
     <div class="flex gap-4 me-6 grow w-full">
-      <div
-        class="grow pt-2 border-t-4 border-fg-brand-primary-alt-light dark:border-fg-brand-primary-alt-dark"
-      >
+      <div class="grow">
         <Typography
           preset="Text md/Bold"
           text={$_("chooseApiSources")}
@@ -2565,16 +2697,14 @@
   {#if apiCollections.length > 0 || searchTerm !== ""}
     <DataTableListCollection
       bind:datas={apiCollections}
-      bind:datasCheckedKnowledge
-      bind:configsKnowledge
-      bind:gettingDatasKnowledge
+      bind:datasChecked={datasCheckedApi}
+      bind:configs={configsApi}
+      isApi={true}
       {next}
       {previous}
       {handleCheckAll}
       {handleCheck}
     />
-  {:else if gettingDatasKnowledge}
-    <StateCard illustration={IllustrationProgress} description={$_("fetchingDataPleaseWait")} />
   {:else}
     <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
   {/if}
@@ -2582,17 +2712,23 @@
     <div class="flex gap-4 w-full">
       <button
         onclick={() => {
-          isSelectedLibrary = false;
+          modalAPI = false;
+          searchTerm = "";
         }}
-        class="px-5">{$_("goBack")}</button
+        class="px-5"
       >
+        {$_("cancel")}
+      </button>
       <Button
         on:click={() => {
-          modalKnowledge = false;
+          modalAPI = false;
+          searchTerm = "";
         }}
         class="grow"
-        disabled={areAllUnchecked()}>{$_("finish")}</Button
+        disabled={datasCheckedApi.map((item) => item.checked).every((checked) => !checked)}
       >
+        {$_("finish")}
+      </Button>
     </div>
   </svelte:fragment>
 </Modal>

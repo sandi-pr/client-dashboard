@@ -1232,5 +1232,6 @@
   "apiSourceAsThePrimarySource": "API source as the primary source",
   "chooseWhichApiEndpoints": "Choose which API endpoints",
   "chooseTheOneYouWantToIncludeApi": "Choose the one you want to include API",
-  "latestApiCollections": "Latest API Collection"
+  "latestApiCollections": "Latest API Collection",
+  "configured": "Configured"
 }

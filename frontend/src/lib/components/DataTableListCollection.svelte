@@ -64,6 +64,7 @@
   export let statusRag;
   export let selectCsv = false;
   export let selectedData = {};
+  export let isApi = false;
 
   let dropdownToggle = true;
   let isEdit = false;
@@ -146,7 +147,11 @@
     } else if (configs?.collectionId) {
       configs?.searchHandler(event.target.value, configs?.collectionId);
     } else {
-      configs?.searchHandler(event.target.value);
+      if (isApi) {
+        configs?.searchHandler(event.target.value, "api");
+      } else {
+        configs?.searchHandler(event.target.value);
+      }
     }
   };
 
@@ -363,7 +368,11 @@
                     } else if (configs?.collectionId) {
                       handleCheckAll(configs?.collectionId, allChecked);
                     } else {
-                      handleCheckAll(allChecked);
+                      if (isApi) {
+                        handleCheckAll(allChecked, "api");
+                      } else {
+                        handleCheckAll(allChecked);
+                      }
                       allChecked = !allChecked;
                     }
                   }}
@@ -421,9 +430,13 @@
                         } else if (configs?.collectionId) {
                           handleCheck(configs?.collectionId, allChecked);
                         } else {
-                          handleCheck(data.id);
-                          if (data.sub_collections.length > 0 && openRow !== data.id) {
-                            toggleRow(data.id);
+                          if (isApi) {
+                            handleCheck(data.id, false, null, "api");
+                          } else {
+                            handleCheck(data.id);
+                            if (data?.sub_collections?.length > 0 && openRow !== data.id) {
+                              toggleRow(data.id);
+                            }
                           }
                         }
                       }}
