@@ -71,6 +71,10 @@
       tmpCollectionId,
       tmpCollectionName,
       tmpDescription,
+      "",
+      "",
+      "",
+      "",
     );
 
     if (result) {
