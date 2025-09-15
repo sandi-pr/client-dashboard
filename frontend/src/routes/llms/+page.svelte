@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { me, call, isDemoTrue, triggerToast } from "$lib";
-  import { Card, Button, Divider, Typography, ActionCard, CardFeature } from "$lib";
+  import { Card, Button, Divider, Typography, ActionCard, CardFeature, findIconFromModelName } from "$lib";
   import { goto } from "$app/navigation";
   import { _ } from "svelte-i18n";
 
@@ -407,25 +407,6 @@
     //   ],
     // },
   ];
-
-  const findIconFromModelName = (modelName) => {
-    let icon = "gemini";
-    const lowerCaseModelName = modelName.toLowerCase();
-
-    if (lowerCaseModelName.includes("llama")) {
-      icon = "meta";
-    } else if (lowerCaseModelName.includes("deepseek")) {
-      icon = "deepseek";
-    } else if (lowerCaseModelName.includes("chatgpt")) {
-      icon = "openai";
-    } else if (lowerCaseModelName.includes("granite")) {
-      icon = "granite";
-    } else if (lowerCaseModelName.includes("mistral")) {
-      icon = "mistral";
-    }
-
-    return icon;
-  };
 
   const getModels = async () => {
     let token = localStorage.getItem("token");
