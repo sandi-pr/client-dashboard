@@ -1952,10 +1952,8 @@
               >
                 <Typography
                   preset="Text md/Semibold"
-                  text={selectedCollectionId
-                    ? collections.find((item) => item.value === selectedCollectionId)?.name
-                    : $_("configure")}
-                  color="secondary"
+                  text={selectedCollectionId ? $_("configured") : $_("configure")}
+                  color={selectedCollectionId ? "fg-success-primary" : "secondary"}
                 />
                 <ChevronDownOutline
                   class="w-3 h-3 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
