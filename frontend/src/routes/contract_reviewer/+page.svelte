@@ -320,7 +320,9 @@ All Rights Reserved
             description={$_("fetchingDataPleaseWait")}
           />
         {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          {#if rulesTable.length === 0}
+            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          {/if}
         {/if}
 
         {#if rulesTable.length > 0}
@@ -331,7 +333,7 @@ All Rights Reserved
             description={$_("fetchingDataPleaseWait")}
           />
         {:else}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+          <!-- <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} /> -->
         {/if}
       </div>
     </div>
