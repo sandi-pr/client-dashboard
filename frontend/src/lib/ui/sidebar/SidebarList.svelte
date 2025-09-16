@@ -337,14 +337,7 @@
                 <UsersOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
               </svelte:fragment>
               <SidebarDropdownItem
-                onclick={() => {
-                  dropdownUser = !dropdownUser;
-                  if (check("general.user:view")) {
-                    goto(hrefUser);
-                  } else {
-                    isDemoTrue.set(true);
-                  }
-                }}
+                href={hrefUser}
                 class="!ps-14 hover:bg-secondary-light dark:hover:bg-secondary-dark"
                 label={$_("users")}
               />
