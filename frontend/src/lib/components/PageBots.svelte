@@ -495,7 +495,7 @@
             create_at: model.create_at,
             icon: findIconFromModelName(model.name),
             recommended: model.name === "Llama3.1" || model.name === "Llama3.2" ? true : false,
-            apiSupported: model.function_tools ? true : false,
+            apiSupported: model.function_tools,
           };
         });
 
@@ -1726,9 +1726,12 @@
   });
 
   $effect(() => {
-    if (apiSourceEnable || users.apiSourceEnable) {
-      apiSourceEnable = selectedplatforms === 1 ? true : false;
-      users.apiSourceEnable = selectedplatforms === 1 ? true : false;
+    const platform = platforms.find((p) => p.id === selectedplatforms);
+    const supported = platform?.apiSupported ?? false;
+
+    if (!supported) {
+      apiSourceEnable = false;
+      users.apiSourceEnable = false;
     }
   });
 </script>
@@ -1981,13 +1984,13 @@
         <div class="w-full md:w-3/4 mt-2 md:mt-0">
           <div class="flex flex-col justify-center gap-4">
             {#if pageAction === "create"}
-              {#if selectedplatforms === 1}
+              {#if platforms.find((platform) => platform.id === selectedplatforms)?.apiSupported}
                 <Toggle {onEdit} bind:checked={apiSourceEnable} text="enable" />
               {:else}
                 <Toggle onEdit={false} bind:checked={apiSourceEnable} text="enable" />
               {/if}
             {:else if Object.keys(users).length > 0}
-              {#if selectedplatforms === 1}
+              {#if platforms.find((platform) => platform.id === selectedplatforms)?.apiSupported}
                 <Toggle {onEdit} bind:checked={users.apiSourceEnable} text="enable" />
               {:else}
                 <Toggle onEdit={false} bind:checked={users.apiSourceEnable} text="enable" />
