@@ -5,6 +5,7 @@
   import { page } from "$app/stores";
 
   import { call, triggerToast, errorHandling } from "$lib";
+  import { goto } from "$app/navigation";
 
   import FormApiConnector from "$lib/pages/FormApiConnector.svelte";
   import FormApiParams from "$lib/pages/FormApiParams.svelte";
@@ -106,7 +107,8 @@
         }
         const queryString = new URLSearchParams(queryParams).toString();
 
-        window.location.href = link + "?" + queryString;
+        // window.location.href = link + "?" + queryString;
+        goto(link + "?" + queryString);
 
         triggerToast($_("successfullyDeleted"));
       }
