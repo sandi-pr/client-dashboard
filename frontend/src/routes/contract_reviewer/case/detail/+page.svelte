@@ -57,16 +57,7 @@ All Rights Reserved
   let datas = $state({
     title: "",
     createdAt: "",
-    data: [
-      {
-        id: 0,
-        title: "",
-        prompt: "",
-        reference_prompt: "",
-        sample: "",
-        createdAt: "",
-      },
-    ],
+    data: [],
   });
   let datasDataDuplicate = $state([]);
 
@@ -784,7 +775,7 @@ All Rights Reserved
               </Button>
             </div>
             <!-- table latest -->
-            {#if Object.keys(datas).length > 0}
+            {#if datas.data.length > 0}
               <div class="flex flex-col gap-6">
                 {#each datas.data as data, index}
                   <div class="flex gap-4">
@@ -910,6 +901,27 @@ All Rights Reserved
                   </div>
                   <Divider />
                 {/each}
+                {#if datas.data.length > 1}
+                  <Button
+                    class="w-auto self-center"
+                    onclick={() => {
+                      datas.data = [
+                        ...datas.data,
+                        {
+                          id: datas.data.length,
+                          title: "",
+                          prompt: "",
+                          reference_prompt: "",
+                          sample: "",
+                          createdAt: "",
+                        },
+                      ];
+                      editRules = [...editRules, true];
+                    }}
+                  >
+                    <Typography preset="Text sm/Semibold" text={$_("addNewSection")} />
+                  </Button>
+                {/if}
               </div>
             {:else}
               <div class="pt-8">
@@ -917,9 +929,18 @@ All Rights Reserved
                   illustration={IllustrationEmpty}
                   actionText={$_("addNewSection")}
                   funcButton={() => {
-                    formData = { title: "", prompt: "", sample: "" };
-                    edit = false;
-                    addRulesSectionsModal = true;
+                    datas.data = [
+                      ...datas.data,
+                      {
+                        id: datas.data.length,
+                        title: "",
+                        prompt: "",
+                        reference_prompt: "",
+                        sample: "",
+                        createdAt: "",
+                      },
+                    ];
+                    editRules = [...editRules, true];
                   }}
                   description={$_("youDontHaveAnyDataYet")}
                 />
