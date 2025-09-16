@@ -338,6 +338,9 @@
               </svelte:fragment>
               <SidebarDropdownItem
                 href={hrefUser}
+                onclick={() => {
+                  dropdownUser = !dropdownUser;
+                }}
                 class="!ps-14 hover:bg-secondary-light dark:hover:bg-secondary-dark"
                 label={$_("users")}
               />
