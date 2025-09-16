@@ -1233,5 +1233,6 @@
   "chooseWhichApiEndpoints": "Pilih endpoint API mana yang akan digunakan",
   "chooseTheOneYouWantToIncludeApi": "Pilih yang ingin Anda sertakan dalam permintaan API",
   "latestApiCollections": "Koleksi API Terbaru",
-  "configured": "Dikonfigurasi"
+  "configured": "Dikonfigurasi",
+  "deleteSection": "Hapus Bagian"
 }

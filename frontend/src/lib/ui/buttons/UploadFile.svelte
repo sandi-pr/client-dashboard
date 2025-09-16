@@ -10,6 +10,7 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { Button, Avatar, Indicator, Modal } from "flowbite-svelte";
   import { Typography } from "$lib";
+  import { twMerge } from "tailwind-merge";
   import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
   import FolderTypeIcon from "$lib/icon/folder-type.svg";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
@@ -50,12 +51,23 @@ All Rights Reserved
     folderMode = false,
     handleDragOver = () => {},
     handleDrop = () => {},
+    propClass = "",
   } = $props();
 
-  let textarea = $state();
+  let previewModal = $state(false);
   let modalAllDocuments = $state(false);
   let modalAllFolderDocuments = $state(false);
-  let previewModal = $state(false);
+  let buttonClass = $derived(
+    twMerge(
+      `grow rounded-xl border gap-3 py-4 flex flex-col justify-start items-center ${
+        disabled
+          ? "cursor-not-allowed focus:ring-0 border-disabled-subtle-light dark:border-disabled-subtle-dark hover:border-disabled-subtle-light hover:dark:border-disabled-subtle-dark focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark hover:bg-disabled-subtle-light dark:hover:bg-disabled-subtle-dark text-disabled-light dark:text-disabled-dark"
+          : "border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark focus:ring-0"
+      }`,
+      propClass,
+    ),
+  );
+  let textarea = $state(null);
   let selectedFile = $state(null);
   let expanded = $state({});
 
@@ -154,15 +166,13 @@ All Rights Reserved
             <img src={srcAvatar} class="h-32 rounded-xl object-cover" alt="preview" />
           {/if}
         {:else}
-          <Avatar class="size-12  object-cover" src={srcAvatar} />
+          <Avatar class="size-12 object-cover" src={srcAvatar} />
         {/if}
       {/if}
       <Button
         on:click={disabled ? () => {} : handleFileUploadWrapper}
         color="light"
-        class="grow rounded-xl border gap-3 py-4 flex flex-col justify-start items-center {disabled
-          ? 'cursor-not-allowed focus:ring-0 border-disabled-subtle-light dark:border-disabled-subtle-dark hover:border-disabled-subtle-light hover:dark:border-disabled-subtle-dark focus:border-disabled-subtle-light focus:dark:border-disabled-subtle-dark bg-disabled-subtle-light dark:bg-disabled-subtle-dark hover:bg-disabled-subtle-light dark:hover:bg-disabled-subtle-dark text-disabled-light dark:text-disabled-dark'
-          : 'border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark focus:ring-0'}"
+        class={buttonClass}
       >
         <div
           class="rounded-xl p-2.5 shadow border border-primary-light dark:border-primary-dark justify-center items-center"
@@ -178,8 +188,7 @@ All Rights Reserved
         </div>
       </Button>
     </div>
-  {:else if files.length > 0}
-    <!-- {console.log("cek file", file)} -->
+  {:else if files.length > 0 || file !== null}
     <div
       class={`flex ${isFlex ? "flex-row items-center justify-between" : "flex-col"} gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark`}
     >

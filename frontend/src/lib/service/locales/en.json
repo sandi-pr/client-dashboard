@@ -1233,5 +1233,6 @@
   "chooseWhichApiEndpoints": "Choose which API endpoints",
   "chooseTheOneYouWantToIncludeApi": "Choose the one you want to include API",
   "latestApiCollections": "Latest API Collection",
-  "configured": "Configured"
+  "configured": "Configured",
+  "deleteSection": "Delete Section"
 }

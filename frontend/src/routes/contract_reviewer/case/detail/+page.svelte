@@ -68,6 +68,7 @@ All Rights Reserved
       },
     ],
   });
+  let datasDataDuplicate = $state([]);
 
   let editRules = $state([]);
   let files = $state([
@@ -88,6 +89,10 @@ All Rights Reserved
   let tmpSectionId = $state(null);
   let collectionId = $state(null);
   let tmpDocumentName = $state(null);
+
+  // let ifDataMultiple = $derived(() => {
+  //   return datas.data.length > 1;
+  // });
 
   const getCollections = async (name, id) => {
     let token = localStorage.getItem("token");
@@ -195,6 +200,16 @@ All Rights Reserved
 
           page += 1;
           sectionsTmp = sectionsTmp.concat(response2.result.data);
+          datasDataDuplicate = sectionsTmp.map((item) => {
+            return {
+              id: item.id,
+              title: item.attributes.section_title,
+              prompt: item.attributes.section_prompt,
+              reference_prompt: item.attributes.reference_prompt,
+              sample: item.attributes.section_sample,
+              createdAt: format(item.attributes.createdAt, "yyyy-MM-dd"),
+            };
+          });
         }
 
         editRules = [];
@@ -272,9 +287,15 @@ All Rights Reserved
           break;
         }
 
-        files = files.concat(response.result.files);
+        const filesWithExt = response.result.files.map((file) => ({
+          ...file,
+          ext: ".pdf",
+        }));
+
+        files = files.concat(filesWithExt);
         page++;
       }
+      // console.log("files", files);
     } catch (error) {
       console.log(error);
     }
@@ -343,7 +364,7 @@ All Rights Reserved
           Authorization: "Bearer " + token,
         },
       });
-      console.log(response);
+      // console.log(response);
 
       if (response.status !== 200) {
         triggerLoading(false);
@@ -419,6 +440,7 @@ All Rights Reserved
 
         triggerLoading(false);
         triggerToast("updated");
+        await getRulesSections();
       } catch (error) {
         console.log(error);
       }
@@ -452,7 +474,7 @@ All Rights Reserved
 
         triggerLoading(false);
         triggerToast("deleted");
-        getRulesSections();
+        await getRulesSections();
       } catch (error) {
         console.log(error);
       }
@@ -572,6 +594,7 @@ All Rights Reserved
         name: uploadedFile.name,
         size: formatBytes(uploadedFile.size),
         base64: base64Data,
+        ext: ".pdf",
       };
       console.log(tmpFile);
     });
@@ -589,6 +612,12 @@ All Rights Reserved
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  };
+
+  const checkSectionInputs = (data) => {
+    return (
+      data.title === "" || data.prompt === "" || data.sample === "" || data.reference_prompt === ""
+    );
   };
 
   onMount(() => {
@@ -691,8 +720,7 @@ All Rights Reserved
               </div>
               <div class="flex flex-col grow gap-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <!-- form upload -->
-                  {#each files as doc, index}
+                  {#each files as doc}
                     <UploadFile
                       title={doc.type}
                       handleFileUploadWrapper={() => {
@@ -737,14 +765,17 @@ All Rights Reserved
                 class="self-center gap-1"
                 color="primary"
                 on:click={() => {
-                  datas.data.push({
-                    id: 0,
-                    title: "",
-                    prompt: "",
-                    reference_prompt: "",
-                    sample: "",
-                    createdAt: "",
-                  });
+                  datas.data = [
+                    ...datas.data,
+                    {
+                      id: datas.data.length,
+                      title: "",
+                      prompt: "",
+                      reference_prompt: "",
+                      sample: "",
+                      createdAt: "",
+                    },
+                  ];
                   editRules = [...editRules, true];
                 }}
               >
@@ -760,77 +791,91 @@ All Rights Reserved
                     <div class="flex flex-col w-60 gap-2">
                       <Typography
                         preset="Text md/Semibold"
-                        text={$_("section") + " " + (data.id === 0 ? "" : index + 1)}
+                        text={$_("section") + " " + (data.id === 0 ? "1" : index + 1)}
                         color="secondary"
                       />
-                      <div class="flex gap-2">
+                      <div class="flex flex-col gap-2">
                         {#if !editRules[index]}
-                          {#if index !== 0}
+                          {#if datas.data.length > 1 && !init}
                             <button
                               class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
                               onclick={() => {
-                                if (data.id === 0) {
-                                  datas.data.splice(index, 1);
-                                  editRules.splice(index, 1);
-                                } else {
-                                  tmpSectionId = data.id;
-                                  caseDelete = false;
-                                  deleteModal = true;
-                                }
-                              }}>{$_("delete")}</button
+                                tmpSectionId = data.id;
+                                caseDelete = false;
+                                deleteModal = true;
+                              }}
                             >
+                              <Typography
+                                preset="Text sm/Semibold"
+                                text={$_("deleteSection")}
+                                color="error-primary"
+                              />
+                            </button>
                           {/if}
                           <button
                             class="text-sm text-brand-secondary-light dark:text-brand-secondary-dark"
                             onclick={() => {
                               editRules[index] = true;
-                            }}>{$_("edit")}</button
+                            }}
                           >
+                            <Typography
+                              preset="Text sm/Semibold"
+                              text={$_("edit")}
+                              color="fg-brand-primary"
+                            />
+                          </button>
                         {:else}
                           {#if !init}
                             <button
-                              class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
                               onclick={() => {
-                                if (data.id === 0) {
+                                if (datasDataDuplicate[index] !== undefined) {
+                                  datas.data[index] = datasDataDuplicate[index];
+                                  editRules[index] = false;
+                                } else {
                                   datas.data.splice(index, 1);
                                   editRules.splice(index, 1);
-                                } else {
-                                  editRules[index] = false;
                                 }
-                              }}>{$_("cancel")}</button
+                              }}
                             >
+                              <Typography
+                                preset="Text sm/Semibold"
+                                text={$_("cancel")}
+                                color="tertiary"
+                              />
+                            </button>
                           {/if}
                           <button
-                            class="text-sm text-brand-secondary-light dark:text-brand-secondary-dark"
+                            class={checkSectionInputs(data) ? "cursor-not-allowed" : ""}
                             onclick={() => {
                               editRules[index] = false;
-                              if (data.id === 0) {
+                              if (datasDataDuplicate[index] === undefined) {
                                 createRulesSections(data);
                               } else {
                                 tmpSectionId = data.id;
                                 editSection();
                               }
                             }}
-                            disabled={data.title === "" ||
-                              data.prompt === "" ||
-                              data.reference_prompt === "" ||
-                              data.sample === ""}>{$_("save")}</button
+                            disabled={checkSectionInputs(data)}
                           >
+                            <Typography
+                              preset="Text sm/Semibold"
+                              text={$_("save")}
+                              color={checkSectionInputs(data) ? "tertiary" : "fg-brand-primary"}
+                            />
+                          </button>
                         {/if}
                       </div>
                     </div>
                     <div class="flex flex-col grow gap-3">
                       <div class="flex gap-3">
-                        {#if data.id !== 0}
-                          <div class="flex flex-col gap-1.5">
-                            <Typography
-                              preset="Text sm/Medium"
-                              text={$_("order")}
-                              color="secondary"
-                            />
-                            <InputRw value={"#" + (index + 1)} onEdit={edit} />
-                          </div>
-                        {/if}
+                        <!-- <div class="flex flex-col gap-1.5">
+                          <Typography
+                            preset="Text sm/Medium"
+                            text={$_("order")}
+                            color="secondary"
+                          />
+                          <InputRw value={"#" + (index + 1)} onEdit={ifDataMultiple()} />
+                        </div> -->
                         <div class="flex flex-col grow gap-1.5">
                           <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
                           <InputRw bind:value={data.title} onEdit={editRules[index]} />
@@ -887,7 +932,7 @@ All Rights Reserved
   </div>
 </div>
 
-<Modal title={$_("addNewReferenceDocument")} bind:open={addRefDocModal}>
+<Modal title={$_("addNewReferenceDocument")} bind:open={addRefDocModal} size="lg" outsideclose>
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("documentName")}*`} />
@@ -904,15 +949,30 @@ All Rights Reserved
       actionButton={true}
       actionDelete={() => (tmpFile = null)}
       actionView={() => ((documentViewModal = true), (selectedFile = tmpFile))}
+      propClass="bg-primary-light dark:bg-gray-800 border-gray-300 dark:border-gray-500"
     />
+    {#if tmpFile?.base64 !== undefined}
+      <div class="flex gap-6">
+        <div class="flex flex-col grow gap-6 rounded-lg bg-secondary-light dark:bg-secondary-dark">
+          {#if tmpFile?.ext === ".pdf"}
+            <div class="flex justify-center">
+              <PdfjsViewer pdfFile={tmpFile.base64} />
+            </div>
+          {/if}
+        </div>
+      </div>
+    {/if}
   </div>
   <svelte:fragment slot="footer">
     <Button
+      class="w-full"
       on:click={() => {
         addOtherDocument();
       }}
-      disabled={tmpFile === null || !tmpDocumentName}>{$_("add")}</Button
+      disabled={tmpFile === null || !tmpDocumentName}
     >
+      {$_("addNewCase")}
+    </Button>
   </svelte:fragment>
 </Modal>
 
@@ -920,66 +980,9 @@ All Rights Reserved
   {#if selectedFile && (selectedFile.name.includes(".pdf") || selectedFile.name.includes(".PDF"))}
     <div class="flex justify-center">
       <PdfjsViewer pdfFile={selectedFile.base64} />
-      <!-- <PdfViewer
-        showBorder={false}
-        showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-        scale={1}
-        data={atob(selectedFile.base64)}
-      /> -->
     </div>
   {/if}
 </Modal>
-
-<!-- <Modal
-  title={edit ? $_("editRulesSection") : $_("createNewRulesSection")}
-  bind:open={addRulesSectionsModal}
-  size="lg"
->
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5">
-      <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesSectionTitle")}*`} />
-      <Input
-        bind:value={formData.title}
-        placeholder={$_("whatIsYourRulesSectionsTitle")}
-        class="bg-primary-light dark:bg-gray-800"
-      />
-    </div>
-  </div>
-  <div class="flex flex-col gap-1.5">
-    <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesSectionPrompt")}*`} />
-    <Textarea bind:value={formData.prompt} placeholder={$_("whatIsYourRulesSectionsPrompt")} />
-  </div>
-  <div class="flex flex-col gap-1.5">
-    <Typography preset="Text sm/medium" color="secondary" text={`${$_("rulesSectionSample")}*`} />
-    <Textarea bind:value={formData.sample} placeholder={$_("whatIsYourRulesSectionsSample")} />
-  </div>
-  <svelte:fragment slot="footer">
-    <Button
-      onclick={edit ? editSection : createRulesSections}
-      class="w-full"
-      disabled={formData.title.length < 1 ||
-        formData.prompt.length < 1 ||
-        formData.sample.length < 1}>{edit ? $_("saveChanges") : $_("addNewRulesSection")}</Button
-    >
-  </svelte:fragment>
-</Modal> -->
-
-<!-- <Modal bind:open={deleteModal} size="xs" autoclose>
-  <div class="text-center">
-    <ExclamationCircleSolid class="mx-auto mb-4 text-red-600 w-12 h-12" />
-    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-      {$_("areYouSureYouWantToDelete")}
-    </h3>
-    <Button onclick={deleteSection} color="red" class="me-2">{$_("yesImSure")}</Button>
-    <Button
-      color="alternative"
-      onclick={() => {
-        deleteModal = false;
-        tmpSectionId = null;
-      }}>{$_("noCancel")}</Button
-    >
-  </div>
-</Modal> -->
 
 <Modal bind:open={deleteModal} size="xs" autoclose>
   <div class="text-center">
