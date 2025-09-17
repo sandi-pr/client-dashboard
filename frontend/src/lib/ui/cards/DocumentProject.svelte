@@ -1,15 +1,15 @@
 <!--
 CR3 Client Dashboard
 Package: gitlab.hexacode.org/cr3/client-dashboard
-Maintainer: 
+Maintainer:
   - Sandi Permana <sandy@hexacode.org>
 Copyright (C) 2024 Hexacode Teknologi Indonesia
 All Rights Reserved
 -->
 <script>
   import { _ } from "svelte-i18n";
-  import { Button, Spinner } from "flowbite-svelte";
-  import { Typography, Dropdown } from "$lib";
+  import { Button } from "flowbite-svelte";
+  import { Typography } from "$lib";
   import LaodingLottie from "$lib/components/LaodingLottie.svelte";
   import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
@@ -18,7 +18,6 @@ All Rights Reserved
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
-  import EyeIcon from "$lib/icon/eye.svelte";
   import TrashIcon from "$lib/icon/trash-03.svelte";
   import StarsIcon from "$lib/icon/stars-01.svelte";
   import InfoCircle from "$lib/icon/info-circle.svelte";
@@ -160,13 +159,11 @@ All Rights Reserved
           </Button>
           {#if actionView}
             <Button class="p-2 w-max gap-1.5" color="light" on:click={actionView}>
-              <InfoCircle class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-              <!-- <Typography preset="Text sm/Semibold" text={$_("view")} color="secondary" /> -->
+              <InfoCircle svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
             </Button>
           {/if}
           <Button class="p-2 w-max gap-1.5" color="light" on:click={actionDelete}>
-            <TrashIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-            <!-- <Typography preset="Text sm/Semibold" text={$_("remove")} color="secondary" /> -->
+            <TrashIcon svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark" />
           </Button>
         </div>
       {/if}

@@ -24,8 +24,8 @@
   const FilePlusIcon = getIcons("filePlus");
   const CalendarPlus02Icon = getIcons("calendarPlus02");
 
-  let projectId;
-  let projectDocumentId;
+  let projectId = $state(null);
+  let projectDocumentId = $state(null);
 
   let onEdit = $state(true);
   let onView = $state(false);
@@ -344,13 +344,15 @@
       projectId = $page.url.searchParams.get("projectId");
       projectDocumentId = $page.url.searchParams.get("projectDocumentId");
       if (projectId !== null) {
-        onEdit = true;
-        onView = false;
-        getCollections(projectId);
-      } else if (projectDocumentId !== null) {
-        onEdit = false;
-        onView = true;
-        getDocument(projectDocumentId);
+        if (projectDocumentId !== null) {
+          onEdit = false;
+          onView = true;
+          getDocument(projectDocumentId);
+        } else {
+          onEdit = true;
+          onView = false;
+          getCollections(projectId);
+        }
       } else {
         triggerToast("error");
         goto(
@@ -400,8 +402,14 @@
         disabled={file === null}
         on:click={() => {
           createDocument();
-        }}>{$_("add")}</Button
+        }}
       >
+        {#if projectDocumentId !== null}
+          {$_("save")}
+        {:else}
+          {$_("add")}
+        {/if}
+      </Button>
     </div>
   </div>
   <Divider />
@@ -413,7 +421,7 @@
     <div class="flex grow flex-col gap-3">
       <div class="flex gap-4">
         <div class="flex flex-col grow gap-1.5">
-          <Typography preset="Text sm/Medium" text={$_("documentName")} color="secondary" />
+          <Typography preset="Text sm/Medium" text={$_("documentName") + "*"} color="secondary" />
           <InputRw {onEdit} bind:value={data.document_name} />
         </div>
         <div class="flex grow flex-col gap-1.5">

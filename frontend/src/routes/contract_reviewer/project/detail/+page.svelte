@@ -831,7 +831,7 @@
                   let gotoUrl = isFrontend
                     ? "/contract_reviewer/project/document"
                     : await $call.getPage("client-dashboard", "contract-project-detail-document");
-                  goto(gotoUrl + "?projectDocumentId=" + file.id);
+                  goto(gotoUrl + "?projectDocumentId=" + file.id + "&projectId=" + projectId);
                   // (documentViewModal = true), (selectedFile = getFileByType(file.type));
                 }}
                 actionDelete={() => {
@@ -851,17 +851,25 @@
                       let gotoUrl = isFrontend
                         ? "/contract_reviewer/project/review"
                         : await $call.getPage("client-dashboard", "contract-project-review");
-                      goto(gotoUrl + "?projectDocumentId=" + file.result_id);
+                      goto(
+                        gotoUrl +
+                          "?projectDocumentId=" +
+                          file.result_id +
+                          "&projectId=" +
+                          projectId,
+                      );
                     } else {
-                      console.log("gamasuk");
-                      console.log(idResults);
                       let index = idResults.findIndex((result) => result.id_doc === file.id);
-                      console.log(index);
-                      console.log(idResults[index]);
                       let gotoUrl = isFrontend
                         ? "/contract_reviewer/project/review"
                         : await $call.getPage("client-dashboard", "contract-project-review");
-                      goto(gotoUrl + "?projectDocumentId=" + idResults[index].id);
+                      goto(
+                        gotoUrl +
+                          "?projectDocumentId=" +
+                          idResults[index].id +
+                          "&projectId=" +
+                          projectId,
+                      );
                     }
                   }
                 }}
