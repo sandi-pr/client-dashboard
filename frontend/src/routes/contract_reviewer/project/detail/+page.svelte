@@ -729,8 +729,11 @@
                 typeTmp = null;
                 deleteModal = true;
               }}
-              color="light">{$_("delete")}</Button
+              color="red"
+              outline
             >
+              {$_("delete")}
+            </Button>
           </div>
         </div>
       {/if}

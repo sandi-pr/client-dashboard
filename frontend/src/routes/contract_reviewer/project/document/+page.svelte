@@ -372,61 +372,37 @@
 <div class="flex flex-col px-4 pt-6 gap-6 pb-12">
   <!-- section header -->
   <div class="flex justify-between">
-    {#if !onView}
-      <div class="flex items-center gap-3">
-        <FeaturedIcon classesSvg={FilePlusIcon} />
-        <div class="flex flex-col">
+    <div class="flex items-center gap-3">
+      <FeaturedIcon classesSvg={FilePlusIcon} />
+      <div class="flex flex-col">
+        {#if data?.document_name !== ""}
+          <Typography preset="Display sm/Semibold" text={data.document_name} color="primary" />
+        {:else}
           <Typography preset="Text lg/Semibold" text={$_("addNewDocument")} color="primary" />
           <Typography preset="Text sm/Regular" text={$_("descAddNewDocument")} color="tertiary" />
-        </div>
+        {/if}
       </div>
-      <div class="flex gap-3">
-        <Button
-          outline
-          color="light"
-          on:click={async () => {
-            const gotoUrl = isFrontend
-              ? "/contract_reviewer/project/detail"
-              : await $call.getPage("client-dashboard", "contract-project-detail");
-            goto(gotoUrl + "?projectId=" + projectId);
-          }}
-        >
-          {$_("cancel")}
-        </Button>
-        <Button
-          disabled={file === null}
-          on:click={() => {
-            createDocument();
-          }}>{$_("add")}</Button
-        >
-      </div>
-    {:else}
-      <div class="flex items-center gap-3">
-        <Typography preset="Display sm/Semibold" text={data.document_name} color="primary" />
-      </div>
-      <div class="flex gap-3">
-        <Button
-          outline
-          color="light"
-          on:click={async () => {
-            const gotoUrl = isFrontend
-              ? "/contract_reviewer/project/detail"
-              : await $call.getPage("client-dashboard", "contract-project-detail");
-            goto(gotoUrl + "?projectId=" + projectId);
-          }}
-        >
-          {$_("cancel")}
-        </Button>
-        <Button
-          disabled={file === null}
-          on:click={() => {
-            createDocument();
-          }}
-        >
-          {$_("add")}
-        </Button>
-      </div>
-    {/if}
+    </div>
+    <div class="flex gap-3">
+      <Button
+        outline
+        color="light"
+        on:click={async () => {
+          const gotoUrl = isFrontend
+            ? "/contract_reviewer/project/detail"
+            : await $call.getPage("client-dashboard", "contract-project-detail");
+          goto(gotoUrl + "?projectId=" + projectId);
+        }}
+      >
+        <Typography preset="Text sm/Medium" text={$_("cancel")} />
+      </Button>
+      <Button
+        disabled={file === null}
+        on:click={() => {
+          createDocument();
+        }}>{$_("add")}</Button
+      >
+    </div>
   </div>
   <Divider />
   <!-- section form -->
