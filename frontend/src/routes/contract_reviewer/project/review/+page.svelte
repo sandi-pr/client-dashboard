@@ -448,94 +448,41 @@
 <div class="flex flex-col px-4 pt-6 gap-6 pb-12">
   <!-- section header -->
   <div class="flex justify-between">
-    <div class="flex items-center gap-3">
-      <div class="flex flex-col gap-1.5">
-        <Typography preset="Text md/Semibold" text={$_("aiReview")} color="primary" />
-        <Typography preset="Text sm/Regular" text={projectName} color="tertiary" />
-        <!-- <Button
-          onclick={() => {
-            downloadFile();
-          }}
-          class="h-max"><Download01Icon svgClass="w-5 h-5 text-white" />Download</Button
-        > -->
-      </div>
+    <div class="flex flex-col items-center gap-2">
+      <Typography preset="Text md/Semibold" text={$_("aiReview")} color="primary" />
+      <Typography preset="Text sm/Regular" text={projectName} color="tertiary" />
     </div>
-    <div class="flex items-center gap-3">
-      <!-- <Button outline on:click={() => {}} color="light" class="h-max">
-        <FileDownload03Icon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-        &nbsp;
-        {$_("seeReferencedDoc")}
-      </Button> -->
-      <!-- <Button outline on:click={() => {}} color="light" class="h-max">
-        <FileDownload03Icon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-        &nbsp;
-        {$_("generateNewDocs")}
-      </Button> -->
-      <!-- <Button
-        on:click={() => {
-          downloadFile();
-        }}
-        class="h-max"
-      >
-        <Download01Icon svgClass="w-5 h-5 text-white" />
-        &nbsp;
-        {$_("download")}</Button
-      > -->
-    </div>
+    <Button
+      color="light"
+      outline
+      on:click={async () => {
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // 1. Header row: all names
+        const headerRow = datas2.map((data) => `"${data.name.replace(/"/g, '""')}"`).join(",");
+        csvContent += headerRow + "\n";
+
+        // 2. Data row: all results
+        const dataRow = datas2.map((data) => `"${data.result.replace(/"/g, '""')}"`).join(",");
+        csvContent += dataRow + "\n";
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", projectName + ".csv");
+        document.body.appendChild(link); // Required for FF
+
+        link.click();
+        document.body.removeChild(link);
+      }}
+    >
+      <Typography preset="Text md/Semibold" text={$_("downloadAsCSV")} color="primary" />
+    </Button>
   </div>
   <Divider />
   <div class="flex gap-3">
     <div class="flex flex-col grow gap-6">
-      <!-- <div onfocusout={handleDropdownFocusLoss} class="flex flex-col gap-1 w-full"> -->
       <div class="flex flex-col gap-6 w-full">
-        <!-- document section -->
-        <!-- <Button
-          on:click={() => (dropdownToggle[0] = !dropdownToggle[0])}
-          class="flex justify-between border-primary-light dark:border-primary-dark bg-secondary-light dark:bg-secondary-dark"
-          color="light"
-        >
-          <div class="flex items-center gap-3">
-            <P class="text-lg font-semibold text-tertiary-light dark:text-tertiary-dark"
-              >{$_("generatedDocument")}</P
-            >
-            <Button outline on:click={() => (documentViewModal = true)} color="light" class="h-max">
-              <FileDownload03Icon svgClass="w-5 h-5 text-fg-quaternary-light dark:text-fg-quaternary-dark" />
-              &nbsp;
-              {$_("seeReferencedDoc")}
-            </Button>
-          </div>
-          <ChevronDownOutline
-            class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-          />
-        </Button>
-        {#if dropdownToggle[0]}
-          <div class="flex justify-center mt-6">
-            <div class="bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4">
-              <PdfViewer
-                showBorder={false}
-                showButtons={["navigation", "zoom", "rotate", "autoflip", "pageInfo"]}
-                scale={1}
-                data={atob(base64Data)}
-              />
-            </div>
-          </div>
-        {/if}
-
-        <Divider /> -->
-
-        <!-- first table section -->
-        <!-- <Button
-          on:click={() => (dropdownToggle[1] = !dropdownToggle[1])}
-          class="flex justify-between border-primary-light dark:border-primary-dark bg-secondary-light dark:bg-secondary-dark"
-          color="light"
-        >
-          <P class="text-lg font-semibold text-tertiary-light dark:text-tertiary-dark"
-            >{$_("summaryOfFindings")}</P
-          >
-          <ChevronDownOutline
-            class="w-8 h-8 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-          />
-        </Button> -->
         {#if dropdownToggle[0]}
           <div
             class="flex flex-col justify-center mt-6 bg-tertiary-light dark:bg-tertiary-dark rounded-lg p-4"
@@ -543,9 +490,9 @@
             <ListMarkdown id="content-to-download" bind:datas={datas2} />
           </div>
         {/if}
-        {#if dropdownToggle[1]}
+        <!-- {#if dropdownToggle[1]}
           <DataTableAIReview bind:datas />
-        {/if}
+        {/if} -->
       </div>
     </div>
   </div>

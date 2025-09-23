@@ -1242,5 +1242,7 @@
   "failedFetchReferences": "Failed to fetch references. Please try again.",
   "failedCreateReference": "Failed to create reference. Please try again.",
   "failedUpdateReference": "Failed to update reference. Please try again.",
-  "failedDeleteReference": "Failed to delete reference. Please try again."
+  "failedDeleteReference": "Failed to delete reference. Please try again.",
+  "contractExtractorOverview": "Contract Extractor Overview",
+  "downloadAsCSV": "Download as CSV"
 }

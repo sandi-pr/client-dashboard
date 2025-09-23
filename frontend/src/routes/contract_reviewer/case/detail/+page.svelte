@@ -42,11 +42,11 @@ All Rights Reserved
   let documentViewModal = $state(false);
 
   let tabDatas = $state({
-    selected: "Referenced Documents",
+    selected: "Rules",
     data: [
-      check("aiManagement.contractreviewer.document:create_delete") && {
-        name: "Referenced Documents",
-      },
+      // check("aiManagement.contractreviewer.document:create_delete") && {
+      //   name: "Referenced Documents",
+      // },
       check("aiManagement.contractreviewer.rule:create_delete") && {
         name: "Rules",
       },
@@ -311,7 +311,8 @@ All Rights Reserved
             contract_rule_id: ruleId.toString(),
             section_title: data.title,
             section_prompt: data.prompt,
-            reference_prompt: data.reference_prompt,
+            // reference_prompt: data.reference_prompt,
+            reference_prompt: ".",
             section_sample: data.sample,
           },
           Headers: {
@@ -624,7 +625,8 @@ All Rights Reserved
 
   const checkSectionInputs = (data) => {
     return (
-      data.title === "" || data.prompt === "" || data.sample === "" || data.reference_prompt === ""
+      data.title === "" || data.prompt === "" || data.sample === ""
+      // || data.reference_prompt === ""
     );
   };
 
@@ -703,7 +705,7 @@ All Rights Reserved
         </div>
 
         <!-- Tab Bar -->
-        <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
+        <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
 
         {#if tabDatas.selected === "Referenced Documents" && check("aiManagement.contractreviewer.document:create_delete")}
           <div>
@@ -903,14 +905,14 @@ All Rights Reserved
                         />
                         <TextareaRw bind:value={data.prompt} onEdit={editRules[index]} />
                       </div>
-                      <div class="flex flex-col grow gap-1.5">
+                      <!-- <div class="flex flex-col grow gap-1.5">
                         <Typography
                           preset="Text sm/Medium"
                           text={$_("referencePrompt")}
                           color="secondary"
                         />
                         <TextareaRw bind:value={data.reference_prompt} onEdit={editRules[index]} />
-                      </div>
+                      </div> -->
 
                       <div class="flex flex-col grow gap-1.5">
                         <Typography

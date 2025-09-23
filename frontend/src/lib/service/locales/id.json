@@ -1242,5 +1242,7 @@
   "failedFetchReferences": "Gagal mengambil referensi. Silakan coba lagi.",
   "failedCreateReference": "Gagal membuat referensi. Silakan coba lagi.",
   "failedUpdateReference": "Gagal memperbarui referensi. Silakan coba lagi.",
-  "failedDeleteReference": "Gagal menghapus referensi. Silakan coba lagi."
+  "failedDeleteReference": "Gagal menghapus referensi. Silakan coba lagi.",
+  "contractExtractorOverview": "Ikhtisar Ekstraktor Kontrak",
+  "downloadAsCSV": "Unduh sebagai CSV"
 }
