@@ -1234,5 +1234,13 @@
   "chooseTheOneYouWantToIncludeApi": "Choose the one you want to include API",
   "latestApiCollections": "Latest API Collection",
   "configured": "Configured",
-  "deleteSection": "Delete Section"
+  "deleteSection": "Delete Section",
+  "failedFetchCases": "Failed to fetch cases. Please try again.",
+  "failedCreateCase": "Failed to create case. Please try again.",
+  "failedUpdateCase": "Failed to update case. Please try again.",
+  "failedDeleteCase": "Failed to delete case. Please try again.",
+  "failedFetchReferences": "Failed to fetch references. Please try again.",
+  "failedCreateReference": "Failed to create reference. Please try again.",
+  "failedUpdateReference": "Failed to update reference. Please try again.",
+  "failedDeleteReference": "Failed to delete reference. Please try again."
 }

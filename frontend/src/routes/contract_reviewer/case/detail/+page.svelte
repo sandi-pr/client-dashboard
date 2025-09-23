@@ -16,7 +16,7 @@ All Rights Reserved
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
   import { format } from "date-fns";
-  import { call, check, getIcons, triggerToast, triggerLoading } from "$lib";
+  import { call, check, getIcons, triggerToast, triggerLoading, errorHandling } from "$lib";
   import {
     InputRw,
     Divider,
@@ -28,21 +28,19 @@ All Rights Reserved
     PdfjsViewer,
   } from "$lib";
 
-  const IllustrationEmpty = getIcons("illustrationEmpty");
-  const PlusCircleIcon = getIcons("plusCircle");
   const PlusIcon = getIcons("plus");
+  const CopyIcon = getIcons("copy03");
+  const PlusCircleIcon = getIcons("plusCircle");
+  const IllustrationEmpty = getIcons("illustrationEmpty");
 
   const isFrontend = process.env.NODE_ENV === "development";
 
   let init = $state(false);
-  let edit = $state(false);
   let caseDelete = $state(false);
   let deleteModal = $state(false);
   let addRefDocModal = $state(false);
   let documentViewModal = $state(false);
-  let addRulesSectionsModal = $state(false);
 
-  let formData = $state({ title: "", prompt: "", sample: "" });
   let tabDatas = $state({
     selected: "Referenced Documents",
     data: [
@@ -59,9 +57,9 @@ All Rights Reserved
     createdAt: "",
     data: [],
   });
-  let datasDataDuplicate = $state([]);
 
   let editRules = $state([]);
+  let datasDataDuplicate = $state([]);
   let files = $state([
     // {
     //   id: 1,
@@ -81,31 +79,32 @@ All Rights Reserved
   let collectionId = $state(null);
   let tmpDocumentName = $state(null);
 
-  // let ifDataMultiple = $derived(() => {
-  //   return datas.data.length > 1;
-  // });
-
   const getCollections = async (name, id) => {
-    let token = localStorage.getItem("token");
-    if (token !== null) {
-      try {
-        let response = await $call.call("client-dashboard", "get-collection-by-name", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            collection_name: id + ". " + name + " (Referenced Documents)",
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-        if (response.status !== 200) {
-          console.log(response);
-          return;
-        }
+    try {
+      let token = localStorage.getItem("token");
+      let responseCollection = await $call.call("client-dashboard", "get-collection-by-name", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          collection_name: id + ". " + name + " (Referenced Documents)",
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-        if (response.result.data.length === 0) {
-          let response2 = await $call.call("client-dashboard", "create-document-collection", {
+      if (responseCollection.status !== 200) {
+        const error = new Error("Failed to get collections");
+        error.responseCollection = responseCollection;
+        error.status = responseCollection.status;
+        throw error;
+      }
+
+      if (responseCollection.result.data.length === 0) {
+        let responseCreateCollection = await $call.call(
+          "client-dashboard",
+          "create-document-collection",
+          {
             URLQuery: {},
             URLParams: {},
             Params: {
@@ -115,30 +114,31 @@ All Rights Reserved
             Headers: {
               Authorization: "Bearer " + token,
             },
-          });
+          },
+        );
 
-          if (response2.status !== 200) {
-            console.log(response2);
-            return;
-          }
-
-          collectionId = response2.result.data.id;
-          return;
+        if (responseCreateCollection.status !== 200) {
+          const error = new Error("Failed to create collection");
+          error.response = responseCreateCollection;
+          error.status = responseCreateCollection.status;
+          throw error;
         }
 
-        collectionId = response.result.data[0].id;
-      } catch (error) {
-        console.log(error);
+        collectionId = responseCreateCollection.result.data.id;
+        return;
       }
+
+      collectionId = responseCollection.result.data[0].id;
+    } catch (error) {
+      errorHandling($_, error, "get");
     }
   };
 
   const getRulesSections = async () => {
-    triggerLoading(true);
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await $call.call("client-dashboard", "get-contract-rule", {
+    try {
+      let token = localStorage.getItem("token");
+      if (token) {
+        const responseRule = await $call.call("client-dashboard", "get-contract-rule", {
           URLQuery: {},
           URLParams: {
             id: ruleId.toString(),
@@ -149,48 +149,52 @@ All Rights Reserved
           },
         });
 
-        if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
-          return;
+        if (responseRule.status !== 200) {
+          const error = new Error("Failed to get rules");
+          error.response = responseRule;
+          error.status = responseRule.status;
+          throw error;
         }
 
         await getCollections(
-          response.result.data[0].attributes.rule_name,
-          response.result.data[0].id,
+          responseRule.result.data[0].attributes.rule_name,
+          responseRule.result.data[0].id,
         );
 
         let sectionsTmp = [];
         let page = 1;
 
         while (true) {
-          const response2 = await $call.call("client-dashboard", "get-contract-rule-section", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              contract_rule_id: ruleId.toString(),
-              page: page,
-              page_size: 25,
+          const responseRuleSection = await $call.call(
+            "client-dashboard",
+            "get-contract-rule-section",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                contract_rule_id: ruleId.toString(),
+                page: page,
+                page_size: 25,
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
             },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
+          );
 
-          if (response2.status !== 200) {
-            triggerLoading(false);
-            triggerToast("error");
-            console.log(response2);
-            return;
+          if (responseRuleSection.status !== 200) {
+            const error = new Error("Failed to get rule sections");
+            error.response = responseRuleSection;
+            error.status = responseRuleSection.status;
+            throw error;
           }
 
-          if (response2.result.data.length < 1) {
+          if (responseRuleSection.result.data.length < 1) {
             break;
           }
 
           page += 1;
-          sectionsTmp = sectionsTmp.concat(response2.result.data);
+          sectionsTmp = sectionsTmp.concat(responseRuleSection.result.data);
           datasDataDuplicate = sectionsTmp.map((item) => {
             return {
               id: item.id,
@@ -214,8 +218,11 @@ All Rights Reserved
         }
 
         datas = {
-          title: response.result.data[0].attributes.rule_name,
-          createdAt: format(response.result.data[0].attributes.createdAt, "yyyy-MM-dd HH:mm:ss"),
+          title: responseRule.result.data[0].attributes.rule_name,
+          createdAt: format(
+            responseRule.result.data[0].attributes.createdAt,
+            "yyyy-MM-dd HH:mm:ss",
+          ),
           data:
             sectionsTmp.length < 1
               ? datas.data
@@ -230,27 +237,26 @@ All Rights Reserved
                   };
                 }),
         };
-
-        triggerLoading(false);
-      } catch (error) {
-        triggerLoading(false);
-        triggerToast("error");
-        console.log(error);
       }
+    } catch (error) {
+      errorHandling($_, error, "get", "case");
+      triggerToast("error");
+    } finally {
+      triggerLoading(false);
     }
   };
 
   const getReferences = async () => {
-    let token = localStorage.getItem("token");
-    let industry_id = sessionStorage.getItem("industry_id");
-
-    if (industry_id === null) {
-      triggerLoading(false);
-
-      return;
-    }
-
     try {
+      let token = localStorage.getItem("token");
+      let industry_id = sessionStorage.getItem("industry_id");
+
+      if (industry_id === null) {
+        console.log("no industry id");
+        triggerLoading(false);
+        return;
+      }
+
       let page = 1;
       files = [];
 
@@ -270,8 +276,10 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          console.log(response);
-          return;
+          const error = new Error("Failed to get references document");
+          error.response = response;
+          error.status = response.status;
+          throw error;
         }
 
         if (response.result.files.length === 0) {
@@ -286,17 +294,16 @@ All Rights Reserved
         files = files.concat(filesWithExt);
         page++;
       }
-      // console.log("files", files);
     } catch (error) {
-      console.log(error);
+      errorHandling($_, error, "get", "reference");
     }
   };
 
   const createRulesSections = async (data) => {
-    triggerLoading(true);
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
+    try {
+      triggerLoading(true);
+      let token = localStorage.getItem("token");
+      if (token) {
         const response = await $call.call("client-dashboard", "create-contract-rule-section", {
           URLQuery: {},
           URLParams: {},
@@ -313,37 +320,37 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
-          return;
+          const error = new Error("Failed to create section");
+          error.response = response;
+          error.status = response.status;
+          throw error;
         }
 
-        triggerLoading(false);
         triggerToast("created");
-      } catch (error) {
-        triggerLoading(false);
-        triggerToast("error");
-        console.log(error);
       }
+    } catch (error) {
+      errorHandling($_, error, "create", "case");
+    } finally {
+      triggerLoading(false);
     }
   };
 
   const addOtherDocument = async () => {
-    addRefDocModal = false;
-    triggerLoading(true);
-    let token = localStorage.getItem("token");
-    let industry_id = sessionStorage.getItem("industry_id");
-    console.log("industry_id", industry_id);
-    if (industry_id === null) {
-      triggerLoading(false);
-
-      return;
-    }
     try {
+      triggerLoading(true);
+      let token = localStorage.getItem("token");
+      let industry_id = sessionStorage.getItem("industry_id");
+
+      addRefDocModal = false;
+
+      if (industry_id === null) {
+        triggerLoading(false);
+        return;
+      }
+
       tmpFile.type = tmpDocumentName;
 
-      const response = await $call.call("client-dashboard", "create-references-document", {
+      const responseReference = await $call.call("client-dashboard", "create-references-document", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -355,21 +362,21 @@ All Rights Reserved
           Authorization: "Bearer " + token,
         },
       });
-      // console.log(response);
 
-      if (response.status !== 200) {
-        triggerLoading(false);
-        addRefDocModal = true;
-        triggerToast("error");
+      if (responseReference.status !== 200) {
+        const error = new Error("Failed to create reference document");
+        error.response = responseReference;
+        error.status = responseReference.status;
+        throw error;
       }
 
-      tmpFile.id = response.result.data[0].id;
+      tmpFile.id = responseReference.result.data[0].id;
 
       tmpFile.document_title = tmpDocumentName;
       tmpFile.description = "Document reference " + datas.title;
       tmpFile.contract = "REFERENCE";
 
-      let response2 = await $call.call("client-dashboard", "create-document", {
+      const responseDocument = await $call.call("client-dashboard", "create-document", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -382,30 +389,32 @@ All Rights Reserved
         },
       });
 
-      if (response2.status !== 200) {
-        triggerLoading(false);
-        addRefDocModal = true;
-        triggerToast("error");
+      if (responseDocument.status !== 200) {
+        const error = new Error("Failed to create document");
+        error.response = responseDocument;
+        error.status = responseDocument.status;
+        throw error;
       }
 
       files.push(tmpFile);
 
       tmpFile = null;
       tmpDocumentName = "";
-      triggerLoading(false);
       triggerToast("updated");
     } catch (error) {
-      console.log(error);
+      errorHandling($_, error, "create", "reference");
+    } finally {
+      triggerLoading(false);
     }
   };
 
   const editSection = async () => {
-    triggerLoading(true);
-    init = false;
-    let token = localStorage.getItem("token");
-    let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
-    if (token) {
-      try {
+    try {
+      triggerLoading(true);
+      init = false;
+      let token = localStorage.getItem("token");
+      let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
+      if (token) {
         const response = await $call.call("client-dashboard", "update-contract-rule-section", {
           URLQuery: {},
           URLParams: {
@@ -423,27 +432,27 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          console.log(response);
-          return;
+          const error = new Error("Failed to update section");
+          error.response = response;
+          error.status = response.status;
+          throw error;
         }
 
-        triggerLoading(false);
         triggerToast("updated");
         await getRulesSections();
-      } catch (error) {
-        console.log(error);
       }
+    } catch (error) {
+      triggerLoading(false);
+      errorHandling($_, error, "update", "case");
     }
   };
 
   const deleteSection = async () => {
-    deleteModal = false;
-    triggerLoading(true);
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
+    try {
+      triggerLoading(true);
+      deleteModal = false;
+      let token = localStorage.getItem("token");
+      if (token) {
         const response = await $call.call("client-dashboard", "delete-contract-rule-section", {
           URLQuery: {},
           URLParams: {
@@ -456,30 +465,29 @@ All Rights Reserved
         });
 
         if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          deleteModal = true;
-          console.log(response);
-          return;
+          const error = new Error("Failed to delete section");
+          error.response = response;
+          error.status = response.status;
+          throw error;
         }
 
-        triggerLoading(false);
         triggerToast("deleted");
         await getRulesSections();
-      } catch (error) {
-        console.log(error);
       }
+    } catch (error) {
+      triggerLoading(false);
+      errorHandling($_, error, "delete", "case");
     }
   };
 
   const deleteDocument = async () => {
-    deleteModal = false;
-    triggerLoading(true);
+    try {
+      triggerLoading(true);
+      deleteModal = false;
 
-    let token = localStorage.getItem("token");
+      let token = localStorage.getItem("token");
 
-    if (tmpId !== 0) {
-      const response = await $call.call("client-dashboard", "delete-references-document", {
+      const responseDocument = await $call.call("client-dashboard", "delete-references-document", {
         URLQuery: {},
         URLParams: {
           id: tmpId.toString(),
@@ -490,13 +498,14 @@ All Rights Reserved
         },
       });
 
-      if (response.status !== 200) {
-        triggerLoading(false);
-        triggerToast("error");
-        deleteModal = true;
+      if (responseDocument.status !== 200) {
+        const error = new Error("Failed to delete reference document");
+        error.response = responseDocument;
+        error.status = responseDocument.status;
+        throw error;
       }
 
-      const response2 = await $call.call(
+      const responseDelete = await $call.call(
         "client-dashboard",
         "delete-document-collection-by-contract",
         {
@@ -512,22 +521,26 @@ All Rights Reserved
         },
       );
 
-      if (response2.status !== 200) {
-        triggerLoading(false);
-        // triggerToast("error");
-        // deleteModal = true;
+      if (responseDelete.status !== 200) {
+        const error = new Error("Failed to delete document");
+        error.response = responseDelete;
+        error.status = responseDelete.status;
+        throw error;
       }
 
       files = files.filter((file) => file.id !== tmpId);
-      triggerLoading(false);
       triggerToast("deleted");
+    } catch (error) {
+      errorHandling($_, error, "delete", "reference");
+    } finally {
+      triggerLoading(false);
     }
   };
 
   const deleteCase = async () => {
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
+    try {
+      let token = localStorage.getItem("token");
+      if (token) {
         const response = await $call.call("client-dashboard", "delete-rules", {
           URLQuery: {},
           URLParams: {
@@ -540,7 +553,10 @@ All Rights Reserved
         });
 
         if (response.status === 200) {
-          deleteModal = false;
+          const error = new Error("Failed to delete case");
+          error.response = response;
+          error.status = response.status;
+          throw error;
         }
 
         triggerToast("deleted");
@@ -549,9 +565,10 @@ All Rights Reserved
             ? "/contract_reviewer/case"
             : await $call.getPage("client-dashboard", "contract-case"),
         );
-      } catch (error) {
-        console.log(error);
       }
+    } catch (error) {
+      triggerLoading(false);
+      errorHandling($_, error, "delete", "case");
     }
   };
 
@@ -611,34 +628,30 @@ All Rights Reserved
     );
   };
 
-  onMount(() => {
+  onMount(async () => {
     if (
-      check("aiManagement.contractreviewer.rule:create_delete") === false &&
-      check("aiManagement.contractreviewer.document:create_delete") === false
+      (await check("aiManagement.contractreviewer.rule:create_delete")) === false &&
+      (await check("aiManagement.contractreviewer.document:create_delete")) === false
     ) {
       console.log("no access");
       window.history.back();
       return;
     }
-    const unsubscribe = page.subscribe(async ($page) => {
-      ruleId = $page.url.searchParams.get("caseId");
-      triggerLoading(true);
-      if (ruleId !== null) {
-        getReferences();
-        getRulesSections();
-      } else {
-        triggerToast("error");
-        setTimeout(async () => {
-          triggerLoading(false);
-          goto(
-            isFrontend
-              ? "/contract_reviewer/case"
-              : await $call.getPage("client-dashboard", "contract-case"),
-          );
-        }, 2000);
-      }
-    });
-    return () => unsubscribe();
+
+    ruleId = $page.url.searchParams.get("caseId");
+    triggerLoading(true);
+    if (ruleId !== null) {
+      await getReferences();
+      await getRulesSections();
+    } else {
+      triggerToast("error");
+      triggerLoading(false);
+      goto(
+        isFrontend
+          ? "/contract_reviewer/case"
+          : await $call.getPage("client-dashboard", "contract-case"),
+      );
+    }
   });
 </script>
 
@@ -652,12 +665,18 @@ All Rights Reserved
         <div class="flex justify-between w-full">
           <!-- Header -->
           <div class="grow gap-2">
-            <Heading
-              tag="h3"
-              class="text-3xl leading-[38px] text-hc-graylight-900 dark:text-hc-graydark-50"
-            >
-              {datas.title}
-            </Heading>
+            <div class="flex gap-2 items-center">
+              <Typography preset="Display sm/Semibold" text={datas.title} />
+              <button
+                class="p-2 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-primary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
+                onclick={() => {
+                  navigator.clipboard.writeText(datas.title);
+                  triggerToast("copyToClipboard");
+                }}
+              >
+                <CopyIcon svgClass="w-4 h-4 text-secondary-light dark:text-secondary-dark" />
+              </button>
+            </div>
             <Typography
               preset="Text md/Medium"
               color="tertiary"
@@ -758,6 +777,7 @@ All Rights Reserved
               <Button
                 class="self-center gap-1"
                 color="primary"
+                outline
                 on:click={() => {
                   datas.data = [
                     ...datas.data,
@@ -906,8 +926,10 @@ All Rights Reserved
                 {/each}
                 {#if datas.data.length > 1}
                   <Button
-                    class="w-auto self-center"
-                    onclick={() => {
+                    class="w-auto self-center gap-1"
+                    color="primary"
+                    outline
+                    on:click={() => {
                       datas.data = [
                         ...datas.data,
                         {
@@ -922,7 +944,8 @@ All Rights Reserved
                       editRules = [...editRules, true];
                     }}
                   >
-                    <Typography preset="Text sm/Semibold" text={$_("addNewSection")} />
+                    <PlusIcon svgClass="w-4 h-4" />
+                    {$_("addNewSection")}
                   </Button>
                 {/if}
               </div>

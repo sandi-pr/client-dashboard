@@ -21,7 +21,7 @@ export const getRules = async (call, pagination = { page: 1, pageSize: 10 }, sea
         throw error;
       }
 
-      return response.result.data;
+      return response;
     } catch (error) {
       console.log("error", error);
       return [];
@@ -34,8 +34,8 @@ export const getAllRules = async (call) => {
   let allRules = [];
   while (true) {
     const rules = await getRules(call, pagination);
-    if (rules.length === 0) break;
-    allRules = [...allRules, ...rules];
+    if (rules.result.data.length === 0) break;
+    allRules = [...allRules, ...rules.result.data];
     pagination.page += 1;
   }
 

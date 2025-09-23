@@ -30,42 +30,32 @@ All Rights Reserved
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let files = $state([]);
-  let actionItems = $state([]);
-  let tmpProjectName = $state("");
-  let tmpProjectDescription = $state("");
-  let selectedRules = $state("");
-  let selectedRole = $state("Buyer");
-  let dropdownIndustryOpen = $state(false);
-  let dropdownRulesOpen = $state(false);
-  let dropdownRole = $state(false);
-  let addProjectModal = $state(false);
-  let isOpen = $state(false);
-  let startDate = $state(null);
   let endDate = $state(null);
-  let dateFormat = $state("d MMM yyyy");
-  let formattedStartDate = $state("");
+  let startDate = $state(null);
+
+  let isOpen = $state(false);
+  let gettingDatas = $state(false);
+  let gettingRules = $state(false);
+  let buttonDisabled = $state(false);
+  let addProjectModal = $state(false);
+  let dropdownRulesOpen = $state(false);
+
+  let selectedRules = $state("");
+  let tmpProjectName = $state("");
   let formattedEndDate = $state("");
-  let rulesTmp = $state([]);
+  let selectedRole = $state("Buyer");
+  let formattedStartDate = $state("");
+  let dateFormat = $state("d MMM yyyy");
+  let tmpProjectDescription = $state("");
 
-  let industries = $state([]);
-
-  let role = $state([
-    { name: "Buyer", value: "Buyer" },
-    { name: "Seller", value: "Seller" },
-  ]);
+  let files = $state([]);
+  let rules = $state([]);
+  let datasTable = $state([]);
+  let rulesTable = $state([]);
+  let actionItems = $state([]);
 
   let datasConfigs = $state({});
   let rulesConfigs = $state({});
-
-  let datasTable = $state([]);
-  let rules = $state([]);
-  let rulesTable = $state([]);
-
-  let gettingDatas = $state(false);
-  let gettingRules = $state(false);
-
-  let buttonDisabled = $state(false);
 
   const getActionItems = async () => {
     actionItems = [
@@ -239,11 +229,12 @@ All Rights Reserved
         : await $call.getPage("client-dashboard", "contract-project-detail");
 
       const promise = projects.map((project) => {
-        return {
+        const rule = rulesTable.find((rule) => rule.id === project.attributes.contract_rule_id);
+        const ruleName = rule?.rule_name || "";
+        const { contract_rule_id, ...rest } = {
           id: project.id,
           project_name: project.attributes.project_name,
-          start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
-          end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
+          contract_rule_id: project.attributes.contract_rule_id,
           actions: {
             objects: [
               {
@@ -253,6 +244,10 @@ All Rights Reserved
               },
             ],
           },
+        };
+        return {
+          ...rest,
+          case: ruleName,
         };
       });
 
@@ -272,7 +267,7 @@ All Rights Reserved
 
   onMount(async () => {
     await getActionItems();
-    await handleGetRules();
+    await handleGetRules(); // Harus jalan sebelum getProjects
     await handleGetProjects();
     await getCompanyType();
   });
@@ -319,10 +314,8 @@ All Rights Reserved
             illustration={IllustrationProgress}
             description={$_("fetchingDataPleaseWait")}
           />
-        {:else}
-          {#if rulesTable.length === 0}
-            <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
-          {/if}
+        {:else if rulesTable.length === 0}
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
 
         {#if rulesTable.length > 0}

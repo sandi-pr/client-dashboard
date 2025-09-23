@@ -12,7 +12,15 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { Modal, Button, Input } from "flowbite-svelte";
-  import { triggerToast, triggerLoading, call, check, getIcons } from "$lib";
+  import {
+    call,
+    check,
+    getIcons,
+    getRules,
+    triggerToast,
+    errorHandling,
+    triggerLoading,
+  } from "$lib";
   import { Typography, StateCard, DataTable } from "$lib";
 
   const IllustrationEmpty = getIcons("illustrationEmpty");
@@ -31,141 +39,102 @@ All Rights Reserved
   let searchTerm = $state("");
   let tmpRulesName = $state("");
 
-  let configs = $state({});
-
   let datas = $state([]);
 
-  const getRules = async () => {
-    // triggerLoading(true);
-    let token = localStorage.getItem("token");
-    if (token) {
-      gettingDatas = true;
-      let rules = [];
-      try {
-        const response = await $call.call("client-dashboard", "get-contract-rules", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            search: searchTerm,
-            page: page,
-            page_size: 10,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+  let configs = $state({});
 
-        if (response.status !== 200) {
-          triggerLoading(false);
-          gettingDatas = false;
-          console.log(response);
-          return;
-        }
+  const handleGetRules = async (page = 1, searchTerm = "") => {
+    gettingDatas = true;
+    const response = await getRules($call, { page: page, pageSize: 10 }, searchTerm);
+    if (response?.result?.data.length > 0) {
+      pageCount = response.result.meta.pagination.pageCount;
+      configs = {
+        pagination: response.result.meta.pagination,
+        search: true,
+        searchHandler: handleSearch,
+      };
 
-        rules = response.result.data;
+      let link = isFrontend
+        ? "/contract_reviewer/case/detail"
+        : await $call.getPage("client-dashboard", "contract-case-detail");
 
-        if (rules.length > 0) {
-          pageCount = response.result.meta.pagination.pageCount;
-          configs = {
-            pagination: response.result.meta.pagination,
-            search: true,
-            searchHandler: handleSearch,
-          };
-          let link = isFrontend
-            ? "/contract_reviewer/case/detail"
-            : await $call.getPage("client-dashboard", "contract-case-detail");
-          let promise = rules.map((rule) => {
-            return {
-              id: rule.id,
-              case_name: rule.attributes.rule_name,
-              actions: {
-                objects: [
-                  check("businessManagement.hr.recruitment:view") && {
-                    href: link + "?caseId=" + rule.id,
-                    name: "View",
-                  },
-                ].filter(Boolean),
+      let promise = response.result.data.map((rule) => {
+        return {
+          id: rule.id,
+          case_name: rule.attributes.rule_name,
+          actions: {
+            objects: [
+              check("businessManagement.hr.recruitment:view") && {
+                href: link + "?caseId=" + rule.id,
+                name: "Detail",
+                type: "primary",
               },
-            };
-          });
-          datas = await Promise.all(promise);
-          triggerLoading(false);
-          gettingDatas = false;
-        }
-        triggerLoading(false);
-        gettingDatas = false;
-      } catch (error) {
-        console.log(error);
-        gettingDatas = false;
-      }
+            ].filter(Boolean),
+          },
+        };
+      });
+      datas = await Promise.all(promise);
+      gettingDatas = false;
+      triggerLoading(false);
     }
   };
 
   const createRules = async () => {
-    addRulesModal = false;
-    triggerLoading(true);
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await $call.call("client-dashboard", "create-contract-rules", {
-          URLQuery: {},
-          URLParams: {},
-          Params: {
-            rule_name: tmpRulesName,
-          },
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+    try {
+      addRulesModal = false;
+      triggerLoading(true);
+      let token = localStorage.getItem("token");
+      const response = await $call.call("client-dashboard", "create-contract-rules", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          rule_name: tmpRulesName,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-        if (response.status !== 200) {
-          triggerLoading(false);
-          addRulesModal = true;
-          triggerToast("error");
-          console.log(response);
-          return;
-        }
-
-        triggerLoading(false);
-        triggerToast("created");
-        tmpRulesName = "";
-        addRulesModal = false;
-        getRules();
-        // goto(
-        //   (await $call.getPage("client-dashboard", "contract-case-detail")) +
-        //     "?caseId=" +
-        //     response.result.data.id,
-        // );
-      } catch (error) {
-        triggerLoading(false);
-        addRulesModal = true;
-        triggerToast("error");
-        console.log(error);
+      if (response.status !== 200) {
+        const error = new Error("Failed to create rules");
+        error.response = response;
+        error.status = response.status;
+        throw error;
       }
+
+      triggerToast("created");
+      tmpRulesName = "";
+      await handleGetRules();
+    } catch (error) {
+      triggerLoading(false);
+      errorHandling($_, error, "create", "case");
     }
   };
 
   const handleSearch = async (value) => {
+    triggerLoading(true);
     page = 1;
     searchTerm = value;
-
-    await getRules();
+    await handleGetRules(page, searchTerm);
   };
 
   const nextPage = async () => {
+    triggerLoading(true);
     if (page >= pageCount) return;
     page++;
-    await getRules();
+    await handleGetRules(page, searchTerm);
   };
 
   const prevPage = async () => {
+    triggerLoading(true);
     if (page <= 1) return;
     page--;
-    await getRules();
+    await handleGetRules(page, searchTerm);
   };
 
   onMount(async () => {
-    getRules();
+    triggerLoading(true);
+    await handleGetRules();
   });
 
   $effect(() => {
@@ -220,8 +189,8 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createRules} class="w-full" disabled={buttonDisabled}
-      >{$_("addNewCase")}</Button
-    >
+    <Button onclick={createRules} class="w-full" disabled={buttonDisabled}>
+      {$_("addNewCase")}
+    </Button>
   </svelte:fragment>
 </Modal>

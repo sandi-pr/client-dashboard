@@ -1,14 +1,33 @@
 import { triggerToast } from "$lib";
 
-export default (_, error, action = "get") => {
+const errorMessages = {
+  get: {
+    collection: "failedFetchCollections",
+    case: "failedFetchCases",
+  },
+  create: {
+    collection: "failedCreateCollection",
+    case: "failedCreateCase",
+  },
+  update: {
+    collection: "failedUpdateCollection",
+    case: "failedUpdateCase",
+  },
+  delete: {
+    collection: "failedDeleteCollection",
+    case: "failedDeleteCase",
+  },
+};
+
+export default (_, error, action = "get", target = "collection") => {
   if (action === "get") {
-    console.error("Error during fetching collections:", error);
+    console.error(`Error during fetching ${target}s:`, error);
   } else if (action === "create") {
-    console.error("Error during collection creation:", error);
+    console.error(`Error during ${target} creation:`, error);
   } else if (action === "update") {
-    console.error("Error during updating collection:", error);
+    console.error(`Error during updating ${target}:`, error);
   } else if (action === "delete") {
-    console.error("Error during deleting collection:", error);
+    console.error(`Error during deleting ${target}:`, error);
   }
 
   if (error?.status) {
@@ -23,13 +42,13 @@ export default (_, error, action = "get") => {
     }
   } else {
     if (action === "get") {
-      triggerToast(_("failedFetchCollections"), true, "error");
+      triggerToast(_(errorMessages.get[target]), true, "error");
     } else if (action === "create") {
-      triggerToast(_("failedCreateCollection"), true, "error");
+      triggerToast(_(errorMessages.create[target]), true, "error");
     } else if (action === "update") {
-      triggerToast(_("failedUpdateCollection"), true, "error");
+      triggerToast(_(errorMessages.update[target]), true, "error");
     } else if (action === "delete") {
-      triggerToast(_("failedDeleteCollection"), true, "error");
+      triggerToast(_(errorMessages.delete[target]), true, "error");
     } else {
       triggerToast(`${_("unexpectedError")}: ${error?.message}`, true, "error");
     }

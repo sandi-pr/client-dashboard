@@ -500,7 +500,7 @@
         });
 
         platforms = await Promise.all(promise);
-        console.log("platforms", platforms);
+        // console.log("platforms", platforms);
       } catch (error) {
         errorResponseTrigger(error);
       }

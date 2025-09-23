@@ -1234,5 +1234,13 @@
   "chooseTheOneYouWantToIncludeApi": "Pilih yang ingin Anda sertakan dalam permintaan API",
   "latestApiCollections": "Koleksi API Terbaru",
   "configured": "Dikonfigurasi",
-  "deleteSection": "Hapus Bagian"
+  "deleteSection": "Hapus Bagian",
+  "failedFetchCases": "Gagal mengambil kasus. Silakan coba lagi.",
+  "failedCreateCase": "Gagal membuat kasus. Silakan coba lagi.",
+  "failedUpdateCase": "Gagal memperbarui kasus. Silakan coba lagi.",
+  "failedDeleteCase": "Gagal menghapus kasus. Silakan coba lagi.",
+  "failedFetchReferences": "Gagal mengambil referensi. Silakan coba lagi.",
+  "failedCreateReference": "Gagal membuat referensi. Silakan coba lagi.",
+  "failedUpdateReference": "Gagal memperbarui referensi. Silakan coba lagi.",
+  "failedDeleteReference": "Gagal menghapus referensi. Silakan coba lagi."
 }
