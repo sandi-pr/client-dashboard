@@ -842,7 +842,7 @@
             attributes.background_align !== null ? attributes.background_align : "center",
           embedCode: `<iframe style=”width: 100%; height: 100%; border: 0px; border-radius: 10px; display: block;" src="${urlBot}"></iframe>`,
           needAuth: attributes.need_auth,
-          documentOptions: attributes.manage_document,
+          manage_document: attributes.manage_document,
           apiSourceEnable: attributes?.function_call || false,
         };
 
@@ -851,7 +851,7 @@
           (platform) => platform.model === attributes.ai_engine,
         ).id;
 
-        // console.log("selectedplatforms", selectedplatforms);
+        // console.log("users", users);
 
         if (attributes.background.data !== null) {
           backgroundFile = getFile(
@@ -1160,7 +1160,7 @@
             need_auth: users.needAuth,
             collection_id: checkAll ? "all" : allCollection,
             library_id: selectedCollectionId,
-            manage_document: users.documentOptions,
+            manage_document: users.manage_document,
             function_call: users.apiSourceEnable,
             collection_api_ids: apiCollectionSend,
           },
@@ -2056,11 +2056,11 @@
               propClass="mt-1"
             />
           </div>
-          {#if pageAction === "detail" && users?.documentOptions !== undefined}
+          <!-- {#if pageAction === "detail" && users?.manage_document !== undefined}
             <div class="col-span-4">
-              <Toggle {onEdit} bind:checked={users.documentOptions} text="documentOptions" />
+              <Toggle {onEdit} bind:checked={users.manage_document} text="documentOptions" />
             </div>
-          {/if}
+          {/if} -->
         </div>
       </div>
     </div>
