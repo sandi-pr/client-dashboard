@@ -12,6 +12,7 @@
 
   let apiID = $state(0);
   let isBody = $state(false);
+  let onEdit = $state(false);
   let stateCreate = $state("formApi");
   let paramsData = $state([]);
   let bodyData = $state([]);
@@ -43,7 +44,7 @@
           },
         });
 
-        // console.log(response);
+        // console.log("response", response);
 
         if (response?.status !== 200) {
           const error = new Error("Failed to fetch API details");
@@ -53,19 +54,22 @@
         }
 
         data.apiName = response.result.attributes.name;
-        data.description = response.result.attributes.description;
-        data.urlLink = response.result.attributes.url;
-        data.method = response.result.attributes.method;
-        data.authorization = response.result.attributes.auth_type;
-        data.username = response.result.attributes.username;
-        data.password = response.result.attributes.password;
-        data.token = response.result.attributes.token;
+        data.description = response.result.attributes.description || "";
+        data.urlLink = response.result.attributes.url || "";
+        data.method = response.result.attributes.method || "GET";
+        data.authorization = response.result.attributes.auth_type || "No Auth";
+        data.username = response.result.attributes.username || "";
+        data.password = response.result.attributes.password || "";
+        data.token = response.result.attributes.token || "";
         data.createOn = format(new Date(response.result.attributes.createdAt), "dd-MM-yyyy");
         data.body_type = response.result.attributes.body_type
           ? response.result.attributes.body_type
           : "raw";
         paramsData = response.result.attributes.params ? response.result.attributes.params : [];
         bodyData = response.result.attributes.body ? response.result.attributes.body : [];
+        // console.log("data", data);
+        // console.log("paramsData", paramsData);
+        // console.log("bodyData", bodyData);
       }
     } catch (error) {
       errorHandling($_, error, "get");
@@ -136,12 +140,77 @@
 
         let collectionId = $page.url.searchParams.get("collectionId");
         newData.parent_id = parseInt(collectionId);
-        if (paramsData.length > 0) {
-          newData.params = JSON.stringify(paramsData);
+
+        const keyOrder = ["id", "key", "type", "description", "actions"];
+        const actionKeyOrder = ["name", "icon"];
+        const sortedParamsData = paramsData.map((obj) => {
+          const sortedObj = {};
+          keyOrder.forEach((key) => {
+            if (obj.hasOwnProperty(key)) {
+              // If the key is 'actions' and it's an object, sort its keys too
+              if (
+                key === "actions" &&
+                obj[key] &&
+                typeof obj[key] === "object" &&
+                !Array.isArray(obj[key])
+              ) {
+                const actionsObj = obj[key];
+                // If actions.objects is an array, sort each object's keys
+                if (Array.isArray(actionsObj.objects)) {
+                  sortedObj[key] = {
+                    objects: actionsObj.objects.map((actionItem) => {
+                      const sortedActionItem = {};
+                      actionKeyOrder.forEach((aKey) => {
+                        if (actionItem.hasOwnProperty(aKey)) {
+                          sortedActionItem[aKey] = actionItem[aKey];
+                        }
+                      });
+                      // Add any extra keys not in actionKeyOrder at the end
+                      Object.keys(actionItem).forEach((aKey) => {
+                        if (!actionKeyOrder.includes(aKey)) {
+                          sortedActionItem[aKey] = actionItem[aKey];
+                        }
+                      });
+                      return sortedActionItem;
+                    }),
+                  };
+                  // Add any extra keys in actionsObj (besides 'objects') at the end
+                  Object.keys(actionsObj).forEach((aKey) => {
+                    if (aKey !== "objects") {
+                      sortedObj[key][aKey] = actionsObj[aKey];
+                    }
+                  });
+                } else {
+                  // If no objects array, just copy as is
+                  sortedObj[key] = actionsObj;
+                }
+              } else {
+                sortedObj[key] = obj[key];
+              }
+            }
+          });
+          // Add any extra keys not in keyOrder at the end
+          Object.keys(obj).forEach((key) => {
+            if (!keyOrder.includes(key)) {
+              sortedObj[key] = obj[key];
+            }
+          });
+          return sortedObj;
+        });
+
+        if (sortedParamsData.length > 0) {
+          newData.params = JSON.stringify(sortedParamsData);
+        } else {
+          newData.params = "";
         }
         if (bodyData.length > 0) {
           newData.body = JSON.stringify(bodyData);
+        } else {
+          newData.body = "";
         }
+
+        // console.log("paramsData", paramsData, typeof newData.params);
+        // console.log("bodyData", bodyData);
         // console.log("data", newData);
 
         let response = await $call.call("client-dashboard", "update-api", {
@@ -184,6 +253,7 @@
     bind:bodyData
     bind:apiID
     bind:isBody
+    bind:onEdit
     {saveApi}
     {deleteApi}
   />

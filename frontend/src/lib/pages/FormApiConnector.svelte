@@ -32,6 +32,7 @@
     paramsData = $bindable(null),
     bodyData = $bindable(null),
     isBody = $bindable(false),
+    onEdit = $bindable(false),
     saveApi = () => {},
     deleteApi = () => {},
   } = $props();
@@ -40,7 +41,6 @@
   let libraryId = $state(null);
   let collectionId = $state(null);
 
-  let onEdit = $state(true);
   let deleteModal = $state(false);
   let dropdownMore = $state(false);
   let dropdownMethodOpen = $state(false);
@@ -93,9 +93,8 @@
     const unsubscribe = page.subscribe(async ($page) => {
       collectionId = $page.url.searchParams.get("collectionId");
       apiId = $page.url.searchParams.get("apiId");
-      if (apiId !== null) {
-        onEdit = false;
-        // data = dummyData;
+      if (apiId === null) {
+        onEdit = true;
       }
       if (collectionId === null || collectionId === undefined) {
         goto(await $call.getPage("client-dashboard", "api-connector"));
@@ -194,9 +193,11 @@
                 `?collectionId=${collectionId}&libraryId=${libraryId}`
               : (await $call.getPage("client-dashboard", "api-connector-collections-api")) +
                 `?collectionId=${collectionId}&libraryId=${libraryId}`;
-            onEdit ? (onEdit = !onEdit) : goto(link);
-          }}>{$_("cancel")}</Button
+            apiId === null ? goto(link) : (onEdit = !onEdit);
+          }}
         >
+          {$_("cancel")}
+        </Button>
         <Button
           class="gap-1.5"
           on:click={() => {
