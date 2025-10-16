@@ -1244,5 +1244,16 @@
   "failedUpdateReference": "Failed to update reference. Please try again.",
   "failedDeleteReference": "Failed to delete reference. Please try again.",
   "contractExtractorOverview": "Contract Extractor Overview",
-  "downloadAsCSV": "Download as CSV"
+  "downloadAsCSV": "Download as CSV",
+  "chatLogs": "Chat Logs",
+  "deleteSelectedLogs": "Delete Selected Logs",
+  "cleanAllLogs": "Clean All Logs",
+  "deleteAllLogsFunc": "Are you sure you want to delete all conversation logs history? This action cannot be undone.",
+  "deleteSelectedLogsFunc": "Are you sure you want to delete selected conversation logs history? This action cannot be undone.",
+  "content": "Content",
+  "chatName": "Chat Name",
+  "userType": "User Type",
+  "datetime": "Datetime",
+  "message": "Message",
+  "deleteLog": "Delete Log"
 }

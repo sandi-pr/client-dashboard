@@ -367,6 +367,28 @@
                 color="primary"
               />
             </button>
+            <button
+              onclick={async () => {
+                dropdownUser = !dropdownUser;
+                if ($me.authority.toLowerCase() === "demo") {
+                  isDemoTrue.set(true);
+                  return;
+                }
+                let url = isFrontend
+                  ? "/chat_logs"
+                  : await $call.getPage("client-dashboard", "preferences");
+                goto(url);
+              }}
+              class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
+            >
+              <CogOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
+              <Typography
+                preset="Text md/Regular"
+                propClass="text-base font-normal"
+                text={$_("chatLogs")}
+                color="primary"
+              />
+            </button>
             <!-- todo config -->
             <button
               onclick={async () => {

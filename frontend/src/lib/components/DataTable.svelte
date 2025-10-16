@@ -53,6 +53,7 @@
   export let checkAllState = false;
   export let next = () => {};
   export let previous = () => {};
+  export let goToPage = () => {};
   export let checkAll = () => {};
   export let checkSingle = () => {};
   // export let divider = false;
@@ -147,6 +148,24 @@
 
   const handleSearch = (event) => {
     configs?.searchHandler(event.target.value);
+  };
+
+  const getPaginationNumbers = (current, total) => {
+    if (total < 7) {
+      // Show all pages
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    // First/last third
+    if (current <= 3) {
+      return [1, 2, 3, "...", total - 2, total - 1, total];
+    }
+    if (current >= total - 2) {
+      return [1, "...", total - 3, total - 2, total - 1, total];
+    }
+
+    // Middle
+    return [1, "...", current - 1, current, current + 1, "...", total];
   };
 </script>
 
@@ -610,7 +629,9 @@
                                 svgClass="w-5 h-5 text-fg-button-tertiary-color-light dark:text-fg-button-tertiary-color-dark"
                               />
                             {/if}
-                            {$_(toCamelCase(action.name))}
+                            {#if action?.name}
+                              {$_(toCamelCase(action.name))}
+                            {/if}
                           </button>
                         {/if}
                       {:else if action?.icon}
@@ -655,8 +676,8 @@
 </div>
 
 {#if configs?.pagination && Object.keys(configs.pagination).length > 0}
-  <div class="flex justify-between !border-t-0 !rounded-t-none rounded-b-lg">
-    <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
+  <div class="flex justify-between items-center !border-t-0 !rounded-t-none rounded-b-lg mt-4">
+    <div class="mx-4 text-sm text-hc-graylight-500 dark:text-gray-400">
       {$_("showing")}
       <span>
         {configs.pagination.page === 1
@@ -677,33 +698,54 @@
       <!-- {$_("entries")} -->
     </div>
     <div class="flex">
-      {#if configs.pagination.total > configs.pagination.pageSize}
+      <!-- {#if configs.pagination.total > configs.pagination.pageSize}
         <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
           {$_("page")}
           <span>{configs.pagination.page}</span>
           {$_("of")}
           <span>{configs.pagination.pageCount}</span>
         </div>
-      {/if}
+      {/if} -->
       {#if configs.pagination.total > configs.pagination.pageSize}
         <div class="flex justify-end">
           <Button
             disabled={configs.pagination.page === 1}
             on:click={previous}
             color="light"
-            class="fluid-sm gap-1 md:gap-2 rounded-l-lg border-0 rounded-r-none px-3 py-2 md:px-4 md:py-2.5"
+            class="fluid-sm gap-2 rounded-l-lg border-0 rounded-r-none px-4 py-2 focus:ring-0"
           >
             <ArrowLeftIcon
               svgClass="text-fg-secondary-light dark:text-fg-secondary-dark w-4 h-4 md:w-5 md:h-5"
             />
             {$_("previous")}
           </Button>
+
+          {#each getPaginationNumbers(configs.pagination.page, configs.pagination.pageCount) as item, idx}
+            {#if item === "..."}
+              <Button disabled color="light" class="px-4 py-2 border-0 rounded-none cursor-default"
+                >...</Button
+              >
+            {:else}
+              <Button
+                color={item === configs.pagination.page ? "primary" : "light"}
+                class={`px-4 py-2 border-0 rounded-none focus:ring-0 ${item === configs.pagination.page ? "font-bold" : ""}`}
+                on:click={() => {
+                  if (item !== configs.pagination.page) {
+                    goToPage(item);
+                  }
+                }}
+              >
+                {item}
+              </Button>
+            {/if}
+          {/each}
+
           <Button
             disabled={configs.pagination.page * configs.pagination.pageSize >=
               configs.pagination.total}
             on:click={next}
             color="light"
-            class="fluid-sm gap-1 md:gap-2 rounded-r-lg border-0 rounded-l-none px-3 py-2 md:px-4 md:py-2.5"
+            class="fluid-sm gap-2 rounded-r-lg border-0 rounded-l-none px-4 py-2 focus:ring-0"
           >
             {$_("next")}
             <ArrowRightIcon

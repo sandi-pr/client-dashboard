@@ -80,8 +80,8 @@ All Rights Reserved
   let moduleManagerSkipSetup = $state(false);
 
   const call = isFrontend
-    ? new CR3Call("https://tank.hexacode.ai") :
-    // ? new CR3Call("http://localhost") :
+    ? new CR3Call("https://lajnah.hexacode.ai")
+    : // ? new CR3Call("http://localhost") :
       new CR3Call(globalThis.location.origin);
 
   let hideBakrie = $state(true);
