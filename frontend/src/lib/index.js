@@ -149,3 +149,4 @@ export {
   deleteCollectionAPIConnector,
 } from "$lib/utils/apiConnectorFunctions";
 export { default as errorHandling } from "$lib/utils/errorHandling";
+export { windowSize } from "$lib/utils/windows";

@@ -3,11 +3,12 @@
   import { Button, Modal } from "flowbite-svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { call, getIcons } from "$lib";
-  import { Typography, Divider, DataTable, InputRw, TextareaRw } from "$lib";
+  import { Typography, Divider, DataTable, InputRw, TextareaRw, windowSize } from "$lib";
   import { onMount } from "svelte";
 
   const Trash03Icon = getIcons("trash03");
   const BrushCleaningIcon = getIcons("brushCleaning");
+  const ArrowLeftIcon = getIcons("arrowLeft");
 
   let checkAllState = $state(false);
   let deleteModal = $state(false);
@@ -31,6 +32,8 @@
       checked: false,
     },
   });
+
+  let width = $derived($windowSize.width);
 
   let isDatasSelected = $derived.by(() => {
     return datas.some((data) => data.checkbox.checked);
@@ -239,7 +242,9 @@
                 }}
               >
                 <Trash03Icon svgClass="w-5 h-5" />
-                <p class="font-semibold">{$_("deleteSelectedLogs")}</p>
+                {#if width > 768}
+                  <p class="font-semibold">{$_("deleteSelectedLogs")}</p>
+                {/if}
               </Button>
               <Button
                 outline
@@ -251,7 +256,9 @@
                 }}
               >
                 <BrushCleaningIcon svgClass="w-5 h-5" />
-                <p class="font-semibold">{$_("cleanAllLogs")}</p>
+                {#if width > 768}
+                  <p class="font-semibold">{$_("cleanAllLogs")}</p>
+                {/if}
               </Button>
             {:else}
               <Button
@@ -273,7 +280,10 @@
                   };
                 }}
               >
-                <p class="font-semibold">{$_("back")}</p>
+                <ArrowLeftIcon svgClass="w-5 h-5" />
+                {#if width > 768}
+                  <p class="font-semibold">{$_("back")}</p>
+                {/if}
               </Button>
               <Button
                 outline
@@ -289,7 +299,9 @@
                 }}
               >
                 <BrushCleaningIcon svgClass="w-5 h-5" />
-                <p class="font-semibold">{$_("deleteLog")}</p>
+                {#if width > 768}
+                  <p class="font-semibold">{$_("deleteLog")}</p>
+                {/if}
               </Button>
             {/if}
           </div>

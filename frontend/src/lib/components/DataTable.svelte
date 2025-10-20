@@ -25,7 +25,7 @@
     TableBodyCell,
     TableHeadCell,
   } from "flowbite-svelte";
-  import { Typography, getIcons, me, isDemoTrue } from "$lib";
+  import { Typography, getIcons, me, isDemoTrue, windowSize } from "$lib";
   import * as Icon from "flowbite-svelte-icons";
   import { pagesBuilder } from "../utils/pagesBuilder";
   import RefreshIcon from "../icon/refresh.svelte";
@@ -59,9 +59,12 @@
   // export let divider = false;
 
   let pages;
+
   if (configs?.pagination && Object.keys(configs.pagination).length > 0) {
     pages = pagesBuilder(configs.pagination);
   }
+
+  $: width = $windowSize.width;
 
   const splitCamelCase = (value) => {
     return value.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/_/g, " ");
@@ -707,7 +710,7 @@
         </div>
       {/if} -->
       {#if configs.pagination.total > configs.pagination.pageSize}
-        <div class="flex justify-end">
+        <div class="flex justify-end mr-2">
           <Button
             disabled={configs.pagination.page === 1}
             on:click={previous}
@@ -720,25 +723,29 @@
             {$_("previous")}
           </Button>
 
-          {#each getPaginationNumbers(configs.pagination.page, configs.pagination.pageCount) as item, idx}
-            {#if item === "..."}
-              <Button disabled color="light" class="px-4 py-2 border-0 rounded-none cursor-default"
-                >...</Button
-              >
-            {:else}
-              <Button
-                color={item === configs.pagination.page ? "primary" : "light"}
-                class={`px-4 py-2 border-0 rounded-none focus:ring-0 ${item === configs.pagination.page ? "font-bold" : ""}`}
-                on:click={() => {
-                  if (item !== configs.pagination.page) {
-                    goToPage(item);
-                  }
-                }}
-              >
-                {item}
-              </Button>
-            {/if}
-          {/each}
+          {#if width > 768}
+            {#each getPaginationNumbers(configs.pagination.page, configs.pagination.pageCount) as item, idx}
+              {#if item === "..."}
+                <Button
+                  disabled
+                  color="light"
+                  class="px-4 py-2 border-0 rounded-none cursor-default">...</Button
+                >
+              {:else}
+                <Button
+                  color={item === configs.pagination.page ? "primary" : "light"}
+                  class={`px-4 py-2 border-0 rounded-none focus:ring-0 ${item === configs.pagination.page ? "font-bold" : ""}`}
+                  on:click={() => {
+                    if (item !== configs.pagination.page) {
+                      goToPage(item);
+                    }
+                  }}
+                >
+                  {item}
+                </Button>
+              {/if}
+            {/each}
+          {/if}
 
           <Button
             disabled={configs.pagination.page * configs.pagination.pageSize >=

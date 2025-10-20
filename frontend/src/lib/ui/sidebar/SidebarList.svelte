@@ -376,7 +376,7 @@
                 }
                 let url = isFrontend
                   ? "/chat_logs"
-                  : await $call.getPage("client-dashboard", "preferences");
+                  : await $call.getPage("client-dashboard", "chat-logs");
                 goto(url);
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"

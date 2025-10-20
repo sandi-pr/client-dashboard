@@ -568,6 +568,11 @@
             "name": "device-controls",
             "path": "/device_controls",
             "file_path": "template/device_controls.html"
+        },
+        {
+            "name": "chat-logs",
+            "path": "/chat_logs",
+            "file_path": "template/chat_logs.html"
         }
     ],
     "apis": [
@@ -6261,7 +6266,7 @@
                     "required": true
                 }
             ]
-        } 
+        }
     ],
     "options": {
         "strapi_schemas": [
