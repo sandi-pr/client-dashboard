@@ -76,6 +76,9 @@ All Rights Reserved
       datas = await Promise.all(promise);
       gettingDatas = false;
       triggerLoading(false);
+    } else {
+      gettingDatas = false;
+      triggerLoading(false);
     }
   };
 
