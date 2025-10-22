@@ -705,7 +705,7 @@ All Rights Reserved
         </div>
 
         <!-- Tab Bar -->
-        <!-- <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} /> -->
+        <TabDetail {tabDatas} on:tabChange={(e) => (tabDatas.selected = e.detail)} />
 
         {#if tabDatas.selected === "Referenced Documents" && check("aiManagement.contractreviewer.document:create_delete")}
           <div>
