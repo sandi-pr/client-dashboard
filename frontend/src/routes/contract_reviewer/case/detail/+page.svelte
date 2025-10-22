@@ -44,9 +44,9 @@ All Rights Reserved
   let tabDatas = $state({
     selected: "Rules",
     data: [
-      // check("aiManagement.contractreviewer.document:create_delete") && {
-      //   name: "Referenced Documents",
-      // },
+      check("aiManagement.contractreviewer.document:create_delete") && {
+        name: "Referenced Documents",
+      },
       check("aiManagement.contractreviewer.rule:create_delete") && {
         name: "Rules",
       },
