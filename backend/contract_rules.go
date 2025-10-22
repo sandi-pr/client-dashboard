@@ -279,7 +279,7 @@ func GetContractRuleSection(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 			"page":     page,
 		},
 		"populate": "*",
-		"sort":     "id:desc",
+		"sort":     "id:asc",
 	})
 
 	if err != nil {
