@@ -35,6 +35,8 @@
   let base64Data = $state(null);
   let selectedFile = $state(null);
 
+  let referenceDocumentNames = $state({});
+
   let markdownDummy = $state(`
 
   Jakarta, 15 June 2023
@@ -148,8 +150,6 @@
         }
 
         projectName = response2.result.data[0].attributes.project_name;
-
-        let referenceDocumentNames = {};
 
         markdown = response.result.data[0].attributes.result_markdown;
         tmpResult = response.result.data[0].attributes.result;
@@ -490,9 +490,9 @@
             <ListMarkdown id="content-to-download" bind:datas={datas2} />
           </div>
         {/if}
-        <!-- {#if dropdownToggle[1]}
+        {#if dropdownToggle[1] && Object.keys(referenceDocumentNames).length > 0}
           <DataTableAIReview bind:datas />
-        {/if} -->
+        {/if}
       </div>
     </div>
   </div>
