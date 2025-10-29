@@ -285,6 +285,26 @@
             "file_path": "template/contract_reviewer/project/review.html"
         },
         {
+            "name": "contract-compare-list",
+            "path": "/contract_reviewer/compare",
+            "file_path": "template/contract_reviewer/compare.html"
+        },
+        {
+            "name": "contract-compare-detail",
+            "path": "/contract_reviewer/compare/detail",
+            "file_path": "template/contract_reviewer/compare/detail.html"
+        },
+        {
+            "name": "contract-compare-detail-document",
+            "path": "/contract_reviewer/compare/document",
+            "file_path": "template/contract_reviewer/compare/document.html"
+        },
+        {
+            "name": "contract-compare-review",
+            "path": "/contract_reviewer/compare/review",
+            "file_path": "template/contract_reviewer/compare/review.html"
+        },
+        {
             "name": "contract-industries",
             "path": "/contract_reviewer/industries",
             "file_path": "template/contract_reviewer/industries.html"
@@ -4394,6 +4414,10 @@
                 {
                     "name": "description",
                     "type": "text"
+                },
+                {
+                    "name": "is_compare",
+                    "type": "string"
                 }
             ]
         },
@@ -4415,6 +4439,10 @@
                 {
                     "name": "page_size",
                     "type": "number"
+                },
+                {
+                    "name": "is_compare",
+                    "type": "string"
                 }
             ]
         },
@@ -7229,6 +7257,10 @@
                     },
                     "creator_id": {
                         "type": "integer"
+                    },
+                    "is_compare": {
+                        "type": "boolean",
+                        "default": false
                     }
                 }
             },
