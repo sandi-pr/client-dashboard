@@ -1634,7 +1634,7 @@
 
         let redirectUrl = isFrontend
           ? "/device_controls"
-          : await call.getPage("client-dashboard", "device-controls");
+          : await $call.getPage("client-dashboard", "device-controls");
         if (modalDeviceControl === "shutdown") {
           goto(redirectUrl + "?action=shutdown");
         } else if (modalDeviceControl === "restart") {
