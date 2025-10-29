@@ -88,6 +88,11 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		description = ""
 	}
 
+	is_compare, ok := ctx.Params.GetBool("is_compare")
+	if !ok {
+		is_compare = false
+	}
+
 	if description == "" {
 		status, res, err := Strapi.Create("projects-table", U.Dict{
 			"project_name":     project_name,
@@ -97,6 +102,7 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 			"duration_start":   duration_start,
 			"duration_end":     duration_end,
 			"creator_id":       id,
+			"is_compare":       is_compare,
 		})
 
 		if err != nil {
@@ -120,6 +126,7 @@ func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 			"duration_end":     duration_end,
 			"creator_id":       id,
 			"description":      description,
+			"is_compare":       is_compare,
 		})
 
 		if err != nil {
@@ -171,7 +178,18 @@ func GetContractProjects(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 		page_size = 10
 	}
 
+	is_compare, ok := ctx.Params.GetBool("is_compare")
+
+	if !ok {
+		is_compare = false
+	}
+
 	status, projects, err := Strapi.Find("projects-table", U.Dict{
+		"filters": U.Dict{
+			"is_compare": U.Dict{
+				"$eq": is_compare,
+			},
+		},
 		"pagination": U.Dict{
 			"page":     page,
 			"pageSize": page_size,
