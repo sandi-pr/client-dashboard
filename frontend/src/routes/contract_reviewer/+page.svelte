@@ -35,9 +35,11 @@ All Rights Reserved
 
   let isOpen = $state(false);
   let gettingDatas = $state(false);
+  let gettingCompare = $state(false);
   let gettingRules = $state(false);
   let buttonDisabled = $state(false);
   let addProjectModal = $state(false);
+  let compareDocument = $state(false);
   let dropdownRulesOpen = $state(false);
 
   let selectedRules = $state("");
@@ -51,10 +53,12 @@ All Rights Reserved
   let files = $state([]);
   let rules = $state([]);
   let datasTable = $state([]);
+  let compareTable = $state([]);
   let rulesTable = $state([]);
   let actionItems = $state([]);
 
   let datasConfigs = $state({});
+  let compareConfigs = $state({});
   let rulesConfigs = $state({});
 
   const getActionItems = async () => {
@@ -70,10 +74,17 @@ All Rights Reserved
       },
       {
         disabled: !check("aiManagement.contractreviewer.project:create"),
-        onclick: () => (addProjectModal = true),
+        onclick: () => {addProjectModal = true; compareDocument = false},
         icon: "packagePlus",
         actionName: "Add new project",
         desc: "desc Add new project",
+      },
+      {
+        disabled: !check("aiManagement.contractreviewer.project:create"),
+        onclick: () => {addProjectModal = true; compareDocument = true},
+        icon: "packageSearch",
+        actionName: "Add new compare",
+        desc: "desc Add new compare",
       },
     ];
   };
@@ -126,9 +137,10 @@ All Rights Reserved
             industry_id: parseInt(industry_id),
             project_as: selectedRole,
             contract_rule_id: selectedRules,
-            duration_start: format(new Date(startDate), "yyyy-MM-dd"),
-            duration_end: format(new Date(endDate), "yyyy-MM-dd"),
+            duration_start: compareDocument ? format(new Date(Date.now()), "yyyy-MM-dd") : format(new Date(startDate), "yyyy-MM-dd"),
+            duration_end: compareDocument ? format(new Date(Date.now()), "yyyy-MM-dd") : format(new Date(endDate), "yyyy-MM-dd"),
             description: tmpProjectDescription,
+            is_compare: compareDocument
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -208,7 +220,7 @@ All Rights Reserved
   const handleGetProjects = async () => {
     gettingDatas = true;
 
-    const projects = await getProjects($call, { page: 1, pageSize: 5 });
+    const projects = await getProjects($call, { page: 1, pageSize: 5 }, false);
     if (projects.length > 0) {
       datasConfigs = {
         headers: "projectList",
@@ -259,6 +271,60 @@ All Rights Reserved
     gettingDatas = false;
   };
 
+  const handleGetCompare = async () => {
+    gettingCompare = true;
+
+    const projects = await getProjects($call, { page: 1, pageSize: 5 }, true);
+    if (projects.length > 0) {
+      compareConfigs = {
+        headers: "compareList",
+        actions: [
+          {
+            name: "viewAll",
+            href: isFrontend
+              ? "/contract_reviewer/compare"
+              : await $call.getPage("client-dashboard", "contract-compare-list"),
+            type: "info",
+          },
+        ],
+        seperator: true,
+      };
+
+      let url = isFrontend
+        ? "/contract_reviewer/compare/detail"
+        : await $call.getPage("client-dashboard", "contract-compare-detail");
+
+      const promise = projects.map((project) => {
+        const rule = rulesTable.find((rule) => rule.id === project.attributes.contract_rule_id);
+        const ruleName = rule?.rule_name || "";
+        const { contract_rule_id, ...rest } = {
+          id: project.id,
+          project_name: project.attributes.project_name,
+          contract_rule_id: project.attributes.contract_rule_id,
+          actions: {
+            objects: [
+              {
+                href: url + `?compareId=${project.id}`,
+                name: "View",
+                type: "primary",
+              },
+            ],
+          },
+        };
+        return {
+          ...rest,
+          case: ruleName,
+        };
+      });
+
+      compareTable = await Promise.all(promise);
+    } else {
+      compareTable = [];
+    }
+
+    gettingCompare = false;
+  };
+
   const toggleDatePicker = () => {
     isOpen = !isOpen;
   };
@@ -269,6 +335,7 @@ All Rights Reserved
     await getActionItems();
     await handleGetRules(); // Harus jalan sebelum getProjects
     await handleGetProjects();
+    await handleGetCompare();
     await getCompanyType();
   });
 
@@ -307,26 +374,30 @@ All Rights Reserved
           <ActionCard {actionItems} />
         </div>
 
-        {#if datasTable.length > 0}
-          <DataTable bind:datas={datasTable} bind:configs={datasConfigs} />
-        {:else if gettingDatas}
+        {#if gettingDatas || gettingCompare}
           <StateCard
             illustration={IllustrationProgress}
             description={$_("fetchingDataPleaseWait")}
           />
-        {:else if rulesTable.length === 0}
-          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+        {/if}
+
+        {#if datasTable.length > 0}
+          <DataTable bind:datas={datasTable} bind:configs={datasConfigs} />
+        {/if}
+
+        {#if compareTable.length > 0}
+          <DataTable bind:datas={compareTable} bind:configs={compareConfigs} />
         {/if}
 
         {#if rulesTable.length > 0}
           <DataTable bind:datas={rulesTable} bind:configs={rulesConfigs} />
-        {:else if gettingDatas}
+        {/if}
+
+        {#if !gettingDatas && !gettingCompare && datasTable.length === 0 && compareTable.length === 0 && rulesTable.length === 0}
           <StateCard
-            illustration={IllustrationProgress}
-            description={$_("fetchingDataPleaseWait")}
+            illustration={IllustrationEmpty}
+            description={$_("youDontHaveAnyDataYet")}
           />
-        {:else}
-          <!-- <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} /> -->
         {/if}
       </div>
     </div>
@@ -366,47 +437,49 @@ All Rights Reserved
         />
       </div>
     </div>
-    <div class="flex gap-4">
-      <!-- <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
-        <Dropdown
-          width="w-min"
-          dropdownOpen={dropdownRole}
-          bind:selectedItem={selectedRole}
-          items={role}
-          isOverlay={true}
-        />
-      </div> -->
-      <div class="flex grow flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
-        <DatePicker
-          bind:isOpen
-          bind:startDate
-          bind:endDate
-          isRange
-          isMultipane
-          enableFutureDates
-          theme="custom-datepicker"
-        >
-          <button
-            onclick={toggleDatePicker}
-            class:open={isOpen}
-            class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+    {#if !compareDocument}
+      <div class="flex gap-4">
+        <!-- <div class="flex flex-col gap-1.5">
+          <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
+          <Dropdown
+            width="w-min"
+            dropdownOpen={dropdownRole}
+            bind:selectedItem={selectedRole}
+            items={role}
+            isOverlay={true}
+          />
+        </div> -->
+        <div class="flex grow flex-col gap-1.5">
+          <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
+          <DatePicker
+            bind:isOpen
+            bind:startDate
+            bind:endDate
+            isRange
+            isMultipane
+            enableFutureDates
+            theme="custom-datepicker"
           >
-            <CalendarPlus02 svgClass="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400" />
-            <div class="date">
-              {#if startDate != endDate}
-                {formattedStartDate} - {formattedEndDate}
-              {:else if startDate}
-                {formattedStartDate}
-              {:else}
-                {$_("pickADate")}
-              {/if}
-            </div>
-          </button>
-        </DatePicker>
+            <button
+              onclick={toggleDatePicker}
+              class:open={isOpen}
+              class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+            >
+              <CalendarPlus02 svgClass="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400" />
+              <div class="date">
+                {#if startDate != endDate}
+                  {formattedStartDate} - {formattedEndDate}
+                {:else if startDate}
+                  {formattedStartDate}
+                {:else}
+                  {$_("pickADate")}
+                {/if}
+              </div>
+            </button>
+          </DatePicker>
+        </div>
       </div>
-    </div>
+    {/if}
 
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
@@ -414,8 +487,14 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createProject} disabled={!tmpProjectName || !endDate} class="w-full"
-      >{$_("addNewProject")}</Button
-    >
+    {#if compareDocument}
+      <Button onclick={createProject} disabled={!tmpProjectName || !selectedRules} class="w-full"
+        >{$_("addNewProject")}</Button
+      >
+    {:else}
+      <Button onclick={createProject} disabled={!tmpProjectName || !endDate || !selectedRules} class="w-full"
+        >{$_("addNewProject")}</Button
+      >
+    {/if}
   </svelte:fragment>
 </Modal>
