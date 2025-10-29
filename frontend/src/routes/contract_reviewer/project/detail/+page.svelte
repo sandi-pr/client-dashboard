@@ -691,7 +691,7 @@
         triggerToast("error");
         goto(
           isFrontend
-            ? "contract_reviewer/project"
+            ? "/contract_reviewer/project"
             : await $call.getPage("client-dashboard", "contract-project-list"),
         );
       }
