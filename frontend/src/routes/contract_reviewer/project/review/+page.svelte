@@ -212,8 +212,8 @@
                 prompt: generatedItem.reference_prompt,
                 result: generatedItem.reference_results[0],
               },
-              ai_review: removeCodeBlocks(generatedItem.ai_review),
-              ai_suggestion: removeCodeBlocks(generatedItem.ai_suggestion),
+              ai_review: removeCodeBlocks(generatedItem.ai_review).replace(/\n/g, "  \n"),
+              ai_suggestion: removeCodeBlocks(generatedItem.ai_suggestion).replace(/\n/g, "  \n"),
             };
           });
         });
