@@ -1255,6 +1255,9 @@
   "userType": "Tipe Pengguna",
   "datetime": "Tanggal & Waktu",
   "message": "Pesan",
-  "deleteLog": "Hapus Log"
-
+  "deleteLog": "Hapus Log",
+  "addNewCompare": "Tambahkan Perbandingan Baru",
+  "descAddNewCompare": "Tampilkan perbandingan dokumen dari referensi",
+  "compareList": "Daftar Perbandingan",
+  "compare": "Perbandingan"
 }

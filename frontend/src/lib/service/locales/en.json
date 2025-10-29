@@ -1255,5 +1255,9 @@
   "userType": "User Type",
   "datetime": "Datetime",
   "message": "Message",
-  "deleteLog": "Delete Log"
+  "deleteLog": "Delete Log",
+  "addNewCompare": "Add new comparison",
+  "descAddNewCompare": "Compare document from reference",
+  "compareList": "Comparison List",
+  "compare": "Compare"
 }
