@@ -42,7 +42,7 @@ export const getAllRules = async (call) => {
   return allRules;
 };
 
-export const getProjects = async (call, pagination = { page: 1, pageSize: 10 }) => {
+export const getProjects = async (call, pagination = { page: 1, pageSize: 10 }, is_compare) => {
   let token = localStorage.getItem("token");
   if (token) {
     try {
@@ -52,6 +52,7 @@ export const getProjects = async (call, pagination = { page: 1, pageSize: 10 }) 
         Params: {
           page: pagination.page,
           page_size: pagination.pageSize,
+          is_compare: is_compare,
         },
         Headers: {
           Authorization: "Bearer " + token,
