@@ -69,6 +69,7 @@ All Rights Reserved
           Params: {
             page: page,
             page_size: 10,
+            is_compare: false,
           },
           Headers: {
             Authorization: "Bearer " + token,
