@@ -112,6 +112,8 @@ import AlertCircleIcon from "../icon/alert-circle.svelte";
 import FilePlus02Icon from "../icon/file-plus-02.svelte";
 import ApiConnectorSupportIcon from "../icon/api-connector-support.svelte";
 import BrushCleaningIcon from "../icon/brush-cleaning.svelte";
+import SearchRefractionIcon from "../icon/search-refraction.svelte";
+import MessageTextSquare01Icon from "../icon/message-text-square-01.svelte";
 import Var76 from "../icon/var-76.svelte";
 import Var85 from "../icon/var-85.svelte";
 import Var86 from "../icon/var-86.svelte";
@@ -359,6 +361,10 @@ let getIcons = (presetIcon: String) => {
       return ApiConnectorSupportIcon;
     case "brushCleaning":
       return BrushCleaningIcon;
+    case "searchRefraction":
+      return SearchRefractionIcon;
+    case "messageTextSquare01":
+      return MessageTextSquare01Icon;
     case "var76":
       return Var76;
     case "var85":

@@ -48,6 +48,8 @@
     isOpenSidebarStore,
   } from "$lib";
 
+  const MessageTextSquare01Icon = getIcons("messageTextSquare01");
+
   const isFrontend = process.env.NODE_ENV === "development";
 
   let {
@@ -381,7 +383,9 @@
               }}
               class="flex p-2 items-center w-full hover:bg-secondary-light dark:hover:bg-secondary-dark rounded-lg"
             >
-              <CogOutline class="size-6 mr-4 text-secondary-light dark:text-secondary-dark" />
+              <MessageTextSquare01Icon
+                svgClass="w-5 h-5 text-secondary-light dark:text-secondary-dark mr-4"
+              />
               <Typography
                 preset="Text md/Regular"
                 propClass="text-base font-normal"

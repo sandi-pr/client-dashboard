@@ -74,15 +74,21 @@ All Rights Reserved
       },
       {
         disabled: !check("aiManagement.contractreviewer.project:create"),
-        onclick: () => {addProjectModal = true; compareDocument = false},
+        onclick: () => {
+          addProjectModal = true;
+          compareDocument = false;
+        },
         icon: "packagePlus",
         actionName: "Add new project",
         desc: "desc Add new project",
       },
       {
         disabled: !check("aiManagement.contractreviewer.project:create"),
-        onclick: () => {addProjectModal = true; compareDocument = true},
-        icon: "packageSearch",
+        onclick: () => {
+          addProjectModal = true;
+          compareDocument = true;
+        },
+        icon: "searchRefraction",
         actionName: "Add new compare",
         desc: "desc Add new compare",
       },
@@ -137,10 +143,14 @@ All Rights Reserved
             industry_id: parseInt(industry_id),
             project_as: selectedRole,
             contract_rule_id: selectedRules,
-            duration_start: compareDocument ? format(new Date(Date.now()), "yyyy-MM-dd") : format(new Date(startDate), "yyyy-MM-dd"),
-            duration_end: compareDocument ? format(new Date(Date.now()), "yyyy-MM-dd") : format(new Date(endDate), "yyyy-MM-dd"),
+            duration_start: compareDocument
+              ? format(new Date(Date.now()), "yyyy-MM-dd")
+              : format(new Date(startDate), "yyyy-MM-dd"),
+            duration_end: compareDocument
+              ? format(new Date(Date.now()), "yyyy-MM-dd")
+              : format(new Date(endDate), "yyyy-MM-dd"),
             description: tmpProjectDescription,
-            is_compare: compareDocument
+            is_compare: compareDocument,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -394,10 +404,7 @@ All Rights Reserved
         {/if}
 
         {#if !gettingDatas && !gettingCompare && datasTable.length === 0 && compareTable.length === 0 && rulesTable.length === 0}
-          <StateCard
-            illustration={IllustrationEmpty}
-            description={$_("youDontHaveAnyDataYet")}
-          />
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
         {/if}
       </div>
     </div>
@@ -450,7 +457,11 @@ All Rights Reserved
           />
         </div> -->
         <div class="flex grow flex-col gap-1.5">
-          <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
+          <Typography
+            preset="Text sm/medium"
+            color="secondary"
+            text={`${$_("projectDuration")}*`}
+          />
           <DatePicker
             bind:isOpen
             bind:startDate
@@ -492,8 +503,10 @@ All Rights Reserved
         >{$_("addNewProject")}</Button
       >
     {:else}
-      <Button onclick={createProject} disabled={!tmpProjectName || !endDate || !selectedRules} class="w-full"
-        >{$_("addNewProject")}</Button
+      <Button
+        onclick={createProject}
+        disabled={!tmpProjectName || !endDate || !selectedRules}
+        class="w-full">{$_("addNewProject")}</Button
       >
     {/if}
   </svelte:fragment>
