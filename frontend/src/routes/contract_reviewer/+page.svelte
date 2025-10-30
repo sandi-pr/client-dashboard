@@ -358,7 +358,7 @@ All Rights Reserved
         <!-- User Information -->
         <Typography
           preset="Display sm/Semibold"
-          text={$_("contractExtractorOverview")}
+          text={$_("contractReviewerOverview")}
           propClass="fluid-xl"
         />
 
