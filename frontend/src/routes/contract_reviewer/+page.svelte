@@ -161,6 +161,7 @@ All Rights Reserved
         endDate = null;
         triggerToast("created");
         handleGetProjects();
+        handleGetCompare();
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");
