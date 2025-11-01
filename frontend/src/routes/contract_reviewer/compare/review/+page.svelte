@@ -244,7 +244,7 @@
         let promise2 = response.result.data[0].attributes.result.map((item) => {
           return {
             name: item.title,
-            result: removeCodeBlocks(item.generated.final_result),
+            result: removeCodeBlocks(item.generated.final_result).replace(/\n/g, "  \n"),
           };
         });
 
