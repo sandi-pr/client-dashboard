@@ -818,7 +818,7 @@
         <div class="flex flex-col grow gap-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- form upload -->
-            {#each files as file}
+            {#each files as file (file.id)}
               <DocumentProject
                 title={file.type}
                 handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
@@ -871,6 +871,9 @@
                       );
                     }
                   }
+                }}
+                actionRegenerate={async () => {
+                  generatedAI(file);
                 }}
               />
             {/each}
