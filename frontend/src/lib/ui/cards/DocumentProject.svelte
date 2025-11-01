@@ -38,6 +38,7 @@ All Rights Reserved
     actionView = null,
     actionDelete = () => {},
     actionGenerate = () => {},
+    actionRegenerate = () => {},
   } = $props();
 
   const textFileType = (type) => {
@@ -145,7 +146,7 @@ All Rights Reserved
             <Typography
               preset="Text sm/Semibold"
               text={status === "FINISH"
-                ? "AI Suggestion"
+                ? "View AI Suggestion"
                 : status === "ERROR"
                   ? "Re-Generate"
                   : status === "GENERATING"
@@ -157,6 +158,27 @@ All Rights Reserved
               svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
             />
           </Button>
+          <!-- Button kanan -->
+          {#if status === "FINISH"}
+          <Button
+            color="light"
+            on:click={actionRegenerate}
+            class="gap-1.5 grow border-brand-light dark:border-primary-dark"
+          >
+            <!-- {#if status === "START"}
+              <Spinner color="purple" />
+            {/if} -->
+
+            <Typography
+              preset="Text sm/Semibold"
+              text={"Generate More"}
+              color="text-fg-secondary-light dark:text-fg-secondary-dark"
+            />
+            <StarsIcon
+              svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+            />
+          </Button>
+          {/if}
           {#if actionView}
             <Button class="p-2 w-max gap-1.5" color="light" on:click={actionView}>
               <InfoCircle svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
