@@ -82,7 +82,7 @@ All Rights Reserved
       {
         disabled: !check("aiManagement.contractreviewer.project:create"),
         onclick: () => {addProjectModal = true; compareDocument = true},
-        icon: "packageSearch",
+        icon: "searchRefraction",
         actionName: "Add new compare",
         desc: "desc Add new compare",
       },
