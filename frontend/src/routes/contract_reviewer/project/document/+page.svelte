@@ -347,6 +347,7 @@
   const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
 
   onMount(() => {
+    startDate = new Date();
     formattedStartDate = formatDate(new Date());
     const unsubscribe = page.subscribe(async ($page) => {
       projectId = $page.url.searchParams.get("projectId");
