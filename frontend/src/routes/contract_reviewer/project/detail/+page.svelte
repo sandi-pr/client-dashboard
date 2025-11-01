@@ -663,9 +663,8 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   };
 
-  const getFileByType = (type) => {
-    const index = files.findIndex((file) => file.type === type);
-    return index !== -1 ? files[index] : [];
+  const getFileByType = (type, id) => {
+    return files.find(file => file.type === type && file.id === id) || null;
   };
 
   const setIntervalGetDocument = () => {
@@ -823,7 +822,7 @@
               <DocumentProject
                 title={file.type}
                 handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
-                file={getFileByType(file.type)}
+                file={getFileByType(file.type, file.id)}
                 bind:status={file.status_generated}
                 actionButton={true}
                 isLoading={file.status !== "FINISH"}
