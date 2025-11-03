@@ -323,7 +323,7 @@
           URLQuery: {},
           URLParams: {},
           Params: {
-            contract_rule_id: data.contract_rule_id,
+            contract_rule_id: data.document_rule_id,
           },
           Headers: {
             Authorization: "Bearer " + token,
