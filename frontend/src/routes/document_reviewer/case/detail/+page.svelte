@@ -563,7 +563,7 @@ All Rights Reserved
         triggerToast("deleted");
         goto(
           isFrontend
-            ? "/contract_reviewer/case"
+            ? "/document_reviewer/case"
             : await $call.getPage("client-dashboard", "contract-case"),
         );
       }
@@ -650,7 +650,7 @@ All Rights Reserved
       triggerLoading(false);
       goto(
         isFrontend
-          ? "/contract_reviewer/case"
+          ? "/document_reviewer/case"
           : await $call.getPage("client-dashboard", "contract-case"),
       );
     }

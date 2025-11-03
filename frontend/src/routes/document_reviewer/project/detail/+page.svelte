@@ -49,7 +49,7 @@
   let rulesTmp = $state([]);
   let idResults = $state([]);
 
-  let compareId = $state(null);
+  let projectId = $state(null);
 
   const getRules = async () => {
     let token = localStorage.getItem("token");
@@ -107,7 +107,7 @@
         const response = await $call.call("client-dashboard", "get-contract-project", {
           URLQuery: {},
           URLParams: {
-            id: compareId.toString(),
+            id: projectId.toString(),
           },
           Params: {},
           Headers: {
@@ -128,8 +128,8 @@
             setTimeout(async () => {
               goto(
                 isFrontend
-                  ? "contract_reviewer/compare"
-                  : await $call.getPage("client-dashboard", "contract-compare-list"),
+                  ? "document_reviewer/project"
+                  : await $call.getPage("client-dashboard", "contract-project-list"),
               );
               return;
             }, 2000);
@@ -144,7 +144,7 @@
               addSuffix: true,
             }),
             industry: response.result.data[0].attributes.industry_id,
-            contract_rule_id: response.result.data[0].attributes.contract_rule_id,
+            document_rule_id: response.result.data[0].attributes.contract_rule_id,
             as: response.result.data[0].attributes.project_as,
             start_date: format(
               new Date(response.result.data[0].attributes.duration_start),
@@ -223,7 +223,7 @@
         URLQuery: {},
         URLParams: {},
         Params: {
-          project_id: compareId.toString(),
+          project_id: projectId.toString(),
         },
         Headers: {
           Authorization: "Bearer " + token,
@@ -265,7 +265,7 @@
           //     URLQuery: {},
           //     URLParams: {},
           //     Params: {
-          //       project_id: compareId.toString(),
+          //       project_id: projectId.toString(),
           //     },
           //     Headers: {
           //       Authorization: "Bearer " + token,
@@ -517,7 +517,7 @@
           URLQuery: {},
           URLParams: {},
           Params: {
-            project_id: compareId.toString(),
+            project_id: projectId.toString(),
             project_document_id: file.id.toString(),
           },
           Headers: {
@@ -625,7 +625,7 @@
         const response = await $call.call("client-dashboard", "delete-contract-project", {
           URLQuery: {},
           URLParams: {
-            id: compareId,
+            id: projectId,
           },
           Params: {},
           Headers: {
@@ -642,8 +642,8 @@
         triggerToast("deleted");
         goto(
           isFrontend
-            ? "contract_reviewer/compare"
-            : await $call.getPage("client-dashboard", "contract-compare-list"),
+            ? "document_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
         );
       } catch (error) {
         console.log(error);
@@ -683,15 +683,15 @@
       return;
     }
     const unsubscribe = page.subscribe(async ($page) => {
-      compareId = $page.url.searchParams.get("compareId");
-      if (compareId !== null) {
+      projectId = $page.url.searchParams.get("projectId");
+      if (projectId !== null) {
         getProject();
       } else {
         triggerToast("error");
         goto(
           isFrontend
-            ? "/contract_reviewer/compare"
-            : await $call.getPage("client-dashboard", "contract-compare-list"),
+            ? "/document_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
         );
       }
     });
@@ -764,6 +764,33 @@
               disabled={true}
             />
           </div>
+          <div class="flex grow flex-col gap-1.5">
+            <Typography
+              preset="Text sm/medium"
+              color="secondary"
+              text={`${$_("projectDuration")}`}
+            />
+            <DatePicker
+              isOpen={false}
+              startDate={data.start_date}
+              endDate={data.end_date}
+              isRange
+              isMultipane
+              enableFutureDates
+            >
+              <button
+                onclick={() => {}}
+                class="flex w-full p-2 border rounded-lg bg-primary-light dark:bg-gray-800 border-primary-light dark:border-primary-dark gap-2 justify-center items-center hover:cursor-default"
+              >
+                <CalendarPlus02
+                  svgClass="w-4 h-4 ms-2 text-secondary-light dark:text-secondary-dark"
+                />
+                <div class="date text-secondary-light dark:text-secondary-dark">
+                  {data.start_date} - {data.end_date}
+                </div>
+              </button>
+            </DatePicker>
+          </div>
         </div>
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
@@ -791,7 +818,7 @@
         <div class="flex flex-col grow gap-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- form upload -->
-            {#each files as file}
+            {#each files as file (file.id)}
               <DocumentProject
                 title={file.type}
                 handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
@@ -801,9 +828,9 @@
                 isLoading={file.status !== "FINISH"}
                 actionView={async () => {
                   let gotoUrl = isFrontend
-                    ? "/contract_reviewer/compare/document"
-                    : await $call.getPage("client-dashboard", "contract-compare-detail-document");
-                  goto(gotoUrl + "?compareDocumentId=" + file.id + "&compareId=" + compareId);
+                    ? "/document_reviewer/project/document"
+                    : await $call.getPage("client-dashboard", "contract-project-detail-document");
+                  goto(gotoUrl + "?projectDocumentId=" + file.id + "&projectId=" + projectId);
                   // (documentViewModal = true), (selectedFile = getFileByType(file.type));
                 }}
                 actionDelete={() => {
@@ -821,29 +848,32 @@
                   } else {
                     if (file.result_id !== undefined) {
                       let gotoUrl = isFrontend
-                        ? "/contract_reviewer/compare/review"
-                        : await $call.getPage("client-dashboard", "contract-compare-review");
+                        ? "/document_reviewer/project/review"
+                        : await $call.getPage("client-dashboard", "contract-project-review");
                       goto(
                         gotoUrl +
-                          "?compareDocumentId=" +
+                          "?projectDocumentId=" +
                           file.result_id +
-                          "&compareId=" +
-                          compareId,
+                          "&projectId=" +
+                          projectId,
                       );
                     } else {
                       let index = idResults.findIndex((result) => result.id_doc === file.id);
                       let gotoUrl = isFrontend
-                        ? "/contract_reviewer/compare/review"
-                        : await $call.getPage("client-dashboard", "contract-compare-review");
+                        ? "/document_reviewer/project/review"
+                        : await $call.getPage("client-dashboard", "contract-project-review");
                       goto(
                         gotoUrl +
-                          "?compareDocumentId=" +
+                          "?projectDocumentId=" +
                           idResults[index].id +
-                          "&compareId=" +
-                          compareId,
+                          "&projectId=" +
+                          projectId,
                       );
                     }
                   }
+                }}
+                actionRegenerate={async () => {
+                  generatedAI(file);
                 }}
               />
             {/each}
@@ -863,9 +893,9 @@
               class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
               on:click={async () => {
                 let gotoUrl = isFrontend
-                  ? "/contract_reviewer/compare/document"
-                  : await $call.getPage("client-dashboard", "contract-compare-detail-document");
-                goto(gotoUrl + "?compareId=" + compareId);
+                  ? "/document_reviewer/project/document"
+                  : await $call.getPage("client-dashboard", "contract-project-detail-document");
+                goto(gotoUrl + "?projectId=" + projectId);
               }}
               color="light"
             >

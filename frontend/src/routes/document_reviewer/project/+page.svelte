@@ -69,7 +69,7 @@ All Rights Reserved
           Params: {
             page: page,
             page_size: 10,
-            is_compare: true,
+            is_compare: false,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -89,8 +89,8 @@ All Rights Reserved
             pagination: response.result.meta.pagination,
           };
           let url = isFrontend
-            ? "/contract_reviewer/compare/detail"
-            : await $call.getPage("client-dashboard", "contract-compare-detail");
+            ? "/document_reviewer/project/detail"
+            : await $call.getPage("client-dashboard", "contract-project-detail");
           let promise = response.result.data.map((project) => {
             return {
               id: project.id,
@@ -100,7 +100,7 @@ All Rights Reserved
               actions: {
                 objects: [
                   check("aiManagement.contractreviewer.project:view") && {
-                    href: url + `?compareId=${project.id}&title=${project.attributes.project_name}`,
+                    href: url + `?projectId=${project.id}&title=${project.attributes.project_name}`,
                     name: "View",
                   },
                 ].filter(Boolean),
@@ -190,10 +190,9 @@ All Rights Reserved
             industry_id: parseInt(industry_id),
             contract_rule_id: selectedRules,
             project_as: selectedRole,
-            duration_start: format(new Date(Date.now()), "yyyy-MM-dd"),
-            duration_end: format(new Date(Date.now()), "yyyy-MM-dd"),
+            duration_start: format(new Date(startDate), "yyyy-MM-dd"),
+            duration_end: format(new Date(endDate), "yyyy-MM-dd"),
             description: tmpProjectDescription,
-            is_compare: true
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -259,7 +258,7 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={$_("compareList")} />
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("projectList")} />
           {#if check("aiManagement.contractreviewer.project:create")}
             <Button onclick={() => (addProjectModal = true)}>
               <PlusIcon svgClass="w-4 h-4 me-1" />
@@ -312,6 +311,39 @@ All Rights Reserved
         />
       </div>
     </div>
+    <div class="flex gap-4">
+      <!-- <div class="flex flex-col gap-1.5">
+        <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
+        <Dropdown
+          width="w-min"
+          dropdownOpen={dropdownRole}
+          bind:selectedItem={selectedRole}
+          items={role}
+          isOverlay={true}
+        />
+      </div> -->
+      <div class="flex grow flex-col gap-1.5">
+        <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
+        <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates>
+          <button
+            onclick={toggleDatePicker}
+            class:open={isOpen}
+            class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+          >
+            <CalendarPlus02 svgClass="w-3 h-3 ms-2 text-gray-700 dark:text-gray-400" />
+            <div class="date">
+              {#if startDate != endDate}
+                {formattedStartDate} - {formattedEndDate}
+              {:else if startDate}
+                {formattedStartDate}
+              {:else}
+                {$_("pickADate")}
+              {/if}
+            </div>
+          </button>
+        </DatePicker>
+      </div>
+    </div>
 
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
@@ -319,7 +351,7 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createProject} disabled={!tmpProjectName || !selectedRules} class="w-full"
+    <Button onclick={createProject} disabled={!tmpProjectName || !endDate} class="w-full"
       >{$_("addNewProject")}</Button
     >
   </svelte:fragment>

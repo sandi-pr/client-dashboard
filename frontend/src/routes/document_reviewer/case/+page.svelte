@@ -55,7 +55,7 @@ All Rights Reserved
       };
 
       let link = isFrontend
-        ? "/contract_reviewer/case/detail"
+        ? "/document_reviewer/case/detail"
         : await $call.getPage("client-dashboard", "contract-case-detail");
 
       let promise = response.result.data.map((rule) => {
