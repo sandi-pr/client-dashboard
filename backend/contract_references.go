@@ -490,7 +490,7 @@ func GetReferencesDocument(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 			"id":     list[i].(U.Dict)["id"].(U.Float64),
 			"type":   list[i].(U.Dict)["attributes"].(U.Dict)["document_title"].(U.String),
 			"role":   list[i].(U.Dict)["attributes"].(U.Dict)["document_for"].(U.String),
-			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["name"].(U.String),
+			"name":   list[i].(U.Dict)["attributes"].(U.Dict)["document_file_name"].(U.String),
 			"size":   list[i].(U.Dict)["attributes"].(U.Dict)["document_media_id"].(U.Dict)["data"].(U.Dict)["attributes"].(U.Dict)["size"].(U.Float64),
 			"base64": base64Data,
 			"status": status,

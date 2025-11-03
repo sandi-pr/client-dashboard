@@ -311,8 +311,8 @@ All Rights Reserved
             contract_rule_id: ruleId.toString(),
             section_title: data.title,
             section_prompt: data.prompt,
-            // reference_prompt: data.reference_prompt,
-            reference_prompt: ".",
+            reference_prompt: data.reference_prompt,
+            // reference_prompt: ".",
             section_sample: data.sample,
           },
           Headers: {
@@ -626,7 +626,7 @@ All Rights Reserved
   const checkSectionInputs = (data) => {
     return (
       data.title === "" || data.prompt === "" || data.sample === ""
-      // || data.reference_prompt === ""
+      || data.reference_prompt === ""
     );
   };
 
@@ -905,14 +905,14 @@ All Rights Reserved
                         />
                         <TextareaRw bind:value={data.prompt} onEdit={editRules[index]} />
                       </div>
-                      <!-- <div class="flex flex-col grow gap-1.5">
+                      <div class="flex flex-col grow gap-1.5">
                         <Typography
                           preset="Text sm/Medium"
                           text={$_("referencePrompt")}
                           color="secondary"
                         />
                         <TextareaRw bind:value={data.reference_prompt} onEdit={editRules[index]} />
-                      </div> -->
+                      </div>
 
                       <div class="flex flex-col grow gap-1.5">
                         <Typography

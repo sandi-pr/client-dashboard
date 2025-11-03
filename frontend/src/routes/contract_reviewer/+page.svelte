@@ -171,6 +171,7 @@ All Rights Reserved
         endDate = null;
         triggerToast("created");
         handleGetProjects();
+        handleGetCompare();
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");
@@ -368,7 +369,7 @@ All Rights Reserved
         <!-- User Information -->
         <Typography
           preset="Display sm/Semibold"
-          text={$_("contractExtractorOverview")}
+          text={$_("contractReviewerOverview")}
           propClass="fluid-xl"
         />
 

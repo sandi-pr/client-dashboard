@@ -130,6 +130,7 @@ import Var96 from "../icon/var-96.svelte";
 import Var97 from "../icon/var-97.svelte";
 import Var98 from "../icon/var-98.svelte";
 import Var99 from "../icon/var-99.svelte";
+import SearchRefractionIcon from "../icon/search-refraction.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -397,6 +398,8 @@ let getIcons = (presetIcon: String) => {
       return Var98;
     case "var99":
       return Var99;
+    case "searchRefraction":
+      return SearchRefractionIcon;
     default:
       return "";
   }

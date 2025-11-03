@@ -50,13 +50,17 @@
       value: "Documents",
     },
     {
-      name: "Images (JPG, JPEG, PNG, WEBP, IMG)",
-      value: "Images",
-    },
-    {
-      name: "Handwriting (JPG, JPEG, PNG)",
-      value: "Handwriting",
-    },
+      name: "CSV",
+      value: "CSV",
+    }
+    // {
+    //   name: "Images (JPG, JPEG, PNG, WEBP, IMG)",
+    //   value: "Images",
+    // },
+    // {
+    //   name: "Handwriting (JPG, JPEG, PNG)",
+    //   value: "Handwriting",
+    // },
   ]);
 
   let data = $state({
@@ -268,13 +272,17 @@
     if (type === "Documents") {
       selectedTypeCollection = "Documents";
       acceptedFileTypes = ".txt, .pdf, .docx";
-    } else if (type === "Images") {
-      selectedTypeCollection = "Images";
-      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Handwriting") {
-      selectedTypeCollection = "Handwriting";
-      acceptedFileTypes = ".jpg, .jpeg, .png";
+    } else if (type === "CSV") {
+      selectedTypeCollection = "CSV";
+      acceptedFileTypes = ".csv";
     }
+    // } else if (type === "Images") {
+    //   selectedTypeCollection = "Images";
+    //   acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
+    // } else if (type === "Handwriting") {
+    //   selectedTypeCollection = "Handwriting";
+    //   acceptedFileTypes = ".jpg, .jpeg, .png";
+    // }
 
     onView = false;
     file = null;
@@ -339,6 +347,7 @@
   const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
 
   onMount(() => {
+    startDate = new Date();
     formattedStartDate = formatDate(new Date());
     const unsubscribe = page.subscribe(async ($page) => {
       projectId = $page.url.searchParams.get("projectId");

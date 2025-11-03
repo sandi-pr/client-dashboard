@@ -663,9 +663,8 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   };
 
-  const getFileByType = (type) => {
-    const index = files.findIndex((file) => file.type === type);
-    return index !== -1 ? files[index] : [];
+  const getFileByType = (type, id) => {
+    return files.find(file => file.type === type && file.id === id) || null;
   };
 
   const setIntervalGetDocument = () => {
@@ -819,11 +818,11 @@
         <div class="flex flex-col grow gap-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- form upload -->
-            {#each files as file}
+            {#each files as file (file.id)}
               <DocumentProject
                 title={file.type}
                 handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
-                file={getFileByType(file.type)}
+                file={getFileByType(file.type, file.id)}
                 bind:status={file.status_generated}
                 actionButton={true}
                 isLoading={file.status !== "FINISH"}
@@ -872,6 +871,9 @@
                       );
                     }
                   }
+                }}
+                actionRegenerate={async () => {
+                  generatedAI(file);
                 }}
               />
             {/each}
