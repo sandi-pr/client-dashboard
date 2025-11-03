@@ -373,6 +373,7 @@
   "job": "Pekerjaan",
   "manage": "Manajemen",
   "contractReviewer": "Reviewer Dokumen",
+  "documentReviewer": "Reviewer Dokumen",
   "contractReviewerOverview": "Reviewer Dokumen",
   "setYourReferencedDocument": "Atur dokumen yang direferensikan",
   "descSetYourReferencedDocument": "Dokumen ini akan digunakan sebagai referensi AI untuk membuat perbandingan",

@@ -373,6 +373,7 @@
   "job": "Job",
   "manage": "Manage",
   "contractReviewer": "Document Reviewer",
+  "documentReviewer": "Document Reviewer",
   "contractReviewerOverview": "Document Reviewer Overview",
   "setYourReferencedDocument": "Set your referenced document",
   "descSetYourReferencedDocument": "This document will be used as reference for AI to make comparison",
