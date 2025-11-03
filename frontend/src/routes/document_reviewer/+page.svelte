@@ -244,7 +244,7 @@ All Rights Reserved
       const promise = projects.map((project) => {
         const rule = rulesTable.find((rule) => rule.id === project.attributes.contract_rule_id);
         const ruleName = rule?.rule_name || "";
-        const { contract_rule_id, ...rest } = {
+        const { document_rule_id, ...rest } = {
           id: project.id,
           project_name: project.attributes.project_name,
           document_rule_id: project.attributes.contract_rule_id,
@@ -298,7 +298,7 @@ All Rights Reserved
       const promise = projects.map((project) => {
         const rule = rulesTable.find((rule) => rule.id === project.attributes.contract_rule_id);
         const ruleName = rule?.rule_name || "";
-        const { contract_rule_id, ...rest } = {
+        const { document_rule_id, ...rest } = {
           id: project.id,
           project_name: project.attributes.project_name,
           document_rule_id: project.attributes.contract_rule_id,
