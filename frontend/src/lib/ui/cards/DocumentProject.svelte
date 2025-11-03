@@ -10,17 +10,20 @@ All Rights Reserved
   import { _ } from "svelte-i18n";
   import { Button } from "flowbite-svelte";
   import { Typography } from "$lib";
+  import { getIcons } from "$lib";
   import LaodingLottie from "$lib/components/LaodingLottie.svelte";
-  import UploadIcon from "$lib/icon/upload-cloud-02.svelte";
   import PDFSolidIcon from "$lib/icon/PDFSolid.svg";
   import DOCSolidIcon from "$lib/icon/DOCSolid.svg";
   import DOCXSolidIcon from "$lib/icon/DOCXSolid.svg";
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
-  import TrashIcon from "$lib/icon/trash-03.svelte";
-  import StarsIcon from "$lib/icon/stars-01.svelte";
-  import InfoCircle from "$lib/icon/info-circle.svelte";
+
+  const UploadCloud02Icon = getIcons("uploadCloud02");
+  const RefreshCw05Icon = getIcons("refreshCw05");
+  const InfoCircle = getIcons("infoCircle");
+  const Trash03Icon = getIcons("trash03");
+  const StarsIcon = getIcons("stars");
 
   let {
     title,
@@ -66,7 +69,7 @@ All Rights Reserved
       <div
         class="rounded-xl p-2.5 shadow border border-primary-light dark:border-primary-dark justify-center items-center"
       >
-        <UploadIcon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+        <UploadCloud02Icon class="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
       </div>
       <div class="flex flex-col items-center gap-0.5">
         <Typography preset="Text sm/Semibold" text={$_("clickToUpload")} color="brand-secondary" />
@@ -93,7 +96,7 @@ All Rights Reserved
     </div>
   {:else}
     <div
-      class="flex flex-col gap-3 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark"
+      class="flex flex-col gap-2 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark"
     >
       <Typography
         preset="Text md/Semibold"
@@ -115,18 +118,18 @@ All Rights Reserved
         {:else if file.name.includes(".png") || file.name.includes(".PNG")}
           <img src={PNGSolidIcon} alt="" />
         {/if}
-        <div class="flex flex-col justify-center w-full pe-12">
+        <div class="flex flex-col justify-center">
           <Typography
             preset="Text sm/Semibold"
             text={file.name}
             color="secondary"
-            propClass="truncate"
+            propClass="max-w-lg"
           />
           <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
         </div>
       </div>
       {#if actionButton}
-        <div class="flex gap-3">
+        <div class="flex gap-2 justify-center">
           <!-- <Dropdown
             dropdownOpen={dropdownOpen}
             bind:selectedItem={selectedItem}
@@ -137,7 +140,7 @@ All Rights Reserved
           <Button
             color="light"
             on:click={actionGenerate}
-            class="gap-1.5 grow border-brand-light dark:border-primary-dark"
+            class="gap-1.5 p-2 md:grow border-brand-light dark:border-primary-dark"
           >
             <!-- {#if status === "START"}
               <Spinner color="purple" />
@@ -146,13 +149,14 @@ All Rights Reserved
             <Typography
               preset="Text sm/Semibold"
               text={status === "FINISH"
-                ? "View AI Suggestion"
+                ? $_("viewAISuggestion")
                 : status === "ERROR"
-                  ? "Re-Generate"
+                  ? $_("reGenerate")
                   : status === "GENERATING"
-                    ? "Generating..."
-                    : "Generate Suggestion"}
+                    ? $_("generating") + "..."
+                    : $_("generateSuggestion")}
               color="brand-secondary"
+              propClass="hidden md:block"
             />
             <StarsIcon
               svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
@@ -160,24 +164,25 @@ All Rights Reserved
           </Button>
           <!-- Button kanan -->
           {#if status === "FINISH"}
-          <Button
-            color="light"
-            on:click={actionRegenerate}
-            class="gap-1.5 grow border-brand-light dark:border-primary-dark"
-          >
-            <!-- {#if status === "START"}
+            <Button
+              color="light"
+              on:click={actionRegenerate}
+              class="gap-1.5 p-2 md:grow border-brand-light dark:border-primary-dark"
+            >
+              <!-- {#if status === "START"}
               <Spinner color="purple" />
             {/if} -->
 
-            <Typography
-              preset="Text sm/Semibold"
-              text={"Generate More"}
-              color="text-fg-secondary-light dark:text-fg-secondary-dark"
-            />
-            <StarsIcon
-              svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
-            />
-          </Button>
+              <Typography
+                preset="Text sm/Semibold"
+                text={$_("generateMore")}
+                color="brand-secondary"
+                propClass="hidden md:block"
+              />
+              <RefreshCw05Icon
+                svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+              />
+            </Button>
           {/if}
           {#if actionView}
             <Button class="p-2 w-max gap-1.5" color="light" on:click={actionView}>
@@ -185,7 +190,7 @@ All Rights Reserved
             </Button>
           {/if}
           <Button class="p-2 w-max gap-1.5" color="light" on:click={actionDelete}>
-            <TrashIcon svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark" />
+            <Trash03Icon svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark" />
           </Button>
         </div>
       {/if}

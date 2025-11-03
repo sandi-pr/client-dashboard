@@ -77,7 +77,7 @@ import InfoCircleIcon from "../icon/info-circle.svelte";
 import FolderDownload from "../icon/folder-download.svelte";
 import GoogleDriveIcon from "../icon/google-drive.svelte";
 import Trash01Icon from "../icon/trash-01.svelte";
-import UploadCloud01 from "../icon/upload-cloud-01.svelte";
+import UploadCloud01Icon from "../icon/upload-cloud-01.svelte";
 import VerifiedTickIcon from "../icon/verified-tick.svelte";
 import OnedriveIcon from "../icon/onedrive.svelte";
 import Trash03Icon from "../icon/trash-03.svelte";
@@ -130,7 +130,6 @@ import Var96 from "../icon/var-96.svelte";
 import Var97 from "../icon/var-97.svelte";
 import Var98 from "../icon/var-98.svelte";
 import Var99 from "../icon/var-99.svelte";
-import SearchRefractionIcon from "../icon/search-refraction.svelte";
 
 let getIcons = (presetIcon: String) => {
   switch (presetIcon) {
@@ -293,7 +292,7 @@ let getIcons = (presetIcon: String) => {
     case "trash01":
       return Trash01Icon;
     case "uploadCloud01":
-      return UploadCloud01;
+      return UploadCloud01Icon;
     case "verifiedTick":
       return VerifiedTickIcon;
     case "onedrive":
@@ -398,8 +397,6 @@ let getIcons = (presetIcon: String) => {
       return Var98;
     case "var99":
       return Var99;
-    case "searchRefraction":
-      return SearchRefractionIcon;
     default:
       return "";
   }

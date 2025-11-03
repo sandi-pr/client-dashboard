@@ -6,21 +6,11 @@
   import { Button, Modal } from "flowbite-svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
   import { formatDistanceToNow, format } from "date-fns";
-  import { DatePicker } from "@svelte-plugins/datepicker";
   import { call, check, getIcons, triggerToast, triggerLoading } from "$lib";
-  import {
-    Divider,
-    InputRw,
-    Dropdown,
-    TextareaRw,
-    UploadFile,
-    Typography,
-    DocumentProject,
-  } from "$lib";
+  import { Divider, InputRw, Dropdown, TextareaRw, Typography, DocumentProject } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  const CalendarPlus02 = getIcons("calendarPlus02");
   const PlusCircleIcon = getIcons("plusCircle");
 
   let timer;
@@ -34,18 +24,15 @@
   let ragStatus = $state(false);
   let deleteModal = $state(false);
   let projectDelete = $state(false);
-  let contractReady = $state(false);
 
   let countSection = $state(0);
 
-  let asTmp = $state("");
   let typeTmp = $state("");
 
   let data = $state({});
 
   let rules = $state([]);
   let files = $state([]);
-  let tmpFile = $state([]);
   let rulesTmp = $state([]);
   let idResults = $state([]);
 
@@ -664,7 +651,7 @@
   };
 
   const getFileByType = (type, id) => {
-    return files.find(file => file.type === type && file.id === id) || null;
+    return files.find((file) => file.type === type && file.id === id) || null;
   };
 
   const setIntervalGetDocument = () => {

@@ -1259,5 +1259,10 @@
   "addNewCompare": "Add new comparison",
   "descAddNewCompare": "Compare document from reference",
   "compareList": "Comparison List",
-  "compare": "Compare"
+  "compare": "Compare",
+  "viewAISuggestion": "View AI Suggestion",
+  "reGenerate": "Re-Generate",
+  "generating": "Generating",
+  "generateSuggestion": "Generate Suggestion",
+  "generateMore": "Generate More"
 }

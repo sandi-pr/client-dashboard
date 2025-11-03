@@ -1259,5 +1259,10 @@
   "addNewCompare": "Tambahkan Perbandingan Baru",
   "descAddNewCompare": "Tampilkan perbandingan dokumen dari referensi",
   "compareList": "Daftar Perbandingan",
-  "compare": "Perbandingan"
+  "compare": "Perbandingan",
+  "viewAISuggestion": "Lihat Saran AI",
+  "reGenerate": "Hasilkan Ulang",
+  "generating": "Menghasilkan",
+  "generateSuggestion": "Hasilkan Saran",
+  "generateMore": "Hasilkan Lebih"
 }
