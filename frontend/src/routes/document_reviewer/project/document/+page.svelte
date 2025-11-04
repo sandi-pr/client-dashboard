@@ -24,8 +24,8 @@
   const FilePlusIcon = getIcons("filePlus");
   const CalendarPlus02Icon = getIcons("calendarPlus02");
 
-  let compareId = $state(null);
-  let compareDocumentId = $state(null);
+  let projectId = $state(null);
+  let projectDocumentId = $state(null);
 
   let onEdit = $state(true);
   let onView = $state(false);
@@ -49,6 +49,10 @@
       name: "Documents (TXT, PDF)",
       value: "Documents",
     },
+    {
+      name: "CSV",
+      value: "CSV",
+    }
     // {
     //   name: "Images (JPG, JPEG, PNG, WEBP, IMG)",
     //   value: "Images",
@@ -187,8 +191,8 @@
         URLQuery: {},
         URLParams: {},
         Params: {
-          project_id: compareId.toString(),
-          content_date: format(new Date(Date.now()), "yyyy-MM-dd"),
+          project_id: projectId.toString(),
+          content_date: format(formattedStartDate, "yyyy-MM-dd"),
           document: JSON.stringify(file),
         },
         Headers: {
@@ -241,9 +245,9 @@
       setTimeout(async () => {
         triggerLoading(false);
         const gotoUrl = isFrontend
-          ? "/contract_reviewer/compare/detail"
-          : await $call.getPage("client-dashboard", "contract-compare-detail");
-        goto(gotoUrl + "?compareId=" + compareId);
+          ? "/document_reviewer/project/detail"
+          : await $call.getPage("client-dashboard", "contract-project-detail");
+        goto(gotoUrl + "?projectId=" + projectId);
       }, 2000);
     }
   };
@@ -268,13 +272,17 @@
     if (type === "Documents") {
       selectedTypeCollection = "Documents";
       acceptedFileTypes = ".txt, .pdf, .docx";
-    } else if (type === "Images") {
-      selectedTypeCollection = "Images";
-      acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
-    } else if (type === "Handwriting") {
-      selectedTypeCollection = "Handwriting";
-      acceptedFileTypes = ".jpg, .jpeg, .png";
+    } else if (type === "CSV") {
+      selectedTypeCollection = "CSV";
+      acceptedFileTypes = ".csv";
     }
+    // } else if (type === "Images") {
+    //   selectedTypeCollection = "Images";
+    //   acceptedFileTypes = ".jpg, .jpeg, .png, .webp, .img";
+    // } else if (type === "Handwriting") {
+    //   selectedTypeCollection = "Handwriting";
+    //   acceptedFileTypes = ".jpg, .jpeg, .png";
+    // }
 
     onView = false;
     file = null;
@@ -309,7 +317,7 @@
       if (uploadedFile) {
         const base64Data = await readFileAsBase64(uploadedFile);
         file = {
-          type: compareDocumentId ? data.document_name : uploadedFile.type,
+          type: projectDocumentId ? data.document_name : uploadedFile.type,
           role: tmpDocumentType,
           name: uploadedFile.name,
           size: formatBytes(uploadedFile.size),
@@ -339,26 +347,27 @@
   const formatDate = (dateString) => (dateString && format(new Date(dateString), dateFormat)) || "";
 
   onMount(() => {
+    startDate = new Date();
     formattedStartDate = formatDate(new Date());
     const unsubscribe = page.subscribe(async ($page) => {
-      compareId = $page.url.searchParams.get("compareId");
-      compareDocumentId = $page.url.searchParams.get("compareDocumentId");
-      if (compareId !== null) {
-        if (compareDocumentId !== null) {
+      projectId = $page.url.searchParams.get("projectId");
+      projectDocumentId = $page.url.searchParams.get("projectDocumentId");
+      if (projectId !== null) {
+        if (projectDocumentId !== null) {
           onEdit = false;
           onView = true;
-          getDocument(compareDocumentId);
+          getDocument(projectDocumentId);
         } else {
           onEdit = true;
           onView = false;
-          getCollections(compareId);
+          getCollections(projectId);
         }
       } else {
         triggerToast("error");
         goto(
           isFrontend
-            ? "/contract_reviewer/compare"
-            : await $call.getPage("client-dashboard", "contract-compare-list"),
+            ? "/document_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
         );
       }
     });
@@ -391,9 +400,9 @@
         color="light"
         on:click={async () => {
           const gotoUrl = isFrontend
-            ? "/contract_reviewer/compare/detail"
-            : await $call.getPage("client-dashboard", "contract-compare-detail");
-          goto(gotoUrl + "?compareId=" + compareId);
+            ? "/document_reviewer/project/detail"
+            : await $call.getPage("client-dashboard", "contract-project-detail");
+          goto(gotoUrl + "?projectId=" + projectId);
         }}
       >
         <Typography preset="Text sm/Medium" text={$_("cancel")} />
@@ -404,7 +413,7 @@
           createDocument();
         }}
       >
-        {#if compareDocumentId !== null}
+        {#if projectDocumentId !== null}
           {$_("save")}
         {:else}
           {$_("add")}
@@ -423,6 +432,27 @@
         <div class="flex flex-col grow gap-1.5">
           <Typography preset="Text sm/Medium" text={$_("documentName") + "*"} color="secondary" />
           <InputRw {onEdit} bind:value={data.document_name} />
+        </div>
+        <div class="flex grow flex-col gap-1.5">
+          <Typography preset="Text sm/medium" color="secondary" text={`${$_("contentDate")}*`} />
+          <DatePicker bind:isOpen bind:startDate enableFutureDates>
+            <button
+              onclick={toggleDatePicker}
+              class:open={isOpen}
+              class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+            >
+              <CalendarPlus02Icon
+                svgClass="w-4 h-4 ms-2 text-secondary-light dark:text-secondary-dark"
+              />
+              <div class="date text-secondary-light dark:text-secondary-dark">
+                {#if startDate}
+                  {formattedStartDate}
+                {:else}
+                  {$_("selectDate")}
+                {/if}
+              </div>
+            </button>
+          </DatePicker>
         </div>
       </div>
       <div class="flex flex-col grow gap-1.5">
@@ -468,9 +498,9 @@
         outline
         on:click={async () => {
           goto(
-            (await $call.getPage("client-dashboard", "contract-compare-detail")) +
-              "?compareId=" +
-              compareId,
+            (await $call.getPage("client-dashboard", "contract-project-detail")) +
+              "?projectId=" +
+              projectId,
           );
         }}
         color="light">{$_("cancel")}</Button

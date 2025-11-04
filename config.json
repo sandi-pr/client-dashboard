@@ -256,68 +256,68 @@
         },
         {
             "name": "contract-reviewer-reference",
-            "path": "/contract_reviewer/reference",
-            "file_path": "template/contract_reviewer/reference.html"
+            "path": "/document_reviewer/reference",
+            "file_path": "template/document_reviewer/reference.html"
         },
         {
             "name": "contract-reviewer-overview",
-            "path": "/contract_reviewer",
-            "file_path": "template/contract_reviewer.html"
+            "path": "/document_reviewer",
+            "file_path": "template/document_reviewer.html"
         },
         {
             "name": "contract-project-list",
-            "path": "/contract_reviewer/project",
-            "file_path": "template/contract_reviewer/project.html"
+            "path": "/document_reviewer/project",
+            "file_path": "template/document_reviewer/project.html"
         },
         {
             "name": "contract-project-detail",
-            "path": "/contract_reviewer/project/detail",
-            "file_path": "template/contract_reviewer/project/detail.html"
+            "path": "/document_reviewer/project/detail",
+            "file_path": "template/document_reviewer/project/detail.html"
         },
         {
             "name": "contract-project-detail-document",
-            "path": "/contract_reviewer/project/document",
-            "file_path": "template/contract_reviewer/project/document.html"
+            "path": "/document_reviewer/project/document",
+            "file_path": "template/document_reviewer/project/document.html"
         },
         {
             "name": "contract-project-review",
-            "path": "/contract_reviewer/project/review",
-            "file_path": "template/contract_reviewer/project/review.html"
+            "path": "/document_reviewer/project/review",
+            "file_path": "template/document_reviewer/project/review.html"
         },
         {
             "name": "contract-compare-list",
-            "path": "/contract_reviewer/compare",
-            "file_path": "template/contract_reviewer/compare.html"
+            "path": "/document_reviewer/compare",
+            "file_path": "template/document_reviewer/compare.html"
         },
         {
             "name": "contract-compare-detail",
-            "path": "/contract_reviewer/compare/detail",
-            "file_path": "template/contract_reviewer/compare/detail.html"
+            "path": "/document_reviewer/compare/detail",
+            "file_path": "template/document_reviewer/compare/detail.html"
         },
         {
             "name": "contract-compare-detail-document",
-            "path": "/contract_reviewer/compare/document",
-            "file_path": "template/contract_reviewer/compare/document.html"
+            "path": "/document_reviewer/compare/document",
+            "file_path": "template/document_reviewer/compare/document.html"
         },
         {
             "name": "contract-compare-review",
-            "path": "/contract_reviewer/compare/review",
-            "file_path": "template/contract_reviewer/compare/review.html"
+            "path": "/document_reviewer/compare/review",
+            "file_path": "template/document_reviewer/compare/review.html"
         },
         {
             "name": "contract-industries",
-            "path": "/contract_reviewer/industries",
-            "file_path": "template/contract_reviewer/industries.html"
+            "path": "/document_reviewer/industries",
+            "file_path": "template/document_reviewer/industries.html"
         },
         {
             "name": "contract-case",
-            "path": "/contract_reviewer/case",
-            "file_path": "template/contract_reviewer/case.html"
+            "path": "/document_reviewer/case",
+            "file_path": "template/document_reviewer/case.html"
         },
         {
             "name": "contract-case-detail",
-            "path": "/contract_reviewer/case/detail",
-            "file_path": "template/contract_reviewer/case/detail.html"
+            "path": "/document_reviewer/case/detail",
+            "file_path": "template/document_reviewer/case/detail.html"
         },
         {
             "name": "datasets",

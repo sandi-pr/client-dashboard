@@ -115,7 +115,7 @@
             setTimeout(async () => {
               goto(
                 isFrontend
-                  ? "contract_reviewer/compare"
+                  ? "document_reviewer/compare"
                   : await $call.getPage("client-dashboard", "contract-compare-list"),
               );
               return;
@@ -629,7 +629,7 @@
         triggerToast("deleted");
         goto(
           isFrontend
-            ? "contract_reviewer/compare"
+            ? "document_reviewer/compare"
             : await $call.getPage("client-dashboard", "contract-compare-list"),
         );
       } catch (error) {
@@ -677,7 +677,7 @@
         triggerToast("error");
         goto(
           isFrontend
-            ? "/contract_reviewer/compare"
+            ? "/document_reviewer/compare"
             : await $call.getPage("client-dashboard", "contract-compare-list"),
         );
       }
@@ -788,7 +788,7 @@
                 isLoading={file.status !== "FINISH"}
                 actionView={async () => {
                   let gotoUrl = isFrontend
-                    ? "/contract_reviewer/compare/document"
+                    ? "/document_reviewer/compare/document"
                     : await $call.getPage("client-dashboard", "contract-compare-detail-document");
                   goto(gotoUrl + "?compareDocumentId=" + file.id + "&compareId=" + compareId);
                   // (documentViewModal = true), (selectedFile = getFileByType(file.type));
@@ -808,7 +808,7 @@
                   } else {
                     if (file.result_id !== undefined) {
                       let gotoUrl = isFrontend
-                        ? "/contract_reviewer/compare/review"
+                        ? "/document_reviewer/compare/review"
                         : await $call.getPage("client-dashboard", "contract-compare-review");
                       goto(
                         gotoUrl +
@@ -820,7 +820,7 @@
                     } else {
                       let index = idResults.findIndex((result) => result.id_doc === file.id);
                       let gotoUrl = isFrontend
-                        ? "/contract_reviewer/compare/review"
+                        ? "/document_reviewer/compare/review"
                         : await $call.getPage("client-dashboard", "contract-compare-review");
                       goto(
                         gotoUrl +
@@ -850,7 +850,7 @@
               class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
               on:click={async () => {
                 let gotoUrl = isFrontend
-                  ? "/contract_reviewer/compare/document"
+                  ? "/document_reviewer/compare/document"
                   : await $call.getPage("client-dashboard", "contract-compare-detail-document");
                 goto(gotoUrl + "?compareId=" + compareId);
               }}

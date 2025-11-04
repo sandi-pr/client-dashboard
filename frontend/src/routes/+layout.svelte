@@ -367,7 +367,7 @@ All Rights Reserved
         children: [],
         // commingSoon: true,
         href: isFrontend
-          ? "/contract_reviewer"
+          ? "/document_reviewer"
           : await call.getPage("client-dashboard", "contract-reviewer-overview"),
       },
       //     {

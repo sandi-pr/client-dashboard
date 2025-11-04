@@ -12,7 +12,7 @@
 
   const FileDownload03Icon = getIcons("fileDownload03");
 
-  let compareDocumentId;
+  let projectDocumentId;
 
   let editModal = $state(false);
   let documentViewModal = $state(false);
@@ -114,7 +114,7 @@
         let response = await $call.call("client-dashboard", "get-contract-project-result", {
           URLQuery: {},
           URLParams: {
-            id: compareDocumentId,
+            id: projectDocumentId,
           },
           Params: {},
           Headers: {
@@ -129,12 +129,12 @@
           return;
         }
 
-        let compareId = response.result.data[0].attributes.project_id;
+        let projectId = response.result.data[0].attributes.project_id;
 
         const response2 = await $call.call("client-dashboard", "get-contract-project", {
           URLQuery: {},
           URLParams: {
-            id: compareId.toString(),
+            id: projectId.toString(),
           },
           Params: {},
           Headers: {
@@ -212,8 +212,7 @@
                 prompt: generatedItem.reference_prompt,
                 result: generatedItem.reference_results[0],
               },
-              // hide for compare
-              // ai_review: removeCodeBlocks(generatedItem.ai_review).replace(/\n/g, "  \n"),
+              ai_review: removeCodeBlocks(generatedItem.ai_review).replace(/\n/g, "  \n"),
               ai_suggestion: removeCodeBlocks(generatedItem.ai_suggestion).replace(/\n/g, "  \n"),
             };
           });
@@ -271,7 +270,7 @@
         let response = await $call.call("client-dashboard", "update-contract-project-result", {
           URLQuery: {},
           URLParams: {
-            id: compareDocumentId,
+            id: projectDocumentId,
           },
           Params: {
             result: JSON.stringify(tmpResult),
@@ -414,15 +413,15 @@
 
   onMount(() => {
     const unsubscribe = page.subscribe(async ($page) => {
-      compareDocumentId = $page.url.searchParams.get("compareDocumentId");
-      if (compareDocumentId !== null) {
+      projectDocumentId = $page.url.searchParams.get("projectDocumentId");
+      if (projectDocumentId !== null) {
         getProjectResult();
       } else {
         triggerToast("error");
         goto(
           isFrontend
-            ? "/contract_reviewer/compare"
-            : await $call.getPage("client-dashboard", "contract-compare-list"),
+            ? "/document_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
         );
       }
     });
@@ -431,14 +430,14 @@
 
   $effect(async () => {
     const unsubscribe = page.subscribe(async ($page) => {
-      compareDocumentId = $page.url.searchParams.get("compareDocumentId");
-      if (compareDocumentId !== null) {
+      projectDocumentId = $page.url.searchParams.get("projectDocumentId");
+      if (projectDocumentId !== null) {
         getProjectResult();
       } else {
         goto(
           isFrontend
-            ? "/contract_reviewer/compare"
-            : await $call.getPage("client-dashboard", "contract-compare-list"),
+            ? "/document_reviewer/project"
+            : await $call.getPage("client-dashboard", "contract-project-list"),
         );
       }
     });

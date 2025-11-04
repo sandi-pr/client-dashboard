@@ -66,7 +66,7 @@ All Rights Reserved
       {
         disabled: !check("aiManagement.contractreviewer.case:view"),
         href: isFrontend
-          ? "/contract_reviewer/case"
+          ? "/document_reviewer/case"
           : await $call.getPage("client-dashboard", "contract-case"),
         icon: "bookOpen",
         actionName: "Manage cases",
@@ -186,7 +186,7 @@ All Rights Reserved
     const allrules = await getAllRules($call);
     if (allrules.length > 0) {
       let link = isFrontend
-        ? "/contract_reviewer/case/detail"
+        ? "/document_reviewer/case/detail"
         : await $call.getPage("client-dashboard", "contract-case-detail");
 
       rules = allrules.map((rule) => ({
@@ -200,7 +200,7 @@ All Rights Reserved
           {
             name: "viewAll",
             href: isFrontend
-              ? "/contract_reviewer/case"
+              ? "/document_reviewer/case"
               : await $call.getPage("client-dashboard", "contract-case"),
             type: "info",
           },
@@ -239,7 +239,7 @@ All Rights Reserved
           {
             name: "viewAll",
             href: isFrontend
-              ? "/contract_reviewer/project"
+              ? "/document_reviewer/project"
               : await $call.getPage("client-dashboard", "contract-project-list"),
             type: "info",
           },
@@ -248,16 +248,16 @@ All Rights Reserved
       };
 
       let url = isFrontend
-        ? "/contract_reviewer/project/detail"
+        ? "/document_reviewer/project/detail"
         : await $call.getPage("client-dashboard", "contract-project-detail");
 
       const promise = projects.map((project) => {
         const rule = rulesTable.find((rule) => rule.id === project.attributes.contract_rule_id);
         const ruleName = rule?.rule_name || "";
-        const { contract_rule_id, ...rest } = {
+        const { document_rule_id, ...rest } = {
           id: project.id,
           project_name: project.attributes.project_name,
-          contract_rule_id: project.attributes.contract_rule_id,
+          document_rule_id: project.attributes.contract_rule_id,
           actions: {
             objects: [
               {
@@ -293,7 +293,7 @@ All Rights Reserved
           {
             name: "viewAll",
             href: isFrontend
-              ? "/contract_reviewer/compare"
+              ? "/document_reviewer/compare"
               : await $call.getPage("client-dashboard", "contract-compare-list"),
             type: "info",
           },
@@ -302,16 +302,16 @@ All Rights Reserved
       };
 
       let url = isFrontend
-        ? "/contract_reviewer/compare/detail"
+        ? "/document_reviewer/compare/detail"
         : await $call.getPage("client-dashboard", "contract-compare-detail");
 
       const promise = projects.map((project) => {
         const rule = rulesTable.find((rule) => rule.id === project.attributes.contract_rule_id);
         const ruleName = rule?.rule_name || "";
-        const { contract_rule_id, ...rest } = {
+        const { document_rule_id, ...rest } = {
           id: project.id,
           project_name: project.attributes.project_name,
-          contract_rule_id: project.attributes.contract_rule_id,
+          document_rule_id: project.attributes.contract_rule_id,
           actions: {
             objects: [
               {

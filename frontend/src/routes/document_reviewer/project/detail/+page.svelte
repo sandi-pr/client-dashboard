@@ -128,7 +128,7 @@
             setTimeout(async () => {
               goto(
                 isFrontend
-                  ? "contract_reviewer/project"
+                  ? "document_reviewer/project"
                   : await $call.getPage("client-dashboard", "contract-project-list"),
               );
               return;
@@ -642,7 +642,7 @@
         triggerToast("deleted");
         goto(
           isFrontend
-            ? "contract_reviewer/project"
+            ? "document_reviewer/project"
             : await $call.getPage("client-dashboard", "contract-project-list"),
         );
       } catch (error) {
@@ -690,7 +690,7 @@
         triggerToast("error");
         goto(
           isFrontend
-            ? "/contract_reviewer/project"
+            ? "/document_reviewer/project"
             : await $call.getPage("client-dashboard", "contract-project-list"),
         );
       }
@@ -828,7 +828,7 @@
                 isLoading={file.status !== "FINISH"}
                 actionView={async () => {
                   let gotoUrl = isFrontend
-                    ? "/contract_reviewer/project/document"
+                    ? "/document_reviewer/project/document"
                     : await $call.getPage("client-dashboard", "contract-project-detail-document");
                   goto(gotoUrl + "?projectDocumentId=" + file.id + "&projectId=" + projectId);
                   // (documentViewModal = true), (selectedFile = getFileByType(file.type));
@@ -848,7 +848,7 @@
                   } else {
                     if (file.result_id !== undefined) {
                       let gotoUrl = isFrontend
-                        ? "/contract_reviewer/project/review"
+                        ? "/document_reviewer/project/review"
                         : await $call.getPage("client-dashboard", "contract-project-review");
                       goto(
                         gotoUrl +
@@ -860,7 +860,7 @@
                     } else {
                       let index = idResults.findIndex((result) => result.id_doc === file.id);
                       let gotoUrl = isFrontend
-                        ? "/contract_reviewer/project/review"
+                        ? "/document_reviewer/project/review"
                         : await $call.getPage("client-dashboard", "contract-project-review");
                       goto(
                         gotoUrl +
@@ -893,7 +893,7 @@
               class="w-full min-h-32 flex gap-2.5 rounded-xl border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark"
               on:click={async () => {
                 let gotoUrl = isFrontend
-                  ? "/contract_reviewer/project/document"
+                  ? "/document_reviewer/project/document"
                   : await $call.getPage("client-dashboard", "contract-project-detail-document");
                 goto(gotoUrl + "?projectId=" + projectId);
               }}
