@@ -1265,5 +1265,6 @@
   "reGenerate": "Re-Generate",
   "generating": "Generating",
   "generateSuggestion": "Generate Suggestion",
-  "generateMore": "Generate More"
+  "generateMore": "Generate More",
+  "update": "Update"
 }

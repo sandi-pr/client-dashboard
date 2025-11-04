@@ -19,6 +19,7 @@
 
   let init = $state(true);
   let ready = $state(false);
+  let onEdit = $state(false);
   let initRAG = $state(true);
   let interval = $state(false);
   let ragStatus = $state(false);
@@ -27,7 +28,10 @@
 
   let countSection = $state(0);
 
+  let name = $state("");
   let typeTmp = $state("");
+  let description = $state("");
+  let projectCase = $state("");
 
   let data = $state({});
 
@@ -133,16 +137,14 @@
             industry: response.result.data[0].attributes.industry_id,
             contract_rule_id: response.result.data[0].attributes.contract_rule_id,
             as: response.result.data[0].attributes.project_as,
-            start_date: format(
-              new Date(response.result.data[0].attributes.duration_start),
-              "d MMM yyyy",
-            ),
-            end_date: format(
-              new Date(response.result.data[0].attributes.duration_end),
-              "d MMM yyyy",
-            ),
+            start_date: response.result.data[0].attributes.duration_start,
+            end_date: response.result.data[0].attributes.duration_end,
             description: response.result.data[0].attributes.description,
           };
+
+          name = data.name;
+          description = data.description;
+          projectCase = data.contract_rule_id;
 
           await getCountSection();
           await getDocumentContractProject();
@@ -698,7 +700,7 @@
     <div class="flex justify-between">
       <div class="flex flex-col gap-2">
         <div class="flex flex-col">
-          <Typography preset="Display sm/Semibold" text={data.name} color="primary" />
+          <Typography preset="Display sm/Semibold" text={name} color="primary" />
         </div>
         <Typography
           preset="Text md/Medium"
@@ -708,18 +710,49 @@
       </div>
       {#if check("aiManagement.contractreviewer.project:delete")}
         <div class="flex flex-col gap-2">
-          <div class="flex flex-col">
-            <Button
-              on:click={() => {
-                projectDelete = true;
-                typeTmp = null;
-                deleteModal = true;
-              }}
-              color="red"
-              outline
-            >
-              {$_("delete")}
-            </Button>
+          <div class="flex gap-2">
+            {#if !onEdit}
+              <Button
+                on:click={() => {
+                  onEdit = !onEdit;
+                }}
+                outline
+              >
+                {$_("edit")}
+              </Button>
+              <Button
+                on:click={() => {
+                  projectDelete = true;
+                  typeTmp = null;
+                  deleteModal = true;
+                }}
+                color="red"
+                outline
+              >
+                {$_("delete")}
+              </Button>
+            {:else}
+              <Button
+                on:click={() => {
+                  onEdit = !onEdit;
+                  name = data.name;
+                  description = data.description;
+                  projectCase = data.contract_rule_id;
+                }}
+                color="alternative"
+                outline
+              >
+                {$_("cancel")}
+              </Button>
+              <Button
+                on:click={() => {
+                  // save update project
+                }}
+                outline
+              >
+                {$_("update")}
+              </Button>
+            {/if}
           </div>
         </div>
       {/if}
@@ -738,23 +771,23 @@
         <!-- form dropdown -->
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/medium" color="secondary" text={$_("projectTitle")} />
-          <InputRw onEdit={false} bind:value={data.name} />
+          <InputRw {onEdit} bind:value={name} />
         </div>
         <div class="flex gap-3">
           <div class="flex grow flex-col gap-1.5">
             <Typography preset="Text sm/medium" color="secondary" text={$_("case")} />
             <Dropdown
               dropdownOpen={false}
-              bind:selectedItem={data.contract_rule_id}
+              bind:selectedItem={projectCase}
               items={rules}
               isOverlay={true}
-              disabled={true}
+              disabled={onEdit === false}
             />
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
-          <TextareaRw onEdit={false} bind:value={data.description} />
+          <TextareaRw {onEdit} bind:value={description} />
         </div>
       </div>
     </div>

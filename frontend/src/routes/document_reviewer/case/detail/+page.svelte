@@ -42,7 +42,7 @@ All Rights Reserved
   let documentViewModal = $state(false);
 
   let tabDatas = $state({
-    selected: "Rules",
+    selected: "Referenced Documents",
     data: [
       check("aiManagement.contractreviewer.document:create_delete") && {
         name: "Referenced Documents",
@@ -625,8 +625,7 @@ All Rights Reserved
 
   const checkSectionInputs = (data) => {
     return (
-      data.title === "" || data.prompt === "" || data.sample === ""
-      || data.reference_prompt === ""
+      data.title === "" || data.prompt === "" || data.sample === "" || data.reference_prompt === ""
     );
   };
 
