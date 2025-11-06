@@ -4204,6 +4204,30 @@
             ]
         },
         {
+            "name": "update-contract-rules",
+            "path": "/update-contract-rules/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateContractRules"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "rule_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "get-contract-rules",
             "path": "/get-contract-rules",
             "method": "POST",
@@ -4418,6 +4442,42 @@
                 {
                     "name": "is_compare",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "update-contract-project",
+            "path": "/update-contract-project/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateContractProject"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "project_name",
+                    "type": "string"
+                },
+                {
+                    "name": "duration_start",
+                    "type": "date"
+                },
+                {
+                    "name": "duration_end",
+                    "type": "date"
+                },
+                {
+                    "name": "description",
+                    "type": "text"
                 }
             ]
         },
