@@ -72,6 +72,63 @@ func CreateContractRules(ctx *config.ConfigContext) (int, U.Dict, *config.Return
 	return 200, rule, nil
 }
 
+func UpdateContractRules(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println(me)
+
+	idString, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	id, err := strconv.Atoi(string(idString))
+
+	if err != nil {
+		return ctx.Error(400, "invalid parameters id")
+	}
+
+	rule_name, ok := ctx.Params.GetString("rule_name")
+	if !ok {
+		return ctx.Error(400, "invalid parameters rule_name")
+	}
+
+	status, rule, err := Strapi.Update("contract-rules-table", int64(id), U.Dict{
+		"rule_name": rule_name,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, rule, nil
+}
+
 func GetContractRules(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
 
