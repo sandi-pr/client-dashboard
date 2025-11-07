@@ -1266,5 +1266,7 @@
   "generating": "Menghasilkan",
   "generateSuggestion": "Hasilkan Saran",
   "generateMore": "Hasilkan Lebih",
-  "update": "Perbarui"
+  "update": "Perbarui",
+  "extractionResults": "Hasil Ekstraksi",
+  "reviewerSummary": "Ringkasan Pemeriksa"
 }

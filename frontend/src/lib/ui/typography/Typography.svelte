@@ -38,7 +38,7 @@
   let { size, leading } = presets[group] || {};
 
   let classes = twMerge(
-    leading.includes("px") ? ` leading-[${leading}]` : ` leading-${leading}`,
+    leading ? (leading.includes("px") ? ` leading-[${leading}]` : ` leading-${leading}`) : "",
     propClass,
   );
 </script>

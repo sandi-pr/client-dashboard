@@ -1266,5 +1266,7 @@
   "generating": "Generating",
   "generateSuggestion": "Generate Suggestion",
   "generateMore": "Generate More",
-  "update": "Update"
+  "update": "Update",
+  "extractionResults": "Extraction Results",
+  "reviewerSummary": "Reviewer Summary"
 }
