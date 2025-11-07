@@ -10,7 +10,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { Modal, Button, Input, Heading } from "flowbite-svelte";
+  import { Modal, Button, Input } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
@@ -30,6 +30,8 @@ All Rights Reserved
 
   const PlusIcon = getIcons("plus");
   const CopyIcon = getIcons("copy03");
+  const Edit05Icon = getIcons("edit05");
+  const Check2Icon = getIcons("check2");
   const PlusCircleIcon = getIcons("plusCircle");
   const IllustrationEmpty = getIcons("illustrationEmpty");
 
@@ -38,8 +40,11 @@ All Rights Reserved
   let init = $state(false);
   let caseDelete = $state(false);
   let deleteModal = $state(false);
+  let isEditTitle = $state(false);
   let addRefDocModal = $state(false);
   let documentViewModal = $state(false);
+
+  let titleInput = $state("");
 
   let tabDatas = $state({
     selected: "Referenced Documents",
@@ -237,12 +242,50 @@ All Rights Reserved
                   };
                 }),
         };
+
+        titleInput = datas.title;
       }
     } catch (error) {
       errorHandling($_, error, "get", "case");
       triggerToast("error");
     } finally {
       triggerLoading(false);
+    }
+  };
+
+  const updateRulesSection = async () => {
+    try {
+      let token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      const response = await $call.call("client-dashboard", "update-contract-rules", {
+        URLQuery: {},
+        URLParams: {
+          id: ruleId,
+        },
+        Params: {
+          rule_name: titleInput,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        const error = new Error("Failed to update project");
+        error.response = response;
+        throw error;
+      }
+
+      await getReferences();
+      await getRulesSections();
+      triggerToast("updated");
+    } catch (error) {
+      console.log("error", error);
+      triggerToast("error");
     }
   };
 
@@ -667,16 +710,53 @@ All Rights Reserved
           <!-- Header -->
           <div class="grow gap-2">
             <div class="flex gap-2 items-center">
-              <Typography preset="Display sm/Semibold" text={datas.title} />
-              <button
-                class="p-2 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-primary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
-                onclick={() => {
-                  navigator.clipboard.writeText(datas.title);
-                  triggerToast("copyToClipboard");
-                }}
-              >
-                <CopyIcon svgClass="w-4 h-4 text-secondary-light dark:text-secondary-dark" />
-              </button>
+              {#if !isEditTitle}
+                <Typography preset="Display sm/Semibold" text={datas.title} />
+                <button
+                  class="p-2 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-primary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
+                  onclick={() => {
+                    navigator.clipboard.writeText(datas.title);
+                    triggerToast("copyToClipboard");
+                  }}
+                >
+                  <CopyIcon svgClass="w-4 h-4 text-secondary-light dark:text-secondary-dark" />
+                </button>
+                <button
+                  class="p-2 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-primary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
+                  onclick={() => {
+                    isEditTitle = true;
+                  }}
+                >
+                  <Edit05Icon svgClass="w-4 h-4 text-secondary-light dark:text-secondary-dark" />
+                </button>
+              {:else}
+                <div class="flex">
+                  <InputRw bind:value={titleInput} />
+                </div>
+                <button
+                  class="flex items-center justify-center p-2 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-primary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
+                  onclick={() => {
+                    isEditTitle = false;
+                    titleInput = datas.title;
+                  }}
+                >
+                  <Typography
+                    preset="Text sm/Regular"
+                    text="X"
+                    color="secondary"
+                    propClass="w-4 h-4 text-center"
+                  />
+                </button>
+                <button
+                  class="p-2 border border-primary-light dark:border-primary-dark rounded-lg bg-primary-light dark:bg-primary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
+                  onclick={() => {
+                    isEditTitle = false;
+                    updateRulesSection();
+                  }}
+                >
+                  <Check2Icon svgClass="w-4 h-4 text-secondary-light dark:text-secondary-dark" />
+                </button>
+              {/if}
             </div>
             <Typography
               preset="Text md/Medium"

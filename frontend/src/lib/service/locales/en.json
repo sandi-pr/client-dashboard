@@ -1268,5 +1268,6 @@
   "generateMore": "Generate More",
   "update": "Update",
   "extractionResults": "Extraction Results",
-  "reviewerSummary": "Reviewer Summary"
+  "reviewerSummary": "Reviewer Summary",
+  "areYouSureYouWantToUpdate": "Are you sure you want to update?"
 }

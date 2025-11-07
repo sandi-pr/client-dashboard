@@ -1268,5 +1268,6 @@
   "generateMore": "Hasilkan Lebih",
   "update": "Perbarui",
   "extractionResults": "Hasil Ekstraksi",
-  "reviewerSummary": "Ringkasan Pemeriksa"
+  "reviewerSummary": "Ringkasan Pemeriksa",
+  "areYouSureYouWantToUpdate": "Apakah Anda yakin ingin memperbarui data ini?"
 }
