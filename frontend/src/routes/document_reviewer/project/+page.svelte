@@ -100,7 +100,7 @@ All Rights Reserved
               actions: {
                 objects: [
                   check("aiManagement.contractreviewer.project:view") && {
-                    href: url + `?projectId=${project.id}&title=${project.attributes.project_name}`,
+                    href: url + `?projectId=${project.id}`,
                     name: "View",
                   },
                 ].filter(Boolean),

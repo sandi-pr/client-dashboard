@@ -11,34 +11,32 @@
 -->
 
 <script>
+  import Markdown from "svelte-exmarkdown";
+  import { gfmPlugin } from "svelte-exmarkdown/gfm";
+  import { _ } from "svelte-i18n";
   import {
     P,
-    Input,
     Table,
+    Modal,
     Button,
-    Heading,
     TableBody,
     TableHead,
-    Pagination,
     TableBodyRow,
     TableBodyCell,
     TableHeadCell,
-    Modal,
   } from "flowbite-svelte";
-  import { FeaturedIcon, Badge } from "$lib";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
+
+  import { toCamelCase, getIcons } from "$lib";
+  import { FeaturedIcon, Badge, Typography } from "$lib";
   import { pagesBuilder } from "../utils/pagesBuilder";
-  import { _ } from "svelte-i18n";
-  import { toCamelCase } from "$lib/utils/toCamelCase.js";
-  import PDFOutlineIcon from "$lib/icon/PDFOutline.svg";
-  import JpgIcon from "$lib/icon/jpg-icon.svelte";
-  import InfoCircle from "$lib/icon/info-circle.svelte";
-  import Stars01 from "$lib/icon/stars-01.svelte";
-  import { Typography } from "hexacomponents-svelte";
-  // import { toCamelCase } from "../utils/toCamelCase.js";
-  import Markdown from "svelte-exmarkdown";
-  import { gfmPlugin } from "svelte-exmarkdown/gfm";
-  import { goto } from "$app/navigation";
+  import DatatablePagination from "./DatatablePagination.svelte";
+
+  const JpgIcon = getIcons("JpgIcon");
+  const InfoCircleIcon = getIcons("infoCircle");
+  const Stars01Icon = getIcons("stars01");
+  const PDFOutlineIcon = getIcons("PDFOutline");
+  const CSVSolidIcon = getIcons("CSVSolid");
 
   const plugins = [gfmPlugin()];
 
@@ -46,7 +44,7 @@
   export let configs;
   export let next = () => {};
   export let previous = () => {};
-  // export let divider = false;
+  export let goToPage = () => {};
 
   let sectionRefModal = false;
   let reviewModal = false;
@@ -58,8 +56,6 @@
   let suggestionData = "";
   let tmpData = {};
   let tmpRefDoc = {};
-
-  let allChecked = false;
 
   let pages;
   if (configs?.pagination && Object.keys(configs.pagination).length > 0) {
@@ -107,13 +103,6 @@
   };
 
   let searchTerm = "";
-
-  // $: filteredItems = datas.filter((data) => {
-  //   if (searchTerm === "") return data;
-  //   if (data?.name) {
-  //     return data.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
-  //   }
-  // });
 
   $: filteredItems = datas.filter((data) => {
     if (searchTerm === "") return true;
@@ -185,7 +174,7 @@
                         <Markdown md={data[key]} {plugins} />
                       </P>
                     </TableBodyCell>
-                  {:else if key === "ai_review"}
+                  {:else if key === "ai_review" || key === "ai_extraction"}
                     <TableBodyCell
                       on:click={() => {
                         reviewModal = true;
@@ -229,7 +218,9 @@
                   >
                     <div class="flex items-center justify-start gap-3">
                       {#if data[key].name.includes(".pdf") || data[key].name.includes(".PDF")}
-                        <img src={PDFOutlineIcon} alt="" />
+                        <PDFOutlineIcon svgClass="w-32 h-10" />
+                      {:else if data[key].name.includes(".csv") || data[key].name.includes(".CSV")}
+                        <CSVSolidIcon svgClass="w-10 h-10" />
                       {/if}
                       <div class="line-clamp-2">
                         <P size="sm">{data[key].name.replace(/\.[^/.]+$/, "")}</P>
@@ -250,7 +241,7 @@
                   {:else}
                     <TableBodyCell class="text-hc-graylight-600 dark:text-hc-graydark-400">
                       <div class="flex gap-2">
-                        <JpgIcon />
+                        <JpgIcon svgClass="w-6 h-6" />
                         <div class="flex flex-col">
                           <P>{data[key].name}</P>
                           <P size="sm" class="text-hc-graylight-500">{data[key].size}</P>
@@ -298,39 +289,7 @@
   </div>
 </div>
 
-{#if configs?.pagination && Object.keys(configs.pagination).length > 0}
-  <div class="flex justify-between">
-    <div class="m-4 text-sm text-hc-graylight-500 dark:text-gray-400">
-      {"showing"}
-      <span
-        >{configs.pagination.page === 1
-          ? 1
-          : (configs.pagination.page - 1) * configs.pagination.pageSize + 1}</span
-      >
-      {"to"}
-      <span
-        >{configs.pagination.page * configs.pagination.pageSize >= configs.pagination.total
-          ? configs.pagination.total
-          : configs.pagination.page * configs.pagination.pageSize}</span
-      >
-      {"of"}
-      <span>{configs.pagination.total}</span>
-      {"entries"}
-    </div>
-
-    <div class="m-4">
-      <Pagination
-        bind:pages
-        on:next={next}
-        on:previous={previous}
-        activeClass="bg-hc-graylight-100 dark:bg-hc-graydark-700 dark:border-[#374151] dark:text-hc-graydark-300"
-      >
-        <span slot="prev">{"previous"}</span>
-        <span slot="next">{"next"}</span>
-      </Pagination>
-    </div>
-  </div>
-{/if}
+<DatatablePagination {configs} {goToPage} {next} {previous} />
 
 <Modal
   bind:open={sectionRefModal}
@@ -401,7 +360,7 @@
 
 <Modal bind:open={reviewModal} autoclose outsideclose>
   <div class="flex flex-col gap-4">
-    <FeaturedIcon classesSvg={InfoCircle} />
+    <FeaturedIcon classesSvg={InfoCircleIcon} />
     <div class="flex flex-col gap-1">
       <Typography preset="Text lg/Semibold" text={$_("aiReview")} />
       <Markdown md={reviewData} {plugins}></Markdown>
@@ -411,7 +370,7 @@
 
 <Modal bind:open={suggestionModal} autoclose outsideclose>
   <div class="flex flex-col gap-4">
-    <FeaturedIcon classesSvg={Stars01} />
+    <FeaturedIcon classesSvg={Stars01Icon} />
     <div class="flex flex-col gap-1">
       <Typography preset="Text lg/Semibold" text={$_("aiSuggestion")} />
       <Markdown md={suggestionData} {plugins}></Markdown>
