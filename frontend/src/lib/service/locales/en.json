@@ -1265,5 +1265,16 @@
   "reGenerate": "Re-Generate",
   "generating": "Generating",
   "generateSuggestion": "Generate Suggestion",
-  "generateMore": "Generate More"
+  "generateMore": "Generate More",
+  "update": "Update",
+  "extractionResults": "Extraction Results",
+  "reviewerSummary": "Reviewer Summary",
+  "areYouSureYouWantToUpdate": "Are you sure you want to update?",
+  "backToProjectList": "Back to Project List",
+  "generatedOn": "Generated On",
+  "overallSummary": "Overall Summary",
+  "validData": "Valid Data",
+  "invalidData": "Invalid Data",
+  "totalData": "Total Data",
+  "AIScanningLogs": "AI Scanning Logs"
 }

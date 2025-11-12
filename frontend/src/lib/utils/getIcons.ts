@@ -114,6 +114,11 @@ import ApiConnectorSupportIcon from "../icon/api-connector-support.svelte";
 import BrushCleaningIcon from "../icon/brush-cleaning.svelte";
 import SearchRefractionIcon from "../icon/search-refraction.svelte";
 import MessageTextSquare01Icon from "../icon/message-text-square-01.svelte";
+import CheckCircleIcon from "../icon/check-circle.svelte";
+import AlertTriangleIcon from "../icon/alert-triangle.svelte";
+import jpgIcon from "../icon/jpg-icon.svelte";
+import PDFOutlineIcon from "../icon/PDFOutline.svelte";
+import CSVSolidIcon from "../icon/CSVSolid.svelte";
 import Var76 from "../icon/var-76.svelte";
 import Var85 from "../icon/var-85.svelte";
 import Var86 from "../icon/var-86.svelte";
@@ -365,6 +370,16 @@ let getIcons = (presetIcon: String) => {
       return SearchRefractionIcon;
     case "messageTextSquare01":
       return MessageTextSquare01Icon;
+    case "checkCircle":
+      return CheckCircleIcon;
+    case "alertTriangle":
+      return AlertTriangleIcon;
+    case "jpgIcon":
+      return jpgIcon;
+    case "PDFOutline":
+      return PDFOutlineIcon;
+    case "CSVSolid":
+      return CSVSolidIcon;
     case "var76":
       return Var76;
     case "var85":

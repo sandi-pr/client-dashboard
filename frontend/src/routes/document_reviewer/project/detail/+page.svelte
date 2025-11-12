@@ -29,17 +29,24 @@
 
   let init = $state(true);
   let ready = $state(false);
+  let onEdit = $state(false);
   let initRAG = $state(true);
   let interval = $state(false);
   let ragStatus = $state(false);
   let deleteModal = $state(false);
+  let updateModal = $state(false);
   let projectDelete = $state(false);
   let contractReady = $state(false);
+  let datepickerOpen = $state(false);
 
   let countSection = $state(0);
 
-  let asTmp = $state("");
+  let name = $state("");
   let typeTmp = $state("");
+  let description = $state("");
+  let projectCase = $state("");
+  let formattedEndDate = $state("");
+  let formattedStartDate = $state("");
 
   let data = $state({});
 
@@ -49,6 +56,8 @@
   let rulesTmp = $state([]);
   let idResults = $state([]);
 
+  let endDate = $state(null);
+  let startDate = $state(null);
   let projectId = $state(null);
 
   const getRules = async () => {
@@ -146,16 +155,16 @@
             industry: response.result.data[0].attributes.industry_id,
             contract_rule_id: response.result.data[0].attributes.contract_rule_id,
             as: response.result.data[0].attributes.project_as,
-            start_date: format(
-              new Date(response.result.data[0].attributes.duration_start),
-              "d MMM yyyy",
-            ),
-            end_date: format(
-              new Date(response.result.data[0].attributes.duration_end),
-              "d MMM yyyy",
-            ),
+            start_date: response.result.data[0].attributes.duration_start,
+            end_date: response.result.data[0].attributes.duration_end,
             description: response.result.data[0].attributes.description,
           };
+
+          name = data.name;
+          endDate = data.end_date;
+          startDate = data.start_date;
+          description = data.description;
+          projectCase = data.contract_rule_id;
 
           await getCountSection();
           await getDocumentContractProject();
@@ -651,20 +660,46 @@
     }
   };
 
-  const formatBytes = (bytes, decimals = 2) => {
-    if (bytes === 0) return "0 Bytes";
+  const updateProject = async () => {
+    try {
+      let token = localStorage.getItem("token");
 
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+      if (!token) {
+        throw new Error("No token found");
+      }
 
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+      const response = await $call.call("client-dashboard", "update-contract-project", {
+        URLQuery: {},
+        URLParams: {
+          id: projectId,
+        },
+        Params: {
+          project_name: name,
+          duration_start: format(new Date(startDate), "yyyy-MM-dd"),
+          duration_end: format(new Date(endDate), "yyyy-MM-dd"),
+          description: description,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+      if (response.status !== 200) {
+        const error = new Error("Failed to update project");
+        error.response = response;
+        throw error;
+      }
+
+      await getProject();
+      triggerToast("updated");
+    } catch (error) {
+      console.log("error", error);
+      triggerToast("error");
+    }
   };
 
   const getFileByType = (type, id) => {
-    return files.find(file => file.type === type && file.id === id) || null;
+    return files.find((file) => file.type === type && file.id === id) || null;
   };
 
   const setIntervalGetDocument = () => {
@@ -675,6 +710,9 @@
       timer3 = setInterval(() => getDocumentContractProject(), 3000);
     }
   };
+
+  const formatDate = (dateString) =>
+    (dateString && format(new Date(dateString), "d MMM yyyy")) || "";
 
   onMount(() => {
     if (check("aiManagement.contractreviewer.project:view") === false) {
@@ -703,6 +741,11 @@
     clearTimeout(timer2);
     clearInterval(timer3);
   });
+
+  $effect(() => {
+    formattedStartDate = formatDate(startDate);
+    formattedEndDate = formatDate(endDate);
+  });
 </script>
 
 {#if ready}
@@ -711,7 +754,7 @@
     <div class="flex justify-between">
       <div class="flex flex-col gap-2">
         <div class="flex flex-col">
-          <Typography preset="Display sm/Semibold" text={data.name} color="primary" />
+          <Typography preset="Display sm/Semibold" text={name} color="primary" />
         </div>
         <Typography
           preset="Text md/Medium"
@@ -721,18 +764,53 @@
       </div>
       {#if check("aiManagement.contractreviewer.project:delete")}
         <div class="flex flex-col gap-2">
-          <div class="flex flex-col">
-            <Button
-              on:click={() => {
-                projectDelete = true;
-                typeTmp = null;
-                deleteModal = true;
-              }}
-              color="red"
-              outline
-            >
-              {$_("delete")}
-            </Button>
+          <div class="flex gap-2">
+            {#if !onEdit}
+              <Button
+                on:click={() => {
+                  onEdit = !onEdit;
+                }}
+                outline
+              >
+                {$_("edit")}
+              </Button>
+              <Button
+                on:click={() => {
+                  projectDelete = true;
+                  typeTmp = null;
+                  deleteModal = true;
+                }}
+                color="red"
+                outline
+              >
+                {$_("delete")}
+              </Button>
+            {:else}
+              <Button
+                on:click={() => {
+                  onEdit = !onEdit;
+                  datepickerOpen = false;
+                  name = data.name;
+                  endDate = data.end_date;
+                  startDate = data.start_date;
+                  description = data.description;
+                  projectCase = data.contract_rule_id;
+                }}
+                color="alternative"
+                outline
+              >
+                {$_("cancel")}
+              </Button>
+              <Button
+                on:click={() => {
+                  datepickerOpen = false;
+                  updateModal = true;
+                }}
+                outline
+              >
+                {$_("update")}
+              </Button>
+            {/if}
           </div>
         </div>
       {/if}
@@ -751,14 +829,14 @@
         <!-- form dropdown -->
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/medium" color="secondary" text={$_("projectTitle")} />
-          <InputRw onEdit={false} bind:value={data.name} />
+          <InputRw {onEdit} bind:value={name} />
         </div>
         <div class="flex gap-3">
           <div class="flex grow flex-col gap-1.5">
             <Typography preset="Text sm/medium" color="secondary" text={$_("case")} />
             <Dropdown
               dropdownOpen={false}
-              bind:selectedItem={data.contract_rule_id}
+              bind:selectedItem={projectCase}
               items={rules}
               isOverlay={true}
               disabled={true}
@@ -771,22 +849,35 @@
               text={`${$_("projectDuration")}`}
             />
             <DatePicker
-              isOpen={false}
-              startDate={data.start_date}
-              endDate={data.end_date}
+              isOpen={onEdit && datepickerOpen}
+              bind:startDate
+              bind:endDate
               isRange
               isMultipane
               enableFutureDates
             >
               <button
-                onclick={() => {}}
-                class="flex w-full p-2 border rounded-lg bg-primary-light dark:bg-gray-800 border-primary-light dark:border-primary-dark gap-2 justify-center items-center hover:cursor-default"
+                onclick={() => {
+                  if (onEdit) {
+                    datepickerOpen = !datepickerOpen;
+                  }
+                }}
+                class:open={datepickerOpen}
+                class="flex w-full p-2 border rounded-lg bg-primary-light dark:bg-gray-800 border-primary-light dark:border-primary-dark gap-2 justify-center items-center {onEdit
+                  ? 'hover:cursor-pointer'
+                  : 'hover:cursor-not-allowed'}"
               >
                 <CalendarPlus02
                   svgClass="w-4 h-4 ms-2 text-secondary-light dark:text-secondary-dark"
                 />
-                <div class="date text-secondary-light dark:text-secondary-dark">
-                  {data.start_date} - {data.end_date}
+                <div class="text-secondary-light dark:text-secondary-dark">
+                  {#if startDate != endDate}
+                    {formattedStartDate} - {formattedEndDate}
+                  {:else if startDate}
+                    {formattedStartDate}
+                  {:else}
+                    {$_("pickADate")}
+                  {/if}
                 </div>
               </button>
             </DatePicker>
@@ -794,7 +885,7 @@
         </div>
         <div class="flex flex-col gap-1.5">
           <Typography preset="Text sm/medium" color="secondary" text={$_("description")} />
-          <TextareaRw onEdit={false} bind:value={data.description} />
+          <TextareaRw {onEdit} bind:value={description} />
         </div>
       </div>
     </div>
@@ -926,15 +1017,47 @@
         }
       }}
       color="red"
-      class="me-2">{$_("yesImSure")}</Button
+      class="me-2"
     >
+      {$_("yesImSure")}
+    </Button>
     <Button
       color="alternative"
       onclick={() => {
         deleteModal = false;
         typeTmp = null;
         projectDelete = false;
-      }}>{$_("noCancel")}</Button
+      }}
     >
+      {$_("noCancel")}
+    </Button>
+  </div>
+</Modal>
+
+<Modal bind:open={updateModal} size="xs" autoclose>
+  <div class="text-center">
+    <ExclamationCircleSolid class="mx-auto mb-4 text-yellow-400 w-12 h-12" />
+    <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+      {$_("areYouSureYouWantToUpdate")}
+    </h3>
+    <Button
+      onclick={() => {
+        updateProject();
+        onEdit = false;
+      }}
+      color="primary"
+      class="me-2"
+    >
+      {$_("yesImSure")}
+    </Button>
+    <Button
+      color="alternative"
+      onclick={() => {
+        updateModal = false;
+        onEdit = false;
+      }}
+    >
+      {$_("noCancel")}
+    </Button>
   </div>
 </Modal>

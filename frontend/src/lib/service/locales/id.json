@@ -1265,5 +1265,16 @@
   "reGenerate": "Hasilkan Ulang",
   "generating": "Menghasilkan",
   "generateSuggestion": "Hasilkan Saran",
-  "generateMore": "Hasilkan Lebih"
+  "generateMore": "Hasilkan Lebih",
+  "update": "Perbarui",
+  "extractionResults": "Hasil Ekstraksi",
+  "reviewerSummary": "Ringkasan Pemeriksa",
+  "areYouSureYouWantToUpdate": "Apakah Anda yakin ingin memperbarui data ini?",
+  "backToProjectList": "Kembali ke Daftar Proyek",
+  "generatedOn": "Digenerate pada",
+  "overallSummary": "Ringkasan Keseluruhan",
+  "validData": "Data yang sudah sesuai",
+  "invalidData": "Data yang tidak sesuai",
+  "totalData": "Total Data",
+  "AIScanningLogs": "Log Pemindaian AI"
 }
