@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
+	"gitlab.hexacode.org/go-libs/hctypes"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/strapi"
 )
@@ -118,4 +120,67 @@ func detectDiskTypeFromName(name string) string {
 		return "Virtual"
 	}
 	return "Unknown"
+}
+
+func StrapiFindAll(Strapi *strapi.StrapiClassic, collection string, pageSize int) (hctypes.List, error) {
+	allItems := hctypes.List{}
+
+	page := 1
+
+	for {
+		status, resp, err := Strapi.Find(collection, U.Dict{
+			"sort": "createdAt:desc",
+			"pagination": U.Dict{
+				"page":     page,
+				"pageSize": pageSize,
+			},
+		})
+
+		if err != nil || status != 200 {
+			return allItems, fmt.Errorf("strapi error")
+		}
+
+		data, _ := resp.GetList("data")
+		for i := 0; i < len(data); i++ {
+			item, _ := data.GetDict(i)
+			allItems = allItems.Append(item)
+		}
+
+		meta, _ := resp.GetDict("meta")
+		pg, _ := meta.GetDict("pagination")
+
+		pageCount, _ := pg.GetFloat64("pageCount")
+		currentPage, _ := pg.GetFloat64("page")
+
+		if int(currentPage) >= int(pageCount) {
+			break
+		}
+
+		page++
+	}
+
+	return allItems, nil
+}
+
+func GetMonthFromCreatedAt(createdAt string) string {
+	if len(createdAt) < 7 {
+		return ""
+	}
+	return createdAt[:7]
+}
+
+func IsInLast12MonthsExact(month string) bool {
+	t, err := time.Parse("2006-01", month)
+	if err != nil {
+		return false
+	}
+
+	now := time.Now()
+	currentYear, currentMonth, _ := now.Date()
+
+	start := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, time.UTC).AddDate(0, -11, 0)
+
+	end := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, time.UTC)
+
+	return !t.Before(start) && !t.After(end)
 }
