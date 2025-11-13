@@ -32,14 +32,14 @@
   let datasExtraction = $state([]);
 
   let referenceDocumentNames = $state({});
-  let CSVResultSummary = $state({
-    valid: 0,
-    invalid: 0,
-    total: 0,
-    need_review: 0,
-    resolved: 0,
-    unresolved: 0,
-  });
+  // let CSVResultSummary = $state({
+  //   valid: 0,
+  //   invalid: 0,
+  //   total: 0,
+  //   need_review: 0,
+  //   resolved: 0,
+  //   unresolved: 0,
+  // });
 
   const getProjectResult = async () => {
     try {
@@ -54,14 +54,14 @@
         datas = [];
       }
 
-      if (CSVResultSummary.total > 0) {
-        CSVResultSummary.valid = 0;
-        CSVResultSummary.invalid = 0;
-        CSVResultSummary.total = 0;
-        CSVResultSummary.need_review = 0;
-        CSVResultSummary.resolved = 0;
-        CSVResultSummary.unresolved = 0;
-      }
+      // if (CSVResultSummary.total > 0) {
+      //   CSVResultSummary.valid = 0;
+      //   CSVResultSummary.invalid = 0;
+      //   CSVResultSummary.total = 0;
+      //   CSVResultSummary.need_review = 0;
+      //   CSVResultSummary.resolved = 0;
+      //   CSVResultSummary.unresolved = 0;
+      // }
 
       let response = await $call.call("client-dashboard", "get-contract-project-result", {
         URLQuery: {},
@@ -130,14 +130,14 @@
         // console.log("datasExtraction", datasExtraction);
       } else {
         // accumulate CSV summary
-        response.result.data[0].attributes.result.forEach((item) => {
-          CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
-          CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
-          CSVResultSummary.total += item.generated.tabular_result.summary.total;
-          CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
-          CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
-          CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
-        });
+        // response.result.data[0].attributes.result.forEach((item) => {
+        //   CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
+        //   CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
+        //   CSVResultSummary.total += item.generated.tabular_result.summary.total;
+        //   CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
+        //   CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
+        //   CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
+        // });
         // console.log("CSVResultSummary", CSVResultSummary);
 
         allDatas = buildDatasFromTabularLogs(response.result.data[0].attributes.result);
@@ -434,11 +434,10 @@
       </Button>
     </div>
   </div>
-  <Divider />
   <div class="flex gap-3">
     <div class="flex flex-col grow gap-6">
       <div class="flex flex-col gap-6 w-full">
-        {#if CSVResultSummary.total > 0}
+        <!-- {#if CSVResultSummary.total > 0}
           <Typography preset="Text md/Semibold" text={$_("overallSummary")} color="primary" />
           <div class="grid grid-cols-3 gap-4">
             {#each [...Array(3).keys()] as item}
@@ -481,7 +480,7 @@
               </div>
             {/each}
           </div>
-        {/if}
+        {/if} -->
         {#if datasExtraction.length > 0}
           <Divider />
           <Typography preset="Text md/Semibold" text={$_("extractionResults")} color="primary" />
