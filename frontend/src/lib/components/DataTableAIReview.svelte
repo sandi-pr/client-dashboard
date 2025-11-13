@@ -136,7 +136,7 @@
         {#if datas.length > 0}
           {#each Object.keys(datas[0]) as key}
             {#if key !== "actions" && key !== "id"}
-              {#if key === "ai_suggestion"}
+              {#if key === "ai_suggestion" || key === "summary"}
                 <TableHeadCell
                   class="bg-brand-solid-light dark:bg-brand-solid-dark text-primary-onbrand-light dark:text-primary-onbrand-dark"
                   >{splitCamelCase($_(toCamelCase(key)))}</TableHeadCell
@@ -159,7 +159,7 @@
             {#each Object.keys(data) as key}
               {#if key !== "actions" && key !== "id"}
                 {#if typeof data[key] === "string" || typeof data[key] === "number"}
-                  {#if key === "ai_suggestion"}
+                  {#if key === "ai_suggestion" || key === "summary"}
                     <TableBodyCell
                       on:click={() => {
                         suggestionModal = true;
