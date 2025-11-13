@@ -18,8 +18,10 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"gitlab.hexacode.org/go-libs/cr3call"
+	"gitlab.hexacode.org/go-libs/hctypes"
 	U "gitlab.hexacode.org/go-libs/hctypes"
 	"gitlab.hexacode.org/go-libs/microservice/config"
 	"gitlab.hexacode.org/go-libs/strapi"
@@ -470,6 +472,13 @@ func DeleteAllDocumentProject(token string, id int) error {
 				return err
 			}
 
+			err := DeleteProjectResult(int(idDoc), token)
+
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
 			status, _, err := Strapi.Delete("project-documents-table", int64(idDoc))
 
 			if status != 200 {
@@ -495,6 +504,72 @@ func DeleteAllDocumentProject(token string, id int) error {
 				},
 			}, false)
 		}
+		page++
+	}
+
+	return nil
+}
+
+func DeleteProjectResult(id int, token string) error {
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, token)
+
+	page := 1
+	for {
+
+		status, result, err := Strapi.Find("project-results-table", U.Dict{
+			"filters": U.Dict{
+				"project_document_id": U.Dict{
+					"$eq": int64(id),
+				},
+			},
+		})
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if status != 200 {
+			fmt.Println(status)
+			return err
+		}
+
+		list, ok := result.GetList("data")
+
+		if !ok {
+			return err
+		}
+
+		if len(list) == 0 {
+			break
+		}
+
+		for i := 0; i < len(list); i++ {
+			dict, ok := list.GetDict(i)
+
+			if !ok {
+				return err
+			}
+
+			idResult, ok := dict.GetFloat64("id")
+
+			if !ok {
+				return err
+			}
+
+			status, _, err := Strapi.Delete("project-results-table", int64(idResult))
+
+			if status != 200 {
+				fmt.Println(status)
+				return err
+			}
+
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+		}
+
 		page++
 	}
 
@@ -1239,4 +1314,295 @@ func GetContractProjectResultWithDocumentId(ctx *config.ConfigContext) (int, U.D
 	}
 
 	return 200, documents, nil
+}
+
+func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, ok := ctx.Headers.GetString("Authorization")
+	if !ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(
+		STRAPI_URL,
+		strings.Replace(string(bearer), "Bearer ", "", 1),
+	)
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil || status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	fmt.Println("ME:", me)
+
+	// ---- GET ALL DATA FROM STRAPI USING PAGINATION ----
+	allDocs, err := StrapiFindAll(Strapi, "project-results-table", 25)
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	// ---- GROUP BY MONTH & PROJECT ----
+	// output: map[month][][]tabular_result
+	grouped := ExtractTabularResults(allDocs)
+
+	// ---- BUILD 12 MONTH LIST ----
+	last12 := GetLast12Months()
+
+	chartData := []U.Dict{}
+	var summaryProjects [][]hctypes.Dict // kumpulan project utk summary
+
+	// ---- GENERATE CHART DATA ----
+	for _, month := range last12 {
+
+		projects, exists := grouped[month]
+
+		if exists {
+			// projects = [][]hctypes.Dict (project → tabular_result[])
+			total, valid, invalid := CalculatePeopleStatus_MultiFiles(projects)
+
+			chartData = append(chartData, U.Dict{
+				"month":        month,
+				"total_people": total,
+				"valid":        valid,
+				"invalid":      invalid,
+			})
+
+			// -> summary harus menghitung project yang MASUK chart
+			summaryProjects = append(summaryProjects, projects...)
+
+		} else {
+			chartData = append(chartData, U.Dict{
+				"month":        month,
+				"total_people": 0,
+				"valid":        0,
+				"invalid":      0,
+			})
+		}
+	}
+
+	// ---- SUMMARY: HITUNG TOTAL PER PROJECT (HANYA LAST 12 MONTH) ----
+	allTotal, allValid, allInvalid := CalculatePeopleStatus_MultiFiles(summaryProjects)
+
+	return 200, U.Dict{
+		"chart": chartData,
+		"summary": U.Dict{
+			"total_people": allTotal,
+			"valid":        allValid,
+			"invalid":      allInvalid,
+		},
+	}, nil
+}
+
+func ExtractTabularResults(strapiDocs hctypes.List) map[string][][]hctypes.Dict {
+	result := map[string][][]hctypes.Dict{}
+
+	for i := 0; i < len(strapiDocs); i++ {
+
+		doc, ok := strapiDocs.GetDict(i)
+		if !ok {
+			continue
+		}
+
+		attr, ok := doc.GetDict("attributes")
+		if !ok {
+			continue
+		}
+
+		createdAtRaw, _ := attr.GetString("createdAt")
+		month := GetMonthFromCreatedAt(string(createdAtRaw))
+		if month == "" {
+			continue
+		}
+
+		resultList, ok := attr.GetList("result")
+		if !ok {
+			continue
+		}
+
+		// satu project: list tabular_result
+		oneProject := []hctypes.Dict{}
+
+		for j := 0; j < len(resultList); j++ {
+			item, ok := resultList.GetDict(j)
+			if !ok {
+				continue
+			}
+
+			gen, ok := item.GetDict("generated")
+			if !ok {
+				continue
+			}
+
+			tab, ok := gen.GetDict("tabular_result")
+			if !ok {
+				continue
+			}
+
+			oneProject = append(oneProject, tab)
+		}
+
+		result[month] = append(result[month], oneProject)
+	}
+
+	return result
+}
+
+func CalculatePeopleStatus_MultiFiles(allProjects [][]hctypes.Dict) (total int, totalValid int, totalInvalid int) {
+
+	for _, tabs := range allProjects {
+
+		statusByPerson := map[int][]string{}
+
+		for _, tab := range tabs {
+
+			logs, ok := tab.GetList("logs")
+			if !ok {
+				continue
+			}
+
+			for i := 0; i < len(logs); i++ {
+
+				logEntry, ok := logs.GetDict(i)
+				if !ok {
+					continue
+				}
+
+				rowIdxFloat, ok := logEntry.GetFloat64("row_index")
+				if !ok {
+					continue
+				}
+
+				rowIndex := int(rowIdxFloat)
+
+				statusRaw, _ := logEntry.GetString("status")
+				status := strings.ToLower(strings.TrimSpace(string(statusRaw)))
+
+				statusByPerson[rowIndex] = append(statusByPerson[rowIndex], status)
+			}
+		}
+
+		for _, statuses := range statusByPerson {
+
+			total++
+
+			allValid := true
+
+			for _, s := range statuses {
+				if s == "invalid" || s == "unknown" {
+					allValid = false
+				}
+			}
+
+			if allValid {
+				totalValid++
+			} else {
+				totalInvalid++
+			}
+		}
+	}
+
+	return
+}
+
+func CalculatePeopleStatus_PerProject(allProjects hctypes.List) (total int, totalValid int, totalInvalid int) {
+
+	for i := 0; i < len(allProjects); i++ {
+
+		project, ok := allProjects.GetDict(i)
+		if !ok {
+			continue
+		}
+
+		attr, ok := project.GetDict("attributes")
+		if !ok {
+			continue
+		}
+
+		resultList, ok := attr.GetList("result")
+		if !ok {
+			continue
+		}
+
+		statusByPerson := map[int][]string{}
+
+		for j := 0; j < len(resultList); j++ {
+
+			item, ok := resultList.GetDict(j)
+			if !ok {
+				continue
+			}
+
+			generated, ok := item.GetDict("generated")
+			if !ok {
+				continue
+			}
+
+			tab, ok := generated.GetDict("tabular_result")
+			if !ok {
+				continue
+			}
+
+			logs, ok := tab.GetList("logs")
+			if !ok {
+				continue
+			}
+
+			for k := 0; k < len(logs); k++ {
+
+				logEntry, ok := logs.GetDict(k)
+				if !ok {
+					continue
+				}
+
+				rowIdxFloat, ok := logEntry.GetFloat64("row_index")
+				if !ok {
+					continue
+				}
+
+				rowIndex := int(rowIdxFloat)
+
+				statusRaw, _ := logEntry.GetString("status")
+				status := strings.ToLower(strings.TrimSpace(string(statusRaw)))
+
+				statusByPerson[rowIndex] = append(statusByPerson[rowIndex], status)
+			}
+		}
+
+		for _, statuses := range statusByPerson {
+
+			total++
+
+			allValid := true
+
+			for _, s := range statuses {
+				if s == "invalid" || s == "unknown" {
+					allValid = false
+				}
+			}
+
+			if allValid {
+				totalValid++
+			} else {
+				totalInvalid++
+			}
+		}
+	}
+
+	return
+}
+
+func GetLast12Months() []string {
+	now := time.Now()
+	months := []string{}
+
+	for i := 0; i < 12; i++ {
+		t := now.AddDate(0, -i, 0)
+		months = append(months, t.Format("2006-01"))
+	}
+
+	for i, j := 0, len(months)-1; i < j; i, j = i+1, j-1 {
+		months[i], months[j] = months[j], months[i]
+	}
+
+	return months
 }
