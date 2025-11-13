@@ -6354,6 +6354,17 @@
                     "required": true
                 }
             ]
+        },
+        {
+            "name": "get-all-report-document-reviewer",
+            "path": "/get-all-report-document-reviewer",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetAllReportWithChart"
+            }
         }
     ],
     "options": {
@@ -7387,6 +7398,9 @@
                     },
                     "creator_id": {
                         "type": "integer"
+                    },
+                    "summary_of_findings": {
+                        "type": "json"
                     }
                 }
             },
