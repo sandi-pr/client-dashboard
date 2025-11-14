@@ -29,10 +29,9 @@ All Rights Reserved
   const getActionItems = async () => {
     actionItems = [
       {
-        disabled: !check("aiManagement.contractreviewer.case:view"),
         href: isFrontend
-          ? "/document_reviewer/case"
-          : await $call.getPage("client-dashboard", "contract-case"),
+          ? "/document_reviewer/report/summary" + "?type=compliant&projectDocumentId=" + 82
+          : await $call.getPage("client-dashboard", "report-summary") + "?type=compliant&projectDocumentId=" + 82,
         icon: "checkCircle",
         iconColor: "fg-success-primary",
         actionName: "1,273",
@@ -42,9 +41,9 @@ All Rights Reserved
       },
       {
         href: isFrontend
-          ? "/document_reviewer/report"
-          : await $call.getPage("client-dashboard", "contract-report"),
-        icon: "clipboardCheck",
+          ? "/document_reviewer/report/summary" + "?type=nonCompliant&projectDocumentId=" + 82
+          : await $call.getPage("client-dashboard", "report-summary") + "?type=nonCompliant&projectDocumentId=" + 82,
+        icon: "alertTriangle",
         iconColor: "fg-warning-primary",
         actionName: "6,256",
         desc: "nonCompliantData",
@@ -52,11 +51,10 @@ All Rights Reserved
         changeType: "decrease",
       },
       {
-        disabled: !check("aiManagement.contractreviewer.project:create"),
         href: isFrontend
-          ? "/document_reviewer/project"
-          : await $call.getPage("client-dashboard", "contract-project-list"),
-        icon: "packagePlus",
+          ? "/document_reviewer/report/summary" + "?type=total&projectDocumentId=" + 82
+          : await $call.getPage("client-dashboard", "report-summary") + "?type=total&projectDocumentId=" + 82,
+        icon: "infoCircle",
         iconColor: "fg-secondary",
         actionName: "11,890",
         desc: "totalData",
@@ -66,7 +64,7 @@ All Rights Reserved
     ];
   };
 
-    const handleGetProjects = async () => {
+  const handleGetProjects = async () => {
     gettingDatas = true;
 
     const projects = await getProjects($call, { page: 1, pageSize: 5 }, false);
@@ -116,9 +114,11 @@ All Rights Reserved
     gettingDatas = false;
   };
 
+  // create function to check data from api get-all-report-document-reviewer
+
   onMount(async () => {
-    await getActionItems();
     await handleGetProjects();
+    await getActionItems();
   });
 
 </script>
