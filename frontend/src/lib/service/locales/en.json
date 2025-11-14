@@ -1289,5 +1289,7 @@
   "nonCompliantData": "Non-Compliant Data",
   "viewReport": "View report",
   "vsLastProject": "vs last project",
-  "auditPerformanceTrends": "Audit Performance Trends"
+  "auditPerformanceTrends": "Audit Performance Trends",
+  "projectReportLists": "Project Report Lists",
+  "report": "Audit Reporting"
 }

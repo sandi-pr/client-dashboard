@@ -1289,5 +1289,7 @@
   "nonCompliantData": "Data Non-Compliant",
   "viewReport": "Lihat laporan",
   "vsLastProject": "vs proyek terakhir",
-  "auditPerformanceTrends": "Perilaku Audit"
+  "auditPerformanceTrends": "Perilaku Audit",
+  "projectReportLists": "Daftar Laporan Proyek",
+  "report": "Laporan Audit"
 }
