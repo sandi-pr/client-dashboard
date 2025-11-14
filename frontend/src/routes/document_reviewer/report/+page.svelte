@@ -15,10 +15,16 @@ All Rights Reserved
     call,
     check,
   } from "$lib";
-  import { Typography, ReportCard, ColumnChart } from "$lib";
+  import { Typography, DataTable, getIcons, ReportCard, ColumnChart, getProjects, StateCard } from "$lib";
+  
+  const IllustrationEmpty = getIcons("illustrationEmpty");
+  const IllustrationProgress = getIcons("illustrationProgress");
 
   const isFrontend = process.env.NODE_ENV === "development";
+  let gettingDatas = $state(false);
   let actionItems = $state([]);
+  let datasTable = $state([]);
+  let datasConfigs = $state({});
 
   const getActionItems = async () => {
     actionItems = [
@@ -60,8 +66,59 @@ All Rights Reserved
     ];
   };
 
+    const handleGetProjects = async () => {
+    gettingDatas = true;
+
+    const projects = await getProjects($call, { page: 1, pageSize: 5 }, false);
+    if (projects.length > 0) {
+      datasConfigs = {
+        headers: "projectReportLists",
+        actions: [
+          {
+            name: "viewAll",
+            href: isFrontend
+              ? "/document_reviewer/project"
+              : await $call.getPage("client-dashboard", "contract-project-list"),
+            type: "info",
+          },
+        ],
+        seperator: true,
+      };
+
+      let url = isFrontend
+        ? "/document_reviewer/report/detail"
+        : await $call.getPage("client-dashboard", "contract-project-detail");
+
+      const promise = projects.map((project) => {
+        const { document_rule_id, ...rest } = {
+          id: project.id,
+          project_name: project.attributes.project_name,
+          actions: {
+            objects: [
+              {
+                href: url + `?projectId=${project.id}`,
+                name: "View",
+                type: "primary",
+              },
+            ],
+          },
+        };
+        return {
+          ...rest,
+        };
+      });
+
+      datasTable = await Promise.all(promise);
+    } else {
+      datasTable = [];
+    }
+
+    gettingDatas = false;
+  };
+
   onMount(async () => {
     await getActionItems();
+    await handleGetProjects();
   });
 
 </script>
@@ -91,6 +148,21 @@ All Rights Reserved
           {/if}
           <ReportCard {actionItems} />
         </div>
+
+        {#if gettingDatas}
+          <StateCard
+            illustration={IllustrationProgress}
+            description={$_("fetchingDataPleaseWait")}
+          />
+        {/if}
+
+        {#if datasTable.length > 0}
+          <DataTable bind:datas={datasTable} bind:configs={datasConfigs} />
+        {/if}
+
+        {#if !gettingDatas && datasTable.length === 0}
+          <StateCard illustration={IllustrationEmpty} description={$_("youDontHaveAnyDataYet")} />
+        {/if}
       </div>
     </div>
   </div>
