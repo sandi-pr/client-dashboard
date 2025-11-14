@@ -114,6 +114,10 @@ import ApiConnectorSupportIcon from "../icon/api-connector-support.svelte";
 import BrushCleaningIcon from "../icon/brush-cleaning.svelte";
 import SearchRefractionIcon from "../icon/search-refraction.svelte";
 import MessageTextSquare01Icon from "../icon/message-text-square-01.svelte";
+import ClipboardCheckIcon from "../icon/clipboard-check.svelte";
+import TrendDownIcon from "../icon/trend-down-01.svelte";
+import TrendUpIcon from "../icon/trend-up-01.svelte";
+import CheckCircleIcon from "../icon/check-circle.svelte";
 import Var76 from "../icon/var-76.svelte";
 import Var85 from "../icon/var-85.svelte";
 import Var86 from "../icon/var-86.svelte";
@@ -365,6 +369,14 @@ let getIcons = (presetIcon: String) => {
       return SearchRefractionIcon;
     case "messageTextSquare01":
       return MessageTextSquare01Icon;
+    case "clipboardCheck":
+      return ClipboardCheckIcon;
+    case "trendDown":
+      return TrendDownIcon;
+    case "trendUp":
+      return TrendUpIcon;
+    case "checkCircle":
+      return CheckCircleIcon;
     case "var76":
       return Var76;
     case "var85":

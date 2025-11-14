@@ -1,27 +1,32 @@
 <script lang="ts">
-  import { getIcons, Typography, FeaturedIcon, Badge } from "$lib";
+  import { getIcons, Typography, FeaturedIcon, Badge, Button } from "$lib";
+  import { _ } from "svelte-i18n";
   import { Card } from "flowbite-svelte";
 
   let {
     type,
     href,
     icon,
+    iconColor,
     image,
     alt,
     title,
     description,
     subtext,
+    changeType,
     onclick,
     comingSoon,
   }: {
     type?: string;
     href?: string;
     icon?: string;
+    iconColor?: string;
     image?: string;
     alt?: string;
     title: string;
     description: string;
     subtext?: string;
+    changeType?: string;
     onclick?: () => void;
     comingSoon?: boolean;
   } = $props();
@@ -31,12 +36,13 @@
   <Card
     {href}
     on:click={onclick}
-    horizontal={true}
-    class={`md:items-center !gap-1 md:!gap-3 w-full ${type === "ledger" ? "!p-6 border-secondary-light dark:border-secondary-dark" : "min-h-28 !p-4 border-brand-light dark:border-primary-dark gap-3"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark shadow-sm hover:no-underline`}
+    horizontal={type === "alt" || type === "report" ? false : true}
+    class={`${type === "alt" ? "!p-0 min-h-[270px]" : type === "report" ? "!p-0" : "!p-4 md:items-center min-h-28"} !gap-1 md:!gap-3 w-full ${type === "ledger" ? " border-secondary-light dark:border-secondary-dark" : "border-brand-light dark:border-primary-dark gap-3"} bg-primary-light dark:bg-primary-dark hover:bg-primary-hover-light dark:hover:bg-primary-hover-dark shadow-sm hover:no-underline`}
     size="none"
   >
+  <div class={type === "alt" || type === "report" ? "flex flex-col grow gap-2 md:gap-5 px-4 pt-4 md:px-6 md:pt-6" : "flex items-center !gap-1 md:!gap-3"}>
     {#if icon}
-      <FeaturedIcon classesSvg={getIcons(icon)} />
+      <FeaturedIcon classesSvg={getIcons(icon)} color={type === "alt" ? "alt" : type === "report" ? "primary" : "brand"} {iconColor} />
     {/if}
     {#if type === "ledger"}
       <div class="gap-2">
@@ -46,11 +52,29 @@
         </div>
         <Typography preset="Text sm/Medium" text={subtext} color="tertiary" />
       </div>
-    {:else}
+    {:else if type === "report"}
       <div class="gap-[2px]">
-        <Typography preset="Text md/Semibold" text={title} color="primary" />
         <Typography
-          preset="Text sm/Regular"
+          preset="Text sm/Medium"
+          text={description}
+          color="secondary"
+          propClass="!leading-tight !pb-2"
+        />
+        <div class="flex justify-between items-center">
+          <Typography preset="Display sm/Semibold" text={title} color="primary" />
+          <div class="flex gap-1">
+            <!-- svelte-ignore svelte_component_deprecated -->
+            <svelte:component this={getIcons(changeType === "decrease" ? "trendDown" : "trendUp")} />
+            <Typography preset="Text sm/Medium" text={subtext} color={changeType === "decrease" ? "error-primary" : "success-primary"} propClass="pe-1" />
+            <Typography preset="Text sm/Medium" text={$_("vsLastProject")} color="tertiary" />
+          </div>
+        </div>
+      </div>
+    {:else}
+      <div class={type === "alt" ? "flex flex-col gap-2" : "gap-[2px]"}>
+        <Typography preset={`${type === "alt" ? "Display sm/Semibold" : "Text md/Semibold"}`} text={title} color="primary" />
+        <Typography
+          preset={`${type === "alt" ? "Text sm/Medium" : "Text sm/Regular"}`}
           text={description}
           color="secondary"
           propClass="!leading-tight !pb-2"
@@ -58,6 +82,14 @@
         {#if comingSoon}
           <Badge type="brand" text="Coming soon" />
         {/if}
+      </div>
+    {/if}
+    </div>
+    {#if type === "alt" || type === "report"}
+      <div class={`flex ${type === "report" ? "items-end pr-4" : "pl-4"} pb-4 flex-col items-start border-t border-fg-secondary-light dark:border-fg-secondary-dark gap-2`}>
+        <Button funcButton={onclick} color="light">
+          {type === "report" ? $_("viewReport") : $_("openHere")}
+        </Button>
       </div>
     {/if}
   </Card>

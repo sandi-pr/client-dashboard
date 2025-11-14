@@ -68,7 +68,7 @@
     let token = localStorage.getItem("token");
     if (!token) return;
     try {
-      const response = await $call.call("hexa-ai-rag", "get-log-messages", {
+      const response = await $call.call("hexa-ai-rag", "get-conversations-log", {
         URLQuery: {},
         URLParams: {},
         Params: {
@@ -80,7 +80,7 @@
         },
       });
 
-      // console.log("response", response);
+      console.log("response getChatLogs", response);
       if (response?.status !== 200) {
         const error = new Error("Failed to fetch chat logs");
         error.status = response?.status || response?.result?.status || 500;
@@ -90,10 +90,10 @@
 
       datas = response.result.data.map((item) => ({
         id: item.id,
-        user: item.user || "Assistant",
-        botsName: item.bot_name || "Support Bot",
+        // user: item.user || "Assistant",
+        botsName: getBot(item.attributes.conversation_id) || "",
         chatName: item.chat_name || "",
-        message: abbreviateMessage(item.message) || "",
+        // message: abbreviateMessage(item.message) || "",
         datetime: new Date(item.datetime).toLocaleString(),
         checkbox: {
           checked: false,
@@ -152,6 +152,47 @@
       };
     } catch (error) {
       console.log("error", error);
+    }
+  };
+
+  const getBot = async (botId) => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        let response = await $call.call("client-dashboard", "get-bot", {
+          URLQuery: {},
+          URLParams: {
+            id: botId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        console.log("response getBot", response);
+
+        if (
+          response === null ||
+          response === undefined ||
+          (response?.status && response.status !== 200)
+        ) {
+          return;
+        }
+
+        const bot = response.result;
+        const attributes = bot.attributes;
+
+        
+        const botName = attributes.bot_name;
+
+        console.log("botName", botName);
+
+        // return botName;
+
+      } catch (error) {
+        // errorResponseTrigger(error);
+      }
     }
   };
 
