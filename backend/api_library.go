@@ -785,7 +785,7 @@ func UpdateApi(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 	}
 
 	if params != "" {
-		var paramsJson map[string]interface{}
+		var paramsJson interface{}
 		err := json.Unmarshal([]byte(params), &paramsJson)
 		if err != nil {
 			return ctx.Error(400, "Invalid parameter: params")
@@ -797,7 +797,7 @@ func UpdateApi(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError)
 	}
 
 	if body != "" {
-		var bodyJson map[string]interface{}
+		var bodyJson interface{}
 		err := json.Unmarshal([]byte(body), &bodyJson)
 		if err != nil {
 			return ctx.Error(400, "Invalid parameter: body")
