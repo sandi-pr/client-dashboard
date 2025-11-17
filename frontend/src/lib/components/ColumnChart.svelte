@@ -5,66 +5,13 @@
   import { UsersGroupOutline, ArrowUpOutline } from "flowbite-svelte-icons";
   import { _ } from "svelte-i18n";
   import { Typography } from "$lib";
+  import { onMount } from "svelte";
+
+  export let chartSeries = [];
 
   const options: ApexOptions = {
     colors: ["#6941C6", "#9E77ED", "#EAECF0"],
-    series: [
-      {
-        name: "Compliant Data",
-        color: "#6941C6",
-        data: [
-          { x: "Jan", y: 300 },
-          { x: "Feb", y: 370 },
-          { x: "Mar", y: 230 },
-          { x: "Apr", y: 320 },
-          { x: "May", y: 280 },
-          { x: "Jun", y: 350 },
-          { x: "Jul", y: 320 },
-          { x: "Aug", y: 300 },
-          { x: "Sep", y: 290 },
-          { x: "Oct", y: 330 },
-          { x: "Nov", y: 370 },
-          { x: "Dec", y: 280 }
-        ]
-      },
-      {
-        name: "Non-compliant Data",
-        color: "#9E77ED",
-        data: [
-          { x: "Jan", y: 250 },
-          { x: "Feb", y: 350 },
-          { x: "Mar", y: 170 },
-          { x: "Apr", y: 270 },
-          { x: "May", y: 120 },
-          { x: "Jun", y: 310 },
-          { x: "Jul", y: 250 },
-          { x: "Aug", y: 280 },
-          { x: "Sep", y: 250 },
-          { x: "Oct", y: 280 },
-          { x: "Nov", y: 350 },
-          { x: "Dec", y: 220 }
-        ]
-      },
-      {
-        name: "Total Data",
-        color: "#EAECF0",
-        // Total Data = Compliant Data + Non-compliant Data
-        data: [
-          { x: "Jan", y: 550 }, // 300 + 250
-          { x: "Feb", y: 720 }, // 370 + 350
-          { x: "Mar", y: 400 }, // 230 + 170
-          { x: "Apr", y: 590 }, // 320 + 270
-          { x: "May", y: 400 }, // 280 + 120
-          { x: "Jun", y: 660 }, // 350 + 310
-          { x: "Jul", y: 570 }, // 320 + 250
-          { x: "Aug", y: 580 }, // 300 + 280
-          { x: "Sep", y: 540 }, // 290 + 250
-          { x: "Oct", y: 610 }, // 330 + 280
-          { x: "Nov", y: 720 }, // 370 + 350
-          { x: "Dec", y: 500 }  // 280 + 220
-        ]
-      }
-    ],
+    series: chartSeries,
     chart: {
       type: "bar",
       height: "320px",
@@ -147,6 +94,10 @@
       opacity: 1
     }
   };
+
+  onMount(() => {
+    console.log("check chartSeries", chartSeries);
+  })
 </script>
 
 <div class="">

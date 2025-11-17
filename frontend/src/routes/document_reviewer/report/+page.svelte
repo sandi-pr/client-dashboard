@@ -26,6 +26,12 @@ All Rights Reserved
   let datasTable = $state([]);
   let datasConfigs = $state({});
 
+  let chartSeries = [
+      { name: "Compliant Data", color: "#6941C6", data: [] }, 
+      { name: "Non-compliant Data", color: "#9E77ED", data: [] }, 
+      { name: "Total Data", color: "#EAECF0", data: [] } 
+  ];
+
   const getActionItems = async () => {
     actionItems = [
       {
@@ -114,9 +120,73 @@ All Rights Reserved
     gettingDatas = false;
   };
 
-  // create function to check data from api get-all-report-document-reviewer
+  function formatChartData(chartData) {
+    const compliantData = [];
+    const nonCompliantData = [];
+    const totalData = []; 
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    const dataMap = new Map();
+    chartData.forEach(item => {
+      const monthIndex = parseInt(item.month.split('-')[1]) - 1;
+      const monthLabel = monthNames[monthIndex];
+      
+      dataMap.set(monthLabel, {
+        valid: item.valid,
+        invalid: item.invalid,
+        total_people: item.total_people
+      });
+    });
+
+    monthNames.forEach(monthLabel => {
+      const data = dataMap.get(monthLabel) || { valid: 0, invalid: 0, total_people: 0 };
+      
+      compliantData.push({ x: monthLabel, y: data.valid });
+      nonCompliantData.push({ x: monthLabel, y: data.invalid });
+      totalData.push({ x: monthLabel, y: data.total_people }); 
+    });
+
+    return { compliantData, nonCompliantData, totalData };
+  }
+
+const getReport = async () => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        // ... (panggilan API Anda) ...
+        const response = await $call.call("client-dashboard", "get-all-report-document-reviewer", {
+             // ... Params dan Headers Anda ...
+        });
+
+        if (response.status !== 200) {
+          console.log(response);
+          return;
+        }
+
+        console.log("check get-all-report-document-reviewer", response);
+        
+        // --- PROSES DATA UNTUK CHART ---
+        if (response.result && response.result.chart && response.result.chart.length > 0) {
+            const { compliantData, nonCompliantData, totalData } = formatChartData(response.result.chart);
+
+            // 4. Perbarui variabel reaktif chartSeries
+            // Mengganti seluruh array untuk memicu reaktivitas
+            chartSeries = [
+                { ...chartSeries[0], data: compliantData },
+                { ...chartSeries[1], data: nonCompliantData },
+                { ...chartSeries[2], data: totalData } 
+            ];
+        }
+        // --- AKHIR PROSES DATA ---
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   onMount(async () => {
+    await getReport();
     await handleGetProjects();
     await getActionItems();
   });
