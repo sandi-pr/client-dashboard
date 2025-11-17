@@ -62,12 +62,12 @@
         />
         <div class="flex justify-between items-center">
           <Typography preset="Display sm/Semibold" text={title} color="primary" />
-          <div class="flex gap-1">
+        </div>
+        <div class="flex gap-1 justify-end">
             <!-- svelte-ignore svelte_component_deprecated -->
             <svelte:component this={getIcons(changeType === "decrease" ? "trendDown" : "trendUp")} />
             <Typography preset="Text sm/Medium" text={subtext} color={changeType === "decrease" ? "error-primary" : "success-primary"} propClass="pe-1" />
             <Typography preset="Text sm/Medium" text={$_("vsLastProject")} color="tertiary" />
-          </div>
         </div>
       </div>
     {:else}
