@@ -285,6 +285,11 @@
             "file_path": "template/document_reviewer/project/review.html"
         },
         {
+            "name": "contract-project-review-summary",
+            "path": "/document_reviewer/project/review/summary",
+            "file_path": "template/document_reviewer/project/review/summary.html"
+        },
+        {
             "name": "contract-project-review-logs",
             "path": "/document_reviewer/project/review/logs",
             "file_path": "template/document_reviewer/project/review/logs.html"

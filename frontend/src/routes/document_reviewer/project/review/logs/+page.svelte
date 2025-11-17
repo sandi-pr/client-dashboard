@@ -1,5 +1,5 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { Button } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { page } from "$app/stores";

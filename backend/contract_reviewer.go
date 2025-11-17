@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -1349,7 +1350,7 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	last12 := GetLast12Months()
 
 	chartData := []U.Dict{}
-	var summaryProjects [][]hctypes.Dict // kumpulan project utk summary
+	var summaryProjects [][]hctypes.Dict
 
 	// ---- GENERATE CHART DATA ----
 	for _, month := range last12 {
@@ -1367,7 +1368,6 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 				"invalid":      invalid,
 			})
 
-			// -> summary harus menghitung project yang MASUK chart
 			summaryProjects = append(summaryProjects, projects...)
 
 		} else {
@@ -1383,12 +1383,22 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	// ---- SUMMARY: HITUNG TOTAL PER PROJECT (HANYA LAST 12 MONTH) ----
 	allTotal, allValid, allInvalid := CalculatePeopleStatus_MultiFiles(summaryProjects)
 
+	// ---- PERSENTASE: PERBANDINGAN BULAN INI VS BULAN LALU ----
+	currentMonth := time.Now().Format("2006-01")
+	previousMonth := time.Now().AddDate(0, -1, 0).Format("2006-01")
+
+	currentTotal, currentValid, currentInvalid := CalculateMonthlyPeopleStatus(grouped, currentMonth)
+	prevTotal, prevValid, prevInvalid := CalculateMonthlyPeopleStatus(grouped, previousMonth)
+
 	return 200, U.Dict{
 		"chart": chartData,
 		"summary": U.Dict{
-			"total_people": allTotal,
-			"valid":        allValid,
-			"invalid":      allInvalid,
+			"total_people":             allTotal,
+			"valid":                    allValid,
+			"invalid":                  allInvalid,
+			"percentage_total_people":  CalculatePercentageChange(prevTotal, currentTotal),
+			"percentage_valid":         CalculatePercentageChange(prevValid, currentValid),
+			"percentage_invalid":       CalculatePercentageChange(prevInvalid, currentInvalid),
 		},
 	}, nil
 }
@@ -1589,6 +1599,27 @@ func CalculatePeopleStatus_PerProject(allProjects hctypes.List) (total int, tota
 	}
 
 	return
+}
+
+func CalculateMonthlyPeopleStatus(grouped map[string][][]hctypes.Dict, month string) (total int, totalValid int, totalInvalid int) {
+	projects, ok := grouped[month]
+	if !ok {
+		return
+	}
+
+	return CalculatePeopleStatus_MultiFiles(projects)
+}
+
+func CalculatePercentageChange(previous int, current int) float64 {
+	if previous == 0 {
+		if current == 0 {
+			return 0
+		}
+		return 100
+	}
+
+	change := (float64(current-previous) / float64(previous)) * 100
+	return math.Round(change*100) / 100
 }
 
 func GetLast12Months() []string {

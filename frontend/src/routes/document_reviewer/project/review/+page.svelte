@@ -26,18 +26,20 @@
   let generatedOn = $state("");
 
   let datas = $state([]);
+  let allDatas = $state([]);
+  let datasSOF = $state([]);
   let tmpResult = $state([]);
   let datasExtraction = $state([]);
 
   let referenceDocumentNames = $state({});
-  let CSVResultSummary = $state({
-    valid: 0,
-    invalid: 0,
-    total: 0,
-    // need_review: 0,
-    // resolved: 0,
-    // unresolved: 0,
-  });
+  // let CSVResultSummary = $state({
+  //   valid: 0,
+  //   invalid: 0,
+  //   total: 0,
+  //   need_review: 0,
+  //   resolved: 0,
+  //   unresolved: 0,
+  // });
 
   const getProjectResult = async () => {
     try {
@@ -52,14 +54,14 @@
         datas = [];
       }
 
-      if (CSVResultSummary.total > 0) {
-        CSVResultSummary.valid = 0;
-        CSVResultSummary.invalid = 0;
-        CSVResultSummary.total = 0;
-        // CSVResultSummary.need_review = 0;
-        // CSVResultSummary.resolved = 0;
-        // CSVResultSummary.unresolved = 0;
-      }
+      // if (CSVResultSummary.total > 0) {
+      //   CSVResultSummary.valid = 0;
+      //   CSVResultSummary.invalid = 0;
+      //   CSVResultSummary.total = 0;
+      //   CSVResultSummary.need_review = 0;
+      //   CSVResultSummary.resolved = 0;
+      //   CSVResultSummary.unresolved = 0;
+      // }
 
       let response = await $call.call("client-dashboard", "get-contract-project-result", {
         URLQuery: {},
@@ -112,7 +114,7 @@
           )
           .filter((value, index, self) => self.indexOf(value) === index);
 
-        console.log("referenceDocumentIds", referenceDocumentIds);
+        // console.log("referenceDocumentIds", referenceDocumentIds);
 
         await buildReferenceDocumentNames(referenceDocumentIds, token);
 
@@ -128,19 +130,25 @@
         // console.log("datasExtraction", datasExtraction);
       } else {
         // accumulate CSV summary
-        response.result.data[0].attributes.result.forEach((item) => {
-          CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
-          CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
-          CSVResultSummary.total += item.generated.tabular_result.summary.total;
-          // CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
-          // CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
-          // CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
-        });
+        // response.result.data[0].attributes.result.forEach((item) => {
+        //   CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
+        //   CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
+        //   CSVResultSummary.total += item.generated.tabular_result.summary.total;
+        //   CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
+        //   CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
+        //   CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
+        // });
         // console.log("CSVResultSummary", CSVResultSummary);
 
-        datas = buildDatasFromTabularLogs(response.result.data[0].attributes.result);
+        allDatas = buildDatasFromTabularLogs(response.result.data[0].attributes.result);
+        datas = allDatas.slice(0, 5);
+        // console.log("allDatas", allDatas);
 
-        datas = datas.slice(0, 5);
+        if (response.result.data[0].attributes.summary_of_findings) {
+          datasSOF = buildDatasFromSOF(response.result.data[0].attributes.summary_of_findings);
+          // console.log("datasSOF", datasSOF);
+          datasSOF = datasSOF.slice(0, 3);
+        }
       }
 
       triggerLoading(false);
@@ -268,10 +276,22 @@
             result: log.reference_document.result,
           },
           ai_extraction: log.ai_extraction,
-          ai_suggestion: log.status_icon + "&nbsp;" + log.status_label + ": " + log.ai_suggestion,
+          ai_suggestion: log.status_icon + " " + log.status_label + ": " + log.ai_suggestion,
         };
       }),
     );
+  };
+
+  const buildDatasFromSOF = (resultArray) => {
+    return resultArray.map((item, index) => {
+      return {
+        id: index + 1,
+        no: item.no,
+        row: item.row,
+        context: item.context,
+        summary: item.summary,
+      };
+    });
   };
 
   const removeCodeBlocks = (text) => {
@@ -298,6 +318,76 @@
     }
 
     return String(row);
+  };
+
+  const downloadAsCSV = async () => {
+    if (!isCSV) {
+      let csvContent = "data:text/csv;charset=utf-8,";
+
+      // 1. Header row: all names
+      const headerRow = datasExtraction
+        .map((data) => `"${data.name.replace(/"/g, '""')}"`)
+        .join(",");
+      csvContent += headerRow + "\n";
+
+      // 2. Data row: all results
+      const dataRow = datasExtraction
+        .map((data) => `"${data.result.replace(/"/g, '""')}"`)
+        .join(",");
+      csvContent += dataRow + "\n";
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", projectName + ".csv");
+      document.body.appendChild(link); // Required for FF
+
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      let csvContent = "data:text/csv;charset=utf-8,";
+
+      // 1. Header row
+      const headerRow = [
+        "No",
+        "Section Name",
+        "Section Prompt",
+        "Section Result",
+        "Reference Document Name",
+        "Reference Document Prompt",
+        "Reference Document Result",
+        "AI Extraction",
+        "AI Suggestion",
+      ].join(",");
+      csvContent += headerRow + "\n";
+
+      // 2. Data rows
+      allDatas.forEach((data) => {
+        const dataRow = [
+          data.no,
+          `"${data.section.name.replace(/"/g, '""')}"`,
+          `"${data.section.prompt.replace(/"/g, '""')}"`,
+          `"${data.section.result.replace(/"/g, '""')}"`,
+          `"${data.reference_documents.name.replace(/"/g, '""')}"`,
+          `"${data.reference_documents.prompt.replace(/"/g, '""')}"`,
+          `"${data.reference_documents.result.replace(/"/g, '""')}"`,
+          `"${data.ai_extraction.replace(/"/g, '""')}"`,
+          `"${data.ai_suggestion.replace(/"/g, '""')}"`,
+        ].join(",");
+        csvContent += dataRow + "\n";
+      });
+
+      // console.log("csvContent", csvContent);
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", projectName + ".csv");
+      document.body.appendChild(link); // Required for FF
+
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   onMount(async () => {
@@ -339,44 +429,15 @@
       >
         <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="primary" />
       </Button>
-      <Button
-        class="h-min"
-        color="light"
-        outline
-        on:click={async () => {
-          let csvContent = "data:text/csv;charset=utf-8,";
-
-          // 1. Header row: all names
-          const headerRow = datasExtraction
-            .map((data) => `"${data.name.replace(/"/g, '""')}"`)
-            .join(",");
-          csvContent += headerRow + "\n";
-
-          // 2. Data row: all results
-          const dataRow = datasExtraction
-            .map((data) => `"${data.result.replace(/"/g, '""')}"`)
-            .join(",");
-          csvContent += dataRow + "\n";
-
-          const encodedUri = encodeURI(csvContent);
-          const link = document.createElement("a");
-          link.setAttribute("href", encodedUri);
-          link.setAttribute("download", projectName + ".csv");
-          document.body.appendChild(link); // Required for FF
-
-          link.click();
-          document.body.removeChild(link);
-        }}
-      >
+      <Button class="h-min" color="light" outline on:click={downloadAsCSV}>
         <Typography preset="Text md/Semibold" text={$_("downloadAsCSV")} color="primary" />
       </Button>
     </div>
   </div>
-  <Divider />
   <div class="flex gap-3">
     <div class="flex flex-col grow gap-6">
       <div class="flex flex-col gap-6 w-full">
-        {#if CSVResultSummary.total > 0}
+        <!-- {#if CSVResultSummary.total > 0}
           <Typography preset="Text md/Semibold" text={$_("overallSummary")} color="primary" />
           <div class="grid grid-cols-3 gap-4">
             {#each [...Array(3).keys()] as item}
@@ -419,7 +480,7 @@
               </div>
             {/each}
           </div>
-        {/if}
+        {/if} -->
         {#if datasExtraction.length > 0}
           <Divider />
           <Typography preset="Text md/Semibold" text={$_("extractionResults")} color="primary" />
@@ -428,6 +489,25 @@
           >
             <ListMarkdown id="content-to-download" bind:datas={datasExtraction} />
           </div>
+        {/if}
+        {#if datasSOF.length > 0}
+          <Divider />
+          <div class="flex justify-between">
+            <Typography preset="Text md/Semibold" text={$_("summaryOfFindings")} color="primary" />
+            <Button
+              outline
+              color="alternative"
+              on:click={async () => {
+                const gotoUrl = isFrontend
+                  ? "/document_reviewer/project/review/summary"
+                  : await $call.getPage("client-dashboard", "contract-project-review-summary");
+                goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
+              }}
+            >
+              <Typography preset="Text md/Semibold" text={$_("viewAll")} color="primary" />
+            </Button>
+          </div>
+          <DataTableAIReview bind:datas={datasSOF} />
         {/if}
         {#if (Object.keys(referenceDocumentNames).length > 0 || isCSV) && datas.length > 0}
           <Divider />

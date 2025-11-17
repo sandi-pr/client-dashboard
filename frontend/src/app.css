@@ -10,3 +10,5 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@source "../node_modules/@flowbite-svelte-plugins/chart/dist";

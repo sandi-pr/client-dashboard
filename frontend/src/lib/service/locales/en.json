@@ -376,7 +376,7 @@
   "documentReviewer": "Document Reviewer",
   "contractReviewerOverview": "Document Reviewer Overview",
   "setYourReferencedDocument": "Set your referenced document",
-  "descSetYourReferencedDocument": "This document will be used as reference for AI to make comparison",
+  "descSetYourReferencedDocument": "This will be used as reference for AI to make comparison",
   "addNewProject": "Add new project",
   "descAddNewProject": "To use document reviewer, you need to add a project first",
   "industry": "Industry",
@@ -1276,5 +1276,18 @@
   "validData": "Valid Data",
   "invalidData": "Invalid Data",
   "totalData": "Total Data",
-  "AIScanningLogs": "AI Scanning Logs"
+  "AIScanningLogs": "AI Scanning Logs",
+  "openHere": "Open here",
+  "auditReporting": "Audit Reporting",
+  "descAuditReporting": "Report of key findings from audit projects",
+  "manageProjects": "Manage Projects",
+  "descManageProjects": "Use created cases to your live project",
+  "compareDocuments": "Compare Documents",
+  "descCompareDocuments": "Validate content of data from case",
+  "recentProjectSummary": "Recent Project Summary",
+  "compliantData": "Compliant Data",
+  "nonCompliantData": "Non-Compliant Data",
+  "viewReport": "View report",
+  "vsLastProject": "vs last project",
+  "auditPerformanceTrends": "Audit Performance Trends"
 }
