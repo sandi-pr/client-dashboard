@@ -1393,12 +1393,12 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	return 200, U.Dict{
 		"chart": chartData,
 		"summary": U.Dict{
-			"total_people":             allTotal,
-			"valid":                    allValid,
-			"invalid":                  allInvalid,
-			"percentage_total_people":  CalculatePercentageChange(prevTotal, currentTotal),
-			"percentage_valid":         CalculatePercentageChange(prevValid, currentValid),
-			"percentage_invalid":       CalculatePercentageChange(prevInvalid, currentInvalid),
+			"total_people":            allTotal,
+			"valid":                   allValid,
+			"invalid":                 allInvalid,
+			"percentage_total_people": CalculatePercentageChange(prevTotal, currentTotal),
+			"percentage_valid":        CalculatePercentageChange(prevValid, currentValid),
+			"percentage_invalid":      CalculatePercentageChange(prevInvalid, currentInvalid),
 		},
 	}, nil
 }
@@ -1636,4 +1636,90 @@ func GetLast12Months() []string {
 	}
 
 	return months
+}
+
+func GetProjectsWithResults(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, ok := ctx.Headers.GetString("Authorization")
+	if !ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(
+		STRAPI_URL,
+		strings.Replace(string(bearer), "Bearer ", "", 1),
+	)
+
+	status, _, err := Strapi.UsersMe()
+	if err != nil || status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	page := 1
+	pageSize := 10
+
+	pageStr, _ := ctx.Params.GetFloat64("page")
+	pageSizeStr, _ := ctx.Params.GetFloat64("page_size")
+
+	if pageStr > 0 {
+		page = int(pageStr)
+	}
+
+	if pageSizeStr > 0 {
+		if pageSizeStr > 25 {
+			pageSize = 25
+		} else {
+			pageSize = int(pageSizeStr)
+		}
+	}
+
+	datas, err := StrapiFindAll(Strapi, "project-results-table", 25)
+
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	projectIDSet := map[int]bool{}
+	for _, item := range datas {
+		attr, _ := item.(hctypes.Dict).GetDict("attributes")
+		pid, ok := attr.GetFloat64("project_id")
+		if ok {
+			projectIDSet[int(pid)] = true
+		}
+	}
+
+	if len(projectIDSet) == 0 {
+		return 200, U.Dict{
+			"meta": U.Dict{
+				"page":      page,
+				"pageSize":  pageSize,
+				"total":     0,
+				"pageCount": 0,
+			},
+			"data": U.List{},
+		}, nil
+	}
+
+	projectIDs := []int64{}
+	for id := range projectIDSet {
+		projectIDs = append(projectIDs, int64(id))
+	}
+
+	status, projects, err := Strapi.Find("projects-table", U.Dict{
+		"filters": U.Dict{
+			"id": U.Dict{
+				"$in": projectIDs,
+			},
+		},
+		"populate": "*",
+		"pagination": U.Dict{
+			"pageSize": pageSize,
+			"page":     page,
+		},
+	})
+
+	if err != nil || status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+	return 200, projects, nil
 }
