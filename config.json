@@ -295,6 +295,26 @@
             "file_path": "template/document_reviewer/project/review/logs.html"
         },
         {
+            "name": "contract-report-project-list",
+            "path": "/document_reviewer/report/project",
+            "file_path": "template/document_reviewer/report/project.html"
+        },
+        {
+            "name": "contract-report-project-detail",
+            "path": "/document_reviewer/report/project/detail",
+            "file_path": "template/document_reviewer/report/project/detail.html"
+        },
+        {
+            "name": "contract-report-project-detail-summary",
+            "path": "/document_reviewer/report/project/detail/summary",
+            "file_path": "template/document_reviewer/report/project/detail/summary.html"
+        },
+        {
+            "name": "contract-report-project-detail-logs",
+            "path": "/document_reviewer/report/project/detail/logs",
+            "file_path": "template/document_reviewer/report/project/detail/logs.html"
+        },
+        {
             "name": "contract-compare-list",
             "path": "/document_reviewer/compare",
             "file_path": "template/document_reviewer/compare.html"

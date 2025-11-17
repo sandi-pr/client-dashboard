@@ -1,15 +1,13 @@
 <script>
   import { onMount } from "svelte";
-  import { Button } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { call, triggerToast, triggerLoading } from "$lib";
-  import { Typography, Divider, DataTableAIReview } from "$lib";
+  import { ContractReviewDetailView } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let summaryType = $state("");
   let projectDocumentId = $state(null);
 
   let isCSV = $state(true);
@@ -127,8 +125,14 @@
     }
   };
 
+  const goBackPage = async () => {
+    const gotoUrl = isFrontend
+      ? "/document_reviewer/report/project/detail"
+      : await $call.getPage("client-dashboard", "contract-report-project-detail");
+    goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
+  };
+
   onMount(async () => {
-    summaryType = $page.url.searchParams.get("type");
     projectDocumentId = $page.url.searchParams.get("projectDocumentId");
     if (projectDocumentId !== null) {
       await getProjectResult();
@@ -143,33 +147,13 @@
   });
 </script>
 
-<div class="flex flex-col px-4 pt-6 gap-6 pb-12">
-  <div class="flex justify-between">
-    <div class="flex flex-col gap-1">
-      <Typography preset="Display sm/Semibold" text={$_("summaryOfFindings")} color="primary" />
-    </div>
-    <Button
-      class="h-min"
-      color="light"
-      outline
-      on:click={async () => {
-        const gotoUrl = isFrontend
-          ? "/document_reviewer/report/project/detail"
-          : await $call.getPage("client-dashboard", "contract-report-project-detail");
-        goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
-      }}
-    >
-      <Typography preset="Text md/Semibold" text={$_("goBack")} color="primary" />
-    </Button>
-  </div>
-  <Divider />
-  <div class="flex gap-3">
-    <div class="flex flex-col grow gap-6">
-      <div class="flex flex-col gap-6 w-full">
-        {#if isCSV && datas.length > 0}
-          <DataTableAIReview bind:datas bind:configs {next} {previous} {goToPage} />
-        {/if}
-      </div>
-    </div>
-  </div>
-</div>
+<ContractReviewDetailView
+  title={$_("summaryOfFindings")}
+  {isCSV}
+  {datas}
+  {configs}
+  {next}
+  {previous}
+  {goToPage}
+  {goBackPage}
+/>

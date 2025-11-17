@@ -519,7 +519,10 @@
               on:click={async () => {
                 const gotoUrl = isFrontend
                   ? "/document_reviewer/report/project/detail/summary"
-                  : await $call.getPage("client-dashboard", "contract-report-project-summary");
+                  : await $call.getPage(
+                      "client-dashboard",
+                      "contract-report-project-detail-summary",
+                    );
                 goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
               }}
             >
@@ -543,7 +546,10 @@
                 on:click={async () => {
                   const gotoUrl = isFrontend
                     ? "/document_reviewer/report/project/detail/logs"
-                    : await $call.getPage("client-dashboard", "contract-report-project-logs");
+                    : await $call.getPage(
+                        "client-dashboard",
+                        "contract-report-project-detail-logs",
+                      );
                   goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
                 }}
               >
