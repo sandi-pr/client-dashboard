@@ -81,29 +81,73 @@ All Rights Reserved
           configs = {
             pagination: response.result.meta.pagination,
           };
-          let url = isFrontend
-            ? "/document_reviewer/report/project/detail"
-            : await $call.getPage("client-dashboard", "contract-report-project-detail");
-          let promise = response.result.data.map((project) => {
+          datas = response.result.data.map((project) => {
             return {
               id: project.id,
               project_name: project.attributes.project_name,
               start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
               end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
-              actions: {
-                objects: [
-                  check("aiManagement.contractreviewer.project:view") && {
-                    // href: url + `?projectDocumentId=${project.id}`,
-                    href: url + `?projectDocumentId=82&projectId=36`,
-                    name: "View",
-                  },
-                ].filter(Boolean),
-              },
+              // actions: {
+              //   objects: [
+              //     check("aiManagement.contractreviewer.project:view") && {
+              //       href: url + `?projectDocumentId=82&projectId=36`,
+              //       name: "View",
+              //     },
+              //   ].filter(Boolean),
+              // },
             };
           });
 
-          datas = await Promise.all(promise);
           // console.log("datas", datas);
+
+          if (datas.length > 0) {
+            for (let i = 0; i < datas.length; i++) {
+              const responseDocument = await $call.call(
+                "client-dashboard",
+                "get-document-contract-project",
+                {
+                  URLQuery: {},
+                  URLParams: {},
+                  Params: {
+                    project_id: datas[i].id.toString(),
+                  },
+                  Headers: {
+                    Authorization: "Bearer " + token,
+                  },
+                },
+              );
+
+              // console.log("responseDocument", responseDocument);
+
+              if (responseDocument.status !== 200) {
+                let error = new Error("Failed to fetch document for project id " + datas);
+                error.response = responseDocument;
+                throw error;
+              }
+
+              const responseFiles = await getStatusGenerated(responseDocument.result.files);
+
+              const projectDocumentIdStrings = responseFiles.result.data.map((data) =>
+                data.id.toString(),
+              );
+
+              let url = isFrontend
+                ? "/document_reviewer/report/project/detail"
+                : await $call.getPage("client-dashboard", "contract-report-project-detail");
+
+              datas[i].actions = {
+                objects: [
+                  check("aiManagement.contractreviewer.project:view") && {
+                    href:
+                      url +
+                      `?projectDocumentId=${projectDocumentIdStrings.join(",")}&projectId=${datas[i].id}`,
+                    name: "View",
+                    type: "primary",
+                  },
+                ].filter(Boolean),
+              };
+            }
+          }
 
           triggerLoading(false);
           gettingDatas = false;
@@ -210,6 +254,53 @@ All Rights Reserved
         triggerLoading(false);
         triggerToast("error");
         addProjectModal = false;
+        console.log(error);
+      }
+    }
+  };
+
+  const getStatusGenerated = async (files) => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        for (let i = 0; i < files.length; i++) {
+          if (
+            files[i].status_generated !== "START" &&
+            files[i].status_generated !== "FINISH" &&
+            files[i].status_generated !== "GENERATING"
+          )
+            continue;
+          else {
+            const response = await $call.call(
+              "client-dashboard",
+              "get-contract-project-result-with-document-id",
+              {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  project_document_id: files[i].id.toString(),
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              },
+            );
+
+            // console.log("response", response);
+
+            if (response.status !== 200) {
+              triggerLoading(false);
+              triggerToast("error");
+              console.log(response);
+              break;
+            }
+
+            return response;
+          }
+        }
+      } catch (error) {
+        triggerLoading(false);
+        triggerToast("error");
         console.log(error);
       }
     }

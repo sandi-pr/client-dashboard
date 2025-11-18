@@ -262,6 +262,7 @@
           });
 
           files = await Promise.all(promise);
+          console.log("files", files);
 
           if (files.length < 1) {
             interval = false;
@@ -385,6 +386,8 @@
                 },
               },
             );
+
+            console.log("response", response);
 
             if (response.status !== 200) {
               triggerLoading(false);

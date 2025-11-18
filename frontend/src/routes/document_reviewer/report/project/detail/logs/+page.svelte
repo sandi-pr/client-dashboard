@@ -90,7 +90,7 @@
             result: log.reference_document.result,
           },
           ai_extraction: log.ai_extraction,
-          ai_suggestion: log.ai_suggestion,
+          ai_suggestion: log.status_icon + " " + log.status_label + ": " + log.ai_suggestion,
         };
       }),
     );

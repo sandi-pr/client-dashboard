@@ -33,11 +33,11 @@ All Rights Reserved
   let datasConfigs = $state({});
   let chartCategories = $state([]);
 
-  let chartSeries = [
+  let chartSeries = $state([
     { name: "Compliant Data", color: "#6941C6", data: [] },
     { name: "Non-compliant Data", color: "#9E77ED", data: [] },
     { name: "Total Data", color: "#EAECF0", data: [] },
-  ];
+  ]);
 
   const getActionItems = async (summary) => {
     actionItems = [
@@ -139,17 +139,17 @@ All Rights Reserved
       };
 
       let url = isFrontend
-        ? "/document_reviewer/report/detail"
-        : await $call.getPage("client-dashboard", "contract-project-detail");
+        ? "/document_reviewer/report/project/detail"
+        : await $call.getPage("client-dashboard", "contract-report-project-detail");
 
-      const promise = projects.map((project) => {
+      datasTable = projects.map((project) => {
         const { document_rule_id, ...rest } = {
           id: project.id,
           project_name: project.attributes.project_name,
           actions: {
             objects: [
               {
-                href: url + `?projectId=${project.id}`,
+                href: url + `?projectDocumentId=82&projectId=${project.id}`,
                 name: "View",
                 type: "primary",
               },
@@ -161,12 +161,106 @@ All Rights Reserved
         };
       });
 
-      datasTable = await Promise.all(promise);
+      if (datasTable.length > 0) {
+        for (let i = 0; i < datasTable.length; i++) {
+          const responseDocument = await $call.call(
+            "client-dashboard",
+            "get-document-contract-project",
+            {
+              URLQuery: {},
+              URLParams: {},
+              Params: {
+                project_id: datasTable[i].id.toString(),
+              },
+              Headers: {
+                Authorization: "Bearer " + token,
+              },
+            },
+          );
+
+          // console.log("responseDocument", responseDocument);
+
+          if (responseDocument.status !== 200) {
+            let error = new Error("Failed to fetch document for project id " + datasTable);
+            error.response = responseDocument;
+            throw error;
+          }
+
+          const responseFiles = await getStatusGenerated(responseDocument.result.files);
+
+          const projectDocumentIdStrings = responseFiles.result.data.map((data) =>
+            data.id.toString(),
+          );
+
+          let url = isFrontend
+            ? "/document_reviewer/report/project/detail"
+            : await $call.getPage("client-dashboard", "contract-report-project-detail");
+
+          datasTable[i].actions = {
+            objects: [
+              check("aiManagement.contractreviewer.project:view") && {
+                href:
+                  url +
+                  `?projectDocumentId=${projectDocumentIdStrings.join(",")}&projectId=${datasTable[i].id}`,
+                name: "View",
+                type: "primary",
+              },
+            ].filter(Boolean),
+          };
+        }
+      }
     } else {
       datasTable = [];
     }
 
     gettingDatas = false;
+  };
+
+  const getStatusGenerated = async (files) => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      try {
+        for (let i = 0; i < files.length; i++) {
+          if (
+            files[i].status_generated !== "START" &&
+            files[i].status_generated !== "FINISH" &&
+            files[i].status_generated !== "GENERATING"
+          )
+            continue;
+          else {
+            const response = await $call.call(
+              "client-dashboard",
+              "get-contract-project-result-with-document-id",
+              {
+                URLQuery: {},
+                URLParams: {},
+                Params: {
+                  project_document_id: files[i].id.toString(),
+                },
+                Headers: {
+                  Authorization: "Bearer " + token,
+                },
+              },
+            );
+
+            // console.log("response", response);
+
+            if (response.status !== 200) {
+              triggerLoading(false);
+              triggerToast("error");
+              console.log(response);
+              break;
+            }
+
+            return response;
+          }
+        }
+      } catch (error) {
+        triggerLoading(false);
+        triggerToast("error");
+        console.log(error);
+      }
+    }
   };
 
   function rotateMonths(monthNames) {

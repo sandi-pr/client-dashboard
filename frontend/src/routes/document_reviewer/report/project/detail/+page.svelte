@@ -36,14 +36,14 @@
   let datasExtraction = $state([]);
 
   let referenceDocumentNames = $state({});
-  // let CSVResultSummary = $state({
-  //   valid: 0,
-  //   invalid: 0,
-  //   total: 0,
-  //   need_review: 0,
-  //   resolved: 0,
-  //   unresolved: 0,
-  // });
+  let CSVResultSummary = $state({
+    valid: 0,
+    invalid: 0,
+    total: 0,
+    // need_review: 0,
+    // resolved: 0,
+    // unresolved: 0,
+  });
 
   const getProjectResult = async () => {
     try {
@@ -58,33 +58,31 @@
         datas = [];
       }
 
-      // if (CSVResultSummary.total > 0) {
-      //   CSVResultSummary.valid = 0;
-      //   CSVResultSummary.invalid = 0;
-      //   CSVResultSummary.total = 0;
-      //   CSVResultSummary.need_review = 0;
-      //   CSVResultSummary.resolved = 0;
-      //   CSVResultSummary.unresolved = 0;
-      // }
+      if (CSVResultSummary.total > 0) {
+        CSVResultSummary.valid = 0;
+        CSVResultSummary.invalid = 0;
+        CSVResultSummary.total = 0;
+        CSVResultSummary.need_review = 0;
+        CSVResultSummary.resolved = 0;
+        CSVResultSummary.unresolved = 0;
+      }
 
-      let response = await $call.call("client-dashboard", "get-contract-project-result", {
+      let response = await $call.call("client-dashboard", "get-contract-project-result-ids", {
         URLQuery: {},
-        URLParams: {
-          id: projectDocumentId,
-        },
-        Params: {},
+        URLParams: {},
+        Params: { ids: projectDocumentId.toString() },
         Headers: {
           Authorization: "Bearer " + token,
         },
       });
+
+      // console.log("response", response);
 
       if (response.status !== 200) {
         let error = new Error("Failed to fetch project result");
         error.response = response;
         throw error;
       }
-
-      // console.log("response", response);
 
       let projectId = response.result.data[0].attributes.project_id;
 
@@ -134,19 +132,21 @@
         // console.log("datasExtraction", datasExtraction);
       } else {
         // accumulate CSV summary
-        // response.result.data[0].attributes.result.forEach((item) => {
-        //   CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
-        //   CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
-        //   CSVResultSummary.total += item.generated.tabular_result.summary.total;
-        //   CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
-        //   CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
-        //   CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
-        // });
+        response.result.data[0].attributes.result.forEach((item) => {
+          CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
+          CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
+          CSVResultSummary.total += item.generated.tabular_result.summary.total;
+          // CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
+          // CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
+          // CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
+        });
         // console.log("CSVResultSummary", CSVResultSummary);
 
         allDatas = buildDatasFromTabularLogs(response.result.data[0].attributes.result);
         datas = allDatas.slice(0, 5);
         // console.log("allDatas", allDatas);
+
+        await getActionItems(projectDocumentId);
 
         if (response.result.data[0].attributes.summary_of_findings) {
           datasSOF = buildDatasFromSOF(response.result.data[0].attributes.summary_of_findings);
@@ -177,7 +177,7 @@
         let response = await $call.call("client-dashboard", "update-contract-project-result", {
           URLQuery: {},
           URLParams: {
-            id: projectDocumentId,
+            id: projectDocumentId.toString(),
           },
           Params: {
             result: JSON.stringify(tmpResult),
@@ -298,43 +298,45 @@
     });
   };
 
-  const getActionItems = async () => {
+  const getActionItems = async (documentIds) => {
     actionItems = [
       {
         href: isFrontend
-          ? "/document_reviewer/report/summary" + "?type=compliant&projectDocumentId=" + 82
+          ? "/document_reviewer/report/summary" + "?type=compliant&projectDocumentId=" + documentIds
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=compliant&projectDocumentId=" +
             82,
         icon: "checkCircle",
         iconColor: "fg-success-primary",
-        actionName: "1,273",
+        actionName: CSVResultSummary.valid.toString(),
         desc: "compliantData",
         subtext: "20%",
         changeType: "increase",
       },
       {
         href: isFrontend
-          ? "/document_reviewer/report/summary" + "?type=nonCompliant&projectDocumentId=" + 82
+          ? "/document_reviewer/report/summary" +
+            "?type=nonCompliant&projectDocumentId=" +
+            documentIds
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=nonCompliant&projectDocumentId=" +
             82,
         icon: "alertTriangle",
         iconColor: "fg-warning-primary",
-        actionName: "6,256",
+        actionName: CSVResultSummary.invalid.toString(),
         desc: "nonCompliantData",
         subtext: "50%",
         changeType: "decrease",
       },
       {
         href: isFrontend
-          ? "/document_reviewer/report/summary" + "?type=total&projectDocumentId=" + 82
+          ? "/document_reviewer/report/summary" + "?type=total&projectDocumentId=" + documentIds
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=total&projectDocumentId=" +
             82,
         icon: "infoCircle",
         iconColor: "fg-secondary",
-        actionName: "11,890",
+        actionName: CSVResultSummary.total.toString(),
         desc: "totalData",
         subtext: "40%",
         changeType: "increase",
@@ -443,7 +445,7 @@
     // console.log("projectDocumentId", projectDocumentId);
     if (projectDocumentId !== null) {
       await getProjectResult();
-      await getActionItems();
+      // await getActionItems();
     } else {
       triggerToast("error");
       goto(

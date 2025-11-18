@@ -39,12 +39,21 @@
         datas = [];
       }
 
-      let response = await $call.call("client-dashboard", "get-contract-project-result", {
+      // let response = await $call.call("client-dashboard", "get-contract-project-result", {
+      //   URLQuery: {},
+      //   URLParams: {
+      //     id: projectDocumentId,
+      //   },
+      //   Params: {},
+      //   Headers: {
+      //     Authorization: "Bearer " + token,
+      //   },
+      // });
+
+      let response = await $call.call("client-dashboard", "get-contract-project-result-ids", {
         URLQuery: {},
-        URLParams: {
-          id: projectDocumentId,
-        },
-        Params: {},
+        URLParams: {},
+        Params: { ids: projectDocumentId.toString() },
         Headers: {
           Authorization: "Bearer " + token,
         },
@@ -73,6 +82,7 @@
 
   const buildDatasFromSOF = (resultArray) => {
     return resultArray.map((item, index) => {
+      // console.log("item", item);
       return {
         id: index + 1,
         no: item.no,
