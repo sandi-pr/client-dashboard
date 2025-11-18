@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -1349,7 +1350,7 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	last12 := GetLast12Months()
 
 	chartData := []U.Dict{}
-	var summaryProjects [][]hctypes.Dict // kumpulan project utk summary
+	var summaryProjects [][]hctypes.Dict
 
 	// ---- GENERATE CHART DATA ----
 	for _, month := range last12 {
@@ -1367,7 +1368,6 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 				"invalid":      invalid,
 			})
 
-			// -> summary harus menghitung project yang MASUK chart
 			summaryProjects = append(summaryProjects, projects...)
 
 		} else {
@@ -1383,12 +1383,22 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	// ---- SUMMARY: HITUNG TOTAL PER PROJECT (HANYA LAST 12 MONTH) ----
 	allTotal, allValid, allInvalid := CalculatePeopleStatus_MultiFiles(summaryProjects)
 
+	// ---- PERSENTASE: PERBANDINGAN BULAN INI VS BULAN LALU ----
+	currentMonth := time.Now().Format("2006-01")
+	previousMonth := time.Now().AddDate(0, -1, 0).Format("2006-01")
+
+	currentTotal, currentValid, currentInvalid := CalculateMonthlyPeopleStatus(grouped, currentMonth)
+	prevTotal, prevValid, prevInvalid := CalculateMonthlyPeopleStatus(grouped, previousMonth)
+
 	return 200, U.Dict{
 		"chart": chartData,
 		"summary": U.Dict{
-			"total_people": allTotal,
-			"valid":        allValid,
-			"invalid":      allInvalid,
+			"total_people":            allTotal,
+			"valid":                   allValid,
+			"invalid":                 allInvalid,
+			"percentage_total_people": CalculatePercentageChange(prevTotal, currentTotal),
+			"percentage_valid":        CalculatePercentageChange(prevValid, currentValid),
+			"percentage_invalid":      CalculatePercentageChange(prevInvalid, currentInvalid),
 		},
 	}, nil
 }
@@ -1591,6 +1601,27 @@ func CalculatePeopleStatus_PerProject(allProjects hctypes.List) (total int, tota
 	return
 }
 
+func CalculateMonthlyPeopleStatus(grouped map[string][][]hctypes.Dict, month string) (total int, totalValid int, totalInvalid int) {
+	projects, ok := grouped[month]
+	if !ok {
+		return
+	}
+
+	return CalculatePeopleStatus_MultiFiles(projects)
+}
+
+func CalculatePercentageChange(previous int, current int) float64 {
+	if previous == 0 {
+		if current == 0 {
+			return 0
+		}
+		return 100
+	}
+
+	change := (float64(current-previous) / float64(previous)) * 100
+	return math.Round(change*100) / 100
+}
+
 func GetLast12Months() []string {
 	now := time.Now()
 	months := []string{}
@@ -1605,4 +1636,151 @@ func GetLast12Months() []string {
 	}
 
 	return months
+}
+
+func GetProjectsWithResults(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, ok := ctx.Headers.GetString("Authorization")
+	if !ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(
+		STRAPI_URL,
+		strings.Replace(string(bearer), "Bearer ", "", 1),
+	)
+
+	status, _, err := Strapi.UsersMe()
+	if err != nil || status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	page := 1
+	pageSize := 10
+
+	pageStr, _ := ctx.Params.GetFloat64("page")
+	pageSizeStr, _ := ctx.Params.GetFloat64("page_size")
+
+	if pageStr > 0 {
+		page = int(pageStr)
+	}
+
+	if pageSizeStr > 0 {
+		if pageSizeStr > 25 {
+			pageSize = 25
+		} else {
+			pageSize = int(pageSizeStr)
+		}
+	}
+
+	datas, err := StrapiFindAll(Strapi, "project-results-table", 25)
+
+	if err != nil {
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	projectIDSet := map[int]bool{}
+
+	for _, item := range datas {
+		attr, _ := item.(hctypes.Dict).GetDict("attributes")
+
+		pid, ok := attr.GetFloat64("project_id")
+		if !ok {
+			fmt.Println("[DEBUG] Skip: tidak ada project_id")
+			continue
+		}
+
+		docID, ok := attr.GetFloat64("project_document_id")
+		if !ok {
+			fmt.Println("[DEBUG] Skip: project", pid, "tidak punya project_document_id")
+			continue
+		}
+
+		statusDoc, docData, err := Strapi.Find("project-documents-table", U.Dict{
+			"filters[id][$eq]": int(docID),
+			"populate":         "*",
+		})
+
+		fmt.Printf("[DEBUG] Cek project_document_id %v → status %v err %v\n", docID, statusDoc, err)
+
+		if err != nil || statusDoc != 200 {
+			fmt.Println("[DEBUG] Skip: gagal fetch document", docID)
+			continue
+		}
+
+		list, ok := docData.GetList("data")
+		if !ok || len(list) == 0 {
+			fmt.Println("[DEBUG] Skip: data dokumen kosong")
+			continue
+		}
+
+		docAttr, _ := list[0].(hctypes.Dict).GetDict("attributes")
+
+		mediaParent, ok := docAttr.GetDict("document_media_id")
+		if !ok {
+			fmt.Println("[DEBUG] Skip: document_media_id tidak ada")
+			continue
+		}
+
+		mediaData, ok := mediaParent.GetDict("data")
+		if !ok {
+			fmt.Println("[DEBUG] Skip: document_media_id.data tidak ada")
+			continue
+		}
+
+		mediaAttr, ok := mediaData.GetDict("attributes")
+		if !ok {
+			fmt.Println("[DEBUG] Skip: document_media_id.data.attributes tidak ada")
+			continue
+		}
+
+		filename, _ := mediaAttr.GetString("name")
+		ext, _ := mediaAttr.GetString("ext")
+
+		fmt.Println("[DEBUG] Filename:", filename, "EXT:", ext)
+
+		if strings.ToLower(string(ext)) != ".csv" {
+			fmt.Println("[DEBUG] Skip: file bukan CSV →", filename)
+			continue
+		}
+
+		projectIDSet[int(pid)] = true
+	}
+
+	if len(projectIDSet) == 0 {
+		return 200, U.Dict{
+			"meta": U.Dict{
+				"page":      page,
+				"pageSize":  pageSize,
+				"total":     0,
+				"pageCount": 0,
+			},
+			"data": U.List{},
+		}, nil
+	}
+
+	projectIDs := []int64{}
+	for id := range projectIDSet {
+		projectIDs = append(projectIDs, int64(id))
+	}
+
+	params := U.Dict{
+		"populate": "*",
+		"pagination": U.Dict{
+			"page":     page,
+			"pageSize": pageSize,
+		},
+	}
+
+	for i, pid := range projectIDs {
+		key := fmt.Sprintf("filters[id][$in][%d]", i)
+		params[key] = pid
+	}
+
+	status, projects, err := Strapi.Find("projects-table", params)
+
+	if err != nil || status != 200 {
+		return ctx.Error(500, "Internal Server Error")
+	}
+	return 200, projects, nil
 }

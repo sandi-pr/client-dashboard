@@ -27,9 +27,11 @@ All Rights Reserved
 
   const isFrontend = process.env.NODE_ENV === "development";
   let gettingDatas = $state(false);
+  let gettingDataChart = $state(true);
   let actionItems = $state([]);
   let datasTable = $state([]);
   let datasConfigs = $state({});
+  let chartCategories = $state([]);
 
   let chartSeries = [
     { name: "Compliant Data", color: "#6941C6", data: [] },
@@ -37,7 +39,7 @@ All Rights Reserved
     { name: "Total Data", color: "#EAECF0", data: [] },
   ];
 
-  const getActionItems = async () => {
+  const getActionItems = async (summary) => {
     actionItems = [
       {
         href: isFrontend
@@ -47,9 +49,14 @@ All Rights Reserved
             82,
         icon: "checkCircle",
         iconColor: "fg-success-primary",
-        actionName: "1,273",
+
+        // gunakan data API
+        actionName: summary.valid.toLocaleString(),
         desc: "compliantData",
-        subtext: "20%",
+
+        // persentase juga dari API
+        subtext: summary.percentage_valid + "%",
+
         changeType: "increase",
       },
       {
@@ -60,9 +67,11 @@ All Rights Reserved
             82,
         icon: "alertTriangle",
         iconColor: "fg-warning-primary",
-        actionName: "6,256",
+
+        actionName: summary.invalid.toLocaleString(),
         desc: "nonCompliantData",
-        subtext: "50%",
+        subtext: summary.percentage_invalid + "%",
+
         changeType: "decrease",
       },
       {
@@ -73,9 +82,11 @@ All Rights Reserved
             82,
         icon: "infoCircle",
         iconColor: "fg-secondary",
-        actionName: "11,890",
+
+        actionName: summary.total_people.toLocaleString(),
         desc: "totalData",
-        subtext: "40%",
+        subtext: summary.percentage_total_people + "%",
+
         changeType: "increase",
       },
     ];
@@ -83,8 +94,35 @@ All Rights Reserved
 
   const handleGetProjects = async () => {
     gettingDatas = true;
+    let token = localStorage.getItem("token");
 
-    const projects = await getProjects($call, { page: 1, pageSize: 5 }, false);
+    const response = await $call.call("client-dashboard", "get-project-report", {
+      URLQuery: {},
+      URLParams: {},
+      Params: {
+        page: 1,
+        page_size: 25,
+      },
+      Headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    console.log("check get-project-report", response);
+
+    if (response === null) {
+      gettingDatas = false;
+      return;
+    }
+
+    if (response.status !== 200) {
+      gettingDatas = false;
+      console.log(response);
+      return;
+    }
+
+    let projects = response.result.data;
+
     if (projects.length > 0) {
       datasConfigs = {
         headers: "projectReportLists",
@@ -131,10 +169,16 @@ All Rights Reserved
     gettingDatas = false;
   };
 
+  function rotateMonths(monthNames) {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const before = monthNames.slice(currentMonth + 1);
+    const after = monthNames.slice(0, currentMonth + 1);
+
+    return [...before, ...after];
+  }
+
   function formatChartData(chartData) {
-    const compliantData = [];
-    const nonCompliantData = [];
-    const totalData = [];
     const monthNames = [
       "Jan",
       "Feb",
@@ -150,70 +194,83 @@ All Rights Reserved
       "Dec",
     ];
 
+    const orderedMonths = rotateMonths(monthNames);
+
+    const compliantData = [];
+    const nonCompliantData = [];
+    const totalData = [];
+
     const dataMap = new Map();
     chartData.forEach((item) => {
       const monthIndex = parseInt(item.month.split("-")[1]) - 1;
-      const monthLabel = monthNames[monthIndex];
-
-      dataMap.set(monthLabel, {
-        valid: item.valid,
-        invalid: item.invalid,
-        total_people: item.total_people,
+      const label = monthNames[monthIndex];
+      dataMap.set(label, {
+        valid: item.valid ?? 0,
+        invalid: item.invalid ?? 0,
+        total_people: item.total_people ?? 0,
       });
     });
 
-    monthNames.forEach((monthLabel) => {
-      const data = dataMap.get(monthLabel) || { valid: 0, invalid: 0, total_people: 0 };
+    orderedMonths.forEach((label) => {
+      const d = dataMap.get(label) || { valid: 0, invalid: 0, total_people: 0 };
 
-      compliantData.push({ x: monthLabel, y: data.valid });
-      nonCompliantData.push({ x: monthLabel, y: data.invalid });
-      totalData.push({ x: monthLabel, y: data.total_people });
+      compliantData.push({ x: label, y: d.valid });
+      nonCompliantData.push({ x: label, y: d.invalid });
+      totalData.push({ x: label, y: d.total_people });
     });
 
-    return { compliantData, nonCompliantData, totalData };
+    return { compliantData, nonCompliantData, totalData, orderedMonths };
   }
 
   const getReport = async () => {
     let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        // ... (panggilan API Anda) ...
-        const response = await $call.call("client-dashboard", "get-all-report-document-reviewer", {
-          // ... Params dan Headers Anda ...
-        });
+    if (!token) return;
 
-        if (response.status !== 200) {
-          console.log(response);
-          return;
-        }
+    try {
+      const response = await $call.call("client-dashboard", "get-all-report-document-reviewer", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {},
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-        console.log("check get-all-report-document-reviewer", response);
-
-        // --- PROSES DATA UNTUK CHART ---
-        if (response.result && response.result.chart && response.result.chart.length > 0) {
-          const { compliantData, nonCompliantData, totalData } = formatChartData(
-            response.result.chart,
-          );
-
-          // 4. Perbarui variabel reaktif chartSeries
-          // Mengganti seluruh array untuk memicu reaktivitas
-          chartSeries = [
-            { ...chartSeries[0], data: compliantData },
-            { ...chartSeries[1], data: nonCompliantData },
-            { ...chartSeries[2], data: totalData },
-          ];
-        }
-        // --- AKHIR PROSES DATA ---
-      } catch (error) {
-        console.log(error);
+      if (response.status !== 200) {
+        console.log(response);
+        return;
       }
+
+      console.log("check get-all-report-document-reviewer", response);
+
+      if (response.result && response.result.chart && response.result.chart.length > 0) {
+        const { compliantData, nonCompliantData, totalData, orderedMonths } = formatChartData(
+          response.result.chart,
+        );
+
+        chartSeries = [
+          { ...chartSeries[0], data: compliantData },
+          { ...chartSeries[1], data: nonCompliantData },
+          { ...chartSeries[2], data: totalData },
+        ];
+
+        chartCategories = orderedMonths;
+
+        console.log("check orderedMonths", orderedMonths);
+        console.log("check chartSeries", chartSeries);
+      }
+
+      gettingDataChart = false;
+      return response.result.summary;
+    } catch (error) {
+      console.log(error);
     }
   };
 
   onMount(async () => {
-    await getReport();
     await handleGetProjects();
-    await getActionItems();
+    const summary = await getReport();
+    await getActionItems(summary);
   });
 </script>
 
@@ -224,7 +281,11 @@ All Rights Reserved
         <!-- User Information -->
         <Typography preset="Display sm/Semibold" text={$_("auditReporting")} propClass="fluid-xl" />
 
-        <ColumnChart />
+        {#if gettingDataChart}
+          <ColumnChart />
+        {:else}
+          <ColumnChart {chartSeries} categories={chartCategories} />
+        {/if}
 
         <!-- Action Items -->
         <div>

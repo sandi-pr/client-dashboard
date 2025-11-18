@@ -6395,6 +6395,27 @@
                 "plugin": "plugin.so",
                 "function": "GetAllReportWithChart"
             }
+        },
+        {
+            "name": "get-project-report",
+            "path": "/get-project-report",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetProjectsWithResults"
+            },
+            "params": [
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
         }
     ],
     "options": {

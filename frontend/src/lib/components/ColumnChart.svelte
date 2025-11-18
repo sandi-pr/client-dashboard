@@ -8,6 +8,7 @@
   import { onMount } from "svelte";
 
   export let chartSeries = [];
+  export let categories = [];
 
   const options: ApexOptions = {
     colors: ["#6941C6", "#9E77ED", "#EAECF0"],
@@ -63,7 +64,7 @@
       show: false
     },
     xaxis: {
-      categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      categories: categories,
       floating: false,
       labels: {
         show: true,
