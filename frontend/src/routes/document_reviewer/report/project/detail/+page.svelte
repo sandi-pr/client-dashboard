@@ -62,9 +62,9 @@
         CSVResultSummary.valid = 0;
         CSVResultSummary.invalid = 0;
         CSVResultSummary.total = 0;
-        CSVResultSummary.need_review = 0;
-        CSVResultSummary.resolved = 0;
-        CSVResultSummary.unresolved = 0;
+        // CSVResultSummary.need_review = 0;
+        // CSVResultSummary.resolved = 0;
+        // CSVResultSummary.unresolved = 0;
       }
 
       let response = await $call.call("client-dashboard", "get-contract-project-result-ids", {
@@ -76,7 +76,7 @@
         },
       });
 
-      // console.log("response", response);
+      console.log("response", response);
 
       if (response.status !== 200) {
         let error = new Error("Failed to fetch project result");
@@ -84,74 +84,81 @@
         throw error;
       }
 
-      let projectId = response.result.data[0].attributes.project_id;
+      if (response.result.data.length > 0) {
+        for (let i = 0; i < response.result.data.length; i++) {
+          // console.log("response index", i, response?.result?.data[i]);
+          let projectId = response.result.data[i].attributes.project_id;
 
-      const response2 = await $call.call("client-dashboard", "get-contract-project", {
-        URLQuery: {},
-        URLParams: {
-          id: projectId.toString(),
-        },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+          const response2 = await $call.call("client-dashboard", "get-contract-project", {
+            URLQuery: {},
+            URLParams: {
+              id: projectId.toString(),
+            },
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
+          });
 
-      if (response2.status !== 200) {
-        let error = new Error("Failed to fetch project details");
-        error.response = response2;
-        throw error;
-      }
+          console.log("response2", response2);
 
-      tmpResult = response.result.data[0].attributes.result;
-      generatedOn = response.result.data[0].attributes.createdAt;
-      isCSV = tmpResult[0]?.generated?.tabular_result;
+          if (response2.status !== 200) {
+            let error = new Error("Failed to fetch project details");
+            error.response = response2;
+            throw error;
+          }
 
-      projectName = response2.result.data[0].attributes.project_name;
+          tmpResult = response.result.data[i].attributes.result;
+          generatedOn = response.result.data[i].attributes.createdAt;
+          isCSV = tmpResult[0]?.generated?.tabular_result;
 
-      if (!isCSV) {
-        const referenceDocumentIds = tmpResult
-          .flatMap((section) =>
-            section.generated.results_query.flatMap((item) => item.reference_document_ids),
-          )
-          .filter((value, index, self) => self.indexOf(value) === index);
+          projectName = response2.result.data[0].attributes.project_name;
 
-        // console.log("referenceDocumentIds", referenceDocumentIds);
+          if (!isCSV) {
+            const referenceDocumentIds = tmpResult
+              .flatMap((section) =>
+                section.generated.results_query.flatMap((item) => item.reference_document_ids),
+              )
+              .filter((value, index, self) => self.indexOf(value) === index);
 
-        await buildReferenceDocumentNames(referenceDocumentIds, token);
+            // console.log("referenceDocumentIds", referenceDocumentIds);
 
-        datas = buildDatasFromResultsQuery(response.result.data[0].attributes.result);
-        // console.log("datas", datas);
+            await buildReferenceDocumentNames(referenceDocumentIds, token);
 
-        datasExtraction = response.result.data[0].attributes.result.map((item) => {
-          return {
-            name: item.title,
-            result: removeCodeBlocks(item.generated.final_result).replace(/\n/g, "  \n"),
-          };
-        });
-        // console.log("datasExtraction", datasExtraction);
-      } else {
-        // accumulate CSV summary
-        response.result.data[0].attributes.result.forEach((item) => {
-          CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
-          CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
-          CSVResultSummary.total += item.generated.tabular_result.summary.total;
-          // CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
-          // CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
-          // CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
-        });
-        // console.log("CSVResultSummary", CSVResultSummary);
+            datas = buildDatasFromResultsQuery(response.result.data[i].attributes.result);
+            // console.log("datas", datas);
 
-        allDatas = buildDatasFromTabularLogs(response.result.data[0].attributes.result);
-        datas = allDatas.slice(0, 5);
-        // console.log("allDatas", allDatas);
+            datasExtraction = response.result.data[i].attributes.result.map((item) => {
+              return {
+                name: item.title,
+                result: removeCodeBlocks(item.generated.final_result).replace(/\n/g, "  \n"),
+              };
+            });
+            // console.log("datasExtraction", datasExtraction);
+          } else {
+            // accumulate CSV summary
+            response.result.data[i].attributes.result.forEach((item) => {
+              CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
+              CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
+              CSVResultSummary.total += item.generated.tabular_result.summary.total;
+              // CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
+              // CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
+              // CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
+            });
+            // console.log("CSVResultSummary", CSVResultSummary);
 
-        await getActionItems(projectDocumentId);
+            allDatas = buildDatasFromTabularLogs(response.result.data[i].attributes.result);
+            datas = allDatas.slice(0, 5);
+            // console.log("allDatas", allDatas);
 
-        if (response.result.data[0].attributes.summary_of_findings) {
-          datasSOF = buildDatasFromSOF(response.result.data[0].attributes.summary_of_findings);
-          // console.log("datasSOF", datasSOF);
-          datasSOF = datasSOF.slice(0, 3);
+            await getActionItems(projectDocumentId);
+
+            if (response.result.data[i].attributes.summary_of_findings) {
+              datasSOF = buildDatasFromSOF(response.result.data[i].attributes.summary_of_findings);
+              // console.log("datasSOF", datasSOF);
+              datasSOF = datasSOF.slice(0, 3);
+            }
+          }
         }
       }
 

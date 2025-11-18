@@ -117,7 +117,7 @@ All Rights Reserved
                 },
               );
 
-              // console.log("responseDocument", responseDocument);
+              console.log("responseDocument", responseDocument);
 
               if (responseDocument.status !== 200) {
                 let error = new Error("Failed to fetch document for project id " + datas);
@@ -127,9 +127,17 @@ All Rights Reserved
 
               const responseFiles = await getStatusGenerated(responseDocument.result.files);
 
-              const projectDocumentIdStrings = responseFiles.result.data.map((data) =>
-                data.id.toString(),
-              );
+              // console.log("responseFiles", responseFiles);
+
+              let projectDocumentIdStrings = [];
+              for (let i = 0; i < responseFiles.length; i++) {
+                projectDocumentIdStrings.push(
+                  responseFiles[i].result.data.map((data) => data.id.toString()),
+                );
+              }
+              projectDocumentIdStrings = projectDocumentIdStrings.flat();
+
+              // console.log("projectDocumentIdStrings", projectDocumentIdStrings);
 
               let url = isFrontend
                 ? "/document_reviewer/report/project/detail"
@@ -263,6 +271,7 @@ All Rights Reserved
     let token = localStorage.getItem("token");
     if (token) {
       try {
+        let responseArray = [];
         for (let i = 0; i < files.length; i++) {
           if (
             files[i].status_generated !== "START" &&
@@ -295,9 +304,11 @@ All Rights Reserved
               break;
             }
 
-            return response;
+            // return response;
+            responseArray.push(response);
           }
         }
+        return responseArray;
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");

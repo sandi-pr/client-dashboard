@@ -37,12 +37,12 @@
         datas = [];
       }
 
-      let response = await $call.call("client-dashboard", "get-contract-project-result", {
+      let response = await $call.call("client-dashboard", "get-contract-project-result-ids", {
         URLQuery: {},
-        URLParams: {
-          id: projectDocumentId,
+        URLParams: {},
+        Params: {
+          ids: projectDocumentId,
         },
-        Params: {},
         Headers: {
           Authorization: "Bearer " + token,
         },
@@ -56,7 +56,14 @@
 
       // console.log("response", response);
 
-      allDatas = buildDatasFromTabularLogs(response.result.data[0].attributes.result);
+      if (response.result.data.length > 0) {
+        for (let i = 0; i < response.result.data.length; i++) {
+          allDatas = allDatas.concat(
+            buildDatasFromTabularLogs(response.result.data[i].attributes.result),
+          );
+        }
+      }
+
       datas = allDatas.slice(0, 10);
       configs.pagination.total = allDatas.length;
       configs.pagination.pageCount = Math.ceil(allDatas.length / configs.pagination.pageSize);
