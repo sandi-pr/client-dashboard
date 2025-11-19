@@ -486,7 +486,7 @@
           goto(gotoUrl);
         }}
       >
-        <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="primary" />
+        <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="fg-white" />
       </Button>
       <Button class="h-min" color="light" outline on:click={downloadAsCSV}>
         <Typography preset="Text md/Semibold" text={$_("downloadAsCSV")} color="primary" />
@@ -534,8 +534,9 @@
                     );
                 goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
               }}
+              class="[&>*]:text-primary-light [&>*]:dark:text-primary-dark [&>*]:hover:text-primary-dark [&>*]:dark:hover:text-primary-dark"
             >
-              <Typography preset="Text md/Semibold" text={$_("viewAll")} color="primary" />
+              <Typography preset="Text md/Semibold" text={$_("viewAll")} />
             </Button>
           </div>
           <DataTableAIReview bind:datas={datasSOF} />
@@ -561,8 +562,9 @@
                       );
                   goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
                 }}
+                class="[&>*]:text-primary-light [&>*]:dark:text-primary-dark [&>*]:hover:text-primary-dark [&>*]:dark:hover:text-primary-dark"
               >
-                <Typography preset="Text md/Semibold" text={$_("viewAll")} color="primary" />
+                <Typography preset="Text md/Semibold" text={$_("viewAll")} />
               </Button>
             {/if}
           </div>

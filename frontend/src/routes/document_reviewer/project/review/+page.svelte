@@ -7,12 +7,9 @@
   import { call, triggerToast, triggerLoading, getIcons } from "$lib";
   import { Typography, ListMarkdown, PdfjsViewer, Divider, DataTableAIReview } from "$lib";
 
-  const CheckCircleIcon = getIcons("checkCircle");
-  const AlertTriangleIcon = getIcons("alertTriangle");
-  const InfoCircleIcon = getIcons("infoCircle");
-
   const isFrontend = process.env.NODE_ENV === "development";
 
+  let projectId = $state(null);
   let selectedFile = $state(null);
   let projectDocumentId = $state(null);
 
@@ -82,7 +79,7 @@
 
       // console.log("response", response);
 
-      let projectId = response.result.data[0].attributes.project_id;
+      projectId = response.result.data[0].attributes.project_id;
 
       const response2 = await $call.call("client-dashboard", "get-contract-project", {
         URLQuery: {},
@@ -424,10 +421,10 @@
           const gotoUrl = isFrontend
             ? "/document_reviewer/project/detail"
             : await $call.getPage("client-dashboard", "contract-project-detail");
-          goto(gotoUrl + `?projectId=${$page.url.searchParams.get("projectId")}`);
+          goto(gotoUrl + `?projectId=${projectId}`);
         }}
       >
-        <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="primary" />
+        <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="fg-white" />
       </Button>
       <Button class="h-min" color="light" outline on:click={downloadAsCSV}>
         <Typography preset="Text md/Semibold" text={$_("downloadAsCSV")} color="primary" />
@@ -503,8 +500,9 @@
                   : await $call.getPage("client-dashboard", "contract-project-review-summary");
                 goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
               }}
+              class="[&>*]:text-primary-light [&>*]:dark:text-primary-dark [&>*]:hover:text-primary-dark [&>*]:dark:hover:text-primary-dark"
             >
-              <Typography preset="Text md/Semibold" text={$_("viewAll")} color="primary" />
+              <Typography preset="Text md/Semibold" text={$_("viewAll")} />
             </Button>
           </div>
           <DataTableAIReview bind:datas={datasSOF} />
@@ -527,8 +525,9 @@
                     : await $call.getPage("client-dashboard", "contract-project-review-logs");
                   goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
                 }}
+                class="[&>*]:text-primary-light [&>*]:dark:text-primary-dark [&>*]:hover:text-primary-dark [&>*]:dark:hover:text-primary-dark"
               >
-                <Typography preset="Text md/Semibold" text={$_("viewAll")} color="primary" />
+                <Typography preset="Text md/Semibold" text={$_("viewAll")} />
               </Button>
             {/if}
           </div>

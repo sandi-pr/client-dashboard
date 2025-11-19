@@ -117,7 +117,7 @@ All Rights Reserved
                 },
               );
 
-              console.log("responseDocument", responseDocument);
+              // console.log("responseDocument", responseDocument);
 
               if (responseDocument.status !== 200) {
                 let error = new Error("Failed to fetch document for project id " + datas);
@@ -359,7 +359,7 @@ All Rights Reserved
           {/if}
         </div>
 
-        {#if datas.length > 0}
+        {#if datas.length > 0 && !gettingDatas}
           <DataTable bind:datas bind:configs next={nextPage} previous={previousPage} />
         {:else if gettingDatas}
           <StateCard
