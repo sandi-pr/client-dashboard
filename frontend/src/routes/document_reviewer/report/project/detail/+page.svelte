@@ -4,6 +4,7 @@
   import { _ } from "svelte-i18n";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
+  import * as XLSX from 'xlsx';
   import { call, triggerToast, triggerLoading, getIcons } from "$lib";
   import {
     Divider,
@@ -31,6 +32,7 @@
   let datas = $state([]);
   let allDatas = $state([]);
   let datasSOF = $state([]);
+  let allDatasSOF = $state([]);
   let tmpResult = $state([]);
   let actionItems = $state([]);
   let datasExtraction = $state([]);
@@ -155,6 +157,7 @@
 
             if (response.result.data[i].attributes.summary_of_findings) {
               datasSOF = buildDatasFromSOF(response.result.data[i].attributes.summary_of_findings);
+              allDatasSOF = datasSOF;
               // console.log("datasSOF", datasSOF);
               datasSOF = datasSOF.slice(0, 3);
             }
@@ -377,6 +380,29 @@
     return String(row);
   };
 
+  const downloadSOFExcel = () => {
+    // 1. Siapkan header + isi
+    const worksheetData = [
+      ["No", "Row", "Context", "Summary"], // Header
+      ...allDatasSOF.map(item => [
+        item.no,
+        item.row,
+        item.context,
+        item.summary,
+      ])
+    ];
+
+    // 2. Buat worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // 3. Buat workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "SOF");
+
+    // 4. Generate file
+    XLSX.writeFile(workbook, projectName + "_SOF.xlsx");
+  };
+
   const downloadAsCSV = async () => {
     if (!isCSV) {
       let csvContent = "data:text/csv;charset=utf-8,";
@@ -488,8 +514,8 @@
       >
         <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="fg-white" />
       </Button>
-      <Button class="h-min" color="light" outline on:click={downloadAsCSV}>
-        <Typography preset="Text md/Semibold" text={$_("downloadAsCSV")} color="primary" />
+      <Button class="h-min" color="light" outline on:click={downloadSOFExcel}>
+        <Typography preset="Text md/Semibold" text={$_("downloadAsExcel")} color="primary" />
       </Button>
     </div>
   </div>
