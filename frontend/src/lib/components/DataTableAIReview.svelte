@@ -12,6 +12,7 @@
 
 <script>
   import Markdown from "svelte-exmarkdown";
+  import rehypeRaw from 'rehype-raw';
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { _ } from "svelte-i18n";
   import {
@@ -38,7 +39,7 @@
   const PDFOutlineIcon = getIcons("PDFOutline");
   const CSVSolidIcon = getIcons("CSVSolid");
 
-  const plugins = [gfmPlugin()];
+  const plugins = [{ rehypePlugin: [rehypeRaw] }];
 
   export let datas;
   export let configs;
@@ -163,7 +164,7 @@
                     <TableBodyCell
                       on:click={() => {
                         suggestionModal = true;
-                        suggestionData = data[key];
+                        suggestionData = data[key].replace(/\n/g, "<br/>");
                       }}
                       class="w-1/4 hover:cursor-pointer bg-brand-primary-light dark:bg-brand-primary-dark"
                     >
