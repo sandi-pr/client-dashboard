@@ -262,7 +262,7 @@
           });
 
           files = await Promise.all(promise);
-          console.log("files", files);
+          // console.log("files", files);
 
           if (files.length < 1) {
             interval = false;
@@ -387,7 +387,7 @@
               },
             );
 
-            console.log("response", response);
+            // console.log("response", response);
 
             if (response.status !== 200) {
               triggerLoading(false);
@@ -429,7 +429,7 @@
 
                   let id = response.result.data[j].id;
 
-                  console.log("id", id);
+                  // console.log("id", id);
 
                   // check if already push to idResults
                   let index = idResults.findIndex((result) => result.id_doc === files[i].id);
@@ -474,7 +474,7 @@
 
                   let id = response.result.data[j].id;
 
-                  console.log("id", id);
+                  // console.log("id", id);
 
                   let index = idResults.findIndex((result) => result.id_doc === files[i].id);
                   if (index !== -1) {

@@ -109,7 +109,7 @@ All Rights Reserved
           });
 
           datas = await Promise.all(promise);
-          console.log("datas", datas);
+          // console.log("datas", datas);
 
           triggerLoading(false);
           gettingDatas = false;

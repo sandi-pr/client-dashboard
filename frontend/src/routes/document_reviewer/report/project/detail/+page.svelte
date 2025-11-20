@@ -4,7 +4,7 @@
   import { _ } from "svelte-i18n";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import * as XLSX from 'xlsx';
+  import * as XLSX from "xlsx";
   import { call, triggerToast, triggerLoading, getIcons } from "$lib";
   import {
     Divider,
@@ -78,7 +78,7 @@
         },
       });
 
-      console.log("response", response);
+      // console.log("response", response);
 
       if (response.status !== 200) {
         let error = new Error("Failed to fetch project result");
@@ -102,7 +102,7 @@
             },
           });
 
-          console.log("response2", response2);
+          // console.log("response2", response2);
 
           if (response2.status !== 200) {
             let error = new Error("Failed to fetch project details");
@@ -384,12 +384,7 @@
     // 1. Siapkan header + isi
     const worksheetData = [
       ["No", "Row", "Context", "Summary"], // Header
-      ...allDatasSOF.map(item => [
-        item.no,
-        item.row,
-        item.context,
-        item.summary,
-      ])
+      ...allDatasSOF.map((item) => [item.no, item.row, item.context, item.summary]),
     ];
 
     // 2. Buat worksheet
@@ -515,7 +510,7 @@
         <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="fg-white" />
       </Button>
       <Button class="h-min" color="light" outline on:click={downloadSOFExcel}>
-        <Typography preset="Text md/Semibold" text={$_("downloadAsExcel")} color="primary" />
+        <Typography preset="Text md/Semibold" text={$_("downloadAsExcel")} color="fg-secondary" />
       </Button>
     </div>
   </div>
@@ -550,7 +545,7 @@
             <Typography preset="Text md/Semibold" text={$_("summaryOfFindings")} color="primary" />
             <Button
               outline
-              color="alternative"
+              color="light"
               on:click={async () => {
                 const gotoUrl = isFrontend
                   ? "/document_reviewer/report/project/detail/summary"
@@ -560,9 +555,8 @@
                     );
                 goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
               }}
-              class="[&>*]:text-primary-light [&>*]:dark:text-primary-dark [&>*]:hover:text-primary-dark [&>*]:dark:hover:text-primary-dark"
             >
-              <Typography preset="Text md/Semibold" text={$_("viewAll")} />
+              <Typography preset="Text md/Semibold" text={$_("viewAll")} color="fg-secondary" />
             </Button>
           </div>
           <DataTableAIReview bind:datas={datasSOF} />
@@ -578,7 +572,7 @@
             {#if isCSV}
               <Button
                 outline
-                color="alternative"
+                color="light"
                 on:click={async () => {
                   const gotoUrl = isFrontend
                     ? "/document_reviewer/report/project/detail/logs"
@@ -588,9 +582,8 @@
                       );
                   goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
                 }}
-                class="[&>*]:text-primary-light [&>*]:dark:text-primary-dark [&>*]:hover:text-primary-dark [&>*]:dark:hover:text-primary-dark"
               >
-                <Typography preset="Text md/Semibold" text={$_("viewAll")} />
+                <Typography preset="Text md/Semibold" text={$_("viewAll")} color="fg-secondary" />
               </Button>
             {/if}
           </div>

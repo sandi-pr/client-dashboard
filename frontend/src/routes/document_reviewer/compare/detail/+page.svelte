@@ -407,7 +407,7 @@
 
                   let id = response.result.data[j].id;
 
-                  console.log("id", id);
+                  // console.log("id", id);
 
                   // check if already push to idResults
                   let index = idResults.findIndex((result) => result.id_doc === files[i].id);
@@ -452,7 +452,7 @@
 
                   let id = response.result.data[j].id;
 
-                  console.log("id", id);
+                  // console.log("id", id);
 
                   let index = idResults.findIndex((result) => result.id_doc === files[i].id);
                   if (index !== -1) {
@@ -878,17 +878,24 @@
                           compareId,
                       );
                     } else {
-                      let index = idResults.findIndex((result) => result.id_doc === file.id);
-                      let gotoUrl = isFrontend
-                        ? "/document_reviewer/compare/review"
-                        : await $call.getPage("client-dashboard", "contract-compare-review");
-                      goto(
-                        gotoUrl +
-                          "?compareDocumentId=" +
-                          idResults[index].id +
-                          "&compareId=" +
-                          compareId,
-                      );
+                      if (idResults.length > 0) {
+                        let index = idResults.findIndex((result) => result.id_doc === file.id);
+                        let gotoUrl = isFrontend
+                          ? "/document_reviewer/compare/review"
+                          : await $call.getPage("client-dashboard", "contract-compare-review");
+                        goto(
+                          gotoUrl +
+                            "?compareDocumentId=" +
+                            idResults[index].id +
+                            "&compareId=" +
+                            compareId,
+                        );
+                      } else {
+                        console.log("idResults", idResults);
+                        console.log("file", file);
+                        console.log("compareId", compareId);
+                        triggerToast("error");
+                      }
                     }
                   }
                 }}

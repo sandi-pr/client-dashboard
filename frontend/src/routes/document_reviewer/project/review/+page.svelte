@@ -427,7 +427,7 @@
         <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="fg-white" />
       </Button>
       <Button class="h-min" color="light" outline on:click={downloadAsCSV}>
-        <Typography preset="Text md/Semibold" text={$_("downloadAsCSV")} color="primary" />
+        <Typography preset="Text md/Semibold" text={$_("downloadAsCSV")} color="fg-secondary" />
       </Button>
     </div>
   </div>
@@ -493,16 +493,15 @@
             <Typography preset="Text md/Semibold" text={$_("summaryOfFindings")} color="primary" />
             <Button
               outline
-              color="alternative"
+              color="light"
               on:click={async () => {
                 const gotoUrl = isFrontend
                   ? "/document_reviewer/project/review/summary"
                   : await $call.getPage("client-dashboard", "contract-project-review-summary");
                 goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
               }}
-              class="[&>*]:text-primary-light [&>*]:dark:text-primary-dark [&>*]:hover:text-primary-dark [&>*]:dark:hover:text-primary-dark"
             >
-              <Typography preset="Text md/Semibold" text={$_("viewAll")} />
+              <Typography preset="Text md/Semibold" text={$_("viewAll")} color="fg-secondary" />
             </Button>
           </div>
           <DataTableAIReview bind:datas={datasSOF} />
@@ -518,16 +517,15 @@
             {#if isCSV}
               <Button
                 outline
-                color="alternative"
+                color="light"
                 on:click={async () => {
                   const gotoUrl = isFrontend
                     ? "/document_reviewer/project/review/logs"
                     : await $call.getPage("client-dashboard", "contract-project-review-logs");
                   goto(gotoUrl + `?projectDocumentId=${projectDocumentId}`);
                 }}
-                class="[&>*]:text-primary-light [&>*]:dark:text-primary-dark [&>*]:hover:text-primary-dark [&>*]:dark:hover:text-primary-dark"
               >
-                <Typography preset="Text md/Semibold" text={$_("viewAll")} />
+                <Typography preset="Text md/Semibold" text={$_("viewAll")} color="fg-secondary" />
               </Button>
             {/if}
           </div>

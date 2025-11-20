@@ -108,7 +108,7 @@ All Rights Reserved
       },
     });
 
-    console.log("check get-project-report", response);
+    // console.log("check get-project-report", response);
 
     if (response === null) {
       gettingDatas = false;
@@ -335,7 +335,7 @@ All Rights Reserved
         return;
       }
 
-      console.log("check get-all-report-document-reviewer", response);
+      // console.log("check get-all-report-document-reviewer", response);
 
       if (response.result && response.result.chart && response.result.chart.length > 0) {
         const { compliantData, nonCompliantData, totalData, orderedMonths } = formatChartData(
@@ -350,8 +350,8 @@ All Rights Reserved
 
         chartCategories = orderedMonths;
 
-        console.log("check orderedMonths", orderedMonths);
-        console.log("check chartSeries", chartSeries);
+        // console.log("check orderedMonths", orderedMonths);
+        // console.log("check chartSeries", chartSeries);
       }
 
       gettingDataChart = false;

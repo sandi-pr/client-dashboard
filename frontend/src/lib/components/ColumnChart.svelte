@@ -18,35 +18,35 @@
       height: "320px",
       fontFamily: "Inter, sans-serif",
       toolbar: {
-        show: false
-      }
+        show: false,
+      },
     },
     plotOptions: {
       bar: {
         horizontal: false,
         columnWidth: "70%",
         borderRadiusApplication: "end",
-        borderRadius: 8
-      }
+        borderRadius: 8,
+      },
     },
     tooltip: {
       shared: true,
       intersect: false,
       style: {
-        fontFamily: "Inter, sans-serif"
-      }
+        fontFamily: "Inter, sans-serif",
+      },
     },
     states: {
       hover: {
         filter: {
-          type: "darken"
-        }
-      }
+          type: "darken",
+        },
+      },
     },
     stroke: {
       show: true,
       width: 0,
-      colors: ["transparent"]
+      colors: ["transparent"],
     },
     grid: {
       show: false,
@@ -54,14 +54,14 @@
       padding: {
         left: 2,
         right: 2,
-        top: -14
-      }
+        top: -14,
+      },
     },
     dataLabels: {
-      enabled: false
+      enabled: false,
     },
     legend: {
-      show: false
+      show: false,
     },
     xaxis: {
       categories: categories,
@@ -70,15 +70,15 @@
         show: true,
         style: {
           fontFamily: "Inter, sans-serif",
-          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
-        }
+          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
+        },
       },
       axisBorder: {
-        show: false
+        show: false,
       },
       axisTicks: {
-        show: false
-      }
+        show: false,
+      },
     },
     yaxis: {
       show: true,
@@ -87,49 +87,46 @@
         style: {
           fontSize: "12px",
           fontWeight: 500,
-          color: '#475467'
-        }
+          color: "#475467",
+        },
       },
     },
     fill: {
-      opacity: 1
-    }
+      opacity: 1,
+    },
   };
 
-  onMount(() => {
-    console.log("check chartSeries", chartSeries);
-  })
+  // onMount(() => {
+  //   console.log("check chartSeries", chartSeries);
+  // })
 </script>
 
 <div class="">
-  <Typography
-    preset="Text lg/Semibold"
-    text={$_("auditPerformanceTrends")}
-  />
+  <Typography preset="Text lg/Semibold" text={$_("auditPerformanceTrends")} />
   <div class="flex justify-end gap-3">
     <div class="flex items-center">
-      <Indicator size="sm" color="none" class="me-1.5 bg-utility-brand-700-light dark:bg-utility-brand-700-dark" />
-      <Typography
-        preset="Text sm/Regular"
-        text={$_("compliantData")}
-        color="tertiary"
+      <Indicator
+        size="sm"
+        color="none"
+        class="me-1.5 bg-utility-brand-700-light dark:bg-utility-brand-700-dark"
       />
+      <Typography preset="Text sm/Regular" text={$_("compliantData")} color="tertiary" />
     </div>
     <div class="flex items-center">
-      <Indicator size="sm" color="none" class="me-1.5 bg-utility-brand-500-light dark:bg-utility-brand-500-dark" />
-      <Typography
-        preset="Text sm/Regular"
-        text={$_("nonCompliantData")}
-        color="tertiary"
+      <Indicator
+        size="sm"
+        color="none"
+        class="me-1.5 bg-utility-brand-500-light dark:bg-utility-brand-500-dark"
       />
+      <Typography preset="Text sm/Regular" text={$_("nonCompliantData")} color="tertiary" />
     </div>
     <div class="flex items-center">
-      <Indicator size="sm" color="none" class="me-1.5 bg-utility-gray-200-light dark:bg-utility-gray-200-dark" />
-      <Typography
-        preset="Text sm/Regular"
-        text={$_("totalData")}
-        color="tertiary"
+      <Indicator
+        size="sm"
+        color="none"
+        class="me-1.5 bg-utility-gray-200-light dark:bg-utility-gray-200-dark"
       />
+      <Typography preset="Text sm/Regular" text={$_("totalData")} color="tertiary" />
     </div>
   </div>
   <Chart {options} />
