@@ -28,6 +28,48 @@ import (
 	"gitlab.hexacode.org/go-libs/strapi"
 )
 
+func FilterByKeyValue(dicts []U.Dict, key string, value interface{}) []U.Dict {
+	result := []U.Dict{}
+	for _, d := range dicts {
+		if v, ok := d[key]; ok && v == value {
+			result = append(result, d)
+		}
+	}
+	return result
+}
+
+func filterSummariesByStatus(dicts []U.Dict, target string) []U.Dict {
+	result := []U.Dict{}
+	normalizedTarget := strings.ToLower(strings.TrimSpace(target))
+	if normalizedTarget == "" {
+		return result
+	}
+
+	getString := func(value interface{}) string {
+		if value == nil {
+			return ""
+		}
+		switch v := value.(type) {
+		case string:
+			return v
+		case fmt.Stringer:
+			return v.String()
+		default:
+			return fmt.Sprintf("%v", v)
+		}
+	}
+
+	for _, d := range dicts {
+		statusValue := strings.ToLower(strings.TrimSpace(getString(d["status"])))
+		statusLabel := strings.ToLower(strings.TrimSpace(getString(d["status_label"])))
+		if statusValue == normalizedTarget || statusLabel == normalizedTarget {
+			result = append(result, d)
+		}
+	}
+
+	return result
+}
+
 func CreateContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
@@ -363,6 +405,162 @@ func GetContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnH
 	}
 
 	return 200, project, nil
+}
+
+func GetContractProjectResult(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	logPrefix := "[GetContractProjectResult]"
+	fmt.Println(me)
+
+	idStringRaw, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		idStringRaw, ok = ctx.Params.GetString("id")
+	}
+
+	if !ok {
+		idStringRaw, ok = ctx.Params.GetString("ids")
+	}
+
+	if !ok {
+		fmt.Println(logPrefix, "missing id parameter")
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	idParts := strings.Split(string(idStringRaw), ",")
+	if len(idParts) == 0 {
+		fmt.Println(logPrefix, "empty id parts", idStringRaw)
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	parsedIDs := []int64{}
+	for _, part := range idParts {
+		trimmed := strings.TrimSpace(part)
+		if trimmed == "" {
+			fmt.Println(logPrefix, "empty id entry ignored")
+			continue
+		}
+
+		idValue, err := strconv.Atoi(trimmed)
+		if err != nil {
+			fmt.Println(logPrefix, "failed to parse id", trimmed, err)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		parsedIDs = append(parsedIDs, int64(idValue))
+	}
+
+	if len(parsedIDs) == 0 {
+		fmt.Println(logPrefix, "no valid id parsed from", idStringRaw)
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	idFilter := U.Dict{}
+	if len(parsedIDs) == 1 {
+		idFilter["$eq"] = parsedIDs[0]
+	} else {
+		idInterfaces := make([]interface{}, len(parsedIDs))
+		for i, v := range parsedIDs {
+			idInterfaces[i] = v
+		}
+		idFilter["$in"] = idInterfaces
+	}
+
+	status, documents, err := Strapi.Find("project-results-table", U.Dict{
+		"filters": U.Dict{
+			"id": idFilter,
+		},
+		"populate": "*",
+		"sort":     "id:desc",
+	})
+
+	if err != nil {
+		fmt.Println(logPrefix, "strapi find error", err)
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(logPrefix, "strapi status", status, "response", documents)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := documents.GetList("data")
+	if !ok {
+		fmt.Println(logPrefix, "failed to get data list from documents")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	meta, ok := documents.GetDict("meta")
+	if !ok {
+		fmt.Println(logPrefix, "failed to get meta from documents")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	aggregatedSummary := []U.Dict{}
+	for i := 0; i < len(list); i++ {
+		dict, ok := list.GetDict(i)
+		if !ok {
+			fmt.Println(logPrefix, "failed to get dict from data list at index", i)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		attributes, ok := dict.GetDict("attributes")
+		if !ok {
+			fmt.Println(logPrefix, "failed to get attributes from dict at index", i)
+			return ctx.Error(500, "Internal Server Error")
+		}
+
+		tabulars := extractTabularResultsFromAttributes(attributes)
+		entries := buildSummaryEntriesFromTabular(tabulars)
+		aggregatedSummary = append(aggregatedSummary, entries...)
+	}
+
+	for idx := range aggregatedSummary {
+		aggregatedSummary[idx]["no"] = idx + 1
+	}
+
+	validList := []U.Dict{}
+	invalidList := []U.Dict{}
+	for _, entry := range aggregatedSummary {
+		status := strings.ToLower(strings.TrimSpace(getStringFromUDict(entry, "status")))
+		switch status {
+		case "valid":
+			validList = append(validList, entry)
+		case "invalid":
+			invalidList = append(invalidList, entry)
+		default:
+			invalidList = append(invalidList, entry)
+		}
+	}
+
+	meta["summary_of_findings"] = aggregatedSummary
+	meta["summary_of_findings_valid"] = validList
+	meta["summary_of_findings_invalid"] = invalidList
+
+	documents["meta"] = meta
+	fmt.Println(logPrefix, "final meta", meta)
+	return 200, documents, nil
 }
 
 func DeleteContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
@@ -1380,8 +1578,31 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 		}
 	}
 
-	// ---- SUMMARY: HITUNG TOTAL PER PROJECT (HANYA LAST 12 MONTH) ----
-	allTotal, allValid, allInvalid := CalculatePeopleStatus_MultiFiles(summaryProjects)
+	// ---- SUMMARY: HITUNG PROJECT TERBARU ----
+	latest, ok := GetLatestProject(allDocs)
+	var recentTotal, recentValid, recentInvalid int
+
+	if ok {
+		// convert single project → multi-project format
+		projectList := [][]hctypes.Dict{}
+
+		// ekstrak tabular_result seperti ExtractTabularResults
+		attr, _ := latest.GetDict("attributes")
+		resultList, _ := attr.GetList("result")
+
+		oneProject := []hctypes.Dict{}
+		for i := 0; i < len(resultList); i++ {
+			item, _ := resultList.GetDict(i)
+			gen, _ := item.GetDict("generated")
+			tab, _ := gen.GetDict("tabular_result")
+			oneProject = append(oneProject, tab)
+		}
+
+		projectList = append(projectList, oneProject)
+		projectList = projectList[len(projectList)-1:]
+
+		recentTotal, recentValid, recentInvalid = CalculatePeopleStatus_MultiFiles(projectList)
+	}
 
 	// ---- PERSENTASE: PERBANDINGAN BULAN INI VS BULAN LALU ----
 	currentMonth := time.Now().Format("2006-01")
@@ -1393,14 +1614,49 @@ func GetAllReportWithChart(ctx *config.ConfigContext) (int, U.Dict, *config.Retu
 	return 200, U.Dict{
 		"chart": chartData,
 		"summary": U.Dict{
-			"total_people":            allTotal,
-			"valid":                   allValid,
-			"invalid":                 allInvalid,
+			"total_people":            recentTotal,
+			"valid":                   recentValid,
+			"invalid":                 recentInvalid,
 			"percentage_total_people": CalculatePercentageChange(prevTotal, currentTotal),
 			"percentage_valid":        CalculatePercentageChange(prevValid, currentValid),
 			"percentage_invalid":      CalculatePercentageChange(prevInvalid, currentInvalid),
 		},
 	}, nil
+}
+
+func GetLatestProject(allDocs hctypes.List) (hctypes.Dict, bool) {
+	if len(allDocs) == 0 {
+		return nil, false
+	}
+
+	latest := allDocs[0]
+	latestTime := getCreatedAtTime(allDocs[0])
+
+	for i := 1; i < len(allDocs); i++ {
+		t := getCreatedAtTime(allDocs[i])
+		if t.After(latestTime) {
+			latest = allDocs[i]
+			latestTime = t
+		}
+	}
+
+	return latest.(hctypes.Dict), true
+}
+
+func getCreatedAtTime(doc hctypes.Item) time.Time {
+	d, ok := doc.(hctypes.Dict)
+	if !ok {
+		return time.Time{}
+	}
+
+	attr, ok := d.GetDict("attributes")
+	if !ok {
+		return time.Time{}
+	}
+
+	raw, _ := attr.GetString("createdAt")
+	t, _ := time.Parse(time.RFC3339, string(raw))
+	return t
 }
 
 func ExtractTabularResults(strapiDocs hctypes.List) map[string][][]hctypes.Dict {
@@ -1599,6 +1855,463 @@ func CalculatePeopleStatus_PerProject(allProjects hctypes.List) (total int, tota
 	}
 
 	return
+}
+
+func extractTabularResultsFromAttributes(attr hctypes.Dict) []hctypes.Dict {
+	results := []hctypes.Dict{}
+
+	resultList, ok := attr.GetList("result")
+	if !ok {
+		return results
+	}
+
+	for i := 0; i < len(resultList); i++ {
+		item, ok := resultList.GetDict(i)
+		if !ok {
+			continue
+		}
+
+		generated, ok := item.GetDict("generated")
+		if !ok {
+			continue
+		}
+
+		tabular, ok := generated.GetDict("tabular_result")
+		if !ok {
+			continue
+		}
+
+		results = append(results, tabular)
+	}
+
+	return results
+}
+
+type personSummaryBucket struct {
+	rowIndex    int
+	context     string
+	sheet       string
+	section     string
+	statuses    []string
+	suggestions []string
+	statusIcon  string
+	statusLabel string
+}
+
+func buildSummaryEntriesFromTabular(tabulars []hctypes.Dict) []U.Dict {
+	buckets := map[int]*personSummaryBucket{}
+	order := []int{}
+
+	for _, tab := range tabulars {
+		logs, ok := tab.GetList("logs")
+		if !ok || len(logs) == 0 {
+			continue
+		}
+
+		sheet := strings.TrimSpace(getStringFromDict(tab, "sheet"))
+		sectionTitle := strings.TrimSpace(getStringFromDict(tab, "section_title"))
+
+		for i := 0; i < len(logs); i++ {
+			logEntry, ok := logs.GetDict(i)
+			if !ok {
+				continue
+			}
+
+			rowIndex := extractRowIndexFromLogEntry(logEntry)
+			if rowIndex < 0 {
+				continue
+			}
+
+			suggestion := extractSuggestionFromLog(logEntry, sectionTitle)
+			if suggestion == "" {
+				continue
+			}
+
+			bucket, exists := buckets[rowIndex]
+			if !exists {
+				bucket = &personSummaryBucket{rowIndex: rowIndex}
+				order = append(order, rowIndex)
+				buckets[rowIndex] = bucket
+			}
+
+			if bucket.context == "" {
+				ctx := strings.TrimSpace(extractContextFromLog(logEntry, rowIndex))
+				if ctx != "" {
+					bucket.context = ctx
+				}
+			}
+
+			if bucket.sheet == "" && sheet != "" {
+				bucket.sheet = sheet
+			}
+			if bucket.section == "" && sectionTitle != "" {
+				bucket.section = sectionTitle
+			}
+
+			statusValue := normalizeLogStatus(logEntry)
+			bucket.statuses = append(bucket.statuses, statusValue)
+
+			if bucket.statusLabel == "" {
+				label := strings.TrimSpace(getStringFromDict(logEntry, "status_label"))
+				if label != "" {
+					bucket.statusLabel = label
+				}
+			}
+
+			if bucket.statusIcon == "" {
+				icon := strings.TrimSpace(getStringFromDict(logEntry, "status_icon"))
+				if icon != "" {
+					bucket.statusIcon = icon
+				}
+			}
+
+			if !containsString(bucket.suggestions, suggestion) {
+				bucket.suggestions = append(bucket.suggestions, suggestion)
+			}
+		}
+	}
+
+	entries := []U.Dict{}
+	for _, rowIndex := range order {
+		bucket := buckets[rowIndex]
+		if bucket == nil || len(bucket.suggestions) == 0 {
+			continue
+		}
+
+		entry := U.Dict{
+			"row":     bucket.rowIndex,
+			"context": bucket.context,
+			"summary": strings.Join(bucket.suggestions, "\n"),
+		}
+
+		if entry["context"] == "" {
+			entry["context"] = fmt.Sprintf("Row %d", bucket.rowIndex)
+		}
+
+		if bucket.sheet != "" {
+			entry["sheet"] = bucket.sheet
+		}
+		if bucket.section != "" {
+			entry["section_title"] = bucket.section
+		}
+
+		status := classifyStatuses(bucket.statuses)
+		entry["status"] = status
+
+		label := bucket.statusLabel
+		if label == "" {
+			label = prettifyLabel(status)
+		}
+		if label != "" {
+			entry["status_label"] = label
+		}
+
+		entry["status_icon"] = getStatusIcon(status, bucket.statusIcon)
+
+		entries = append(entries, entry)
+	}
+
+	return entries
+}
+
+func extractRowIndexFromLogEntry(logEntry hctypes.Dict) int {
+	if rowIdx, ok := logEntry.GetFloat64("row_index"); ok {
+		return int(rowIdx)
+	}
+	if rowNo, ok := logEntry.GetFloat64("no"); ok {
+		return int(rowNo)
+	}
+	return -1
+}
+
+func normalizeLogStatus(logEntry hctypes.Dict) string {
+	status := strings.ToLower(strings.TrimSpace(getStringFromDict(logEntry, "status")))
+	if status != "" {
+		return status
+	}
+	label := strings.ToLower(strings.TrimSpace(getStringFromDict(logEntry, "status_label")))
+	if label != "" {
+		return label
+	}
+	return "unknown"
+}
+
+func getStatusIcon(status string, fallback string) string {
+	switch status {
+	case "valid":
+		return "✅"
+	case "invalid":
+		return "❌"
+	case "unknown":
+		return "⚠️"
+	default:
+		if fallback != "" {
+			return fallback
+		}
+		return ""
+	}
+}
+
+func classifyStatuses(statuses []string) string {
+	if len(statuses) == 0 {
+		return "unknown"
+	}
+
+	allValid := true
+	hasInvalid := false
+
+	for _, s := range statuses {
+		switch s {
+		case "valid":
+			continue
+		case "invalid":
+			allValid = false
+			hasInvalid = true
+		default:
+			allValid = false
+		}
+	}
+
+	if allValid {
+		return "valid"
+	}
+	if hasInvalid {
+		return "invalid"
+	}
+	return "unknown"
+}
+
+var summaryContextPriorityKeys = []string{
+	"nama lengkap",
+	"nama_lengkap",
+	"nama",
+	"name",
+	"context",
+	"keterangan",
+	"description",
+	"deskripsi",
+	"perusahaan",
+	"company",
+	"nik",
+	"id",
+}
+
+func extractContextFromLog(logEntry hctypes.Dict, fallbackRow int) string {
+	if rowData, ok := logEntry.GetDict("row_data"); ok {
+		if ctx := pickContextFromRowData(rowData); ctx != "" {
+			return ctx
+		}
+	}
+
+	if section, ok := logEntry.GetDict("section"); ok {
+		if value, ok := section.GetString("result"); ok {
+			if trimmed := strings.TrimSpace(string(value)); trimmed != "" {
+				return trimmed
+			}
+		}
+		if title, ok := section.GetString("title"); ok {
+			if trimmed := strings.TrimSpace(string(title)); trimmed != "" {
+				return trimmed
+			}
+		}
+	}
+
+	if extraction, ok := logEntry.GetString("ai_extraction"); ok {
+		if trimmed := strings.TrimSpace(string(extraction)); trimmed != "" {
+			return trimmed
+		}
+	}
+
+	if fallbackRow > 0 {
+		return fmt.Sprintf("Row %d", fallbackRow)
+	}
+
+	return ""
+}
+
+func pickContextFromRowData(rowData hctypes.Dict) string {
+	if len(rowData) == 0 {
+		return ""
+	}
+
+	keyMapper := map[string]string{}
+	firstColumnValue := ""
+	firstColumnChecked := false
+
+	for key := range rowData {
+		keyMapper[strings.ToLower(key)] = key
+
+		if !firstColumnChecked {
+			firstColumnChecked = true
+			firstColumnValue = extractRowDataValue(rowData, key)
+		}
+	}
+
+	for _, wanted := range summaryContextPriorityKeys {
+		if actual, ok := keyMapper[wanted]; ok {
+			if val, ok := rowData.GetString(actual); ok {
+				if trimmed := strings.TrimSpace(string(val)); trimmed != "" {
+					return trimmed
+				}
+			}
+		}
+	}
+
+	if strings.TrimSpace(firstColumnValue) != "" {
+		return strings.TrimSpace(firstColumnValue)
+	}
+
+	for _, actual := range keyMapper {
+		if val, ok := rowData.GetString(actual); ok {
+			if trimmed := strings.TrimSpace(string(val)); trimmed != "" {
+				return trimmed
+			}
+		}
+
+		if num, ok := rowData.GetFloat64(actual); ok {
+			return strconv.Itoa(int(num))
+		}
+	}
+
+	return ""
+}
+
+func extractRowDataValue(rowData hctypes.Dict, key string) string {
+	if val, ok := rowData.GetString(key); ok {
+		return strings.TrimSpace(string(val))
+	}
+
+	if num, ok := rowData.GetFloat64(key); ok {
+		return strings.TrimSpace(strconv.FormatFloat(float64(num), 'f', -1, 64))
+	}
+
+	if raw, exists := rowData[key]; exists && raw != nil {
+		switch value := raw.(type) {
+		case string:
+			return strings.TrimSpace(value)
+		case float64:
+			return strings.TrimSpace(strconv.FormatFloat(value, 'f', -1, 64))
+		case int:
+			return strconv.Itoa(value)
+		case int64:
+			return strconv.FormatInt(value, 10)
+		default:
+			if str, ok := value.(fmt.Stringer); ok {
+				return strings.TrimSpace(str.String())
+			}
+			return strings.TrimSpace(fmt.Sprintf("%v", value))
+		}
+	}
+
+	return ""
+}
+
+func extractSuggestionFromLog(logEntry hctypes.Dict, sectionTitle string) string {
+	if suggestion, ok := logEntry.GetString("ai_suggestion"); ok {
+		if trimmed := strings.TrimSpace(string(suggestion)); trimmed != "" {
+			return trimmed
+		}
+	}
+
+	if statusLabel, ok := logEntry.GetString("status_label"); ok {
+		label := prettifyLabel(string(statusLabel))
+		if label != "" {
+			if sectionTitle != "" {
+				return fmt.Sprintf("%s - %s", sectionTitle, label)
+			}
+			return label
+		}
+	}
+
+	if status, ok := logEntry.GetString("status"); ok {
+		status = hctypes.String(strings.TrimSpace(string(status)))
+		if status != "" {
+			label := prettifyLabel(string(status))
+			if sectionTitle != "" && label != "" {
+				return fmt.Sprintf("%s - %s", sectionTitle, label)
+			}
+			return label
+		}
+	}
+
+	return ""
+}
+
+func prettifyLabel(input string) string {
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return ""
+	}
+
+	input = strings.ReplaceAll(input, "_", " ")
+	input = strings.ReplaceAll(input, "-", " ")
+
+	parts := strings.Fields(input)
+	for i, part := range parts {
+		lower := strings.ToLower(part)
+		if len(lower) == 0 {
+			continue
+		}
+		parts[i] = strings.ToUpper(lower[:1]) + lower[1:]
+	}
+
+	return strings.Join(parts, " ")
+}
+
+func containsString(items []string, target string) bool {
+	for _, item := range items {
+		if item == target {
+			return true
+		}
+	}
+	return false
+}
+
+func getStringFromDict(dict hctypes.Dict, key string) string {
+	if val, ok := dict.GetString(key); ok {
+		return string(val)
+	}
+
+	if raw, exists := dict[key]; exists {
+		switch value := raw.(type) {
+		case string:
+			return value
+		case fmt.Stringer:
+			return value.String()
+		case float64:
+			return strconv.Itoa(int(value))
+		case int:
+			return strconv.Itoa(value)
+		default:
+			if value == nil {
+				return ""
+			}
+			return fmt.Sprintf("%v", value)
+		}
+	}
+
+	return ""
+}
+
+func getStringFromUDict(dict U.Dict, key string) string {
+	if raw, exists := dict[key]; exists {
+		switch value := raw.(type) {
+		case string:
+			return value
+		case fmt.Stringer:
+			return value.String()
+		case float64:
+			return strconv.Itoa(int(value))
+		case int:
+			return strconv.Itoa(value)
+		default:
+			if value == nil {
+				return ""
+			}
+			return fmt.Sprintf("%v", value)
+		}
+	}
+	return ""
 }
 
 func CalculateMonthlyPeopleStatus(grouped map[string][][]hctypes.Dict, month string) (total int, totalValid int, totalInvalid int) {

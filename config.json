@@ -295,6 +295,11 @@
             "file_path": "template/document_reviewer/project/review/logs.html"
         },
         {
+            "name": "contract-report",
+            "path": "/document_reviewer/report",
+            "file_path": "template/document_reviewer/report.html"
+        },
+        {
             "name": "contract-report-project-list",
             "path": "/document_reviewer/report/project",
             "file_path": "template/document_reviewer/report/project.html"
@@ -4749,6 +4754,24 @@
                 {
                     "name": "id",
                     "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-contract-project-result-ids",
+            "path": "/get-contract-project-result-ids",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetContractProjectResult"
+            },
+            "params": [
+                {
+                    "name": "ids",
+                    "type": "string",
                     "required": true
                 }
             ]
