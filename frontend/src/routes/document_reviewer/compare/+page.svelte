@@ -109,7 +109,7 @@ All Rights Reserved
           });
 
           datas = await Promise.all(promise);
-          console.log("datas", datas);
+          // console.log("datas", datas);
 
           triggerLoading(false);
           gettingDatas = false;
@@ -193,7 +193,7 @@ All Rights Reserved
             duration_start: format(new Date(Date.now()), "yyyy-MM-dd"),
             duration_end: format(new Date(Date.now()), "yyyy-MM-dd"),
             description: tmpProjectDescription,
-            is_compare: true
+            is_compare: true,
           },
           Headers: {
             Authorization: "Bearer " + token,

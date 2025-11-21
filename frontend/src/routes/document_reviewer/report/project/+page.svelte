@@ -295,6 +295,7 @@ All Rights Reserved
               },
             );
 
+            // console.log("files[i]", files[i]);
             // console.log("response", response);
 
             if (response.status !== 200) {

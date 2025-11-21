@@ -917,6 +917,8 @@
                 title={file.type}
                 handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
                 file={getFileByType(file.type, file.id)}
+                fileId={file?.result_id ||
+                  idResults.find((result) => result.id_doc === file.id)?.id}
                 bind:status={file.status_generated}
                 actionButton={true}
                 isLoading={file.status !== "FINISH"}

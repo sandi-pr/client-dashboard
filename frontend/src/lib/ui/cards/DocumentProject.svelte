@@ -31,6 +31,7 @@ All Rights Reserved
     multiple = false,
     type = "document",
     file = [],
+    fileId = null,
     rules = [],
     selectedItem = $bindable(""),
     placeholderDropdown = "selectItem",
@@ -43,6 +44,9 @@ All Rights Reserved
     actionGenerate = () => {},
     actionRegenerate = () => {},
   } = $props();
+
+  // console.log("file", file);
+  // console.log("fileId", fileId);
 
   const textFileType = (type) => {
     if (type === "document") {
@@ -130,49 +134,36 @@ All Rights Reserved
       </div>
       {#if actionButton}
         <div class="flex gap-2 justify-center">
-          <!-- <Dropdown
-            dropdownOpen={dropdownOpen}
-            bind:selectedItem={selectedItem}
-            items={rules}
-            placeholder={$_(placeholderDropdown)}
-            isOverlay={true}
-          /> -->
-          <Button
-            color="light"
-            on:click={actionGenerate}
-            class="gap-1.5 p-2 md:grow border-brand-light dark:border-primary-dark"
-          >
-            <!-- {#if status === "START"}
-              <Spinner color="purple" />
-            {/if} -->
+          {#if (status === "FINISH" && fileId) || status === "ERROR" || status === "GENERATING" || status === ""}
+            <Button
+              color="light"
+              on:click={actionGenerate}
+              class="gap-1.5 p-2 md:grow border-brand-light dark:border-primary-dark"
+            >
+              <Typography
+                preset="Text sm/Semibold"
+                text={status === "FINISH"
+                  ? $_("viewAISuggestion")
+                  : status === "ERROR"
+                    ? $_("reGenerate")
+                    : status === "GENERATING"
+                      ? $_("generating") + "..."
+                      : $_("generateSuggestion")}
+                color="brand-secondary"
+                propClass="hidden md:block"
+              />
+              <StarsIcon
+                svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
+              />
+            </Button>
+          {/if}
 
-            <Typography
-              preset="Text sm/Semibold"
-              text={status === "FINISH"
-                ? $_("viewAISuggestion")
-                : status === "ERROR"
-                  ? $_("reGenerate")
-                  : status === "GENERATING"
-                    ? $_("generating") + "..."
-                    : $_("generateSuggestion")}
-              color="brand-secondary"
-              propClass="hidden md:block"
-            />
-            <StarsIcon
-              svgClass="w-5 h-5 text-brand-secondary-light dark:text-brand-secondary-dark"
-            />
-          </Button>
-          <!-- Button kanan -->
           {#if status === "FINISH"}
             <Button
               color="light"
               on:click={actionRegenerate}
               class="gap-1.5 p-2 md:grow border-brand-light dark:border-primary-dark"
             >
-              <!-- {#if status === "START"}
-              <Spinner color="purple" />
-            {/if} -->
-
               <Typography
                 preset="Text sm/Semibold"
                 text={$_("generateMore")}

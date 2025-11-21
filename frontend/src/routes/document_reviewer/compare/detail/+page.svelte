@@ -243,6 +243,7 @@
           });
 
           files = await Promise.all(promise);
+          // console.log("files", files);
 
           if (files.length < 1) {
             interval = false;
@@ -367,6 +368,9 @@
               },
             );
 
+            // console.log("files[i]", files[i]);
+            // console.log("response", response);
+
             if (response.status !== 200) {
               triggerLoading(false);
               triggerToast("error");
@@ -410,6 +414,7 @@
                   // console.log("id", id);
 
                   // check if already push to idResults
+                  // console.log("idResults", idResults);
                   let index = idResults.findIndex((result) => result.id_doc === files[i].id);
                   if (index !== -1) {
                     idResults[index].id = id;
@@ -843,6 +848,8 @@
                 title={file.type}
                 handleFileUploadWrapper={() => handleFileUploadWrapper(file.type)}
                 file={getFileByType(file.type, file.id)}
+                fileId={file?.result_id ||
+                  idResults.find((result) => result.id_doc === file.id)?.id}
                 bind:status={file.status_generated}
                 actionButton={true}
                 isLoading={file.status !== "FINISH"}
@@ -855,7 +862,6 @@
                 }}
                 actionDelete={() => {
                   typeTmp = file.type;
-
                   projectDelete = false;
                   deleteModal = true;
                 }}
