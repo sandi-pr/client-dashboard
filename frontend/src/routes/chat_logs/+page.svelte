@@ -81,7 +81,8 @@
         },
       });
 
-      console.log("response getChatLogs", response);
+      // console.log("response getChatLogs", response);
+
       if (response?.status !== 200) {
         const error = new Error("Failed to fetch chat logs");
         error.status = response?.status || response?.result?.status || 500;
@@ -93,7 +94,8 @@
         id: item.id,
         // user: item.user || "Assistant",
         botsName: item.attributes.bot_name || "",
-        chatName: item.attributes.title || `Chat ${format(item.attributes.createdAt, "yyyy-MM-dd")}`,
+        chatName:
+          item.attributes.title || `Chat ${format(item.attributes.createdAt, "yyyy-MM-dd")}`,
         // message: abbreviateMessage(item.message) || "",
         datetime: new Date(item.attributes.createdAt).toLocaleString(),
         checkbox: {
@@ -104,8 +106,13 @@
             {
               icon: $_("eye"),
               onclick: async () => {
-                await getChatLog(item.id);
-                isViewAll = false;
+                // console.log("item.conversation_id", item.attributes.conversation_id);
+                // console.log("item.session_id", item.attributes.session_id);
+                const url = await $call.getPage("hexabot", "logs");
+                window.open(
+                  `${url}?conversation_id=${item.attributes.session_id}&bot_id=${item.attributes.conversation_id}`,
+                  "_blank",
+                );
               },
             },
           ],
@@ -131,6 +138,7 @@
           Authorization: "Bearer " + token,
         },
       });
+
       // console.log("response", response);
 
       if (response?.status !== 200) {
@@ -183,14 +191,11 @@
 
         const bot = response.result;
         const attributes = bot.attributes;
-
-        
         const botName = attributes.bot_name;
 
         console.log("botName", botName);
 
         // return botName;
-
       } catch (error) {
         // errorResponseTrigger(error);
       }
