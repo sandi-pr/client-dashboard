@@ -5,6 +5,7 @@
   import { call, getIcons } from "$lib";
   import { Typography, Divider, DataTable, InputRw, TextareaRw, windowSize } from "$lib";
   import { onMount } from "svelte";
+  import { format } from "date-fns";
 
   const Trash03Icon = getIcons("trash03");
   const BrushCleaningIcon = getIcons("brushCleaning");
@@ -91,10 +92,10 @@
       datas = response.result.data.map((item) => ({
         id: item.id,
         // user: item.user || "Assistant",
-        botsName: getBot(item.attributes.conversation_id) || "",
-        chatName: item.chat_name || "",
+        botsName: item.attributes.bot_name || "",
+        chatName: item.attributes.title || `Chat ${format(item.attributes.createdAt, "yyyy-MM-dd")}`,
         // message: abbreviateMessage(item.message) || "",
-        datetime: new Date(item.datetime).toLocaleString(),
+        datetime: new Date(item.attributes.createdAt).toLocaleString(),
         checkbox: {
           checked: false,
         },
