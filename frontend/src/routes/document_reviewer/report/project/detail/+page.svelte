@@ -315,7 +315,7 @@
           ? "/document_reviewer/report/summary" + "?type=compliant&projectDocumentId=" + documentIds
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=compliant&projectDocumentId=" +
-            82,
+            documentIds,
         icon: "checkCircle",
         iconColor: "fg-success-primary",
         actionName: CSVResultSummary.valid.toString(),
@@ -330,7 +330,7 @@
             documentIds
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=nonCompliant&projectDocumentId=" +
-            82,
+            documentIds,
         icon: "alertTriangle",
         iconColor: "fg-warning-primary",
         actionName: CSVResultSummary.invalid.toString(),
@@ -343,7 +343,7 @@
           ? "/document_reviewer/report/summary" + "?type=total&projectDocumentId=" + documentIds
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=total&projectDocumentId=" +
-            82,
+            documentIds,
         icon: "infoCircle",
         iconColor: "fg-secondary",
         actionName: CSVResultSummary.total.toString(),

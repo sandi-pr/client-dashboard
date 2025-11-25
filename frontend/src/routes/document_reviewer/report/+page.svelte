@@ -32,6 +32,7 @@ All Rights Reserved
   let datasTable = $state([]);
   let datasConfigs = $state({});
   let chartCategories = $state([]);
+  let latestProjectDocId = $state(null);
 
   let chartSeries = $state([
     { name: "Compliant Data", color: "#6941C6", data: [] },
@@ -43,10 +44,10 @@ All Rights Reserved
     actionItems = [
       {
         href: isFrontend
-          ? "/document_reviewer/report/summary" + "?type=compliant&projectDocumentId=" + 82
+          ? "/document_reviewer/report/summary" + "?type=compliant&projectDocumentId=" + latestProjectDocId
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=compliant&projectDocumentId=" +
-            82,
+            latestProjectDocId,
         icon: "checkCircle",
         iconColor: "fg-success-primary",
 
@@ -61,10 +62,10 @@ All Rights Reserved
       },
       {
         href: isFrontend
-          ? "/document_reviewer/report/summary" + "?type=nonCompliant&projectDocumentId=" + 82
+          ? "/document_reviewer/report/summary" + "?type=nonCompliant&projectDocumentId=" + latestProjectDocId
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=nonCompliant&projectDocumentId=" +
-            82,
+            latestProjectDocId,
         icon: "alertTriangle",
         iconColor: "fg-warning-primary",
 
@@ -76,10 +77,10 @@ All Rights Reserved
       },
       {
         href: isFrontend
-          ? "/document_reviewer/report/summary" + "?type=total&projectDocumentId=" + 82
+          ? "/document_reviewer/report/summary" + "?type=total&projectDocumentId=" + latestProjectDocId
           : (await $call.getPage("client-dashboard", "report-summary")) +
             "?type=total&projectDocumentId=" +
-            82,
+            latestProjectDocId,
         icon: "infoCircle",
         iconColor: "fg-secondary",
 
@@ -191,6 +192,10 @@ All Rights Reserved
           const projectDocumentIdStrings = responseFiles.result.data.map((data) =>
             data.id.toString(),
           );
+
+          if (i === datasTable.length - 1) {
+            latestProjectDocId = projectDocumentIdStrings.join(",");
+          }
 
           let url = isFrontend
             ? "/document_reviewer/report/project/detail"
