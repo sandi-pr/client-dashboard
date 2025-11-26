@@ -1,20 +1,30 @@
 <script>
+  import { onMount } from "svelte";
+  import { format } from "date-fns";
   import { _ } from "svelte-i18n";
   import { Button, Modal } from "flowbite-svelte";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
+  import { DatePicker } from "@svelte-plugins/datepicker";
   import { call, getIcons } from "$lib";
-  import { Typography, Divider, DataTable, InputRw, TextareaRw, windowSize } from "$lib";
-  import { onMount } from "svelte";
-  import { format } from "date-fns";
+  import { Typography, Divider, DataTable, windowSize } from "$lib";
 
   const Trash03Icon = getIcons("trash03");
   const BrushCleaningIcon = getIcons("brushCleaning");
-  const ArrowLeftIcon = getIcons("arrowLeft");
+  const FiltersIcons = getIcons("filtersIcons");
+  const ChevronDownIcon = getIcons("chevronDown");
+  const CalendarPlus02 = getIcons("calendarPlus02");
 
-  let checkAllState = $state(false);
-  let deleteModal = $state(false);
   let isAllLogs = $state(false);
-  let isViewAll = $state(true);
+  let deleteModal = $state(false);
+  let checkAllState = $state(false);
+  let isFilterModal = $state(false);
+  let filterAssistantDropdown = $state(false);
+  let isOpenDate = $state(false);
+  let startDate = $state(null);
+  let endDate = $state(null);
+  let filterAssistantTerm = $state("all");
+  let formattedEndDate = $state("");
+  let formattedStartDate = $state("");
   let pagination = $state({
     page: 1,
     pageSize: 10,
@@ -22,17 +32,6 @@
     total: 0,
   });
   let datas = $state([]);
-  let data = $state({
-    id: 1,
-    user: "",
-    botsName: "",
-    chatName: "",
-    message: "",
-    datetime: "",
-    checkbox: {
-      checked: false,
-    },
-  });
 
   let width = $derived($windowSize.width);
 
@@ -81,7 +80,7 @@
         },
       });
 
-      // console.log("response getChatLogs", response);
+      console.log("response getChatLogs", response);
 
       if (response?.status !== 200) {
         const error = new Error("Failed to fetch chat logs");
@@ -98,6 +97,7 @@
           item.attributes.title || `Chat ${format(item.attributes.createdAt, "yyyy-MM-dd")}`,
         // message: abbreviateMessage(item.message) || "",
         datetime: new Date(item.attributes.createdAt).toLocaleString(),
+        totalMessages: item.attributes.total_messages || 0,
         checkbox: {
           checked: false,
         },
@@ -121,44 +121,6 @@
 
       pagination.pageCount = response.result?.meta?.pagination?.pageCount || 0;
       pagination.total = response.result?.meta?.pagination?.total || 0;
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
-
-  const getChatLog = async (id) => {
-    let token = localStorage.getItem("token");
-    if (!token) return;
-    try {
-      const response = await $call.call("hexa-ai-rag", "get-log-message", {
-        URLQuery: {},
-        URLParams: { id: id.toString() },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      // console.log("response", response);
-
-      if (response?.status !== 200) {
-        const error = new Error("Failed to fetch chat log");
-        error.status = response?.status || response?.result?.status || 500;
-        error.response = response;
-        throw error;
-      }
-
-      data = {
-        id: response.result.id,
-        user: response.result.user || "Assistant",
-        botsName: response.result.bot_name || "Support Bot",
-        chatName: response.result.chat_name || "",
-        message: response.result.message || "",
-        datetime: new Date(response.result.datetime).toLocaleString(),
-        checkbox: {
-          checked: false,
-        },
-      };
     } catch (error) {
       console.log("error", error);
     }
@@ -260,8 +222,20 @@
     await deleteLog("all");
   };
 
+  const toggleDatePicker = () => {
+    isOpenDate = !isOpenDate;
+  };
+
+  const formatDate = (dateString) =>
+    (dateString && format(new Date(dateString), "d MMM yyyy")) || "";
+
   onMount(async () => {
     await getChatLogs();
+  });
+
+  $effect(() => {
+    formattedStartDate = formatDate(startDate);
+    formattedEndDate = formatDate(endDate);
   });
 </script>
 
@@ -277,86 +251,54 @@
           </div>
 
           <div class="flex relative gap-3">
-            {#if isViewAll}
-              <Button
-                outline
-                color="red"
-                class="min-w-max gap-1.5"
-                disabled={isDatasSelected ? false : true}
-                on:click={() => {
-                  isAllLogs = false;
-                  deleteModal = true;
-                }}
-              >
-                <Trash03Icon svgClass="w-5 h-5" />
-                {#if width > 768}
-                  <p class="font-semibold">{$_("deleteSelectedLogs")}</p>
-                {/if}
-              </Button>
-              <Button
-                outline
-                color="red"
-                class="min-w-max gap-1.5"
-                on:click={() => {
-                  isAllLogs = true;
-                  deleteModal = true;
-                }}
-              >
-                <BrushCleaningIcon svgClass="w-5 h-5" />
-                {#if width > 768}
-                  <p class="font-semibold">{$_("cleanAllLogs")}</p>
-                {/if}
-              </Button>
-            {:else}
-              <Button
-                outline
-                color="alternative"
-                class="min-w-max gap-1.5"
-                on:click={() => {
-                  isViewAll = true;
-                  data = {
-                    id: 1,
-                    user: "",
-                    botsName: "",
-                    chatName: "",
-                    message: "",
-                    datetime: "",
-                    checkbox: {
-                      checked: false,
-                    },
-                  };
-                }}
-              >
-                <ArrowLeftIcon svgClass="w-5 h-5" />
-                {#if width > 768}
-                  <p class="font-semibold">{$_("back")}</p>
-                {/if}
-              </Button>
-              <Button
-                outline
-                color="red"
-                class="min-w-max gap-1.5"
-                on:click={() => {
-                  const foundIndex = datas.findIndex((item) => item.id === data.id);
-                  if (foundIndex !== -1) {
-                    datas[foundIndex].checkbox.checked = !datas[foundIndex].checkbox.checked;
-                  }
-                  isAllLogs = false;
-                  deleteModal = true;
-                }}
-              >
-                <BrushCleaningIcon svgClass="w-5 h-5" />
-                {#if width > 768}
-                  <p class="font-semibold">{$_("deleteLog")}</p>
-                {/if}
-              </Button>
-            {/if}
+            <Button
+              outline
+              color="red"
+              class="min-w-max gap-1.5"
+              disabled={isDatasSelected ? false : true}
+              on:click={() => {
+                isAllLogs = false;
+                deleteModal = true;
+              }}
+            >
+              <Trash03Icon svgClass="w-5 h-5" />
+              {#if width > 768}
+                <p class="font-semibold">{$_("deleteSelectedLogs")}</p>
+              {/if}
+            </Button>
+            <Button
+              outline
+              color="red"
+              class="min-w-max gap-1.5"
+              on:click={() => {
+                isAllLogs = true;
+                deleteModal = true;
+              }}
+            >
+              <BrushCleaningIcon svgClass="w-5 h-5" />
+              {#if width > 768}
+                <p class="font-semibold">{$_("cleanAllLogs")}</p>
+              {/if}
+            </Button>
           </div>
         </div>
         <Divider />
       </div>
-      {#if isViewAll}
-        {#if datas.length > 0}
+      {#if datas.length > 0}
+        <div class="flex flex-col">
+          <Button
+            outline
+            color="light"
+            class="gap-1.5 w-min mt-4"
+            on:click={() => {
+              isFilterModal = true;
+            }}
+          >
+            <FiltersIcons svgClass="w-5 h-5" />
+            {#if width > 768}
+              <p class="font-semibold">{$_("filter")}</p>
+            {/if}
+          </Button>
           <DataTable
             {datas}
             configs={{ pagination: pagination }}
@@ -367,42 +309,6 @@
             {checkSingle}
             {checkAll}
           />
-        {/if}
-      {:else}
-        <div class="mt-8">
-          <div class="w-full grid grid-cols-1 md:grid-cols-4">
-            <div class="col-span-1">
-              <Typography preset="Text md/Semibold" text={$_("generalInformation")} />
-            </div>
-            <div class="col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="col-span-2 flex flex-col gap-2">
-                <Typography preset="Text sm/Medium" text={$_("botsName")} />
-                <InputRw bind:value={data.botsName} onEdit={false} />
-              </div>
-              <div class="col-span-2 flex flex-col gap-2">
-                <Typography preset="Text sm/Medium" text={$_("chatName")} />
-                <InputRw bind:value={data.chatName} onEdit={false} />
-              </div>
-              <div class="col-span-1 flex flex-col gap-2">
-                <Typography preset="Text sm/Medium" text={$_("userType")} />
-                <InputRw bind:value={data.user} onEdit={false} />
-              </div>
-              <div class="col-span-1 flex flex-col gap-2">
-                <Typography preset="Text sm/Medium" text={$_("datetime")} />
-                <InputRw bind:value={data.datetime} onEdit={false} />
-              </div>
-            </div>
-          </div>
-          <Divider className="my-6" />
-          <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="col-span-1">
-              <Typography preset="Text md/Semibold" text={$_("content")} />
-            </div>
-            <div class="col-span-3 flex flex-col gap-2">
-              <Typography preset="Text sm/Medium" text={$_("message")} />
-              <TextareaRw bind:value={data.message} rows={10} onEdit={false} />
-            </div>
-          </div>
         </div>
       {/if}
     </div>
@@ -437,6 +343,114 @@
       class="w-full"
     >
       {$_("yesImSure")}
+    </Button>
+  </div>
+</Modal>
+
+<Modal bind:open={isFilterModal} outsideclose>
+  <svelte:fragment slot="header">
+    <div class="flex justify-start items-center gap-4">
+      <div
+        class="p-2 bg-brand-primary-light dark:bg-brand-primary-dark rounded-full flex justify-center items-center"
+      >
+        <BrushCleaningIcon
+          svgClass="w-5 h-5 text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
+        />
+      </div>
+      <div class="flex flex-col">
+        <Typography preset="Text lg/Semibold" text={$_("filters")} color="primary" />
+      </div>
+    </div>
+  </svelte:fragment>
+  <div class="flex flex-col gap-2 mb-4">
+    <Typography preset="Text sm/Medium" color="secondary" text={$_("assistantBots")} />
+
+    <div class="relative w-full">
+      <Button
+        class="w-full flex justify-between"
+        color="light"
+        onclick={() => (filterAssistantDropdown = !filterAssistantDropdown)}
+      >
+        <Typography preset="Text md/Regular" text={filterAssistantTerm} />
+        <ChevronDownIcon svgClass="w-5 h-5" />
+      </Button>
+
+      {#if filterAssistantDropdown}
+        <div
+          class="absolute left-0 top-full mt-2 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-primary-dark rounded-md shadow-lg z-[50]"
+          style="min-width:12rem;"
+        >
+          <ul class="max-h-60 overflow-y-auto">
+            <li>
+              <button
+                class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                onclick={() => {
+                  filterAssistantTerm = "all";
+                  filterAssistantDropdown = false;
+                }}
+              >
+                {$_("all")}
+              </button>
+            </li>
+            {#each Array.from(new Set(datas.map((data) => data.botsName))).filter((name) => name) as botName}
+              <li>
+                <button
+                  class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onclick={() => {
+                    filterAssistantTerm = botName;
+                    filterAssistantDropdown = false;
+                  }}
+                >
+                  {botName}
+                </button>
+              </li>
+            {/each}
+          </ul>
+        </div>
+      {/if}
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 mb-4">
+    <Typography preset="Text sm/Medium" color="secondary" text={$_("timePeriod")} />
+
+    <DatePicker
+      bind:isOpen={isOpenDate}
+      bind:startDate
+      bind:endDate
+      isRange
+      isMultipane
+      enableFutureDates
+    >
+      <button
+        onclick={toggleDatePicker}
+        class:open={isOpenDate}
+        class="flex w-full p-2.5 border rounded-lg border-gray-300 dark:border-gray-500 gap-2 justify-center items-center"
+      >
+        <CalendarPlus02 svgClass="w-4 h-4 text-gray-700 dark:text-gray-400" />
+        <div class="date">
+          {#if startDate != endDate}
+            {formattedStartDate} - {formattedEndDate}
+          {:else if startDate}
+            {formattedStartDate}
+          {:else}
+            {$_("pickADate")}
+          {/if}
+        </div>
+      </button>
+    </DatePicker>
+  </div>
+  <div class="w-full flex justify-center mt-6 gap-4">
+    <Button onclick={() => (isFilterModal = false)} color="alternative" class="w-full">
+      {$_("noCancel")}
+    </Button>
+    <Button
+      onclick={async () => {
+        console.log("belum ada");
+      }}
+      color="primary"
+      class="w-full"
+    >
+      {$_("applyFilters")}
     </Button>
   </div>
 </Modal>

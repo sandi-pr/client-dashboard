@@ -1292,5 +1292,10 @@
   "vsLastProject": "vs proyek terakhir",
   "auditPerformanceTrends": "Perilaku Audit",
   "projectReportLists": "Daftar Laporan Proyek",
-  "report": "Laporan Audit"
+  "report": "Laporan Audit",
+  "filter": "Saring",
+  "filters": "Saring",
+  "applyFilters": "Terapkan Saring",
+  "assistantBots": "Assistant/Bots",
+  "timePeriod": "Periode Waktu"
 }

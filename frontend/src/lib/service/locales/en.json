@@ -1292,5 +1292,10 @@
   "vsLastProject": "vs last project",
   "auditPerformanceTrends": "Audit Performance Trends",
   "projectReportLists": "Project Report Lists",
-  "report": "Audit Reporting"
+  "report": "Audit Reporting",
+  "filter": "Filter",
+  "filters": "Filters",
+  "applyFilters": "Apply Filters",
+  "assistantBots": "Assistant/Bots",
+  "timePeriod": "Time Period"
 }
