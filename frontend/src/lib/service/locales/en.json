@@ -1297,5 +1297,7 @@
   "filters": "Filters",
   "applyFilters": "Apply Filters",
   "assistantBots": "Assistant/Bots",
-  "timePeriod": "Time Period"
+  "timePeriod": "Time Period",
+  "filtersApplied": "Filters Applied",
+  "clearFilters": "Clear Filters"
 }

@@ -14,6 +14,7 @@
   const ChevronDownIcon = getIcons("chevronDown");
   const CalendarPlus02 = getIcons("calendarPlus02");
 
+  let filterOn = $state(false);
   let isAllLogs = $state(false);
   let deleteModal = $state(false);
   let checkAllState = $state(false);
@@ -286,19 +287,50 @@
       </div>
       {#if datas.length > 0}
         <div class="flex flex-col">
-          <Button
-            outline
-            color="light"
-            class="gap-1.5 w-min mt-4"
-            on:click={() => {
-              isFilterModal = true;
-            }}
-          >
-            <FiltersIcons svgClass="w-5 h-5" />
-            {#if width > 768}
-              <p class="font-semibold">{$_("filter")}</p>
-            {/if}
-          </Button>
+          {#if filterOn}
+            <div class="flex gap-4">
+              <Button
+                outline
+                class="gap-1.5 mt-4 items-center [&>div]:hover:bg-white"
+                on:click={() => {
+                  isFilterModal = true;
+                }}
+              >
+                <div class="size-4 rounded-full bg-brand-primary-dark" />
+                {#if width > 768}
+                  <p class="font-semibold">{$_("filtersApplied")}</p>
+                {/if}
+              </Button>
+              <Button
+                outline
+                color="red"
+                class="gap-1.5 mt-4"
+                on:click={() => {
+                  startDate = null;
+                  endDate = null;
+                  filterOn = false;
+                }}
+              >
+                {#if width > 768}
+                  <p class="font-semibold">{$_("clearFilters")}</p>
+                {/if}
+              </Button>
+            </div>
+          {:else}
+            <Button
+              outline
+              color="light"
+              class="gap-1.5 w-min mt-4"
+              on:click={() => {
+                isFilterModal = true;
+              }}
+            >
+              <FiltersIcons svgClass="w-5 h-5" />
+              {#if width > 768}
+                <p class="font-semibold">{$_("filter")}</p>
+              {/if}
+            </Button>
+          {/if}
           <DataTable
             {datas}
             configs={{ pagination: pagination }}
@@ -353,7 +385,7 @@
       <div
         class="p-2 bg-brand-primary-light dark:bg-brand-primary-dark rounded-full flex justify-center items-center"
       >
-        <BrushCleaningIcon
+        <FiltersIcons
           svgClass="w-5 h-5 text-fg-brand-primary-alt-light dark:text-fg-brand-primary-alt-dark"
         />
       </div>
@@ -446,6 +478,8 @@
     <Button
       onclick={async () => {
         console.log("belum ada");
+        isFilterModal = false;
+        filterOn = true;
       }}
       color="primary"
       class="w-full"

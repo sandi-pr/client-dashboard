@@ -1297,5 +1297,7 @@
   "filters": "Saring",
   "applyFilters": "Terapkan Saring",
   "assistantBots": "Assistant/Bots",
-  "timePeriod": "Periode Waktu"
+  "timePeriod": "Periode Waktu",
+  "filtersApplied": "Saring Diterapkan",
+  "clearFilters": "Bersihkan Saring"
 }
