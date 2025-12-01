@@ -14,25 +14,31 @@
   const ChevronDownIcon = getIcons("chevronDown");
   const CalendarPlus02 = getIcons("calendarPlus02");
 
+  let botId = $state(null);
+  let endDate = $state(null);
+  let startDate = $state(null);
+
   let filterOn = $state(false);
   let isAllLogs = $state(false);
+  let isOpenDate = $state(false);
   let deleteModal = $state(false);
   let checkAllState = $state(false);
   let isFilterModal = $state(false);
   let filterAssistantDropdown = $state(false);
-  let isOpenDate = $state(false);
-  let startDate = $state(null);
-  let endDate = $state(null);
-  let filterAssistantTerm = $state("all");
+
   let formattedEndDate = $state("");
   let formattedStartDate = $state("");
+  let filterAssistantTerm = $state("all");
+
   let pagination = $state({
     page: 1,
     pageSize: 10,
     pageCount: 0,
     total: 0,
   });
+
   let datas = $state([]);
+  let datasRaw = $state([]);
 
   let width = $derived($windowSize.width);
 
@@ -54,28 +60,26 @@
     }));
   };
 
-  const abbreviateMessage = (fullMessage, maxLength = 50) => {
-    // Check if the message is already short enough
-    if (fullMessage.length <= maxLength) {
-      return fullMessage;
-    }
-
-    // Abbreviate the message and append "..."
-    const abbreviatedMessage = fullMessage.substring(0, maxLength);
-    return abbreviatedMessage + "...";
-  };
-
   const getChatLogs = async () => {
     let token = localStorage.getItem("token");
     if (!token) return;
     try {
+      const Params = {
+        page: pagination.page,
+        page_size: pagination.pageSize,
+        // bot_id: botId,
+        periode_start: format(new Date(startDate), "yyyy-MM-dd"),
+        periode_end: format(new Date(endDate), "yyyy-MM-dd"),
+      };
+      if (botId) {
+        Params.bot_id = botId;
+      }
+      console.log("Params", Params);
+
       const response = await $call.call("hexa-ai-rag", "get-conversations-log", {
         URLQuery: {},
         URLParams: {},
-        Params: {
-          page: pagination.page,
-          page_size: pagination.pageSize,
-        },
+        Params: Params,
         Headers: {
           Authorization: "Bearer " + token,
         },
@@ -97,7 +101,7 @@
         chatName:
           item.attributes.title || `Chat ${format(item.attributes.createdAt, "yyyy-MM-dd")}`,
         // message: abbreviateMessage(item.message) || "",
-        datetime: new Date(item.attributes.createdAt).toLocaleString(),
+        createdAt: new Date(item.attributes.createdAt).toLocaleString(),
         totalMessages: item.attributes.total_messages || 0,
         checkbox: {
           checked: false,
@@ -119,49 +123,12 @@
           ],
         },
       }));
+      datasRaw = response.result.data;
 
       pagination.pageCount = response.result?.meta?.pagination?.pageCount || 0;
       pagination.total = response.result?.meta?.pagination?.total || 0;
     } catch (error) {
       console.log("error", error);
-    }
-  };
-
-  const getBot = async (botId) => {
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        let response = await $call.call("client-dashboard", "get-bot", {
-          URLQuery: {},
-          URLParams: {
-            id: botId.toString(),
-          },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        console.log("response getBot", response);
-
-        if (
-          response === null ||
-          response === undefined ||
-          (response?.status && response.status !== 200)
-        ) {
-          return;
-        }
-
-        const bot = response.result;
-        const attributes = bot.attributes;
-        const botName = attributes.bot_name;
-
-        console.log("botName", botName);
-
-        // return botName;
-      } catch (error) {
-        // errorResponseTrigger(error);
-      }
     }
   };
 
@@ -223,7 +190,8 @@
     await deleteLog("all");
   };
 
-  const toggleDatePicker = () => {
+  const toggleDatePicker = (evt) => {
+    evt.stopPropagation();
     isOpenDate = !isOpenDate;
   };
 
@@ -309,6 +277,9 @@
                   startDate = null;
                   endDate = null;
                   filterOn = false;
+                  botId = null;
+                  filterAssistantTerm = "all";
+                  getChatLogs();
                 }}
               >
                 {#if width > 768}
@@ -417,6 +388,7 @@
               <button
                 class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                 onclick={() => {
+                  botId = null;
                   filterAssistantTerm = "all";
                   filterAssistantDropdown = false;
                 }}
@@ -429,6 +401,8 @@
                 <button
                   class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                   onclick={() => {
+                    botId = datasRaw.find((data) => data.attributes.bot_name === botName).attributes
+                      .conversation_id;
                     filterAssistantTerm = botName;
                     filterAssistantDropdown = false;
                   }}
@@ -477,9 +451,9 @@
     </Button>
     <Button
       onclick={async () => {
-        console.log("belum ada");
-        isFilterModal = false;
+        await getChatLogs();
         filterOn = true;
+        isFilterModal = false;
       }}
       color="primary"
       class="w-full"

@@ -56,18 +56,14 @@
   {#if refreshReady}
     <button
       class="flex gap-2 items-center px-4 py-2 bg-button-secondary-light dark:bg-button-secondary-dark rounded-lg border border-secondary-light dark:border-secondary-dark hover:bg-button-secondary-hover-light dark:hover:bg-button-secondary-hover-dark"
+      on:click={() => {
+        refreshReady = false;
+        startRefreshTimer();
+        window.location.reload();
+      }}
     >
       <RefreshIcon svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
-      <Typography
-        preset="Text md/Semibold"
-        text="Refresh"
-        color="fg-secondary"
-        on:click={() => {
-          refreshReady = false;
-          startRefreshTimer();
-          window.location.reload();
-        }}
-      />
+      <Typography preset="Text md/Semibold" text="Refresh" color="fg-secondary" />
     </button>
   {/if}
 </div>
