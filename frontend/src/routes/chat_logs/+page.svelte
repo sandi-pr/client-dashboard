@@ -67,14 +67,17 @@
       const Params = {
         page: pagination.page,
         page_size: pagination.pageSize,
-        // bot_id: botId,
-        periode_start: format(new Date(startDate), "yyyy-MM-dd"),
-        periode_end: format(new Date(endDate), "yyyy-MM-dd"),
       };
       if (botId) {
         Params.bot_id = botId;
       }
-      console.log("Params", Params);
+      if (startDate) {
+        Params.period_start = format(new Date(startDate), "yyyy-MM-dd");
+      }
+      if (endDate) {
+        Params.period_end = format(new Date(endDate), "yyyy-MM-dd");
+      }
+      // console.log("Params", Params);
 
       const response = await $call.call("hexa-ai-rag", "get-conversations-log", {
         URLQuery: {},
@@ -85,7 +88,7 @@
         },
       });
 
-      console.log("response getChatLogs", response);
+      // console.log("response getChatLogs", response);
 
       if (response?.status !== 200) {
         const error = new Error("Failed to fetch chat logs");
@@ -94,39 +97,46 @@
         throw error;
       }
 
-      datas = response.result.data.map((item) => ({
-        id: item.id,
-        // user: item.user || "Assistant",
-        botsName: item.attributes.bot_name || "",
-        chatName:
-          item.attributes.title || `Chat ${format(item.attributes.createdAt, "yyyy-MM-dd")}`,
-        // message: abbreviateMessage(item.message) || "",
-        createdAt: new Date(item.attributes.createdAt).toLocaleString(),
-        totalMessages: item.attributes.total_messages || 0,
-        checkbox: {
-          checked: false,
-        },
-        actions: {
-          objects: [
-            {
-              icon: $_("eye"),
-              onclick: async () => {
-                // console.log("item.conversation_id", item.attributes.conversation_id);
-                // console.log("item.session_id", item.attributes.session_id);
-                const url = await $call.getPage("hexabot", "logs");
-                window.open(
-                  `${url}?conversation_id=${item.attributes.session_id}&bot_id=${item.attributes.conversation_id}`,
-                  "_blank",
-                );
+      if (!response?.result?.data) {
+        datas = [];
+        datasRaw = [];
+        pagination.pageCount = 0;
+        pagination.total = 0;
+      } else {
+        datas = response.result.data.map((item) => ({
+          id: item.id,
+          // user: item.user || "Assistant",
+          botsName: item.attributes.bot_name || "",
+          chatName:
+            item.attributes.title || `Chat ${format(item.attributes.createdAt, "yyyy-MM-dd")}`,
+          // message: abbreviateMessage(item.message) || "",
+          createdAt: new Date(item.attributes.createdAt).toLocaleString(),
+          totalMessages: item.attributes.total_messages || 0,
+          checkbox: {
+            checked: false,
+          },
+          actions: {
+            objects: [
+              {
+                icon: $_("eye"),
+                onclick: async () => {
+                  // console.log("item.conversation_id", item.attributes.conversation_id);
+                  // console.log("item.session_id", item.attributes.session_id);
+                  const url = await $call.getPage("hexabot", "logs");
+                  window.open(
+                    `${url}?conversation_id=${item.attributes.session_id}&bot_id=${item.attributes.conversation_id}`,
+                    "_blank",
+                  );
+                },
               },
-            },
-          ],
-        },
-      }));
-      datasRaw = response.result.data;
+            ],
+          },
+        }));
+        datasRaw = response.result.data;
 
-      pagination.pageCount = response.result?.meta?.pagination?.pageCount || 0;
-      pagination.total = response.result?.meta?.pagination?.total || 0;
+        pagination.pageCount = response.result?.meta?.pagination?.pageCount || 0;
+        pagination.total = response.result?.meta?.pagination?.total || 0;
+      }
     } catch (error) {
       console.log("error", error);
     }
@@ -253,55 +263,55 @@
         </div>
         <Divider />
       </div>
+      {#if filterOn}
+        <div class="flex gap-4">
+          <Button
+            outline
+            class="gap-1.5 mt-4 items-center [&>div]:hover:bg-white"
+            on:click={() => {
+              isFilterModal = true;
+            }}
+          >
+            <div class="size-4 rounded-full bg-brand-primary-dark" />
+            {#if width > 768}
+              <p class="font-semibold">{$_("filtersApplied")}</p>
+            {/if}
+          </Button>
+          <Button
+            outline
+            color="red"
+            class="gap-1.5 mt-4"
+            on:click={() => {
+              startDate = null;
+              endDate = null;
+              filterOn = false;
+              botId = null;
+              filterAssistantTerm = "all";
+              getChatLogs();
+            }}
+          >
+            {#if width > 768}
+              <p class="font-semibold">{$_("clearFilters")}</p>
+            {/if}
+          </Button>
+        </div>
+      {:else}
+        <Button
+          outline
+          color="light"
+          class="gap-1.5 w-min mt-4"
+          on:click={() => {
+            isFilterModal = true;
+          }}
+        >
+          <FiltersIcons svgClass="w-5 h-5" />
+          {#if width > 768}
+            <p class="font-semibold">{$_("filter")}</p>
+          {/if}
+        </Button>
+      {/if}
       {#if datas.length > 0}
         <div class="flex flex-col">
-          {#if filterOn}
-            <div class="flex gap-4">
-              <Button
-                outline
-                class="gap-1.5 mt-4 items-center [&>div]:hover:bg-white"
-                on:click={() => {
-                  isFilterModal = true;
-                }}
-              >
-                <div class="size-4 rounded-full bg-brand-primary-dark" />
-                {#if width > 768}
-                  <p class="font-semibold">{$_("filtersApplied")}</p>
-                {/if}
-              </Button>
-              <Button
-                outline
-                color="red"
-                class="gap-1.5 mt-4"
-                on:click={() => {
-                  startDate = null;
-                  endDate = null;
-                  filterOn = false;
-                  botId = null;
-                  filterAssistantTerm = "all";
-                  getChatLogs();
-                }}
-              >
-                {#if width > 768}
-                  <p class="font-semibold">{$_("clearFilters")}</p>
-                {/if}
-              </Button>
-            </div>
-          {:else}
-            <Button
-              outline
-              color="light"
-              class="gap-1.5 w-min mt-4"
-              on:click={() => {
-                isFilterModal = true;
-              }}
-            >
-              <FiltersIcons svgClass="w-5 h-5" />
-              {#if width > 768}
-                <p class="font-semibold">{$_("filter")}</p>
-              {/if}
-            </Button>
-          {/if}
           <DataTable
             {datas}
             configs={{ pagination: pagination }}
