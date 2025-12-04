@@ -10,7 +10,7 @@ All Rights Reserved
 -->
 <script>
   import { onMount } from "svelte";
-  import { Modal, Button, Input } from "flowbite-svelte";
+  import { Modal, Button, Input, MultiSelect, Checkbox } from "flowbite-svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { ExclamationCircleSolid } from "flowbite-svelte-icons";
@@ -26,6 +26,7 @@ All Rights Reserved
     UploadFile,
     TextareaRw,
     PdfjsViewer,
+    Dropdown,
   } from "$lib";
 
   const PlusIcon = getIcons("plus");
@@ -43,8 +44,11 @@ All Rights Reserved
   let isEditTitle = $state(false);
   let addRefDocModal = $state(false);
   let documentViewModal = $state(false);
+  let workflowPresetOpen = $state(false);
+  let workflowAIEngineOpen = $state(false);
 
   let titleInput = $state("");
+  let workflowPresetSelected = $state([""]);
 
   let tabDatas = $state({
     selected: "Referenced Documents",
@@ -55,6 +59,9 @@ All Rights Reserved
       check("aiManagement.contractreviewer.rule:create_delete") && {
         name: "Rules",
       },
+      {
+        name: "Workflow",
+      },
     ].filter(Boolean),
   });
   let datas = $state({
@@ -64,7 +71,9 @@ All Rights Reserved
   });
 
   let editRules = $state([]);
+  let editWorkflow = $state([]);
   let datasDataDuplicate = $state([]);
+  let datasDataWorkflowDuplicate = $state([]);
   let files = $state([
     // {
     //   id: 1,
@@ -75,6 +84,24 @@ All Rights Reserved
     //   base64: "",
     // }
   ]);
+  let workflowPresetOptions = [
+    { value: "none", name: "No Preset" },
+    { value: "complete", name: "Completeness Agent" },
+  ];
+  let workflowAIEngineOptions = [
+    { value: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
+    { value: "gpt-4", name: "GPT-4" },
+  ];
+  let workflowAIToolsOptions = [
+    { value: "rag", name: "RAG" },
+    { value: "tabular", name: "Tabular" },
+    { value: "document-understanding", name: "Document Understanding" },
+  ];
+  let workflowHandoffToOptions = [
+    { value: "agent-2.a", name: "Agent 2.a" },
+    { value: "agent-2.b", name: "Agent 2.b" },
+    { value: "agent-2.c", name: "Agent 2.c" },
+  ];
 
   let tmpId = $state(null);
   let ruleId = $state(null);
@@ -241,6 +268,7 @@ All Rights Reserved
                     createdAt: format(item.attributes.createdAt, "yyyy-MM-dd"),
                   };
                 }),
+          dataWorkflow: [],
         };
 
         titleInput = datas.title;
@@ -379,6 +407,45 @@ All Rights Reserved
     }
   };
 
+  const createWorkflowSections = async (data) => {
+    try {
+      console.log("not yet implemented");
+      console.log("dataWorkflow", data);
+      // triggerLoading(true);
+      // let token = localStorage.getItem("token");
+      // if (token) {
+      //   const response = await $call.call("client-dashboard", "create-contract-rule-section", {
+      //     URLQuery: {},
+      //     URLParams: {},
+      //     Params: {
+      //       contract_rule_id: ruleId.toString(),
+      //       section_title: data.title,
+      //       section_prompt: data.prompt,
+      //       reference_prompt: data.reference_prompt,
+      //       // reference_prompt: ".",
+      //       section_sample: data.sample,
+      //     },
+      //     Headers: {
+      //       Authorization: "Bearer " + token,
+      //     },
+      //   });
+
+      //   if (response.status !== 200) {
+      //     const error = new Error("Failed to create section");
+      //     error.response = response;
+      //     error.status = response.status;
+      //     throw error;
+      //   }
+
+      //   triggerToast("created");
+      // }
+    } catch (error) {
+      errorHandling($_, error, "create", "case");
+    } finally {
+      triggerLoading(false);
+    }
+  };
+
   const addOtherDocument = async () => {
     try {
       triggerLoading(true);
@@ -452,7 +519,7 @@ All Rights Reserved
     }
   };
 
-  const editSection = async () => {
+  const editSectionRules = async () => {
     try {
       triggerLoading(true);
       init = false;
@@ -485,6 +552,46 @@ All Rights Reserved
         triggerToast("updated");
         await getRulesSections();
       }
+    } catch (error) {
+      triggerLoading(false);
+      errorHandling($_, error, "update", "case");
+    }
+  };
+
+  const editSectionWorkflow = async () => {
+    try {
+      console.log("not yet implemented");
+      // triggerLoading(true);
+      // init = false;
+      // let token = localStorage.getItem("token");
+      // let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
+      // if (token) {
+      //   const response = await $call.call("client-dashboard", "update-contract-rule-section", {
+      //     URLQuery: {},
+      //     URLParams: {
+      //       id: tmpSection.id.toString(),
+      //     },
+      //     Params: {
+      //       section_title: tmpSection.title,
+      //       section_prompt: tmpSection.prompt,
+      //       reference_prompt: tmpSection.reference_prompt,
+      //       section_sample: tmpSection.sample,
+      //     },
+      //     Headers: {
+      //       Authorization: "Bearer " + token,
+      //     },
+      //   });
+
+      //   if (response.status !== 200) {
+      //     const error = new Error("Failed to update section");
+      //     error.response = response;
+      //     error.status = response.status;
+      //     throw error;
+      //   }
+
+      //   triggerToast("updated");
+      //   await getRulesSections();
+      // }
     } catch (error) {
       triggerLoading(false);
       errorHandling($_, error, "update", "case");
@@ -666,10 +773,23 @@ All Rights Reserved
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   };
 
-  const checkSectionInputs = (data) => {
-    return (
-      data.title === "" || data.prompt === "" || data.sample === "" || data.reference_prompt === ""
-    );
+  const checkSectionInputs = (data, type) => {
+    if (type === "workflow") {
+      return (
+        data.name === "" ||
+        data.description === "" ||
+        data.aiEngine === "" ||
+        data.handoffTo.length === 0 ||
+        data.systemPrompt === ""
+      );
+    } else {
+      return (
+        data.title === "" ||
+        data.prompt === "" ||
+        data.sample === "" ||
+        data.reference_prompt === ""
+      );
+    }
   };
 
   onMount(async () => {
@@ -940,22 +1060,24 @@ All Rights Reserved
                             </button>
                           {/if}
                           <button
-                            class={checkSectionInputs(data) ? "cursor-not-allowed" : ""}
+                            class={checkSectionInputs(data, "rules") ? "cursor-not-allowed" : ""}
                             onclick={() => {
                               editRules[index] = false;
                               if (datasDataDuplicate[index] === undefined) {
                                 createRulesSections(data);
                               } else {
                                 tmpSectionId = data.id;
-                                editSection();
+                                editSectionRules();
                               }
                             }}
-                            disabled={checkSectionInputs(data)}
+                            disabled={checkSectionInputs(data, "rules")}
                           >
                             <Typography
                               preset="Text sm/Semibold"
                               text={$_("save")}
-                              color={checkSectionInputs(data) ? "tertiary" : "fg-brand-primary"}
+                              color={checkSectionInputs(data, "rules")
+                                ? "tertiary"
+                                : "fg-brand-primary"}
                             />
                           </button>
                         {/if}
@@ -1048,6 +1170,300 @@ All Rights Reserved
                       },
                     ];
                     editRules = [...editRules, true];
+                  }}
+                  description={$_("youDontHaveAnyDataYet")}
+                />
+              </div>
+            {/if}
+          </div>
+        {:else if tabDatas.selected === "Workflow"}
+          <div>
+            <!-- header -->
+            <div class="flex justify-between pt-3 pb-6">
+              <div class="flex flex-col">
+                <Typography
+                  preset="Text lg/Semibold"
+                  color="primary"
+                  text={$_("setWorkflowForAIAgents")}
+                />
+                <Typography
+                  preset="Text sm/Regular"
+                  color="tertiary"
+                  text={$_("descSetWorkflowForAIAgents")}
+                />
+              </div>
+              <Button
+                class="self-center gap-1"
+                color="primary"
+                outline
+                on:click={() => {
+                  datas.dataWorkflow = [
+                    ...datas.dataWorkflow,
+                    {
+                      id: datas.dataWorkflow.length,
+                      preset: "",
+                      name: "",
+                      description: "",
+                      aiEngine: "",
+                      aiTools: [],
+                      handoffTo: [],
+                      systemPrompt: "",
+                      setAsRootAgent: false,
+                    },
+                  ];
+                  editWorkflow = [...editWorkflow, true];
+                  workflowPresetSelected = [...workflowPresetSelected, ""];
+                }}
+              >
+                <PlusIcon svgClass="w-4 h-4" />
+                {$_("addNewAIAgent")}
+              </Button>
+            </div>
+            <!-- table latest -->
+            {#if datas?.dataWorkflow?.length > 0 && workflowPresetSelected.length > 0}
+              <div class="flex flex-col gap-6">
+                {#each datas.dataWorkflow as data, index}
+                  <div class="flex gap-4">
+                    <div class="flex flex-col w-60 gap-2">
+                      <Typography
+                        preset="Text md/Semibold"
+                        text={$_("section") + " " + (data.id === 0 ? "1" : index + 1)}
+                        color="secondary"
+                      />
+                      <div class="flex flex-col gap-2">
+                        {#if !editWorkflow[index]}
+                          {#if datas.dataWorkflow.length > 1 && !init}
+                            <button
+                              class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
+                              onclick={() => {
+                                tmpSectionId = data.id;
+                                caseDelete = false;
+                                deleteModal = true;
+                              }}
+                            >
+                              <Typography
+                                preset="Text sm/Semibold"
+                                text={$_("deleteSection")}
+                                color="error-primary"
+                              />
+                            </button>
+                          {/if}
+                          <button
+                            class="text-sm text-brand-secondary-light dark:text-brand-secondary-dark"
+                            onclick={() => {
+                              editWorkflow[index] = true;
+                            }}
+                          >
+                            <Typography
+                              preset="Text sm/Semibold"
+                              text={$_("edit")}
+                              color="fg-brand-primary"
+                            />
+                          </button>
+                        {:else}
+                          <button
+                            onclick={() => {
+                              if (datasDataWorkflowDuplicate[index] !== undefined) {
+                                datas.dataWorkflow[index] = datasDataWorkflowDuplicate[index];
+                                editWorkflow[index] = false;
+                              } else {
+                                datas.dataWorkflow.splice(index, 1);
+                                editWorkflow.splice(index, 1);
+                              }
+                            }}
+                          >
+                            <Typography
+                              preset="Text sm/Semibold"
+                              text={$_("cancel")}
+                              color="tertiary"
+                            />
+                          </button>
+                          <button
+                            class={checkSectionInputs(data, "workflow") ? "cursor-not-allowed" : ""}
+                            onclick={() => {
+                              editWorkflow[index] = false;
+                              if (datasDataWorkflowDuplicate[index] === undefined) {
+                                createWorkflowSections(data);
+                              } else {
+                                tmpSectionId = data.id;
+                                editSectionWorkflow();
+                              }
+                            }}
+                            disabled={checkSectionInputs(data, "workflow")}
+                          >
+                            <Typography
+                              preset="Text sm/Semibold"
+                              text={$_("save")}
+                              color={checkSectionInputs(data, "workflow")
+                                ? "tertiary"
+                                : "fg-brand-primary"}
+                            />
+                          </button>
+                        {/if}
+                      </div>
+                    </div>
+                    <div class="flex flex-col grow gap-3">
+                      <div class="flex flex-col gap-1.5">
+                        <Typography preset="Text sm/Medium" text={$_("preset")} color="secondary" />
+                        <Dropdown
+                          dropdownOpen={workflowPresetOpen}
+                          bind:selectedItem={workflowPresetSelected[index]}
+                          items={workflowPresetOptions}
+                          isOverlay={true}
+                          placeholder={$_("selectPreset")}
+                          disabled={!editWorkflow[index]}
+                          onClick={() => {
+                            if (workflowPresetSelected[index] === "complete") {
+                              data.preset = workflowPresetSelected[index];
+                              data.name = "Completeness Agent";
+                              data.description = "Ensures the document is complete.";
+                              data.aiEngine = "gpt-4";
+                              data.aiTools = ["rag", "tabular"];
+                              data.handoffTo = ["agent-2.a", "agent-2.c"];
+                              data.systemPrompt =
+                                "You are a Completeness Agent. Your task is to ensure that the document provided is complete and contains all necessary sections and information.";
+                            }
+                          }}
+                        />
+                      </div>
+                      <div class="flex flex-col grow gap-1.5">
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("name") + "*"}
+                          color="secondary"
+                        />
+                        <InputRw bind:value={data.name} onEdit={editWorkflow[index]} />
+                      </div>
+                      <div class="flex flex-col grow gap-1.5">
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("description") + "*"}
+                          color="secondary"
+                        />
+                        <TextareaRw bind:value={data.description} onEdit={editWorkflow[index]} />
+                      </div>
+                      <div class="flex flex-col gap-1.5">
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("AIEngine") + "*"}
+                          color="secondary"
+                        />
+                        <Dropdown
+                          dropdownOpen={workflowAIEngineOpen}
+                          bind:selectedItem={data.aiEngine}
+                          items={workflowAIEngineOptions}
+                          isOverlay={true}
+                          placeholder={$_("selectAIEngine")}
+                          disabled={!editWorkflow[index]}
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1.5">
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("AITools")}
+                          color="secondary"
+                        />
+                        <MultiSelect
+                          items={workflowAIToolsOptions}
+                          bind:value={data.aiTools}
+                          size="lg"
+                          class="text-primary-light dark:text-primary-dark"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1.5">
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("AIEngine") + "*"}
+                          color="secondary"
+                        />
+                        <MultiSelect
+                          items={workflowHandoffToOptions}
+                          bind:value={data.handoffTo}
+                          size="lg"
+                          class="text-primary-light dark:text-primary-dark"
+                        />
+                      </div>
+                      <div class="flex flex-col grow gap-1.5">
+                        <Typography
+                          preset="Text sm/Medium"
+                          text={$_("systemPrompt") + "*"}
+                          color="secondary"
+                        />
+                        <TextareaRw bind:value={data.systemPrompt} onEdit={editWorkflow[index]} />
+                        <Typography
+                          preset="Text sm/Regular"
+                          text={$_("descSystemPrompt")}
+                          color="tertiary"
+                        />
+                      </div>
+                      <div class="flex flex-col grow gap-1.5">
+                        <div class="flex gap-2">
+                          <Checkbox
+                            bind:value={data.setAsRootAgent}
+                            disabled={!editWorkflow[index]}
+                          />
+                          <Typography
+                            preset="Text sm/Regular"
+                            text={$_("rootAgent")}
+                            color="primary"
+                          />
+                        </div>
+                        <Typography
+                          preset="Text sm/Regular"
+                          text={$_("descRootAgent")}
+                          color="tertiary"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <Divider />
+                {/each}
+                {#if datas.data.length > 1}
+                  <Button
+                    class="w-auto self-center gap-1"
+                    color="primary"
+                    outline
+                    on:click={() => {
+                      datas.data = [
+                        ...datas.data,
+                        {
+                          id: datas.data.length,
+                          title: "",
+                          prompt: "",
+                          reference_prompt: "",
+                          sample: "",
+                          createdAt: "",
+                        },
+                      ];
+                      editWorkflow = [...editWorkflow, true];
+                    }}
+                  >
+                    <PlusIcon svgClass="w-4 h-4" />
+                    {$_("addNewSection")}
+                  </Button>
+                {/if}
+              </div>
+            {:else}
+              <div class="pt-8">
+                <StateCard
+                  illustration={IllustrationEmpty}
+                  actionText={$_("addNewSection")}
+                  funcButton={() => {
+                    datas.dataWorkflow = [
+                      ...datas.dataWorkflow,
+                      {
+                        id: datas.dataWorkflow.length,
+                        preset: "",
+                        name: "",
+                        description: "",
+                        aiEngine: "",
+                        aiTools: [],
+                        handoffTo: [],
+                        systemPrompt: "",
+                        setAsRootAgent: false,
+                      },
+                    ];
+                    editWorkflow = [...editWorkflow, true];
                   }}
                   description={$_("youDontHaveAnyDataYet")}
                 />

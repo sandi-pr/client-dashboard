@@ -32,7 +32,7 @@ All Rights Reserved
   };
 
   const buttonClass = () => {
-    const defaultClass = `flex justify-between border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark focus:ring-0 ${
+    const defaultClass = `flex px-4 py-2 justify-between border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark focus:ring-0 ${
       disabled
         ? "focus:ring-0 cursor-not-allowed bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-light hover:dark:bg-secondary-dark hover:border-primary-light hover:dark:border-primary-dark"
         : ""
@@ -62,15 +62,13 @@ All Rights Reserved
       {/if}
       {selectedItem === "" ? placeholder : items.find((item) => item.value === selectedItem)?.name}
     </div>
-    <ChevronDownOutline
-      class="w-4 h-4 ms-2 text-fg-quaternary-light dark:text-fg-quaternary-dark"
-    />
+    <ChevronDownOutline class="w-7 h-7 text-primary-light dark:text-primary-dark" />
   </Button>
   {#if dropdownOpen && items.length > 0 && !disabled}
     {#if isOverlay}
       <div
         id="dropdown"
-        class={`z-10 ${width} ${dropdownOpen ? "absolute top-12" : "hidden"} bg-white dark:bg-gray-700 rounded-lg shadow`}
+        class={`z-10 ${width} ${dropdownOpen ? "absolute top-14" : "hidden"} bg-white dark:bg-gray-700 rounded-lg shadow`}
         style="max-height: 200px; overflow-y: auto;"
       >
         <ul
@@ -83,9 +81,11 @@ All Rights Reserved
             {/if}
             <button
               class="flex w-full text-left py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600"
-              onclick={onClick === null
-                ? () => ((dropdownOpen = false), (selectedItem = item.value))
-                : () => ((dropdownOpen = false), (selectedItem = item.value), onClick(item.value))}
+              onclick={() => {
+                dropdownOpen = false;
+                selectedItem = item.value;
+                if (onClick !== null) onClick(item.value);
+              }}
             >
               {item.name}
             </button>

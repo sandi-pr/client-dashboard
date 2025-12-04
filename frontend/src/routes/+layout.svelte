@@ -1538,7 +1538,7 @@ All Rights Reserved
       "client-dashboard",
       "hexabot",
       "hexa-ai-rag",
-      "hexapod-setup",
+      // "hexapod-setup",
       "module-manager",
     ];
     return requiredModules.every((req) => modules.some((module) => module === req));

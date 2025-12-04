@@ -76,6 +76,7 @@ export { default as PdfjsViewer } from "$lib/components/PdfjsViewer.svelte";
 export { default as DataTableAIReview } from "$lib/components/DataTableAIReview.svelte";
 export { default as AudioPlayer } from "$lib/components/AudioPlayer.svelte";
 export { default as ContractReviewDetailView } from "$lib/components/ContractReviewDetailView.svelte";
+export { default as InputSelect } from "$lib/ui/inputs/InputSelect.svelte";
 export { checkLibraryName } from "$lib/utils/checkLibraryName";
 export { checkCollectionApiName } from "$lib/utils/checkCollectionApiName";
 export { generateUniqueId, decodeUniqueId } from "$lib/utils/generatedUniqueId";

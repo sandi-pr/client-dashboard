@@ -1305,5 +1305,15 @@
   "generateAudit": "Hasilkan Audit",
   "projectDescription": "Deskripsi Proyek",
   "formType": "Tipe Formulir",
-  "descSofModal": "Hasil dan saran untuk data yang dipindai"
+  "descSofModal": "Hasil dan saran untuk data yang dipindai",
+  "setWorkflowForAIAgents": "Atur Alur Kerja untuk Agen AI",
+  "descSetWorkflowForAIAgents": "Aturan ini akan digunakan untuk mengkonfigurasi alur kerja AI",
+  "addNewAIAgent": "Tambahkan Agen AI Baru",
+  "AIEngine": "AI Engine",
+  "selectAIEngine": "Pilih AI Engine",
+  "systemPrompt": "Prompt Sistem",
+  "descSystemPrompt": "Luangkan waktu untuk menulis prompt yang jelas. Kualitas keluaran akhir bergantung pada prompt yang diberikan.",
+  "rootAgent": "Tetapkan agen ini sebagai Root Agent?",
+  "descRootAgent": "Ketika dicentang, agen ini akan bertindak sebagai Root Agent. Root Agent menentukan titik awal alur kerja.",
+  "selectPreset": "Pilih Preset"
 }

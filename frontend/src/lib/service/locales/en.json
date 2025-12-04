@@ -1305,5 +1305,15 @@
   "generateAudit": "Generate Audit",
   "projectDescription": "Project Description",
   "formType": "Form Type",
-  "descSofModal": "Result and suggestion for scanned data"
+  "descSofModal": "Result and suggestion for scanned data",
+  "setWorkflowForAIAgents": "Set Workflow for AI Agents",
+  "descSetWorkflowForAIAgents": "This rules will be used to configure the AI workflow",
+  "addNewAIAgent": "Add New AI Agent",
+  "AIEngine": "AI Engine",
+  "selectAIEngine": "Select AI Engine",
+  "systemPrompt": "System Prompt",
+  "descSystemPrompt": "Take time to write a clear prompt. Quality of the final output depends on the provided prompt.",
+  "rootAgent": "Set this agent as a Root Agent?",
+  "descRootAgent": "When checked, this agent will act as a Root Agent. Root Agent define a starting point of the workflow.",
+  "selectPreset": "Select Preset"
 }
