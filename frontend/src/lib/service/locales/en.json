@@ -1299,5 +1299,11 @@
   "assistantBots": "Assistant/Bots",
   "timePeriod": "Time Period",
   "filtersApplied": "Filters Applied",
-  "clearFilters": "Clear Filters"
+  "clearFilters": "Clear Filters",
+  "auditScan": "Audit Scan",
+  "descAuditScan": "Comprehensive, AI-driven audit scanning.",
+  "generateAudit": "Generate Audit",
+  "projectDescription": "Project Description",
+  "formType": "Form Type",
+  "descSofModal": "Result and suggestion for scanned data"
 }

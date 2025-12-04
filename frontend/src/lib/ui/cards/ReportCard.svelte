@@ -11,9 +11,9 @@
   {#each actionItems as item}
     {#if !item?.disabled}
       <Card
-        href={item.onclick ? null : item.href}
+        href={item.onclick ? null : item.href ? item.href : null}
         onclick={item.onclick ?? null}
-        type={"report"}
+        type={"reportNoButton"}
         icon={item.icon}
         iconColor={item.iconColor}
         title={$_(toCamelCase(item.actionName))}

@@ -1299,5 +1299,11 @@
   "assistantBots": "Assistant/Bots",
   "timePeriod": "Periode Waktu",
   "filtersApplied": "Saring Diterapkan",
-  "clearFilters": "Bersihkan Saring"
+  "clearFilters": "Bersihkan Saring",
+  "auditScan": "Pemindaian Audit",
+  "descAuditScan": "Pemindaian audit yang komprehensif dan berbasis AI.",
+  "generateAudit": "Hasilkan Audit",
+  "projectDescription": "Deskripsi Proyek",
+  "formType": "Tipe Formulir",
+  "descSofModal": "Hasil dan saran untuk data yang dipindai"
 }

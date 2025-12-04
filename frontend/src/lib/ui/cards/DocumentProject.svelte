@@ -18,6 +18,7 @@ All Rights Reserved
   import JPEGSolidIcon from "$lib/icon/JPEGSolid.svg";
   import JPGSolidIcon from "$lib/icon/JPGSolid.svg";
   import PNGSolidIcon from "$lib/icon/PNGSolid.svg";
+  import CSVOutlineIcon from "$lib/icon/csv.svg";
 
   const UploadCloud02Icon = getIcons("uploadCloud02");
   const RefreshCw05Icon = getIcons("refreshCw05");
@@ -100,7 +101,7 @@ All Rights Reserved
     </div>
   {:else}
     <div
-      class="flex flex-col gap-2 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark"
+      class="flex flex-col gap-4 px-6 py-4 rounded-xl border border-primary-light dark:border-primary-dark"
     >
       <Typography
         preset="Text md/Semibold"
@@ -121,8 +122,10 @@ All Rights Reserved
           <img src={JPEGSolidIcon} alt="" />
         {:else if file.name.includes(".png") || file.name.includes(".PNG")}
           <img src={PNGSolidIcon} alt="" />
+        {:else if file.name.includes(".csv") || file.name.includes(".CSV")}
+          <img src={CSVOutlineIcon} alt="" />
         {/if}
-        <div class="flex flex-col justify-center">
+        <div class="flex flex-col grow justify-center">
           <Typography
             preset="Text sm/Semibold"
             text={file.name}
@@ -131,8 +134,18 @@ All Rights Reserved
           />
           <Typography preset="Text sm/Regular" text={file.size} color="tertiary" />
         </div>
+        {#if !actionGenerate && !actionRegenerate}
+          {#if actionView}
+            <Button class="p-2 w-max gap-1.5" color="light" on:click={actionView}>
+              <InfoCircle svgClass="w-5 h-5 text-fg-secondary-light dark:text-fg-secondary-dark" />
+            </Button>
+          {/if}
+          <Button class="p-2 w-max gap-1.5" color="light" on:click={actionDelete}>
+            <Trash03Icon svgClass="w-5 h-5 text-error-primary-light dark:text-error-primary-dark" />
+          </Button>
+        {/if}
       </div>
-      {#if actionButton}
+      {#if actionButton && (actionGenerate || actionRegenerate)}
         <div class="flex gap-2 justify-center">
           {#if (status === "FINISH" && fileId) || status === "ERROR" || status === "GENERATING" || status === ""}
             <Button
@@ -157,7 +170,6 @@ All Rights Reserved
               />
             </Button>
           {/if}
-
           {#if status === "FINISH"}
             <Button
               color="light"

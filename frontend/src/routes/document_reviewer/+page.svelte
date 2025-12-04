@@ -11,10 +11,7 @@ All Rights Reserved
   import { onMount } from "svelte";
   import { Heading } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import {
-    call,
-    check,
-  } from "$lib";
+  import { call, check } from "$lib";
   import { Typography, ActionCardAlt } from "$lib";
 
   const isFrontend = process.env.NODE_ENV === "development";
@@ -57,13 +54,21 @@ All Rights Reserved
         actionName: "Compare Documents",
         desc: "desc Compare Documents",
       },
+      {
+        disabled: !check("aiManagement.contractreviewer.project:create"),
+        href: isFrontend
+          ? "/document_reviewer/audit_scan"
+          : await $call.getPage("client-dashboard", "contract-audit-scan"),
+        icon: "feature",
+        actionName: "Audit Scan",
+        desc: "desc Audit Scan",
+      },
     ];
   };
 
   onMount(async () => {
     await getActionItems();
   });
-
 </script>
 
 <div class="flex dark:bg-primary-dark">

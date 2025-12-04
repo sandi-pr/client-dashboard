@@ -355,6 +355,26 @@
             "file_path": "template/document_reviewer/case/detail.html"
         },
         {
+            "name": "contract-audit-scan",
+            "path": "/document_reviewer/audit_scan",
+            "file_path": "template/document_reviewer/audit_scan.html"
+        },
+        {
+            "name": "contract-audit-scan-detail",
+            "path": "/document_reviewer/audit_scan/detail",
+            "file_path": "template/document_reviewer/audit_scan/detail.html"
+        },
+        {
+            "name": "contract-audit-scan-detail-document",
+            "path": "/document_reviewer/audit_scan/document",
+            "file_path": "template/document_reviewer/audit_scan/document.html"
+        },
+        {
+            "name": "contract-audit-scan-review",
+            "path": "/document_reviewer/audit_scan/review",
+            "file_path": "template/document_reviewer/audit_scan/review.html"
+        },
+        {
             "name": "datasets",
             "path": "/finetuning",
             "file_path": "template/finetuning.html"
