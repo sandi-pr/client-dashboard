@@ -4779,6 +4779,42 @@
             ]
         },
         {
+            "name": "get-contract-audit-result",
+            "path": "/get-contract-audit-result/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetContractAuditResult"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-status-audit-result-by-project-id",
+            "path": "/get-status-audit-result/:id",
+            "method": "GET",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetStatusAuditResult"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "get-contract-project-result-ids",
             "path": "/get-contract-project-result-ids",
             "method": "POST",
