@@ -332,6 +332,7 @@
         const base64Data = await readFileAsBase64(uploadedFile);
         file = {
           type: projectDocumentId ? data.document_name : uploadedFile.type,
+          form_type: selectedFormType,
           role: tmpDocumentType,
           name: uploadedFile.name,
           size: formatBytes(uploadedFile.size),

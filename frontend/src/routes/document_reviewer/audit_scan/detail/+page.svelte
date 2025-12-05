@@ -33,6 +33,7 @@
   let initRAG = $state(true);
   let interval = $state(false);
   let ragStatus = $state(false);
+  let generating = $state(false);
   let deleteModal = $state(false);
   let updateModal = $state(false);
   let projectDelete = $state(false);
@@ -521,17 +522,16 @@
     }
   };
 
-  const generatedAI = async (file) => {
+  const generatedAI = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await $call.call("hexa-ai-contract-review", "generate-review", {
+        const response = await $call.call("hexa-ai-contract-review", "generate-audit", {
           URLQuery: {},
-          URLParams: {},
-          Params: {
-            project_id: projectId.toString(),
-            project_document_id: file.id.toString(),
+          URLParams: {
+            id: projectId.toString(),
           },
+          Params: {},
           Headers: {
             Authorization: "Bearer " + token,
           },
@@ -542,32 +542,8 @@
           console.log(response);
           return;
         }
-
-        const response2 = await $call.call(
-          "client-dashboard",
-          "update-project-document-status-generated",
-          {
-            URLQuery: {},
-            URLParams: {
-              id: file.id.toString(),
-            },
-            Params: {
-              status_generated: "START",
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          },
-        );
-
-        if (response2.status !== 200) {
-          triggerToast("error");
-          console.log(response2);
-          return;
-        }
-
-        setIntervalGetDocument();
-        getStatusGenerated();
+        
+        generating = true;
       } catch (error) {
         triggerToast("error");
         console.log(error);
@@ -771,12 +747,13 @@
             {#if !onEdit}
               <Button
                 on:click={() => {
-                  triggerToast("notAvailable");
+                  generatedAI();
                 }}
                 class="mr-4 flex gap-2"
+                disabled={generating}
               >
                 <StarsIcon class="w-5 h-5" />
-                {$_("generateAudit")}
+                {$_(generating ? "generating" : "generateAudit")}{generating ? "..." : ""}
               </Button>
               <Button
                 on:click={() => {
