@@ -1315,5 +1315,6 @@
   "descSystemPrompt": "Luangkan waktu untuk menulis prompt yang jelas. Kualitas keluaran akhir bergantung pada prompt yang diberikan.",
   "rootAgent": "Tetapkan agen ini sebagai Root Agent?",
   "descRootAgent": "Ketika dicentang, agen ini akan bertindak sebagai Root Agent. Root Agent menentukan titik awal alur kerja.",
-  "selectPreset": "Pilih Preset"
+  "selectPreset": "Pilih Preset",
+  "viewResult": "Lihat Hasil"
 }
