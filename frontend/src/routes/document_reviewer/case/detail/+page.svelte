@@ -917,7 +917,7 @@ All Rights Reserved
     if (ruleId !== null) {
       await getReferences();
       await getRulesSections();
-      await generateAllWorkflowAgents();
+      // await generateAllWorkflowAgents();
     } else {
       triggerToast("error");
       triggerLoading(false);
