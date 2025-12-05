@@ -86,10 +86,10 @@ All Rights Reserved
     // }
   ]);
   let workflowPresetOptions = [
-    {
-      value: "",
-      name: "No Preset",
-    },
+    // {
+    //   value: "",
+    //   name: "No Preset",
+    // },
     {
       value: "StartAgent",
       name: "Start Agent",
@@ -195,6 +195,26 @@ All Rights Reserved
   let tmpSectionId = $state(null);
   let collectionId = $state(null);
   let tmpDocumentName = $state(null);
+
+  async function generateAllWorkflowAgents() {
+    datas.dataWorkflow = workflowPresetOptions.map((preset, index) => ({
+      id: index,
+      preset: preset.value,
+      name: "",
+      description: "",
+      aiEngine: "",
+      aiTools: [],
+      handoffTo: [],
+      systemPrompt: "",
+      setAsRootAgent: false,
+    }));
+
+    // Buat flag edit untuk semua
+    editWorkflow = workflowPresetOptions.map(() => true);
+
+    // Pilihan preset sesuai preset yang di-generate
+    workflowPresetSelected = workflowPresetOptions.map((p) => p.value);
+  }
 
   const getCollections = async (name, id) => {
     try {
@@ -897,6 +917,7 @@ All Rights Reserved
     if (ruleId !== null) {
       await getReferences();
       await getRulesSections();
+      await generateAllWorkflowAgents();
     } else {
       triggerToast("error");
       triggerLoading(false);
