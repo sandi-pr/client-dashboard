@@ -628,13 +628,13 @@
             {#if generated}
             <Button
                 on:click={async () => {
-                  // goto(
-                  //   isFrontend
-                  //     ? "document_reviewer/audit_scan"
-                  //     : await $call.getPage("client-dashboard", "contract-audit-scan-review") + "?projectId=" + projectId,
-                  // );
+                  goto(
+                    isFrontend
+                      ? "document_reviewer/audit_scan"
+                      : await $call.getPage("client-dashboard", "contract-audit-scan-review") + "?projectId=" + projectId,
+                  );
 
-                  console.log(await $call.getPage("client-dashboard", "contract-audit-scan-review") + "?projectId=" + projectId)
+                  // console.log(await $call.getPage("client-dashboard", "contract-audit-scan-review") + "?projectId=" + projectId)
                 }}
                 class="mr-4 flex gap-2"
               >
