@@ -563,6 +563,169 @@ func GetContractProjectResult(ctx *config.ConfigContext) (int, U.Dict, *config.R
 	return 200, documents, nil
 }
 
+func GetContractAuditResult(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	logPrefix := "[GetContractProjectResult]"
+	fmt.Println(me)
+
+	idStringRaw, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		fmt.Println(logPrefix, "missing id parameter")
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(idStringRaw))
+	if err != nil {
+		fmt.Println(logPrefix, "failed to parse id", idStringRaw, err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, documents, err := Strapi.Find("project-results-table", U.Dict{
+		"filters": U.Dict{
+			"project_id": id,
+		},
+		"populate": "*",
+		"sort":     "id:desc",
+	})
+
+	if err != nil {
+		fmt.Println(logPrefix, "strapi find error", err)
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(logPrefix, "strapi status", status, "response", documents)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := documents.GetList("data")
+	if !ok {
+		fmt.Println(logPrefix, "failed to get data list from documents")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if len(list) == 0 {
+		fmt.Println(logPrefix, "no data found")
+		return ctx.Error(404, "Not Found")
+	}
+
+	dict, ok := list.GetDict(0)
+	if !ok {
+		fmt.Println(logPrefix, "failed to get dict from data list at index 0")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, dict, nil
+}
+
+func GetStatusAuditResult(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
+
+	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
+
+	if !bearer_ok {
+		return ctx.Error(401, "Unauthorized")
+	}
+
+	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
+
+	status, me, err := Strapi.UsersMe()
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	logPrefix := "[GetContractProjectResult]"
+	fmt.Println(me)
+
+	idStringRaw, ok := ctx.URLParams.GetString("id")
+
+	if !ok {
+		fmt.Println(logPrefix, "missing id parameter")
+		return ctx.Error(400, "invalid parameters")
+	}
+
+	id, err := strconv.Atoi(string(idStringRaw))
+	if err != nil {
+		fmt.Println(logPrefix, "failed to parse id", idStringRaw, err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status, documents, err := Strapi.Find("project-results-table", U.Dict{
+		"filters": U.Dict{
+			"Project_id": id,
+		},
+		"populate": "*",
+		"sort":     "id:desc",
+	})
+
+	if err != nil {
+		fmt.Println(logPrefix, "strapi find error", err)
+		fmt.Println(err)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	if status != 200 {
+		fmt.Println(logPrefix, "strapi status", status, "response", documents)
+		fmt.Println(status)
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	list, ok := documents.GetList("data")
+	if !ok {
+		fmt.Println(logPrefix, "failed to get data list from documents")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	dict, ok := list.GetDict(0)
+	if !ok {
+		fmt.Println(logPrefix, "failed to get dict from data list at index 0")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	attributes, ok := dict.GetDict("attributes")
+	if !ok {
+		fmt.Println(logPrefix, "failed to get attributes from dict")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	status_now, ok := attributes.GetString("status")
+	if !ok {
+		fmt.Println(logPrefix, "failed to get status from attributes")
+		return ctx.Error(500, "Internal Server Error")
+	}
+
+	return 200, U.Dict{
+		"status": status_now,
+	}, nil
+}
+
 func DeleteContractProject(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
@@ -1053,6 +1216,25 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		return ctx.Error(400, "invalid parameters documents")
 	}
 
+	rawFormType, exists := document.(map[string]interface{})["form_type"]
+
+	var formType string
+
+	if !exists || rawFormType == nil {
+		formType = documentName
+	} else {
+		switch v := rawFormType.(type) {
+		case string:
+			if v == "" {
+				formType = documentName
+			} else {
+				formType = v
+			}
+		default:
+			formType = documentName
+		}
+	}
+
 	document_type, ok := document.(map[string]interface{})["type"].(string)
 	if !ok {
 		return ctx.Error(400, "invalid parameters documents")
@@ -1089,7 +1271,7 @@ func CreateDocumentContractProject(ctx *config.ConfigContext) (int, U.Dict, *con
 		"project_id":         project_id,
 		"content_date":       content_date,
 		"document_title":     document_type,
-		"document_name":      documentName,
+		"document_name":      formType,
 		"document_file_name": documentName,
 		"document_media_id":  docId,
 		"creator_id":         id,
