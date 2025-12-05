@@ -40,125 +40,132 @@
     // unresolved: 0,
   });
 
+  const normalizeResult = (raw) => {
+    const result = [];
+    const summary = [];
+    let total = 0;
+    let invalid = 0;
+
+    for (const [cif, forms] of Object.entries(raw)) {
+      for (const [form, content] of Object.entries(forms)) {
+
+        // Hanya form yang punya row_data
+        if (!form.startsWith("F") || !content?.row_data || content.row_data.length === 0) continue;
+
+        total++;
+
+        const firstRow = content.row_data[0];
+
+        const logItem = {
+          no: 1,
+          row_data: firstRow,
+          reference_document: {
+            id: null,
+            name: "No Reference",
+            prompt: "",
+            result: ""
+          },
+          ai_extraction: "",
+          status_icon: "⚠️",
+          status_label: "Needs Review",
+          ai_suggestion:
+            forms?.finding?.completeness?.[form] ||
+            forms?.finding?.comparison?.[form]?.reason ||
+            "Review required"
+        };
+
+        // ============= BUILD RESULT ENTRY UI =============
+        result.push({
+          title: `CIF ${cif} - ${form}`,
+          generated: {
+            results_query: [],
+            tabular_result: { logs: [logItem] }
+          }
+        });
+
+        invalid++;
+
+        // ============= BUILD SUMMARY SECTION =============
+        if (forms.finding) {
+          if (forms.finding.comparison?.[form]) {
+            summary.push({
+              row: `CIF ${cif} - ${form}`,
+              context: "Comparison",
+              summary: forms.finding.comparison[form].reason
+            });
+          }
+
+          if (forms.finding.accuracy?.[form]) {
+            const firstKey = Object.keys(forms.finding.accuracy[form])[0];
+            summary.push({
+              row: `CIF ${cif} - ${form}`,
+              context: "Accuracy",
+              summary: forms.finding.accuracy[form][firstKey]
+            });
+          }
+
+          if (forms.finding.completeness?.[form]) {
+            summary.push({
+              row: `CIF ${cif} - ${form}`,
+              context: "Completeness",
+              summary: forms.finding.completeness[form]
+            });
+          }
+        }
+      }
+    }
+
+    return {
+      result,
+      summary_of_findings: summary.map((s, i) => ({ id: i + 1, ...s })),
+      csv_summary: { valid: total - invalid, invalid, total }
+    };
+  };
+
+
   const getProjectResult = async () => {
     try {
       triggerLoading(true);
 
       let token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No token found");
-      }
+      if (!token) throw new Error("No token found");
 
-      if (datas.length > 0) {
-        datas = [];
-      }
-
-      if (CSVResultSummary.total > 0) {
-        CSVResultSummary.valid = 0;
-        CSVResultSummary.invalid = 0;
-        CSVResultSummary.total = 0;
-        // CSVResultSummary.need_review = 0;
-        // CSVResultSummary.resolved = 0;
-        // CSVResultSummary.unresolved = 0;
-      }
-
-      let response = await $call.call("client-dashboard", "get-contract-project-result", {
+      const response = await $call.call("client-dashboard", "get-contract-audit-result", {
         URLQuery: {},
-        URLParams: {
-          id: projectDocumentId,
-        },
+        URLParams: { id: projectId },
         Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
+        Headers: { Authorization: "Bearer " + token }
       });
 
-      if (response.status !== 200) {
-        let error = new Error("Failed to fetch project result");
-        error.response = response;
-        throw error;
-      }
+      if (response.status !== 200) throw new Error("Failed to fetch");
 
-      // console.log("response", response);
+      const raw = response.result.attributes.result;
 
-      projectId = response.result.data[0].attributes.project_id;
+      // 🔥 NORMALIZER RUN HERE
+      const normalized = normalizeResult(raw);
 
-      const response2 = await $call.call("client-dashboard", "get-contract-project", {
-        URLQuery: {},
-        URLParams: {
-          id: projectId.toString(),
-        },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
+      // 🔥 Set ke UI state
+      projectName = response.result.attributes.project_name || "Audit Result";
+      generatedOn = response.result.attributes.createdAt;
 
-      if (response2.status !== 200) {
-        let error = new Error("Failed to fetch project details");
-        error.response = response2;
-        throw error;
-      }
+      datasSOF = normalized.summary_of_findings;
+      CSVResultSummary = normalized.csv_summary;
 
-      tmpResult = response.result.data[0].attributes.result;
-      generatedOn = response.result.data[0].attributes.createdAt;
-      isCSV = tmpResult[0]?.generated?.tabular_result;
+      // Build table UI format
+      datas = buildDatasFromTabularLogs(normalized.result);
+      console.log("==================", datas);
+      allDatas = datas;
 
-      projectName = response2.result.data[0].attributes.project_name;
-
-      if (!isCSV) {
-        const referenceDocumentIds = tmpResult
-          .flatMap((section) =>
-            section.generated.results_query.flatMap((item) => item.reference_document_ids),
-          )
-          .filter((value, index, self) => self.indexOf(value) === index);
-
-        // console.log("referenceDocumentIds", referenceDocumentIds);
-
-        await buildReferenceDocumentNames(referenceDocumentIds, token);
-
-        datas = buildDatasFromResultsQuery(response.result.data[0].attributes.result);
-        // console.log("datas", datas);
-
-        datasExtraction = response.result.data[0].attributes.result.map((item) => {
-          return {
-            name: item.title,
-            result: removeCodeBlocks(item.generated.final_result).replace(/\n/g, "  \n"),
-          };
-        });
-        // console.log("datasExtraction", datasExtraction);
-      } else {
-        // accumulate CSV summary
-        response.result.data[0].attributes.result.forEach((item) => {
-          CSVResultSummary.valid += item.generated.tabular_result.summary.valid;
-          CSVResultSummary.invalid += item.generated.tabular_result.summary.invalid;
-          CSVResultSummary.total += item.generated.tabular_result.summary.total;
-          // CSVResultSummary.need_review += item.generated.tabular_result.summary.need_review;
-          // CSVResultSummary.resolved += item.generated.tabular_result.summary.resolved;
-          // CSVResultSummary.unresolved += item.generated.tabular_result.summary.unresolved;
-        });
-        // console.log("CSVResultSummary", CSVResultSummary);
-
-        allDatas = buildDatasFromTabularLogs(response.result.data[0].attributes.result);
-        datas = allDatas.slice(0, 5);
-        // console.log("allDatas", allDatas);
-
-        getActionItems(projectDocumentId);
-
-        if (response.result.data[0].attributes.summary_of_findings) {
-          datasSOF = buildDatasFromSOF(response.result.data[0].attributes.summary_of_findings);
-          // console.log("datasSOF", datasSOF);
-          datasSOF = datasSOF.slice(0, 3);
-        }
-      }
-
+      getActionItems();
       triggerLoading(false);
-    } catch (error) {
-      console.log(error);
-      triggerLoading(false);
+
+    } catch (err) {
+      console.error(err);
       triggerToast("error");
+      triggerLoading(false);
     }
   };
+
 
   const updateResult = async () => {
     editModal = false;
@@ -421,8 +428,8 @@
   // };
 
   onMount(async () => {
-    projectDocumentId = $page.url.searchParams.get("projectDocumentId");
-    if (projectDocumentId !== null) {
+    projectId = $page.url.searchParams.get("projectId");
+    if (projectId !== null) {
       await getProjectResult();
     } else {
       triggerToast("error");
@@ -448,6 +455,14 @@
       />
     </div>
     <div class="flex items-center gap-3">
+      <Button
+        class="h-min"
+        on:click={async () => {
+          console.log("TODO: download");
+        }}
+      >
+        <Typography preset="Text md/Semibold" text={$_("download")} color="fg-white" />
+      </Button>
       <Button
         class="h-min"
         on:click={async () => {
