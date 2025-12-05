@@ -34,6 +34,7 @@
   let interval = $state(false);
   let ragStatus = $state(false);
   let generating = $state(false);
+  let generated = $state(false);
   let deleteModal = $state(false);
   let updateModal = $state(false);
   let projectDelete = $state(false);
@@ -145,6 +146,13 @@
             }, 2000);
           }
 
+          if (response.result.data[0].attributes.status === "GENERATING") {
+            generating = true;
+            getStatusAuditResult();
+          } else if (response.result.data[0].attributes.status === "GENERATED") {
+            generated = true;
+          }
+
           await getRules();
 
           data = {
@@ -171,7 +179,6 @@
           await getDocumentContractProject();
 
           getStatusReference();
-          getStatusGenerated();
 
           ready = true;
 
@@ -361,166 +368,40 @@
     }
   };
 
-  const getStatusGenerated = async () => {
+  const getStatusAuditResult = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
-        for (let i = 0; i < files.length; i++) {
-          if (
-            files[i].status_generated !== "START" &&
-            files[i].status_generated !== "FINISH" &&
-            files[i].status_generated !== "GENERATING"
-          )
-            continue;
-          else {
-            const response = await $call.call(
-              "client-dashboard",
-              "get-contract-project-result-with-document-id",
-              {
-                URLQuery: {},
-                URLParams: {},
-                Params: {
-                  project_document_id: files[i].id.toString(),
-                },
-                Headers: {
-                  Authorization: "Bearer " + token,
-                },
-              },
-            );
+        const response = await $call.call("client-dashboard", "get-status-audit-result-by-project-id", {
+          URLQuery: {},
+          URLParams: {
+            id: projectId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-            // console.log("response", response);
-
-            if (response.status !== 200) {
-              triggerLoading(false);
-              triggerToast("error");
-              console.log(response);
-              break;
-            }
-
-            if (response.result.data.length > 0) {
-              for (let j = 0; j < response.result.data.length; j++) {
-                if (response.result.data[j].attributes.status === "GENERATED") {
-                  if (files[i].status_generated === "GENERATING") {
-                    const response2 = await $call.call(
-                      "client-dashboard",
-                      "update-project-document-status-generated",
-                      {
-                        URLQuery: {},
-                        URLParams: {
-                          id: files[i].id.toString(),
-                        },
-                        Params: {
-                          status_generated: "FINISH",
-                        },
-                        Headers: {
-                          Authorization: "Bearer " + token,
-                        },
-                      },
-                    );
-
-                    if (response2.status !== 200) {
-                      triggerLoading(false);
-                      triggerToast("error");
-                      console.log(response2);
-                      break;
-                    }
-
-                    files[i].status_generated = "FINISH";
-                  }
-
-                  let id = response.result.data[j].id;
-
-                  // console.log("id", id);
-
-                  // check if already push to idResults
-                  let index = idResults.findIndex((result) => result.id_doc === files[i].id);
-                  if (index !== -1) {
-                    idResults[index].id = id;
-                  } else {
-                    idResults.push({
-                      id_doc: files[i].id,
-                      id: id,
-                    });
-                  }
-                }
-
-                if (response.result.data[j].attributes.status === "GENERATING") {
-                  if (files[i].status_generated === "START") {
-                    const response2 = await $call.call(
-                      "client-dashboard",
-                      "update-project-document-status-generated",
-                      {
-                        URLQuery: {},
-                        URLParams: {
-                          id: files[i].id.toString(),
-                        },
-                        Params: {
-                          status_generated: "GENERATING",
-                        },
-                        Headers: {
-                          Authorization: "Bearer " + token,
-                        },
-                      },
-                    );
-
-                    if (response2.status !== 200) {
-                      triggerLoading(false);
-                      triggerToast("error");
-                      console.log(response2);
-                      break;
-                    }
-
-                    files[i].status_generated = "GENERATING";
-                  }
-
-                  let id = response.result.data[j].id;
-
-                  // console.log("id", id);
-
-                  let index = idResults.findIndex((result) => result.id_doc === files[i].id);
-                  if (index !== -1) {
-                    idResults[index].id = id;
-                  } else {
-                    idResults.push({
-                      id_doc: files[i].id,
-                      id: id,
-                    });
-                  }
-                }
-
-                if (response.result.data[j].attributes.status === "FAILED") {
-                  files[i].status_generated = "ERROR";
-                  triggerToast("error");
-                  break;
-                }
-              }
-            }
-          }
+        if (response.status !== 200) {
+          triggerToast("error");
+          console.log(response);
+          return;
         }
 
-        let allGenerated = true;
-
-        for (let i = 0; i < files.length; i++) {
-          if (files[i].status_generated !== "FINISH") {
-            allGenerated = false;
-            break;
-          }
-        }
-
-        if (allGenerated) {
-          clearTimeout(timer);
+        if (response.result.status === "GENERATED") {
+          generated = true;
+          interval = false;
+          clearInterval(timer3);
         } else {
-          timer = setTimeout(() => {
-            getStatusGenerated();
-          }, 3000);
+          timer3 = setTimeout(() => getStatusAuditResult(), 3000);
         }
       } catch (error) {
-        triggerLoading(false);
         triggerToast("error");
         console.log(error);
       }
     }
-  };
+  }
 
   const generatedAI = async () => {
     let token = localStorage.getItem("token");
@@ -744,6 +625,23 @@
       {#if check("aiManagement.contractreviewer.project:delete")}
         <div class="flex flex-col gap-2">
           <div class="flex gap-2">
+            {#if generated}
+            <Button
+                on:click={async () => {
+                  // goto(
+                  //   isFrontend
+                  //     ? "document_reviewer/audit_scan"
+                  //     : await $call.getPage("client-dashboard", "contract-audit-scan-review") + "?projectId=" + projectId,
+                  // );
+
+                  console.log(await $call.getPage("client-dashboard", "contract-audit-scan-review") + "?projectId=" + projectId)
+                }}
+                class="mr-4 flex gap-2"
+              >
+                <StarsIcon class="w-5 h-5" />
+                {$_("viewResult")}
+              </Button>
+            {/if}
             {#if !onEdit}
               <Button
                 on:click={() => {
@@ -753,7 +651,7 @@
                 disabled={generating}
               >
                 <StarsIcon class="w-5 h-5" />
-                {$_(generating ? "generating" : "generateAudit")}{generating ? "..." : ""}
+                {$_(generating ? "generating" : generated ? "reGenerate" : "generateAudit")}{generating ? "..." : ""}
               </Button>
               <Button
                 on:click={() => {
