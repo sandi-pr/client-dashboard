@@ -28,6 +28,7 @@ All Rights Reserved
     PdfjsViewer,
     Dropdown,
   } from "$lib";
+  import { DataPresetCase } from "$lib/utils/DataPresetCase";
 
   const PlusIcon = getIcons("plus");
   const CopyIcon = getIcons("copy03");
@@ -85,22 +86,106 @@ All Rights Reserved
     // }
   ]);
   let workflowPresetOptions = [
-    { value: "none", name: "No Preset" },
-    { value: "complete", name: "Completeness Agent" },
+    {
+      value: "",
+      name: "No Preset",
+    },
+    {
+      value: "StartAgent",
+      name: "Start Agent",
+    },
+    {
+      value: "IteratorAgent",
+      name: "Iterator Agent",
+    },
+    {
+      value: "CompletenessAgent",
+      name: "Completeness Agent",
+    },
+    {
+      value: "ComparisonAgent",
+      name: "Comparison Agent",
+    },
+    {
+      value: "Kondisi00RouterAgent",
+      name: "Kondisi 00 Router Agent",
+    },
+    {
+      value: "Kolektibilitas2CheckerAgent",
+      name: "Kolektibilitas 2 Checker Agent",
+    },
+    {
+      value: "Kolektibilitas3CheckerAgent",
+      name: "Kolektibilitas 3 Checker Agent",
+    },
+    {
+      value: "Kolektibilitas4CheckerAgent",
+      name: "Kolektibilitas 4 Checker Agent",
+    },
+    {
+      value: "Kolektibilitas5CheckerAgent",
+      name: "Kolektibilitas 5 Checker Agent",
+    },
+    {
+      value: "Kode02CheckerAgent",
+      name: "Kode 02 Checker Agent",
+    },
+    {
+      value: "Kode03CheckerAgent",
+      name: "Kode 03 Checker Agent",
+    },
+    {
+      value: "Kode04CheckerAgent",
+      name: "Kode 04 Checker Agent",
+    },
+    {
+      value: "Kode05PlusCheckerAgent",
+      name: "Kode 05 Plus Checker Agent",
+    },
   ];
   let workflowAIEngineOptions = [
-    { value: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-    { value: "gpt-4", name: "GPT-4" },
+    { value: "gpt-oss", name: "GPT OSS" },
+    { value: "lamma-3.1.8b", name: "Lamma 3.1 8B" },
   ];
   let workflowAIToolsOptions = [
-    { value: "rag", name: "RAG" },
-    { value: "tabular", name: "Tabular" },
-    { value: "document-understanding", name: "Document Understanding" },
+    {
+      value: "fetch_next_record",
+      name: "Fetch Next Record",
+    },
+    {
+      value: "run_completeness_check",
+      name: "Run Completeness Check",
+    },
+    {
+      value: "run_comparison_check",
+      name: "Run Comparison Check",
+    },
+    {
+      value: "run_checker",
+      name: "Run Checker",
+    },
   ];
   let workflowHandoffToOptions = [
-    { value: "agent-2.a", name: "Agent 2.a" },
-    { value: "agent-2.b", name: "Agent 2.b" },
-    { value: "agent-2.c", name: "Agent 2.c" },
+    {
+      value: "IteratorAgent",
+      name: "Iterator Agent",
+    },
+    {
+      value: "CompletenessAgent",
+      name: "Completeness Agent",
+    },
+    {
+      value: "FinalAgent",
+      name: "Final Agent",
+    },
+    {
+      value: "ComparisonAgent",
+      name: "Comparison Agent",
+    },
+    {
+      value: "AccuracyRouterAgent",
+      name: "Accuracy Router Agent",
+    },
   ];
 
   let tmpId = $state(null);
@@ -792,6 +877,11 @@ All Rights Reserved
     }
   };
 
+  function stop(e) {
+    e.preventDefault?.();
+    e.stopPropagation?.();
+  }
+
   onMount(async () => {
     if (
       (await check("aiManagement.contractreviewer.rule:create_delete")) === false &&
@@ -1311,17 +1401,33 @@ All Rights Reserved
                           items={workflowPresetOptions}
                           isOverlay={true}
                           placeholder={$_("selectPreset")}
-                          disabled={!editWorkflow[index]}
                           onClick={() => {
-                            if (workflowPresetSelected[index] === "complete") {
+                            if (workflowPresetSelected[index] !== "") {
+                              const dataPreset = DataPresetCase(workflowPresetSelected[index]);
                               data.preset = workflowPresetSelected[index];
-                              data.name = "Completeness Agent";
-                              data.description = "Ensures the document is complete.";
-                              data.aiEngine = "gpt-4";
-                              data.aiTools = ["rag", "tabular"];
-                              data.handoffTo = ["agent-2.a", "agent-2.c"];
-                              data.systemPrompt =
-                                "You are a Completeness Agent. Your task is to ensure that the document provided is complete and contains all necessary sections and information.";
+                              data.name = dataPreset.name;
+                              data.description = dataPreset.description;
+                              data.aiEngine = "gpt-oss";
+                              data.aiTools = [...dataPreset.tools];
+                              data.handoffTo = [...dataPreset.handoff_to];
+                              data.systemPrompt = dataPreset.system_prompt;
+                              if (dataPreset.name === "StartAgent") {
+                                console.log("trigger");
+                                data.setAsRootAgent = true;
+                              } else {
+                                data.setAsRootAgent = false;
+                              }
+                              editWorkflow[index] = false;
+                            } else {
+                              data.preset = "";
+                              data.name = "";
+                              data.description = "";
+                              data.aiEngine = "";
+                              data.aiTools = [];
+                              data.handoffTo = [];
+                              data.systemPrompt = "";
+                              data.setAsRootAgent = false;
+                              editWorkflow[index] = true;
                             }
                           }}
                         />
@@ -1363,12 +1469,24 @@ All Rights Reserved
                           text={$_("AITools")}
                           color="secondary"
                         />
-                        <MultiSelect
-                          items={workflowAIToolsOptions}
-                          bind:value={data.aiTools}
-                          size="lg"
-                          class="text-primary-light dark:text-primary-dark"
-                        />
+                        <div class="relative">
+                          <MultiSelect
+                            items={workflowAIToolsOptions}
+                            bind:value={data.aiTools}
+                            size="lg"
+                            class="text-primary-light dark:text-primary-dark"
+                          />
+                          {#if !editWorkflow[index]}
+                            <div
+                              class="absolute inset-0 z-20 bg-transparent cursor-not-allowed"
+                              onclick={stop}
+                              onmousedown={stop}
+                              onmouseup={stop}
+                              onkeydown={stop}
+                              aria-hidden="true"
+                            />
+                          {/if}
+                        </div>
                       </div>
                       <div class="flex flex-col gap-1.5">
                         <Typography
@@ -1376,12 +1494,25 @@ All Rights Reserved
                           text={$_("AIEngine") + "*"}
                           color="secondary"
                         />
-                        <MultiSelect
-                          items={workflowHandoffToOptions}
-                          bind:value={data.handoffTo}
-                          size="lg"
-                          class="text-primary-light dark:text-primary-dark"
-                        />
+                        <div class="relative">
+                          <MultiSelect
+                            items={workflowHandoffToOptions}
+                            bind:value={data.handoffTo}
+                            disabled={!editWorkflow[index]}
+                            size="lg"
+                            class="text-primary-light dark:text-primary-dark"
+                          />
+                          {#if !editWorkflow[index]}
+                            <div
+                              class="absolute inset-0 z-20 bg-transparent cursor-not-allowed"
+                              onclick={stop}
+                              onmousedown={stop}
+                              onmouseup={stop}
+                              onkeydown={stop}
+                              aria-hidden="true"
+                            />
+                          {/if}
+                        </div>
                       </div>
                       <div class="flex flex-col grow gap-1.5">
                         <Typography
@@ -1400,7 +1531,9 @@ All Rights Reserved
                         <div class="flex gap-2">
                           <Checkbox
                             bind:value={data.setAsRootAgent}
+                            checked={data.setAsRootAgent}
                             disabled={!editWorkflow[index]}
+                            class="disabled:hover:cursor-not-allowed"
                           />
                           <Typography
                             preset="Text sm/Regular"
