@@ -70,6 +70,8 @@
       };
       if (botId) {
         Params.bot_id = botId;
+      } else {
+        Params.bot_id = "all";
       }
       if (startDate) {
         Params.period_start = format(new Date(startDate), "yyyy-MM-dd");
