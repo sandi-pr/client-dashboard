@@ -1316,5 +1316,6 @@
   "rootAgent": "Set this agent as a Root Agent?",
   "descRootAgent": "When checked, this agent will act as a Root Agent. Root Agent define a starting point of the workflow.",
   "selectPreset": "Select Preset",
-  "viewResult": "View Result"
+  "viewResult": "View Result",
+  "auditScanList": "Audit Scan List"
 }

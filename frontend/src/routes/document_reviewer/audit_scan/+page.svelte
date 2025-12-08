@@ -25,16 +25,14 @@ All Rights Reserved
 
   let isOpen = $state(false);
   let gettingDatas = $state(false);
-  let dropdownRole = $state(false);
-  let addProjectModal = $state(false);
+  let addAuditScanModal = $state(false);
   let dropdownRulesOpen = $state(false);
-  let dropdownIndustryOpen = $state(false);
 
   let page = $state(1);
   let pageCount = $state(1);
 
   let selectedRules = $state("");
-  let tmpProjectName = $state("");
+  let tmpAuditScanName = $state("");
   let formattedEndDate = $state("");
   let selectedRole = $state("Buyer");
   let formattedStartDate = $state("");
@@ -46,132 +44,125 @@ All Rights Reserved
   let datas = $state([]);
   let rules = $state([]);
   let rulesTmp = $state([]);
-  let industries = $state([]);
-  let role = $state([
-    { name: "Buyer", value: "Buyer" },
-    { name: "Seller", value: "Seller" },
-  ]);
 
   let endDate = $state(null);
   let startDate = $state(null);
 
-  const getProjects = async () => {
-    gettingDatas = true;
-    // triggerLoading(true);
-    await getRules();
+  const getAuditScan = async () => {
+    try {
+      triggerLoading(true);
+      gettingDatas = true;
 
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await $call.call("client-dashboard", "get-contract-projects", {
+      let token = localStorage.getItem("token");
+      const response = await $call.call("client-dashboard", "get-contract-projects", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          page: page,
+          page_size: 10,
+          is_compare: false,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      if (response.status !== 200) {
+        let error = new Error("Failed to fetch audit scan projects");
+        error.response = response;
+        throw error;
+      }
+
+      if (response.status === 200) {
+        pageCount = response.result.meta.pagination.pageCount;
+        configs = {
+          pagination: response.result.meta.pagination,
+        };
+
+        let url = isFrontend
+          ? "/document_reviewer/audit_scan/detail"
+          : await $call.getPage("client-dashboard", "contract-audit-scan-detail");
+
+        datas = response.result.data.map((project) => {
+          return {
+            id: project.id,
+            project_name: project.attributes.project_name,
+            start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
+            end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
+            actions: {
+              objects: [
+                check("aiManagement.contractreviewer.project:view") && {
+                  href: url + `?projectId=${project.id}`,
+                  name: "View",
+                },
+              ].filter(Boolean),
+            },
+          };
+        });
+      }
+    } catch (error) {
+      triggerToast("error");
+      console.log(error);
+    } finally {
+      triggerLoading(false);
+      gettingDatas = false;
+    }
+  };
+
+  const getRules = async () => {
+    try {
+      triggerLoading(true);
+      gettingDatas = true;
+
+      let token = localStorage.getItem("token");
+      rulesTmp = [];
+      let page = 1;
+      let error = [];
+
+      while (true) {
+        const response = await $call.call("client-dashboard", "get-contract-rules", {
           URLQuery: {},
           URLParams: {},
           Params: {
             page: page,
-            page_size: 10,
-            is_compare: false,
+            page_size: 25,
           },
           Headers: {
             Authorization: "Bearer " + token,
           },
         });
+
         if (response.status !== 200) {
-          triggerLoading(false);
-          triggerToast("error");
-          gettingDatas = false;
-          console.log(response);
-          return;
+          error.push(response);
         }
 
-        if (response.status === 200) {
-          pageCount = response.result.meta.pagination.pageCount;
-          configs = {
-            pagination: response.result.meta.pagination,
+        if (response.result.data.length === 0) {
+          break;
+        }
+
+        rulesTmp = rulesTmp.concat(response.result.data);
+        page++;
+      }
+
+      if (rulesTmp.length > 0) {
+        rules = rulesTmp.map((rule) => {
+          return {
+            value: rule.id,
+            name: rule.attributes.rule_name,
           };
-          let url = isFrontend
-            ? "/document_reviewer/audit_scan/detail"
-            : await $call.getPage("client-dashboard", "contract-audit-scan-detail");
-          let promise = response.result.data.map((project) => {
-            return {
-              id: project.id,
-              project_name: project.attributes.project_name,
-              start_date: format(new Date(project.attributes.duration_start), "dd/MM/yyyy"),
-              end_date: format(new Date(project.attributes.duration_end), "dd/MM/yyyy"),
-              actions: {
-                objects: [
-                  check("aiManagement.contractreviewer.project:view") && {
-                    href: url + `?projectId=${project.id}`,
-                    name: "View",
-                  },
-                ].filter(Boolean),
-              },
-            };
-          });
+        });
+      }
 
-          datas = await Promise.all(promise);
-          // console.log("datas", datas);
-
-          triggerLoading(false);
-          gettingDatas = false;
-        }
-      } catch (error) {
-        triggerLoading(false);
-        gettingDatas = false;
-        triggerToast("error");
+      if (error.length > 0) {
         console.log(error);
       }
-    }
-    gettingDatas = false;
-  };
-
-  const getRules = async () => {
-    let token = localStorage.getItem("token");
-    if (token) {
-      rulesTmp = [];
-      let page = 1;
-      try {
-        while (true) {
-          const response = await $call.call("client-dashboard", "get-contract-rules", {
-            URLQuery: {},
-            URLParams: {},
-            Params: {
-              page: page,
-              page_size: 25,
-            },
-            Headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-
-          if (response.status !== 200) {
-            console.log(response);
-            return;
-          }
-
-          if (response.result.data.length === 0) {
-            break;
-          }
-          rulesTmp = rulesTmp.concat(response.result.data);
-          page++;
-        }
-
-        if (rulesTmp.length > 0) {
-          let promise = rulesTmp.map((rule) => {
-            return {
-              value: rule.id,
-              name: rule.attributes.rule_name,
-            };
-          });
-          rules = await Promise.all(promise);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  const createProject = async () => {
-    addProjectModal = false;
+  const createAuditScan = async () => {
+    addAuditScanModal = false;
     triggerLoading(true);
     let token = localStorage.getItem("token");
     let industry_id = sessionStorage.getItem("industry_id");
@@ -186,7 +177,7 @@ All Rights Reserved
           URLQuery: {},
           URLParams: {},
           Params: {
-            project_name: tmpProjectName,
+            project_name: tmpAuditScanName,
             industry_id: parseInt(industry_id),
             contract_rule_id: selectedRules,
             project_as: selectedRole,
@@ -202,21 +193,21 @@ All Rights Reserved
         if (response.status !== 200) {
           triggerLoading(false);
           triggerToast("error");
-          addProjectModal = true;
+          addAuditScanModal = true;
         }
 
         triggerLoading(false);
-        tmpProjectName = "";
+        tmpAuditScanName = "";
         tmpProjectDescription = "";
         selectedRole = "Buyer";
         startDate = null;
         endDate = null;
         triggerToast("created");
-        getProjects();
+        getAuditScan();
       } catch (error) {
         triggerLoading(false);
         triggerToast("error");
-        addProjectModal = false;
+        addAuditScanModal = false;
         console.log(error);
       }
     }
@@ -225,13 +216,13 @@ All Rights Reserved
   const nextPage = () => {
     if (page >= pageCount) return;
     page++;
-    getProjects();
+    getAuditScan();
   };
 
   const previousPage = () => {
     if (page <= 1) return;
     page--;
-    getProjects();
+    getAuditScan();
   };
 
   const toggleDatePicker = () => {
@@ -246,7 +237,8 @@ All Rights Reserved
   });
 
   onMount(async () => {
-    getProjects();
+    await getRules();
+    await getAuditScan();
   });
 </script>
 
@@ -258,9 +250,9 @@ All Rights Reserved
       <div class="flex flex-col">
         <!-- User Information -->
         <div class="flex items-center justify-between">
-          <Typography preset="Display sm/Semibold" color="primary" text={$_("projectList")} />
+          <Typography preset="Display sm/Semibold" color="primary" text={$_("auditScanList")} />
           {#if check("aiManagement.contractreviewer.project:create")}
-            <Button onclick={() => (addProjectModal = true)}>
+            <Button onclick={() => (addAuditScanModal = true)}>
               <PlusIcon svgClass="w-4 h-4 me-1" />
               {$_("addNew")}
             </Button>
@@ -283,23 +275,13 @@ All Rights Reserved
   </div>
 </div>
 
-<Modal title={$_("createNewProject")} bind:open={addProjectModal} size="lg">
+<Modal title={$_("createNewProject")} bind:open={addAuditScanModal} size="lg">
   <div class="flex flex-col gap-4">
     <div class="flex flex-col gap-1.5">
       <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectName")}*`} />
-      <Input bind:value={tmpProjectName} placeholder={$_("whatIsYourProjectTitle")} />
+      <Input bind:value={tmpAuditScanName} placeholder={$_("whatIsYourProjectTitle")} />
     </div>
     <div class="flex gap-4">
-      <!-- <div class="flex flex-col grow gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={`${$_("industryType")}*`} />
-        <Dropdown
-          dropdownOpen={dropdownIndustryOpen}
-          bind:selectedItem={selectedIndustry}
-          items={industries}
-          placeholder={$_("selectIndustry")}
-          isOverlay={true}
-        />
-      </div> -->
       <div class="flex flex-col grow gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("case")}*`} />
         <Dropdown
@@ -312,16 +294,6 @@ All Rights Reserved
       </div>
     </div>
     <div class="flex gap-4">
-      <!-- <div class="flex flex-col gap-1.5">
-        <Typography preset="Text sm/medium" color="secondary" text={$_("as")} />
-        <Dropdown
-          width="w-min"
-          dropdownOpen={dropdownRole}
-          bind:selectedItem={selectedRole}
-          items={role}
-          isOverlay={true}
-        />
-      </div> -->
       <div class="flex grow flex-col gap-1.5">
         <Typography preset="Text sm/medium" color="secondary" text={`${$_("projectDuration")}*`} />
         <DatePicker bind:isOpen bind:startDate bind:endDate isRange isMultipane enableFutureDates>
@@ -351,7 +323,7 @@ All Rights Reserved
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Button onclick={createProject} disabled={!tmpProjectName || !endDate} class="w-full"
+    <Button onclick={createAuditScan} disabled={!tmpAuditScanName || !endDate} class="w-full"
       >{$_("addNewProject")}</Button
     >
   </svelte:fragment>
