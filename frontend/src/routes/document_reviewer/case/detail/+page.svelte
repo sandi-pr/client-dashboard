@@ -39,7 +39,7 @@ All Rights Reserved
 
   const isFrontend = process.env.NODE_ENV === "development";
 
-  let init = $state(false);
+  let initRule = $state(false);
   let caseDelete = $state(false);
   let deleteModal = $state(false);
   let isEditTitle = $state(false);
@@ -49,7 +49,7 @@ All Rights Reserved
   let workflowAIEngineOpen = $state(false);
 
   let titleInput = $state("");
-  let workflowPresetSelected = $state([""]);
+  let workflowPresetSelected = $state([]);
 
   let tabDatas = $state({
     selected: "Referenced Documents",
@@ -73,23 +73,15 @@ All Rights Reserved
 
   let editRules = $state([]);
   let editWorkflow = $state([]);
+  let presetWorkflow = $state([]);
   let datasDataDuplicate = $state([]);
   let datasDataWorkflowDuplicate = $state([]);
-  let files = $state([
-    // {
-    //   id: 1,
-    //   type: "Testing",
-    //   role: "buyer",
-    //   name: "test.pdf",
-    //   size: "1.2 MB",
-    //   base64: "",
-    // }
-  ]);
+  let files = $state([]);
   let workflowPresetOptions = [
-    // {
-    //   value: "",
-    //   name: "No Preset",
-    // },
+    {
+      value: "",
+      name: "No Preset",
+    },
     {
       value: "StartAgent",
       name: "Start Agent",
@@ -195,26 +187,6 @@ All Rights Reserved
   let tmpSectionId = $state(null);
   let collectionId = $state(null);
   let tmpDocumentName = $state(null);
-
-  async function generateAllWorkflowAgents() {
-    datas.dataWorkflow = workflowPresetOptions.map((preset, index) => ({
-      id: index,
-      preset: preset.value,
-      name: "",
-      description: "",
-      aiEngine: "",
-      aiTools: [],
-      handoffTo: [],
-      systemPrompt: "",
-      setAsRootAgent: false,
-    }));
-
-    // Buat flag edit untuk semua
-    editWorkflow = workflowPresetOptions.map(() => true);
-
-    // Pilihan preset sesuai preset yang di-generate
-    workflowPresetSelected = workflowPresetOptions.map((p) => p.value);
-  }
 
   const getCollections = async (name, id) => {
     try {
@@ -346,7 +318,7 @@ All Rights Reserved
 
         editRules = [];
         if (sectionsTmp.length < 1) {
-          init = true;
+          initRule = true;
           editRules.push(true);
         }
 
@@ -373,11 +345,80 @@ All Rights Reserved
                     createdAt: format(item.attributes.createdAt, "yyyy-MM-dd"),
                   };
                 }),
-          dataWorkflow: [],
         };
 
         titleInput = datas.title;
       }
+    } catch (error) {
+      errorHandling($_, error, "get", "case");
+      triggerToast("error");
+    } finally {
+      triggerLoading(false);
+    }
+  };
+
+  const getWorkflowSections = async () => {
+    try {
+      let token = localStorage.getItem("token");
+      const responseWorkflow = await $call.call("client-dashboard", "get-agents", {
+        URLQuery: {},
+        URLParams: {},
+        Params: {
+          contract_rule_id: Number(ruleId),
+          page: 1,
+          page_size: 25,
+        },
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      // console.log("responseWorkflow", responseWorkflow);
+
+      if (responseWorkflow?.status !== 200) {
+        const error = new Error("Failed to get workflow rules");
+        error.response = responseWorkflow;
+        error.status = responseWorkflow?.status;
+        throw error;
+      }
+
+      editWorkflow = [];
+      if (responseWorkflow.result.data.length < 1) {
+        editWorkflow.push(true);
+      }
+
+      for (let i = 0; i < responseWorkflow.result.data.length; i++) {
+        editWorkflow.push(false);
+        workflowPresetSelected = [...workflowPresetSelected, ""];
+      }
+
+      datas.dataWorkflow = responseWorkflow.result.data.map((item) => {
+        return {
+          id: item.id,
+          name: item.attributes.name,
+          description: item.attributes.description,
+          aiEngine: item.attributes.llm,
+          aiTools: item.attributes.tools ? item.attributes.tools.split(",") : [],
+          handoffTo: item.attributes.handover ? item.attributes.handover.split(",") : [],
+          systemPrompt: item.attributes.system_prompt,
+          isRootAgent: item.attributes.is_root_agent,
+        };
+      });
+
+      // console.log("datas.dataWorkflow", datas.dataWorkflow);
+
+      datasDataWorkflowDuplicate = responseWorkflow.result.data.map((item) => {
+        return {
+          id: item.id,
+          name: item.attributes.name,
+          description: item.attributes.description,
+          aiEngine: item.attributes.llm,
+          aiTools: item.attributes.tools ? item.attributes.tools.split(",") : [],
+          handoffTo: item.attributes.handover ? item.attributes.handover.split(",") : [],
+          systemPrompt: item.attributes.system_prompt,
+          isRootAgent: item.attributes.is_root_agent,
+        };
+      });
     } catch (error) {
       errorHandling($_, error, "get", "case");
       triggerToast("error");
@@ -514,36 +555,38 @@ All Rights Reserved
 
   const createWorkflowSections = async (data) => {
     try {
-      console.log("not yet implemented");
-      console.log("dataWorkflow", data);
-      // triggerLoading(true);
-      // let token = localStorage.getItem("token");
-      // if (token) {
-      //   const response = await $call.call("client-dashboard", "create-contract-rule-section", {
-      //     URLQuery: {},
-      //     URLParams: {},
-      //     Params: {
-      //       contract_rule_id: ruleId.toString(),
-      //       section_title: data.title,
-      //       section_prompt: data.prompt,
-      //       reference_prompt: data.reference_prompt,
-      //       // reference_prompt: ".",
-      //       section_sample: data.sample,
-      //     },
-      //     Headers: {
-      //       Authorization: "Bearer " + token,
-      //     },
-      //   });
+      triggerLoading(true);
+      let token = localStorage.getItem("token");
+      const params = {
+        contract_rule_id: Number(ruleId),
+        name: data.name,
+        description: data.description,
+        llm: data.aiEngine,
+        tools: data.aiTools.toString(),
+        handover: data.handoffTo.toString(),
+        system_prompt: data.systemPrompt,
+        is_root_agent: data.setAsRootAgent,
+      };
+      // console.log("params", params);
+      const response = await $call.call("client-dashboard", "create-agent", {
+        URLQuery: {},
+        URLParams: {},
+        Params: params,
+        Headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-      //   if (response.status !== 200) {
-      //     const error = new Error("Failed to create section");
-      //     error.response = response;
-      //     error.status = response.status;
-      //     throw error;
-      //   }
+      if (response.status !== 200) {
+        const error = new Error("Failed to create section");
+        error.response = response;
+        error.status = response.status;
+        throw error;
+      }
 
-      //   triggerToast("created");
-      // }
+      await getWorkflowSections();
+
+      triggerToast("created");
     } catch (error) {
       errorHandling($_, error, "create", "case");
     } finally {
@@ -627,7 +670,7 @@ All Rights Reserved
   const editSectionRules = async () => {
     try {
       triggerLoading(true);
-      init = false;
+      initRule = false;
       let token = localStorage.getItem("token");
       let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
       if (token) {
@@ -665,38 +708,39 @@ All Rights Reserved
 
   const editSectionWorkflow = async () => {
     try {
-      console.log("not yet implemented");
-      // triggerLoading(true);
-      // init = false;
-      // let token = localStorage.getItem("token");
-      // let tmpSection = datas.data.find((item) => item.id === tmpSectionId);
-      // if (token) {
-      //   const response = await $call.call("client-dashboard", "update-contract-rule-section", {
-      //     URLQuery: {},
-      //     URLParams: {
-      //       id: tmpSection.id.toString(),
-      //     },
-      //     Params: {
-      //       section_title: tmpSection.title,
-      //       section_prompt: tmpSection.prompt,
-      //       reference_prompt: tmpSection.reference_prompt,
-      //       section_sample: tmpSection.sample,
-      //     },
-      //     Headers: {
-      //       Authorization: "Bearer " + token,
-      //     },
-      //   });
+      triggerLoading(true);
+      let token = localStorage.getItem("token");
+      let tmpSection = datas.dataWorkflow.find((item) => item.id === tmpSectionId);
+      if (token) {
+        const response = await $call.call("client-dashboard", "update-agent", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpSection.id.toString(),
+          },
+          Params: {
+            name: tmpSection.name,
+            description: tmpSection.description,
+            llm: tmpSection.aiEngine,
+            tools: tmpSection.aiTools.toString(),
+            handover: tmpSection.handoffTo.toString(),
+            system_prompt: tmpSection.systemPrompt,
+            is_root_agent: tmpSection.isRootAgent,
+          },
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
-      //   if (response.status !== 200) {
-      //     const error = new Error("Failed to update section");
-      //     error.response = response;
-      //     error.status = response.status;
-      //     throw error;
-      //   }
+        if (response.status !== 200) {
+          const error = new Error("Failed to update section");
+          error.response = response;
+          error.status = response.status;
+          throw error;
+        }
 
-      //   triggerToast("updated");
-      //   await getRulesSections();
-      // }
+        triggerToast("updated");
+        await getWorkflowSections();
+      }
     } catch (error) {
       triggerLoading(false);
       errorHandling($_, error, "update", "case");
@@ -790,6 +834,39 @@ All Rights Reserved
       errorHandling($_, error, "delete", "reference");
     } finally {
       triggerLoading(false);
+    }
+  };
+
+  const deleteWorkflowSection = async () => {
+    try {
+      triggerLoading(true);
+      deleteModal = false;
+      let token = localStorage.getItem("token");
+      if (token) {
+        const response = await $call.call("client-dashboard", "delete-agent", {
+          URLQuery: {},
+          URLParams: {
+            id: tmpSectionId.toString(),
+          },
+          Params: {},
+          Headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        if (response.status !== 200) {
+          const error = new Error("Failed to delete section");
+          error.response = response;
+          error.status = response.status;
+          throw error;
+        }
+
+        await getWorkflowSections();
+        triggerToast("deleted");
+      }
+    } catch (error) {
+      triggerLoading(false);
+      errorHandling($_, error, "delete", "case");
     }
   };
 
@@ -897,10 +974,10 @@ All Rights Reserved
     }
   };
 
-  function stop(e) {
+  const stop = (e) => {
     e.preventDefault?.();
     e.stopPropagation?.();
-  }
+  };
 
   onMount(async () => {
     if (
@@ -917,7 +994,7 @@ All Rights Reserved
     if (ruleId !== null) {
       await getReferences();
       await getRulesSections();
-      // await generateAllWorkflowAgents();
+      await getWorkflowSections();
     } else {
       triggerToast("error");
       triggerLoading(false);
@@ -1122,7 +1199,7 @@ All Rights Reserved
                       />
                       <div class="flex flex-col gap-2">
                         {#if !editRules[index]}
-                          {#if datas.data.length > 1 && !init}
+                          {#if datas.data.length > 1 && !initRule}
                             <button
                               class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
                               onclick={() => {
@@ -1151,7 +1228,7 @@ All Rights Reserved
                             />
                           </button>
                         {:else}
-                          {#if !init}
+                          {#if !initRule}
                             <button
                               onclick={() => {
                                 if (datasDataDuplicate[index] !== undefined) {
@@ -1196,14 +1273,6 @@ All Rights Reserved
                     </div>
                     <div class="flex flex-col grow gap-3">
                       <div class="flex gap-3">
-                        <!-- <div class="flex flex-col gap-1.5">
-                          <Typography
-                            preset="Text sm/Medium"
-                            text={$_("order")}
-                            color="secondary"
-                          />
-                          <InputRw value={"#" + (index + 1)} onEdit={ifDataMultiple()} />
-                        </div> -->
                         <div class="flex flex-col grow gap-1.5">
                           <Typography preset="Text sm/Medium" text={$_("name")} color="secondary" />
                           <InputRw bind:value={data.title} onEdit={editRules[index]} />
@@ -1342,23 +1411,21 @@ All Rights Reserved
                         color="secondary"
                       />
                       <div class="flex flex-col gap-2">
-                        {#if !editWorkflow[index]}
-                          {#if datas.dataWorkflow.length > 1 && !init}
-                            <button
-                              class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
-                              onclick={() => {
-                                tmpSectionId = data.id;
-                                caseDelete = false;
-                                deleteModal = true;
-                              }}
-                            >
-                              <Typography
-                                preset="Text sm/Semibold"
-                                text={$_("deleteSection")}
-                                color="error-primary"
-                              />
-                            </button>
-                          {/if}
+                        {#if !editWorkflow[index] && !presetWorkflow[index]}
+                          <button
+                            class="text-sm text-utility-gray-600-light dark:text-utility-gray-600-dark"
+                            onclick={() => {
+                              tmpSectionId = data.id;
+                              caseDelete = false;
+                              deleteModal = true;
+                            }}
+                          >
+                            <Typography
+                              preset="Text sm/Semibold"
+                              text={$_("deleteSection")}
+                              color="error-primary"
+                            />
+                          </button>
                           <button
                             class="text-sm text-brand-secondary-light dark:text-brand-secondary-dark"
                             onclick={() => {
@@ -1422,6 +1489,7 @@ All Rights Reserved
                           items={workflowPresetOptions}
                           isOverlay={true}
                           placeholder={$_("selectPreset")}
+                          disabled={!editWorkflow[index]}
                           onClick={() => {
                             if (workflowPresetSelected[index] !== "") {
                               const dataPreset = DataPresetCase(workflowPresetSelected[index]);
@@ -1439,6 +1507,7 @@ All Rights Reserved
                                 data.setAsRootAgent = false;
                               }
                               editWorkflow[index] = false;
+                              presetWorkflow[index] = true;
                             } else {
                               data.preset = "";
                               data.name = "";
@@ -1449,6 +1518,7 @@ All Rights Reserved
                               data.systemPrompt = "";
                               data.setAsRootAgent = false;
                               editWorkflow[index] = true;
+                              presetWorkflow[index] = false;
                             }
                           }}
                         />
@@ -1512,7 +1582,7 @@ All Rights Reserved
                       <div class="flex flex-col gap-1.5">
                         <Typography
                           preset="Text sm/Medium"
-                          text={$_("AIEngine") + "*"}
+                          text={$_("handoffTo") + "*"}
                           color="secondary"
                         />
                         <div class="relative">
@@ -1578,18 +1648,22 @@ All Rights Reserved
                     color="primary"
                     outline
                     on:click={() => {
-                      datas.data = [
-                        ...datas.data,
+                      datas.dataWorkflow = [
+                        ...datas.dataWorkflow,
                         {
-                          id: datas.data.length,
-                          title: "",
-                          prompt: "",
-                          reference_prompt: "",
-                          sample: "",
-                          createdAt: "",
+                          id: datas.dataWorkflow.length,
+                          preset: "",
+                          name: "",
+                          description: "",
+                          aiEngine: "",
+                          aiTools: [],
+                          handoffTo: [],
+                          systemPrompt: "",
+                          setAsRootAgent: false,
                         },
                       ];
                       editWorkflow = [...editWorkflow, true];
+                      workflowPresetSelected = [...workflowPresetSelected, ""];
                     }}
                   >
                     <PlusIcon svgClass="w-4 h-4" />
@@ -1618,6 +1692,7 @@ All Rights Reserved
                       },
                     ];
                     editWorkflow = [...editWorkflow, true];
+                    workflowPresetSelected = [...workflowPresetSelected, ""];
                   }}
                   description={$_("youDontHaveAnyDataYet")}
                 />
@@ -1695,6 +1770,8 @@ All Rights Reserved
         } else {
           if (tabDatas.selected === "Rules") {
             deleteSection();
+          } else if (tabDatas.selected === "Workflow") {
+            deleteWorkflowSection();
           } else {
             deleteDocument();
           }

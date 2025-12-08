@@ -1317,5 +1317,6 @@
   "descRootAgent": "Ketika dicentang, agen ini akan bertindak sebagai Root Agent. Root Agent menentukan titik awal alur kerja.",
   "selectPreset": "Pilih Preset",
   "viewResult": "Lihat Hasil",
-  "auditScanList": "Daftar Pemindaian Audit"
+  "auditScanList": "Daftar Pemindaian Audit",
+  "handoffTo": "Serahkan ke"
 }

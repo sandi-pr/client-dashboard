@@ -1317,5 +1317,6 @@
   "descRootAgent": "When checked, this agent will act as a Root Agent. Root Agent define a starting point of the workflow.",
   "selectPreset": "Select Preset",
   "viewResult": "View Result",
-  "auditScanList": "Audit Scan List"
+  "auditScanList": "Audit Scan List",
+  "handoffTo": "Handoff To"
 }
