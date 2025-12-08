@@ -6495,6 +6495,147 @@
                     "type": "number"
                 }
             ]
+        },
+        {
+            "name": "create-agent",
+            "path": "/create-agent",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "CreateAgent"
+            },
+            "params": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "system_prompt",
+                    "type": "string"
+                },
+                {
+                    "name": "llm",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "tools",
+                    "type": "string"
+                },
+                {
+                    "name": "handover",
+                    "type": "string"
+                },
+                {
+                    "name": "is_root_agent",
+                    "type": "boolean",
+                    "default": false
+                },
+                {
+                    "name": "contract_rule_id",
+                    "type": "integer"
+                }
+            ]
+        },
+        {
+            "name": "update-agent",
+            "path": "/update-agent/:id",
+            "method": "PUT",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "UpdateAgent"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "system_prompt",
+                    "type": "string"
+                },
+                {
+                    "name": "llm",
+                    "type": "string"
+                },
+                {
+                    "name": "tools",
+                    "type": "string"
+                },
+                {
+                    "name": "handover",
+                    "type": "string"
+                },
+                {
+                    "name": "is_root_agent",
+                    "type": "boolean",
+                    "default": false
+                }
+            ]
+        },
+        {
+            "name": "delete-agent",
+            "path": "/delete-agent/:id",
+            "method": "DELETE",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "DeleteAgent"
+            },
+            "url_params": [
+                {
+                    "name": "id",
+                    "type": "textnumber",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "get-agents",
+            "path": "/get-agents",
+            "method": "POST",
+            "content_type": "application/json",
+            "response_type": "application/json",
+            "callback": {
+                "plugin": "plugin.so",
+                "function": "GetAgents"
+            },
+            "params": [
+                {
+                    "name": "contract_rule_id",
+                    "type": "number",
+                    "required": true
+                },
+                {
+                    "name": "page",
+                    "type": "number"
+                },
+                {
+                    "name": "page_size",
+                    "type": "number"
+                }
+            ]
         }
     ],
     "options": {
@@ -7807,6 +7948,40 @@
                     },
                     "body": {
                         "type": "json"
+                    }
+                }
+            },
+            {
+                "name": "agent",
+                "label": "Agent",
+                "fields": {
+                    "name": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "system_prompt": {
+                        "type": "text"
+                    },
+                    "llm": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "tools": {
+                        "type": "string"
+                    },
+                    "handover": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "is_root_agent": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "contract_rule_id": {
+                        "type": "integer"
                     }
                 }
             }
