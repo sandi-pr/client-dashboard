@@ -613,7 +613,15 @@ func GetContractAuditResult(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 		return ctx.Error(500, "no result field found")
 	}
 
-	projectName, _ := attr.GetString("project_name")
+	project, err := getProject(id, Strapi)
+	if err != nil {
+		return ctx.Error(500, "failed to fetch project")
+	}
+
+	projectData, _ := project.GetDict("data")
+	projectAttr, _ := projectData.GetDict("attributes")
+	projectName, _ := projectAttr.GetString("project_name")
+
 	createdAt, _ := attr.GetString("createdAt")
 
 	normalized := normalizeResultGo(rawResult)
@@ -2667,4 +2675,14 @@ func GetProjectsWithResults(ctx *config.ConfigContext) (int, U.Dict, *config.Ret
 		return ctx.Error(500, "Internal Server Error")
 	}
 	return 200, projects, nil
+}
+
+func getProject(id int, Strapi *strapi.StrapiClassic) (U.Dict, error) {
+	status, project, err := Strapi.FindOne("projects-table", int64(id))
+
+	if err != nil || status != 200 {
+		return U.Dict{}, err
+	}
+
+	return project, nil
 }
