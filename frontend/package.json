@@ -35,6 +35,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "3.6.0",
     "dayjs": "1.11.11",
+    "docx": "^9.5.1",
     "hexacomponents-svelte": "https://gitlab.hexacode.org/public-repo/js/hexacomponents-svelte/#0.0.42",
     "just-safe-get": "4.2.0",
     "just-throttle": "4.2.0",
