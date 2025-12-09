@@ -184,3 +184,180 @@ func IsInLast12MonthsExact(month string) bool {
 
 	return !t.Before(start) && !t.After(end)
 }
+
+type NormalizedResult struct {
+	Result     U.List
+	Summary    U.List
+	CSVSummary U.Dict
+}
+
+func normalizeResultGo(raw U.Dict) NormalizedResult {
+	result := U.List{}
+	rawSummary := U.List{}
+	total, invalid := 0, 0
+
+	for cif, formsVal := range raw {
+
+		forms, ok := formsVal.(U.Dict)
+		if !ok {
+			continue
+		}
+		formsDict := U.Dict(forms)
+
+		for form, contentVal := range formsDict {
+			if !strings.HasPrefix(form, "F") {
+				continue
+			}
+
+			contentMap, ok := contentVal.(U.Dict)
+			if !ok {
+				continue
+			}
+
+			content := U.Dict(contentMap)
+
+			rowData, ok := content.GetList("row_data")
+			if !ok || len(rowData) == 0 {
+				continue
+			}
+
+			total++
+			invalid++
+
+			firstRow, _ := rowData.GetDict(0)
+
+			logItem := U.Dict{
+				"no":       1,
+				"row_data": firstRow,
+				"reference_document": U.Dict{
+					"id": nil, "name": "No Reference", "prompt": "", "result": "",
+				},
+				"ai_extraction": "",
+				"status_icon":   "⚠️",
+				"status_label":  "Needs Review",
+				"ai_suggestion": "Review required",
+			}
+
+			result = append(result, U.Dict{
+				"title": fmt.Sprintf("CIF %s - %s", cif, form),
+				"generated": U.Dict{
+					"results_query": U.List{},
+					"tabular_result": U.Dict{
+						"logs": U.List{logItem},
+					},
+				},
+			})
+
+			if findVal, ok := formsDict["finding"]; ok {
+				finding, _ := findVal.(U.Dict)
+
+				if cmpMap, ok := finding["comparison"].(U.Dict); ok {
+					if v, exists := cmpMap[form]; exists {
+						rawSummary = append(rawSummary, U.Dict{
+							"cif":     cif,
+							"form":    form,
+							"context": "Comparison",
+							"summary": U.Dict(v.(U.Dict))["reason"],
+						})
+					}
+				}
+
+				if accMap, ok := finding["accuracy"].(U.Dict); ok {
+					if accVal, exists := accMap[form]; exists {
+						m := accVal.(U.Dict)
+						var first string
+						for k := range m {
+							first = k
+							break
+						}
+						rawSummary = append(rawSummary, U.Dict{
+							"cif":     cif,
+							"form":    form,
+							"context": "Accuracy",
+							"summary": m[first],
+						})
+					}
+				}
+
+				if compMap, ok := finding["completeness"].(U.Dict); ok {
+					if v, exists := compMap[form]; exists {
+						rawSummary = append(rawSummary, U.Dict{
+							"cif":     cif,
+							"form":    form,
+							"context": "Completeness",
+							"summary": v,
+						})
+					}
+				}
+			}
+		}
+	}
+
+	grouped := U.List{}
+	temp := map[string][]string{}
+
+	for _, v := range rawSummary {
+		item := v.(U.Dict)
+		cif := item["cif"].(string)
+		line := fmt.Sprintf("%s : %v", item["form"], item["summary"])
+		temp[cif] = append(temp[cif], line)
+	}
+
+	i := 1
+	for cif, entries := range temp {
+		grouped = append(grouped, U.Dict{
+			"id":      i,
+			"cif":     cif,
+			"summary": strings.Join(entries, " \n\n ------------------------------------------- \n\n "),
+		})
+		i++
+	}
+
+	return NormalizedResult{
+		Result:  result,
+		Summary: grouped,
+		CSVSummary: U.Dict{
+			"valid":   total - invalid,
+			"invalid": invalid,
+			"total":   total,
+		},
+	}
+}
+
+func buildLogsGo(result U.List) U.List {
+	output := U.List{}
+	id := 1
+
+	for _, itemVal := range result {
+		item := itemVal.(U.Dict)
+
+		generated, _ := item.GetDict("generated")
+		tabular, _ := generated.GetDict("tabular_result")
+		logs, _ := tabular.GetList("logs")
+
+		for _, logVal := range logs {
+			log := logVal.(U.Dict)
+
+			output = append(output, U.Dict{
+				"id": id,
+				"no": log["no"],
+				"section": U.Dict{
+					"name":   item["title"],
+					"prompt": "",
+					"result": log["row_data"],
+				},
+				"reference_documents": log["reference_document"],
+				"ai_extraction":       log["ai_extraction"],
+				"ai_status": U.Dict{
+					"icon":       log["status_icon"],
+					"label":      log["status_label"],
+					"suggestion": log["ai_suggestion"],
+				},
+			})
+
+			id++
+		}
+	}
+
+	return output
+}

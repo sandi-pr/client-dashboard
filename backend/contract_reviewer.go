@@ -566,78 +566,67 @@ func GetContractProjectResult(ctx *config.ConfigContext) (int, U.Dict, *config.R
 func GetContractAuditResult(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
 
 	bearer, bearer_ok := ctx.Headers.GetString("Authorization")
-
 	if !bearer_ok {
 		return ctx.Error(401, "Unauthorized")
 	}
 
 	Strapi := strapi.NewStrapiWithToken(STRAPI_URL, strings.Replace(string(bearer), "Bearer ", "", 1))
 
-	status, me, err := Strapi.UsersMe()
-	if err != nil {
-		fmt.Println(err)
+	status, _, err := Strapi.UsersMe()
+	if err != nil || status != 200 {
 		return ctx.Error(500, "Internal Server Error")
 	}
 
-	if status != 200 {
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	logPrefix := "[GetContractProjectResult]"
-	fmt.Println(me)
-
-	idStringRaw, ok := ctx.URLParams.GetString("id")
-
+	idString, ok := ctx.URLParams.GetString("id")
 	if !ok {
-		fmt.Println(logPrefix, "missing id parameter")
-		return ctx.Error(400, "invalid parameters")
+		return ctx.Error(400, "missing id")
 	}
 
-	id, err := strconv.Atoi(string(idStringRaw))
+	id, err := strconv.Atoi(string(idString))
 	if err != nil {
-		fmt.Println(logPrefix, "failed to parse id", idStringRaw, err)
-		return ctx.Error(500, "Internal Server Error")
+		return ctx.Error(400, "invalid id")
 	}
 
 	status, documents, err := Strapi.Find("project-results-table", U.Dict{
-		"filters": U.Dict{
-			"project_id": id,
-		},
+		"filters":  U.Dict{"project_id": id},
 		"populate": "*",
 		"sort":     "id:desc",
 	})
-
-	if err != nil {
-		fmt.Println(logPrefix, "strapi find error", err)
-		fmt.Println(err)
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	if status != 200 {
-		fmt.Println(logPrefix, "strapi status", status, "response", documents)
-		fmt.Println(status)
-		return ctx.Error(500, "Internal Server Error")
+	if err != nil || status != 200 {
+		return ctx.Error(500, "failed to fetch result")
 	}
 
 	list, ok := documents.GetList("data")
-	if !ok {
-		fmt.Println(logPrefix, "failed to get data list from documents")
-		return ctx.Error(500, "Internal Server Error")
-	}
-
-	if len(list) == 0 {
-		fmt.Println(logPrefix, "no data found")
+	if !ok || len(list) == 0 {
 		return ctx.Error(404, "Not Found")
 	}
 
-	dict, ok := list.GetDict(0)
+	rawDict, ok := list.GetDict(0)
 	if !ok {
-		fmt.Println(logPrefix, "failed to get dict from data list at index 0")
-		return ctx.Error(500, "Internal Server Error")
+		return ctx.Error(500, "invalid data format")
 	}
 
-	return 200, dict, nil
+	attr, _ := rawDict.GetDict("attributes")
+
+	rawResult, ok := attr.GetDict("result")
+	if !ok {
+		return ctx.Error(500, "no result field found")
+	}
+
+	projectName, _ := attr.GetString("project_name")
+	createdAt, _ := attr.GetString("createdAt")
+
+	normalized := normalizeResultGo(rawResult)
+	tableLogs := buildLogsGo(normalized.Result)
+
+	return 200, U.Dict{
+		"project_name":        projectName,
+		"generated_on":        createdAt,
+		"summary_of_findings": normalized.Summary,
+		"csv_summary":         normalized.CSVSummary,
+		"table_logs":          tableLogs,
+		"result":              rawResult,
+	}, nil
 }
 
 func GetStatusAuditResult(ctx *config.ConfigContext) (int, U.Dict, *config.ReturnHTTPError) {
