@@ -23,14 +23,11 @@
   let projectName = $state("");
   let generatedOn = $state("");
 
-  let datas = $state([]);
   let allDatas = $state([]);
   let datasSOF = $state([]);
   let tmpResult = $state([]);
   let actionItems = $state([]);
-  let datasExtraction = $state([]);
 
-  let referenceDocumentNames = $state({});
   let CSVResultSummary = $state({
     valid: 0,
     invalid: 0,
@@ -40,88 +37,83 @@
     // unresolved: 0,
   });
 
-  const normalizeResult = (raw) => {
-    const result = [];
-    const summary = [];
-    let total = 0;
-    let invalid = 0;
+  // const normalizeResult = (raw) => {
+  //   const result = [];
+  //   const summary = [];
+  //   let total = 0;
+  //   let invalid = 0;
 
-    for (const [cif, forms] of Object.entries(raw)) {
-      for (const [form, content] of Object.entries(forms)) {
+  //   for (const [cif, forms] of Object.entries(raw)) {
+  //     for (const [form, content] of Object.entries(forms)) {
+  //       if (!form.startsWith("F") || !content?.row_data || content.row_data.length === 0) continue;
 
-        // Hanya form yang punya row_data
-        if (!form.startsWith("F") || !content?.row_data || content.row_data.length === 0) continue;
+  //       total++;
 
-        total++;
+  //       const firstRow = content.row_data[0];
 
-        const firstRow = content.row_data[0];
+  //       const logItem = {
+  //         no: 1,
+  //         row_data: firstRow,
+  //         reference_document: {
+  //           id: null,
+  //           name: "No Reference",
+  //           prompt: "",
+  //           result: "",
+  //         },
+  //         ai_extraction: "",
+  //         status_icon: "⚠️",
+  //         status_label: "Needs Review",
+  //         ai_suggestion:
+  //           forms?.finding?.completeness?.[form] ||
+  //           forms?.finding?.comparison?.[form]?.reason ||
+  //           "Review required",
+  //       };
 
-        const logItem = {
-          no: 1,
-          row_data: firstRow,
-          reference_document: {
-            id: null,
-            name: "No Reference",
-            prompt: "",
-            result: ""
-          },
-          ai_extraction: "",
-          status_icon: "⚠️",
-          status_label: "Needs Review",
-          ai_suggestion:
-            forms?.finding?.completeness?.[form] ||
-            forms?.finding?.comparison?.[form]?.reason ||
-            "Review required"
-        };
+  //       result.push({
+  //         title: `CIF ${cif} - ${form}`,
+  //         generated: {
+  //           results_query: [],
+  //           tabular_result: { logs: [logItem] },
+  //         },
+  //       });
 
-        // ============= BUILD RESULT ENTRY UI =============
-        result.push({
-          title: `CIF ${cif} - ${form}`,
-          generated: {
-            results_query: [],
-            tabular_result: { logs: [logItem] }
-          }
-        });
+  //       invalid++;
 
-        invalid++;
+  //       if (forms.finding) {
+  //         if (forms.finding.comparison?.[form]) {
+  //           summary.push({
+  //             row: `CIF ${cif} - ${form}`,
+  //             context: "Comparison",
+  //             summary: forms.finding.comparison[form].reason,
+  //           });
+  //         }
 
-        // ============= BUILD SUMMARY SECTION =============
-        if (forms.finding) {
-          if (forms.finding.comparison?.[form]) {
-            summary.push({
-              row: `CIF ${cif} - ${form}`,
-              context: "Comparison",
-              summary: forms.finding.comparison[form].reason
-            });
-          }
+  //         if (forms.finding.accuracy?.[form]) {
+  //           const firstKey = Object.keys(forms.finding.accuracy[form])[0];
+  //           summary.push({
+  //             row: `CIF ${cif} - ${form}`,
+  //             context: "Accuracy",
+  //             summary: forms.finding.accuracy[form][firstKey],
+  //           });
+  //         }
 
-          if (forms.finding.accuracy?.[form]) {
-            const firstKey = Object.keys(forms.finding.accuracy[form])[0];
-            summary.push({
-              row: `CIF ${cif} - ${form}`,
-              context: "Accuracy",
-              summary: forms.finding.accuracy[form][firstKey]
-            });
-          }
+  //         if (forms.finding.completeness?.[form]) {
+  //           summary.push({
+  //             row: `CIF ${cif} - ${form}`,
+  //             context: "Completeness",
+  //             summary: forms.finding.completeness[form],
+  //           });
+  //         }
+  //       }
+  //     }
+  //   }
 
-          if (forms.finding.completeness?.[form]) {
-            summary.push({
-              row: `CIF ${cif} - ${form}`,
-              context: "Completeness",
-              summary: forms.finding.completeness[form]
-            });
-          }
-        }
-      }
-    }
-
-    return {
-      result,
-      summary_of_findings: summary.map((s, i) => ({ id: i + 1, ...s })),
-      csv_summary: { valid: total - invalid, invalid, total }
-    };
-  };
-
+  //   return {
+  //     result,
+  //     summary_of_findings: summary.map((s, i) => ({ id: i + 1, ...s })),
+  //     csv_summary: { valid: total - invalid, invalid, total },
+  //   };
+  // };
 
   const getProjectResult = async () => {
     try {
@@ -134,38 +126,28 @@
         URLQuery: {},
         URLParams: { id: projectId },
         Params: {},
-        Headers: { Authorization: "Bearer " + token }
+        Headers: { Authorization: "Bearer " + token },
       });
+
+      // console.log("response", response);
 
       if (response.status !== 200) throw new Error("Failed to fetch");
 
-      const raw = response.result.attributes.result;
+      projectName = response.result.project_name || "Audit Result";
+      generatedOn = response.result.generated_on || new Date().toISOString();
 
-      // 🔥 NORMALIZER RUN HERE
-      const normalized = normalizeResult(raw);
-
-      // 🔥 Set ke UI state
-      projectName = response.result.attributes.project_name || "Audit Result";
-      generatedOn = response.result.attributes.createdAt;
-
-      datasSOF = normalized.summary_of_findings;
-      CSVResultSummary = normalized.csv_summary;
-
-      // Build table UI format
-      datas = buildDatasFromTabularLogs(normalized.result);
-      console.log("==================", datas);
-      allDatas = datas;
+      datasSOF = response.result.summary_of_findings;
+      CSVResultSummary = response.result.csv_summary;
+      allDatas = datasSOF;
 
       getActionItems();
       triggerLoading(false);
-
     } catch (err) {
       console.error(err);
       triggerToast("error");
       triggerLoading(false);
     }
   };
-
 
   const updateResult = async () => {
     editModal = false;
@@ -210,32 +192,6 @@
     }
   };
 
-  const buildReferenceDocumentNames = async (ids, token) => {
-    for (const referenceDocumentId of ids) {
-      const response3 = await $call.call("client-dashboard", "get-reference-document-by-id", {
-        URLQuery: {},
-        URLParams: {
-          id: referenceDocumentId.toString(),
-        },
-        Params: {},
-        Headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-
-      if (response3.status !== 200) {
-        continue;
-      }
-
-      if (response3.result.data.length === 0) {
-        continue;
-      } else {
-        referenceDocumentNames[referenceDocumentId] =
-          response3.result.data[0].attributes.document_name;
-      }
-    }
-  };
-
   const getActionItems = () => {
     actionItems = [
       {
@@ -263,81 +219,6 @@
         changeType: "increase",
       },
     ];
-  };
-
-  const buildDatasFromResultsQuery = (resultArray) => {
-    let idCounter = 1;
-    return resultArray.flatMap((item) =>
-      item.generated.results_query.map((generatedItem) => {
-        const documentId = generatedItem.reference_document_ids[0];
-
-        return {
-          no: idCounter,
-          id: idCounter++,
-          section: {
-            name: item.title,
-            prompt: generatedItem.section_prompt,
-            result: generatedItem.section_results[0],
-          },
-          reference_documents: {
-            id: documentId,
-            name: referenceDocumentNames[documentId] || "Reference Document " + documentId + ".pdf",
-            prompt: generatedItem.reference_prompt,
-            result: generatedItem.reference_results[0],
-          },
-          ai_review: removeCodeBlocks(generatedItem.ai_review).replace(/\n/g, "  \n"),
-          ai_suggestion: removeCodeBlocks(generatedItem.ai_suggestion).replace(/\n/g, "  \n"),
-        };
-      }),
-    );
-  };
-
-  const buildDatasFromTabularLogs = (resultArray) => {
-    let datasIndex = 1;
-    return resultArray.flatMap((item) =>
-      item.generated.tabular_result.logs.map((log) => {
-        const documentId = log.reference_document.id;
-
-        return {
-          id: datasIndex++,
-          no: log.no,
-          section: {
-            name: item.title,
-            prompt: log.section?.prompt,
-            result: formatRowData(log.row_data),
-          },
-          reference_documents: {
-            id: documentId,
-            name: log.reference_document.name,
-            prompt: log.reference_document.prompt,
-            result: log.reference_document.result,
-          },
-          ai_extraction: log.ai_extraction,
-          ai_suggestion: log.status_icon + " " + log.status_label + ": " + log.ai_suggestion,
-        };
-      }),
-    );
-  };
-
-  const buildDatasFromSOF = (resultArray) => {
-    return resultArray.map((item, index) => {
-      return {
-        id: index + 1,
-        no: item.no,
-        row: item.row,
-        context: item.context,
-        summary: item.summary,
-      };
-    });
-  };
-
-  const removeCodeBlocks = (text) => {
-    return text
-      .replace(/```/g, "") // Hapus semua backticks triple
-      .replace(/“/g, "") // Hapus semua tanda kutip buka
-      .replace(/”/g, "") // Hapus semua tanda kutip tutup
-      .replace(/\s{3,}/g, "  ") // Gantikan lebih dari tiga spasi dengan dua spasi
-      .trim();
   };
 
   const formatRowData = (row) => {
@@ -474,9 +355,6 @@
       >
         <Typography preset="Text md/Semibold" text={$_("backToProjectList")} color="fg-white" />
       </Button>
-      <!-- <Button class="h-min" color="light" outline on:click={downloadAsCSV}>
-        <Typography preset="Text md/Semibold" text={$_("downloadAsCSV")} color="fg-secondary" />
-      </Button> -->
     </div>
   </div>
   <div class="flex gap-3">

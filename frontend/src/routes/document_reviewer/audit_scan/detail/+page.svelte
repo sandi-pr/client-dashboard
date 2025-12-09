@@ -372,16 +372,20 @@
     let token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await $call.call("client-dashboard", "get-status-audit-result-by-project-id", {
-          URLQuery: {},
-          URLParams: {
-            id: projectId.toString(),
+        const response = await $call.call(
+          "client-dashboard",
+          "get-status-audit-result-by-project-id",
+          {
+            URLQuery: {},
+            URLParams: {
+              id: projectId.toString(),
+            },
+            Params: {},
+            Headers: {
+              Authorization: "Bearer " + token,
+            },
           },
-          Params: {},
-          Headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
+        );
 
         if (response.status !== 200) {
           triggerToast("error");
@@ -401,7 +405,7 @@
         console.log(error);
       }
     }
-  }
+  };
 
   const generatedAI = async () => {
     let token = localStorage.getItem("token");
@@ -423,7 +427,7 @@
           console.log(response);
           return;
         }
-        
+
         generating = true;
       } catch (error) {
         triggerToast("error");
@@ -626,13 +630,12 @@
         <div class="flex flex-col gap-2">
           <div class="flex gap-2">
             {#if generated}
-            <Button
+              <Button
                 on:click={async () => {
-                  goto(
-                    isFrontend
-                      ? "document_reviewer/audit_scan"
-                      : await $call.getPage("client-dashboard", "contract-audit-scan-review") + "?projectId=" + projectId,
-                  );
+                  const gotoUrl = isFrontend
+                    ? "/document_reviewer/audit_scan/review"
+                    : await $call.getPage("client-dashboard", "contract-audit-scan-review");
+                  goto(gotoUrl + "?projectId=" + projectId);
 
                   // console.log(await $call.getPage("client-dashboard", "contract-audit-scan-review") + "?projectId=" + projectId)
                 }}
@@ -651,7 +654,9 @@
                 disabled={generating}
               >
                 <StarsIcon class="w-5 h-5" />
-                {$_(generating ? "generating" : generated ? "reGenerate" : "generateAudit")}{generating ? "..." : ""}
+                {$_(
+                  generating ? "generating" : generated ? "reGenerate" : "generateAudit",
+                )}{generating ? "..." : ""}
               </Button>
               <Button
                 on:click={() => {

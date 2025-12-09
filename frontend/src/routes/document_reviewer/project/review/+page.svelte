@@ -321,17 +321,27 @@
     if (!isCSV) {
       let csvContent = "data:text/csv;charset=utf-8,";
 
-      // 1. Header row: all names
-      const headerRow = datasExtraction
-        .map((data) => `"${data.name.replace(/"/g, '""')}"`)
-        .join(",");
-      csvContent += headerRow + "\n";
+      // horizontal table:
+      // const headerRow = datasExtraction
+      //   .map((data) => `"${data.name.replace(/"/g, '""')}"`)
+      //   .join(",");
+      // csvContent += headerRow + "\n";
 
-      // 2. Data row: all results
-      const dataRow = datasExtraction
-        .map((data) => `"${data.result.replace(/"/g, '""')}"`)
-        .join(",");
-      csvContent += dataRow + "\n";
+      // const dataRow = datasExtraction
+      //   .map((data) => `"${data.result.replace(/"/g, '""')}"`)
+      //   .join(",");
+      // csvContent += dataRow + "\n";
+
+      // Vertical table:
+      csvContent += `"Name","Result"\n`;
+
+      datasExtraction.forEach((data) => {
+        const name = (data.name ?? "").replace(/"/g, '""');
+        const result = (data.result ?? "").replace(/"/g, '""');
+        csvContent += `"${name}","${result}"\n`;
+      });
+
+      // console.log("csvContent", csvContent);
 
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
