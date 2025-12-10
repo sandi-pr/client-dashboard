@@ -61,6 +61,7 @@ All Rights Reserved
           page: page,
           page_size: 10,
           is_compare: false,
+          is_audit: true,
         },
         Headers: {
           Authorization: "Bearer " + token,

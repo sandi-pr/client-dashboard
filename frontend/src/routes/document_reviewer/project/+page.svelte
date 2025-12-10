@@ -70,6 +70,7 @@ All Rights Reserved
             page: page,
             page_size: 10,
             is_compare: false,
+            is_audit: false,
           },
           Headers: {
             Authorization: "Bearer " + token,
@@ -193,6 +194,7 @@ All Rights Reserved
             duration_start: format(new Date(startDate), "yyyy-MM-dd"),
             duration_end: format(new Date(endDate), "yyyy-MM-dd"),
             description: tmpProjectDescription,
+            is_audit: false,
           },
           Headers: {
             Authorization: "Bearer " + token,
