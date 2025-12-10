@@ -185,6 +185,7 @@ All Rights Reserved
             duration_start: format(new Date(startDate), "yyyy-MM-dd"),
             duration_end: format(new Date(endDate), "yyyy-MM-dd"),
             description: tmpProjectDescription,
+            is_audit: true,
           },
           Headers: {
             Authorization: "Bearer " + token,
