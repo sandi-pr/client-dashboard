@@ -4496,7 +4496,11 @@
                 },
                 {
                     "name": "is_compare",
-                    "type": "string"
+                    "type": "boolean"
+                },
+                {
+                    "name": "is_audit",
+                    "type": "boolean"
                 }
             ]
         },
@@ -4557,7 +4561,7 @@
                 },
                 {
                     "name": "is_compare",
-                    "type": "string"
+                    "type": "boolean"
                 }
             ]
         },
@@ -7601,6 +7605,10 @@
                         "type": "integer"
                     },
                     "is_compare": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "is_audit": {
                         "type": "boolean",
                         "default": false
                     }
